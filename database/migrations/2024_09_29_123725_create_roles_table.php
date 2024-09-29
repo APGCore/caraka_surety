@@ -19,9 +19,11 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('profile_id')->nullable()->references('id')->on('profiles')
+            $table->foreignId('profile_id')->nullable()->after('id')
+                ->references('id')->on('profiles')
                 ->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('role_id')->nullable()->references('id')->on('roles')
+            $table->foreignId('role_id')->nullable()->after('id')
+                ->references('id')->on('roles')
                 ->cascadeOnDelete()->cascadeOnUpdate();
         });
     }

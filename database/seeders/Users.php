@@ -17,6 +17,7 @@ class Users extends Seeder
             'email' => 'adminbpr1@gmail.com',
             'password' => bcrypt('password'),
             'profile_id' => 1,
+            'role_id' => 1,
         ]);
     }
 }
