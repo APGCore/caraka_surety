@@ -16,14 +16,14 @@ import useFlashMessageToast from "@/hooks/use-flash-message";
 import { cn } from "@/lib/cn";
 import { Link } from "@inertiajs/react";
 import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
-import { staffCabangLinks } from "./staff-cabang-layout.constant";
-import { StaffCabangLayoutPageProps } from "./staff-cabang-layout.type";
+import { exampleLinks } from "./example-layout.constant";
+import { ExampleLayoutPageProps } from "./example-layout.type";
 
-export const StaffCabangLayoutPage: StaffCabangLayoutPageProps = ({ children, user }) => {
+export const ExampleLayoutPage: ExampleLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
   return (
-    <div className="grid h-screen w-full md:grid-cols-[250px_1fr] md:overflow-hidden">
+    <div className="grid h-screen  w-full md:grid-cols-[250px_1fr] md:overflow-hidden">
       <div className="hidden h-screen border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -34,7 +34,7 @@ export const StaffCabangLayoutPage: StaffCabangLayoutPageProps = ({ children, us
           </div>
           <div className="flex-1 pb-10 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-3">
-              {staffCabangLinks.map((admin, index) => {
+              {exampleLinks.map((admin, index) => {
                 if (admin.title !== "Dashboard") {
                   return (
                     <div key={index + 1}>
@@ -85,7 +85,7 @@ export const StaffCabangLayoutPage: StaffCabangLayoutPageProps = ({ children, us
           </div>
         </div>
       </div>
-      <div className="flex-grow md:overflow-y-auto">
+      <div className="flex-grow  md:overflow-y-auto">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 fixed top-0 md:w-[calc(100%_-_240px)] w-full flex-grow bg-white z-10">
           <Sheet>
             <SheetTrigger asChild>
@@ -184,4 +184,4 @@ export const StaffCabangLayoutPage: StaffCabangLayoutPageProps = ({ children, us
   );
 };
 
-export default StaffCabangLayoutPage;
+export default ExampleLayoutPage;

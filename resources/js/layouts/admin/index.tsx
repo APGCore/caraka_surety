@@ -23,8 +23,8 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
   return (
-    <div className="grid h-screen w-full md:grid-cols-[250px_1fr] md:overflow-hidden">
-      <div className="hidden border-r bg-muted/40 md:block">
+    <div className="grid h-screen  w-full md:grid-cols-[250px_1fr] md:overflow-hidden">
+      <div className="hidden h-screen border-r bg-muted/40 md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -85,7 +85,7 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
           </div>
         </div>
       </div>
-      <div className="flex-grow md:overflow-y-auto">
+      <div className="flex-grow  md:overflow-y-auto">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 fixed top-0 md:w-[calc(100%_-_240px)] w-full flex-grow bg-white z-10">
           <Sheet>
             <SheetTrigger asChild>
