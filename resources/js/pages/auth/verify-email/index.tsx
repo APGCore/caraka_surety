@@ -1,5 +1,5 @@
 import PrimaryButton from "@/components/common/primary-button";
-import GuestLayout from "@/layouts/guest-layout";
+import GuestLayoutPage from "@/layouts/guest";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 import { VerifyEmailPageProps } from "./verify-email-page.type";
@@ -48,9 +48,9 @@ export default VerifyEmailPage;
 VerifyEmailPage.layout = (page: any) => {
   const pagePropsData = page.props;
   return (
-    <GuestLayout>
+    <GuestLayoutPage>
       <Head title={pagePropsData?.page_settings?.title ?? "Email Verification"} />
       {page}
-    </GuestLayout>
+    </GuestLayoutPage>
   );
 };

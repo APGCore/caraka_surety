@@ -4,3 +4,5 @@ import React from "react";
 export interface AdminLayoutProps extends React.PropsWithChildren {
   user: User;
 }
+
+export type AdminLayoutPageProps = React.FC<AdminLayoutProps>;

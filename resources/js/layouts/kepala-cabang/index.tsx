@@ -16,10 +16,10 @@ import useFlashMessageToast from "@/hooks/use-flash-message";
 import { cn } from "@/lib/cn";
 import { Link } from "@inertiajs/react";
 import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
-import { adminLinks } from "./admin-layout.constant";
-import { AdminLayoutPageProps } from "./admin-layout.type";
+import { kepalaCabangLinks } from "./kepala-cabang-layout.constant";
+import { KepalaCabangLayoutPageProps } from "./kepala-cabang-layout.type";
 
-export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
+export const KepalaCabangLayoutPage: KepalaCabangLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
   return (
@@ -34,7 +34,7 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
           </div>
           <div className="flex-1 pb-10 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-3">
-              {adminLinks.map((admin, index) => {
+              {kepalaCabangLinks.map((admin, index) => {
                 if (admin.title !== "Dashboard") {
                   return (
                     <div key={index + 1}>
@@ -184,4 +184,4 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   );
 };
 
-export default AdminLayoutPage;
+export default KepalaCabangLayoutPage;

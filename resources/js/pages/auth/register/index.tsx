@@ -2,7 +2,7 @@ import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import PrimaryButton from "@/components/common/primary-button";
 import TextInput from "@/components/common/text-input";
-import GuestLayout from "@/layouts/guest-layout";
+import GuestLayoutPage from "@/layouts/guest";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 import { RegisterPageProps } from "./register-page.type";
@@ -115,9 +115,9 @@ export default RegisterPage;
 RegisterPage.layout = (page: any) => {
   const pagePropsData = page.props;
   return (
-    <GuestLayout>
+    <GuestLayoutPage>
       <Head title={pagePropsData?.page_settings?.title ?? "Register"} />
       {page}
-    </GuestLayout>
+    </GuestLayoutPage>
   );
 };

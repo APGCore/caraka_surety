@@ -1,7 +1,7 @@
 import InputError from "@/components/common/input-error";
 import PrimaryButton from "@/components/common/primary-button";
 import TextInput from "@/components/common/text-input";
-import GuestLayout from "@/layouts/guest-layout";
+import GuestLayoutPage from "@/layouts/guest";
 import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 import { ForgotPasswordPageProps } from "./forgot-password-page.type";
@@ -54,9 +54,9 @@ export default ForgotPassword;
 ForgotPassword.layout = (page: any) => {
   const pagePropsData = page.props;
   return (
-    <GuestLayout>
+    <GuestLayoutPage>
       <Head title={pagePropsData?.page_settings?.title ?? "Forgot Password"} />
       {page}
-    </GuestLayout>
+    </GuestLayoutPage>
   );
 };

@@ -16,10 +16,10 @@ import useFlashMessageToast from "@/hooks/use-flash-message";
 import { cn } from "@/lib/cn";
 import { Link } from "@inertiajs/react";
 import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
-import { adminLinks } from "./admin-layout.constant";
-import { AdminLayoutPageProps } from "./admin-layout.type";
+import { adminLinks } from "./staff-layout.constant";
+import { StaffLayoutPageProps } from "./staff-layout.type";
 
-export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
+export const StaffLayoutPage: StaffLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
   return (
@@ -184,4 +184,4 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   );
 };
 
-export default AdminLayoutPage;
+export default StaffLayoutPage;

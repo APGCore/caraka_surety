@@ -1,9 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import useFlashMessageToast from "@/hooks/use-flash-message";
-import React from "react";
-import { GuestLayoutProps } from "./guest-layout.type";
+import { GuestLayoutPageProps } from "./guest-layout.type";
 
-const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
+const GuestLayoutPage: GuestLayoutPageProps = ({ children }) => {
   useFlashMessageToast();
   return (
     <div className="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0">
@@ -13,4 +12,4 @@ const GuestLayout: React.FC<GuestLayoutProps> = ({ children }) => {
   );
 };
 
-export default GuestLayout;
+export default GuestLayoutPage;

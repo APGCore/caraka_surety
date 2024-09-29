@@ -2,7 +2,7 @@ import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import PrimaryButton from "@/components/common/primary-button";
 import TextInput from "@/components/common/text-input";
-import GuestLayout from "@/layouts/guest-layout";
+import GuestLayoutPage from "@/layouts/guest";
 import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 import { ResetPasswordPageProps } from "./reset-password-page.type";
@@ -87,9 +87,9 @@ export default ResetPasswordPage;
 ResetPasswordPage.layout = (page: any) => {
   const pagePropsData = page.props;
   return (
-    <GuestLayout>
+    <GuestLayoutPage>
       <Head title={pagePropsData?.page_settings?.title ?? "Reset Password"} />
       {page}
-    </GuestLayout>
+    </GuestLayoutPage>
   );
 };
