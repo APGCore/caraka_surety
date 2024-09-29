@@ -8,8 +8,8 @@ export const exampleLinks = [
       {
         id: generateUUID(),
         name: "Dashboard",
-        route_name: "admin.index",
-        href: route("admin.index"),
+        route_name: "example.index",
+        href: route("example.index"),
         Icon: Home,
         children: [],
       },
