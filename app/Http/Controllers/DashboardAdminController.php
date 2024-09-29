@@ -13,6 +13,6 @@ class DashboardAdminController extends Controller
     {
         //
 
-        return inertia("admin/dashboard/index");
+        return inertia('admin/dashboard/index');
     }
 }

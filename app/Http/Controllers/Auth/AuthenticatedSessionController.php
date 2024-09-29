@@ -40,22 +40,24 @@ class AuthenticatedSessionController extends Controller
         // Error message to display if the credentials are invalid
         $errorMessage = [
             'email' => 'Credentials do not match our records.',
-            'password' => 'Credentials do not match our records.'
+            'password' => 'Credentials do not match our records.',
         ];
 
         // Check if the email exists
         $user = User::where('email', $validatedData['email'])->first();
 
         // Check if the user exists
-        if (!$user) {
+        if (! $user) {
             flashMessage('Gagal Login!', 'Credentials do not match our records.', 'error');
+
             // Return an error message if the email doesn't exist
             return redirect()->back()->withErrors($errorMessage);
         }
 
         // Check if the password matches
-        if (!Hash::check($validatedData['password'], $user->password)) {
+        if (! Hash::check($validatedData['password'], $user->password)) {
             flashMessage('Gagal Login!', 'Credentials do not match our records.', 'error');
+
             // Return an error message if the password is incorrect
             return redirect()->back()->withErrors($errorMessage);
         }
@@ -68,6 +70,7 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect to the intended page (e.g., dashboard)
         flashMessage('Berhasil Login!', 'Successfully logged in.', type: 'success');
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

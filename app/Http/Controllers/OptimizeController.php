@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Support\Facades\Artisan;
 
 class OptimizeController extends Controller
@@ -19,10 +18,12 @@ class OptimizeController extends Controller
             Artisan::call('config:cache');
 
             flashMessage('success', 'Server Cache Cleared Done!');
+
             return redirect()->back();
         } catch (\Exception $e) {
 
             flashMessage('failed', $e->getMessage());
+
             return redirect()->back();
         }
     }

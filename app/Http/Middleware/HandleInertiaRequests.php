@@ -32,15 +32,15 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'ziggy' => fn() => [
+            'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'auth' => fn() => [
+            'auth' => fn () => [
                 'user' => $request->user(),
             ],
-            'location' => fn() => $request->url(),
-            'flash_message' => fn() => [
+            'location' => fn () => $request->url(),
+            'flash_message' => fn () => [
                 'title' => $request->session()->get('title'),
                 'description' => $request->session()->get('description'),
                 'type' => $request->session()->get('type'),
