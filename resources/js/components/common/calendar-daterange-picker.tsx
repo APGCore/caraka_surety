@@ -7,9 +7,11 @@ import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
+  onDateChange?: (date: DateRange | undefined) => void;
+}
 
-const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ className }) => {
+const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ className, onDateChange }) => {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 7),
@@ -43,7 +45,10 @@ const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ class
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={(dt) => {
+              onDateChange?.(dt);
+              setDate(dt);
+            }}
             numberOfMonths={2}
           />
         </PopoverContent>

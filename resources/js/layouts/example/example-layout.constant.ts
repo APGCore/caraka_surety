@@ -30,8 +30,8 @@ export const exampleLinks = [
       {
         id: generateUUID(),
         name: "Karyawan",
-        route_name: "karyawan.index",
-        href: "karyawan",
+        route_name: "example.karyawan",
+        href: route("example.karyawan"),
         Icon: User,
         children: [],
       },
