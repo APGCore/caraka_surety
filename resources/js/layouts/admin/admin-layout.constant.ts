@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { Home, Shield, User } from "lucide-react";
+import { Home, MapPinHouse, Shield, User } from "lucide-react";
 
 export const adminLinks = [
   {
@@ -43,6 +43,44 @@ export const adminLinks = [
         Icon: Shield,
         children: [],
       },
+    ],
+  },
+
+  {
+    title: "Wilayah",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Provinsi",
+        route_name: "provinces.index",
+        href: route("provinces.index"),
+        Icon: MapPinHouse,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Kabupaten",
+        route_name: "regencies.index",
+        href: route("regencies.index"),
+        Icon: MapPinHouse,
+        children: [],
+      },
+      // {
+      //   id: generateUUID(),
+      //   name: "Kecamatan",
+      //   route_name: "districts.index",
+      //   href: route("districts.index"),
+      //   Icon: MapPinHouse,
+      //   children: [],
+      // },
+      // {
+      //   id: generateUUID(),
+      //   name: "Desa",
+      //   route_name: "villages.index",
+      //   href: route("villages.index"),
+      //   Icon: MapPinHouse,
+      //   children: [],
+      // },
     ],
   },
 ];

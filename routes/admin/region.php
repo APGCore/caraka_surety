@@ -1,20 +1,25 @@
 <?php
 
 use App\Http\Controllers\Region\ProvinceController;
+use App\Http\Controllers\Region\RegencyController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('wilayah')->name('provinces.')->group(function () {
-    Route::resource('provinsi', ProvinceController::class)->names([
-        'index' => 'index',
-        'create' => 'create',
-        'store' => 'store',
-        'show' => 'show',
-        'edit' => 'edit',
-        'update' => 'update',
-        'destroy' => 'destroy',
-    ]);
-    Route::controller(ProvinceController::class)->prefix('provinsi/option')->group(function () {
-        Route::get('sync', 'synchronize')->name('sync');
-    });
+Route::prefix('wilayah')->group(function () {
+    Route::controller(ProvinceController::class)->prefix('provinsi')
+        ->name('provinces.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::put('{province}', 'update')->name('update');
+            Route::delete('{province}', 'destroy')->name('destroy');
+            Route::post('sync', 'synchronize')->name('sync');
+        });
 
+    Route::controller(RegencyController::class)->prefix('kabupaten')
+        ->name('regencies.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::put('{regency}', 'update')->name('update');
+            Route::delete('{regency}', 'destroy')->name('destroy');
+            Route::post('sync', 'synchronize')->name('sync');
+        });
 });

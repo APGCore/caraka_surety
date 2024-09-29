@@ -17,7 +17,11 @@ class Roles extends Seeder
         ]);
 
         Role::create([
-            'name' => 'Staff',
+            'name' => 'Direksi',
+        ]);
+
+        Role::create([
+            'name' => 'Kepala Cabang',
         ]);
 
         Role::create([
@@ -25,7 +29,8 @@ class Roles extends Seeder
         ]);
 
         Role::create([
-            'name' => 'Kepala Cabang',
+            'name' => 'Staff',
         ]);
+
     }
 }

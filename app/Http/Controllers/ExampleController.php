@@ -18,7 +18,6 @@ class ExampleController extends Controller
     public function displayKaryawan(Request $request)
     {
 
-
         $searchUser = User::search($request->search)
             ->paginate($request->per_page ?? 10)
             ->appends('query', null)
@@ -31,7 +30,7 @@ class ExampleController extends Controller
             'page_settings' => [
                 'title' => 'Karyawan',
             ],
-            'users' => fn() => $users,
+            'users' => fn () => $users,
         ]);
     }
 }

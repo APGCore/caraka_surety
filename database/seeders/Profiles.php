@@ -17,5 +17,11 @@ class Profiles extends Seeder
             'name' => 'Admin',
             'is_central' => true,
         ]);
+
+        Profile::create([
+            'id' => 2,
+            'name' => 'Cabang 1',
+            'is_central' => false,
+        ]);
     }
 }

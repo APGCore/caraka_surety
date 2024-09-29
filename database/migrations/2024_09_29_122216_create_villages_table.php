@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('district_id')->references('id')->on('districts')
                 ->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('code');
             $table->string('name');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

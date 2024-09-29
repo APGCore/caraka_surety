@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('regency_id')->references('id')->on('regencies')
                 ->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('code');
             $table->string('name');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
