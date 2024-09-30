@@ -177,7 +177,7 @@ export const ManagerLayoutPage: ManagerLayoutPageProps = ({ children, user }) =>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 lg:pt-[80px] flex-col gap-4 p-4 lg:gap-6 lg:p-6">{children}</main>
+        <main className="flex flex-1 pt-[80px] flex-col gap-4 p-6 lg:gap-6 ">{children}</main>
       </div>
       <Toaster />
     </div>

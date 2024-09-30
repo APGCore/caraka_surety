@@ -1,5 +1,4 @@
 import InputError from "@/components/common/input-error";
-import InputLabel from "@/components/common/input-label";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
@@ -24,10 +23,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
+import { getQueryParameter } from "@/lib/get-query-parameter";
 import { ProvincePageProps } from "@/pages/admin/wilayah/provinsi/provinsi-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
@@ -35,18 +34,13 @@ import { pickBy } from "lodash";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler, useState } from "react";
 
-const getParameterByName = (name: string) => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name) || "";
-};
-
 const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
   const { data: provinces, meta } = props.provinces;
 
   const [select, setSelect] = useState(() =>
-    getParameterByName("perpage") ? Number(getParameterByName("perpage")) : 10,
+    getQueryParameter("perpage") ? Number(getQueryParameter("perpage")) : 10,
   );
-  const [search, setSearch] = useState(() => getParameterByName("search") ?? "");
+  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [loadingSync, setLoadingSync] = useState(false);
@@ -135,8 +129,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
               </AlertDialogHeader>
               <form onSubmit={createProvince} className="mt-6 space-y-6">
                 <div>
-                  <InputLabel htmlFor="kode" value="Kode Provinsi" />
-
+                  <Label htmlFor="kode">Kode Provinsi</Label>
                   <Input
                     id="kode"
                     value={data.code}
@@ -144,13 +137,10 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                     type="number"
                     className="mt-1 block w-full"
                   />
-
                   <InputError message={errors.code} className="mt-2" />
                 </div>
-
                 <div>
-                  <InputLabel htmlFor="name" value="Nama Provinsi" />
-
+                  <Label htmlFor="name">Nama Provinsi</Label>
                   <Input
                     id="name"
                     value={data.name}
@@ -158,10 +148,8 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                     type="text"
                     className="mt-1 block w-full"
                   />
-
                   <InputError message={errors.name} className="mt-2" />
                 </div>
-
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction type={"submit"} disabled={processing}>
