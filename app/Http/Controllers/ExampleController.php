@@ -30,7 +30,21 @@ class ExampleController extends Controller
             'page_settings' => [
                 'title' => 'Karyawan',
             ],
-            'users' => fn () => $users,
+            'users' => fn() => $users,
+        ]);
+    }
+
+
+    public function displayFile(Request $request)
+    {
+
+
+
+        return inertia('example/file/index', [
+            'page_settings' => [
+                'title' => 'File',
+            ],
+
         ]);
     }
 }

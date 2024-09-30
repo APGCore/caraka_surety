@@ -43,6 +43,14 @@ export const exampleLinks = [
         Icon: Shield,
         children: [],
       },
+      {
+        id: generateUUID(),
+        name: "File",
+        route_name: "example.file",
+        href: route("example.file"),
+        Icon: Shield,
+        children: [],
+      },
     ],
   },
 ];
