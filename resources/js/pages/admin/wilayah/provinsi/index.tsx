@@ -1,6 +1,7 @@
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
-import TextInput from "@/components/common/text-input";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -38,7 +40,7 @@ const getParameterByName = (name: string) => {
   return params.get(name) || "";
 };
 
-const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
+const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
   const { data: provinces, meta } = props.provinces;
 
   const [select, setSelect] = useState(() =>
@@ -129,12 +131,13 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Membuat Provinsi</AlertDialogTitle>
+                <AlertDialogDescription>Tindakan ini akan menambah data provinsi</AlertDialogDescription>
               </AlertDialogHeader>
               <form onSubmit={createProvince} className="mt-6 space-y-6">
                 <div>
                   <InputLabel htmlFor="kode" value="Kode Provinsi" />
 
-                  <TextInput
+                  <Input
                     id="kode"
                     value={data.code}
                     onChange={(e) => setData("code", e.target.value)}
@@ -148,7 +151,7 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                 <div>
                   <InputLabel htmlFor="name" value="Nama Provinsi" />
 
-                  <TextInput
+                  <Input
                     id="name"
                     value={data.name}
                     onChange={(e) => setData("name", e.target.value)}
@@ -226,7 +229,7 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
                             <AlertDialogTrigger
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
@@ -241,33 +244,31 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Mengubah Provinsi</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tindakan ini akan mengubah data provinsi {province.name}?
+                                </AlertDialogDescription>
                               </AlertDialogHeader>
                               <form onSubmit={updateProvince} className="mt-6 space-y-6">
                                 <div>
-                                  <InputLabel htmlFor="id" value="Kode Provinsi" />
-
-                                  <TextInput
+                                  <Label htmlFor="id">Kode Provinsi</Label>
+                                  <Input
                                     id="id"
                                     value={data.code}
                                     onChange={(e) => setData("code", e.target.value)}
                                     type="number"
                                     className="mt-1 block w-full"
                                   />
-
                                   <InputError message={errors.code} className="mt-2" />
                                 </div>
-
                                 <div>
-                                  <InputLabel htmlFor="name" value="Nama Provinsi" />
-
-                                  <TextInput
+                                  <Label htmlFor="name">Nama Provinsi</Label>
+                                  <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData("name", e.target.value)}
                                     type="text"
                                     className="mt-1 block w-full"
                                   />
-
                                   <InputError message={errors.name} className="mt-2" />
                                 </div>
 
@@ -283,7 +284,7 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                           </AlertDialog>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
@@ -323,49 +324,15 @@ const provincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
           </TableBody>
         </Table>
       </div>
-      <div className="text-sm text-gray-500">
-        Showing {meta.from} to {meta.to} of {meta.total} results
-      </div>
-      <Pagination>
-        <PaginationContent>
-          {meta.links.map((link: any, index: number) => {
-            return (
-              <PaginationItem key={index + 1}>
-                {link.url === null ? (
-                  <Button variant="ghost" disabled>
-                    {link.label}
-                  </Button>
-                ) : (
-                  <PaginationLink
-                    as="button"
-                    preserveScroll
-                    preserveState
-                    only={["provinces"]}
-                    isActive={link.active}
-                    size={
-                      link.label === "Previous" ||
-                      link.label === "Next" ||
-                      link.label === "Sebelumnya" ||
-                      link.label === "Berikutnya"
-                        ? "default"
-                        : "icon"
-                    }
-                    href={link.url}>
-                    {link.label}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            );
-          })}
-        </PaginationContent>
-      </Pagination>
+      <ShowingCountDatatable meta={meta} />
+      <PaginationDatatable meta={meta} />
     </main>
   );
 };
 
-export default provincePage;
+export default ProvincePage;
 
-provincePage.layout = (page: any) => {
+ProvincePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
