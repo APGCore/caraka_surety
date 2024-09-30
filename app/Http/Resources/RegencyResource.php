@@ -16,6 +16,7 @@ class RegencyResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'province' => $this->province?->name,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

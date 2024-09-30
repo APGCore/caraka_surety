@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Region;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\ProvinceResource;
 use App\Models\Region\Province;
+use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ProvinceController extends RegionController
+class ProvinceController extends Controller
 {
+    use RegionTrait;
+
     /**
      * Display a listing of the resource.
      */

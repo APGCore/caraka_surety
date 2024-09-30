@@ -134,7 +134,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                     id="kode"
                     value={data.code}
                     onChange={(e) => setData("code", e.target.value)}
-                    type="number"
+                    type="text"
                     className="mt-1 block w-full"
                   />
                   <InputError message={errors.code} className="mt-2" />

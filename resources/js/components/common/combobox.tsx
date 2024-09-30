@@ -12,6 +12,7 @@ export interface ComboboxProps<T> {
   onSelect?: (value: T) => void; // Callback when an item is selected
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found
+  className?: string;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, ...props }) => {
@@ -21,7 +22,10 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, ...
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" aria-expanded={open} className="w-full justify-between  px-2 h-10">
+        <Button
+          variant="outline"
+          aria-expanded={open}
+          className={cn("w-full justify-between px-2 h-10", props.className)}>
           {value
             ? datas.find((item) => item[valueKey] === value)?.[labelKey]
             : (props?.placeholder ?? "Select item...")}

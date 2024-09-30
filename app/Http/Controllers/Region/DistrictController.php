@@ -32,7 +32,7 @@ class DistrictController extends Controller
         //
     }
 
-    /**
+    /**R
      * Display the specified resource.
      */
     public function show(District $district)

@@ -4,6 +4,7 @@ namespace App\Models\Region;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class Regency extends Model
@@ -16,4 +17,18 @@ class Regency extends Model
         'code',
         'name',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'code' => $this->code,
+            'name' => $this->name,
+        ];
+    }
+
+    // relationship
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class, 'province_id');
+    }
 }

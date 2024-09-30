@@ -76,19 +76,19 @@ class AuthenticatedSessionController extends Controller
             // admin
             return redirect()->intended(route('admin.index', absolute: false));
         }
-//        elseif ($userLogin->hasRole(2)) {
-            // staff
-            //            return redirect()->intended(route('directors.index', absolute: false));
-//        } elseif ($userLogin->hasRole(3)) {
-            // user
-            //            return redirect()->intended(route('manager.index', absolute: false));
-//        } elseif ($userLogin->hasRole(4)) {
-            // user
-            //            return redirect()->intended(route('branch_manager.index', absolute: false));
-//        } elseif ($userLogin->hasRole(5)) {
-            // user
-            //            return redirect()->intended(route('staff.index', absolute: false));
-//        }
+        //        elseif ($userLogin->hasRole(2)) {
+        // staff
+        //            return redirect()->intended(route('directors.index', absolute: false));
+        //        } elseif ($userLogin->hasRole(3)) {
+        // user
+        //            return redirect()->intended(route('manager.index', absolute: false));
+        //        } elseif ($userLogin->hasRole(4)) {
+        // user
+        //            return redirect()->intended(route('branch_manager.index', absolute: false));
+        //        } elseif ($userLogin->hasRole(5)) {
+        // user
+        //            return redirect()->intended(route('staff.index', absolute: false));
+        //        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

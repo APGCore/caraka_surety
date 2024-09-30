@@ -1,3 +1,4 @@
+import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import TextInput from "@/components/common/text-input";
@@ -31,7 +32,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 
 const getParameterByName = (name: string) => {
   const params = new URLSearchParams(window.location.search);
@@ -39,27 +40,33 @@ const getParameterByName = (name: string) => {
 };
 
 const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
+  const provinces = props.provinces;
   const { data: regencies, meta } = props.regencies;
+
+  const { data, setData, errors, post, put, reset, processing } = useForm({
+    province_id: "",
+    code: "",
+    name: "",
+  });
 
   const [select, setSelect] = useState(() =>
     getParameterByName("perpage") ? Number(getParameterByName("perpage")) : 10,
   );
   const [search, setSearch] = useState(() => getParameterByName("search") ?? "");
-  const [provinceId, setProvinceId] = useState("");
+  const [provinceCode, setProvinceCode] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
+  useEffect(() => {
+    if (errors.province_id || errors.code || errors.name) {
+      setOpenCreate(true);
+    }
+  }, [errors.province_id, errors.code, errors.name]);
   const [openEdit, setOpenEdit] = useState(false);
   const [loadingSync, setLoadingSync] = useState(false);
 
-  const { data, setData, errors, post, put, reset, processing } = useForm({
-    code: "",
-    name: "",
-  });
-
-  const createProvince: FormEventHandler = (e) => {
+  const createData: FormEventHandler = (e) => {
     e.preventDefault();
 
     post(route("regencies.store"), {
-      preserveScroll: true,
       onSuccess: () => {
         reset();
         setOpenCreate(false);
@@ -93,7 +100,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
     router.post(
       route("regencies.sync"),
       {
-        province_id: provinceId.toString(),
+        code: provinceCode.toString(),
       },
       {
         preserveScroll: true,
@@ -108,7 +115,8 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
     e.preventDefault();
 
     put(route("regencies.update", data.code), {
-      preserveScroll: true,
+      preserveState: true,
+      preserveScroll: false,
       onSuccess: () => {
         reset();
         setOpenEdit(false);
@@ -133,15 +141,28 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Membuat Kabupaten</AlertDialogTitle>
               </AlertDialogHeader>
-              <form onSubmit={createProvince} className="mt-6 space-y-6">
+              <form onSubmit={createData} className="mt-6 space-y-6">
                 <div>
-                  <InputLabel htmlFor="kode" value="Kode Provinsi" />
+                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
+
+                  <Combobox
+                    datas={provinces}
+                    labelKey={"name"}
+                    valueKey={"name"}
+                    placeholder={"Pilih Provinsi"}
+                    onSelect={(value) => setData("province_id", value.id)}
+                    className="mt-1 w-full"
+                  />
+                </div>
+
+                <div>
+                  <InputLabel htmlFor="kode" value="Kode Kabupaten" />
 
                   <TextInput
                     id="kode"
                     value={data.code}
                     onChange={(e) => setData("code", e.target.value)}
-                    type="number"
+                    type="text"
                     className="mt-1 block w-full"
                   />
 
@@ -149,7 +170,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                 </div>
 
                 <div>
-                  <InputLabel htmlFor="name" value="Nama Provinsi" />
+                  <InputLabel htmlFor="name" value="Nama Kabupaten" />
 
                   <TextInput
                     id="name"
@@ -171,6 +192,19 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
               </form>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <div className="flex gap-x-3">
+          <Combobox
+            datas={provinces}
+            labelKey={"name"}
+            valueKey={"name"}
+            placeholder={"Pilih Provinsi"}
+            className={"w-[210px]"}
+            onSelect={(value) => setProvinceCode(value.code)}
+          />
           <Button onClick={handleSync}>
             {loadingSync && <RotateCw className="animate-spin mr-2" />}
             Sinkron
@@ -195,7 +229,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Provinsi" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Kabupaten" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -207,6 +241,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
+              <TableHead>Provinsi</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
@@ -218,6 +253,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{regency.code}</TableCell>
                   <TableCell>{regency.name}</TableCell>
+                  <TableCell>{regency.province}</TableCell>
                   <TableCell>{regency.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -234,6 +270,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
+                                  province_id: regency.province_id,
                                   code: regency.code,
                                   name: regency.name,
                                 });
@@ -245,6 +282,19 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                                 <AlertDialogTitle>Mengubah Provinsi</AlertDialogTitle>
                               </AlertDialogHeader>
                               <form onSubmit={updateData} className="mt-6 space-y-6">
+                                <div>
+                                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
+
+                                  <Combobox
+                                    datas={provinces}
+                                    labelKey={"name"}
+                                    valueKey={"name"}
+                                    placeholder={"Pilih Provinsi"}
+                                    onSelect={(value) => setData("province_id", value.id)}
+                                    className="mt-1 w-full"
+                                  />
+                                </div>
+
                                 <div>
                                   <InputLabel htmlFor="id" value="Kode Provinsi" />
 
