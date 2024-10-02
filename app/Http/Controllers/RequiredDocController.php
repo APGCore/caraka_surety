@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Region;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Region\Village;
+use App\Models\RequiredDoc;
 use Illuminate\Http\Request;
 
-class VillageController extends Controller
+class RequiredDocController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +34,7 @@ class VillageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Village $village)
+    public function show(RequiredDoc $requiredDoc)
     {
         //
     }
@@ -43,7 +42,7 @@ class VillageController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Village $village)
+    public function edit(RequiredDoc $requiredDoc)
     {
         //
     }
@@ -51,7 +50,7 @@ class VillageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Village $village)
+    public function update(Request $request, RequiredDoc $requiredDoc)
     {
         //
     }
@@ -59,7 +58,7 @@ class VillageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Village $village)
+    public function destroy(RequiredDoc $requiredDoc)
     {
         //
     }

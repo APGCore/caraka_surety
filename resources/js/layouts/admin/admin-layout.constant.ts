@@ -65,14 +65,14 @@ export const adminLinks = [
         Icon: MapPinHouse,
         children: [],
       },
-      // {
-      //   id: generateUUID(),
-      //   name: "Kecamatan",
-      //   route_name: "districts.index",
-      //   href: route("districts.index"),
-      //   Icon: MapPinHouse,
-      //   children: [],
-      // },
+      {
+        id: generateUUID(),
+        name: "Kecamatan",
+        route_name: "districts.index",
+        href: route("districts.index"),
+        Icon: MapPinHouse,
+        children: [],
+      },
       // {
       //   id: generateUUID(),
       //   name: "Desa",

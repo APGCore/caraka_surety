@@ -33,6 +33,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['profile_id']);
+            $table->dropColumn('profile_id');
+            $table->dropForeign(['role_id']);
+            $table->dropColumn('role_id');
+        });
         Schema::dropIfExists('roles');
     }
 };
