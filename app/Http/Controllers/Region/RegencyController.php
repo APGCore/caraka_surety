@@ -8,6 +8,7 @@ use App\Models\Region\Province;
 use App\Models\Region\Regency;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class RegencyController extends Controller
@@ -17,10 +18,10 @@ class RegencyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): \Inertia\Response
     {
         $provinces = Province::all();
-        $regencies = Regency::search($request->search)
+        $regencies = Regency::search($request->get('search'))
             ->orderBy('code')
             ->paginate($request->perpage ?? 10)
             ->appends('query', null)
@@ -61,32 +62,28 @@ class RegencyController extends Controller
             'name.unique' => 'Nama Kabupaten sudah ada',
         ];
 
-        $validatedData = validator($request->all(), $rules, $messages);
+        $request->validate($rules, $messages);
 
-        if ($validatedData->fails()) {
-            flashMessage('Gagal Menambahkan Kabupaten', '', 'error');
+        try {
+            DB::beginTransaction();
+            $regency = Regency::query()
+                ->create([
+                    'province_id' => $request->get('province_id'),
+                    'code' => $request->get('code'),
+                    'name' => $request->get('name'),
+                ]);
 
-            return redirect()->back()->withErrors($validatedData->errors());
+            DB::commit();
+            flashMessage('Kabupaten Ditambahkan', 'Kabupaten berhasil ditambahkan');
+            Log::info('Kabupaten Store: '.json_encode($regency, JSON_PRETTY_PRINT));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menambahkan Kabupaten', 'Terjadi kesalahan saat menambahkan kabupaten', 'error');
+            Log::error('Kabupaten Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->route('regencies.index');
         }
 
-        $reqValidated = $validatedData->validated();
-
-        $regency = Regency::create([
-            'province_id' => $reqValidated['province_id'],
-            'code' => $reqValidated['code'],
-            'name' => $reqValidated['name'],
-        ]);
-
-        if (! $regency) {
-            flashMessage('Gagal Menambahkan Kabupaten', 'Kabupaten sudah ada', 'error');
-
-            return redirect()->back()->withErrors($validatedData->errors());
-        }
-
-        flashMessage('Kabupaten Ditambahkan', 'Kabupaten berhasil ditambahkan');
-        Log::info('Kabupaten Store: '.json_encode($regency, JSON_PRETTY_PRINT));
-
-        return redirect()->route('regencies.index');
     }
 
     /**
@@ -94,23 +91,35 @@ class RegencyController extends Controller
      */
     public function update(Request $request, Regency $regency)
     {
+        $request->validate([
+            'province_id' => 'required|exists:provinces,id',
+            'code' => 'required|string|unique:regencies,code,'.$regency->id,
+            'name' => 'required|string|unique:regencies,name,'.$regency->id,
+        ], [
+            'province_id.required' => 'Provinsi wajib diisi',
+            'province_id.exists' => 'Provinsi tidak ditemukan',
+            'code.required' => 'Kode Kabupaten wajib diisi',
+            'code.string' => 'Kode Kabupaten harus berupa string',
+            'code.unique' => 'Kode Kabupaten sudah ada',
+            'name.required' => 'Nama Kabupaten wajib diisi',
+            'name.string' => 'Nama Kabupaten harus berupa string',
+            'name.unique' => 'Nama Kabupaten sudah ada',
+        ]);
+
         try {
-            $request->validate([
-                'province_id' => 'required|exists:provinces,id',
-                'code' => 'required|string|unique:regencies,code,'.$regency->id,
-                'name' => 'required|string|unique:regencies,name,'.$regency->id,
-            ]);
+            DB::beginTransaction();
 
             $regency->update($request->only('province_id', 'code', 'name'));
+
+            DB::commit();
             flashMessage('Kabupaten Diperbarui', 'Kabupaten berhasil diperbarui');
             Log::info('Kabupaten Update: '.json_encode($regency, JSON_PRETTY_PRINT));
-
-            return redirect()->back();
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Memperbarui Kabupaten', 'Terjadi kesalahan saat memperbarui kabupaten', 'error');
             Log::error('Kabupaten Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-
-            return redirect()->back()->withErrors($th->getMessage());
+        } finally {
+            return redirect()->route('regencies.index');
         }
     }
 
@@ -120,16 +129,19 @@ class RegencyController extends Controller
     public function destroy(Regency $regency)
     {
         try {
+            DB::beginTransaction();
+
             $regency->delete();
+
+            DB::commit();
             flashMessage('Kabupaten Dihapus', 'Kabupaten berhasil dihapus');
             Log::info('Kabupaten Delete: '.json_encode($regency, JSON_PRETTY_PRINT));
-
-            return redirect()->back();
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menghapus Kabupaten', 'Terjadi kesalahan saat menghapus kabupaten', 'error');
             Log::error('Kabupaten Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-
-            return redirect()->back()->withErrors($th->getMessage());
+        } finally {
+            return redirect()->route('regencies.index');
         }
     }
 
@@ -138,34 +150,43 @@ class RegencyController extends Controller
      */
     public function synchronize(Request $request)
     {
+        $request->validate([
+            'code' => 'required|exists:provinces,code',
+        ], [
+            'code.required' => 'Kode Provinsi wajib diisi',
+            'code.exists' => 'Provinsi tidak ditemukan',
+        ]);
         try {
-            $request->validate([
-                'code' => 'required|exists:provinces,code',
-            ]);
-
+            DB::beginTransaction();
             $responses = $this->syncApi('kabupaten', [
-                'id_provinsi' => $request->code,
+                'id_provinsi' => $request->get('code'),
             ]);
 
             // Ambil hasil dari permintaan
-            $province = Province::where('code', $request->code)->first();
+            $province = Province::query()
+                ->where('code', $request->get('code'))->first();
             $regencies = (object) $responses[0]->json();
 
             foreach ($regencies->value as $regency) {
-                Regency::updateOrCreate([
-                    'code' => $regency['id'],
-                ], [
-                    'province_id' => $province->id,
-                    'code' => $regency['id'],
-                    'name' => $regency['name'],
-                ]);
+                Regency::query()
+                    ->updateOrCreate([
+                        'code' => $regency['id'],
+                    ], [
+                        'province_id' => $province->id,
+                        'code' => $regency['id'],
+                        'name' => $regency['name'],
+                    ]);
             }
 
+            DB::commit();
             flashMessage('Kabupaten Disinkronkan', 'Kabupaten berhasil disinkronkan');
             Log::info('Kabupaten Synchronized: '.json_encode($regencies, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kabupaten', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
             Log::error('Kabupaten Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->route('regencies.index');
         }
     }
 }
