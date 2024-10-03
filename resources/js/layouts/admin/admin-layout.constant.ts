@@ -83,4 +83,25 @@ export const adminLinks = [
       // },
     ],
   },
+  {
+    title: "Kelola Produk",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Produk",
+        route_name: "products.index",
+        href: route("products.index"),
+        Icon: User,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Jenis Produk",
+        route_name: "karyawan.index",
+        href: "karyawan",
+        Icon: User,
+        children: [],
+      },
+    ],
+  },
 ];

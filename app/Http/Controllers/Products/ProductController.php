@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Products;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -10,17 +12,41 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+
+
+        $products = Product::search($request->get('search'))
+            ->paginate($request->perpage ?? 10)
+            ->appends('query', null)
+            ->withQueryString();
+
+        $productResource = ProductResource::collection($products);
+
+
+        $component = $request->path() . '/index';
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Produk',
+            ],
+            'products' => fn() => $productResource,
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        $component = $request->path() . '/index';
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Produk',
+            ],
+
+        ]);
     }
 
     /**

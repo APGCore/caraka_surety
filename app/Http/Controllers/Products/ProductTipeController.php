@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Products;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProductType;
-use Illuminate\Http\Request;
+use Illuminate\Http\Client\Request;
+
+
 
 class ProductTipeController extends Controller
 {
