@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection ALL */
+
 namespace App\Http\Controllers\Region;
 
 use App\Http\Controllers\Controller;
@@ -8,6 +10,7 @@ use App\Models\Region\District;
 use App\Models\Region\Regency;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -18,10 +21,10 @@ class DistrictController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): \Inertia\Response
     {
         $regencies = Regency::all();
-        $districts = District::search($request->search)
+        $districts = District::search($request->get('search'))
             ->orderBy('code')
             ->paginate($request->perpage ?? 10)
             ->appends('query', null)
@@ -45,44 +48,55 @@ class DistrictController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $validatedData = validator($request->all(), [
+
+        $request->validate([
             'regency_id' => 'required|exists:regencies,id',
             'code' => 'required|string|unique:districts,code',
             'name' => 'required|string|unique:districts,name',
+        ], [
+            'regency_id.required' => 'Kabupaten wajib diisi',
+            'regency_id.exists' => 'Kabupaten tidak ditemukan',
+            'code.required' => 'Kode Kecamatan wajib diisi',
+            'code.string' => 'Kode Kecamatan harus berupa string',
+            'code.unique' => 'Kode Kecamatan sudah ada',
+            'name.required' => 'Nama Kecamatan wajib diisi',
+            'name.string' => 'Nama Kecamatan harus berupa string',
+            'name.unique' => 'Nama Kecamatan sudah ada',
         ]);
 
-        if ($validatedData->fails()) {
-            flashMessage('Gagal Menambahkan kecamatan', '', 'error');
+        try {
+            DB::beginTransaction();
+            $regency = District::query()
+                ->create([
+                    'regency_id' => $reqValidated['regency_id'],
+                    'code' => $reqValidated['code'],
+                    'name' => $reqValidated['name'],
+                ]);
 
-            return redirect()->back()->withErrors($validatedData->errors());
+            if (! $regency) {
+                flashMessage('Gagal Menambahkan Kecamatan', 'Kecamatan sudah ada', 'error');
+
+                return redirect()->back()->withErrors($validatedData->errors());
+            }
+
+            DB::commit();
+            flashMessage('Kecamatan Ditambahkan', 'Kecamatan berhasil ditambahkan');
+            Log::info('Kecamatan Store: '.json_encode($regency, JSON_PRETTY_PRINT));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menambahkan Kecamatan', 'Terjadi kesalahan saat menambahkan kecamatan', 'error');
+            Log::error('Kecamatan Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
         }
-
-        $reqValidated = $validatedData->validated();
-
-        $regency = District::create([
-            'regency_id' => $reqValidated['regency_id'],
-            'code' => $reqValidated['code'],
-            'name' => $reqValidated['name'],
-        ]);
-
-        if (! $regency) {
-            flashMessage('Gagal Menambahkan Kecamatan', 'Kecamatan sudah ada', 'error');
-
-            return redirect()->back()->withErrors($validatedData->errors());
-        }
-
-        flashMessage('Kecamatan Ditambahkan', 'Kecamatan berhasil ditambahkan');
-        Log::info('Kecamatan Store: '.json_encode($regency, JSON_PRETTY_PRINT));
-
-        return redirect()->back();
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, District $district)
+    public function update(Request $request, District $district): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'regency_id' => 'required|exists:regencies,id',
@@ -91,10 +105,15 @@ class DistrictController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+
             $district->update($request->only('regency_id', 'code', 'name'));
+
+            DB::commit();
             flashMessage('Kecamatan Diperbarui', 'Kecamatan berhasil diperbarui');
             Log::info('Kecamatan Update: '.json_encode($district, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Memperbarui Kecamatan', 'Terjadi kesalahan saat memperbarui kecamatan', 'error');
             Log::error('Kecamatan Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
@@ -105,13 +124,18 @@ class DistrictController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(District $district)
+    public function destroy(District $district): \Illuminate\Http\RedirectResponse
     {
         try {
+            DB::beginTransaction();
+
             $district->delete();
+
+            DB::commit();
             flashMessage('Kecamatan Dihapus', 'Kecamatan berhasil dihapus');
             Log::info('Kecamatan Delete: '.json_encode($district, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menghapus Kecamatan', 'Terjadi kesalahan saat menghapus kecamatan', 'error');
             Log::error('Kecamatan Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
@@ -122,36 +146,45 @@ class DistrictController extends Controller
     /**
      * Synchronize the provinces data from the external API.
      */
-    public function synchronize(Request $request)
+    public function synchronize(Request $request): \Illuminate\Http\RedirectResponse
     {
+        $request->validate([
+            'code' => 'required|exists:regencies,code',
+        ], [
+            'code.required' => 'Kode Kabupaten wajib diisi',
+            'code.exists' => 'Kabupaten tidak ditemukan',
+        ]);
         try {
-            $request->validate([
-                'code' => 'required|exists:regencies,code',
-            ]);
-
+            DB::beginTransaction();
             $responses = $this->syncApi('kecamatan', [
-                'id_kabupaten' => $request->code,
+                'id_kabupaten' => $request->get('code'),
             ]);
 
             // Ambil hasil dari permintaan
-            $regency = Regency::where('code', $request->code)->first();
+            $regency = Regency::query()
+                ->where('code', $request->get('code'))->first();
             $districts = (object) $responses[0]->json();
 
             foreach ($districts->value as $district) {
-                District::updateOrCreate([
-                    'code' => $district['id'],
-                ], [
-                    'regency_id' => $regency->id,
-                    'code' => $district['id'],
-                    'name' => $district['name'],
-                ]);
+                District::query()
+                    ->updateOrCreate([
+                        'code' => $district['id'],
+                    ], [
+                        'regency_id' => $regency->id,
+                        'code' => $district['id'],
+                        'name' => $district['name'],
+                    ]);
             }
 
+            DB::commit();
             flashMessage('Kecamatan Disinkronkan', 'Kecamatan berhasil disinkronkan');
             Log::info('Kecamatan Synchronized: '.json_encode($districts, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
             Log::error('Kecamatan Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
         }
     }
 }
