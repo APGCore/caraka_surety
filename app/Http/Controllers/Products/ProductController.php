@@ -16,7 +16,6 @@ class ProductController extends Controller
     {
         //
 
-
         $products = Product::search($request->get('search'))
             ->paginate($request->perpage ?? 10)
             ->appends('query', null)
@@ -24,13 +23,13 @@ class ProductController extends Controller
 
         $productResource = ProductResource::collection($products);
 
+        $component = $request->path().'/index';
 
-        $component = $request->path() . '/index';
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Produk',
             ],
-            'products' => fn() => $productResource,
+            'products' => fn () => $productResource,
         ]);
     }
 
@@ -40,7 +39,8 @@ class ProductController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
+
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Tambah Produk',

@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection ALL */
+
 use App\Http\Controllers\Region\DistrictController;
 use App\Http\Controllers\Region\ProvinceController;
 use App\Http\Controllers\Region\RegencyController;

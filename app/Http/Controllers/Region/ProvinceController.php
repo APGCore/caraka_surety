@@ -19,9 +19,9 @@ class ProvinceController extends Controller
      */
     public function index(Request $request)
     {
-        $provinces = Province::search($request->search)
+        $provinces = Province::search($request->get('search'))
             ->orderBy('name')
-            ->paginate($request->perpage ?? 10)
+            ->paginate($request->get('perpage') ?? 10)
             ->appends('query', null)
             ->withQueryString();
         $provincesResource = ProvinceResource::collection($provinces);

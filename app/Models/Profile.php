@@ -12,4 +12,19 @@ class Profile extends Model
     use HasFactory;
     use Searchable;
     use SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'city',
+        'province',
+        'postal_code',
+        'country',
+        'website',
+        'description',
+        'logo',
+        'is_central',
+    ];
 }

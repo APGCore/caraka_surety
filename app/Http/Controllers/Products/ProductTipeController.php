@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductType;
 use Illuminate\Http\Client\Request;
 
-
-
 class ProductTipeController extends Controller
 {
     /**
