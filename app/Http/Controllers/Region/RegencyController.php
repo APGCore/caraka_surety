@@ -28,7 +28,9 @@ class RegencyController extends Controller
 
         $regenciesResource = RegencyResource::collection($regencies);
 
-        return inertia('admin/wilayah/kabupaten/index', [
+        $component = $request->path().'/index';
+
+        return inertia($component, [
             'page_settings' => [
                 'title' => 'Kabupaten',
             ],
@@ -42,11 +44,24 @@ class RegencyController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = validator($request->all(), [
+        $rules = [
             'province_id' => 'required|exists:provinces,id',
             'code' => 'required|string|unique:regencies,code',
             'name' => 'required|string|unique:regencies,name',
-        ]);
+        ];
+
+        $messages = [
+            'province_id.required' => 'Provinsi wajib diisi',
+            'province_id.exists' => 'Provinsi tidak ditemukan',
+            'code.required' => 'Kode Kabupaten wajib diisi',
+            'code.string' => 'Kode Kabupaten harus berupa string',
+            'code.unique' => 'Kode Kabupaten sudah ada',
+            'name.required' => 'Nama Kabupaten wajib diisi',
+            'name.string' => 'Nama Kabupaten harus berupa string',
+            'name.unique' => 'Nama Kabupaten sudah ada',
+        ];
+
+        $validatedData = validator($request->all(), $rules, $messages);
 
         if ($validatedData->fails()) {
             flashMessage('Gagal Menambahkan Kabupaten', '', 'error');
@@ -121,7 +136,7 @@ class RegencyController extends Controller
     /**
      * Synchronize the provinces data from the external API.
      */
-    public function synchronize(Request $request): void
+    public function synchronize(Request $request)
     {
         try {
             $request->validate([

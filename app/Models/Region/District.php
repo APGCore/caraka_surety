@@ -4,6 +4,7 @@ namespace App\Models\Region;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class District extends Model
@@ -16,4 +17,18 @@ class District extends Model
         'code',
         'name',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'code' => $this->code,
+            'name' => $this->name,
+        ];
+    }
+
+    // relationship
+    public function regency(): BelongsTo
+    {
+        return $this->belongsTo(Regency::class, 'regency_id');
+    }
 }

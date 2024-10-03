@@ -9,13 +9,15 @@ export interface ComboboxProps<T> {
   datas: T[];
   labelKey: keyof T; // Key to display as the label
   valueKey: keyof T; // Key to use as the value
+  defaultValue?: string | number; // Default value
   onSelect?: (value: T) => void; // Callback when an item is selected
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found
   className?: string;
+  id?: string;
 }
 
-const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, ...props }) => {
+const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, defaultValue, ...props }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string | number>("");
 
@@ -23,12 +25,15 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, ...
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={props.id}
           variant="outline"
           aria-expanded={open}
           className={cn("w-full justify-between px-2 h-10", props.className)}>
-          {value
-            ? datas.find((item) => item[valueKey] === value)?.[labelKey]
-            : (props?.placeholder ?? "Select item...")}
+          {defaultValue
+            ? datas.find((item) => item["id"] === defaultValue)?.[labelKey]
+            : value
+              ? datas.find((item) => item[valueKey] === value)?.[labelKey]
+              : (props?.placeholder ?? "Select item...")}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

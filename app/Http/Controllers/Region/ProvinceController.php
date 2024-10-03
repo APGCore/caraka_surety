@@ -25,7 +25,9 @@ class ProvinceController extends Controller
             ->withQueryString();
         $provincesResource = ProvinceResource::collection($provinces);
 
-        return inertia('admin/wilayah/provinsi/index', [
+        $component = $request->path().'/index';
+
+        return inertia($component, [
             'page_settings' => [
                 'title' => 'Provinsi',
             ],
@@ -100,17 +102,6 @@ class ProvinceController extends Controller
     public function synchronize(): void
     {
         try {
-            //            $provinceLast = Province::latest()->first('created_at');
-            //            if ($provinceLast && $provinceLast->created_at->diffInMinutes(now()) < (60 * 24 * 7)) {
-            //                flashMessage(
-            //                    'Gagal Menyinkronkan Provinsi',
-            //                    'Anda hanya dapat menyinkronkan provinsi setiap 7 hari sekali',
-            //                    'error'
-            //                );
-            //
-            //                return;
-            //            }
-
             $responses = $this->syncApi('provinsi');
 
             // Ambil hasil dari permintaan
