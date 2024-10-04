@@ -18,13 +18,9 @@ class Profile extends Model
         'email',
         'phone',
         'address',
-        'city',
-        'province',
         'postal_code',
-        'country',
-        'website',
-        'description',
-        'logo',
-        'is_central',
+        'province_id',
+        'regency_id',
+        'district_id',
     ];
 }

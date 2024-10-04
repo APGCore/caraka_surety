@@ -39,8 +39,6 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-
-  console.log(profiles);
   const handleSelect = (e: string) => {
     setSelect(Number(e));
     getData(e, search);
@@ -62,8 +60,8 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
     );
   };
 
-  const deleteProvince = (province: any) => {
-    router.delete(route("profile.destroy", province.id));
+  const deleteData = (province: any) => {
+    router.delete(route("branch.destroy", province.id));
   };
 
   return (
@@ -134,7 +132,11 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
-                          <Link href={route("")}>Edit</Link>
+                          <Link
+                            href={route("branch.edit", profile.id)}
+                            className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                            Edit
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
@@ -150,13 +152,13 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteProvince(profile);
+                                    deleteData(profile);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete province
+                                  Lanjutkan Hapus
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

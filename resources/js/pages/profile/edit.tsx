@@ -34,8 +34,8 @@ export default function Edit({
             <TabsTrigger value="account">Akun</TabsTrigger>
           </TabsList>
           <TabsContent value="information">
-            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex items-center justify-center">
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
                 <UpdateProfileBprInformationForm
                   profile={profile}
                   provinces={provinces}
@@ -47,12 +47,12 @@ export default function Edit({
             </div>
           </TabsContent>
           <TabsContent value="account">
-            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
                 <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
               </div>
 
-              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
                 <UpdatePasswordForm className="max-w-xl" />
               </div>
             </div>

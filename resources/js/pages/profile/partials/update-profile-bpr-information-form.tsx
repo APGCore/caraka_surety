@@ -19,10 +19,11 @@ export default function UpdateProfileBprInformation({
   provinces: Array<object>;
   regencies: Array<object>;
   districts: Array<object>;
-  profile: any;
+  profile?: any;
   className?: string;
 }) {
-  const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, post, patch, errors, processing, recentlySuccessful } = useForm<{
+    id?: number;
     name?: string;
     email?: string;
     phone?: string;
@@ -33,16 +34,28 @@ export default function UpdateProfileBprInformation({
     village_id?: number | null;
     postal_code?: string;
   }>({
-    name: profile.name,
-    email: profile.email,
-    phone: profile.phone,
-    address: profile.address,
-    province_id: profile.province_id,
-    regency_id: profile.regency_id,
-    district_id: profile.district_id,
-    village_id: profile.village_id,
-    postal_code: profile.postal_code,
+    id: profile?.id,
+    name: profile?.name,
+    email: profile?.email,
+    phone: profile?.phone,
+    address: profile?.address,
+    province_id: profile?.province_id,
+    regency_id: profile?.regency_id,
+    district_id: profile?.district_id,
+    village_id: profile?.village_id,
+    postal_code: profile?.postal_code,
   });
+  const currentPath = window.location.pathname;
+  let direct = "";
+  if (currentPath == route("profile.edit")) {
+    direct = route("profile.edit");
+  } else {
+    if (data.id) {
+      direct = route("branch.edit", data.id);
+    } else {
+      direct = route("branch.create");
+    }
+  }
 
   const selectProvince = (value: any) => {
     setData((previousData) => {
@@ -55,7 +68,7 @@ export default function UpdateProfileBprInformation({
     });
 
     router.get(
-      route("profile.edit"),
+      direct,
       {
         province_id: value.id,
       },
@@ -76,7 +89,7 @@ export default function UpdateProfileBprInformation({
     });
 
     router.get(
-      route("profile.edit"),
+      direct,
       {
         province_id: data.province_id,
         regency_id: value.id,
@@ -97,7 +110,7 @@ export default function UpdateProfileBprInformation({
     });
 
     router.get(
-      route("profile.edit"),
+      direct,
       {
         province_id: data.province_id,
         regency_id: data.regency_id,
@@ -111,13 +124,43 @@ export default function UpdateProfileBprInformation({
   };
 
   const cancel = () => {
-    router.get(route("profile.edit"), {});
+    // delete after last / on currentPath
+    const newPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
+
+    if (currentPath == route("profile.edit")) {
+      router.get(route("profile.index"));
+    } else {
+      router.get(newPath);
+    }
   };
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    patch(route("profile.update.bpr"));
+    if (currentPath == route("profile.edit")) {
+      patch(route("profile.update.bpr"), {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.get(route("profile.index"));
+        },
+      });
+    } else {
+      if (data.id) {
+        patch(route("branch.update", data.id), {
+          preserveScroll: true,
+          onSuccess: () => {
+            router.get(route("branch.index"));
+          },
+        });
+      } else {
+        post(route("branch.store"), {
+          preserveScroll: true,
+          onSuccess: () => {
+            router.get(route("branch.index"));
+          },
+        });
+      }
+    }
   };
 
   return (
@@ -144,7 +187,6 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.name} />
         </div>
-
         <div>
           <InputLabel htmlFor="email" value="Email" />
 
@@ -160,7 +202,6 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.email} />
         </div>
-
         <div>
           <InputLabel htmlFor="phone" value="Telepon" />
 
@@ -176,22 +217,6 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.phone} />
         </div>
-
-        <div>
-          <InputLabel htmlFor="address" value="Alamat" />
-
-          <Textarea
-            id="address"
-            className="mt-1 block w-full"
-            value={data.address}
-            onChange={(e) => setData("address", e.target.value)}
-            required
-            autoComplete="address"
-          />
-
-          <InputError className="mt-2" message={errors.address} />
-        </div>
-
         <div>
           <InputLabel htmlFor="province_id" value="Provinsi" />
 
@@ -208,7 +233,6 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.province_id} />
         </div>
-
         <div>
           <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
 
@@ -225,7 +249,6 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.regency_id} />
         </div>
-
         <div>
           <InputLabel htmlFor="district_id" value="Kecamatan" />
 
@@ -242,7 +265,36 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.district_id} />
         </div>
+        <div>
+          <InputLabel htmlFor="address" value="Alamat" />
 
+          <Textarea
+            id="address"
+            className="mt-1 block w-full"
+            value={data.address}
+            onChange={(e) => setData("address", e.target.value)}
+            required
+            autoComplete="address"
+          />
+
+          <InputError className="mt-2" message={errors.address} />
+        </div>
+
+        <div>
+          <InputLabel htmlFor="postal_code" value="Kode Pos" />
+
+          <TextInput
+            id="postal_code"
+            className="mt-1 block w-full"
+            value={data.postal_code}
+            onChange={(e) => setData("postal_code", e.target.value)}
+            required
+            isFocused
+            autoComplete="postal_code"
+          />
+
+          <InputError className="mt-2" message={errors.postal_code} />
+        </div>
         <div className="flex items-center gap-4 justify-end">
           <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 

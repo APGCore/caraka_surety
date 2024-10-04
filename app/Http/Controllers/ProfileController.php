@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Region\DistrictController;
 use App\Http\Controllers\Region\RegencyController;
+use App\Http\Requests\Profile\StoreRequest;
+use App\Http\Requests\Profile\UpdateRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
 use App\Models\Region\District;
@@ -51,6 +53,15 @@ class ProfileController extends Controller
             $regencies = Regency::query()
                 ->where('province_id', $request->get('province_id'))
                 ->get();
+            if ($regencies->count() == 0) {
+                $province = $provinces->where('id', $request->get('province_id'))->first();
+                $regencyController = new RegencyController;
+                $regencyController->synchronize($request->merge(['code' => $province->code]));
+
+                $regencies = Regency::query()
+                    ->where('province_id', $request->get('province_id'))
+                    ->get();
+            }
         }
 
         $districts = collect();
@@ -58,9 +69,18 @@ class ProfileController extends Controller
             $districts = District::query()
                 ->where('regency_id', $request->get('regency_id'))
                 ->get();
+            if ($districts->count() == 0 && $request->get('district_id') == null) {
+                $regency = $regencies->where('id', $request->get('regency_id'))->first();
+                $districtController = new DistrictController;
+                $districtController->synchronize($request->merge(['code' => $regency->code]));
+
+                $districts = District::query()
+                    ->where('regency_id', $request->get('regency_id'))
+                    ->get();
+            }
         }
 
-        $component = $request->path().'/create';
+        $component = $request->path();
 
         return inertia($component, [
             'provinces' => $provinces,
@@ -69,12 +89,31 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function store(StoreRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $requestValidated = $request->validated();
+            Profile::query()
+                ->create($requestValidated);
+
+            DB::commit();
+            flashMessage('Profil Ditambahkan', 'Profil berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menambahkan Profil', 'Terjadi kesalahan saat menambahkan profil', 'error');
+            Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
+        }
+    }
+
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): Response
+    public function edit(Request $request, Profile $profile): Response
     {
-        $profileId = $request->get('profile_id');
+        $profileId = $profile?->id;
 
         if ($profileId) {
             $profile = Profile::query()
@@ -132,7 +171,8 @@ class ProfileController extends Controller
             $profile->setAttribute('district_id', (int) $request->get('district_id'));
         }
 
-        $component = $request->path().'/edit';
+        $component = $request->path();
+        $component = substr($component, 0, strrpos($component, '/'));
 
         return inertia($component, [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -144,23 +184,12 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(UpdateRequest $request, Profile $profile)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'address' => 'required|string',
-            'province_id' => 'required|exists:provinces,id',
-            'regency_id' => 'required|exists:regencies,id',
-            'district_id' => 'required|exists:districts,id',
-        ]);
-
         try {
             DB::beginTransaction();
-            Profile::query()
-                ->where('is_central', true)
-                ->update($request->only('name', 'email', 'phone', 'address', 'province_id', 'regency_id', 'district_id'));
+            $requestValidated = $request->validated();
+            $profile->update($requestValidated);
 
             DB::commit();
             flashMessage('Profil Diperbarui', 'Profil berhasil diperbarui');
@@ -169,7 +198,24 @@ class ProfileController extends Controller
             flashMessage('Gagal Memperbarui Profil', 'Terjadi kesalahan saat memperbarui profil', 'error');
             Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
-            return redirect()->route('profile.edit');
+            return redirect()->back();
+        }
+    }
+
+    public function destroy(Profile $profile)
+    {
+        try {
+            DB::beginTransaction();
+            $profile->delete();
+
+            DB::commit();
+            flashMessage('Profil Dihapus', 'Profil berhasil dihapus');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Profil', 'Terjadi kesalahan saat menghapus profil', 'error');
+            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
         }
     }
 }
