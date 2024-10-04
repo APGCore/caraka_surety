@@ -17,7 +17,7 @@ class ProductController extends Controller
         //
 
         $products = Product::search($request->get('search'))
-            ->paginate($request->perpage ?? 10)
+            ->paginate($request->per_page ?? 10)
             ->appends('query', null)
             ->withQueryString();
 

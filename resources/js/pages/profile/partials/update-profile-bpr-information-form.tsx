@@ -2,6 +2,7 @@ import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import PrimaryButton from "@/components/common/primary-button";
+import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Transition } from "@headlessui/react";
@@ -107,6 +108,10 @@ export default function UpdateProfileBprInformation({
         preserveState: true,
       },
     );
+  };
+
+  const cancel = () => {
+    router.get(route("profile.edit"), {});
   };
 
   const submit: FormEventHandler = (e) => {
@@ -239,7 +244,9 @@ export default function UpdateProfileBprInformation({
         </div>
 
         <div className="flex items-center gap-4 justify-end">
-          <PrimaryButton disabled={processing}>Save</PrimaryButton>
+          <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
+
+          <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
 
           <Transition
             show={recentlySuccessful}

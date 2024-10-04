@@ -1,0 +1,204 @@
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import AdminLayout from "@/layouts/admin";
+import { cn } from "@/lib/cn";
+import { getQueryParameter } from "@/lib/get-query-parameter";
+import { BranchOfficePageProps } from "@/pages/admin/company-management/branch-office/branch-office-page.type";
+import { Head, Link, router } from "@inertiajs/react";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { pickBy } from "lodash";
+import { useState } from "react";
+
+const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (props) => {
+  const { data: profiles, meta } = props.profiles;
+
+  const [select, setSelect] = useState(() =>
+    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
+  );
+  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+
+  console.log(profiles);
+  const handleSelect = (e: string) => {
+    setSelect(Number(e));
+    getData(e, search);
+  };
+
+  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    getData(String(select), search);
+  };
+
+  const getData = (perPage: string, search: string) => {
+    return router.get(
+      route("profile.index"),
+      pickBy({
+        per_page: perPage,
+        search,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
+  };
+
+  const deleteProvince = (province: any) => {
+    router.delete(route("profile.destroy", province.id));
+  };
+
+  return (
+    <main className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">Cabang</h1>
+        <div className="flex gap-x-3">
+          <Link
+            className={cn(
+              buttonVariants({
+                variant: "default",
+              }),
+            )}
+            href={route("branch.create")}>
+            Tambah Cabang
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-end">
+        <div className="flex gap-x-3">
+          <Button>Export</Button>
+          <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
+            <SelectTrigger className="w-max">
+              <SelectValue placeholder="Theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex gap-x-3">
+          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
+            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Button type="submit">Cari</Button>
+          </form>
+        </div>
+      </div>
+      <div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-0">#</TableHead>
+              <TableHead>Nama</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Dibuat</TableHead>
+              <TableHead className="text-right" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {profiles.length > 0 ? (
+              profiles.map((profile: any, index: number) => (
+                <TableRow key={profile.id}>
+                  <TableCell>{meta.from + index}</TableCell>
+                  <TableCell>{profile.name}</TableCell>
+                  <TableCell>{profile.email}</TableCell>
+                  <TableCell>{profile.created_at}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
+                          <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-36 mr-8 mt-1">
+                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                          <Link href={route("")}>Edit</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                          <AlertDialog>
+                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                              Delete
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tindakan ini akan menghapus data Cabang {profile.name}?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    deleteProvince(profile);
+                                  }}
+                                  className={buttonVariants({ variant: "destructive" })}>
+                                  Continue Delete province
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center">
+                  No data found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <ShowingCountDatatable meta={meta} />
+      <PaginationDatatable meta={meta} />
+    </main>
+  );
+};
+
+export default BranchOfficePage;
+
+BranchOfficePage.layout = (page: any) => {
+  const pagePropsData = page.props;
+
+  return (
+    <AdminLayout user={pagePropsData?.auth?.user}>
+      <Head title={pagePropsData?.page_settings?.title} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      {page}
+    </AdminLayout>
+  );
+};

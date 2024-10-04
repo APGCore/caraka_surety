@@ -1,7 +1,6 @@
-import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
-import InputLabel from "@/components/common/input-label";
-import TextInput from "@/components/common/text-input";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,50 +22,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { RegencyPageProps } from "@/pages/admin/wilayah/kabupaten/kabupaten-page.type";
+import { getQueryParameter } from "@/lib/get-query-parameter";
+import { ProvincePageProps } from "@/pages/admin/location/province/provinsi-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler, useEffect, useState } from "react";
+import { FormEventHandler, useState } from "react";
 
-const getParameterByName = (name: string) => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name) || "";
-};
+const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
+  const { data: provinces, meta } = props.provinces;
 
-const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
-  const provinces = props.provinces;
-  const { data: regencies, meta } = props.regencies;
+  const [select, setSelect] = useState(() =>
+    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
+  );
+  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [loadingSync, setLoadingSync] = useState(false);
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
-    province_id: "",
     code: "",
     name: "",
   });
 
-  const [select, setSelect] = useState(() =>
-    getParameterByName("perpage") ? Number(getParameterByName("perpage")) : 10,
-  );
-  const [search, setSearch] = useState(() => getParameterByName("search") ?? "");
-  const [provinceCode, setProvinceCode] = useState("");
-  const [openCreate, setOpenCreate] = useState(false);
-  useEffect(() => {
-    if (errors.province_id || errors.code || errors.name) {
-      setOpenCreate(true);
-    }
-  }, [errors.province_id, errors.code, errors.name]);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [loadingSync, setLoadingSync] = useState(false);
-
-  const createData: FormEventHandler = (e) => {
+  const createProvince: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("regencies.store"), {
+    post(route("province.store"), {
+      preserveScroll: true,
       onSuccess: () => {
         reset();
         setOpenCreate(false);
@@ -84,11 +72,11 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
     getData(String(select), search);
   };
 
-  const getData = (perpage: string, search: string) => {
+  const getData = (perPage: string, search: string) => {
     return router.get(
-      route("regencies.index"),
+      route("province.index"),
       pickBy({
-        perpage,
+        per_page: perPage,
         search,
       }),
       { preserveState: true, preserveScroll: true },
@@ -98,10 +86,8 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
   const handleSync = () => {
     setLoadingSync(true);
     router.post(
-      route("regencies.sync"),
-      {
-        code: provinceCode.toString(),
-      },
+      route("province.sync"),
+      {},
       {
         preserveScroll: true,
         onFinish: () => {
@@ -111,12 +97,11 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
     );
   };
 
-  const updateData: FormEventHandler = (e) => {
+  const updateProvince: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("regencies.update", data.code), {
-      preserveState: true,
-      preserveScroll: false,
+    put(route("province.update", data.code), {
+      preserveScroll: true,
       onSuccess: () => {
         reset();
         setOpenEdit(false);
@@ -124,68 +109,47 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
     });
   };
 
-  const deleteData = (regency: any) => {
-    router.delete(route("regencies.destroy", regency.id));
+  const deleteProvince = (province: any) => {
+    router.delete(route("province.destroy", province.id));
   };
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Kabupaten</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Provinsi</h1>
         <div className="flex gap-x-3">
           <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
             <AlertDialogTrigger asChild>
-              <Button>Tambah Kabupaten</Button>
+              <Button>Tambah Provinsi</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Membuat Kabupaten</AlertDialogTitle>
+                <AlertDialogTitle>Membuat Provinsi</AlertDialogTitle>
+                <AlertDialogDescription>Tindakan ini akan menambah data provinsi</AlertDialogDescription>
               </AlertDialogHeader>
-              <form onSubmit={createData} className="mt-6 space-y-6">
+              <form onSubmit={createProvince} className="mt-6 space-y-6">
                 <div>
-                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
-
-                  <Combobox
-                    id="province_id"
-                    datas={provinces}
-                    labelKey={"name"}
-                    valueKey={"name"}
-                    placeholder={"Pilih Provinsi"}
-                    onSelect={(value) => setData("province_id", value.id)}
-                    className="mt-1 w-full"
-                  />
-
-                  <InputError message={errors.province_id} className="mt-2" />
-                </div>
-
-                <div>
-                  <InputLabel htmlFor="kode" value="Kode Kabupaten" />
-
-                  <TextInput
+                  <Label htmlFor="kode">Kode Provinsi</Label>
+                  <Input
                     id="kode"
                     value={data.code}
                     onChange={(e) => setData("code", e.target.value)}
                     type="text"
                     className="mt-1 block w-full"
                   />
-
                   <InputError message={errors.code} className="mt-2" />
                 </div>
-
                 <div>
-                  <InputLabel htmlFor="name" value="Nama Kabupaten" />
-
-                  <TextInput
+                  <Label htmlFor="name">Nama Provinsi</Label>
+                  <Input
                     id="name"
                     value={data.name}
                     onChange={(e) => setData("name", e.target.value)}
                     type="text"
                     className="mt-1 block w-full"
                   />
-
                   <InputError message={errors.name} className="mt-2" />
                 </div>
-
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction type={"submit"} disabled={processing}>
@@ -195,19 +159,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
               </form>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
-      </div>
 
-      <div className="flex items-center justify-end">
-        <div className="flex gap-x-3">
-          <Combobox
-            datas={provinces}
-            labelKey={"name"}
-            valueKey={"name"}
-            placeholder={"Pilih Provinsi"}
-            className={"w-[210px]"}
-            onSelect={(value) => setProvinceCode(value.code)}
-          />
           <Button onClick={handleSync}>
             {loadingSync && <RotateCw className="animate-spin mr-2" />}
             Sinkron
@@ -232,7 +184,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Kabupaten" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Provinsi" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -244,20 +196,18 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>Provinsi</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {regencies.length > 0 ? (
-              regencies.map((regency: any, index: number) => (
-                <TableRow key={regency.id}>
+            {provinces.length > 0 ? (
+              provinces.map((province: any, index: number) => (
+                <TableRow key={province.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{regency.code}</TableCell>
-                  <TableCell>{regency.name}</TableCell>
-                  <TableCell>{regency.province}</TableCell>
-                  <TableCell>{regency.created_at}</TableCell>
+                  <TableCell>{province.code}</TableCell>
+                  <TableCell>{province.name}</TableCell>
+                  <TableCell>{province.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -267,62 +217,46 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
                             <AlertDialogTrigger
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
-                                  province_id: regency.province_id,
-                                  code: regency.code,
-                                  name: regency.name,
+                                  code: province.code,
+                                  name: province.name,
                                 });
                               }}>
                               Edit
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Mengubah Kabupaten</AlertDialogTitle>
+                                <AlertDialogTitle>Mengubah Provinsi</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tindakan ini akan mengubah data provinsi {province.name}?
+                                </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <form onSubmit={updateData} className="mt-6 space-y-6">
+                              <form onSubmit={updateProvince} className="mt-6 space-y-6">
                                 <div>
-                                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
-
-                                  <Combobox
-                                    datas={provinces}
-                                    labelKey={"name"}
-                                    valueKey={"name"}
-                                    placeholder={"Pilih Provinsi"}
-                                    onSelect={(value) => setData("province_id", value.id)}
-                                    className="mt-1 w-full"
-                                  />
-                                </div>
-
-                                <div>
-                                  <InputLabel htmlFor="kode" value="Kode Kabupaten" />
-
-                                  <TextInput
-                                    id="kode"
+                                  <Label htmlFor="id">Kode Provinsi</Label>
+                                  <Input
+                                    id="id"
                                     value={data.code}
                                     onChange={(e) => setData("code", e.target.value)}
-                                    type="string"
+                                    type="number"
                                     className="mt-1 block w-full"
                                   />
-
                                   <InputError message={errors.code} className="mt-2" />
                                 </div>
-
                                 <div>
-                                  <InputLabel htmlFor="name" value="Nama Kabupaten" />
-
-                                  <TextInput
+                                  <Label htmlFor="name">Nama Provinsi</Label>
+                                  <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData("name", e.target.value)}
                                     type="text"
                                     className="mt-1 block w-full"
                                   />
-
                                   <InputError message={errors.name} className="mt-2" />
                                 </div>
 
@@ -338,7 +272,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                           </AlertDialog>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
@@ -347,17 +281,17 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data Kabupaten {regency.name}?
+                                  Tindakan ini akan menghapus data provinsi {province.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteData(regency);
+                                    deleteProvince(province);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete
+                                  Continue Delete province
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -378,49 +312,15 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
           </TableBody>
         </Table>
       </div>
-      <div className="text-sm text-gray-500">
-        Showing {meta.from} to {meta.to} of {meta.total} results
-      </div>
-      <Pagination>
-        <PaginationContent>
-          {meta.links.map((link: any, index: number) => {
-            return (
-              <PaginationItem key={index + 1}>
-                {link.url === null ? (
-                  <Button variant="ghost" disabled>
-                    {link.label}
-                  </Button>
-                ) : (
-                  <PaginationLink
-                    as="button"
-                    preserveScroll
-                    preserveState
-                    only={["regencies"]}
-                    isActive={link.active}
-                    size={
-                      link.label === "Previous" ||
-                      link.label === "Next" ||
-                      link.label === "Sebelumnya" ||
-                      link.label === "Berikutnya"
-                        ? "default"
-                        : "icon"
-                    }
-                    href={link.url}>
-                    {link.label}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            );
-          })}
-        </PaginationContent>
-      </Pagination>
+      <ShowingCountDatatable meta={meta} />
+      <PaginationDatatable meta={meta} />
     </main>
   );
 };
 
-export default regencyPage;
+export default ProvincePage;
 
-regencyPage.layout = (page: any) => {
+ProvincePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

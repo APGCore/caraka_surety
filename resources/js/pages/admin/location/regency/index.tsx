@@ -27,7 +27,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { DistrictPageProps } from "@/pages/admin/wilayah/kecamatan/kecamatan-page.type";
+import { RegencyPageProps } from "@/pages/admin/location/regency/kabupaten-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
@@ -39,34 +39,34 @@ const getParameterByName = (name: string) => {
   return params.get(name) || "";
 };
 
-const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => {
-  const regencies = props.regencies;
-  const { data: districts, meta } = props.districts;
+const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
+  const provinces = props.provinces;
+  const { data: regencies, meta } = props.regencies;
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
-    regency_id: "",
+    province_id: "",
     code: "",
     name: "",
   });
 
   const [select, setSelect] = useState(() =>
-    getParameterByName("perpage") ? Number(getParameterByName("perpage")) : 10,
+    getParameterByName("per_page") ? Number(getParameterByName("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getParameterByName("search") ?? "");
   const [provinceCode, setProvinceCode] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
   useEffect(() => {
-    if (errors.regency_id || errors.code || errors.name) {
+    if (errors.province_id || errors.code || errors.name) {
       setOpenCreate(true);
     }
-  }, [errors.regency_id, errors.code, errors.name]);
+  }, [errors.province_id, errors.code, errors.name]);
   const [openEdit, setOpenEdit] = useState(false);
   const [loadingSync, setLoadingSync] = useState(false);
 
   const createData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("districts.store"), {
+    post(route("regency.store"), {
       onSuccess: () => {
         reset();
         setOpenCreate(false);
@@ -84,11 +84,11 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
     getData(String(select), search);
   };
 
-  const getData = (perpage: string, search: string) => {
+  const getData = (perPage: string, search: string) => {
     return router.get(
-      route("districts.index"),
+      route("regency.index"),
       pickBy({
-        perpage,
+        per_page: perPage,
         search,
       }),
       { preserveState: true, preserveScroll: true },
@@ -98,7 +98,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   const handleSync = () => {
     setLoadingSync(true);
     router.post(
-      route("districts.sync"),
+      route("regency.sync"),
       {
         code: provinceCode.toString(),
       },
@@ -114,7 +114,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   const updateData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("districts.update", data.code), {
+    put(route("regency.update", data.code), {
       preserveState: true,
       preserveScroll: false,
       onSuccess: () => {
@@ -124,42 +124,42 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
     });
   };
 
-  const deleteData = (district: any) => {
-    router.delete(route("districts.destroy", district.id));
+  const deleteData = (regency: any) => {
+    router.delete(route("regency.destroy", regency.id));
   };
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Kecamatan</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Kabupaten</h1>
         <div className="flex gap-x-3">
           <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
             <AlertDialogTrigger asChild>
-              <Button>Tambah Kecamatan</Button>
+              <Button>Tambah Kabupaten</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Membuat Kecamatan</AlertDialogTitle>
+                <AlertDialogTitle>Membuat Kabupaten</AlertDialogTitle>
               </AlertDialogHeader>
               <form onSubmit={createData} className="mt-6 space-y-6">
                 <div>
-                  <InputLabel htmlFor="regency_id" value="Pilih Kabupaten" />
+                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
 
                   <Combobox
-                    id="regency_id"
-                    datas={regencies}
+                    id="province_id"
+                    datas={provinces}
                     labelKey={"name"}
                     valueKey={"name"}
-                    placeholder={"Pilih Kabupaten"}
-                    onSelect={(value) => setData("regency_id", value.id)}
+                    placeholder={"Pilih Provinsi"}
+                    onSelect={(value) => setData("province_id", value.id)}
                     className="mt-1 w-full"
                   />
 
-                  <InputError message={errors.regency_id} className="mt-2" />
+                  <InputError message={errors.province_id} className="mt-2" />
                 </div>
 
                 <div>
-                  <InputLabel htmlFor="kode" value="Kode Kecamatan" />
+                  <InputLabel htmlFor="kode" value="Kode Kabupaten" />
 
                   <TextInput
                     id="kode"
@@ -173,7 +173,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                 </div>
 
                 <div>
-                  <InputLabel htmlFor="name" value="Nama Kecamatan" />
+                  <InputLabel htmlFor="name" value="Nama Kabupaten" />
 
                   <TextInput
                     id="name"
@@ -201,10 +201,10 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
       <div className="flex items-center justify-end">
         <div className="flex gap-x-3">
           <Combobox
-            datas={regencies}
+            datas={provinces}
             labelKey={"name"}
             valueKey={"name"}
-            placeholder={"Pilih Kabupaten"}
+            placeholder={"Pilih Provinsi"}
             className={"w-[210px]"}
             onSelect={(value) => setProvinceCode(value.code)}
           />
@@ -232,7 +232,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Kecamatan" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Kabupaten" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -244,20 +244,20 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>Kabupaten</TableHead>
+              <TableHead>Provinsi</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {districts.length > 0 ? (
-              districts.map((district: any, index: number) => (
-                <TableRow key={district.id}>
+            {regencies.length > 0 ? (
+              regencies.map((regency: any, index: number) => (
+                <TableRow key={regency.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{district.code}</TableCell>
-                  <TableCell>{district.name}</TableCell>
-                  <TableCell>{district.regency}</TableCell>
-                  <TableCell>{district.created_at}</TableCell>
+                  <TableCell>{regency.code}</TableCell>
+                  <TableCell>{regency.name}</TableCell>
+                  <TableCell>{regency.province}</TableCell>
+                  <TableCell>{regency.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -273,34 +273,33 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
-                                  regency_id: district.regency_id,
-                                  code: district.code,
-                                  name: district.name,
+                                  province_id: regency.province_id,
+                                  code: regency.code,
+                                  name: regency.name,
                                 });
                               }}>
                               Edit
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Mengubah Kecamatan</AlertDialogTitle>
+                                <AlertDialogTitle>Mengubah Kabupaten</AlertDialogTitle>
                               </AlertDialogHeader>
                               <form onSubmit={updateData} className="mt-6 space-y-6">
                                 <div>
-                                  <InputLabel htmlFor="regency_id" value="Pilih Kabupaten" />
+                                  <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
 
                                   <Combobox
-                                    datas={regencies}
+                                    datas={provinces}
                                     labelKey={"name"}
                                     valueKey={"name"}
-                                    defaultValue={data.regency_id}
-                                    placeholder={"Pilih Kabupaten"}
-                                    onSelect={(value) => setData("regency_id", value.id)}
+                                    placeholder={"Pilih Provinsi"}
+                                    onSelect={(value) => setData("province_id", value.id)}
                                     className="mt-1 w-full"
                                   />
                                 </div>
 
                                 <div>
-                                  <InputLabel htmlFor="kode" value="Kode Kecamatan" />
+                                  <InputLabel htmlFor="kode" value="Kode Kabupaten" />
 
                                   <TextInput
                                     id="kode"
@@ -314,7 +313,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                                 </div>
 
                                 <div>
-                                  <InputLabel htmlFor="name" value="Nama Kecamatan" />
+                                  <InputLabel htmlFor="name" value="Nama Kabupaten" />
 
                                   <TextInput
                                     id="name"
@@ -348,14 +347,14 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data kecamatan {district.name}?
+                                  Tindakan ini akan menghapus data Kabupaten {regency.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteData(district);
+                                    deleteData(regency);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Continue Delete
@@ -396,7 +395,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                     as="button"
                     preserveScroll
                     preserveState
-                    only={["districts"]}
+                    only={["regencies"]}
                     isActive={link.active}
                     size={
                       link.label === "Previous" ||
@@ -419,9 +418,9 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   );
 };
 
-export default districtPage;
+export default regencyPage;
 
-districtPage.layout = (page: any) => {
+regencyPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
