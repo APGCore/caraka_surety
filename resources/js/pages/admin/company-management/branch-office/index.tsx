@@ -51,7 +51,7 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
 
   const getData = (perPage: string, search: string) => {
     return router.get(
-      route("profile.index"),
+      route("branch.index"),
       pickBy({
         per_page: perPage,
         search,
