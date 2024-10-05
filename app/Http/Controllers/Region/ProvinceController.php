@@ -19,9 +19,9 @@ class ProvinceController extends Controller
      */
     public function index(Request $request)
     {
-        $provinces = Province::search($request->search)
+        $provinces = Province::search($request->get('search'))
             ->orderBy('name')
-            ->paginate($request->perpage ?? 10)
+            ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->withQueryString();
         $provincesResource = ProvinceResource::collection($provinces);
@@ -55,17 +55,16 @@ class ProvinceController extends Controller
 
         try {
             DB::beginTransaction();
-            $province = Province::query()
+            Province::query()
                 ->create($request->only('code', 'name'));
-            flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
-            Log::info('Provinsi Store: '.json_encode($province, JSON_PRETTY_PRINT));
             DB::commit();
+            flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menambahkan Provinsi', 'Terjadi kesalahan saat menambahkan provinsi', 'error');
             Log::error('Provinsi Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            DB::rollBack();
         } finally {
-            return redirect()->route('provinces.index');
+            return redirect()->route('province.index');
         }
     }
 
@@ -93,13 +92,12 @@ class ProvinceController extends Controller
 
             DB::commit();
             flashMessage('Provinsi Diperbarui', 'Provinsi berhasil diperbarui');
-            Log::info('Provinsi Update: '.json_encode($province, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Provinsi', 'Terjadi kesalahan saat memperbarui provinsi', 'error');
             Log::error('Provinsi Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
-            return redirect()->route('provinces.index');
+            return redirect()->route('province.index');
         }
     }
 
@@ -111,17 +109,17 @@ class ProvinceController extends Controller
         try {
             DB::beginTransaction();
 
+            // tambahkan kondisi jika provinsi memiliki relasi jangan di hapus
             $province->delete();
 
             DB::commit();
             flashMessage('Provinsi Dihapus', 'Provinsi berhasil dihapus');
-            Log::info('Provinsi Delete: '.json_encode($province, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Provinsi', 'Terjadi kesalahan saat menghapus provinsi', 'error');
             Log::error('Provinsi Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
-            return redirect()->route('provinces.index');
+            return redirect()->route('province.index');
         }
     }
 
@@ -147,13 +145,12 @@ class ProvinceController extends Controller
 
             DB::commit();
             flashMessage('Provinsi Tersinkron', 'Provinsi berhasil disinkronisasi');
-            Log::info('Provinsi Synchronized: '.json_encode($provinces, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
             Log::error('Provinsi Synchronized: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
-            return redirect()->route('provinces.index');
+            return redirect()->route('province.index');
         }
     }
 }

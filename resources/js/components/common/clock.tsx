@@ -66,7 +66,7 @@ const Clock = ({ initialDate }: ClockType) => {
 
   return (
     <div className="w-max">
-      <div className="flex w-[96px] text-[16px] font-bold  justify-between ">
+      <div className="flex w-[98px] text-[16px] font-bold  justify-between ">
         <p>{formattedTime}</p>
         <p>{timeZoneAlias}</p>
       </div>

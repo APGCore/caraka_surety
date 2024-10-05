@@ -1,43 +1,64 @@
-import AuthenticatedLayout from "@/layouts/authenticated-layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminLayout from "@/layouts/admin";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
-import DeleteUserForm from "./partials/delete-user-form";
 import UpdatePasswordForm from "./partials/update-password-form";
+import UpdateProfileBprInformationForm from "./partials/update-profile-bpr-information-form";
 import UpdateProfileInformationForm from "./partials/update-profile-information-form";
 
 export default function Edit({
-    mustVerifyEmail,
-    status,
-}: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
-    return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
+  mustVerifyEmail,
+  status,
+  auth,
+  profile,
+  provinces,
+  regencies,
+  districts,
+}: PageProps<{
+  mustVerifyEmail: boolean;
+  status?: string;
+  auth: object;
+  profile: object;
+  provinces: Array<object>;
+  regencies: Array<object>;
+  districts: Array<object>;
+}>) {
+  return (
+    <AdminLayout user={auth?.user}>
+      <Head title="Profile" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
-                </div>
+      <div className="flex justify-center pt-2">
+        <Tabs defaultValue="information" className="w-[100%]">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="information">Informasi BPR</TabsTrigger>
+            <TabsTrigger value="account">Akun</TabsTrigger>
+          </TabsList>
+          <TabsContent value="information">
+            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex items-center justify-center">
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
+                <UpdateProfileBprInformationForm
+                  profile={profile}
+                  provinces={provinces}
+                  regencies={regencies}
+                  districts={districts}
+                  className="max-w-xl"
+                />
+              </div>
             </div>
-        </AuthenticatedLayout>
-    );
+          </TabsContent>
+          <TabsContent value="account">
+            <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
+                <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
+              </div>
+
+              <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
+                <UpdatePasswordForm className="max-w-xl" />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AdminLayout>
+  );
 }

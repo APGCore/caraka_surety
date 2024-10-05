@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Products;
 
-use App\Models\ProductTypeToProduct;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\ProductType;
+use Illuminate\Http\Client\Request;
 
-class ProductTipeToProductController extends Controller
+class ProductTipeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class ProductTipeToProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ProductTypeToProduct $productTipeToProduct)
+    public function show(ProductType $productTipe)
     {
         //
     }
@@ -42,7 +43,7 @@ class ProductTipeToProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ProductTypeToProduct $productTipeToProduct)
+    public function edit(ProductType $productTipe)
     {
         //
     }
@@ -50,7 +51,7 @@ class ProductTipeToProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProductTypeToProduct $productTipeToProduct)
+    public function update(Request $request, ProductType $productTipe)
     {
         //
     }
@@ -58,7 +59,7 @@ class ProductTipeToProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ProductTypeToProduct $productTipeToProduct)
+    public function destroy(ProductType $productTipe)
     {
         //
     }

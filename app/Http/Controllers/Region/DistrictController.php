@@ -26,7 +26,7 @@ class DistrictController extends Controller
         $regencies = Regency::all();
         $districts = District::search($request->get('search'))
             ->orderBy('code')
-            ->paginate($request->perpage ?? 10)
+            ->paginate($request->per_page ?? 10)
             ->appends('query', null)
             ->withQueryString();
 
@@ -83,7 +83,6 @@ class DistrictController extends Controller
 
             DB::commit();
             flashMessage('Kecamatan Ditambahkan', 'Kecamatan berhasil ditambahkan');
-            Log::info('Kecamatan Store: '.json_encode($regency, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Kecamatan', 'Terjadi kesalahan saat menambahkan kecamatan', 'error');
@@ -111,7 +110,6 @@ class DistrictController extends Controller
 
             DB::commit();
             flashMessage('Kecamatan Diperbarui', 'Kecamatan berhasil diperbarui');
-            Log::info('Kecamatan Update: '.json_encode($district, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kecamatan', 'Terjadi kesalahan saat memperbarui kecamatan', 'error');
@@ -133,7 +131,6 @@ class DistrictController extends Controller
 
             DB::commit();
             flashMessage('Kecamatan Dihapus', 'Kecamatan berhasil dihapus');
-            Log::info('Kecamatan Delete: '.json_encode($district, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kecamatan', 'Terjadi kesalahan saat menghapus kecamatan', 'error');
@@ -178,7 +175,6 @@ class DistrictController extends Controller
 
             DB::commit();
             flashMessage('Kecamatan Disinkronkan', 'Kecamatan berhasil disinkronkan');
-            Log::info('Kecamatan Synchronized: '.json_encode($districts, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');

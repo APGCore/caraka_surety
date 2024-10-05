@@ -1,6 +1,7 @@
+import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import InputLabel from "@/components/common/input-label";
+import TextInput from "@/components/common/text-input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,39 +23,50 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
-import { ProvincePageProps } from "@/pages/admin/wilayah/provinsi/provinsi-page.type";
+import { DistrictPageProps } from "@/pages/admin/location/district/kecamatan-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 
-const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
-  const { data: provinces, meta } = props.provinces;
+const getParameterByName = (name: string) => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name) || "";
+};
 
-  const [select, setSelect] = useState(() =>
-    getQueryParameter("perpage") ? Number(getQueryParameter("perpage")) : 10,
-  );
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-  const [openCreate, setOpenCreate] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [loadingSync, setLoadingSync] = useState(false);
+const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => {
+  const regencies = props.regencies;
+  const { data: districts, meta } = props.districts;
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
+    regency_id: "",
     code: "",
     name: "",
   });
 
-  const createProvince: FormEventHandler = (e) => {
+  const [select, setSelect] = useState(() =>
+    getParameterByName("per_page") ? Number(getParameterByName("per_page")) : 10,
+  );
+  const [search, setSearch] = useState(() => getParameterByName("search") ?? "");
+  const [provinceCode, setProvinceCode] = useState("");
+  const [openCreate, setOpenCreate] = useState(false);
+  useEffect(() => {
+    if (errors.regency_id || errors.code || errors.name) {
+      setOpenCreate(true);
+    }
+  }, [errors.regency_id, errors.code, errors.name]);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [loadingSync, setLoadingSync] = useState(false);
+
+  const createData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("provinces.store"), {
-      preserveScroll: true,
+    post(route("district.store"), {
       onSuccess: () => {
         reset();
         setOpenCreate(false);
@@ -72,11 +84,11 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
     getData(String(select), search);
   };
 
-  const getData = (perpage: string, search: string) => {
+  const getData = (perPage: string, search: string) => {
     return router.get(
-      route("provinces.index"),
+      route("district.index"),
       pickBy({
-        perpage,
+        per_page: perPage,
         search,
       }),
       { preserveState: true, preserveScroll: true },
@@ -86,8 +98,10 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
   const handleSync = () => {
     setLoadingSync(true);
     router.post(
-      route("provinces.sync"),
-      {},
+      route("district.sync"),
+      {
+        code: provinceCode.toString(),
+      },
       {
         preserveScroll: true,
         onFinish: () => {
@@ -97,11 +111,12 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
     );
   };
 
-  const updateProvince: FormEventHandler = (e) => {
+  const updateData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("provinces.update", data.code), {
-      preserveScroll: true,
+    put(route("district.update", data.code), {
+      preserveState: true,
+      preserveScroll: false,
       onSuccess: () => {
         reset();
         setOpenEdit(false);
@@ -109,47 +124,68 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
     });
   };
 
-  const deleteProvince = (province: any) => {
-    router.delete(route("provinces.destroy", province.id));
+  const deleteData = (district: any) => {
+    router.delete(route("district.destroy", district.id));
   };
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Provinsi</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Kecamatan</h1>
         <div className="flex gap-x-3">
           <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
             <AlertDialogTrigger asChild>
-              <Button>Tambah Provinsi</Button>
+              <Button>Tambah Kecamatan</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Membuat Provinsi</AlertDialogTitle>
-                <AlertDialogDescription>Tindakan ini akan menambah data provinsi</AlertDialogDescription>
+                <AlertDialogTitle>Membuat Kecamatan</AlertDialogTitle>
               </AlertDialogHeader>
-              <form onSubmit={createProvince} className="mt-6 space-y-6">
+              <form onSubmit={createData} className="mt-6 space-y-6">
                 <div>
-                  <Label htmlFor="kode">Kode Provinsi</Label>
-                  <Input
+                  <InputLabel htmlFor="regency_id" value="Pilih Kabupaten" />
+
+                  <Combobox
+                    id="regency_id"
+                    datas={regencies}
+                    labelKey={"name"}
+                    valueKey={"name"}
+                    placeholder={"Pilih Kabupaten"}
+                    onSelect={(value) => setData("regency_id", value.id)}
+                    className="mt-1 w-full"
+                  />
+
+                  <InputError message={errors.regency_id} className="mt-2" />
+                </div>
+
+                <div>
+                  <InputLabel htmlFor="kode" value="Kode Kecamatan" />
+
+                  <TextInput
                     id="kode"
                     value={data.code}
                     onChange={(e) => setData("code", e.target.value)}
                     type="text"
                     className="mt-1 block w-full"
                   />
+
                   <InputError message={errors.code} className="mt-2" />
                 </div>
+
                 <div>
-                  <Label htmlFor="name">Nama Provinsi</Label>
-                  <Input
+                  <InputLabel htmlFor="name" value="Nama Kecamatan" />
+
+                  <TextInput
                     id="name"
                     value={data.name}
                     onChange={(e) => setData("name", e.target.value)}
                     type="text"
                     className="mt-1 block w-full"
                   />
+
                   <InputError message={errors.name} className="mt-2" />
                 </div>
+
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction type={"submit"} disabled={processing}>
@@ -159,7 +195,19 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
               </form>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
+      </div>
 
+      <div className="flex items-center justify-end">
+        <div className="flex gap-x-3">
+          <Combobox
+            datas={regencies}
+            labelKey={"name"}
+            valueKey={"name"}
+            placeholder={"Pilih Kabupaten"}
+            className={"w-[210px]"}
+            onSelect={(value) => setProvinceCode(value.code)}
+          />
           <Button onClick={handleSync}>
             {loadingSync && <RotateCw className="animate-spin mr-2" />}
             Sinkron
@@ -184,7 +232,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Provinsi" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Kecamatan" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -196,18 +244,20 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
+              <TableHead>Kabupaten</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {provinces.length > 0 ? (
-              provinces.map((province: any, index: number) => (
-                <TableRow key={province.id}>
+            {districts.length > 0 ? (
+              districts.map((district: any, index: number) => (
+                <TableRow key={district.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{province.code}</TableCell>
-                  <TableCell>{province.name}</TableCell>
-                  <TableCell>{province.created_at}</TableCell>
+                  <TableCell>{district.code}</TableCell>
+                  <TableCell>{district.name}</TableCell>
+                  <TableCell>{district.regency}</TableCell>
+                  <TableCell>{district.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -217,46 +267,63 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem asChild className="cursor-pointer">
                           <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
                             <AlertDialogTrigger
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
-                                  code: province.code,
-                                  name: province.name,
+                                  regency_id: district.regency_id,
+                                  code: district.code,
+                                  name: district.name,
                                 });
                               }}>
                               Edit
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Mengubah Provinsi</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tindakan ini akan mengubah data provinsi {province.name}?
-                                </AlertDialogDescription>
+                                <AlertDialogTitle>Mengubah Kecamatan</AlertDialogTitle>
                               </AlertDialogHeader>
-                              <form onSubmit={updateProvince} className="mt-6 space-y-6">
+                              <form onSubmit={updateData} className="mt-6 space-y-6">
                                 <div>
-                                  <Label htmlFor="id">Kode Provinsi</Label>
-                                  <Input
-                                    id="id"
+                                  <InputLabel htmlFor="regency_id" value="Pilih Kabupaten" />
+
+                                  <Combobox
+                                    datas={regencies}
+                                    labelKey={"name"}
+                                    valueKey={"name"}
+                                    defaultValue={data.regency_id}
+                                    placeholder={"Pilih Kabupaten"}
+                                    onSelect={(value) => setData("regency_id", value.id)}
+                                    className="mt-1 w-full"
+                                  />
+                                </div>
+
+                                <div>
+                                  <InputLabel htmlFor="kode" value="Kode Kecamatan" />
+
+                                  <TextInput
+                                    id="kode"
                                     value={data.code}
                                     onChange={(e) => setData("code", e.target.value)}
-                                    type="number"
+                                    type="string"
                                     className="mt-1 block w-full"
                                   />
+
                                   <InputError message={errors.code} className="mt-2" />
                                 </div>
+
                                 <div>
-                                  <Label htmlFor="name">Nama Provinsi</Label>
-                                  <Input
+                                  <InputLabel htmlFor="name" value="Nama Kecamatan" />
+
+                                  <TextInput
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData("name", e.target.value)}
                                     type="text"
                                     className="mt-1 block w-full"
                                   />
+
                                   <InputError message={errors.name} className="mt-2" />
                                 </div>
 
@@ -272,7 +339,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                           </AlertDialog>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
@@ -281,17 +348,17 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data provinsi {province.name}?
+                                  Tindakan ini akan menghapus data kecamatan {district.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteProvince(province);
+                                    deleteData(district);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete province
+                                  Continue Delete
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -312,15 +379,49 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
           </TableBody>
         </Table>
       </div>
-      <ShowingCountDatatable meta={meta} />
-      <PaginationDatatable meta={meta} />
+      <div className="text-sm text-gray-500">
+        Showing {meta.from} to {meta.to} of {meta.total} results
+      </div>
+      <Pagination>
+        <PaginationContent>
+          {meta.links.map((link: any, index: number) => {
+            return (
+              <PaginationItem key={index + 1}>
+                {link.url === null ? (
+                  <Button variant="ghost" disabled>
+                    {link.label}
+                  </Button>
+                ) : (
+                  <PaginationLink
+                    as="button"
+                    preserveScroll
+                    preserveState
+                    only={["districts"]}
+                    isActive={link.active}
+                    size={
+                      link.label === "Previous" ||
+                      link.label === "Next" ||
+                      link.label === "Sebelumnya" ||
+                      link.label === "Berikutnya"
+                        ? "default"
+                        : "icon"
+                    }
+                    href={link.url}>
+                    {link.label}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            );
+          })}
+        </PaginationContent>
+      </Pagination>
     </main>
   );
 };
 
-export default ProvincePage;
+export default districtPage;
 
-ProvincePage.layout = (page: any) => {
+districtPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
