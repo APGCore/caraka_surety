@@ -47,6 +47,20 @@ export const adminLinks = [
   },
 
   {
+    title: "Kelola Pengajuan",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Daftar Pengajuan",
+        route_name: "pengajuan",
+        href: "pengajuan",
+        Icon: User,
+        children: [],
+      },
+    ],
+  },
+
+  {
     title: "Wilayah",
     route: [
       {

@@ -3,7 +3,7 @@ import { Head } from "@inertiajs/react";
 import { AdminDashboardPageProps } from "./admin-dashboard-page.type";
 
 const AdminDashboardPage: AdminDashboardPageProps = () => {
-  return <div>AdminDashboardPage</div>;
+  return <div>Admin Dashboard Page</div>;
 };
 
 export default AdminDashboardPage;
