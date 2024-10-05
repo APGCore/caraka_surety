@@ -16,7 +16,7 @@ import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
-const AdminCreateProductPage = () => {
+const AdminCreateProductTypePage = () => {
   const { data, setData, post, processing, errors, reset } = useForm({
     name: "",
     description: "",
@@ -25,7 +25,7 @@ const AdminCreateProductPage = () => {
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("products.store"), {
+    post(route("product-types.store"), {
       onSuccess: () => {
         reset("name");
         reset("description");
@@ -43,7 +43,7 @@ const AdminCreateProductPage = () => {
               <Input
                 id="name"
                 type="name"
-                placeholder="Masukan nama produk"
+                placeholder="Masukan nama jenis produk"
                 required
                 value={data.name}
                 onChange={(e: any) => setData("name", e.target.value)}
@@ -56,15 +56,15 @@ const AdminCreateProductPage = () => {
                 id="description"
                 required
                 value={data.description}
-                placeholder="Masukan deskripsi produk"
+                placeholder="Masukan deskripsi jenis produk"
                 onChange={(e: any) => setData("description", e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />
             </div>
             <div className="flex justify-end">
-              <Button form="login-form" className="w-full max-w-[160px]" disabled={processing}>
+              <Button form="login-form" className="w-full max-w-[200px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Tambah Produk
+                Tambah Jenis Produk
               </Button>
             </div>
           </form>
@@ -74,9 +74,9 @@ const AdminCreateProductPage = () => {
   );
 };
 
-export default AdminCreateProductPage;
+export default AdminCreateProductTypePage;
 
-AdminCreateProductPage.layout = (page: any) => {
+AdminCreateProductTypePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
@@ -85,11 +85,11 @@ AdminCreateProductPage.layout = (page: any) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Produk</BreadcrumbLink>
+            <BreadcrumbLink href={route("products.index")}>Kelola Jenis Produk</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Tambah Produk</BreadcrumbPage>
+            <BreadcrumbPage>Tambah Jenis Produk</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

@@ -36,9 +36,9 @@ import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import { AdminProductsPageProps } from "./products.type";
+import { AdminProductTypesPageProps } from "./product-types.type";
 
-const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
+const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => {
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
@@ -56,7 +56,7 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
 
   const getData = (per_page: string, search: string) => {
     return router.get(
-      route("products.index"),
+      route("product-types.index"),
       pickBy({
         per_page,
         search,
@@ -65,8 +65,8 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
     );
   };
 
-  const deleteProduct = (product: any) => {
-    router.delete(route("products.destroy", product.id));
+  const deleteProductType = (productType: any) => {
+    router.delete(route("product-types.destroy", productType.id));
   };
 
   return (
@@ -109,12 +109,12 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.data?.length > 0 ? (
-              products?.data?.map((product: any, index: number) => (
-                <TableRow key={product.id}>
-                  <TableCell>{products?.meta?.from + index}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.created_at}</TableCell>
+            {productTypes?.data?.length > 0 ? (
+              productTypes?.data?.map((productType: any, index: number) => (
+                <TableRow key={productType.id}>
+                  <TableCell>{productTypes?.meta?.from + index}</TableCell>
+                  <TableCell>{productType.name}</TableCell>
+                  <TableCell>{productType.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -126,8 +126,8 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link
-                            href={route("products.edit", {
-                              product: product.id,
+                            href={route("product-types.edit", {
+                              productTipe: productType.id,
                             })}>
                             Edit
                           </Link>
@@ -142,7 +142,7 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete your product and remove
+                                  This action cannot be undone. This will permanently delete your productType and remove
                                   your data from our servers.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
@@ -150,7 +150,7 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteProduct(product);
+                                    deleteProductType(productType);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Continue Delete Produk
@@ -175,11 +175,11 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
         </Table>
       </div>
       <div className="text-sm text-gray-500">
-        Showing {products?.meta?.from} to {products?.meta?.to} of {products?.meta?.total} results
+        Showing {productTypes?.meta?.from} to {productTypes?.meta?.to} of {productTypes?.meta?.total} results
       </div>
       <Pagination>
         <PaginationContent>
-          {products?.meta?.links.map((link: any, index: number) => {
+          {productTypes?.meta?.links.map((link: any, index: number) => {
             return (
               <PaginationItem key={index + 1}>
                 {link.url === null ? (
@@ -191,16 +191,9 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
                     as="button"
                     preserveScroll
                     preserveState
-                    only={["products"]}
+                    only={["productTypes"]}
                     isActive={link.active}
-                    size={
-                      link.label === "Previous" ||
-                      link.label === "Next" ||
-                      link.label === "Sebelumnya" ||
-                      link.label === "Berikutnya"
-                        ? "default"
-                        : "icon"
-                    }
+                    size={link.label === "Previous" || link.label === "Next" ? "default" : "icon"}
                     href={link.url}>
                     {link.label}
                   </PaginationLink>
@@ -214,9 +207,9 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
   );
 };
 
-export default AdminProductsPage;
+export default AdminProductTypesPage;
 
-AdminProductsPage.layout = (page: any) => {
+AdminProductTypesPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
@@ -225,14 +218,14 @@ AdminProductsPage.layout = (page: any) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Produk</BreadcrumbLink>
+            <BreadcrumbLink href={route("product-types.index")}>Kelola Tipe Produk</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
         <Button asChild>
-          <Link href={route("products.create")}>Tambah Produk</Link>
+          <Link href={route("product-types.create")}>Tambah Tipe Produk</Link>
         </Button>
       </div>
       {page}

@@ -22,8 +22,8 @@ export const adminLinks = [
       {
         id: generateUUID(),
         name: "Daftar Cabang",
-        route_name: "branch.index",
-        href: route("branch.index"),
+        route_name: "cabang",
+        href: "cabang",
         Icon: User,
         children: [],
       },
@@ -97,8 +97,8 @@ export const adminLinks = [
       {
         id: generateUUID(),
         name: "Jenis Produk",
-        route_name: "karyawan.index",
-        href: "karyawan",
+        route_name: "product-types.index",
+        href: route("product-types.index"),
         Icon: User,
         children: [],
       },
