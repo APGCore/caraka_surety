@@ -1,5 +1,4 @@
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +10,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,66 +27,50 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BranchOfficePageProps } from "@/pages/admin/company-management/branch-office/branch-office-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
+import { AdminProductTypesPageProps } from "./product-types.type";
 
-const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (props) => {
-  const { data: profiles, meta } = props.profiles;
-
+const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => {
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+
   const handleSelect = (e: string) => {
     setSelect(Number(e));
-    getData(e, search);
+    getData(String(select), search);
   };
 
-  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     getData(String(select), search);
   };
 
-  const getData = (perPage: string, search: string) => {
+  const getData = (per_page: string, search: string) => {
     return router.get(
-      route("branch.index"),
+      route("product-types.index"),
       pickBy({
-        per_page: perPage,
+        per_page,
         search,
       }),
       { preserveState: true, preserveScroll: true },
     );
   };
 
-  const deleteData = (province: any) => {
-    router.delete(route("branch.destroy", province.id));
+  const deleteProductType = (productType: any) => {
+    router.delete(route("product-types.destroy", productType.id));
   };
 
   return (
     <main className="space-y-2.5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Cabang</h1>
-        <div className="flex gap-x-3">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: "default",
-              }),
-            )}
-            href={route("branch.create")}>
-            Tambah Cabang
-          </Link>
-        </div>
-      </div>
-
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <Button>Export</Button>
@@ -97,8 +87,13 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
           </Select>
         </div>
         <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
+            <Input
+              className="h-full"
+              placeholder="Cari Produk"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -109,19 +104,17 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Dibuat</TableHead>
+              <TableHead>Tanggal Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {profiles.length > 0 ? (
-              profiles.map((profile: any, index: number) => (
-                <TableRow key={profile.id}>
-                  <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{profile.name}</TableCell>
-                  <TableCell>{profile.email}</TableCell>
-                  <TableCell>{profile.created_at}</TableCell>
+            {productTypes?.data?.length > 0 ? (
+              productTypes?.data?.map((productType: any, index: number) => (
+                <TableRow key={productType.id}>
+                  <TableCell>{productTypes?.meta?.from + index}</TableCell>
+                  <TableCell>{productType.name}</TableCell>
+                  <TableCell>{productType.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -131,34 +124,36 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem asChild className="cursor-pointer">
                           <Link
-                            href={route("branch.edit", profile.id)}
-                            className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                            href={route("product-types.edit", {
+                              productTipe: productType.id,
+                            })}>
                             Edit
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data Cabang {profile.name}?
+                                  This action cannot be undone. This will permanently delete your productType and remove
+                                  your data from our servers.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteData(profile);
+                                    deleteProductType(productType);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Lanjutkan Hapus
+                                  Continue Delete Produk
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -179,27 +174,60 @@ const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (pr
           </TableBody>
         </Table>
       </div>
-      <ShowingCountDatatable meta={meta} />
-      <PaginationDatatable meta={meta} />
+      <div className="text-sm text-gray-500">
+        Showing {productTypes?.meta?.from} to {productTypes?.meta?.to} of {productTypes?.meta?.total} results
+      </div>
+      <Pagination>
+        <PaginationContent>
+          {productTypes?.meta?.links.map((link: any, index: number) => {
+            return (
+              <PaginationItem key={index + 1}>
+                {link.url === null ? (
+                  <Button variant="ghost" disabled>
+                    {link.label}
+                  </Button>
+                ) : (
+                  <PaginationLink
+                    as="button"
+                    preserveScroll
+                    preserveState
+                    only={["productTypes"]}
+                    isActive={link.active}
+                    size={link.label === "Previous" || link.label === "Next" ? "default" : "icon"}
+                    href={link.url}>
+                    {link.label}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            );
+          })}
+        </PaginationContent>
+      </Pagination>
     </main>
   );
 };
 
-export default BranchOfficePage;
+export default AdminProductTypesPage;
 
-BranchOfficePage.layout = (page: any) => {
+AdminProductTypesPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
+            <BreadcrumbLink href={route("product-types.index")}>Kelola Tipe Produk</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
+        <Button asChild>
+          <Link href={route("product-types.create")}>Tambah Tipe Produk</Link>
+        </Button>
+      </div>
       {page}
     </AdminLayout>
   );

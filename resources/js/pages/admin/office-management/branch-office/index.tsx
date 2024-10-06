@@ -1,4 +1,5 @@
-import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,14 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,50 +21,66 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
+import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
+import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import { AdminProductsPageProps } from "./products.type";
 
-const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
+const BranchOfficePage: React.FC<BranchOfficePageProps> & { layout?: any } = (props) => {
+  const { data: profiles, meta } = props.profiles;
+
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-
   const handleSelect = (e: string) => {
     setSelect(Number(e));
-    getData(String(select), search);
+    getData(e, search);
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     getData(String(select), search);
   };
 
-  const getData = (per_page: string, search: string) => {
+  const getData = (perPage: string, search: string) => {
     return router.get(
-      route("products.index"),
+      route("branch.index"),
       pickBy({
-        per_page,
+        per_page: perPage,
         search,
       }),
       { preserveState: true, preserveScroll: true },
     );
   };
 
-  const deleteProduct = (product: any) => {
-    router.delete(route("products.destroy", product.id));
+  const deleteData = (province: any) => {
+    router.delete(route("branch.destroy", province.id));
   };
 
   return (
     <main className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">Cabang</h1>
+        <div className="flex gap-x-3">
+          <Link
+            className={cn(
+              buttonVariants({
+                variant: "default",
+              }),
+            )}
+            href={route("branch.create")}>
+            Tambah Cabang
+          </Link>
+        </div>
+      </div>
+
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <Button>Export</Button>
@@ -87,13 +97,8 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
           </Select>
         </div>
         <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Produk"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
+            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -104,17 +109,19 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>Tanggal Dibuat</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.data?.length > 0 ? (
-              products?.data?.map((product: any, index: number) => (
-                <TableRow key={product.id}>
-                  <TableCell>{products?.meta?.from + index}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.created_at}</TableCell>
+            {profiles.length > 0 ? (
+              profiles.map((profile: any, index: number) => (
+                <TableRow key={profile.id}>
+                  <TableCell>{meta.from + index}</TableCell>
+                  <TableCell>{profile.name}</TableCell>
+                  <TableCell>{profile.email}</TableCell>
+                  <TableCell>{profile.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -124,36 +131,34 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("products.edit", {
-                              product: product.id,
-                            })}>
+                            href={route("branch.edit", profile.id)}
+                            className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete your product and remove
-                                  your data from our servers.
+                                  Tindakan ini akan menghapus data Cabang {profile.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteProduct(product);
+                                    deleteData(profile);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete Produk
+                                  Lanjutkan Hapus
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -174,67 +179,27 @@ const AdminProductsPage: AdminProductsPageProps = ({ products }) => {
           </TableBody>
         </Table>
       </div>
-      <div className="text-sm text-gray-500">
-        Showing {products?.meta?.from} to {products?.meta?.to} of {products?.meta?.total} results
-      </div>
-      <Pagination>
-        <PaginationContent>
-          {products?.meta?.links.map((link: any, index: number) => {
-            return (
-              <PaginationItem key={index + 1}>
-                {link.url === null ? (
-                  <Button variant="ghost" disabled>
-                    {link.label}
-                  </Button>
-                ) : (
-                  <PaginationLink
-                    as="button"
-                    preserveScroll
-                    preserveState
-                    only={["products"]}
-                    isActive={link.active}
-                    size={
-                      link.label === "Previous" ||
-                      link.label === "Next" ||
-                      link.label === "Sebelumnya" ||
-                      link.label === "Berikutnya"
-                        ? "default"
-                        : "icon"
-                    }
-                    href={link.url}>
-                    {link.label}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            );
-          })}
-        </PaginationContent>
-      </Pagination>
+      <ShowingCountDatatable meta={meta} />
+      <PaginationDatatable meta={meta} />
     </main>
   );
 };
 
-export default AdminProductsPage;
+export default BranchOfficePage;
 
-AdminProductsPage.layout = (page: any) => {
+BranchOfficePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
+      <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Produk</BreadcrumbLink>
+            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>
-          <Link href={route("products.create")}>Tambah Produk</Link>
-        </Button>
-      </div>
       {page}
     </AdminLayout>
   );

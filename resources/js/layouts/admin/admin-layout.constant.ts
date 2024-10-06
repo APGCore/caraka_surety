@@ -133,8 +133,8 @@ export const adminLinks = [
       {
         id: generateUUID(),
         name: "Jenis Produk",
-        route_name: "karyawan.index",
-        href: "karyawan",
+        route_name: "product-types.index",
+        href: route("product-types.index"),
         Icon: User,
         children: [],
       },

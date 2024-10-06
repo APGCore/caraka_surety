@@ -14,18 +14,28 @@ import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect } from "react";
+import { AdminEditProductTypePageProps } from "./edit-product-type.type";
 
-const AdminCreateProductPage = () => {
-  const { data, setData, post, processing, errors, reset } = useForm({
+const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }) => {
+  const { data, setData, put, processing, errors, reset } = useForm({
     name: "",
     description: "",
   });
 
+  useEffect(() => {
+    if (productType?.name || productType?.description) {
+      setData({
+        name: productType?.name ?? "",
+        description: productType?.description ?? "",
+      });
+    }
+  }, []);
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("products.store"), {
+    put(route("product-types.update", productType.id), {
       onSuccess: () => {
         reset("name");
         reset("description");
@@ -43,7 +53,7 @@ const AdminCreateProductPage = () => {
               <Input
                 id="name"
                 type="name"
-                placeholder="Masukan nama produk"
+                placeholder="Masukan nama jenis produk"
                 required
                 value={data.name}
                 onChange={(e: any) => setData("name", e.target.value)}
@@ -56,7 +66,7 @@ const AdminCreateProductPage = () => {
                 id="description"
                 required
                 value={data.description}
-                placeholder="Masukan deskripsi produk"
+                placeholder="Masukan deskripsi jenis produk"
                 onChange={(e: any) => setData("description", e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />
@@ -64,7 +74,7 @@ const AdminCreateProductPage = () => {
             <div className="flex justify-end">
               <Button form="login-form" className="w-full max-w-[160px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Tambah Produk
+                Tambah Jenis Produk
               </Button>
             </div>
           </form>
@@ -74,9 +84,9 @@ const AdminCreateProductPage = () => {
   );
 };
 
-export default AdminCreateProductPage;
+export default AdminEditProductTypePage;
 
-AdminCreateProductPage.layout = (page: any) => {
+AdminEditProductTypePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

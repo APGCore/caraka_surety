@@ -14,18 +14,28 @@ import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect } from "react";
+import { AdminEditProductPageProps } from "./edit-product.type";
 
-const AdminCreateProductPage = () => {
-  const { data, setData, post, processing, errors, reset } = useForm({
+const AdminEditProductPage: AdminEditProductPageProps = ({ product }) => {
+  const { data, setData, put, processing, errors, reset } = useForm({
     name: "",
     description: "",
   });
 
+  useEffect(() => {
+    if (product?.name || product?.description) {
+      setData({
+        name: product?.name ?? "",
+        description: product?.description ?? "",
+      });
+    }
+  }, []);
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("products.store"), {
+    put(route("products.update", product.id), {
       onSuccess: () => {
         reset("name");
         reset("description");
@@ -74,9 +84,9 @@ const AdminCreateProductPage = () => {
   );
 };
 
-export default AdminCreateProductPage;
+export default AdminEditProductPage;
 
-AdminCreateProductPage.layout = (page: any) => {
+AdminEditProductPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

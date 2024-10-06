@@ -44,6 +44,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
   const { data: regencies, meta } = props.regencies;
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
+    id: "",
     province_id: "",
     code: "",
     name: "",
@@ -114,7 +115,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
   const updateData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("regency.update", data.code), {
+    put(route("regency.update", data.id), {
       preserveState: true,
       preserveScroll: false,
       onSuccess: () => {
@@ -273,6 +274,7 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
+                                  id: regency.id,
                                   province_id: regency.province_id,
                                   code: regency.code,
                                   name: regency.name,
