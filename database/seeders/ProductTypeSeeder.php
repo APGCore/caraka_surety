@@ -12,6 +12,30 @@ class ProductTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        ProductType::factory()->count(10)->create();
+
+
+        $productTypes = [
+            [
+                'name' => 'Jaminan Penawaran',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Jaminan Pelaksanaan',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Jaminan Uang Muka',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Jaminan Pemeliharaan',
+                'description' => 'lorem ipsum',
+            ],
+            // Add more product types as needed
+        ];
+
+        foreach ($productTypes as $type) {
+            ProductType::create($type);
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -41,8 +42,7 @@ class ProductController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path().'/index';
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -92,13 +92,12 @@ class ProductController extends Controller
             }
 
             flashMessage('Produk Ditambahkan', 'Produk berhasil ditambahkan');
-            Log::info('Product Store: '.json_encode($product, JSON_PRETTY_PRINT));
-            Log::info('Product Store: '.json_encode($product, JSON_PRETTY_PRINT));
+
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
-            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
             DB::rollBack();
         } finally {
             return redirect()->route('products.index');
@@ -161,26 +160,28 @@ class ProductController extends Controller
         try {
             DB::beginTransaction();
 
-            $product->update($request->only('name', 'description'));
+            if ($product->exists) {
 
-            $product->productTypeToProduct()->delete();
+                $product->update($request->only('name', 'description'));
 
-            // Insert Product Type to Producr
-            foreach ($request->productTypes as $productType) {
-                $product->productTypeToProduct()->create([
-                    'product_type_id' => $productType['id'],
-                ]);
+                $product->productTypeToProduct()->delete();
+
+                // Insert Product Type to Producr
+                foreach ($request->productTypes as $productType) {
+                    $product->productTypeToProduct()->create([
+                        'product_type_id' => $productType['id'],
+                    ]);
+                }
+            } else {
+                throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
 
             DB::commit();
             flashMessage('Produk Diperbarui', 'Produk berhasil diperbarui');
-            Log::info('Produk Update: '.json_encode($product, JSON_PRETTY_PRINT));
-            Log::info('Produk Update: '.json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('products.index');
         }
@@ -194,17 +195,19 @@ class ProductController extends Controller
         //
         try {
             DB::beginTransaction();
-            $product->delete();
+
+            if ($product->exists) {
+                $product->delete();
+            } else {
+                throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
+            }
 
             DB::commit();
             flashMessage('Produk Dihapus', 'Produk berhasil dihapus');
-            Log::info('Produk Delete: '.json_encode($product, JSON_PRETTY_PRINT));
-            Log::info('Produk Delete: '.json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductTipeResource;
 use App\Models\ProductType;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class ProductTipeController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         $productTypes = ProductType::search($request->get('search'))
             ->paginate($request->perpage ?? 10)
@@ -29,7 +30,7 @@ class ProductTipeController extends Controller
             'page_settings' => [
                 'title' => 'Jenis Produk',
             ],
-            'productTypes' => fn () => $productTypeResource,
+            'productTypes' => fn() => $productTypeResource,
         ]);
     }
 
@@ -40,7 +41,7 @@ class ProductTipeController extends Controller
     {
         //
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -73,11 +74,11 @@ class ProductTipeController extends Controller
                 ->create($request->only('name', 'description'));
 
             flashMessage('Jenis Produk Ditambahkan', 'Jenis Produk berhasil ditambahkan');
-            Log::info('Product Store: '.json_encode($productType, JSON_PRETTY_PRINT));
+            Log::info('Product Store: ' . json_encode($productType, JSON_PRETTY_PRINT));
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Jenis Produk', 'Terjadi kesalahan saat menambahkan jenis produk', 'error');
-            Log::error('Jenis Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Jenis Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
         } finally {
             return redirect()->route('product-types.index');
@@ -122,14 +123,18 @@ class ProductTipeController extends Controller
 
         try {
             DB::beginTransaction();
-            $productTipe->update($request->only('name', 'description'));
+            if ($productTipe->exists) {
+                $productTipe->update($request->only('name', 'description'));
+            } else {
+                throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
+            }
             DB::commit();
             flashMessage('Jenis Produk Diperbarui', 'Jenis Produk berhasil diperbarui');
-            Log::info('Jenis Produk Update: '.json_encode($productTipe, JSON_PRETTY_PRINT));
+            Log::info('Jenis Produk Update: ' . json_encode($productTipe, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Jenis Produk', 'Terjadi kesalahan saat memperbarui Jenis Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('product-types.index');
         }
@@ -144,15 +149,21 @@ class ProductTipeController extends Controller
 
         try {
             DB::beginTransaction();
-            $productTipe->delete();
+
+
+            if ($productTipe->exists) {
+                $productTipe->delete();
+            } else {
+                throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
+            }
 
             DB::commit();
             flashMessage('Jenis Produk Dihapus', 'Jenis Produk berhasil dihapus');
-            Log::info('Jenis Produk Delete: '.json_encode($productTipe, JSON_PRETTY_PRINT));
+            Log::info('Jenis Produk Delete: ' . json_encode($productTipe, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Jenis Produk', 'Terjadi kesalahan saat menghapus Jenis Produk', 'error');
-            Log::error('Jenis Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Jenis Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
