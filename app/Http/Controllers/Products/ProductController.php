@@ -32,7 +32,6 @@ class ProductController extends Controller
                 'title' => 'Produk',
             ],
             'products' => fn () => $productResource,
-            'products' => fn () => $productResource,
         ]);
     }
 
