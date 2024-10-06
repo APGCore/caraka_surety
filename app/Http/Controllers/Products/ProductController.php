@@ -17,8 +17,6 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         //
-        $component = $request->path().'/index';
-        $component = $request->path().'/index';
 
         $products = Product::search($request->get('search'))
             ->paginate(perPage: $request->perpage ?? 10)
@@ -27,6 +25,8 @@ class ProductController extends Controller
 
         $productResource = ProductResource::collection($products);
 
+        $component = $request->path().'/index';
+        
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Produk',
