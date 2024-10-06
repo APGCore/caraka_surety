@@ -82,7 +82,7 @@ const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => 
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Produk"
+              placeholder="Cari Jenis Produk"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
