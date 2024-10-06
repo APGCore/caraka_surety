@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Office;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Profile;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
@@ -26,7 +30,7 @@ class EmployeeController extends Controller
             ->appends($request->all());
         $employeeResource = EmployeeResource::collection($employees);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -34,16 +38,23 @@ class EmployeeController extends Controller
             ],
             'offices' => $offices,
             'officeSelected' => $officeSelected,
-            'employees' => fn () => $employeeResource,
+            'employees' => fn() => $employeeResource,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $request->validate([
+            'office_id' => 'required|exists:profiles,id',
+        ]);
+        $officeSelected = (int)$request->get('office_id');
+        $roles = Role::query()->whereNot('id', 1)->get();
+
+        $component = $request->path() . '/index';
+        return inertia($component, compact('officeSelected', 'roles'));
     }
 
     /**
@@ -51,7 +62,30 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $requestValid = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:'. User::class. ',email',
+            'password' => 'required|string|min:8',
+            'phone' => 'required|string',
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'profile_id' => 'required|exists:profiles,id',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $requestValid['password'] = Hash::make($requestValid['password']);
+            $user = User::query()
+                ->create($requestValid);
+            DB::commit();
+            return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on EmployeeController@store: {$e->getMessage()}");
+            return back()->withErrors(['errors' => 'Gagal menambahkan data karyawan']);
+        }
+
     }
 
     /**
@@ -65,9 +99,19 @@ class EmployeeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'office_id' => 'required|exists:profiles,id',
+        ]);
+        $officeSelected = (int)$request->get('office_id');
+        $roles = Role::query()->whereNot('id', 1)->get();
+        $employee = User::query()->find($id);
+
+        $component = $request->path();
+        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+
+        return inertia($component, compact('officeSelected', 'roles', 'employee'));
     }
 
     /**
@@ -75,7 +119,27 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $requestValid = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:'. User::class. ',email,'. $id,
+            'phone' => 'required|string',
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'profile_id' => 'required|exists:profiles,id',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $user = User::query()->find($id);
+            $user->update($requestValid);
+            DB::commit();
+            return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on EmployeeController@update: {$e->getMessage()}");
+            return back()->withErrors(['errors' => 'Gagal mengubah data karyawan']);
+        }
     }
 
     /**

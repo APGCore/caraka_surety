@@ -161,7 +161,6 @@ export default function UpdateProfileBprInformation({
             value={data.email}
             onChange={(e) => setData("email", e.target.value)}
             required
-            isFocused
             autoComplete="email"
           />
 
@@ -176,7 +175,6 @@ export default function UpdateProfileBprInformation({
             value={data.phone}
             onChange={(e) => setData("phone", e.target.value)}
             required
-            isFocused
             autoComplete="phone"
           />
 
@@ -254,7 +252,6 @@ export default function UpdateProfileBprInformation({
             value={data.postal_code}
             onChange={(e) => setData("postal_code", e.target.value)}
             required
-            isFocused
             autoComplete="postal_code"
           />
 

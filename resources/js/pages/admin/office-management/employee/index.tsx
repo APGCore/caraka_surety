@@ -33,7 +33,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
 
-const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props }) => {
+const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) => {
   const { data: employees, meta } = props.employees;
 
   const [select, setSelect] = useState(() =>
@@ -87,7 +87,7 @@ const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props
                 variant: "default",
               }),
             )}
-            href={route("employee.create")}>
+            href={route("employee.create") + "?office_id=" + officeSelected}>
             Tambah Karyawan
           </Link>
         </div>
@@ -111,7 +111,7 @@ const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props
             datas={offices}
             labelKey={"name"}
             valueKey={"name"}
-            defaultValue={Number(officeSelected)}
+            defaultValue={officeSelected}
             placeholder={"Pilih Kantor"}
             className={"w-[210px]"}
             onSelect={(value) => setOffice(value)}
@@ -156,7 +156,7 @@ const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("employee.edit", profile.id)}
+                            href={route("employee.edit", profile.id) + "?office_id=" + officeSelected}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>
@@ -208,9 +208,9 @@ const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props
   );
 };
 
-export default BranchOfficePage;
+export default EmployeePage;
 
-BranchOfficePage.layout = (page: any) => {
+EmployeePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
