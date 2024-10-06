@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\ProvinceResource;
-use App\Models\Region\Province;
+use App\Models\Location\Province;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +110,14 @@ class ProvinceController extends Controller
             DB::beginTransaction();
 
             // tambahkan kondisi jika provinsi memiliki relasi jangan di hapus
+            if($province->regency()->count() > 0) {
+                flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kabupaten', 'error');
+                return redirect()->route('province.index');
+            }
+            if($province->profile()->count() > 0) {
+                flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kantor cabang', 'error');
+                return redirect()->route('province.index');
+            }
             $province->delete();
 
             DB::commit();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Region;
+namespace App\Models\Location;
 
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,12 +19,12 @@ class Province extends Model
     ];
 
     // is relation
-    public function regencies(): HasMany
+    public function regency(): HasMany
     {
         return $this->hasMany(Regency::class);
     }
 
-    public function profiles(): HasMany
+    public function profile(): HasMany
     {
         return $this->hasMany(Profile::class);
     }

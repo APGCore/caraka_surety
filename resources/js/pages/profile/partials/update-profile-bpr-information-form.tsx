@@ -45,17 +45,7 @@ export default function UpdateProfileBprInformation({
     village_id: profile?.village_id,
     postal_code: profile?.postal_code,
   });
-  const currentPath = window.location.pathname;
-  let direct = "";
-  if (currentPath == route("profile.edit")) {
-    direct = route("profile.edit");
-  } else {
-    if (data.id) {
-      direct = route("branch.edit", data.id);
-    } else {
-      direct = route("branch.create");
-    }
-  }
+  let direct = route("profile.edit");
 
   const selectProvince = (value: any) => {
     setData((previousData) => {
@@ -124,43 +114,18 @@ export default function UpdateProfileBprInformation({
   };
 
   const cancel = () => {
-    // delete after last / on currentPath
-    const newPath = currentPath.substring(0, currentPath.lastIndexOf("/"));
-
-    if (currentPath == route("profile.edit")) {
-      router.get(route("profile.index"));
-    } else {
-      router.get(newPath);
-    }
+    router.get(route("profile.edit"));
   };
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    if (currentPath == route("profile.edit")) {
-      patch(route("profile.update.bpr"), {
-        preserveScroll: true,
-        onSuccess: () => {
-          router.get(route("profile.index"));
-        },
-      });
-    } else {
-      if (data.id) {
-        patch(route("branch.update", data.id), {
-          preserveScroll: true,
-          onSuccess: () => {
-            router.get(route("branch.index"));
-          },
-        });
-      } else {
-        post(route("branch.store"), {
-          preserveScroll: true,
-          onSuccess: () => {
-            router.get(route("branch.index"));
-          },
-        });
-      }
-    }
+    patch(route("profile.update.bpr"), {
+      preserveScroll: true,
+      onSuccess: () => {
+        router.get(route("profile.edit"));
+      },
+    });
   };
 
   return (

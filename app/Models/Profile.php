@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\Region\District;
-use App\Models\Region\Province;
-use App\Models\Region\Regency;
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
