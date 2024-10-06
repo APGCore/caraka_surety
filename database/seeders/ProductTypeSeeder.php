@@ -13,7 +13,6 @@ class ProductTypeSeeder extends Seeder
     public function run(): void
     {
 
-
         $productTypes = [
             [
                 'name' => 'Jaminan Penawaran',
