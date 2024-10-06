@@ -3,6 +3,7 @@ import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { router } from "@inertiajs/react";
+import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
 interface Props {
@@ -10,10 +11,11 @@ interface Props {
   data: any;
   setData: any;
   errors: any;
+  processing: any;
   roles: any;
 }
 
-const Form: React.FC<Props> = ({ submitForm, data, setData, errors, roles }) => {
+const Form: React.FC<Props> = ({ submitForm, data, setData, errors, roles, processing }) => {
   return (
     <form onSubmit={submitForm} className="mt-6 space-y-6">
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -112,7 +114,10 @@ const Form: React.FC<Props> = ({ submitForm, data, setData, errors, roles }) => 
         <SecondaryButton type="button" className="mr-3" onClick={() => router.get(route("employee.index"))}>
           Batal
         </SecondaryButton>
-        <PrimaryButton type="submit">Simpan</PrimaryButton>
+        <PrimaryButton type="submit">
+          {processing && <RotateCw className="animate-spin mr-2" />}
+          Simpan
+        </PrimaryButton>
       </div>
     </form>
   );

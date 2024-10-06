@@ -9,7 +9,6 @@ class ProductTypeToProduct extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
         'product_type_id',
         'product_id',

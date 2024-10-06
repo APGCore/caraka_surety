@@ -22,7 +22,7 @@ export default function UpdateProfileBprInformation({
   profile?: any;
   className?: string;
 }) {
-  const { data, setData, post, patch, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
     id?: number;
     name?: string;
     email?: string;

@@ -6,7 +6,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
 const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, employee }) => {
-  const { data, setData, post, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, post, errors, processing } = useForm<{
     name: string;
     email: string;
     phone: string;
@@ -44,7 +44,14 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, empl
             <p className="mt-1 text-sm text-gray-600">Untuk mengubah data karyawan</p>
           </header>
 
-          <Form submitForm={submitForm} data={data} setData={setData} roles={roles} errors={errors} />
+          <Form
+            submitForm={submitForm}
+            data={data}
+            setData={setData}
+            roles={roles}
+            errors={errors}
+            processing={processing}
+          />
         </div>
       </div>
     </main>

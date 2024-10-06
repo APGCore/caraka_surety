@@ -30,7 +30,7 @@ class EmployeeController extends Controller
             ->appends($request->all());
         $employeeResource = EmployeeResource::collection($employees);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -38,7 +38,7 @@ class EmployeeController extends Controller
             ],
             'offices' => $offices,
             'officeSelected' => $officeSelected,
-            'employees' => fn() => $employeeResource,
+            'employees' => fn () => $employeeResource,
         ]);
     }
 
@@ -50,10 +50,11 @@ class EmployeeController extends Controller
         $request->validate([
             'office_id' => 'required|exists:profiles,id',
         ]);
-        $officeSelected = (int)$request->get('office_id');
+        $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
+
         return inertia($component, compact('officeSelected', 'roles'));
     }
 
@@ -64,8 +65,9 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:'. User::class. ',email',
+            'email' => 'required|email|unique:'.User::class.',email',
             'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|same:password',
             'phone' => 'required|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'profile_id' => 'required|exists:profiles,id',
@@ -79,10 +81,12 @@ class EmployeeController extends Controller
             $user = User::query()
                 ->create($requestValid);
             DB::commit();
+
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@store: {$e->getMessage()}");
+
             return back()->withErrors(['errors' => 'Gagal menambahkan data karyawan']);
         }
 
@@ -104,12 +108,12 @@ class EmployeeController extends Controller
         $request->validate([
             'office_id' => 'required|exists:profiles,id',
         ]);
-        $officeSelected = (int)$request->get('office_id');
+        $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
         $employee = User::query()->find($id);
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, compact('officeSelected', 'roles', 'employee'));
     }
@@ -121,11 +125,13 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:'. User::class. ',email,'. $id,
+            'email' => 'required|email|unique:'.User::class.',email,'.$id,
             'phone' => 'required|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
+            'password' => 'nullable|string|min:8',
+            'password_confirmation' => 'nullable|same:password',
         ]);
 
         try {
@@ -134,10 +140,12 @@ class EmployeeController extends Controller
             $user = User::query()->find($id);
             $user->update($requestValid);
             DB::commit();
+
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@update: {$e->getMessage()}");
+
             return back()->withErrors(['errors' => 'Gagal mengubah data karyawan']);
         }
     }
