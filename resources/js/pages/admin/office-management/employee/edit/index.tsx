@@ -6,7 +6,7 @@ import { Head, router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
 const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, employee }) => {
-  const { data, setData, post, errors, processing } = useForm<{
+  const { data, setData, patch, errors, processing } = useForm<{
     name: string;
     email: string;
     phone: string;
@@ -26,7 +26,7 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, empl
 
   const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
     event.preventDefault();
-    post(route("employee.update", employee.id), {
+    patch(route("employee.update", employee.id), {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
@@ -51,6 +51,7 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, empl
             roles={roles}
             errors={errors}
             processing={processing}
+            officeSelected={officeSelected}
           />
         </div>
       </div>

@@ -12,6 +12,7 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\Profile;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -208,14 +209,19 @@ class ProfileController extends Controller
     {
         try {
             DB::beginTransaction();
-            $profile->delete();
+
+            if($profile->exists){
+                $profile->delete();
+            } else {
+                throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
+            }
 
             flashMessage('Kantor Cabang Dihapus', 'Kantor Cabang berhasil dihapus');
             DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
             Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            DB::rollBack();
         } finally {
             return redirect()->back();
         }

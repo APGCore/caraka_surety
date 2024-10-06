@@ -51,6 +51,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles }) 
             roles={roles}
             errors={errors}
             processing={processing}
+            officeSelected={officeSelected}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
 interface Props {
+  officeSelected: number;
   submitForm: FormEventHandler<HTMLFormElement>;
   data: any;
   setData: any;
@@ -15,7 +16,7 @@ interface Props {
   roles: any;
 }
 
-const Form: React.FC<Props> = ({ submitForm, data, setData, errors, roles, processing }) => {
+const Form: React.FC<Props> = ({ officeSelected, submitForm, data, setData, errors, roles, processing }) => {
   return (
     <form onSubmit={submitForm} className="mt-6 space-y-6">
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -111,7 +112,10 @@ const Form: React.FC<Props> = ({ submitForm, data, setData, errors, roles, proce
       </div>
 
       <div className="flex justify-end">
-        <SecondaryButton type="button" className="mr-3" onClick={() => router.get(route("employee.index"))}>
+        <SecondaryButton
+          type="button"
+          className="mr-3"
+          onClick={() => router.get(route("employee.index") + "?office_id=" + officeSelected)}>
           Batal
         </SecondaryButton>
         <PrimaryButton type="submit">

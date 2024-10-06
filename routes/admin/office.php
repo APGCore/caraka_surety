@@ -20,8 +20,8 @@ Route::prefix('office-management')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
             Route::get('create', 'create')->name('create');
-            Route::get('edit/{user}', 'edit')->name('edit');
-            Route::patch('{user}', 'update')->name('update');
-            Route::delete('{user}', 'destroy')->name('destroy');
+            Route::get('edit/{employee}', 'edit')->name('edit');
+            Route::patch('{employee}', 'update')->name('update');
+            Route::delete('{employee}', 'destroy')->name('destroy');
         });
 });

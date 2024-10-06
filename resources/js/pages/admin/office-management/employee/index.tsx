@@ -72,8 +72,8 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
     );
   };
 
-  const deleteData = (province: any) => {
-    router.delete(route("employee.destroy", province.id));
+  const deleteData = (employee: any) => {
+    router.delete(route("employee.destroy", employee.id));
   };
 
   return (
@@ -138,13 +138,13 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
           </TableHeader>
           <TableBody>
             {employees.length > 0 ? (
-              employees.map((profile: any, index: number) => (
-                <TableRow key={profile.id}>
+              employees.map((employee: any, index: number) => (
+                <TableRow key={employee.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{profile.name}</TableCell>
-                  <TableCell>{profile.email}</TableCell>
-                  <TableCell>{profile.position}</TableCell>
-                  <TableCell>{profile.created_at}</TableCell>
+                  <TableCell>{employee.name}</TableCell>
+                  <TableCell>{employee.email}</TableCell>
+                  <TableCell>{employee.position}</TableCell>
+                  <TableCell>{employee.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -156,7 +156,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("employee.edit", profile.id) + "?office_id=" + officeSelected}
+                            href={route("employee.edit", employee.id) + "?office_id=" + officeSelected}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>
@@ -171,14 +171,14 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data Cabang {profile.name}?
+                                  Tindakan ini akan menghapus data karyawan {employee.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteData(profile);
+                                    deleteData(employee);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Lanjutkan Hapus
