@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Office;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class DistrictResource extends JsonResource
+class ProfileResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,7 +16,6 @@ class DistrictResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'regency' => $this->resource->regency?->name,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

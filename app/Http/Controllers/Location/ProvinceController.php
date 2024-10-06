@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Region;
+namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProvinceResource;
+use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Region\Province;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
@@ -23,16 +23,16 @@ class ProvinceController extends Controller
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
-            ->withQueryString();
+            ->appends($request->all());
         $provincesResource = ProvinceResource::collection($provinces);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Provinsi',
             ],
-            'provinces' => fn () => $provincesResource,
+            'provinces' => fn() => $provincesResource,
         ]);
     }
 
@@ -62,7 +62,7 @@ class ProvinceController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Provinsi', 'Terjadi kesalahan saat menambahkan provinsi', 'error');
-            Log::error('Provinsi Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Provinsi Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('province.index');
         }
@@ -74,8 +74,8 @@ class ProvinceController extends Controller
     public function update(Request $request, Province $province)
     {
         $request->validate([
-            'code' => 'required|string|unique:provinces,code,'.$province->getAttribute('id'),
-            'name' => 'required|string|unique:provinces,name,'.$province->getAttribute('id'),
+            'code' => 'required|string|unique:provinces,code,' . $province->getAttribute('id') . ',id',
+            'name' => 'required|string|unique:provinces,name,' . $province->getAttribute('id') . ',id',
         ], [
             'code.required' => 'Kode Provinsi wajib diisi',
             'code.string' => 'Kode Provinsi harus berupa string',
@@ -95,7 +95,7 @@ class ProvinceController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Provinsi', 'Terjadi kesalahan saat memperbarui provinsi', 'error');
-            Log::error('Provinsi Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Provinsi Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('province.index');
         }
@@ -117,7 +117,7 @@ class ProvinceController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Provinsi', 'Terjadi kesalahan saat menghapus provinsi', 'error');
-            Log::error('Provinsi Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Provinsi Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('province.index');
         }
@@ -133,7 +133,7 @@ class ProvinceController extends Controller
             $responses = $this->syncApi('provinsi');
 
             // Ambil hasil dari permintaan
-            $provinces = (object) $responses[0]->json();
+            $provinces = (object)$responses[0]->json();
 
             foreach ($provinces->value as $province) {
                 Province::query()->updateOrCreate([
@@ -148,7 +148,7 @@ class ProvinceController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
-            Log::error('Provinsi Synchronized: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Provinsi Synchronized: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('province.index');
         }

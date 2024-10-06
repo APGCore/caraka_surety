@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Office\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('company-management')->group(function () {
+Route::prefix('office-management')->group(function () {
     Route::controller(ProfileController::class)->prefix('branch-office')
         ->name('branch.')->group(function () {
             Route::get('/', 'index')->name('index');

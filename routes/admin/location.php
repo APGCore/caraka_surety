@@ -2,9 +2,9 @@
 
 /** @noinspection ALL */
 
-use App\Http\Controllers\Region\DistrictController;
-use App\Http\Controllers\Region\ProvinceController;
-use App\Http\Controllers\Region\RegencyController;
+use App\Http\Controllers\Location\DistrictController;
+use App\Http\Controllers\Location\ProvinceController;
+use App\Http\Controllers\Location\RegencyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('location')->group(function () {

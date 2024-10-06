@@ -12,13 +12,10 @@ class ProductType extends Model
 {
     use HasFactory, Searchable, SoftDeletes;
 
-
-
     protected $fillable = [
         'name',
         'description',
     ];
-
 
     public function toSearchableArray()
     {

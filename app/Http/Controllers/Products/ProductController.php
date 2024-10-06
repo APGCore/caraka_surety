@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProductResource;
+use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use App\Models\ProductType;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $products = Product::search($request->get('search'))
             ->paginate(perPage: $request->perpage ?? 10)
@@ -27,12 +27,11 @@ class ProductController extends Controller
 
         $productResource = ProductResource::collection($products);
 
-
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Produk',
             ],
-            'products' => fn() => $productResource,
+            'products' => fn () => $productResource,
         ]);
     }
 
@@ -42,7 +41,7 @@ class ProductController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -92,11 +91,11 @@ class ProductController extends Controller
             }
 
             flashMessage('Produk Ditambahkan', 'Produk berhasil ditambahkan');
-            Log::info('Product Store: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Product Store: '.json_encode($product, JSON_PRETTY_PRINT));
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
-            Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
         } finally {
             return redirect()->route('products.index');
@@ -125,9 +124,14 @@ class ProductController extends Controller
             'page_settings' => [
                 'title' => 'Edit Produk',
             ],
+<<<<<<< HEAD
             "product" => $product,
             // Include the product type in the response
             'product_types' => $product->productType ?? null, // Adjust 'product_type' to match the actual attribute
+=======
+            'product' => $product,
+
+>>>>>>> 18cd421c2ba597567d81ffcb3074b58e3ed24f95
         ]);
     }
 
@@ -175,11 +179,11 @@ class ProductController extends Controller
 
             DB::commit();
             flashMessage('Produk Diperbarui', 'Produk berhasil diperbarui');
-            Log::info('Produk Update: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Update: '.json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
-            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('products.index');
         }
@@ -197,11 +201,11 @@ class ProductController extends Controller
 
             DB::commit();
             flashMessage('Produk Dihapus', 'Produk berhasil dihapus');
-            Log::info('Produk Delete: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Delete: '.json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');
-            Log::error('Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
