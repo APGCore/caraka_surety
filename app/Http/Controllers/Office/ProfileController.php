@@ -8,11 +8,10 @@ use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Office\StoreRequest;
 use App\Http\Requests\Office\UpdateRequest;
 use App\Http\Resources\Office\ProfileResource;
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
 use App\Models\Profile;
-use App\Models\Region\District;
-use App\Models\Region\Province;
-use App\Models\Region\Regency;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -178,8 +177,6 @@ class ProfileController extends Controller
         $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
             'profile' => $profile,
             'provinces' => $provinces,
             'regencies' => $regencies,

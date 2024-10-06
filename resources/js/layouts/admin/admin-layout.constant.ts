@@ -30,8 +30,8 @@ export const adminLinks = [
       {
         id: generateUUID(),
         name: "Karyawan",
-        route_name: "karyawan.index",
-        href: "karyawan",
+        route_name: "employee.index",
+        href: route("employee.index"),
         Icon: User,
         children: [],
       },

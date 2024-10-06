@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\DistrictResource;
-use App\Models\Region\District;
-use App\Models\Region\Regency;
+use App\Models\Location\District;
+use App\Models\Location\Regency;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

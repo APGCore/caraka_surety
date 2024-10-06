@@ -1,3 +1,4 @@
+import { Combobox } from "@/components/common/combobox";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
@@ -26,14 +27,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
+import { EmployeePageProps } from "@/pages/admin/office-management/employee/employee-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
 
-const BranchOfficePage: BranchOfficePageProps = (props) => {
-  const { data: profiles, meta } = props.profiles;
+const BranchOfficePage: EmployeePageProps = ({ offices, officeSelected, ...props }) => {
+  const { data: employees, meta } = props.employees;
 
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
@@ -41,33 +42,44 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
   const handleSelect = (e: string) => {
     setSelect(Number(e));
-    getData(e, search);
+    getData(e, search, officeSelected);
   };
 
   const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(String(select), search);
+    getData(String(select), search, officeSelected);
   };
 
-  const getData = (perPage: string, search: string) => {
+  const getData = (perPage: string, search: string, officeSelected: number) => {
     return router.get(
-      route("branch.index"),
+      route("employee.index"),
       pickBy({
         per_page: perPage,
         search,
+        office_id: officeSelected,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
+  };
+
+  const setOffice = (office: any) => {
+    return router.get(
+      route("employee.index"),
+      pickBy({
+        office_id: office.id,
       }),
       { preserveState: true, preserveScroll: true },
     );
   };
 
   const deleteData = (province: any) => {
-    router.delete(route("branch.destroy", province.id));
+    router.delete(route("employee.destroy", province.id));
   };
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Cabang</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Karyawan</h1>
         <div className="flex gap-x-3">
           <Link
             className={cn(
@@ -75,8 +87,8 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch.create")}>
-            Tambah Cabang
+            href={route("employee.create")}>
+            Tambah Karyawan
           </Link>
         </div>
       </div>
@@ -95,10 +107,19 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <Combobox
+            datas={offices}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={Number(officeSelected)}
+            placeholder={"Pilih Kantor"}
+            className={"w-[210px]"}
+            onSelect={(value) => setOffice(value)}
+          />
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Karyawan" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -110,17 +131,19 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Jabatan</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {profiles.length > 0 ? (
-              profiles.map((profile: any, index: number) => (
+            {employees.length > 0 ? (
+              employees.map((profile: any, index: number) => (
                 <TableRow key={profile.id}>
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{profile.name}</TableCell>
                   <TableCell>{profile.email}</TableCell>
+                  <TableCell>{profile.position}</TableCell>
                   <TableCell>{profile.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -133,7 +156,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("branch.edit", profile.id)}
+                            href={route("employee.edit", profile.id)}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>

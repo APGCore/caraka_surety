@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Models\Region;
+namespace App\Models\Location;
 
+use App\Models\Profile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 
-class District extends Model
+class Regency extends Model
 {
     use HasFactory;
     use Searchable;
 
     protected $fillable = [
-        'regency_id',
+        'province_id',
         'code',
         'name',
     ];
@@ -27,8 +29,18 @@ class District extends Model
     }
 
     // relationship
-    public function regency(): BelongsTo
+    public function province(): BelongsTo
     {
-        return $this->belongsTo(Regency::class, 'regency_id');
+        return $this->belongsTo(Province::class, 'province_id');
+    }
+
+    public function district(): HasMany
+    {
+        return $this->hasMany(District::class);
+    }
+
+    public function profile(): HasMany
+    {
+        return $this->hasMany(Profile::class);
     }
 }
