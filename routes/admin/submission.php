@@ -4,6 +4,10 @@ use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/pengajuan', [SubmissionController::class, 'index'])->name('pengajuan.index');
+Route::prefix('submission-management')->group(function (){
+    Route::controller(SubmissionController::class)->prefix('submission')
+    ->name('submission.')->group(function (){
+        Route::get('/', 'index')->name('index');
+        Route::get('/show', 'show')->name('show');
+    });
 });

@@ -12,8 +12,30 @@ class SubmissionController extends Controller
      */
     public function index()
     {
-        // dd('SubmissionController@index dipanggil');
-        return inertia('admin/pengajuan/index', []);
+        $submissions = [
+            [
+                'id' => 1,
+                'name' => 'Pengajuan 1',
+                'created_at' => '2024-01-01',
+                'status' => 'Pending',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Pengajuan 2',
+                'created_at' => '2024-01-02',
+                'status' => 'Approved',
+            ],
+            [
+                'id' => 3,
+                'name' => 'Pengajuan 3',
+                'created_at' => '2024-01-03',
+                'status' => 'Rejected',
+            ],
+        ];
+
+        return inertia('admin/pengajuan/index', [
+            'submissions' => $submissions
+        ]);
 
     }
 
@@ -38,7 +60,9 @@ class SubmissionController extends Controller
      */
     public function show(Submission $submission)
     {
-        //
+        return inertia('admin/pengajuan/detail', [
+            'submission' => $submission
+        ]);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { Home, MapPinHouse, Shield, User } from "lucide-react";
+import { Archive, File, FileBoxIcon, Home, MapPinHouse, Shield, User } from "lucide-react";
 
 export const adminLinks = [
   {
@@ -52,9 +52,31 @@ export const adminLinks = [
       {
         id: generateUUID(),
         name: "Daftar Pengajuan",
-        route_name: "pengajuan",
-        href: "pengajuan",
-        Icon: User,
+        route_name: "submission.index",
+        href: route("submission.index"),
+        Icon: Archive,
+        children: [],
+      },
+    ],
+  },
+
+  {
+    title: "Kelola Dokumen",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Dokumen Umum",
+        route_name: "dokumen_umum",
+        href: "dokumen_umum",
+        Icon: FileBoxIcon,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Dokumen Khusus",
+        route_name: "dokumen_khusus",
+        href: "dokumen_khusus",
+        Icon: File,
         children: [],
       },
     ],
