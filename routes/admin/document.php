@@ -11,5 +11,10 @@ Route::prefix('documents')->group(function (){
         Route::get('/show', 'show')->name('show');
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store');
+        Route::delete('/{requiredDoc}', 'destroy')->name('destroy');
+        Route::get('/edit/{requiredDoc}', 'edit')->name('edit');
+        Route::put('/{requiredDoc}', 'update')->name('update');
+
+
     });
 });

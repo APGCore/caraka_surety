@@ -23,7 +23,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { DocumentGeneralPageProps } from "./documents-general-required.page.type";
@@ -39,6 +39,12 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
   const handleSelect = (value: string) => {
     setSelect(Number(value));
   };
+
+  const deleteData = (reqDoc: any) => {
+    router.delete(route("document.destroy", reqDoc.id));
+  };
+
+  console.log(reqDocs);
 
   return (
     <main className="space-y-2.5">
@@ -75,8 +81,9 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Deskripsi</TableHead>
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,6 +92,15 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                 <TableRow key={reqDoc.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{reqDoc.name}</TableCell>
+                  <TableCell
+                    className={
+                      reqDoc.product_type_id
+                        ? "px-2 py-1 text-xs font-semibold rounded text-yellow-600"
+                        : "px-2 py-1 text-xs font-semibold rounded text-green-600"
+                    }>
+                    {reqDoc.product_type_id ? "Khusus" : "Umum"}
+                  </TableCell>
+
                   <TableCell>{reqDoc.description}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -100,10 +116,10 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={`/pengajuan/edit/${reqDoc.id}`}>Edit</Link>
+                          <Link href={route("document.edit", { requiredDoc: reqDoc.id })}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0">
+                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
@@ -118,9 +134,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => {
-                                    // Tambahkan logika penghapusan di sini
-                                  }}
+                                  onClick={() => deleteData(reqDoc)}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Hapus
                                 </AlertDialogAction>

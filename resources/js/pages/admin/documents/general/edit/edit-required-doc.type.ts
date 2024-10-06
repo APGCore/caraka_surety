@@ -1,9 +1,10 @@
 import React from "react";
 
-interface AdminEditProductTypeProps {
-  productType: any;
+interface AdminEditDocumentReqProps {
+  reqDoc: any;
+  productType: any[];
 }
 
-export type AdminEditProductTypePageProps = React.FC<AdminEditProductTypeProps> & {
+export type AdminEditDocumentReqPageProps = React.FC<AdminEditDocumentReqProps> & {
   layout?: (page: any) => JSX.Element;
 };

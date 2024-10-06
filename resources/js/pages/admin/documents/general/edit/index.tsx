@@ -10,53 +10,59 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
-import { AdminEditProductTypePageProps } from "./edit-required-doc.type";
+import { AdminEditDocumentReqPageProps } from "./edit-required-doc.type";
 
-const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }) => {
+const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, productType }) => {
   const { data, setData, put, processing, errors, reset } = useForm({
-    name: "",
-    description: "",
+    name: reqDoc?.name || "",
+    description: reqDoc?.description || "",
+    product_type_id: "",
   });
 
   useEffect(() => {
-    if (productType?.name || productType?.description) {
+    if (reqDoc) {
       setData({
-        name: productType?.name ?? "",
-        description: productType?.description ?? "",
+        name: reqDoc.name ?? "",
+        description: reqDoc.description ?? "",
+        product_type_id: reqDoc.product_type_id ?? "",
       });
     }
-  }, []);
+  }, [reqDoc]);
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("product-types.update", productType.id), {
+    put(route("document.update", reqDoc.id), {
       onSuccess: () => {
-        reset("name");
-        reset("description");
+        reset();
       },
     });
+  };
+
+  const handleProductTypeChange = (value: string) => {
+    setData("product_type_id", value);
   };
 
   return (
     <main className="space-y-2.5">
       <div className="border p-8 rounded-md shadow-md flex justify-center">
         <div className="w-full max-w-lg">
-          <form onSubmit={submit} id="login-form" className="grid gap-6">
+          <form onSubmit={submit} id="edit-document-form" className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Nama</Label>
               <Input
                 id="name"
-                type="name"
-                placeholder="Masukan nama jenis produk"
+                type="text"
+                placeholder="Masukan nama dokumen"
                 required
                 value={data.name}
-                onChange={(e: any) => setData("name", e.target.value)}
+                onChange={(e) => setData("name", e.target.value)}
               />
               <InputError message={errors.name} className="mt-2" />
             </div>
@@ -66,15 +72,32 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
                 id="description"
                 required
                 value={data.description}
-                placeholder="Masukan deskripsi jenis produk"
-                onChange={(e: any) => setData("description", e.target.value)}
+                placeholder="Masukan deskripsi dokumen"
+                onChange={(e) => setData("description", e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="product-type">Produk</Label>
+              <Select onValueChange={handleProductTypeChange} value={data.product_type_id}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Produk" />
+                </SelectTrigger>
+                <SelectContent>
+                  {productType?.map((product) => (
+                    <SelectItem key={product.id} value={product.id.toString()}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.product_type_id && <InputError message={errors.product_type_id} />}
+            </div>
+
             <div className="flex justify-end">
-              <Button form="login-form" className="w-full max-w-[160px]" disabled={processing}>
+              <Button form="edit-document-form" className="w-full max-w-[160px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Tambah Jenis Produk
+                Update Data
               </Button>
             </div>
           </form>
@@ -84,22 +107,22 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
   );
 };
 
-export default AdminEditProductTypePage;
+export default AdminEditDocumentReqPage;
 
-AdminEditProductTypePage.layout = (page: any) => {
+AdminEditDocumentReqPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Edit Dokumen"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Produk</BreadcrumbLink>
+            <BreadcrumbLink href={route("document.index")}>Kelola Dokumen</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Tambah Produk</BreadcrumbPage>
+            <BreadcrumbPage>Edit Dokumen</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

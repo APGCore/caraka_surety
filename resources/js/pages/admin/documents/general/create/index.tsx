@@ -88,6 +88,7 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
                 </SelectContent>
               </Select>
               {errors.product_type_id && <InputError message={errors.product_type_id} />}
+              <small className="text-gray-500">Silakan untuk tidak memilih apapun jika tidak diperlukan</small>
             </div>
 
             <div className="flex justify-end">

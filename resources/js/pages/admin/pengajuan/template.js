@@ -1,13 +1,10 @@
 // template.js
 const templateContent = `
-<h2>JAMINAN PELAKSANAAN</h2>
+<h2 style="text-align: center;">JAMINAN PELAKSANAAN</h2>
+
 <ol>
-    <li>
         <p>Nomor Jaminan  :  40.91.02.AAAAAAA.11.22 (NO JAMINAN)</p>
-    </li>
-    <li>
         <p>Nilai Jaminan  :  Rp. 32.077.650,-(NILAI JAMINAN)</p>
-    </li>
     <li>
         <p>Dengan ini dinyatakan, bahwa kami : PT. MOTI BATARA ALKESINDO(NAMA PRINCIPAL), Jl. Agave Raya Blok A1 No. 19A RT. 09 RW. 04 Kedoya Selatan, Kebon Jeruk, Jakarta Barat (ALAMAT PRINCIPAL) sebagai Penyedia, selanjutnya disebut TERJAMIN, dan PT. ASURANSI UMUM VIDEI, Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Penjamin, selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak Politeknik Kesehatan Jakarta III(NAMA OBLIGEE), Jl. Arteri JORR, Jatiwarna, Kec. Pondok Melati, Bekasi(ALAMAT OBLIGEE) sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah Rp. 32.077.650,- (terbilang : Tiga Puluh Dua Juta Tujuh Puluh Tujuh Ribu Enam Ratus Lima Puluh Rupiah))(BESARAN NILAI JAMINAN).</p>
     </li>
@@ -33,15 +30,20 @@ const templateContent = `
     <li>
         <p>Tuntutan Pencairan terhadap PENJAMIN berdasarkan Jaminan ini harus sudah diajukan selambat-lambatnya dalam waktu 30 (tiga puluh) hari kalender sesudah berakhirnya masa berlaku Jaminan ini.</p>
     </li>
-    <li>
-        <p>Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 (TANGGAL PENERBITAN)</p>
-    </li>
-    <li>
-        <p>PT. MOTI BATARA ALKESINDO(NAMA PRINCIPAL) PT. ASURANSI UMUM VIDEI (TERJAMIN) (PENJAMIN)</p>
-    </li>
-    <li>
-        <p>Muhammad Ridzqan Hanafis(NAMA PENANGGUNG JAWAB) Marthen F Surentu D i r e k t u r (JABATAN PJ) Kepala Cabang</p>
-    </li>
+        <p style="text-align: left;">Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 (TANGGAL PENERBITAN)<br>
+        PT. ASURANSI UMUM VIDEI (TERJAMIN) (PENJAMIN)</p>
+
+        <p>PT. MOTI BATARA ALKESINDO (NAMA PRINCIPAL)</p>
+        <br>
+        <p>Muhammad Ridzqan Hanafis (NAMA PENANGGUNG JAWAB)
+        <span style="float: right;">Marthen F Surentu</span></p>
+
+        <p>D i r e k t u r (JABATAN PJ)
+        <span style="float: right;">Kepala Cabang</span></p>
+
+
+
+
 </ol>
 `;
 

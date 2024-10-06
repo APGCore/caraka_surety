@@ -15,7 +15,7 @@ class RequiredDoc extends Model
         'product_type_id',
     ];
 
-    public function product_type(){
+    public function productType(){
         return $this->belongsTo(ProductType::class);
     }
 }
