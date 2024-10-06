@@ -19,6 +19,7 @@ Route::prefix('product-management')->group(function () {
         ->name('product-types.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/create', 'create')->name('create');
+            Route::get('/all', 'getAllProductType')->name('all');
             Route::post('/store', 'store')->name('store');
             Route::delete('/{productTipe}', 'destroy')->name('destroy');
             Route::get('/edit/{productTipe}', 'edit')->name('edit');

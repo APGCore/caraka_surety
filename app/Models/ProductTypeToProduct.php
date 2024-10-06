@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ProductTypeToProduct extends Model
 {
     use HasFactory;
+
+
+    protected $guarded = [
+        'id',
+    ];
 }

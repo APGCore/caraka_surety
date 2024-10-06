@@ -16,10 +16,17 @@ interface InputFileProps {
   className?: string;
   limit?: number;
   onFileChange?: (file: File | null) => void;
+  validation?: string[];
   reset?: number | boolean;
 }
 
-const FileInput: React.FC<InputFileProps> = ({ className, limit, onFileChange, reset }) => {
+const FileInput: React.FC<InputFileProps> = ({
+  className,
+  limit,
+  onFileChange,
+  reset,
+  validation = ["image/jpeg", "image/png", "application/pdf"],
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -117,9 +124,7 @@ const FileInput: React.FC<InputFileProps> = ({ className, limit, onFileChange, r
             }
           }
 
-          if (file.type === "image/jpeg" || file.type === "image/png") {
-            setPreview(URL.createObjectURL(file));
-          } else if (file.type === "application/pdf") {
+          if (validation?.includes(file.type)) {
             setPreview(URL.createObjectURL(file));
           } else {
             alert("Only images and PDFs are supported");
