@@ -210,7 +210,7 @@ class ProfileController extends Controller
         try {
             DB::beginTransaction();
 
-            if($profile->exists){
+            if ($profile->exists) {
                 $profile->delete();
             } else {
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');

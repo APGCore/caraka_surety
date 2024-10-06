@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,6 +155,33 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                          <Dialog>
+                            <DialogTrigger className="bg-black text-destructive-foreground shadow-sm hover:bg-black/60 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                              Show
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>{employee?.name}</DialogTitle>
+                              </DialogHeader>
+                              <div className="mt-4 grid gap-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-normal">Email</span>
+                                  <span>{employee?.email ?? "Email Belum Dimasukan"}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="font-normal">No. Telepon</span>
+                                  <span>{employee?.phone}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="font-normal">Jabatan</span>
+                                  <span>{employee?.position}</span>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
                             href={route("employee.edit", employee.id) + "?office_id=" + officeSelected}

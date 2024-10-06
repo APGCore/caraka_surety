@@ -33,14 +33,14 @@ class DistrictController extends Controller
 
         $districtResource = DistrictResource::collection($districts);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Kecamatan',
             ],
-            'regencies' => fn() => $regencies,
-            'districts' => fn() => $districtResource,
+            'regencies' => fn () => $regencies,
+            'districts' => fn () => $districtResource,
         ]);
     }
 
@@ -76,7 +76,7 @@ class DistrictController extends Controller
                     'name' => $reqValidated['name'],
                 ]);
 
-            if (!$regency) {
+            if (! $regency) {
                 flashMessage('Gagal Menambahkan Kecamatan', 'Kecamatan sudah ada', 'error');
 
                 return redirect()->back()->withErrors($validatedData->errors());
@@ -87,7 +87,7 @@ class DistrictController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Kecamatan', 'Terjadi kesalahan saat menambahkan kecamatan', 'error');
-            Log::error('Kecamatan Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Kecamatan Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -114,7 +114,7 @@ class DistrictController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kecamatan', 'Terjadi kesalahan saat memperbarui kecamatan', 'error');
-            Log::error('Kecamatan Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Kecamatan Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -139,7 +139,7 @@ class DistrictController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kecamatan', 'Terjadi kesalahan saat menghapus kecamatan', 'error');
-            Log::error('Kecamatan Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Kecamatan Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -165,7 +165,7 @@ class DistrictController extends Controller
             // Ambil hasil dari permintaan
             $regency = Regency::query()
                 ->where('code', $request->get('code'))->first();
-            $districts = (object)$responses[0]->json();
+            $districts = (object) $responses[0]->json();
 
             foreach ($districts->value as $district) {
                 District::query()
@@ -183,7 +183,7 @@ class DistrictController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
-            Log::error('Kecamatan Sync: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Kecamatan Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

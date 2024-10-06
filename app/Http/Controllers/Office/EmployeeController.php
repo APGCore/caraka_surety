@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $offices = Profile::all();
-        $officeSelected = (int) $request->get('office_id') ?? $offices->first()->id;
+        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()->id);
 
         $employees = User::search($request->get('search'))
             ->where('profile_id', $officeSelected)
@@ -142,6 +142,7 @@ class EmployeeController extends Controller
             $user->update($requestValid);
 
             DB::commit();
+
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -161,16 +162,18 @@ class EmployeeController extends Controller
 
             if ($employee->getAttribute('role_id') === 1) {
                 flashMessage('Gagal Menghapus Karyawan', 'Karyawan tidak dapat dihapus', 'error');
+
                 return redirect()->back();
             }
 
-            if($employee->exists){
+            if ($employee->exists) {
                 $employee->delete();
             } else {
                 throw new ThrottleRequestsException('Karyawan tidak ditemukan');
             }
             flashMessage('Karyawan Dihapus', 'Karyawan berhasil dihapus');
             DB::commit();
+
             return redirect()->back();
         } catch (\Exception $e) {
             flashMessage('Gagal Menghapus Karyawan', 'Terjadi kesalahan saat menghapus karyawan', 'error');

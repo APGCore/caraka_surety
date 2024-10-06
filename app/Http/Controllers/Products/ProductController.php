@@ -26,7 +26,7 @@ class ProductController extends Controller
         $productResource = ProductResource::collection($products);
 
         $component = $request->path().'/index';
-        
+
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Produk',

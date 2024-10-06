@@ -16,6 +16,9 @@ class ProfileResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'province' => $this->resource->province?->name,
+            'regency' => $this->resource->regency?->name,
+            'district' => $this->resource->district?->name,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

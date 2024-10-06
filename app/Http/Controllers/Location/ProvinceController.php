@@ -122,7 +122,7 @@ class ProvinceController extends Controller
                 return redirect()->route('province.index');
             }
 
-            if($province->exists) {
+            if ($province->exists) {
                 $province->delete();
             } else {
                 throw new ThrottleRequestsException('Provinsi tidak ditemukan');
