@@ -72,9 +72,9 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
               <InputError message={errors.description} className="mt-2" />
             </div>
             <div className="flex justify-end">
-              <Button form="login-form" className="w-full max-w-[160px]" disabled={processing}>
+              <Button form="login-form" className="w-full max-w-[180px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Tambah Jenis Produk
+                Edit Jenis Produk
               </Button>
             </div>
           </form>

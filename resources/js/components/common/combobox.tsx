@@ -30,11 +30,15 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, def
           variant="outline"
           aria-expanded={open}
           className={cn("w-full justify-between px-2 h-10", props.className)}>
-          {defaultValue
-            ? datas.find((item) => item["id"] === defaultValue)?.[labelKey]
-            : value
-              ? datas.find((item) => item[valueKey] === value)?.[labelKey]
-              : (props?.placeholder ?? "Select item...")}
+          {(() => {
+            if (defaultValue) {
+              return datas.find((item) => item["id"] === defaultValue)?.[labelKey];
+            }
+            if (value) {
+              return datas.find((item) => item[valueKey] === value)?.[labelKey];
+            }
+            return props?.placeholder ?? "Select item...";
+          })()}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

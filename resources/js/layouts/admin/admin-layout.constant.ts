@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { ChartNoAxesColumn, ChartNoAxesGantt, Home, MapPinHouse, Shield, SquareChartGantt, User } from "lucide-react";
+import { ChartNoAxesGantt, Home, MapPinHouse, Shield, SquareChartGantt, User } from "lucide-react";
 
 export const adminLinks = [
   {
