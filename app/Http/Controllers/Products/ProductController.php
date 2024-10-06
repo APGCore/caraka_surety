@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
+use App\Models\ProductType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,8 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         //
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
+        $component = $request->path() . '/index';
 
         $products = Product::search($request->get('search'))
             ->paginate(perPage: $request->perpage ?? 10)
@@ -30,7 +32,8 @@ class ProductController extends Controller
             'page_settings' => [
                 'title' => 'Produk',
             ],
-            'products' => fn () => $productResource,
+            'products' => fn() => $productResource,
+            'products' => fn() => $productResource,
         ]);
     }
 
@@ -40,7 +43,8 @@ class ProductController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -60,23 +64,43 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
+            'productTypes.*.id' => 'required|integer|exists:product_types,id',
+            'productTypes.*.name' => 'required|string|exists:product_types,name',
         ], [
             'name.required' => 'Nama Produk wajib diisi',
             'name.string' => 'Nama Produk harus berupa string',
             'description.required' => 'Deskripsi Produk wajib diisi',
             'description.string' => 'Deskripsi Produk harus berupa string',
+            'productTypes.*.id.required' => 'ID Jenis Produk wajib diisi',
+            'productTypes.*.id.integer' => 'ID Jenis Produk harus berupa angka',
+            'productTypes.*.id.exists' => 'ID Jenis Produk tidak ditemukan',
+            'productTypes.*.name.required' => 'Nama Jenis Produk wajib diisi',
+            'productTypes.*.name.string' => 'Nama Jenis Produk harus berupa string',
+            'productTypes.*.name.exists' => 'Nama Jenis Produk tidak ditemukan',
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Create Product
             $product = Product::query()
                 ->create($request->only('name', 'description'));
+
+            // Insert Product Type to Producr
+            foreach ($request->productTypes as $productType) {
+                $product->productTypeToProduct()->create([
+                    'product_type_id' => $productType['id'],
+                ]);
+            }
+
             flashMessage('Produk Ditambahkan', 'Produk berhasil ditambahkan');
-            Log::info('Product Store: '.json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Product Store: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Product Store: ' . json_encode($product, JSON_PRETTY_PRINT));
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
-            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
         } finally {
             return redirect()->route('products.index');
@@ -98,12 +122,17 @@ class ProductController extends Controller
     {
         $component = 'admin/product-management/products/edit/index';
 
+        // Load the 'productTypeToProduct' relationship
+        $product->load('productType');
+
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Produk',
             ],
-            'product' => $product,
 
+            "product" => $product,
+            // Include the product type in the response
+            'product_types' => $product->productType ?? null, // Adjust 'product_type' to match the actual attribute
         ]);
     }
 
@@ -111,22 +140,53 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Product $product)
+
+
     {
+
+
         $request->validate([
             'name' => 'required|string',
             'description' => 'required|string',
+            'productTypes.*.id' => 'required|integer|exists:product_types,id',
+            'productTypes.*.name' => 'required|string|exists:product_types,name',
+        ], [
+            'name.required' => 'Nama Produk wajib diisi',
+            'name.string' => 'Nama Produk harus berupa string',
+            'description.required' => 'Deskripsi Produk wajib diisi',
+            'description.string' => 'Deskripsi Produk harus berupa string',
+            'productTypes.*.id.required' => 'ID Jenis Produk wajib diisi',
+            'productTypes.*.id.integer' => 'ID Jenis Produk harus berupa angka',
+            'productTypes.*.id.exists' => 'ID Jenis Produk tidak ditemukan',
+            'productTypes.*.name.required' => 'Nama Jenis Produk wajib diisi',
+            'productTypes.*.name.string' => 'Nama Jenis Produk harus berupa string',
+            'productTypes.*.name.exists' => 'Nama Jenis Produk tidak ditemukan',
         ]);
 
         try {
             DB::beginTransaction();
+
             $product->update($request->only('name', 'description'));
+
+            $product->productTypeToProduct()->delete();
+
+            // Insert Product Type to Producr
+            foreach ($request->productTypes as $productType) {
+                $product->productTypeToProduct()->create([
+                    'product_type_id' => $productType['id'],
+                ]);
+            }
+
+
             DB::commit();
             flashMessage('Produk Diperbarui', 'Produk berhasil diperbarui');
-            Log::info('Produk Update: '.json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Update: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Update: ' . json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('products.index');
         }
@@ -144,11 +204,13 @@ class ProductController extends Controller
 
             DB::commit();
             flashMessage('Produk Dihapus', 'Produk berhasil dihapus');
-            Log::info('Produk Delete: '.json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Delete: ' . json_encode($product, JSON_PRETTY_PRINT));
+            Log::info('Produk Delete: ' . json_encode($product, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

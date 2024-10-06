@@ -1,4 +1,3 @@
-import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,14 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -218,14 +210,14 @@ AdminProductTypesPage.layout = (page: any) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("product-types.index")}>Kelola Tipe Produk</BreadcrumbLink>
+            <BreadcrumbLink href={route("product-types.index")}>Kelola Jenis Produk</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
         <Button asChild>
-          <Link href={route("product-types.create")}>Tambah Tipe Produk</Link>
+          <Link href={route("product-types.create")}>Tambah Jenis Produk</Link>
         </Button>
       </div>
       {page}
