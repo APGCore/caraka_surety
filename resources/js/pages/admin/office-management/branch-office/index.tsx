@@ -26,7 +26,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BranchOfficePageProps } from "@/pages/admin/company-management/branch-office/branch-office-page.type";
+import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";

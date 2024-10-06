@@ -2,10 +2,10 @@
 
 /** @noinspection ALL */
 
-namespace App\Http\Controllers\Region;
+namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\DistrictResource;
+use App\Http\Resources\Location\DistrictResource;
 use App\Models\Region\District;
 use App\Models\Region\Regency;
 use App\Traits\RegionTrait;
@@ -28,7 +28,7 @@ class DistrictController extends Controller
             ->orderBy('code')
             ->paginate($request->per_page ?? 10)
             ->appends('query', null)
-            ->withQueryString();
+            ->appends($request->all());
 
         $districtResource = DistrictResource::collection($districts);
 

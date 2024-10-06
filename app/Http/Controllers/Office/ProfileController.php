@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Office;
 
-use App\Http\Controllers\Region\DistrictController;
-use App\Http\Controllers\Region\RegencyController;
-use App\Http\Requests\Profile\StoreRequest;
-use App\Http\Requests\Profile\UpdateRequest;
-use App\Http\Resources\ProfileResource;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Location\DistrictController;
+use App\Http\Controllers\Location\RegencyController;
+use App\Http\Requests\Office\StoreRequest;
+use App\Http\Requests\Office\UpdateRequest;
+use App\Http\Resources\Office\ProfileResource;
 use App\Models\Profile;
 use App\Models\Region\District;
 use App\Models\Region\Province;
@@ -29,7 +30,7 @@ class ProfileController extends Controller
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
-            ->withQueryString();
+            ->appends($request->all());
         $profileResource = ProfileResource::collection($profiles);
 
         $component = $request->path().'/index';
@@ -80,7 +81,7 @@ class ProfileController extends Controller
             }
         }
 
-        $component = $request->path();
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'provinces' => $provinces,
@@ -97,13 +98,15 @@ class ProfileController extends Controller
             Profile::query()
                 ->create($requestValidated);
 
+            flashMessage('Kantor Cabang Ditambahkan', 'Kantor Cabang berhasil ditambahkan');
             DB::commit();
-            flashMessage('Profil Ditambahkan', 'Profil berhasil ditambahkan');
+
+            return redirect()->route('branch.index');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            flashMessage('Gagal Menambahkan Profil', 'Terjadi kesalahan saat menambahkan profil', 'error');
+            flashMessage('Gagal Menambahkan Kantor Cabang', 'Terjadi kesalahan saat menambahkan kantor cabang', 'error');
             Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-        } finally {
+            DB::rollBack();
+
             return redirect()->back();
         }
     }
@@ -172,7 +175,7 @@ class ProfileController extends Controller
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/'));
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -191,13 +194,15 @@ class ProfileController extends Controller
             $requestValidated = $request->validated();
             $profile->update($requestValidated);
 
+            flashMessage('Kantor Cabang Diperbarui', 'Kantor Cabang berhasil diperbarui');
             DB::commit();
-            flashMessage('Profil Diperbarui', 'Profil berhasil diperbarui');
+
+            return redirect()->route('branch.index');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            flashMessage('Gagal Memperbarui Profil', 'Terjadi kesalahan saat memperbarui profil', 'error');
+            flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
             Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-        } finally {
+            DB::rollBack();
+
             return redirect()->back();
         }
     }
@@ -208,12 +213,12 @@ class ProfileController extends Controller
             DB::beginTransaction();
             $profile->delete();
 
+            flashMessage('Kantor Cabang Dihapus', 'Kantor Cabang berhasil dihapus');
             DB::commit();
-            flashMessage('Profil Dihapus', 'Profil berhasil dihapus');
         } catch (\Throwable $th) {
-            DB::rollBack();
-            flashMessage('Gagal Menghapus Profil', 'Terjadi kesalahan saat menghapus profil', 'error');
+            flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
             Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            DB::rollBack();
         } finally {
             return redirect()->back();
         }

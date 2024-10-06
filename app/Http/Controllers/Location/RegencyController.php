@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Region;
+namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RegencyResource;
+use App\Http\Resources\Location\RegencyResource;
 use App\Models\Region\Province;
 use App\Models\Region\Regency;
 use App\Traits\RegionTrait;
@@ -25,7 +25,7 @@ class RegencyController extends Controller
             ->orderBy('code')
             ->paginate($request->per_page ?? 10)
             ->appends('query', null)
-            ->withQueryString();
+            ->appends($request->all());
 
         $regenciesResource = RegencyResource::collection($regencies);
 

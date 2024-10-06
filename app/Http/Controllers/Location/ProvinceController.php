@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Region;
+namespace App\Http\Controllers\Location;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ProvinceResource;
+use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Region\Province;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class ProvinceController extends Controller
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
-            ->withQueryString();
+            ->appends($request->all());
         $provincesResource = ProvinceResource::collection($provinces);
 
         $component = $request->path().'/index';
