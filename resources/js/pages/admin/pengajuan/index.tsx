@@ -85,7 +85,7 @@ const PengajuanPage: PengajuanPageProps = ({ submissions }) => {
               submissions.map((submission, index) => (
                 <TableRow key={submission.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{submission.name}</TableCell> {/* ganti field sesuai dengan data di backend */}
+                  <TableCell>{submission.name}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
                   <TableCell>
                     <span

@@ -9,4 +9,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RequiredDoc extends Model
 {
     use HasFactory, SoftDeletes;
+    protected $fillable = [
+        'name',
+        'description',
+        'product_type_id',
+    ];
+
+    public function product_type(){
+        return $this->belongsTo(ProductType::class);
+    }
 }

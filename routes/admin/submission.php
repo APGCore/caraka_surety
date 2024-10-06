@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\Submission\SubmissionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
