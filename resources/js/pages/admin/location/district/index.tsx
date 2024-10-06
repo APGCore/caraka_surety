@@ -44,6 +44,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   const { data: districts, meta } = props.districts;
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
+    id: "",
     regency_id: "",
     code: "",
     name: "",
@@ -114,7 +115,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   const updateData: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("district.update", data.code), {
+    put(route("district.update", data.id), {
       preserveState: true,
       preserveScroll: false,
       onSuccess: () => {
@@ -273,6 +274,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
+                                  id: district.id,
                                   regency_id: district.regency_id,
                                   code: district.code,
                                   name: district.name,

@@ -46,6 +46,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
   const [loadingSync, setLoadingSync] = useState(false);
 
   const { data, setData, errors, post, put, reset, processing } = useForm({
+    id: "",
     code: "",
     name: "",
   });
@@ -100,7 +101,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
   const updateProvince: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("province.update", data.code), {
+    put(route("province.update", data.id), {
       preserveScroll: true,
       onSuccess: () => {
         reset();
@@ -223,6 +224,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                               className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                               onClick={() => {
                                 setData({
+                                  id: province.id,
                                   code: province.code,
                                   name: province.name,
                                 });
