@@ -28,7 +28,7 @@ class ProductTipeController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tipe Produk',
+                'title' => 'Jenis Produk',
             ],
             'productTypes' => fn() => $productTypeResource,
         ]);
@@ -157,5 +157,12 @@ class ProductTipeController extends Controller
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function getAllProductType()
+    {
+        $productTypes = ProductType::query()->get();
+
+        return response()->json($productTypes);
     }
 }

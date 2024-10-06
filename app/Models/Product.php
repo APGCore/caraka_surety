@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -21,5 +24,17 @@ class Product extends Model
         return [
             'name' => $this->name,
         ];
+    }
+
+    public function productType(): BelongsToMany
+    {
+        $productTypeToProduk = new ProductTypeToProduct();
+
+        return $this->belongsToMany(ProductType::class, $productTypeToProduk->getTable(), 'product_id', 'product_type_id');
+    }
+
+    public function productTypeToProduct(): HasMany
+    {
+        return $this->hasMany(ProductTypeToProduct::class);
     }
 }
