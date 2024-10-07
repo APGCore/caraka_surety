@@ -48,7 +48,7 @@ class UserController extends Controller
             }
             $regencies = $regenciesQuery->where('province_id', $request->get('province_id'))
                 ->get();
-            $profile->setAttribute('province_id', (int)$request->get('province_id'));
+            $profile->setAttribute('province_id', (int) $request->get('province_id'));
         } elseif ($profile->province_id) {
             $regencies = Regency::query()
                 ->where('province_id', $profile->province_id)
@@ -68,7 +68,7 @@ class UserController extends Controller
             }
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))
                 ->get();
-            $profile->setAttribute('regency_id', (int)$request->get('regency_id'));
+            $profile->setAttribute('regency_id', (int) $request->get('regency_id'));
         } elseif ($profile->regency_id) {
             $districts = District::query()
                 ->where('regency_id', $profile->regency_id)
@@ -76,10 +76,10 @@ class UserController extends Controller
         }
 
         if ($request->get('district_id')) {
-            $profile->setAttribute('district_id', (int)$request->get('district_id'));
+            $profile->setAttribute('district_id', (int) $request->get('district_id'));
         }
 
-        $component = $request->path() . '/edit';
+        $component = $request->path().'/edit';
 
         return inertia($component, [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -94,15 +94,15 @@ class UserController extends Controller
     public function updateCenter(Request $request, Profile $profile)
     {
         $requestValidated = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'email', 'max:255', 'unique:profiles,email,1,id,deleted_at,NULL'],
-        'phone' => ['required', 'string', 'max:255'],
-        'address' => ['required', 'string', 'max:255'],
-        'postal_code' => ['required', 'string', 'max:255'],
-        'province_id' => ['required', 'integer', 'exists:provinces,id'],
-        'regency_id' => ['required', 'integer', 'exists:regencies,id'],
-        'district_id' => ['required', 'integer', 'exists:districts,id'],
-    ]);
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:profiles,email,1,id,deleted_at,NULL'],
+            'phone' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:255'],
+            'province_id' => ['required', 'integer', 'exists:provinces,id'],
+            'regency_id' => ['required', 'integer', 'exists:regencies,id'],
+            'district_id' => ['required', 'integer', 'exists:districts,id'],
+        ]);
         try {
             DB::beginTransaction();
             $profile->update($requestValidated);

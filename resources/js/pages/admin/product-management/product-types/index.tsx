@@ -82,7 +82,7 @@ const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => 
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Produk"
+              placeholder="Cari Jenis Produk"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -145,7 +145,7 @@ const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => 
                                     deleteProductType(productType);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete Produk
+                                  Continue Delete Jenis Produk
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -185,7 +185,14 @@ const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => 
                     preserveState
                     only={["productTypes"]}
                     isActive={link.active}
-                    size={link.label === "Previous" || link.label === "Next" ? "default" : "icon"}
+                    size={
+                      link.label === "Previous" ||
+                      link.label === "Next" ||
+                      link.label === "Sebelumnya" ||
+                      link.label === "Berikutnya"
+                        ? "default"
+                        : "icon"
+                    }
                     href={link.url}>
                     {link.label}
                   </PaginationLink>

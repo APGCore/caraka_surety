@@ -26,7 +26,7 @@ class ProductType extends Model
 
     public function product(): BelongsToMany
     {
-        $productTypeToProduk = new ProductTypeToProduct();
+        $productTypeToProduk = new ProductTypeToProduct;
 
         return $this->belongsToMany(Product::class, $productTypeToProduk->getTable(), 'product_type_id', 'product_id');
     }

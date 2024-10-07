@@ -7,6 +7,7 @@ use App\Http\Resources\Location\RegencyResource;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Traits\RegionTrait;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -73,8 +74,8 @@ class RegencyController extends Controller
                     'name' => $request->get('name'),
                 ]);
 
-            DB::commit();
             flashMessage('Kabupaten Ditambahkan', 'Kabupaten berhasil ditambahkan');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Kabupaten', 'Terjadi kesalahan saat menambahkan kabupaten', 'error');
@@ -110,8 +111,8 @@ class RegencyController extends Controller
 
             $regency->update($request->only('province_id', 'code', 'name'));
 
-            DB::commit();
             flashMessage('Kabupaten Diperbarui', 'Kabupaten berhasil diperbarui');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kabupaten', 'Terjadi kesalahan saat memperbarui kabupaten', 'error');
@@ -129,10 +130,14 @@ class RegencyController extends Controller
         try {
             DB::beginTransaction();
 
-            $regency->delete();
+            if ($regency->exists) {
+                $regency->delete();
+            } else {
+                throw new ThrottleRequestsException('Kabupaten tidak ditemukan');
+            }
 
-            DB::commit();
             flashMessage('Kabupaten Dihapus', 'Kabupaten berhasil dihapus');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kabupaten', 'Terjadi kesalahan saat menghapus kabupaten', 'error');
@@ -175,8 +180,8 @@ class RegencyController extends Controller
                     ]);
             }
 
-            DB::commit();
             flashMessage('Kabupaten Disinkronkan', 'Kabupaten berhasil disinkronkan');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kabupaten', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');

@@ -151,7 +151,6 @@ const BranchOfficeCreatePage: React.FC<BranchOfficeCreatePageProps> & { layout?:
               value={data.email}
               onChange={(e) => setData("email", e.target.value)}
               required
-              isFocused
               autoComplete="email"
             />
 
@@ -166,7 +165,6 @@ const BranchOfficeCreatePage: React.FC<BranchOfficeCreatePageProps> & { layout?:
               value={data.phone}
               onChange={(e) => setData("phone", e.target.value)}
               required
-              isFocused
               autoComplete="phone"
             />
 
@@ -244,7 +242,6 @@ const BranchOfficeCreatePage: React.FC<BranchOfficeCreatePageProps> & { layout?:
               value={data.postal_code}
               onChange={(e) => setData("postal_code", e.target.value)}
               required
-              isFocused
               autoComplete="postal_code"
             />
 

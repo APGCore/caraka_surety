@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductTipeResource;
 use App\Models\ProductType;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -122,7 +123,11 @@ class ProductTipeController extends Controller
 
         try {
             DB::beginTransaction();
-            $productTipe->update($request->only('name', 'description'));
+            if ($productTipe->exists) {
+                $productTipe->update($request->only('name', 'description'));
+            } else {
+                throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
+            }
             DB::commit();
             flashMessage('Jenis Produk Diperbarui', 'Jenis Produk berhasil diperbarui');
             Log::info('Jenis Produk Update: '.json_encode($productTipe, JSON_PRETTY_PRINT));
@@ -144,7 +149,12 @@ class ProductTipeController extends Controller
 
         try {
             DB::beginTransaction();
-            $productTipe->delete();
+
+            if ($productTipe->exists) {
+                $productTipe->delete();
+            } else {
+                throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
+            }
 
             DB::commit();
             flashMessage('Jenis Produk Dihapus', 'Jenis Produk berhasil dihapus');

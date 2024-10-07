@@ -9,8 +9,8 @@ class ProductTypeToProduct extends Model
 {
     use HasFactory;
 
-
-    protected $guarded = [
-        'id',
+    protected $fillable = [
+        'product_type_id',
+        'product_id',
     ];
 }

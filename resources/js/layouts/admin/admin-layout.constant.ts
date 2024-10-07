@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { Archive, File, FileBoxIcon, Home, MapPinHouse, Shield, User } from "lucide-react";
+import { Archive, ChartNoAxesGantt, FileBoxIcon, Home, MapPinHouse, SquareChartGantt, User } from "lucide-react";
 
 export const adminLinks = [
   {
@@ -33,14 +33,6 @@ export const adminLinks = [
         route_name: "employee.index",
         href: route("employee.index"),
         Icon: User,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Akses Aplikasi",
-        route_name: "manajemen-akses",
-        href: "manajemen-akses",
-        Icon: Shield,
         children: [],
       },
     ],
@@ -116,18 +108,18 @@ export const adminLinks = [
     route: [
       {
         id: generateUUID(),
-        name: "Produk",
-        route_name: "products.index",
-        href: route("products.index"),
-        Icon: User,
+        name: "Jenis Produk",
+        route_name: "product-types.index",
+        href: route("product-types.index"),
+        Icon: ChartNoAxesGantt,
         children: [],
       },
       {
         id: generateUUID(),
-        name: "Jenis Produk",
-        route_name: "product-types.index",
-        href: route("product-types.index"),
-        Icon: User,
+        name: "Produk",
+        route_name: "products.index",
+        href: route("products.index"),
+        Icon: SquareChartGantt,
         children: [],
       },
     ],
