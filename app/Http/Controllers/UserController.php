@@ -19,18 +19,11 @@ use Illuminate\Support\Facades\Redirect;
 
 class UserController extends Controller
 {
-    public function edit(Request $request, Profile $profile): \Inertia\Response
+    public function edit(Request $request): \Inertia\Response
     {
-        $profileId = $profile?->id;
-
-        if ($profileId) {
-            $profile = Profile::query()
-                ->find($profileId);
-        } else {
-            $profile = Profile::query()
-                ->where('is_central', true)
-                ->first();
-        }
+        $profile = Profile::query()
+            ->where('is_central', true)
+            ->first();
 
         $provinces = Province::query()
             ->get();
@@ -48,7 +41,7 @@ class UserController extends Controller
             }
             $regencies = $regenciesQuery->where('province_id', $request->get('province_id'))
                 ->get();
-            $profile->setAttribute('province_id', (int) $request->get('province_id'));
+            $profile->setAttribute('province_id', (int)$request->get('province_id'));
         } elseif ($profile->province_id) {
             $regencies = Regency::query()
                 ->where('province_id', $profile->province_id)
@@ -68,7 +61,7 @@ class UserController extends Controller
             }
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))
                 ->get();
-            $profile->setAttribute('regency_id', (int) $request->get('regency_id'));
+            $profile->setAttribute('regency_id', (int)$request->get('regency_id'));
         } elseif ($profile->regency_id) {
             $districts = District::query()
                 ->where('regency_id', $profile->regency_id)
@@ -76,10 +69,10 @@ class UserController extends Controller
         }
 
         if ($request->get('district_id')) {
-            $profile->setAttribute('district_id', (int) $request->get('district_id'));
+            $profile->setAttribute('district_id', (int)$request->get('district_id'));
         }
 
-        $component = $request->path().'/edit';
+        $component = $request->path() . '/edit';
 
         return inertia($component, [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
@@ -91,7 +84,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateCenter(Request $request, Profile $profile)
+    public function updateCenter(Request $request)
     {
         $requestValidated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -105,15 +98,18 @@ class UserController extends Controller
         ]);
         try {
             DB::beginTransaction();
+            $profile = Profile::query()
+                ->where('is_central', true)
+                ->first();
             $profile->update($requestValidated);
 
-            flashMessage('Kantor Cabang Diperbarui', 'Kantor Cabang berhasil diperbarui');
+            flashMessage('Kantor Pusat Diperbarui', 'Kantor Pusat berhasil diperbarui');
             DB::commit();
 
             return redirect()->route('profile.edit');
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
-            Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
 
             return redirect()->back();
@@ -149,7 +145,7 @@ class UserController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        $user->forceDelete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -17,7 +17,7 @@ const BranchOfficeCreatePage: React.FC<BranchOfficeCreatePageProps> & { layout?:
   regencies,
   districts,
 }) => {
-  const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, post, errors, processing, recentlySuccessful } = useForm<{
     name: string;
     email: string;
     phone: string;
@@ -112,7 +112,7 @@ const BranchOfficeCreatePage: React.FC<BranchOfficeCreatePageProps> & { layout?:
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    patch(route("branch.create"), {
+    post(route("branch.store"), {
       preserveScroll: true,
     });
   };

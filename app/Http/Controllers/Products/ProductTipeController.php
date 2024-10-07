@@ -74,7 +74,6 @@ class ProductTipeController extends Controller
                 ->create($request->only('name', 'description'));
 
             flashMessage('Jenis Produk Ditambahkan', 'Jenis Produk berhasil ditambahkan');
-            Log::info('Product Store: '.json_encode($productType, JSON_PRETTY_PRINT));
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Jenis Produk', 'Terjadi kesalahan saat menambahkan jenis produk', 'error');
@@ -128,9 +127,8 @@ class ProductTipeController extends Controller
             } else {
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
-            DB::commit();
             flashMessage('Jenis Produk Diperbarui', 'Jenis Produk berhasil diperbarui');
-            Log::info('Jenis Produk Update: '.json_encode($productTipe, JSON_PRETTY_PRINT));
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Jenis Produk', 'Terjadi kesalahan saat memperbarui Jenis Produk', 'error');
@@ -156,9 +154,8 @@ class ProductTipeController extends Controller
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
 
-            DB::commit();
             flashMessage('Jenis Produk Dihapus', 'Jenis Produk berhasil dihapus');
-            Log::info('Jenis Produk Delete: '.json_encode($productTipe, JSON_PRETTY_PRINT));
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Jenis Produk', 'Terjadi kesalahan saat menghapus Jenis Produk', 'error');
