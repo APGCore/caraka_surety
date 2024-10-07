@@ -197,9 +197,9 @@ class ProfileController extends Controller
 
             return redirect()->route('branch.index');
         } catch (\Throwable $th) {
+            DB::rollBack();
             flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
             Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-            DB::rollBack();
 
             return redirect()->back();
         }
