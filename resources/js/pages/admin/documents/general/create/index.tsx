@@ -40,8 +40,8 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
 
   const [selectedProductType, setSelectedProductType] = useState<string>("");
 
-  const handleProductTypeChange = (value: string) => {
-    setSelectedProductType(value);
+  const handleProductTypeChange = (value: any) => {
+    setSelectedProductType(value === "none" ? null : value);
     setData("product_type_id", value);
   };
 
@@ -80,6 +80,7 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
                   <SelectValue placeholder="Pilih Produk" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Tidak Memilih</SelectItem>
                   {productTypes.map((productType) => (
                     <SelectItem key={productType.id} value={productType.id.toString()}>
                       {productType.name}
@@ -88,7 +89,6 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
                 </SelectContent>
               </Select>
               {errors.product_type_id && <InputError message={errors.product_type_id} />}
-              <small className="text-gray-500">Silakan untuk tidak memilih apapun jika tidak diperlukan</small>
             </div>
 
             <div className="flex justify-end">

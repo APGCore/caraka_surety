@@ -18,7 +18,7 @@ class DocumentRequiredController extends Controller
      */
     public function index()
     {
-        $requiredDocs = RequiredDoc::all();
+        $requiredDocs = RequiredDoc::with('productType')->get();
         return inertia('admin/documents/general/index', [
             'reqDocs' => $requiredDocs
         ]);
@@ -43,7 +43,7 @@ class DocumentRequiredController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'product_type_id' => 'nullable|integer|exists:product_types,id',
+            'product_type_id' => 'nullable|exists:product_types,id',
         ]);
 
         RequiredDoc::create([
@@ -91,7 +91,7 @@ class DocumentRequiredController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'product_type_id' => 'required|exists:product_types,id',
+            'product_type_id' => 'nullable|exists:product_types,id',
         ]);
 
         $requiredDoc->update([

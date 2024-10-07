@@ -49,15 +49,9 @@ export const adminLinks = [
         Icon: Archive,
         children: [],
       },
-    ],
-  },
-
-  {
-    title: "Kelola Dokumen",
-    route: [
       {
         id: generateUUID(),
-        name: "Dokumen Umum",
+        name: "Prasyarat Dokumen",
         route_name: "document.index",
         href: route("document.index"),
         Icon: FileBoxIcon,
@@ -65,6 +59,20 @@ export const adminLinks = [
       },
     ],
   },
+
+  //   {
+  //     title: "Kelola Prasyarat Dokumen",
+  //     route: [
+  //       {
+  //         id: generateUUID(),
+  //         name: "Dokumen Umum",
+  //         route_name: "document.index",
+  //         href: route("document.index"),
+  //         Icon: FileBoxIcon,
+  //         children: [],
+  //       },
+  //     ],
+  //   },
 
   {
     title: "Wilayah",

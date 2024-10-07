@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler, useEffect } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import { AdminEditDocumentReqPageProps } from "./edit-required-doc.type";
 
 const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, productType }) => {
@@ -35,6 +35,12 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
     }
   }, [reqDoc]);
 
+  useEffect(() => {
+    if (data.product_type_id) {
+      setSelectedProductType(data.product_type_id.toString());
+    }
+  }, [data.product_type_id]);
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
@@ -45,7 +51,14 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
     });
   };
 
-  const handleProductTypeChange = (value: string) => {
+  //   const handleProductTypeChange = (value: string) => {
+  //     setData("product_type_id", value);
+  //   };
+
+  const [selectedProductType, setSelectedProductType] = useState<string>("");
+
+  const handleProductTypeChange = (value: any) => {
+    setSelectedProductType(value === "none" ? null : value);
     setData("product_type_id", value);
   };
 
@@ -79,11 +92,13 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
             </div>
             <div className="grid gap-2">
               <Label htmlFor="product-type">Produk</Label>
-              <Select onValueChange={handleProductTypeChange} value={data.product_type_id}>
+              <Select onValueChange={handleProductTypeChange} value={selectedProductType}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Pilih Produk" />
                 </SelectTrigger>
+
                 <SelectContent>
+                  <SelectItem value="none">Tidak Memilih</SelectItem>
                   {productType?.map((product) => (
                     <SelectItem key={product.id} value={product.id.toString()}>
                       {product.name}

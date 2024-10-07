@@ -44,8 +44,6 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     router.delete(route("document.destroy", reqDoc.id));
   };
 
-  console.log(reqDocs);
-
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
@@ -82,6 +80,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Kategori</TableHead>
+              <TableHead>Produk</TableHead>
               <TableHead>Deskripsi</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
@@ -101,6 +100,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                     {reqDoc.product_type_id ? "Khusus" : "Umum"}
                   </TableCell>
 
+                  <TableCell>{reqDoc.product_type ? reqDoc.product_type.name : "Tidak Memilih"}</TableCell>
                   <TableCell>{reqDoc.description}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -111,9 +111,9 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        {/* <DropdownMenuItem asChild className="cursor-pointer">
                           <Link href={route("submission.show", { id: reqDoc.id })}>Detail</Link>
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link href={route("document.edit", { requiredDoc: reqDoc.id })}>Edit</Link>
