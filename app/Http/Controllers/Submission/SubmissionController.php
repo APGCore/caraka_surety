@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Submission;
 
+use App\Http\Controllers\Controller;
 use App\Models\Submission;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
 
 class SubmissionController extends Controller
 {
@@ -36,7 +35,7 @@ class SubmissionController extends Controller
         ];
 
         return inertia('admin/pengajuan/index', [
-            'submissions' => $submissions
+            'submissions' => $submissions,
         ]);
 
     }
@@ -63,7 +62,7 @@ class SubmissionController extends Controller
     public function show(Submission $submission)
     {
         return inertia('admin/pengajuan/detail', [
-            'submission' => $submission
+            'submission' => $submission,
         ]);
     }
 

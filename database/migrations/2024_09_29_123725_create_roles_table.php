@@ -21,10 +21,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('profile_id')->nullable()->after('id')
                 ->references('id')->on('profiles')
-                ->cascadeOnDelete()->cascadeOnUpdate();
+                ->nullOnDelete();
             $table->foreignId('role_id')->nullable()->after('id')
                 ->references('id')->on('roles')
-                ->cascadeOnDelete()->cascadeOnUpdate();
+                ->nullOnDelete();
         });
     }
 

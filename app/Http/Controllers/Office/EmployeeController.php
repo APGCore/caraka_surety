@@ -168,8 +168,8 @@ class EmployeeController extends Controller
 
             if ($employee->exists) {
                 $employee->update([
-                    'email' => $employee->getAttribute('email').'_deleted_'. now()->timestamp,
-                    'password' => Hash::make($employee->getAttribute('email')) . '_deleted_'. now()->timestamp,
+                    'email' => $employee->getAttribute('email').'_deleted_'.now()->timestamp,
+                    'password' => Hash::make($employee->getAttribute('email')).'_deleted_'.now()->timestamp,
                 ]);
                 $employee->delete();
             } else {

@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\Submission\SubmissionController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::prefix('submission-management')->group(function (){
+Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)->prefix('submission')
-    ->name('submission.')->group(function (){
-        Route::get('/', 'index')->name('index');
-        Route::get('/show', 'show')->name('show');
-    });
+        ->name('submission.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/show', 'show')->name('show');
+        });
 });

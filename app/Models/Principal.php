@@ -9,13 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
 
-class Profile extends Model
+class Principal extends Model
 {
-    use HasFactory;
-    use Searchable;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -23,14 +20,6 @@ class Profile extends Model
         'updated_at',
         'deleted_at',
     ];
-
-    public function toSearchableArray(): array
-    {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-        ];
-    }
 
     public function province(): BelongsTo
     {

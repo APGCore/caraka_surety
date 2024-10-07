@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('regencies', function (Blueprint $table) {
+        Schema::create('scoring_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('province_id')->references('id')->on('provinces')
-                ->restrictOnDelete()->cascadeOnUpdate();
-            $table->string('code');
+            $table->foreignId('scoring_category_id')
+                ->references('id')->on('scoring_categories')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('name');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('regencies');
+        Schema::dropIfExists('scoring_questions');
     }
 };
