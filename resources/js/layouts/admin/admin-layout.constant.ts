@@ -1,5 +1,5 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { ChartNoAxesGantt, Home, MapPinHouse, SquareChartGantt, User } from "lucide-react";
+import { Archive, ChartNoAxesGantt, FileBoxIcon, Home, MapPinHouse, SquareChartGantt, User } from "lucide-react";
 
 export const adminLinks = [
   {
@@ -37,6 +37,42 @@ export const adminLinks = [
       },
     ],
   },
+
+  {
+    title: "Kelola Pengajuan",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Daftar Pengajuan",
+        route_name: "submission.index",
+        href: route("submission.index"),
+        Icon: Archive,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Prasyarat Dokumen",
+        route_name: "document.index",
+        href: route("document.index"),
+        Icon: FileBoxIcon,
+        children: [],
+      },
+    ],
+  },
+
+  //   {
+  //     title: "Kelola Prasyarat Dokumen",
+  //     route: [
+  //       {
+  //         id: generateUUID(),
+  //         name: "Dokumen Umum",
+  //         route_name: "document.index",
+  //         href: route("document.index"),
+  //         Icon: FileBoxIcon,
+  //         children: [],
+  //       },
+  //     ],
+  //   },
 
   {
     title: "Wilayah",
