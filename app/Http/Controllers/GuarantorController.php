@@ -10,17 +10,37 @@ class GuarantorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $guarantors = Guarantor::search($request->get('search'))
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $component = $request->path().'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Data Penjamin',
+            ],
+            'guarantors' => fn () => $guarantors,
+        ]);
+
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): \Inertia\Response
     {
-        //
+        $component = request()->path().'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Penjamin',
+            ],
+        ]);
     }
 
     /**

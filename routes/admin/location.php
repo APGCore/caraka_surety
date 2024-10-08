@@ -15,6 +15,7 @@ Route::prefix('location')->group(function () {
             Route::put('{province}', 'update')->name('update');
             Route::delete('{province}', 'destroy')->name('destroy');
             Route::post('sync', 'synchronize')->name('sync');
+            Route::get('all', 'all')->name('all');
         });
 
     Route::controller(RegencyController::class)->prefix('regency')
@@ -24,6 +25,7 @@ Route::prefix('location')->group(function () {
             Route::put('{regency}', 'update')->name('update');
             Route::delete('{regency}', 'destroy')->name('destroy');
             Route::post('sync', 'synchronize')->name('sync');
+            Route::get('get-by-province/{province_id}', 'getByProvince')->name('by-province');
         });
 
     Route::controller(DistrictController::class)->prefix('district')
@@ -33,5 +35,6 @@ Route::prefix('location')->group(function () {
             Route::put('{district}', 'update')->name('update');
             Route::delete('{district}', 'destroy')->name('destroy');
             Route::post('sync', 'synchronize')->name('sync');
+            Route::get('get-by-regency/{regency_id}', 'getByRegency')->name('by-regency');
         });
 });

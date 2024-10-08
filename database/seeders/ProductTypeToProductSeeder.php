@@ -72,7 +72,7 @@ class ProductTypeToProductSeeder extends Seeder
             ],
             [
                 'product_id' => 4,
-                'product_type_id' => 11
+                'product_type_id' => 11,
             ],
         ];
 
