@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Scorings;
 
+use App\Http\Controllers\Controller;
 use App\Models\ScoringOption;
 use Illuminate\Http\Request;
 
