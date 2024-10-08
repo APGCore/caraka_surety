@@ -12,6 +12,30 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        Product::factory()->count(10)->create();
+
+
+        $products = [
+            [
+                'name' => 'Surety Bond',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Bank Garansi',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Custom Bond',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'General Issurance',
+                'description' => 'lorem ipsum',
+            ],
+            // Add more product types as needed
+        ];
+
+        foreach ($products as $product) {
+            Product::create($product);
+        }
     }
 }

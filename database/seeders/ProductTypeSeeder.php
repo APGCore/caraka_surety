@@ -30,6 +30,34 @@ class ProductTypeSeeder extends Seeder
                 'name' => 'Jaminan Pemeliharaan',
                 'description' => 'lorem ipsum',
             ],
+            [
+                'name' => 'KABER',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'KITE',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Impor Sementara',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'CAR/EAR',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Marine Hull',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'Marine Cargo',
+                'description' => 'lorem ipsum',
+            ],
+            [
+                'name' => 'TPL',
+                'description' => 'lorem ipsum',
+            ],
             // Add more product types as needed
         ];
 
