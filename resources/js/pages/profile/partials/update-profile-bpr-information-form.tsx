@@ -31,7 +31,7 @@ export default function UpdateProfileBprInformation({
     province_id?: number | null;
     regency_id?: number | null;
     district_id?: number | null;
-    village_id?: number | null;
+    village?: string;
     postal_code?: string;
   }>({
     id: profile?.id,
@@ -42,7 +42,7 @@ export default function UpdateProfileBprInformation({
     province_id: profile?.province_id,
     regency_id: profile?.regency_id,
     district_id: profile?.district_id,
-    village_id: profile?.village_id,
+    village: profile?.village,
     postal_code: profile?.postal_code,
   });
   let direct = route("profile.edit");
@@ -227,6 +227,20 @@ export default function UpdateProfileBprInformation({
           />
 
           <InputError className="mt-2" message={errors.district_id} />
+        </div>
+
+        <div>
+          <InputLabel htmlFor="village" value="Desa/Kelurahan" />
+
+          <TextInput
+            id="village"
+            className="mt-1 block w-full"
+            value={data.village}
+            onChange={(e) => setData("village", e.target.value)}
+            autoComplete="village"
+          />
+
+          <InputError className="mt-2" message={errors.village} />
         </div>
         <div>
           <InputLabel htmlFor="address" value="Alamat" />

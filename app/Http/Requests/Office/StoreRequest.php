@@ -30,6 +30,7 @@ class StoreRequest extends FormRequest
             'province_id' => ['required', 'integer', 'exists:provinces,id'],
             'regency_id' => ['required', 'integer', 'exists:regencies,id'],
             'district_id' => ['required', 'integer', 'exists:districts,id'],
+            'village' => ['required', 'string', 'max:255'],
         ];
     }
 }

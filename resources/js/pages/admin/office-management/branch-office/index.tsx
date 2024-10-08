@@ -167,6 +167,10 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                                   <span>{profile?.district}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
+                                  <span className="font-medium">Kelurahan/Desa</span>
+                                  <span>{profile?.village}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
                                   <span className="font-medium">Kode Pos</span>
                                   <span>{profile?.postal_code}</span>
                                 </div>

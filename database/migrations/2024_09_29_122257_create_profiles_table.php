@@ -23,6 +23,7 @@ return new class extends Migration
                 ->references('id')->on('regencies')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignId('district_id')->nullable()
                 ->references('id')->on('districts')->restrictOnDelete()->cascadeOnUpdate();
+            $table->string('village')->nullable();
             $table->string('postal_code')->nullable();
             $table->boolean('is_central')->default(false);
             $table->timestamps();

@@ -156,7 +156,7 @@ class ProfileController extends Controller
 
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))
                 ->get();
-            if ($districts->count() == 0 && $request->get('district_id') == null) {
+            if ($districts->count() == 0) {
                 $regency = $regencies->where('id', $request->get('regency_id'))->first();
                 $districtController = new DistrictController;
                 $districtController->synchronize($request->merge(['code' => $regency->code]));

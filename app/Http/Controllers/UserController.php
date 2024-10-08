@@ -95,7 +95,9 @@ class UserController extends Controller
             'province_id' => ['required', 'integer', 'exists:provinces,id'],
             'regency_id' => ['required', 'integer', 'exists:regencies,id'],
             'district_id' => ['required', 'integer', 'exists:districts,id'],
+            'village' => ['required', 'string', 'max:255'],
         ]);
+
         try {
             DB::beginTransaction();
             $profile = Profile::query()
