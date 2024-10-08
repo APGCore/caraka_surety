@@ -10,5 +10,5 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     require_once __DIR__.'/office.php';
     require_once __DIR__.'/document.php';
     require_once __DIR__.'/guarantor.php';
-    require_once __DIR__ . '/scoring.php';
+    require_once __DIR__.'/scoring.php';
 });

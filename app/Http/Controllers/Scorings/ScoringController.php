@@ -15,7 +15,7 @@ class ScoringController extends Controller
     public function index(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $scorings = Scoring::search($request->get('search'))
             ->orderBy('created_at', 'desc')
@@ -29,7 +29,7 @@ class ScoringController extends Controller
             'page_settings' => [
                 'title' => 'Skoring',
             ],
-            'scorings' => fn() => $scoringResource,
+            'scorings' => fn () => $scoringResource,
         ]);
     }
 
