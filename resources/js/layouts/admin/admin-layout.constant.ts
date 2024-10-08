@@ -154,4 +154,17 @@ export const adminLinks = [
       },
     ],
   },
+  {
+    title: "Kelola Skoring",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Skoring",
+        route_name: "scoring.index",
+        href: route("scoring.index"),
+        Icon: ChartNoAxesGantt,
+        children: [],
+      },
+    ],
+  },
 ];

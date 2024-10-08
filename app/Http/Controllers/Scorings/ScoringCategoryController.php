@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Scorings;
 
-use App\Models\ScoringQuestion;
+use App\Http\Controllers\Controller;
+use App\Models\ScoringCategory;
 use Illuminate\Http\Request;
 
-class ScoringQuestionController extends Controller
+class ScoringCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class ScoringQuestionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ScoringQuestion $scoringQuestion)
+    public function show(ScoringCategory $scoringCategory)
     {
         //
     }
@@ -42,7 +43,7 @@ class ScoringQuestionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ScoringQuestion $scoringQuestion)
+    public function edit(ScoringCategory $scoringCategory)
     {
         //
     }
@@ -50,7 +51,7 @@ class ScoringQuestionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ScoringQuestion $scoringQuestion)
+    public function update(Request $request, ScoringCategory $scoringCategory)
     {
         //
     }
@@ -58,7 +59,7 @@ class ScoringQuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ScoringQuestion $scoringQuestion)
+    public function destroy(ScoringCategory $scoringCategory)
     {
         //
     }

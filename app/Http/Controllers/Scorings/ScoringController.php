@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Scorings;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Scoring\ScoringResource;
 use App\Models\Scoring;
 use Illuminate\Http\Request;
 
@@ -10,9 +12,25 @@ class ScoringController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $component = $request->path() . '/index';
+
+        $scorings = Scoring::search($request->get('search'))
+            ->orderBy('created_at', 'desc')
+            ->paginate(perPage: $request->perpage ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $scoringResource = ScoringResource::collection($scorings);
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Skoring',
+            ],
+            'scorings' => fn() => $scoringResource,
+        ]);
     }
 
     /**
