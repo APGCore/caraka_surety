@@ -1,52 +1,30 @@
-import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
+import InputLocation from "@/components/common/input-location";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Transition } from "@headlessui/react";
 import { router, useForm } from "@inertiajs/react";
-import { Dispatch, FormEventHandler, SetStateAction } from "react";
+import { FormEventHandler } from "react";
 
 interface Props {
   guarantor?: any;
-  provinces: any;
-  selectProvince: Dispatch<SetStateAction<number | null>>;
-  selectedProvince: number | null;
-  regencies: any;
-  selectRegency: Dispatch<SetStateAction<number | null>>;
-  selectedRegency: number | null;
-  districts: any;
-  selectDistrict: Dispatch<SetStateAction<number | null>>;
-  selectedDistrict: number | null;
   routeSubmit: string;
   routeBack: string;
 }
 
-const Form: React.FC<Props> = ({
-  guarantor,
-  provinces,
-  selectProvince,
-  selectedProvince,
-  regencies,
-  selectRegency,
-  selectedRegency,
-  districts,
-  selectDistrict,
-  selectedDistrict,
-  routeSubmit,
-  routeBack,
-}) => {
+const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
   const { data, setData, post, patch, errors, processing, recentlySuccessful } = useForm<{
     id: number | null;
     name: string;
     email: string;
     telephone: string;
     address: string;
-    province_id: number;
-    regency_id: number;
-    district_id: number;
+    province_id: number | null;
+    regency_id: number | null;
+    district_id: number | null;
     village: string;
     fax: string;
     pic: string;
@@ -135,68 +113,20 @@ const Form: React.FC<Props> = ({
 
         <InputError className="mt-2" message={errors.telephone} />
       </div>
-      <div>
-        <InputLabel htmlFor="province_id" value="Provinsi" />
 
-        <Combobox
-          datas={provinces}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={selectedProvince ? selectedProvince : (data.province_id ?? "")}
-          onSelect={(value) => selectProvince(value.id)}
-          placeholder="Pilih Provinsi..."
-          notFoundText="Provinsi tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.province_id} />
-      </div>
-      <div>
-        <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
-
-        <Combobox
-          datas={regencies}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={selectedRegency ? selectedRegency : (data.regency_id ?? "")}
-          onSelect={(value) => selectRegency(value.id)}
-          placeholder="Pilih Kabupaten/Kota..."
-          notFoundText="Kabupaten/Kota tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.regency_id} />
-      </div>
-      <div>
-        <InputLabel htmlFor="district_id" value="Kecamatan" />
-
-        <Combobox
-          datas={districts}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={selectedDistrict ? selectedDistrict : (data.district_id ?? "")}
-          onSelect={(value) => selectDistrict(value.id)}
-          placeholder="Pilih Kecamatan..."
-          notFoundText="Kecamatan tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.district_id} />
-      </div>
-
-      <div>
-        <InputLabel htmlFor="village" value="Desa/Kelurahan" />
-
-        <TextInput
-          id="village"
-          className="mt-1 block w-full"
-          value={data.village}
-          onChange={(e) => setData("village", e.target.value)}
-          required
-          autoComplete="village"
-        />
-        <InputError className="mt-2" message={errors.village} />
-      </div>
+      <InputLocation
+        province_id={data.province_id}
+        regency_id={data.regency_id}
+        district_id={data.district_id}
+        village={data.village}
+        setProvinceId={(value) => setData("province_id", value)}
+        setRegencyId={(value) => setData("regency_id", value)}
+        setDistrictId={(value) => setData("district_id", value)}
+        setVillage={(value) => setData("village", value)}
+        error_province_id={errors.province_id}
+        error_regency_id={errors.regency_id}
+        error_district_id={errors.district_id}
+      />
 
       <div>
         <InputLabel htmlFor="address" value="Alamat" />

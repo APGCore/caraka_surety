@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
-use App\Models\ScoringCategory;
 use App\Models\ScoringQuestionCategory;
 use Illuminate\Http\Request;
 

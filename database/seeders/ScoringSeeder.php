@@ -16,8 +16,8 @@ class ScoringSeeder extends Seeder
 
         $scorings = [
             [
-                "name" => "Analisis Skoring",
-                "min_point" => 60
+                'name' => 'Analisis Skoring',
+                'min_point' => 60,
             ],
         ];
 
