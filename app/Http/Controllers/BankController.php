@@ -22,7 +22,7 @@ class BankController extends Controller
      */
     public function create()
     {
-        return inertia('admin/bank-management/create/index',[
+        return inertia('admin/bank-management/create/index', [
             'banks' => Bank::all(),
         ]);
     }

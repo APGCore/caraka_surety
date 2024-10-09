@@ -4,10 +4,10 @@ import InputLocation from "@/components/common/input-location";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Transition } from "@headlessui/react";
 import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useRef, useState } from "react";
 
 interface Props {
   guarantor?: any;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
-  const { data, setData, post, patch, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, post, patch, errors, processing } = useForm<{
     id: number | null;
     name: string;
     email: string;
@@ -28,6 +28,7 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     village: string;
     fax: string;
     pic: string;
+    picture: string | null;
   }>({
     id: guarantor?.id ?? null,
     name: guarantor?.name ?? "",
@@ -40,8 +41,26 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     village: guarantor?.village ?? "",
     fax: guarantor?.fax ?? "",
     pic: guarantor?.pic ?? "",
+    picture: guarantor?.picture ?? null,
   });
 
+  const [picture, setPicture] = useState<File | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const uploadPicture = (id: number | null) => {
+    router.post(
+      route("guarantor.upload.picture", id ?? 0),
+      {
+        id,
+        picture,
+      },
+      {
+        preserveScroll: true,
+        preserveState: true,
+      },
+    );
+  };
   const cancel = () => {
     router.get(routeBack);
   };
@@ -53,16 +72,24 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
       patch(routeSubmit, {
         preserveScroll: true,
         preserveState: true,
-        onSuccess: () => {
-          router.get(routeBack);
+        onFinish: () => {
+          if (picture) {
+            uploadPicture(data.id);
+          } else {
+            router.get(routeBack);
+          }
         },
       });
     } else {
       post(routeSubmit, {
         preserveScroll: true,
         preserveState: true,
-        onSuccess: () => {
-          router.get(routeBack);
+        onFinish: () => {
+          if (picture) {
+            uploadPicture(data.id);
+          } else {
+            router.get(routeBack);
+          }
         },
       });
     }
@@ -70,6 +97,38 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
 
   return (
     <form onSubmit={submit} className="mt-6 space-y-6">
+      <div className="flex items-center justify-center">
+        <Avatar
+          className="w-[200px] h-[200px] shadow-2xl"
+          onClick={() => {
+            inputRef.current?.click();
+          }}>
+          <AvatarImage
+            src={preview ?? data.picture ?? "https://github.com/shadcn.png"}
+            alt="@shadcn"
+            className="object-contain w-full h-full"
+          />
+          <AvatarFallback>Foto</AvatarFallback>
+        </Avatar>
+        <input
+          id="picture"
+          type="file"
+          hidden
+          ref={inputRef}
+          alt="png,jpg"
+          onChange={(e) => {
+            const file = e?.target?.files ? e.target.files[0] : null;
+
+            if (!file) {
+              setPicture(null);
+              return;
+            }
+
+            setPicture(file);
+            setPreview(URL.createObjectURL(file));
+          }}
+        />
+      </div>
       <div>
         <InputLabel htmlFor="pic" value="Penanggung Jawab(PIC)" />
 
@@ -175,15 +234,6 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 
         <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
-
-        <Transition
-          show={recentlySuccessful}
-          enter="transition ease-in-out"
-          enterFrom="opacity-0"
-          leave="transition ease-in-out"
-          leaveTo="opacity-0">
-          <p className="text-sm text-gray-600">Saved.</p>
-        </Transition>
       </div>
     </form>
   );

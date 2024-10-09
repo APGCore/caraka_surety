@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
             'telephone' => ['required', 'string', 'max:255'],
             'fax' => ['nullable', 'string', 'max:255'],
             'pic' => ['required', 'string', 'max:255'],
-            'picture' => ['nullable', 'image', 'max:2048'],
+            'upload_picture' => ['nullable', 'image', 'max:2048'],
             'province_id' => ['required', 'exists:provinces,id'],
             'regency_id' => ['required', 'exists:regencies,id'],
             'district_id' => ['required', 'exists:districts,id'],

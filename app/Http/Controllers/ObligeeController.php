@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Obligee;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Location\DistrictController;
+use App\Http\Controllers\Location\RegencyController;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Http\Controllers\Location\DistrictController;
-use App\Http\Controllers\Location\RegencyController;
+use App\Models\Obligee;
+use Illuminate\Http\Request;
 use Inertia\Response;
-
 
 class ObligeeController extends Controller
 {
@@ -20,6 +19,7 @@ class ObligeeController extends Controller
     public function index()
     {
         $obligees = Obligee::all();
+
         return inertia('admin/obligee-management/index', [
             'obligees' => $obligees,
         ]);
@@ -67,13 +67,12 @@ class ObligeeController extends Controller
             }
         }
 
-
         return inertia('admin/obligee-management/create/index', [
             'obligees' => $obligees,
             'provinces' => $provinces,
             'regencies' => $regencies,
             'districts' => $districts,
-    
+
         ]);
     }
 
