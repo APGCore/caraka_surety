@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Guarantor\StoreRequest;
 use App\Models\Guarantor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GuarantorController extends Controller
 {
@@ -46,7 +49,25 @@ class GuarantorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(StoreRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            Guarantor::query()
+                ->create($request->validated());
+
+            flashMessage('Berhasil', 'Penambahan data penjamin berhasil');
+            DB::commit();
+
+            return redirect()->route('guarantor.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal', 'Penambahan data penjamin gagal', 'error');
+            Log::error('GuarantorController@store: ', ['message' => $e->getMessage()]);
+
+            return back()->withErrors($e->getMessage());
+        }
+    }
 
     /**
      * Display the specified resource.

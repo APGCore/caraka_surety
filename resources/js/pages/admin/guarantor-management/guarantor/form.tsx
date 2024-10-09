@@ -144,7 +144,7 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
       </div>
 
       <div>
-        <InputLabel htmlFor="fax" value="Kode Pos" />
+        <InputLabel htmlFor="fax" value="Fax" />
 
         <TextInput
           id="fax"

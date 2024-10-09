@@ -9,9 +9,8 @@ const GuarantorCreatePage: GuarantorCreatePageProps = () => {
     <main className="space-y-2.5 flex items-center justify-center">
       <div className="max-w-xl w-full">
         <header>
-          <h2 className="text-lg font-medium text-gray-900">Membuat Kantor Cabang</h2>
-
-          <p className="mt-1 text-sm text-gray-600">Untuk membuat data BPR kantor cabang baru</p>
+          <h2 className="text-lg font-medium text-gray-900">Membuat Data Penjamin</h2>
+          <p className="mt-1 text-sm text-gray-600">Untuk membuat data penjamin (Principal) baru</p>
         </header>
 
         <Form routeSubmit={route("guarantor.store")} routeBack={route("guarantor.index")} />

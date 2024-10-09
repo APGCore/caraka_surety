@@ -21,10 +21,11 @@ return new class extends Migration
                 ->references('id')->on('districts')->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
             $table->string('name');
+            $table->string('email')->nullable();
             $table->string('address');
             $table->string('telephone');
             $table->string('fax')->nullable();
-            $table->string('pic')->nullable();
+            $table->string('pic');
             $table->text('picture')->nullable();
             $table->timestamps();
             $table->softDeletes();
