@@ -12,7 +12,9 @@ class BankController extends Controller
      */
     public function index()
     {
-        //
+        return inertia('admin/bank-management/index', [
+            'banks' => Bank::all(),
+        ]);
     }
 
     /**
@@ -20,7 +22,9 @@ class BankController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('admin/bank-management/create/index',[
+            'banks' => Bank::all(),
+        ]);
     }
 
     /**

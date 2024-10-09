@@ -1,10 +1,12 @@
 import { generateUUID } from "@/lib/generate-uuid";
 import {
   Archive,
+  Building,
   ChartNoAxesGantt,
   CircleDollarSign,
   FileBoxIcon,
   Home,
+  Landmark,
   MapPinHouse,
   SquareChartGantt,
   User,
@@ -163,6 +165,32 @@ export const adminLinks = [
         route_name: "scoring.index",
         href: route("scoring.index"),
         Icon: ChartNoAxesGantt,
+        children: [],
+      },
+    ],
+  },
+  {
+    title: "Kelola Obligee",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Obligee",
+        route_name: "obligee.index",
+        href: route("obligee.index"),
+        Icon: Building,
+        children: [],
+      },
+    ],
+  },
+  {
+    title: "Kelola Bank",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Bank",
+        route_name: "bank.index",
+        href: route("bank.index"),
+        Icon: Landmark,
         children: [],
       },
     ],

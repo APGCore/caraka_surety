@@ -12,7 +12,6 @@ class RequiredDocController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
