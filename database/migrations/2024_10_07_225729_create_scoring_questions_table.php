@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('scoring_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('scoring_category_id')
-                ->references('id')->on('scoring_categories')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('scoring_question_category_id')
+                ->references('id')->on('scoring_question_categories')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('name');
             $table->timestamps();
             $table->softDeletes();

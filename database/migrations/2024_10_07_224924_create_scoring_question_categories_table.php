@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scoring_categories', function (Blueprint $table) {
+        Schema::create('scoring_question_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('scoring_id')
                 ->references('id')->on('scorings')->cascadeOnDelete()->cascadeOnUpdate();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scoring_categories');
+        Schema::dropIfExists('scoring_question_categories');
     }
 };

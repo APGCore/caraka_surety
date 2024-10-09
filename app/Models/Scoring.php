@@ -25,6 +25,6 @@ class Scoring extends Model
     // Define relationships
     public function categories(): HasMany
     {
-        return $this->hasMany(ScoringCategory::class);
+        return $this->hasMany(ScoringQuestionCategory::class);
     }
 }
