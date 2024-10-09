@@ -7,6 +7,7 @@ use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Location\Province;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -168,5 +169,12 @@ class ProvinceController extends Controller
         } finally {
             return redirect()->route('province.index');
         }
+    }
+
+    public function all(): JsonResponse
+    {
+        $provinces = Province::all();
+
+        return response()->json($provinces);
     }
 }

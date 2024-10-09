@@ -1,5 +1,14 @@
 import { generateUUID } from "@/lib/generate-uuid";
-import { Archive, ChartNoAxesGantt, FileBoxIcon, Home, MapPinHouse, SquareChartGantt, User } from "lucide-react";
+import {
+  Archive,
+  ChartNoAxesGantt,
+  CircleDollarSign,
+  FileBoxIcon,
+  Home,
+  MapPinHouse,
+  SquareChartGantt,
+  User,
+} from "lucide-react";
 
 export const adminLinks = [
   {
@@ -128,6 +137,19 @@ export const adminLinks = [
         route_name: "products.index",
         href: route("products.index"),
         Icon: SquareChartGantt,
+        children: [],
+      },
+    ],
+  },
+  {
+    title: "Kelola Penjamin",
+    route: [
+      {
+        id: generateUUID(),
+        name: "Penjamin",
+        route_name: "guarantor.index",
+        href: route("guarantor.index"),
+        Icon: CircleDollarSign,
         children: [],
       },
     ],

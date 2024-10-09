@@ -13,7 +13,6 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
 
-
         $products = [
             [
                 'name' => 'Surety Bond',

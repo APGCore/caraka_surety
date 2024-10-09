@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 
 class Guarantor extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory,Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -20,6 +21,14 @@ class Guarantor extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->getAttribute('name'),
+            'telephone' => $this->getAttribute('telephone'),
+        ];
+    }
 
     public function province(): BelongsTo
     {

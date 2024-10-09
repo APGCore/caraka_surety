@@ -10,6 +10,7 @@ use App\Models\Location\District;
 use App\Models\Location\Regency;
 use App\Traits\RegionTrait;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -187,5 +188,14 @@ class DistrictController extends Controller
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function getByRegency($regencyId): JsonResponse
+    {
+        $districts = District::query()
+            ->where('regency_id', $regencyId)
+            ->get();
+
+        return response()->json($districts);
     }
 }

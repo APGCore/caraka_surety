@@ -2,7 +2,6 @@
 
 /** @noinspection ALL */
 
-
 use App\Http\Controllers\Scorings\ScoringController;
 use Illuminate\Support\Facades\Route;
 
