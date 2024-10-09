@@ -143,7 +143,7 @@ class ProvinceController extends Controller
     /**
      * Synchronize the provinces data from the external API.
      */
-    public function synchronize()
+    public function synchronize(): void
     {
         try {
             DB::beginTransaction();
@@ -166,13 +166,14 @@ class ProvinceController extends Controller
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
             Log::error('Provinsi Synchronized: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-        } finally {
-            return redirect()->route('province.index');
         }
     }
 
     public function all(): JsonResponse
     {
+        if (Province::query()->count() === 0) {
+            $this->synchronize();
+        }
         $provinces = Province::all();
 
         return response()->json($provinces);

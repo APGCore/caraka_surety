@@ -149,7 +149,7 @@ class DistrictController extends Controller
     /**
      * Synchronize the provinces data from the external API.
      */
-    public function synchronize(Request $request): \Illuminate\Http\RedirectResponse
+    public function synchronize(Request $request): void
     {
         $request->validate([
             'code' => 'required|exists:regencies,code',
@@ -185,16 +185,21 @@ class DistrictController extends Controller
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
             Log::error('Kecamatan Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-        } finally {
-            return redirect()->back();
         }
     }
 
     public function getByRegency($regencyId): JsonResponse
     {
+        $regency = Regency::query()->findOrFail($regencyId);
         $districts = District::query()
             ->where('regency_id', $regencyId)
             ->get();
+        if ($districts->isEmpty()) {
+            $this->synchronize(new Request(['code' => $regency->code]));
+            $districts = District::query()
+                ->where('regency_id', $regencyId)
+                ->get();
+        }
 
         return response()->json($districts);
     }

@@ -71,6 +71,20 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
   return (
     <form onSubmit={submit} className="mt-6 space-y-6">
       <div>
+        <InputLabel htmlFor="pic" value="Penanggung Jawab(PIC)" />
+
+        <TextInput
+          id="pic"
+          className="mt-1 block w-full"
+          value={data.pic}
+          onChange={(e) => setData("pic", e.target.value)}
+          autoComplete="pic"
+        />
+
+        <InputError className="mt-2" message={errors.pic} />
+      </div>
+
+      <div>
         <InputLabel htmlFor="name" value="Nama" />
 
         <TextInput
@@ -156,6 +170,7 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
 
         <InputError className="mt-2" message={errors.fax} />
       </div>
+
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 

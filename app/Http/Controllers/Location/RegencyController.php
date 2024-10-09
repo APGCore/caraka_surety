@@ -151,7 +151,7 @@ class RegencyController extends Controller
     /**
      * Synchronize the provinces data from the external API.
      */
-    public function synchronize(Request $request)
+    public function synchronize(Request $request): void
     {
         $request->validate([
             'code' => 'required|exists:provinces,code',
@@ -187,15 +187,18 @@ class RegencyController extends Controller
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Kabupaten', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
             Log::error('Kabupaten Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
-        } finally {
-            return redirect()->route('regency.index');
         }
     }
 
     public function getByProvince($provinceId): JsonResponse
     {
-        $regencies = Regency::query()
-            ->where('province_id', $provinceId)->get();
+        $province = Province::query()->findOrFail($provinceId);
+        $regencies = Regency::query()->where('province_id', $provinceId)->get();
+
+        if ($regencies->isEmpty()) {
+            $this->synchronize(new Request(['code' => $province->code]));
+            $regencies = Regency::query()->where('province_id', $provinceId)->get();
+        }
 
         return response()->json($regencies);
     }

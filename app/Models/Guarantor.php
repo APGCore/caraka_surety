@@ -25,6 +25,7 @@ class Guarantor extends Model
     public function toSearchableArray(): array
     {
         return [
+            'pic' => $this->getAttribute('pic'),
             'name' => $this->getAttribute('name'),
             'telephone' => $this->getAttribute('telephone'),
         ];

@@ -52,9 +52,7 @@ const InputLocation: React.FC<Props> = ({
   useEffect(() => {
     if (province_id) {
       setRegencies([]);
-      setRegencyId(null);
       setDistricts([]);
-      setDistrictId(null);
       axios
         .get(route("regency.by-province", province_id))
         .then((response) => {
@@ -69,7 +67,6 @@ const InputLocation: React.FC<Props> = ({
   useEffect(() => {
     if (regency_id) {
       setDistricts([]);
-      setDistrictId(null);
       axios
         .get(route("district.by-regency", regency_id))
         .then((response) => {
