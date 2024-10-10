@@ -28,8 +28,8 @@ const FileInput: React.FC<InputFileProps> = ({
   validation = ["image/jpeg", "image/png", "application/pdf"],
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [files, setFiles] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [files, setFiles] = useState<File | null>(null);
 
   const handleReset = () => {
     if (inputRef?.current) {
