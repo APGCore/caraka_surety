@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
             ProductTypeSeeder::class,
             ProductTypeToProductSeeder::class,
             ScoringSeeder::class,
+            ScoringQuestionCategorySeeder::class,
+            ScoringQuestionSeeder::class,
+            ScoringOptionSeeder::class,
         ]);
     }
 }
