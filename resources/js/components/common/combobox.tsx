@@ -9,7 +9,7 @@ export interface ComboboxProps<T> {
   datas: T[];
   labelKey: keyof T; // Key to display as the label
   valueKey: keyof T; // Key to use as the value
-  defaultValue?: string | number; // Default value
+  defaultValue?: string | number | null; // Default value
   onSelect?: (value: T) => void; // Callback when an item is selected
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found

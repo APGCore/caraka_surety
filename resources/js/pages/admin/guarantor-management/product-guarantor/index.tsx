@@ -1,19 +1,36 @@
 import { Combobox } from "@/components/common/combobox";
 import PrimaryButton from "@/components/common/primary-button";
+import SecondaryButton from "@/components/common/secondary-button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import AdminLayout from "@/layouts/admin";
+import { cn } from "@/lib/cn";
 import { Head } from "@inertiajs/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ProductGuarantorPageProps } from "./product-guarantor-page.type";
 
-const AdminProductsPage: ProductGuarantorPageProps = ({ guarantors, products }) => {
+const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products }) => {
+  const [active, setActive] = useState();
   const [productTypes, setProductTypes] = useState([]);
   const [productsGuarantor, setProductsGuarantor] = useState<Array<any>>([]);
-  const [productTypesGuarantor, setProductTypesGuarantor] = useState();
-  const [guarantorSelected, setGuarantorSelected] = useState();
-  const [productSelected, setProductSelected] = useState();
+  const [guarantorSelected, setGuarantorSelected] = useState(null);
+  const [productSelected, setProductSelected] = useState(null);
+
+  const [choosedProductTypes, setChoosedProductTypes] = useState<Array<{ id: number; code: string; name: string }>>([
+    { id: 0, code: "", name: "" },
+  ]);
+  const [values, setValues] = useState<Array<{ id: number; code: string; name: string }>>([
+    { id: 0, code: "", name: "" },
+  ]);
+  const [openStates, setOpenStates] = useState<boolean[]>([]);
 
   useEffect(() => {
     if (productSelected) {
@@ -27,16 +44,79 @@ const AdminProductsPage: ProductGuarantorPageProps = ({ guarantors, products }) 
     if (!guarantorSelected || !productSelected) {
       return toast({
         title: "Gagal",
-        description: "Pilih penjamin, dan produk terlebih dahulu",
+        description: "Pilih penjamin dan produk terlebih dahulu",
         variant: "destructive",
       });
     }
-    const data = [...productsGuarantor, products.find((product: any) => product.id === productSelected)];
+    if (productsGuarantor.find((product: any) => product.id === productSelected)) {
+      return toast({
+        title: "Gagal",
+        description: "Produk sudah ada di daftar",
+        variant: "destructive",
+      });
+    }
+
+    let data: Array<any>;
+    data = productsGuarantor;
+    data.push(products.find((product: any) => product.id === productSelected));
 
     setProductsGuarantor(data);
-    setProductSelected(undefined);
+    setProductSelected(null);
+    setActive(productSelected);
+  };
 
-    console.log(productsGuarantor);
+  const selectedProductTypes = useMemo(() => {
+    return productTypes.map((dataProductType: any) => ({
+      ...dataProductType,
+      isChoosed: choosedProductTypes.some((choosedType) => choosedType.id === dataProductType.id),
+    }));
+  }, [productTypes, choosedProductTypes]);
+
+  const handleComboboxSelect = (selectedItem: any, index: number) => {
+    const updatedProductTypes = choosedProductTypes[index]?.id
+      ? choosedProductTypes.map((type, idx) => (idx === index ? selectedItem : type))
+      : choosedProductTypes.map((type, idx) =>
+          idx === index ? { ...type, id: selectedItem.id, name: selectedItem.name } : type,
+        );
+
+    setChoosedProductTypes(updatedProductTypes);
+  };
+
+  const addCombobox = () => {
+    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "" }]);
+    setValues((prev) => [...prev, { id: prev.length, code: "", name: "" }]);
+    setOpenStates((prev) => [...prev, false]);
+  };
+
+  const removeCombobox = (index: number) => {
+    // Create a new array of product types without the item at the specified index
+    const updatedProductTypes = choosedProductTypes.filter((_, idx) => idx !== index);
+    const updatedValues = values.filter((_, idx) => idx !== index);
+
+    // Create a new array of open states without the item at the specified index
+    const updatedOpenStates = openStates.filter((_, idx) => idx !== index);
+
+    // Update state with the new arrays
+    setChoosedProductTypes(updatedProductTypes);
+    setValues(updatedValues);
+    setOpenStates(updatedOpenStates);
+  };
+
+  const togglePopover = (index: number) => {
+    setOpenStates((prev) => {
+      const newState = [...prev];
+      newState[index] = !newState[index];
+      return newState;
+    });
+  };
+
+  const submit = () => {
+    // axios.post(route("product-guarantor.store"), {
+    //   guarantor_id: guarantorSelected,
+    //   product_id: active,
+    //   product_types: productTypesGuarantor,
+    // });
+    console.log("submit");
   };
 
   return (
@@ -71,14 +151,111 @@ const AdminProductsPage: ProductGuarantorPageProps = ({ guarantors, products }) 
         </div>
       </div>
 
-      <div></div>
+      {productsGuarantor.length > 0 && (
+        <div className="flex w-full">
+          <div className="p-4 w-[30%]">
+            <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
+            {productsGuarantor.map((product) => (
+              <>
+                <SecondaryButton
+                  className={`w-full ${active === product.id ? "bg-gray-300" : ""}`}
+                  onClick={() => setActive(product.id)}>
+                  {product.name}
+                </SecondaryButton>
+                <Separator className="my-2" />
+              </>
+            ))}
+          </div>
+          <div className="p-4 pt-6 w-[60%]">
+            <form onSubmit={submit} className="grid gap-6 mx-5">
+              <div className="grid gap-2 ">
+                <Label htmlFor="name">Jenis Produk</Label>
+                {choosedProductTypes.map((val, id) => (
+                  <div key={id} className="space-y-2 flex items-center gap-x-2">
+                    <Input
+                      id="code"
+                      type="text"
+                      placeholder="Kode"
+                      value={values[id]?.code}
+                      className="mt-2 h-[40px]"
+                      onChange={(value) => {
+                        const newValue = values[id].code === value.target.value ? "" : value.target.value;
+                        setValues((prev) => {
+                          const newValues = [...prev];
+                          newValues[id] = { id: id, code: newValue, name: val.name };
+                          return newValues;
+                        });
+                      }}
+                    />
+                    <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openStates[id]}
+                          className="w-full justify-between">
+                          {values[id]?.name || "Pilih Jenis Produk..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search framework..." />
+                          <CommandList>
+                            <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
+                            <CommandGroup>
+                              {selectedProductTypes.map((framework) => (
+                                <CommandItem
+                                  key={framework.id}
+                                  disabled={framework.isChoosed}
+                                  onSelect={() => {
+                                    const newValue = values[id].name === framework.name ? "" : framework.name;
+                                    setValues((prev) => {
+                                      const newValues = [...prev];
+                                      newValues[id] = { id: id, code: val.code, name: newValue };
+                                      return newValues;
+                                    });
+                                    handleComboboxSelect(framework, id);
+                                    togglePopover(id);
+                                  }}>
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
+                                    )}
+                                  />
+                                  {framework.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {/* Delete Combobox Button */}
+                    {choosedProductTypes.length > 1 && (
+                      <Button type="button" onClick={() => removeCombobox(id)}>
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <Button type="button" onClick={addCombobox}>
+                Tambah Jenis Produk
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
 
-export default AdminProductsPage;
+export default ProductGuarantorPage;
 
-AdminProductsPage.layout = (page: any) => {
+ProductGuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

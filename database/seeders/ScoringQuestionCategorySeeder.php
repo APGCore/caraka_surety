@@ -15,30 +15,30 @@ class ScoringQuestionCategorySeeder extends Seeder
 
         $scoringQuestionCategory = [
             [
-                "scoring_id" => 1,
-                "name" => "Character",
-                "max_point" => 30
+                'scoring_id' => 1,
+                'name' => 'Character',
+                'max_point' => 30,
             ],
             [
-                "scoring_id" => 1,
-                "name" => "Capacity",
-                "max_point" => 20
+                'scoring_id' => 1,
+                'name' => 'Capacity',
+                'max_point' => 20,
             ],
             [
-                "scoring_id" => 1,
-                "name" => "Capital",
-                "max_point" => 20
+                'scoring_id' => 1,
+                'name' => 'Capital',
+                'max_point' => 20,
             ],
             [
-                "scoring_id" => 1,
-                "name" => "Condition",
-                "max_point" => 17
+                'scoring_id' => 1,
+                'name' => 'Condition',
+                'max_point' => 17,
             ],
             [
-                "scoring_id" => 1,
-                "name" => "Collateral",
-                "max_point" => 13
-            ]
+                'scoring_id' => 1,
+                'name' => 'Collateral',
+                'max_point' => 13,
+            ],
 
         ];
 
