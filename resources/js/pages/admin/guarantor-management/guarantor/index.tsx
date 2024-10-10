@@ -25,13 +25,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { AdminGuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/admin-guarantor-page.type";
+import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
 
-const AdminProductsPage: AdminGuarantorPageProps = ({ guarantors }) => {
+const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
@@ -168,6 +168,14 @@ const AdminProductsPage: AdminGuarantorPageProps = ({ guarantors }) => {
                               </div>
                             </DialogContent>
                           </Dialog>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link
+                            className="bg-green-500 text-destructive-foreground shadow-sm hover:bg-green-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                            href={route("product-guarantor.index", guarantor.id)}>
+                            Produk
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="cursor-pointer">

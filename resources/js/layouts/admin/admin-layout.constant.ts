@@ -8,6 +8,7 @@ import {
   Home,
   Landmark,
   MapPinHouse,
+  PackageSearch,
   SquareChartGantt,
   User,
 } from "lucide-react";
@@ -144,7 +145,7 @@ export const adminLinks = [
     ],
   },
   {
-    title: "Kelola Pihak Terkait",
+    title: "Kelola Penjamin",
     route: [
       {
         id: generateUUID(),
@@ -154,6 +155,19 @@ export const adminLinks = [
         Icon: CircleDollarSign,
         children: [],
       },
+      {
+        id: generateUUID(),
+        name: "Produk Penjamin",
+        route_name: "product-guarantor.index",
+        href: route("product-guarantor.index"),
+        Icon: PackageSearch,
+        children: [],
+      },
+    ],
+  },
+  {
+    title: "Kelola Pihak Terkait",
+    route: [
       {
         id: generateUUID(),
         name: "Obligee",

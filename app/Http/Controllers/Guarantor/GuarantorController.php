@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guarantor;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\StoreRequest;
 use App\Http\Requests\Guarantor\UpdateRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
-use App\Models\Guarantor;
+use App\Models\Guarantor\Guarantor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

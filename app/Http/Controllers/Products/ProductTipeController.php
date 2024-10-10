@@ -171,4 +171,15 @@ class ProductTipeController extends Controller
 
         return response()->json($productTypes);
     }
+
+    public function getByProduct($productId)
+    {
+        $productTypes = ProductType::query()
+            ->whereHas('product', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->get();
+
+        return response()->json($productTypes);
+    }
 }

@@ -21,8 +21,9 @@ Route::prefix('product-management')->group(function () {
             Route::get('/create', 'create')->name('create');
             Route::get('/all', 'getAllProductType')->name('all');
             Route::post('/store', 'store')->name('store');
-            Route::delete('/{productTipe}', 'destroy')->name('destroy');
             Route::get('/edit/{productTipe}', 'edit')->name('edit');
-            Route::put('/{productTipe}', 'update')->name('update');
+            Route::put('update/{productTipe}', 'update')->name('update');
+            Route::delete('destroy/{productTipe}', 'destroy')->name('destroy');
+            Route::get('/get-by-product/{productId}', 'getByProduct')->name('get-by-product');
         });
 });
