@@ -144,7 +144,7 @@ export const adminLinks = [
     ],
   },
   {
-    title: "Kelola Penjamin",
+    title: "Kelola Pihak Terkait",
     route: [
       {
         id: generateUUID(),
@@ -152,6 +152,22 @@ export const adminLinks = [
         route_name: "guarantor.index",
         href: route("guarantor.index"),
         Icon: CircleDollarSign,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Obligee",
+        route_name: "obligee.index",
+        href: route("obligee.index"),
+        Icon: Building,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Bank",
+        route_name: "bank.index",
+        href: route("bank.index"),
+        Icon: Landmark,
         children: [],
       },
     ],
@@ -165,32 +181,6 @@ export const adminLinks = [
         route_name: "scoring.index",
         href: route("scoring.index"),
         Icon: ChartNoAxesGantt,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Obligee",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Obligee",
-        route_name: "obligee.index",
-        href: route("obligee.index"),
-        Icon: Building,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Bank",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Bank",
-        route_name: "bank.index",
-        href: route("bank.index"),
-        Icon: Landmark,
         children: [],
       },
     ],
