@@ -23,13 +23,32 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   const [productsGuarantor, setProductsGuarantor] = useState<Array<any>>([]);
   const [guarantorSelected, setGuarantorSelected] = useState(null);
   const [productSelected, setProductSelected] = useState(null);
+  const [guarantorProductTypes, setGuarantorProductTypes] = useState<Array<any>>();
+  const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<
+    Array<{
+      product_id: number;
+      product_types: Array<{
+        id: number;
+        code: string;
+        product_type_id: number;
+        name: string;
+        kelompok_pekerjaan: string;
+      }>;
+    }>
+  >([]);
 
-  const [choosedProductTypes, setChoosedProductTypes] = useState<Array<{ id: number; code: string; name: string }>>([
-    { id: 0, code: "", name: "" },
-  ]);
-  const [values, setValues] = useState<Array<{ id: number; code: string; name: string }>>([
-    { id: 0, code: "", name: "" },
-  ]);
+  const [choosedProductTypes, setChoosedProductTypes] = useState<
+    Array<{ id: number; code: string; product_type_id: number; name: string; kelompok_pekerjaan: string }>
+  >([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+  const [values, setValues] = useState<
+    Array<{
+      id: number;
+      code: string;
+      product_type_id: number;
+      name: string;
+      kelompok_pekerjaan: string;
+    }>
+  >([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
   const [openStates, setOpenStates] = useState<boolean[]>([]);
 
   useEffect(() => {
@@ -58,17 +77,53 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
 
     let data: Array<any>;
     data = productsGuarantor;
-    data.push(products.find((product: any) => product.id === productSelected));
+    const product = products.find((product: any) => product.id === productSelected);
+    data.push(product);
 
     setProductsGuarantor(data);
     setProductSelected(null);
-    setActive(productSelected);
+    selectProduct(product);
+  };
+
+  const changeGuarantor = (guarantor: any) => {
+    if (guarantorSelected === guarantor.id) return;
+
+    setGuarantorProductTypes((prev: any) => {
+      const newValues = Array.isArray(prev) ? [...prev] : [];
+      return (newValues[guarantor.id] = productTypeOwnedProduct);
+    });
+
+    setGuarantorSelected(guarantor.id);
+    setValues([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+    setChoosedProductTypes([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+
+    setProductsGuarantor([]);
+    setProductTypeOwnedProduct([]);
+    setProductSelected(null);
+  };
+
+  const selectProduct = (product: any) => {
+    if (active === product.id) return;
+
+    const newValue = productTypeOwnedProduct.filter((data: any) => data.product_id !== active && data.product_id !== 0);
+
+    setProductTypeOwnedProduct([
+      ...newValue,
+      {
+        product_id: active || 0,
+        product_types: values,
+      },
+    ]);
+
+    setActive(product.id);
+    const productTypes = productTypeOwnedProduct.find((data: any) => data.product_id === product.id)?.product_types;
+    setValues(productTypes || [{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+    setChoosedProductTypes(productTypes || [{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
   };
 
   const selectedProductTypes = useMemo(() => {
     return productTypes.map((dataProductType: any) => ({
       ...dataProductType,
-      isChoosed: choosedProductTypes.some((choosedType) => choosedType.id === dataProductType.id),
     }));
   }, [productTypes, choosedProductTypes]);
 
@@ -76,15 +131,32 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     const updatedProductTypes = choosedProductTypes[index]?.id
       ? choosedProductTypes.map((type, idx) => (idx === index ? selectedItem : type))
       : choosedProductTypes.map((type, idx) =>
-          idx === index ? { ...type, id: selectedItem.id, name: selectedItem.name } : type,
+          idx === index
+            ? {
+                ...type,
+                id: selectedItem.id,
+                code: selectedItem.code,
+                name: selectedItem.name,
+                kelompok_pekerjaan: selectedItem.kelompok_pekerjaan,
+              }
+            : type,
         );
 
     setChoosedProductTypes(updatedProductTypes);
   };
 
   const addCombobox = () => {
-    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "" }]);
-    setValues((prev) => [...prev, { id: prev.length, code: "", name: "" }]);
+    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "", kelompok_pekerjaan: "" }]);
+    setValues((prev) => [
+      ...prev,
+      {
+        id: prev.length,
+        code: "",
+        product_type_id: 0,
+        name: "",
+        kelompok_pekerjaan: "",
+      },
+    ]);
     setOpenStates((prev) => [...prev, false]);
   };
 
@@ -130,7 +202,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             defaultValue={guarantorSelected}
             placeholder={"Pilih Penjamin"}
             className={"w-[210px]"}
-            onSelect={(value) => setGuarantorSelected(value.id)}
+            onSelect={(value) => changeGuarantor(value)}
           />
         </div>
 
@@ -158,15 +230,15 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             {productsGuarantor.map((product) => (
               <>
                 <SecondaryButton
-                  className={`w-full ${active === product.id ? "bg-gray-300" : ""}`}
-                  onClick={() => setActive(product.id)}>
+                  className={`w-full ${active === product.id ? "bg-gray-400" : ""} hover:bg-gray-400`}
+                  onClick={() => selectProduct(product)}>
                   {product.name}
                 </SecondaryButton>
                 <Separator className="my-2" />
               </>
             ))}
           </div>
-          <div className="p-4 pt-6 w-[60%]">
+          <div className="p-4 pt-6 w-[70%]">
             <form onSubmit={submit} className="grid gap-6 mx-5">
               <div className="grid gap-2 ">
                 <Label htmlFor="name">Jenis Produk</Label>
@@ -177,12 +249,18 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                       type="text"
                       placeholder="Kode"
                       value={values[id]?.code}
-                      className="mt-2 h-[40px]"
+                      className="mt-2 h-[40px] w-[30%]"
                       onChange={(value) => {
                         const newValue = values[id].code === value.target.value ? "" : value.target.value;
                         setValues((prev) => {
                           const newValues = [...prev];
-                          newValues[id] = { id: id, code: newValue, name: val.name };
+                          newValues[id] = {
+                            id: id,
+                            code: newValue,
+                            product_type_id: values[id].product_type_id,
+                            name: values[id].name,
+                            kelompok_pekerjaan: values[id].kelompok_pekerjaan,
+                          };
                           return newValues;
                         });
                       }}
@@ -207,12 +285,17 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                               {selectedProductTypes.map((framework) => (
                                 <CommandItem
                                   key={framework.id}
-                                  disabled={framework.isChoosed}
                                   onSelect={() => {
                                     const newValue = values[id].name === framework.name ? "" : framework.name;
                                     setValues((prev) => {
                                       const newValues = [...prev];
-                                      newValues[id] = { id: id, code: val.code, name: newValue };
+                                      newValues[id] = {
+                                        id: id,
+                                        code: values[id].code,
+                                        product_type_id: framework.id,
+                                        name: newValue,
+                                        kelompok_pekerjaan: values[id].kelompok_pekerjaan,
+                                      };
                                       return newValues;
                                     });
                                     handleComboboxSelect(framework, id);
@@ -232,6 +315,28 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                         </Command>
                       </PopoverContent>
                     </Popover>
+
+                    <Input
+                      id="kelompok_pekerjaan"
+                      type="text"
+                      placeholder="Kelompok Pekerjaan"
+                      value={values[id]?.kelompok_pekerjaan}
+                      className="mt-2 h-[40px]"
+                      onChange={(value) => {
+                        const newValue = values[id].kelompok_pekerjaan === value.target.value ? "" : value.target.value;
+                        setValues((prev) => {
+                          const newValues = [...prev];
+                          newValues[id] = {
+                            id: id,
+                            code: values[id].code,
+                            product_type_id: values[id].product_type_id,
+                            name: values[id].name,
+                            kelompok_pekerjaan: newValue,
+                          };
+                          return newValues;
+                        });
+                      }}
+                    />
                     {/* Delete Combobox Button */}
                     {choosedProductTypes.length > 1 && (
                       <Button type="button" onClick={() => removeCombobox(id)}>

@@ -2,26 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bank;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Location\DistrictController;
+use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Bank\StoreRequest;
 use App\Http\Requests\Bank\UpdateRequest;
+use App\Http\Resources\Bank\BankResource;
+use App\Models\Bank;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Http\Resources\Bank\BankResource;
-
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Location\DistrictController;
-use App\Http\Controllers\Location\RegencyController;
-use Inertia\Response;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
-
-
-
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Response;
 
 class BankController extends Controller
 {
@@ -107,7 +102,7 @@ class BankController extends Controller
     {
         try {
             DB::beginTransaction();
-            if($request->hasFile('picture')){
+            if ($request->hasFile('picture')) {
                 $request->merge([
                     'picture' => $request->file('picture')
                         ->store('obligees', [
@@ -121,7 +116,7 @@ class BankController extends Controller
 
             flashMessage('Berhasil', 'Penambahan data bank berhasil');
             DB::commit();
-       }catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data bank gagal', 'error');
             Log::error('ObligeeController@store: ', ['message' => $e->getMessage()]);
@@ -186,7 +181,7 @@ class BankController extends Controller
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -198,7 +193,6 @@ class BankController extends Controller
             'districts' => $districts,
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.

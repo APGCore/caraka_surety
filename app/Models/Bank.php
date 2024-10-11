@@ -13,7 +13,7 @@ use Laravel\Scout\Searchable;
 
 class Bank extends Model
 {
-    use HasFactory, SoftDeletes, Searchable;
+    use HasFactory, Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',

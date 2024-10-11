@@ -11,11 +11,11 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\Obligee;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
-use Illuminate\Http\Request;
 use Inertia\Response;
 
 class ObligeeController extends Controller
@@ -101,9 +101,9 @@ class ObligeeController extends Controller
      */
     public function store(StoreRequest $request)
     {
-       try {
+        try {
             DB::beginTransaction();
-            if($request->hasFile('picture')){
+            if ($request->hasFile('picture')) {
                 $request->merge([
                     'picture' => $request->file('picture')
                         ->store('obligees', [
@@ -118,7 +118,7 @@ class ObligeeController extends Controller
             flashMessage('Berhasil', 'Penambahan data obligee berhasil');
             DB::commit();
 
-       }catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data obligee gagal', 'error');
             Log::error('ObligeeController@store: ', ['message' => $e->getMessage()]);
@@ -126,7 +126,6 @@ class ObligeeController extends Controller
             return redirect()->route('obligee.index');
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -184,7 +183,7 @@ class ObligeeController extends Controller
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -196,7 +195,6 @@ class ObligeeController extends Controller
             'districts' => $districts,
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.

@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/cn";
 import { Check, ChevronDown } from "lucide-react";
 import * as React from "react";
+import { useEffect } from "react";
 
 export interface ComboboxProps<T> {
   datas: T[];
@@ -22,6 +23,12 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, def
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string | number>("");
 
+  useEffect(() => {
+    if (!defaultValue) {
+      setValue("");
+    }
+  }, [defaultValue]);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -33,8 +40,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, def
           {(() => {
             if (defaultValue) {
               return datas.find((item) => item["id"] === defaultValue)?.[labelKey];
-            }
-            if (value) {
+            } else if (value && defaultValue !== null) {
               return datas.find((item) => item[valueKey] === value)?.[labelKey];
             }
             return props?.placeholder ?? "Select item...";
