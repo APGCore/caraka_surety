@@ -1,3 +1,5 @@
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,8 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,35 +22,72 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { cn } from "@/lib/cn";
+import { getQueryParameter } from "@/lib/get-query-parameter";
+import { ObligeeManagementPageProps } from "@/pages/admin/obligee-management/obligee/obligee-management-page.type";
+import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { pickBy } from "lodash";
 import { useState } from "react";
-import { BankManagementPageProps } from "./bank-management-page.type";
 
-const BankManagementPage: BankManagementPageProps = ({ banks }) => {
-  const [search, setSearch] = useState("");
-  const [select, setSelect] = useState(10);
+const ObligeeManagementPage: ObligeeManagementPageProps = (props) => {
+  const { data: obligees, meta } = props.obligees;
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [select, setSelect] = useState(() =>
+    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
+  );
+  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+  const handleSelect = (e: string) => {
+    setSelect(Number(e));
+    getData(e, search);
   };
 
-  const handleSelect = (value: string) => {
-    setSelect(Number(value));
+  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    getData(String(select), search);
+  };
+
+  const getData = (perPage: string, search: string) => {
+    return router.get(
+      route("obligee.index"),
+      pickBy({
+        per_page: perPage,
+        search,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
+  };
+
+  const deleteData = (obligee: any) => {
+    router.delete(route("obligee.destroy", obligee.id));
   };
 
   return (
     <main className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">Obligee</h1>
+        <div className="flex gap-x-3">
+          <Link
+            className={cn(
+              buttonVariants({
+                variant: "default",
+              }),
+            )}
+            href={route("obligee.create")}>
+            Tambah Obligee
+          </Link>
+        </div>
+      </div>
+
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <Button>Export</Button>
-          <Select onValueChange={handleSelect} defaultValue={String(select)}>
+          <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
-              <SelectValue placeholder="Items per page" />
+              <SelectValue placeholder="Theme" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="10">10</SelectItem>
@@ -58,13 +98,8 @@ const BankManagementPage: BankManagementPageProps = ({ banks }) => {
           </Select>
         </div>
         <div className="flex gap-x-3">
-          <form onSubmit={handleSearch} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Pengajuan"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
+            <Input placeholder="Cari Obligee" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -74,36 +109,25 @@ const BankManagementPage: BankManagementPageProps = ({ banks }) => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
-              <TableHead>Nama Bank</TableHead>
-              <TableHead>Tanggal Dibuat</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead>Nama</TableHead>
+              <TableHead>PIC</TableHead>
+              <TableHead>Dibuat</TableHead>
+              <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {banks.length > 0 ? (
-              banks.map((obligee, index) => (
+            {obligees.length > 0 ? (
+              obligees.map((obligee: any, index: number) => (
                 <TableRow key={obligee.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{obligee.name}</TableCell>
-                  <TableCell>{obligee.created_at}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded ${
-                        obligee.status === "Approved"
-                          ? "bg-green-100 text-green-800"
-                          : obligee.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}>
-                      {obligee.status}
-                    </span>
-                  </TableCell>
+                  <TableCell>{meta.from + index}</TableCell>
+                  <TableCell>{obligee?.name}</TableCell>
+                  <TableCell>{obligee?.pic}</TableCell>
+                  <TableCell>{obligee?.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group">
-                          <DotsHorizontalIcon className="h-4 w-4" />
+                        <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
+                          <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
@@ -112,30 +136,34 @@ const BankManagementPage: BankManagementPageProps = ({ banks }) => {
                           <Link href={route("obligee.show", { id: obligee.id })}>Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={`/pengajuan/edit/${obligee.id}`}>Edit</Link>
+                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                          <Link
+                            href={route("obligee.edit", obligee.id)}
+                            className="text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                            Edit
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0">
+                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengajuan secara permanen.
+                                  Tindakan ini akan menghapus data obligee {obligee.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    // Tambahkan logika penghapusan di sini
+                                    deleteData(obligee);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Hapus
+                                  Lanjutkan Hapus
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -149,60 +177,34 @@ const BankManagementPage: BankManagementPageProps = ({ banks }) => {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
-                  Tidak ada data ditemukan
+                  No data found
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="text-sm text-gray-500">
-        Menampilkan {banks.length > 0 ? 1 : 0} sampai {banks.length} dari {banks.length} hasil
-      </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <Button variant="ghost" disabled>
-              Previous
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink as="button" size="icon" href="#">
-              1
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <Button variant="ghost" disabled>
-              Next
-            </Button>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <ShowingCountDatatable meta={meta} />
+      <PaginationDatatable meta={meta} />
     </main>
   );
 };
 
-export default BankManagementPage;
+export default ObligeeManagementPage;
 
-BankManagementPage.layout = (page: any) => {
+ObligeeManagementPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Bank"} />
+      <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            {/* <BreadcrumbLink href={route("pengajuan.index")}>Kelola Pengajuan</BreadcrumbLink> */}
+            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>
-          <Link href={route("bank.create")}>Tambah Bank</Link>
-        </Button>
-      </div>
       {page}
     </AdminLayout>
   );
