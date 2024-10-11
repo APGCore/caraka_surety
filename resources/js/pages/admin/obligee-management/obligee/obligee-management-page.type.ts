@@ -1,7 +1,7 @@
 import React from "react";
 
 interface ObligeeManagementProps {
-  obligees: any[];
+  obligees: any;
 }
 
 export type ObligeeManagementPageProps = React.FC<ObligeeManagementProps> & {

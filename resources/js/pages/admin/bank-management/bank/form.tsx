@@ -41,55 +41,56 @@ const Form: React.FC<Props> = ({
 }) => {
   return (
     <form onSubmit={submitForm} className="mt-6 space-y-6">
+      {/* 1. Nama */}
       <div>
         <InputLabel htmlFor="name" value="Nama" />
-
         <TextInput
           id="name"
           className="mt-1 block w-full"
-          value={data.name}
+          placeholder="Masukkan nama bank..."
+          value={data.name || ""}
           onChange={(e) => setData("name", e.target.value)}
           required
           isFocused
           autoComplete="name"
         />
-
         <InputError className="mt-2" message={errors.name} />
       </div>
 
+      {/* 2. Telephone */}
       <div>
-        <InputLabel htmlFor="fax" value="Fax" />
-
+        <InputLabel htmlFor="telephone" value="Telepon" />
         <TextInput
-          id="fax"
+          id="telephone"
+          type="number"
           className="mt-1 block w-full"
-          value={data.fax}
-          onChange={(e) => setData("fax", e.target.value)}
+          placeholder="Masukkan nomor telepon..."
+          value={data.telephone || ""}
+          onChange={(e) => setData("telephone", e.target.value)}
           required
-          autoComplete="fax"
+          autoComplete="telephone"
         />
-
-        <InputError className="mt-2" message={errors.fax} />
+        <InputError className="mt-2" message={errors.telephone} />
       </div>
 
+      {/* 3. Alamat */}
       <div>
-        <InputLabel htmlFor="pic" value="PIC" />
-
-        <TextInput
-          id="pic"
+        <InputLabel htmlFor="address" value="Alamat" />
+        <Textarea
+          id="address"
+          placeholder="Masukkan alamat bank..."
           className="mt-1 block w-full"
-          value={data.pic}
-          onChange={(e) => setData("pic", e.target.value)}
+          value={data.address || ""}
+          onChange={(e) => setData("address", e.target.value)}
           required
-          autoComplete="pic"
+          autoComplete="address"
         />
-
-        <InputError className="mt-2" message={errors.pic} />
+        <InputError className="mt-2" message={errors.address} />
       </div>
 
+      {/* 4. Provinsi */}
       <div>
         <InputLabel htmlFor="province_id" value="Provinsi" />
-
         <Combobox
           datas={provinces}
           labelKey="name"
@@ -100,13 +101,12 @@ const Form: React.FC<Props> = ({
           notFoundText="Provinsi tidak ditemukan."
           className="mt-1 w-full"
         />
-
         <InputError className="mt-2" message={errors.province_id} />
       </div>
 
+      {/* 5. Kabupaten/Kota */}
       <div>
         <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
-
         <Combobox
           datas={regencies}
           labelKey="name"
@@ -117,13 +117,12 @@ const Form: React.FC<Props> = ({
           notFoundText="Kabupaten/Kota tidak ditemukan."
           className="mt-1 w-full"
         />
-
         <InputError className="mt-2" message={errors.regency_id} />
       </div>
 
+      {/* 6. Kecamatan */}
       <div>
         <InputLabel htmlFor="district_id" value="Kecamatan" />
-
         <Combobox
           datas={districts}
           labelKey="name"
@@ -134,16 +133,16 @@ const Form: React.FC<Props> = ({
           notFoundText="Kecamatan tidak ditemukan."
           className="mt-1 w-full"
         />
-
         <InputError className="mt-2" message={errors.district_id} />
       </div>
 
+      {/* 7. Desa/Kelurahan */}
       <div>
         <InputLabel htmlFor="village" value="Desa/Kelurahan" />
-
         <TextInput
           id="village"
           className="mt-1 block w-full"
+          placeholder="Masukkan Desa..."
           value={data.village}
           onChange={(e) => setData("village", e.target.value)}
           required
@@ -152,56 +151,40 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.village} />
       </div>
 
+      {/* 8. Fax */}
       <div>
-        <InputLabel htmlFor="address" value="Alamat" />
-
-        <Textarea
-          id="address"
-          className="mt-1 block w-full"
-          value={data.address}
-          onChange={(e) => setData("address", e.target.value)}
-          required
-          autoComplete="address"
-        />
-
-        <InputError className="mt-2" message={errors.address} />
-      </div>
-
-      <div>
-        <InputLabel htmlFor="postal_code" value="Kode Pos" />
-
+        <InputLabel htmlFor="fax" value="Fax" />
         <TextInput
-          id="postal_code"
+          id="fax"
+          type="number"
+          placeholder="Masukkan Fax"
           className="mt-1 block w-full"
-          value={data.postal_code}
-          onChange={(e) => setData("postal_code", e.target.value)}
+          value={data.fax || ""}
+          onChange={(e) => setData("fax", e.target.value)}
           required
-          autoComplete="postal_code"
+          autoComplete="fax"
         />
-
-        <InputError className="mt-2" message={errors.postal_code} />
+        <InputError className="mt-2" message={errors.fax} />
       </div>
 
+      {/* 9. PIC */}
       <div>
-        <InputLabel htmlFor="description" value="Deskripsi" />
-
-        <Textarea
-          id="description"
+        <InputLabel htmlFor="pic" value="PIC" />
+        <TextInput
+          id="pic"
           className="mt-1 block w-full"
-          value={data.description}
-          onChange={(e) => setData("description", e.target.value)}
+          placeholder="Masukkan PIC..."
+          value={data.pic || ""}
+          onChange={(e) => setData("pic", e.target.value)}
           required
-          autoComplete="description"
+          autoComplete="pic"
         />
-
-        <InputError className="mt-2" message={errors.description} />
+        <InputError className="mt-2" message={errors.pic} />
       </div>
 
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
-
         <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
-
         <Transition
           show={recentlySuccessful}
           enter="transition ease-in-out"
