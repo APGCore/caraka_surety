@@ -59,17 +59,14 @@ class GuarantorController extends Controller
         try {
             DB::beginTransaction();
 
+            $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $request->merge([
-                    'picture' => $request->file('upload_picture')
-                        ->store('guarantors', [
-                            'disk' => 'private',
-                        ]),
-                ]);
+                $path = $request->file('upload_picture')->store('guarantors', 'public');
+                $requestValid['picture'] = $path;
             }
 
             Guarantor::query()
-                ->create($request->validated());
+                ->create($requestValid);
 
             flashMessage('Berhasil', 'Penambahan data penjamin berhasil');
             DB::commit();
@@ -107,7 +104,14 @@ class GuarantorController extends Controller
         try {
             DB::beginTransaction();
 
-            $guarantor->update($request->validated());
+            $requestValid = $request->validated();
+            if ($guarantor->getAttribute('picture') && Storage::exists($guarantor->getAttribute('picture'))) {
+                $requestValid['picture'] = Storage::put($guarantor->getAttribute('picture'), $request->file('upload_picture'), 'public');
+            } else {
+                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
+            }
+
+            $guarantor->update($requestValid);
 
             flashMessage('Berhasil', 'Perubahan data penjamin berhasil');
             DB::commit();
@@ -138,38 +142,6 @@ class GuarantorController extends Controller
             DB::rollBack();
             flashMessage('Gagal', 'Data penjamin gagal dihapus', 'error');
             Log::error('GuarantorController@destroy: ', ['message' => $e->getMessage()]);
-
-            return back()->withErrors($e->getMessage());
-        }
-    }
-
-    /**
-     * Upload Picture.
-     */
-    public function uploadPicture(Request $request, Guarantor $guarantor)
-    {
-        $request->validate([
-            'picture' => ['required', 'image', 'max:2048'],
-        ]);
-        try {
-            DB::beginTransaction();
-            if ($guarantor->getAttribute('picture') && Storage::exists($guarantor->getAttribute('picture'))) {
-                $path = Storage::put($guarantor->getAttribute('picture'), $request->file('picture'), 'public');
-            } else {
-                $path = $request->file('picture')->store('guarantors', 'public');
-            }
-
-            $guarantor->update([
-                'picture' => $path,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('guarantor.index');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            flashMessage('Gagal', 'Upload gambar gagal', 'error');
-            Log::error('GuarantorController@uploadPicture: ', ['message' => $e->getMessage()]);
 
             return back()->withErrors($e->getMessage());
         }

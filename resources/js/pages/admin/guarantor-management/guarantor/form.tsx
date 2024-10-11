@@ -16,7 +16,7 @@ interface Props {
 }
 
 const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
-  const { data, setData, post, patch, errors, processing } = useForm<{
+  const { data, setData, post, errors, processing } = useForm<{
     id: number | null;
     name: string;
     email: string;
@@ -29,6 +29,7 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     fax: string;
     pic: string;
     picture: string | null;
+    upload_picture: File | null;
   }>({
     id: guarantor?.id ?? null,
     name: guarantor?.name ?? "",
@@ -42,25 +43,12 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     fax: guarantor?.fax ?? "",
     pic: guarantor?.pic ?? "",
     picture: guarantor?.picture ?? null,
+    upload_picture: null,
   });
 
-  const [picture, setPicture] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const uploadPicture = (id: number | null) => {
-    router.post(
-      route("guarantor.upload.picture", id ?? 0),
-      {
-        id,
-        picture,
-      },
-      {
-        preserveScroll: true,
-        preserveState: true,
-      },
-    );
-  };
   const cancel = () => {
     router.get(routeBack);
   };
@@ -69,27 +57,23 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     event.preventDefault();
 
     if (data.id) {
-      patch(routeSubmit, {
-        preserveScroll: true,
-        preserveState: true,
-        onFinish: () => {
-          if (picture) {
-            uploadPicture(data.id);
-          } else {
+      router.post(
+        routeSubmit,
+        { ...data, _method: "put" },
+        {
+          preserveScroll: true,
+          preserveState: true,
+          onFinish: () => {
             router.get(routeBack);
-          }
+          },
         },
-      });
+      );
     } else {
       post(routeSubmit, {
         preserveScroll: true,
         preserveState: true,
         onFinish: () => {
-          if (picture) {
-            uploadPicture(data.id);
-          } else {
-            router.get(routeBack);
-          }
+          router.get(routeBack);
         },
       });
     }
@@ -120,11 +104,11 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
             const file = e?.target?.files ? e.target.files[0] : null;
 
             if (!file) {
-              setPicture(null);
+              setData("upload_picture", null);
               return;
             }
 
-            setPicture(file);
+            setData("upload_picture", file);
             setPreview(URL.createObjectURL(file));
           }}
         />
