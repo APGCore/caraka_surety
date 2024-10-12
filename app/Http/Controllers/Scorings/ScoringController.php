@@ -63,7 +63,7 @@ class ScoringController extends Controller
             'name.required' => 'Nama Skoring wajib diisi',
             'name.string' => 'Nama Skoring harus berupa string',
             'min_point.required' => 'Poin minimal wajib diisi',
-            'min_point.id.integer' => 'Poin minimal harus berupa angka',
+            'min_point.integer' => 'Poin minimal harus berupa angka',
         ]);
 
         try {
@@ -126,7 +126,7 @@ class ScoringController extends Controller
             'name.required' => 'Nama Skoring wajib diisi',
             'name.string' => 'Nama Skoring harus berupa string',
             'min_point.required' => 'Poin minimal wajib diisi',
-            'min_point.id.integer' => 'Poin minimal harus berupa angka',
+            'min_point.integer' => 'Poin minimal harus berupa angka',
         ]);
 
         try {
@@ -162,12 +162,11 @@ class ScoringController extends Controller
 
             if ($scoring->exists) {
                 $scoring->delete();
+                DB::commit();
+                flashMessage('Skoring Dihapus', 'Skoring berhasil dihapus');
             } else {
                 throw new ThrottleRequestsException('Skoring tidak ditemukan');
             }
-
-            DB::commit();
-            flashMessage('Skoring Dihapus', 'Skoring berhasil dihapus');
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Skoring', 'Terjadi kesalahan saat menghapus Skoring', 'error');

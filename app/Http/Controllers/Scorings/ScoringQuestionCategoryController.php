@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringQuestionCategoryResource;
 use App\Models\Scoring;
 use App\Models\ScoringQuestionCategory;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScoringQuestionCategoryController extends Controller
 {
@@ -46,9 +49,16 @@ class ScoringQuestionCategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $component = $request->path() . '/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Kategori Pertanyaan Skoring',
+            ],
+
+        ]);
     }
 
     /**
@@ -57,12 +67,44 @@ class ScoringQuestionCategoryController extends Controller
     public function store(Request $request)
     {
         //
+
+        $request->validate([
+            'name' => 'required|string',
+            'max_point' => 'required|integer',
+            'scoring_id' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'max_point.required' => 'Poin maksimal wajib diisi',
+            'max_point.integer' => 'Poin maksimal harus berupa angka',
+            'scoring_id.required' => 'Id Scoring wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Create Scoring Question Category
+            ScoringQuestionCategory::query()
+                ->create($request->only('name', 'max_point', 'scoring_id'));
+
+            flashMessage('Kategori Pertanyaan Skoring Ditambahkan', 'Kategori Pertanyaan Skoring berhasil ditambahkan');
+
+            DB::commit();
+
+            return redirect()->route('scoring-question-category.index', ['scoring_id' => $request->get('scoring_id')]);
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Menambahkan Kategori Pertanyaan Skoring', 'Terjadi kesalahan saat menambahkan kategori pertanyaan skoring', 'error');
+            Log::error('Scoring Question Category Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ScoringQuestionCategory $scoringCategory)
+    public function show(ScoringQuestionCategory $scoringQuestionCategory)
     {
         //
     }
@@ -70,24 +112,82 @@ class ScoringQuestionCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ScoringQuestionCategory $scoringCategory)
+    public function edit(ScoringQuestionCategory $scoringQuestionCategory)
     {
         //
+        $component = 'admin/scoring-management/scoring-question-category/edit/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Edit Kategori Pertanyaan Skoring',
+            ],
+
+            'scoringQuestionCategory' => fn() => $scoringQuestionCategory,
+
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ScoringQuestionCategory $scoringCategory)
+    public function update(Request $request, ScoringQuestionCategory $scoringQuestionCategory)
     {
-        //
+        $request->validate([
+            'name' => 'required|string',
+            'max_point' => 'required|integer',
+            'scoring_id' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'max_point.required' => 'Poin maksimal wajib diisi',
+            'max_point.integer' => 'Poin maksimal harus berupa angka',
+            'scoring_id.required' => 'Id Scoring wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            if ($scoringQuestionCategory->exists) {
+                $scoringQuestionCategory->update($request->only('name', 'max_point', 'scoring_id'));
+
+                DB::commit();
+                flashMessage('Kategori Pertanyaan Skoring Diperbarui', 'Kategori Pertanyaan Skoring berhasil diperbarui');
+
+                return redirect()->route('scoring-question-category.index', ['scoring_id' => $request->get('scoring_id')]);
+            } else {
+                throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Memperbarui Kategori Pertanyaan Skoring', 'Terjadi kesalahan saat memperbarui kategori pertanyaan skoring', 'error');
+            Log::error('Scoring Question Category Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ScoringQuestionCategory $scoringCategory)
+    public function destroy(ScoringQuestionCategory $scoringQuestionCategory)
     {
         //
+        try {
+            DB::beginTransaction();
+
+            if ($scoringQuestionCategory->exists) {
+                $scoringQuestionCategory->delete();
+                DB::commit();
+                flashMessage('Kategori Pertanyaan Skoring Dihapus', 'Kategori Pertanyaan Skoring berhasil dihapus');
+            } else {
+                throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Kategori Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Kategori Pertanyaan Skoring', 'error');
+            Log::error('Scoring Question Category Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
+        }
     }
 }

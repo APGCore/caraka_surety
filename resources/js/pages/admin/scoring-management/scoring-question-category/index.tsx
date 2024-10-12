@@ -1,5 +1,4 @@
 import { Combobox } from "@/components/common/combobox";
-import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import { Label } from "@/components/ui/label";
@@ -18,9 +17,9 @@ const AdminScoringQuestionCategoryPage: AdminScoringQuestionCategoryPropsPagePro
   initialSelectedScoring,
 }) => {
   const [scorings, setScorings] = useState([]);
+  const [scoringId, setScoringId] = useState<string>(() => getQueryParameter("scoring_id") || "");
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
-  const [scoringId, setScoringId] = useState<string>(() => getQueryParameter("scoring_id") || "");
 
   useEffect(() => {
     axios
@@ -44,7 +43,7 @@ const AdminScoringQuestionCategoryPage: AdminScoringQuestionCategoryPropsPagePro
   };
 
   const handleSelectSkoring = (scoring_id: string) => {
-    setScoringId(scoringId);
+    setScoringId(scoring_id);
     getData(select, search, scoring_id);
   };
 
@@ -60,11 +59,9 @@ const AdminScoringQuestionCategoryPage: AdminScoringQuestionCategoryPropsPagePro
     );
   };
 
-  const deleteSkoringQuestionCategory = (scoring: any) => {
-    router.delete(route("scoring-question-category.destroy", scoring.id));
+  const deleteSkoringQuestionCategory = (scoringQuestionCategory: any) => {
+    router.delete(route("scoring-question-category.destroy", scoringQuestionCategory.id));
   };
-
-  console.log(scoringQuestionCategories);
 
   return (
     <main className="space-y-2.5">

@@ -27,7 +27,7 @@ import React from "react";
 
 interface ScoringQuestionCategoryDatatableProps {
   scoringQuestionCategories: any;
-  onDelete: (scoring: any) => void;
+  onDelete: (scoringQuestionCategory: any) => void;
 }
 
 const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatableProps> = ({
@@ -49,12 +49,12 @@ const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatabl
         <TableBody>
           <RenderList
             of={scoringQuestionCategories?.data}
-            render={(scoring: any, index: number) => (
-              <TableRow key={scoring.id}>
+            render={(scoringQuestionCategory: any, index: number) => (
+              <TableRow key={scoringQuestionCategory.id}>
                 <TableCell>{scoringQuestionCategories?.meta?.from + index}</TableCell>
-                <TableCell>{scoring.name}</TableCell>
-                <TableCell>{scoring.max_point}</TableCell>
-                <TableCell>{scoring.created_at}</TableCell>
+                <TableCell>{scoringQuestionCategory.name}</TableCell>
+                <TableCell>{scoringQuestionCategory.max_point}</TableCell>
+                <TableCell>{scoringQuestionCategory.created_at}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -66,8 +66,8 @@ const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatabl
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          href={route("scoring.edit", {
-                            scoring: scoring.id,
+                          href={route("scoring-question-category.edit", {
+                            scoringQuestionCategory: scoringQuestionCategory.id,
                           })}>
                           Edit
                         </Link>
@@ -82,15 +82,15 @@ const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatabl
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your scoring and remove your
-                                data from our servers.
+                                This action cannot be undone. This will permanently delete your scoringQuestionCategory
+                                and remove your data from our servers.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => {
-                                  onDelete(scoring);
+                                  onDelete(scoringQuestionCategory);
                                 }}
                                 className={buttonVariants({ variant: "destructive" })}>
                                 Continue Delete Scoring
