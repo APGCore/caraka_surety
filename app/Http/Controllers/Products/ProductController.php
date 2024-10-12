@@ -95,13 +95,12 @@ class ProductController extends Controller
             flashMessage('Produk Ditambahkan', 'Produk berhasil ditambahkan');
 
             DB::commit();
+            return redirect()->route('products.index');
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
             Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
-        } finally {
-            return redirect()->route('products.index');
         }
     }
 

@@ -6,11 +6,12 @@ import AdminLayout from "@/layouts/admin";
 import { getNumericValue } from "@/lib/getNumericValue";
 import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler } from "react";
-import CreateScoringHeader from "./_partials/create-scoring-header";
+import { FormEventHandler, useEffect } from "react";
+import EditScoringHeader from "./_partials/edit-scoring-header";
+import { AdminEditScoringPageProps } from "./edit-scoring.type";
 
-const AdminSkoringPage = () => {
-  const { data, setData, post, processing, errors, reset } = useForm<{
+const AdminEditScoringPage: AdminEditScoringPageProps = ({ scoring }) => {
+  const { data, setData, put, processing, errors, reset } = useForm<{
     name: string;
     min_point: number | undefined;
   }>({
@@ -18,10 +19,19 @@ const AdminSkoringPage = () => {
     min_point: undefined,
   });
 
+  useEffect(() => {
+    if (scoring?.name || scoring?.min_point) {
+      setData({
+        name: scoring?.name ?? "",
+        min_point: scoring?.min_point ?? undefined,
+      });
+    }
+  }, []);
+
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    post(route("scoring.store"), {
+    put(route("scoring.update", scoring.id), {
       onSuccess: () => {
         reset();
       },
@@ -30,8 +40,8 @@ const AdminSkoringPage = () => {
 
   return (
     <main className="space-y-2.5">
-      <div className="border p-12 rounded-md shadow-md flex justify-center">
-        <div className="w-full max-w-lg ">
+      <div className="border p-8 rounded-md shadow-md flex justify-center">
+        <div className="w-full max-w-lg">
           <form onSubmit={submit} id="skoring-form" className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Nama</Label>
@@ -60,7 +70,7 @@ const AdminSkoringPage = () => {
             <div className="flex justify-end">
               <Button form="skoring-form" className="w-full max-w-[200px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Tambah Skoring
+                Edit Skoring
               </Button>
             </div>
           </form>
@@ -70,14 +80,14 @@ const AdminSkoringPage = () => {
   );
 };
 
-export default AdminSkoringPage;
+export default AdminEditScoringPage;
 
-AdminSkoringPage.layout = (page: any) => {
+AdminEditScoringPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <CreateScoringHeader title={pagePropsData?.page_settings?.title} />
+      <EditScoringHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );

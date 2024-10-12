@@ -38,7 +38,7 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
           <TableRow>
             <TableHead className="w-0">#</TableHead>
             <TableHead>Nama</TableHead>
-            <TableHead>Min. Skor</TableHead>
+            <TableHead>Poin Minimal</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -90,7 +90,7 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
                                   onDelete(scoring);
                                 }}
                                 className={buttonVariants({ variant: "destructive" })}>
-                                Continue Delete Produk
+                                Continue Delete Scoring
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Scorings;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringResource;
 use App\Models\Scoring;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScoringController extends Controller
 {
@@ -14,7 +17,6 @@ class ScoringController extends Controller
      */
     public function index(Request $request)
     {
-        //
         $component = $request->path() . '/index';
 
         $scorings = Scoring::search($request->get('search'))
@@ -36,9 +38,16 @@ class ScoringController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $component = $request->path() . '/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Skoring',
+            ],
+
+        ]);
     }
 
     /**
@@ -46,7 +55,34 @@ class ScoringController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate([
+            'name' => 'required|string',
+            'min_point' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'min_point.required' => 'Poin minimal wajib diisi',
+            'min_point.id.integer' => 'Poin minimal harus berupa angka',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Create Scoring
+            Scoring::query()
+                ->create($request->only('name', 'min_point'));
+
+            flashMessage('Skoring Ditambahkan', 'Skoring berhasil ditambahkan');
+
+            DB::commit();
+            return redirect()->route('scoring.index');
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Menambahkan Skoring', 'Terjadi kesalahan saat menambahkan skoring', 'error');
+            Log::error('Scoring Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+        }
     }
 
     /**
@@ -63,6 +99,18 @@ class ScoringController extends Controller
     public function edit(Scoring $scoring)
     {
         //
+        $component = 'admin/scoring-management/scoring/edit/index';
+
+
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Edit Skoring',
+            ],
+
+            'scoring' => fn() => $scoring,
+
+        ]);
     }
 
     /**
@@ -71,6 +119,34 @@ class ScoringController extends Controller
     public function update(Request $request, Scoring $scoring)
     {
         //
+        $request->validate([
+            'name' => 'required|string',
+            'min_point' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'min_point.required' => 'Poin minimal wajib diisi',
+            'min_point.id.integer' => 'Poin minimal harus berupa angka',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            if ($scoring->exists) {
+                $scoring->update($request->only('name', 'min_point'));
+
+                DB::commit();
+                flashMessage('Skoring Diperbarui', 'Skoring berhasil diperbarui');
+                return redirect()->route('scoring.index');
+            } else {
+                throw new ThrottleRequestsException('Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Mengubah Skoring', 'Terjadi kesalahan saat merubah skoring', 'error');
+            Log::error('Scoring Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+        }
     }
 
     /**
@@ -79,5 +155,23 @@ class ScoringController extends Controller
     public function destroy(Scoring $scoring)
     {
         //
+        try {
+            DB::beginTransaction();
+
+            if ($scoring->exists) {
+                $scoring->delete();
+            } else {
+                throw new ThrottleRequestsException('Skoring tidak ditemukan');
+            }
+
+            DB::commit();
+            flashMessage('Skoring Dihapus', 'Skoring berhasil dihapus');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Skoring', 'Terjadi kesalahan saat menghapus Skoring', 'error');
+            Log::error('Scoring Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
+        }
     }
 }
