@@ -197,6 +197,22 @@ export const adminLinks = [
         Icon: ChartNoAxesGantt,
         children: [],
       },
+      {
+        id: generateUUID(),
+        name: "Kategori Pertanyaan",
+        route_name: "scoring-question-category.index",
+        href: route("scoring-question-category.index"),
+        Icon: ChartNoAxesGantt,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Pertanyaan",
+        route_name: "scoring-question.index",
+        href: route("scoring-question.index"),
+        Icon: ChartNoAxesGantt,
+        children: [],
+      },
     ],
   },
 ];

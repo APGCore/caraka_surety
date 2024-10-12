@@ -35,8 +35,8 @@ const AdminCreateProductTypePage = () => {
 
   return (
     <main className="space-y-2.5">
-      <div className="border p-8 rounded-md shadow-md flex justify-center">
-        <div className="w-full max-w-lg">
+      <div className="border p-12 rounded-md shadow-md flex justify-center">
+        <div className="w-full max-w-lg ">
           <form onSubmit={submit} id="login-form" className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Nama</Label>

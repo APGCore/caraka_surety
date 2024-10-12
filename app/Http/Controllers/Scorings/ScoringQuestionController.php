@@ -11,9 +11,17 @@ class ScoringQuestionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $component = $request->path() . '/index';
+
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Pertanyaan Skoring',
+            ],
+
+        ]);
     }
 
     /**
