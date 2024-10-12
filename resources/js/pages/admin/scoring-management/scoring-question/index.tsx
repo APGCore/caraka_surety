@@ -1,35 +1,10 @@
 import { Combobox } from "@/components/common/combobox";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { Head, Link, router } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { pickBy } from "lodash";
 import { useEffect, useState } from "react";
@@ -114,10 +89,8 @@ const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({
   };
 
   const deleteSkoring = (scoring: any) => {
-    router.delete(route("scoring.destroy", scoring.id));
+    router.delete(route("scoring-question.destroy", scoring.id));
   };
-
-  console.log(scoringQuestions);
 
   return (
     <main className="space-y-2.5">

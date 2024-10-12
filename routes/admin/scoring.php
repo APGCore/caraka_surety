@@ -27,6 +27,7 @@ Route::prefix('scoring-management')->group(function () {
             Route::put('{scoringQuestionCategory}', 'update')->name('update');
             Route::get('/edit/{scoringQuestionCategory}', 'edit')->name('edit');
             Route::get('/get-by-scoring/{scoringId}', 'getByScoring')->name('get-by-scoring');
+            Route::get('/all', 'getAllScoringQuestionCategory')->name('all');
             Route::delete('{scoringQuestionCategory}', 'destroy')->name('destroy');
         });
 

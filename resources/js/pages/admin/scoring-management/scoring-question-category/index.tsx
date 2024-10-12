@@ -26,7 +26,7 @@ const AdminScoringQuestionCategoryPage: AdminScoringQuestionCategoryPropsPagePro
       .get(route("scoring.all"))
       .then((response) => {
         setScorings(response.data);
-        setScoringId(initialSelectedScoring?.id);
+        setScoringId(scoringId ?? initialSelectedScoring?.id);
       })
       .catch((error) => {
         console.error(error);

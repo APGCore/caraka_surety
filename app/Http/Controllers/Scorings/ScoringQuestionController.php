@@ -8,7 +8,10 @@ use App\Models\Scoring;
 use App\Models\ScoringOption;
 use App\Models\ScoringQuestion;
 use App\Models\ScoringQuestionCategory;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScoringQuestionController extends Controller
 {
@@ -68,9 +71,17 @@ class ScoringQuestionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        $component = $request->path() . '/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Pertanyaan Skoring',
+            ],
+
+        ]);
     }
 
     /**
@@ -79,6 +90,34 @@ class ScoringQuestionController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'name' => 'required|string',
+            'scoring_question_category_id' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'scoring_question_category_id.required' => 'Id Scoring wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Create Scoring Question Category
+            ScoringQuestion::query()
+                ->create($request->only('name', 'scoring_question_category_id'));
+
+            flashMessage('Pertanyaan Skoring Ditambahkan', 'Pertanyaan Skoring berhasil ditambahkan');
+
+            DB::commit();
+
+            return redirect()->route('scoring-question.index');
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Menambahkan Pertanyaan Skoring', 'Terjadi kesalahan saat menambahkan pertanyaan skoring', 'error');
+            Log::error('Scoring Question Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**
@@ -111,5 +150,22 @@ class ScoringQuestionController extends Controller
     public function destroy(ScoringQuestion $scoringQuestion)
     {
         //
+        try {
+            DB::beginTransaction();
+
+            if ($scoringQuestion->exists) {
+                $scoringQuestion->delete();
+                DB::commit();
+                flashMessage('Pertanyaan Skoring Dihapus', 'Pertanyaan Skoring berhasil dihapus');
+            } else {
+                throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pertanyaan Skoring', 'error');
+            Log::error('Scoring Question Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
+        }
     }
 }

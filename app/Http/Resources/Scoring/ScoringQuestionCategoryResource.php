@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Scoring;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +15,9 @@ class ScoringQuestionCategoryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Set locale to Indonesian for Carbon
+        Carbon::setLocale('id');
+
         return [
             ...parent::toArray($request),
             'created_at' => $this->resource->created_at->format('d F Y'),

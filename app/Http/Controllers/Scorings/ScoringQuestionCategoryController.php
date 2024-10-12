@@ -191,6 +191,15 @@ class ScoringQuestionCategoryController extends Controller
         }
     }
 
+
+    public function getAllScoringQuestionCategory()
+    {
+        $scoringQuestionsCategories = ScoringQuestionCategory::query()->get();
+
+        return response()->json($scoringQuestionsCategories);
+    }
+
+
     public function getByScoring($scoringId)
     {
         $scoringQuestionCategories = ScoringQuestionCategory::query()
