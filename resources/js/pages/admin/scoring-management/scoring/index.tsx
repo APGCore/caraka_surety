@@ -43,7 +43,7 @@ const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <ExportDocsButtonDatatable onClick={() => {}} />
-          <SelectLengthDatatable defaultValue={String(select)} onChange={handleSelectSkoringLength} />
+          <SelectLengthDatatable defaultValue={select} onChange={handleSelectSkoringLength} />
         </div>
         <SearchDatatable
           value={search}

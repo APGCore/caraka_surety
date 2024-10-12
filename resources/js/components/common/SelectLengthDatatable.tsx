@@ -1,12 +1,28 @@
 import { cn } from "@/lib/cn";
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import RenderList from "./render-list";
 
 interface SelectLengthDatatableProps {
   className?: string;
   onChange: (value: string) => void;
   defaultValue: string;
 }
+
+const selectValue = [
+  {
+    value: "10",
+  },
+  {
+    value: "20",
+  },
+  {
+    value: "50",
+  },
+  {
+    value: "100",
+  },
+];
 
 const SelectLengthDatatable: React.FC<SelectLengthDatatableProps> = ({ defaultValue, onChange, className }) => {
   return (
@@ -15,10 +31,10 @@ const SelectLengthDatatable: React.FC<SelectLengthDatatableProps> = ({ defaultVa
         <SelectValue placeholder="Theme" />
       </SelectTrigger>
       <SelectContent className={cn(className)}>
-        <SelectItem value="10">10</SelectItem>
-        <SelectItem value="20">20</SelectItem>
-        <SelectItem value="50">50</SelectItem>
-        <SelectItem value="100">100</SelectItem>
+        <RenderList
+          of={selectValue}
+          render={(selectVal) => <SelectItem value={selectVal.value}>{selectVal.value}</SelectItem>}
+        />
       </SelectContent>
     </Select>
   );
