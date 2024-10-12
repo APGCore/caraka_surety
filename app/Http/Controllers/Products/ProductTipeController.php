@@ -17,11 +17,11 @@ class ProductTipeController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $productTypes = ProductType::search($request->get('search'))
             ->orderBy('created_at', 'desc')
-            ->paginate((int)$request->get('per_page') ?? 10)
+            ->paginate((int) $request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 
@@ -31,7 +31,7 @@ class ProductTipeController extends Controller
             'page_settings' => [
                 'title' => 'Jenis Produk',
             ],
-            'productTypes' => fn() => $productTypeResource,
+            'productTypes' => fn () => $productTypeResource,
         ]);
     }
 
@@ -42,7 +42,7 @@ class ProductTipeController extends Controller
     {
         //
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -78,7 +78,7 @@ class ProductTipeController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Jenis Produk', 'Terjadi kesalahan saat menambahkan jenis produk', 'error');
-            Log::error('Jenis Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Jenis Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
         } finally {
             return redirect()->route('product-types.index');
@@ -133,7 +133,7 @@ class ProductTipeController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Jenis Produk', 'Terjadi kesalahan saat memperbarui Jenis Produk', 'error');
-            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('product-types.index');
         }
@@ -160,7 +160,7 @@ class ProductTipeController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Jenis Produk', 'Terjadi kesalahan saat menghapus Jenis Produk', 'error');
-            Log::error('Jenis Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Jenis Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

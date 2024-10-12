@@ -23,8 +23,12 @@ class StoreRequest extends FormRequest
     {
         return [
             'guarantor_id' => 'required|exists:guarantors,id,deleted_at,NULL',
-            'product_id' => 'required|exists:products,id,deleted_at,NULL',
-            'product_type_id' => 'required|exists:product_types,id,deleted_at,NULL',
+            'data' => 'required|array',
+            'data.*.product_id' => 'required|exists:products,id,deleted_at,NULL',
+            'data.*.product_type_id' => 'required|exists:product_types,id,deleted_at,NULL',
+            'data.*.code' => 'required|string|max:255',
+            'data.*.name' => 'required|string|max:255',
+            'data.*.job_group' => 'required|string|max:255',
         ];
     }
 }

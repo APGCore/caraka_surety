@@ -13,8 +13,7 @@ class ScoringQuestionCategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path() . '/index';
-
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
