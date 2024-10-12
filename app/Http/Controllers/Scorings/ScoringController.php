@@ -19,7 +19,7 @@ class ScoringController extends Controller
 
         $scorings = Scoring::search($request->get('search'))
             ->orderBy('created_at', 'desc')
-            ->paginate(perPage: $request->perpage ?? 10)
+            ->paginate((int)$request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 

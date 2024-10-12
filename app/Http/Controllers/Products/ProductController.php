@@ -21,19 +21,19 @@ class ProductController extends Controller
 
         $products = Product::search($request->get('search'))
             ->orderBy('created_at', 'desc')
-            ->paginate(perPage: $request->perpage ?? 10)
+            ->paginate((int)$request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 
         $productResource = ProductResource::collection($products);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Produk',
             ],
-            'products' => fn () => $productResource,
+            'products' => fn() => $productResource,
         ]);
     }
 
@@ -43,7 +43,7 @@ class ProductController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -97,7 +97,7 @@ class ProductController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
-            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
         } finally {
@@ -182,7 +182,7 @@ class ProductController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->route('products.index');
         }
@@ -208,7 +208,7 @@ class ProductController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Produk Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
