@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Guarantor\Guarantor;
+use App\Models\Product;
+use App\Models\ProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +16,11 @@ return new class extends Migration
     {
         Schema::create('guarantor_to_product_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('guarantor_id')->references('id')->on('guarantors')
-                ->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('product_type_id')->references('id')->on('product_types')
-                ->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(Product::class, 'product_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(ProductType::class, 'product_type_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('code');
+            $table->string('name');
             $table->timestamps();
         });
     }

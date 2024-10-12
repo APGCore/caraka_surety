@@ -1,6 +1,17 @@
 import { Combobox } from "@/components/common/combobox";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -17,38 +28,37 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { ProductGuarantorPageProps } from "./product-guarantor-page.type";
 
+type GuarantorProductType = {
+  id: number;
+  product_id: number;
+  product_type_id: number;
+  code: string;
+  name: string;
+  job_group: string;
+};
+
 const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products }) => {
-  const [active, setActive] = useState();
+  const [active, setActive] = useState<number>();
+  const [showSelectProduct, setShowSelectProduct] = useState(true);
   const [productTypes, setProductTypes] = useState([]);
   const [productsGuarantor, setProductsGuarantor] = useState<Array<any>>([]);
-  const [guarantorSelected, setGuarantorSelected] = useState(null);
+  const [guarantorSelected, setGuarantorSelected] = useState<number | null>(null);
   const [productSelected, setProductSelected] = useState(null);
-  const [guarantorProductTypes, setGuarantorProductTypes] = useState<Array<any>>();
-  const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<
-    Array<{
-      product_id: number;
-      product_types: Array<{
-        id: number;
-        code: string;
-        product_type_id: number;
-        name: string;
-        kelompok_pekerjaan: string;
-      }>;
-    }>
-  >([]);
+  const guarantorProductTypeDefault = {
+    id: 0,
+    product_id: 0,
+    product_type_id: 0,
+    code: "",
+    name: "",
+    job_group: "",
+  };
 
-  const [choosedProductTypes, setChoosedProductTypes] = useState<
-    Array<{ id: number; code: string; product_type_id: number; name: string; kelompok_pekerjaan: string }>
-  >([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
-  const [values, setValues] = useState<
-    Array<{
-      id: number;
-      code: string;
-      product_type_id: number;
-      name: string;
-      kelompok_pekerjaan: string;
-    }>
-  >([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+  const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<Array<GuarantorProductType>>([]);
+
+  const [choosedProductTypes, setChoosedProductTypes] = useState<Array<GuarantorProductType>>([
+    guarantorProductTypeDefault,
+  ]);
+  const [values, setValues] = useState<Array<GuarantorProductType>>([guarantorProductTypeDefault]);
   const [openStates, setOpenStates] = useState<boolean[]>([]);
 
   useEffect(() => {
@@ -63,7 +73,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     if (!guarantorSelected || !productSelected) {
       return toast({
         title: "Gagal",
-        description: "Pilih penjamin dan produk terlebih dahulu",
+        description: "Pilih produk terlebih dahulu",
         variant: "destructive",
       });
     }
@@ -88,14 +98,9 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   const changeGuarantor = (guarantor: any) => {
     if (guarantorSelected === guarantor.id) return;
 
-    setGuarantorProductTypes((prev: any) => {
-      const newValues = Array.isArray(prev) ? [...prev] : [];
-      return (newValues[guarantor.id] = productTypeOwnedProduct);
-    });
-
     setGuarantorSelected(guarantor.id);
-    setValues([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
-    setChoosedProductTypes([{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+    setValues([guarantorProductTypeDefault]);
+    setChoosedProductTypes([guarantorProductTypeDefault]);
 
     setProductsGuarantor([]);
     setProductTypeOwnedProduct([]);
@@ -105,27 +110,48 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   const selectProduct = (product: any) => {
     if (active === product.id) return;
 
-    const newValue = productTypeOwnedProduct.filter((data: any) => data.product_id !== active && data.product_id !== 0);
-
-    setProductTypeOwnedProduct([
-      ...newValue,
-      {
-        product_id: active || 0,
-        product_types: values,
-      },
-    ]);
+    setAll();
 
     setActive(product.id);
-    const productTypes = productTypeOwnedProduct.find((data: any) => data.product_id === product.id)?.product_types;
-    setValues(productTypes || [{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
-    setChoosedProductTypes(productTypes || [{ id: 0, code: "", product_type_id: 0, name: "", kelompok_pekerjaan: "" }]);
+    const productTypes = productTypeOwnedProduct.find((data: any) => data.product_id === product.id);
+    setValues([productTypes || guarantorProductTypeDefault]);
+    setChoosedProductTypes([productTypes || guarantorProductTypeDefault]);
   };
+
+  const removeProduct = (product: any) => {
+    if (active === product.id) {
+      setValues([]);
+      setChoosedProductTypes([]);
+      setActive(undefined);
+    }
+
+    const newProducts = productsGuarantor.filter((data: any) => data.id !== product.id);
+    setProductsGuarantor(newProducts);
+
+    const newProductTypeOwnedProduct = productTypeOwnedProduct.filter((data: any) => data.product_id !== product.id);
+    setProductTypeOwnedProduct(newProductTypeOwnedProduct);
+  };
+
+  const filteredProduct = useMemo(() => {
+    console.log(products, productsGuarantor);
+    return products.filter((product: any) => !productsGuarantor.some((item) => item.id == product.id));
+  }, [products, productsGuarantor]);
 
   const selectedProductTypes = useMemo(() => {
     return productTypes.map((dataProductType: any) => ({
       ...dataProductType,
     }));
   }, [productTypes, choosedProductTypes]);
+
+  const setAll = () => {
+    const newValue = productTypeOwnedProduct.filter((data: any) => data.product_id !== active && data.product_id !== 0);
+
+    setProductTypeOwnedProduct([...newValue, ...values]);
+  };
+
+  useEffect(() => {
+    setAll();
+  }, [values]);
 
   const handleComboboxSelect = (selectedItem: any, index: number) => {
     const updatedProductTypes = choosedProductTypes[index]?.id
@@ -135,9 +161,11 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             ? {
                 ...type,
                 id: selectedItem.id,
+                product_id: active || 0,
+                product_type_id: selectedItem.product_type_id,
                 code: selectedItem.code,
                 name: selectedItem.name,
-                kelompok_pekerjaan: selectedItem.kelompok_pekerjaan,
+                job_group: selectedItem.job_group,
               }
             : type,
         );
@@ -146,17 +174,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   };
 
   const addCombobox = () => {
-    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "", kelompok_pekerjaan: "" }]);
-    setValues((prev) => [
-      ...prev,
-      {
-        id: prev.length,
-        code: "",
-        product_type_id: 0,
-        name: "",
-        kelompok_pekerjaan: "",
-      },
-    ]);
+    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "", job_group: "" }]);
+    setValues((prev) => [...prev, guarantorProductTypeDefault]);
     setOpenStates((prev) => [...prev, false]);
   };
 
@@ -182,176 +201,262 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     });
   };
 
+  const clear = () => {
+    setShowSelectProduct(true);
+    setProductTypeOwnedProduct([]);
+    setProductsGuarantor([]);
+    setProductSelected(null);
+    setGuarantorSelected(null);
+    setValues([]);
+    setChoosedProductTypes([]);
+  };
+
   const submit = () => {
-    // axios.post(route("product-guarantor.store"), {
-    //   guarantor_id: guarantorSelected,
-    //   product_id: active,
-    //   product_types: productTypesGuarantor,
-    // });
-    console.log("submit");
+    const sendData = productTypeOwnedProduct.map((data: any) => {
+      const productType: any = productTypes.find((item: any) => item.id == data.product_type_id);
+      return {
+        ...data,
+        name: `${productType?.name} ${data.job_group}`,
+      };
+    });
+
+    axios
+      .post(
+        route("product-guarantor.store"),
+        {
+          guarantor_id: guarantorSelected,
+          data: sendData,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((response) => {
+        toast({
+          title: "Berhasil",
+          description: response.data.message,
+          variant: "default",
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
+      });
   };
 
   return (
     <main className="space-y-2.5">
-      <div className="flex items-center space-x-2.5">
-        <div>
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
-            className={"w-[210px]"}
-            onSelect={(value) => changeGuarantor(value)}
-          />
-        </div>
-
-        <div>
-          <Combobox
-            datas={products}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={productSelected}
-            placeholder={"Pilih Produk"}
-            className={"w-[210px]"}
-            onSelect={(value) => setProductSelected(value.id)}
-          />
-        </div>
-
-        <div>
-          <PrimaryButton onClick={add}>Tambah</PrimaryButton>
-        </div>
-      </div>
-
-      {productsGuarantor.length > 0 && (
-        <div className="flex w-full">
-          <div className="p-4 w-[30%]">
-            <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
-            {productsGuarantor.map((product) => (
-              <>
-                <SecondaryButton
-                  className={`w-full ${active === product.id ? "bg-gray-400" : ""} hover:bg-gray-400`}
-                  onClick={() => selectProduct(product)}>
-                  {product.name}
-                </SecondaryButton>
-                <Separator className="my-2" />
-              </>
-            ))}
+      {showSelectProduct && (
+        <div className="border p-8 rounded-md shadow-md flex items-center justify-center space-x-2">
+          <div className="w-[30%]">
+            <Combobox
+              datas={guarantors}
+              labelKey={"name"}
+              valueKey={"name"}
+              defaultValue={guarantorSelected}
+              placeholder={"Pilih Penjamin"}
+              onSelect={(value) => changeGuarantor(value)}
+            />
           </div>
-          <div className="p-4 pt-6 w-[70%]">
-            <form onSubmit={submit} className="grid gap-6 mx-5">
-              <div className="grid gap-2 ">
-                <Label htmlFor="name">Jenis Produk</Label>
-                {choosedProductTypes.map((val, id) => (
-                  <div key={id} className="space-y-2 flex items-center gap-x-2">
-                    <Input
-                      id="code"
-                      type="text"
-                      placeholder="Kode"
-                      value={values[id]?.code}
-                      className="mt-2 h-[40px] w-[30%]"
-                      onChange={(value) => {
-                        const newValue = values[id].code === value.target.value ? "" : value.target.value;
-                        setValues((prev) => {
-                          const newValues = [...prev];
-                          newValues[id] = {
-                            id: id,
-                            code: newValue,
-                            product_type_id: values[id].product_type_id,
-                            name: values[id].name,
-                            kelompok_pekerjaan: values[id].kelompok_pekerjaan,
-                          };
-                          return newValues;
-                        });
-                      }}
-                    />
-                    <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openStates[id]}
-                          className="w-full justify-between">
-                          {values[id]?.name || "Pilih Jenis Produk..."}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search framework..." />
-                          <CommandList>
-                            <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
-                            <CommandGroup>
-                              {selectedProductTypes.map((framework) => (
-                                <CommandItem
-                                  key={framework.id}
-                                  onSelect={() => {
-                                    const newValue = values[id].name === framework.name ? "" : framework.name;
-                                    setValues((prev) => {
-                                      const newValues = [...prev];
-                                      newValues[id] = {
-                                        id: id,
-                                        code: values[id].code,
-                                        product_type_id: framework.id,
-                                        name: newValue,
-                                        kelompok_pekerjaan: values[id].kelompok_pekerjaan,
-                                      };
-                                      return newValues;
-                                    });
-                                    handleComboboxSelect(framework, id);
-                                    togglePopover(id);
-                                  }}>
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
-                                    )}
-                                  />
-                                  {framework.name}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+          <Button type="button" onClick={() => setShowSelectProduct(false)}>
+            Pilih
+          </Button>
+        </div>
+      )}
 
-                    <Input
-                      id="kelompok_pekerjaan"
-                      type="text"
-                      placeholder="Kelompok Pekerjaan"
-                      value={values[id]?.kelompok_pekerjaan}
-                      className="mt-2 h-[40px]"
-                      onChange={(value) => {
-                        const newValue = values[id].kelompok_pekerjaan === value.target.value ? "" : value.target.value;
-                        setValues((prev) => {
-                          const newValues = [...prev];
-                          newValues[id] = {
-                            id: id,
-                            code: values[id].code,
-                            product_type_id: values[id].product_type_id,
-                            name: values[id].name,
-                            kelompok_pekerjaan: newValue,
-                          };
-                          return newValues;
-                        });
-                      }}
-                    />
-                    {/* Delete Combobox Button */}
-                    {choosedProductTypes.length > 1 && (
-                      <Button type="button" onClick={() => removeCombobox(id)}>
-                        Delete
-                      </Button>
-                    )}
-                  </div>
-                ))}
+      {!showSelectProduct && (
+        <div className="border p-8 rounded-md shadow-md">
+          <div className="flex items-center mb-4 space-x-2">
+            <h2 className="text-xl">{guarantors.find((item: any) => item.id == guarantorSelected)?.name}</h2>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button>Pilih Kembali</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah Anda Yakin?</AlertDialogTitle>
+                  <AlertDialogDescription>Data yang belum disimpan akan terhapus!!!.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clear}>Pilih Kembali</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <div>
+                <Combobox
+                  datas={filteredProduct}
+                  labelKey={"name"}
+                  valueKey={"name"}
+                  defaultValue={productSelected}
+                  placeholder={"Pilih Produk"}
+                  className={"w-[210px]"}
+                  onSelect={(value) => setProductSelected(value.id)}
+                />
               </div>
 
-              <Button type="button" onClick={addCombobox}>
-                Tambah Jenis Produk
-              </Button>
-            </form>
+              <div>
+                <PrimaryButton onClick={add}>Tambah</PrimaryButton>
+              </div>
+            </div>
+
+            <div className="w-[180px]">
+              <PrimaryButton
+                onClick={submit}
+                disabled={productsGuarantor.length == 0}
+                className="w-full justify-center bg-green-600 hover:bg-green-300">
+                Simpan
+              </PrimaryButton>
+            </div>
           </div>
+
+          {productsGuarantor.length > 0 && (
+            <div className="flex w-full">
+              <div className="p-4 w-[30%]">
+                <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
+                {productsGuarantor.map((product) => (
+                  <>
+                    <div className="flex align-center space-x-2">
+                      <SecondaryButton
+                        className={`w-full ${active == product.id ? "bg-gray-400" : ""} hover:bg-gray-400`}
+                        onClick={() => selectProduct(product)}>
+                        {product.name}
+                      </SecondaryButton>
+                      <Button type="button" onClick={() => removeProduct(product)}>
+                        Hapus
+                      </Button>
+                    </div>
+                    <Separator className="my-2" />
+                  </>
+                ))}
+              </div>
+              <div className="p-4 pt-6 w-[70%]">
+                <div className="grid gap-2 ">
+                  <Label htmlFor="name">Jenis Produk</Label>
+                  {choosedProductTypes.map((val, id) => (
+                    <div key={id} className="space-y-2 flex items-center gap-x-2">
+                      <Input
+                        id="code"
+                        type="text"
+                        placeholder="Kode"
+                        value={values[id]?.code}
+                        className="mt-2 h-[40px] w-[30%]"
+                        onChange={(value) => {
+                          const newValue = values[id].code === value.target.value ? "" : value.target.value;
+                          setValues((prev) => {
+                            const newValues = [...prev];
+
+                            newValues[id] = {
+                              id: val.id,
+                              product_id: active || 0,
+                              product_type_id: values[id].product_type_id,
+                              code: newValue,
+                              name: values[id].name,
+                              job_group: values[id].job_group,
+                            };
+                            return newValues;
+                          });
+                        }}
+                      />
+                      <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openStates[id]}
+                            className="w-full justify-between">
+                            {values[id]?.name || "Pilih Jenis Produk..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search framework..." />
+                            <CommandList>
+                              <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
+                              <CommandGroup>
+                                {selectedProductTypes.map((framework) => (
+                                  <CommandItem
+                                    key={framework.id}
+                                    onSelect={() => {
+                                      const newValue = values[id].name === framework.name ? "" : framework.name;
+                                      setValues((prev) => {
+                                        const newValues = [...prev];
+                                        newValues[id] = {
+                                          id: val.id,
+                                          product_id: active || 0,
+                                          product_type_id: framework.id,
+                                          code: values[id].code,
+                                          name: newValue,
+                                          job_group: values[id].job_group,
+                                        };
+                                        return newValues;
+                                      });
+                                      handleComboboxSelect(framework, id);
+                                      togglePopover(id);
+                                    }}>
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
+                                      )}
+                                    />
+                                    {framework.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+
+                      <Input
+                        id="job_group"
+                        type="text"
+                        placeholder="Kelompok Pekerjaan"
+                        value={values[id]?.job_group}
+                        className="mt-2 h-[40px]"
+                        onChange={(value) => {
+                          const newValue = values[id].job_group === value.target.value ? "" : value.target.value;
+                          setValues((prev) => {
+                            const newValues = [...prev];
+                            newValues[id] = {
+                              id: val.id,
+                              product_id: active || 0,
+                              product_type_id: values[id].product_type_id,
+                              code: values[id].code,
+                              name: values[id].name,
+                              job_group: newValue,
+                            };
+                            return newValues;
+                          });
+                        }}
+                      />
+                      {/* Delete Combobox Button */}
+                      {choosedProductTypes.length > 1 && (
+                        <Button type="button" onClick={() => removeCombobox(id)}>
+                          Hapus
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <Button type="button" className="w-full mt-4" onClick={addCombobox}>
+                  Tambah Jenis Produk
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </main>

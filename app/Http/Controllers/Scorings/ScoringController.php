@@ -15,11 +15,11 @@ class ScoringController extends Controller
     public function index(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $scorings = Scoring::search($request->get('search'))
             ->orderBy('created_at', 'desc')
-            ->paginate((int)$request->get('per_page') ?? 10)
+            ->paginate((int) $request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 
@@ -29,7 +29,7 @@ class ScoringController extends Controller
             'page_settings' => [
                 'title' => 'Skoring',
             ],
-            'scorings' => fn() => $scoringResource,
+            'scorings' => fn () => $scoringResource,
         ]);
     }
 
