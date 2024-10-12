@@ -44,13 +44,8 @@ class GuarantorToProductTypeController extends Controller
                 GuarantorToProductType::query()->create($item);
             }
 
-            $guarantorToProductTypes = GuarantorToProductType::query()
-                ->where('guarantor_id', $requestValid['guarantor_id'])
-                ->get();
-
             return response()->json([
-                'message' => 'Data produk penjamin berhasil disimpan',
-                'data' => $guarantorToProductTypes,
+                'message' => 'Data produk penjamin berhasil disimpan'
             ]);
         } catch (\Exception $e) {
             return response()->json([
