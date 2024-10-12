@@ -11,8 +11,8 @@ import ScoringHeader from "./partials/scoring-header";
 import { AdminScoringsPageProps } from "./scoring.type";
 
 const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {
-  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") ?? "10");
-  const [search, setSearch] = useState<string>(() => getQueryParameter("search") ?? "");
+  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
+  const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
 
   const handleSelectSkoringLength = (per_page: string) => {
     setSelect(per_page);
