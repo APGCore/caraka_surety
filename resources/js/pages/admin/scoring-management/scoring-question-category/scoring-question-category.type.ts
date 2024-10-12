@@ -1,7 +1,8 @@
 import React from "react";
 
 interface AdminScoringQuestionCategoryProps {
-  scorings: any;
+  scoringQuestionCategories: any;
+  initialSelectedScoring: any;
 }
 
 export type AdminScoringQuestionCategoryPropsPageProps = React.FC<AdminScoringQuestionCategoryProps> & {

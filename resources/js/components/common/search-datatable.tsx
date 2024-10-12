@@ -19,14 +19,19 @@ const SearchDatatable: React.FC<SearchDatatableProps> = ({
   onSubmit,
 }) => {
   return (
-    <div className={cn("flex", className)}>
+    <div className={"flex"}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           onSubmit(e);
         }}
-        className="flex items-end gap-x-3">
-        <Input className="h-full" placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} />
+        className="flex items-end w-full  gap-x-3">
+        <Input
+          className={cn("h-full w-full", className)}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
         <Button type="submit">Cari</Button>
       </form>
     </div>

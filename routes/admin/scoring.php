@@ -13,6 +13,7 @@ Route::prefix('scoring-management')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
             Route::get('/create', 'create')->name('create');
+            Route::get('/all', 'getAllScoring')->name('all');
             Route::put('{scoring}', 'update')->name('update');
             Route::get('/edit/{scoring}', 'edit')->name('edit');
             Route::delete('{scoring}', 'destroy')->name('destroy');

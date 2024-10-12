@@ -11,6 +11,7 @@ export interface ComboboxProps<T> {
   labelKey: keyof T; // Key to display as the label
   valueKey: keyof T; // Key to use as the value
   defaultValue?: string | number | null; // Default value
+  defaultValueId?: string | number | null; // Default value id
   onSelect?: (value: T) => void; // Callback when an item is selected
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found
@@ -19,15 +20,30 @@ export interface ComboboxProps<T> {
   disabledValue?: boolean;
 }
 
-const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, defaultValue, ...props }) => {
+const Combobox: React.FC<ComboboxProps<any>> = ({
+  datas,
+  labelKey,
+  valueKey,
+  defaultValue,
+  defaultValueId,
+  ...props
+}) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string | number>("");
+  const labelButtonPlaceholder = props?.placeholder ?? "Select item...";
 
   useEffect(() => {
-    if (!defaultValue) {
-      setValue("");
+    if (defaultValue && datas) {
+      setValue(defaultValue);
     }
-  }, [defaultValue]);
+  }, [defaultValue, datas]);
+
+  useEffect(() => {
+    if (defaultValueId && datas) {
+      const data = datas.find((item) => item?.id === defaultValueId);
+      setValue(data?.[valueKey] as string);
+    }
+  }, [defaultValueId, datas]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,12 +54,14 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, def
           aria-expanded={open}
           className={cn("w-full justify-between px-2 h-10", props.className)}>
           {(() => {
-            if (defaultValue) {
-              return datas.find((item) => item["id"] === defaultValue)?.[labelKey];
+            if (defaultValueId) {
+              return datas.find((item) => item["id"] === defaultValueId)?.[labelKey] ?? labelButtonPlaceholder;
+            } else if (defaultValue) {
+              return datas.find((item) => item["id"] === defaultValue)?.[labelKey] ?? labelButtonPlaceholder;
             } else if (value && defaultValue !== null) {
-              return datas.find((item) => item[valueKey] === value)?.[labelKey];
+              return datas.find((item) => item[valueKey] === value)?.[labelKey] ?? labelButtonPlaceholder;
             }
-            return props?.placeholder ?? "Select item...";
+            return labelButtonPlaceholder;
           })()}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -63,7 +81,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({ datas, labelKey, valueKey, def
                   disabled={item.isChoosed === true}
                   onSelect={(currentValue) => {
                     props.onSelect?.(item);
-                    setValue(currentValue === value ? "" : currentValue);
+                    setValue(currentValue === value ? value : currentValue);
                     setOpen(false);
                   }}>
                   <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
