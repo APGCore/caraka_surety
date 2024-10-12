@@ -77,7 +77,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
         variant: "destructive",
       });
     }
-    if (productsGuarantor.find((product: any) => product.id === productSelected)) {
+    if (productsGuarantor?.find((product: any) => product.id === productSelected)) {
       return toast({
         title: "Gagal",
         description: "Produk sudah ada di daftar",
@@ -86,7 +86,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     }
 
     let data: Array<any>;
-    data = productsGuarantor;
+    data = productsGuarantor || [];
     const product = products.find((product: any) => product.id === productSelected);
     data.push(product);
 
@@ -95,16 +95,21 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     selectProduct(product);
   };
 
-  const changeGuarantor = (guarantor: any) => {
-    if (guarantorSelected === guarantor.id) return;
-
-    setGuarantorSelected(guarantor.id);
-    setValues([guarantorProductTypeDefault]);
-    setChoosedProductTypes([guarantorProductTypeDefault]);
-
-    setProductsGuarantor([]);
-    setProductTypeOwnedProduct([]);
-    setProductSelected(null);
+  const changeGuarantor = () => {
+    if (guarantorSelected) {
+      axios.get(route("product-guarantor.get-by-guarantor", guarantorSelected)).then((response) => {
+        console.log(response);
+        setProductsGuarantor(response.data.data.products || []);
+        setProductTypeOwnedProduct(response.data.data.productTypes || []);
+        setShowSelectProduct(false);
+      });
+    } else {
+      toast({
+        title: "Gagal",
+        description: "Pilih penjamin terlebih dahulu",
+        variant: "destructive",
+      });
+    }
   };
 
   const selectProduct = (product: any) => {
@@ -125,17 +130,12 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
       setActive(undefined);
     }
 
-    const newProducts = productsGuarantor.filter((data: any) => data.id !== product.id);
+    const newProducts = productsGuarantor?.filter((data: any) => data.id !== product.id);
     setProductsGuarantor(newProducts);
 
     const newProductTypeOwnedProduct = productTypeOwnedProduct.filter((data: any) => data.product_id !== product.id);
     setProductTypeOwnedProduct(newProductTypeOwnedProduct);
   };
-
-  const filteredProduct = useMemo(() => {
-    console.log(products, productsGuarantor);
-    return products.filter((product: any) => !productsGuarantor.some((item) => item.id == product.id));
-  }, [products, productsGuarantor]);
 
   const selectedProductTypes = useMemo(() => {
     return productTypes.map((dataProductType: any) => ({
@@ -260,10 +260,10 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
               valueKey={"name"}
               defaultValue={guarantorSelected}
               placeholder={"Pilih Penjamin"}
-              onSelect={(value) => changeGuarantor(value)}
+              onSelect={(value) => setGuarantorSelected(value.id)}
             />
           </div>
-          <Button type="button" onClick={() => setShowSelectProduct(false)}>
+          <Button type="button" onClick={() => changeGuarantor()}>
             Pilih
           </Button>
         </div>
@@ -294,7 +294,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             <div className="flex items-center space-x-2.5">
               <div>
                 <Combobox
-                  datas={filteredProduct}
+                  datas={products}
                   labelKey={"name"}
                   valueKey={"name"}
                   defaultValue={productSelected}
@@ -312,18 +312,18 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             <div className="w-[180px]">
               <PrimaryButton
                 onClick={submit}
-                disabled={productsGuarantor.length == 0}
+                disabled={productsGuarantor?.length == 0}
                 className="w-full justify-center bg-green-600 hover:bg-green-300">
                 Simpan
               </PrimaryButton>
             </div>
           </div>
 
-          {productsGuarantor.length > 0 && (
+          {productsGuarantor?.length > 0 && (
             <div className="flex w-full">
               <div className="p-4 w-[30%]">
                 <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
-                {productsGuarantor.map((product) => (
+                {productsGuarantor?.map((product) => (
                   <>
                     <div className="flex align-center space-x-2">
                       <SecondaryButton

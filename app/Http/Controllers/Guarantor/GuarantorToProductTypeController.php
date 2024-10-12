@@ -7,7 +7,6 @@ use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class GuarantorToProductTypeController extends Controller
 {
@@ -30,6 +29,15 @@ class GuarantorToProductTypeController extends Controller
         ]);
     }
 
+    public function getByGuarantor($guarantorId)
+    {
+        $guarantor = Guarantor::query()->find($guarantorId);
+        $productTypes = collect($guarantor->guarantorToProductTypes);
+        $products = $productTypes->pluck('product')->unique()->toArray();
+
+        return $this->responseSuccess('Data produk penjamin berhasil diambil', compact('products', 'productTypes'));
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -44,46 +52,9 @@ class GuarantorToProductTypeController extends Controller
                 GuarantorToProductType::query()->create($item);
             }
 
-            return response()->json([
-                'message' => 'Data produk penjamin berhasil disimpan'
-            ]);
+            return $this->responseSuccess('Data produk penjamin berhasil disimpan');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Data produk penjamin gagal disimpan',
-                'error' => $e->getMessage(),
-            ], 400);
+            return $this->responseError('Data produk penjamin gagal disimpan', $e->getMessage());
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(GuarantorToProductType $guarantorToProductType)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(GuarantorToProductType $guarantorToProductType)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, GuarantorToProductType $guarantorToProductType)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(GuarantorToProductType $guarantorToProductType)
-    {
-        //
     }
 }
