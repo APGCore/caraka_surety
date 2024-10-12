@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
+import Edit from "@/pages/profile/edit";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
+import EditProductTypeHeader from "./_partials/edit-product-type-header";
 import { AdminEditProductTypePageProps } from "./edit-product-type.type";
 
 const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }) => {
@@ -56,7 +58,7 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
                 placeholder="Masukan nama jenis produk"
                 required
                 value={data.name}
-                onChange={(e: any) => setData("name", e.target.value)}
+                onChange={(e) => setData("name", e.target.value)}
               />
               <InputError message={errors.name} className="mt-2" />
             </div>
@@ -67,7 +69,7 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
                 required
                 value={data.description}
                 placeholder="Masukan deskripsi jenis produk"
-                onChange={(e: any) => setData("description", e.target.value)}
+                onChange={(e) => setData("description", e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />
             </div>
@@ -91,21 +93,7 @@ AdminEditProductTypePage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Produk</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Tambah Produk</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-      </div>
+      <EditProductTypeHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );

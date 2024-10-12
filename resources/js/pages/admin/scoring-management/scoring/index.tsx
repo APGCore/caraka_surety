@@ -6,8 +6,8 @@ import { getQueryParameter } from "@/lib/get-query-parameter";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import ScoringDatatable from "./partials/scoring-datatable";
-import ScoringHeader from "./partials/scoring-header";
+import ScoringDatatable from "./_partials/scoring-datatable";
+import ScoringHeader from "./_partials/scoring-header";
 import { AdminScoringsPageProps } from "./scoring.type";
 
 const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {

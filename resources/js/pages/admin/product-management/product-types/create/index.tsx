@@ -1,20 +1,13 @@
 import InputError from "@/components/common/input-error";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
-import { Head, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
+import CreateProductTypeHeader from "./_partials/create-product-type-header";
 
 const AdminCreateProductTypePage = () => {
   const { data, setData, post, processing, errors, reset } = useForm({
@@ -46,7 +39,7 @@ const AdminCreateProductTypePage = () => {
                 placeholder="Masukan nama jenis produk"
                 required
                 value={data.name}
-                onChange={(e: any) => setData("name", e.target.value)}
+                onChange={(e) => setData("name", e.target.value)}
               />
               <InputError message={errors.name} className="mt-2" />
             </div>
@@ -57,7 +50,7 @@ const AdminCreateProductTypePage = () => {
                 required
                 value={data.description}
                 placeholder="Masukan deskripsi jenis produk"
-                onChange={(e: any) => setData("description", e.target.value)}
+                onChange={(e) => setData("description", e.target.value)}
               />
               <InputError message={errors.description} className="mt-2" />
             </div>
@@ -81,21 +74,7 @@ AdminCreateProductTypePage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route("products.index")}>Kelola Jenis Produk</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Tambah Jenis Produk</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-      </div>
+      <CreateProductTypeHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );
