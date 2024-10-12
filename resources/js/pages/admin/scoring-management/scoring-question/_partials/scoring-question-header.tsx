@@ -10,18 +10,18 @@ interface ScoringQuestionHeaderProps {
 const ScoringQuestionHeader: React.FC<ScoringQuestionHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "Skoring"} />
+      <Head title={title ?? "Pertanyaan Skoring"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("scoring.index")}>Kelola Skoring</BreadcrumbLink>
+            <BreadcrumbLink href={route("scoring-question.index")}>Kelola Pertanyaan Skoring</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Skoring"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Pertanyaan Skoring"}</h1>
         <Button asChild>
-          <Link href={route("scoring.create")}>Tambah Skoring</Link>
+          <Link href={route("scoring.create")}>Tambah Pertanyaan Skoring</Link>
         </Button>
       </div>
     </>

@@ -190,4 +190,15 @@ class ScoringQuestionCategoryController extends Controller
             return redirect()->back();
         }
     }
+
+    public function getByScoring($scoringId)
+    {
+        $scoringQuestionCategories = ScoringQuestionCategory::query()
+            ->whereHas('scoring', function ($query) use ($scoringId) {
+                $query->where('scoring_id', $scoringId);
+            })
+            ->get();
+
+        return response()->json($scoringQuestionCategories);
+    }
 }

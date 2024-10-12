@@ -1,4 +1,3 @@
-import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import AdminLayout from "@/layouts/admin";
@@ -42,7 +41,6 @@ const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={() => {}} />
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectSkoringLength} />
         </div>
         <SearchDatatable

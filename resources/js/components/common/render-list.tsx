@@ -15,7 +15,7 @@ const RenderList = <T,>({ of, render, renderFallback }: RenderListProps<T>): JSX
     return null;
   }
 
-  return <>{Children.toArray(of.map((item, index) => render(item, index)))}</>;
+  return <>{Children.toArray(of?.map((item, index) => render(item, index)))}</>;
 };
 
 export default RenderList;

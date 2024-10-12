@@ -25,12 +25,12 @@ import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
-interface ScoringDatatableProps {
-  scorings: any;
+interface ScoringQuestionDatatableProps {
+  scoringQuestions: any;
   onDelete: (scoring: any) => void;
 }
 
-const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete }) => {
+const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ scoringQuestions, onDelete }) => {
   return (
     <>
       <Table>
@@ -38,19 +38,19 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
           <TableRow>
             <TableHead className="w-0">#</TableHead>
             <TableHead>Nama</TableHead>
-            <TableHead>Poin Minimal</TableHead>
-            <TableHead>Tanggal Dibuat</TableHead>
+            <TableHead>Jumlah Pilihan</TableHead>
+            <TableHead>Created At</TableHead>
             <TableHead className="text-right" />
           </TableRow>
         </TableHeader>
         <TableBody>
           <RenderList
-            of={scorings?.data}
+            of={scoringQuestions?.data}
             render={(scoring: any, index: number) => (
               <TableRow key={scoring.id}>
-                <TableCell>{scorings?.meta?.from + index}</TableCell>
+                <TableCell>{scoringQuestions?.meta?.from + index}</TableCell>
                 <TableCell>{scoring.name}</TableCell>
-                <TableCell>{scoring.min_point}</TableCell>
+                <TableCell>{scoring.count_options}</TableCell>
                 <TableCell>{scoring.created_at}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -63,8 +63,8 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          href={route("scoring.edit", {
-                            scoring: scoring.id,
+                          href={route("scoring-question.edit", {
+                            scoringQuestion: scoring.id,
                           })}>
                           Edit
                         </Link>
@@ -111,10 +111,10 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={scorings?.meta} />
-      <PaginationDatatable meta={scorings?.meta} only={["scorings"]} />
+      <ShowingCountDatatable meta={scoringQuestions?.meta} />
+      <PaginationDatatable meta={scoringQuestions?.meta} only={["scoringQuestions"]} />
     </>
   );
 };
 
-export default ScoringDatatable;
+export default ScoringQuestionDatatable;

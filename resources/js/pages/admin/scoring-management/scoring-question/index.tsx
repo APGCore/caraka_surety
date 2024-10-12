@@ -1,3 +1,6 @@
+import { Combobox } from "@/components/common/combobox";
+import SearchDatatable from "@/components/common/search-datatable";
+import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,32 +30,84 @@ import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ScoringQuestionDatatable from "./_partials/scoring-question-datatable";
+import ScoringQuestionHeader from "./_partials/scoring-question-header";
 import { AdminScoringQuestionCategoryPropsPageProps } from "./scoring-question.type";
 
-const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({}) => {
-  const [select, setSelect] = useState(() =>
-    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
+const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({
+  scoringQuestions,
+  initialSelectedScoring,
+  initialSelectedScoringQuestionCategory,
+}) => {
+  const [scorings, setScorings] = useState([]);
+  const [scoringId, setScoringId] = useState<string>(() => getQueryParameter("scoring_id") || "");
+  const [scoringQuestionCategory, setScoringQuestionCategory] = useState([]);
+  const [scoringQuestionCategoryId, setScoringQuestionCategoryId] = useState<string>(
+    () => getQueryParameter("scoring_question_category_id") || "",
   );
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
+  const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
 
-  const handleSelect = (e: string) => {
-    setSelect(Number(e));
-    getData(String(select), search);
+  useEffect(() => {
+    axios
+      .get(route("scoring.all"))
+      .then((response) => {
+        setScorings(response.data);
+        setScoringId(initialSelectedScoring?.id || "");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (scoringId) {
+      axios
+        .get(route("scoring-question-category.get-by-scoring", scoringId))
+        .then((response) => {
+          setScoringQuestionCategory(response.data);
+          if (response?.data?.[0]?.id) {
+            setScoringQuestionCategoryId(response?.data?.[0]?.id);
+            getData(select, search, scoringId, response?.data?.[0]?.id);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [scoringId]);
+
+  const handleSelectSkoringQuestionLength = (e: string) => {
+    setSelect(e);
+    getData(e, search, scoringId, scoringQuestionCategoryId);
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSelectSkoring = (scoring_id: string) => {
+    setScoringId(scoring_id);
+    getData(select, search, scoring_id, "");
+  };
+
+  const handleSelectSkoringQuestionCategory = (scoring_id: string) => {
+    setScoringQuestionCategoryId(scoring_id);
+    getData(select, search, scoringId, scoring_id);
+  };
+
+  const handleSearchSkoringQuestion = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(String(select), search);
+    getData(select, search, scoringId, scoringQuestionCategoryId);
   };
 
-  const getData = (per_page: string, search: string) => {
-    return router.get(
-      route("scoring.index"),
+  const getData = (per_page: string, search: string, scoring_id: string, scoring_question_category_id: string) => {
+    router.get(
+      route("scoring-question.index"),
       pickBy({
         per_page,
         search,
+        scoring_id,
+        scoring_question_category_id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -61,149 +117,47 @@ const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({}
     router.delete(route("scoring.destroy", scoring.id));
   };
 
+  console.log(scoringQuestions);
+
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <Button>Export</Button>
-          <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
-            <SelectTrigger className="w-max">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Produk"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+        <div className="flex gap-x-3 items-end">
+          <SelectLengthDatatable defaultValue={select} onChange={handleSelectSkoringQuestionLength} />
+          <div className="flex flex-col gap-y-1">
+            <Label className="text-sm font-semibold pl-1">Skoring</Label>
+            <Combobox
+              datas={scorings}
+              labelKey={"name"}
+              valueKey={"name"}
+              defaultValueId={initialSelectedScoring?.id}
+              placeholder={"Pilih Skoring"}
+              className={"w-[210px]"}
+              onSelect={(value) => handleSelectSkoring(value?.id)}
             />
-            <Button type="submit">Cari</Button>
-          </form>
+          </div>
+          <div className="flex flex-col gap-y-1">
+            <Label className="text-sm font-semibold pl-1">Kategori Pertanyaan</Label>
+            <Combobox
+              datas={scoringQuestionCategory}
+              labelKey={"name"}
+              valueKey={"name"}
+              defaultValueId={scoringQuestionCategoryId}
+              placeholder={"Pilih Kategori Pertanyaan"}
+              className={"w-[210px]"}
+              onSelect={(value) => handleSelectSkoringQuestionCategory(value?.id)}
+            />
+          </div>
         </div>
+        <SearchDatatable
+          className="w-[230px]"
+          value={search}
+          onChange={setSearch}
+          onSubmit={handleSearchSkoringQuestion}
+          placeholder="Cari Pertanyaan Skoring"
+        />
       </div>
-      {/* <div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-0">#</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>Min. Skor</TableHead>
-              <TableHead>Tanggal Dibuat</TableHead>
-              <TableHead className="text-right" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {scorings?.data?.length > 0 ? (
-              scorings?.data?.map((scoring: any, index: number) => (
-                <TableRow key={scoring.id}>
-                  <TableCell>{scorings?.meta?.from + index}</TableCell>
-                  <TableCell>{scoring.name}</TableCell>
-                  <TableCell>{scoring.min_point}</TableCell>
-                  <TableCell>{scoring.created_at}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                          <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link
-                            href={route("scoring.edit", {
-                              scoring: scoring.id,
-                            })}>
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog>
-                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                              Delete
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete your scoring and remove
-                                  your data from our servers.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => {
-                                    deleteSkoring(scoring);
-                                  }}
-                                  className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete Produk
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No data found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div> */}
-      {/* <div className="text-sm text-gray-500">
-        Showing {scorings?.meta?.from} to {scorings?.meta?.to} of {scorings?.meta?.total} results
-      </div>
-      <Pagination>
-        <PaginationContent>
-          {scorings?.meta?.links.map((link: any, index: number) => {
-            return (
-              <PaginationItem key={index + 1}>
-                {link.url === null ? (
-                  <Button variant="ghost" disabled>
-                    {link.label}
-                  </Button>
-                ) : (
-                  <PaginationLink
-                    as="button"
-                    preserveScroll
-                    preserveState
-                    only={["scorings"]}
-                    isActive={link.active}
-                    size={
-                      link.label === "Previous" ||
-                      link.label === "Next" ||
-                      link.label === "Sebelumnya" ||
-                      link.label === "Berikutnya"
-                        ? "default"
-                        : "icon"
-                    }
-                    href={link.url}>
-                    {link.label}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            );
-          })}
-        </PaginationContent>
-      </Pagination> */}
+      <ScoringQuestionDatatable scoringQuestions={scoringQuestions} onDelete={deleteSkoring} />
     </main>
   );
 };
@@ -215,20 +169,7 @@ AdminScoringQuestionPage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route("scoring.index")}>Kelola Pertanyaan Skoring</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>
-          <Link href={route("scoring.create")}>Tambah Skoring</Link>
-        </Button>
-      </div>
+      <ScoringQuestionHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );
