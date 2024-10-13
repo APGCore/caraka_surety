@@ -17,7 +17,7 @@ class ScoringController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $scorings = Scoring::search($request->get('search'))
             ->orderBy('created_at', 'desc')
@@ -31,7 +31,7 @@ class ScoringController extends Controller
             'page_settings' => [
                 'title' => 'Skoring',
             ],
-            'scorings' => fn() => $scoringResource,
+            'scorings' => fn () => $scoringResource,
         ]);
     }
 
@@ -40,7 +40,7 @@ class ScoringController extends Controller
      */
     public function create(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -80,9 +80,10 @@ class ScoringController extends Controller
             return redirect()->route('scoring.index');
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Skoring', 'Terjadi kesalahan saat menambahkan skoring', 'error');
-            Log::error('Scoring Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -108,7 +109,7 @@ class ScoringController extends Controller
                 'title' => 'Edit Skoring',
             ],
 
-            'scoring' => fn() => $scoring,
+            'scoring' => fn () => $scoring,
 
         ]);
     }
@@ -144,9 +145,10 @@ class ScoringController extends Controller
             }
         } catch (\Throwable $th) {
             flashMessage('Gagal Mengubah Skoring', 'Terjadi kesalahan saat merubah skoring', 'error');
-            Log::error('Scoring Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -170,12 +172,11 @@ class ScoringController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Skoring', 'Terjadi kesalahan saat menghapus Skoring', 'error');
-            Log::error('Scoring Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
     }
-
 
     public function getAllScoring()
     {

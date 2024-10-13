@@ -1,6 +1,5 @@
 import { Combobox } from "@/components/common/combobox";
 import PrimaryButton from "@/components/common/primary-button";
-import SecondaryButton from "@/components/common/secondary-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,12 +37,12 @@ type GuarantorProductType = {
 };
 
 const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products }) => {
-  const [active, setActive] = useState<number>();
-  const [showSelectProduct, setShowSelectProduct] = useState(true);
-  const [productTypes, setProductTypes] = useState([]);
+  const [productActive, setProductActive] = useState<number>();
+  const [showSelectProduct, setShowSelectProduct] = useState<boolean>(true);
+  const [productTypes, setProductTypes] = useState<Array<GuarantorProductType>>([]);
   const [productsGuarantor, setProductsGuarantor] = useState<Array<any>>([]);
   const [guarantorSelected, setGuarantorSelected] = useState<number | null>(null);
-  const [productSelected, setProductSelected] = useState(null);
+  const [productSelected, setProductSelected] = useState<number | null>(null);
   const guarantorProductTypeDefault = {
     id: 0,
     product_id: 0,
@@ -53,7 +52,9 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     job_group: "",
   };
 
-  const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<Array<GuarantorProductType>>([]);
+  const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<Array<GuarantorProductType>>([
+    guarantorProductTypeDefault,
+  ]);
 
   const [choosedProductTypes, setChoosedProductTypes] = useState<Array<GuarantorProductType>>([
     guarantorProductTypeDefault,
@@ -62,12 +63,12 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   const [openStates, setOpenStates] = useState<boolean[]>([]);
 
   useEffect(() => {
-    if (productSelected) {
-      axios.get(route("product-types.get-by-product", productSelected)).then((response) => {
+    if (productActive) {
+      axios.get(route("product-types.get-by-product", productActive)).then((response) => {
         setProductTypes(response.data);
       });
     }
-  }, [productSelected]);
+  }, [productActive]);
 
   const add = () => {
     if (!guarantorSelected || !productSelected) {
@@ -98,9 +99,21 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   const changeGuarantor = () => {
     if (guarantorSelected) {
       axios.get(route("product-guarantor.get-by-guarantor", guarantorSelected)).then((response) => {
-        console.log(response);
-        setProductsGuarantor(response.data.data.products || []);
-        setProductTypeOwnedProduct(response.data.data.productTypes || []);
+        if (response.data.data.productTypes) {
+          const productTypes: GuarantorProductType[] = response.data.data.productTypes;
+          setProductTypeOwnedProduct(productTypes);
+
+          if (response.data.data.products) {
+            setProductsGuarantor(response.data.data.products);
+            const productId: number = response.data.data.products[0].id;
+            setProductActive(productId);
+            const filteredProductTypes: GuarantorProductType[] = productTypes.filter(
+              (data: any) => data.product_id === productId,
+            );
+            setValues(filteredProductTypes || [guarantorProductTypeDefault]);
+            setChoosedProductTypes(filteredProductTypes || [guarantorProductTypeDefault]);
+          }
+        }
         setShowSelectProduct(false);
       });
     } else {
@@ -113,21 +126,23 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   };
 
   const selectProduct = (product: any) => {
-    if (active === product.id) return;
+    if (productActive === product.id) return;
 
     setAll();
 
-    setActive(product.id);
-    const productTypes = productTypeOwnedProduct.find((data: any) => data.product_id === product.id);
-    setValues([productTypes || guarantorProductTypeDefault]);
-    setChoosedProductTypes([productTypes || guarantorProductTypeDefault]);
+    setProductActive(product.id);
+    const productTypes: GuarantorProductType[] = productTypeOwnedProduct.filter(
+      (data: any) => data.product_id === product.id,
+    );
+    setValues(productTypes || [guarantorProductTypeDefault]);
+    setChoosedProductTypes(productTypes || [guarantorProductTypeDefault]);
   };
 
   const removeProduct = (product: any) => {
-    if (active === product.id) {
+    if (productActive === product.id) {
       setValues([]);
       setChoosedProductTypes([]);
-      setActive(undefined);
+      setProductActive(undefined);
     }
 
     const newProducts = productsGuarantor?.filter((data: any) => data.id !== product.id);
@@ -137,14 +152,14 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     setProductTypeOwnedProduct(newProductTypeOwnedProduct);
   };
 
-  const selectedProductTypes = useMemo(() => {
-    return productTypes.map((dataProductType: any) => ({
-      ...dataProductType,
-    }));
-  }, [productTypes, choosedProductTypes]);
+  const productFiltered = useMemo(() => {
+    return products.filter((product: any) => !productsGuarantor.some((data: any) => data.id === product.id));
+  }, [productTypes, productsGuarantor]);
 
   const setAll = () => {
-    const newValue = productTypeOwnedProduct.filter((data: any) => data.product_id !== active && data.product_id !== 0);
+    const newValue = productTypeOwnedProduct.filter(
+      (data: any) => data.product_id !== productActive && data.product_id !== 0,
+    );
 
     setProductTypeOwnedProduct([...newValue, ...values]);
   };
@@ -161,7 +176,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             ? {
                 ...type,
                 id: selectedItem.id,
-                product_id: active || 0,
+                product_id: productActive || 0,
                 product_type_id: selectedItem.product_type_id,
                 code: selectedItem.code,
                 name: selectedItem.name,
@@ -174,7 +189,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   };
 
   const addCombobox = () => {
-    setChoosedProductTypes((prev: any) => [...prev, { id: "", code: "", name: "", job_group: "" }]);
+    setChoosedProductTypes((prev: any) => [...prev, guarantorProductTypeDefault]);
     setValues((prev) => [...prev, guarantorProductTypeDefault]);
     setOpenStates((prev) => [...prev, false]);
   };
@@ -207,25 +222,17 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     setProductsGuarantor([]);
     setProductSelected(null);
     setGuarantorSelected(null);
-    setValues([]);
-    setChoosedProductTypes([]);
+    setValues([guarantorProductTypeDefault]);
+    setChoosedProductTypes([guarantorProductTypeDefault]);
   };
 
   const submit = () => {
-    const sendData = productTypeOwnedProduct.map((data: any) => {
-      const productType: any = productTypes.find((item: any) => item.id == data.product_type_id);
-      return {
-        ...data,
-        name: `${productType?.name} ${data.job_group}`,
-      };
-    });
-
     axios
       .post(
         route("product-guarantor.store"),
         {
           guarantor_id: guarantorSelected,
-          data: sendData,
+          data: productTypeOwnedProduct,
         },
         {
           headers: {
@@ -294,7 +301,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
             <div className="flex items-center space-x-2.5">
               <div>
                 <Combobox
-                  datas={products}
+                  datas={productFiltered}
                   labelKey={"name"}
                   valueKey={"name"}
                   defaultValue={productSelected}
@@ -313,7 +320,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
               <PrimaryButton
                 onClick={submit}
                 disabled={productsGuarantor?.length == 0}
-                className="w-full justify-center bg-green-600 hover:bg-green-300">
+                className="w-full justify-center bg-green-700 hover:bg-green-500">
                 Simpan
               </PrimaryButton>
             </div>
@@ -326,12 +333,18 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                 {productsGuarantor?.map((product) => (
                   <>
                     <div className="flex align-center space-x-2">
-                      <SecondaryButton
-                        className={`w-full ${active == product.id ? "bg-gray-400" : ""} hover:bg-gray-400`}
+                      <Button
+                        className={cn(
+                          `w-full`,
+                          productActive == product.id ? "bg-green-700 hover:bg-green-500" : "hover:bg-gray-400",
+                        )}
                         onClick={() => selectProduct(product)}>
                         {product.name}
-                      </SecondaryButton>
-                      <Button type="button" onClick={() => removeProduct(product)}>
+                      </Button>
+                      <Button
+                        type="button"
+                        className="bg-destructive hover:bg-destructive/80"
+                        onClick={() => removeProduct(product)}>
                         Hapus
                       </Button>
                     </div>
@@ -357,7 +370,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
 
                             newValues[id] = {
                               id: val.id,
-                              product_id: active || 0,
+                              product_id: productActive || 0,
                               product_type_id: values[id].product_type_id,
                               code: newValue,
                               name: values[id].name,
@@ -384,7 +397,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                             <CommandList>
                               <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
                               <CommandGroup>
-                                {selectedProductTypes.map((framework) => (
+                                {productTypes.map((framework) => (
                                   <CommandItem
                                     key={framework.id}
                                     onSelect={() => {
@@ -393,7 +406,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                                         const newValues = [...prev];
                                         newValues[id] = {
                                           id: val.id,
-                                          product_id: active || 0,
+                                          product_id: productActive || 0,
                                           product_type_id: framework.id,
                                           code: values[id].code,
                                           name: newValue,
@@ -431,7 +444,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                             const newValues = [...prev];
                             newValues[id] = {
                               id: val.id,
-                              product_id: active || 0,
+                              product_id: productActive || 0,
                               product_type_id: values[id].product_type_id,
                               code: values[id].code,
                               name: values[id].name,
@@ -443,7 +456,10 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                       />
                       {/* Delete Combobox Button */}
                       {choosedProductTypes.length > 1 && (
-                        <Button type="button" onClick={() => removeCombobox(id)}>
+                        <Button
+                          type="button"
+                          className="bg-destructive hover:bg-destructive/80"
+                          onClick={() => removeCombobox(id)}>
                           Hapus
                         </Button>
                       )}

@@ -21,22 +21,22 @@ class ScoringQuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $selectedScoring = Scoring::query()
-            ->when($request->get("scoring_id"), function ($query, $scoringId) {
+            ->when($request->get('scoring_id'), function ($query, $scoringId) {
                 // If scoring_id is present, filter by it
                 return $query->where('id', $scoringId);
             })
             ->first();
 
-        $scoringQuestionCategoryId = $request->get("scoring_question_category_id");
+        $scoringQuestionCategoryId = $request->get('scoring_question_category_id');
 
         // If scoring_question_category_id is null, set $selectedScoringQuestionCategory to null or a default value
         $selectedScoringQuestionCategory = null;
         $scoringQuestion = null;
 
-        if (!is_null($scoringQuestionCategoryId)) {
+        if (! is_null($scoringQuestionCategoryId)) {
             $selectedScoringQuestionCategory = ScoringQuestionCategory::query()
                 ->where('id', $scoringQuestionCategoryId)
                 ->first();
@@ -68,14 +68,13 @@ class ScoringQuestionController extends Controller
         ]);
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
     {
         //
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -114,9 +113,10 @@ class ScoringQuestionController extends Controller
             return redirect()->route('scoring-question.index');
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Pertanyaan Skoring', 'Terjadi kesalahan saat menambahkan pertanyaan skoring', 'error');
-            Log::error('Scoring Question Store: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -140,7 +140,6 @@ class ScoringQuestionController extends Controller
         // Eager load the related category
         $scoringQuestion->load('category.scoring');
 
-
         // Extract necessary fields directly
         $category = $scoringQuestion->category; // Store the category in a variable to avoid repeated calls
         $scoring = $category ? $category->scoring : null; // Get the scoring directly
@@ -159,7 +158,7 @@ class ScoringQuestionController extends Controller
                 'title' => 'Edit Pertanyaan Skoring',
             ],
 
-            'scoringQuestion' => fn() => $simplifiedData,
+            'scoringQuestion' => fn () => $simplifiedData,
 
         ]);
     }
@@ -182,7 +181,7 @@ class ScoringQuestionController extends Controller
             DB::beginTransaction();
 
             if ($scoringQuestion->exists) {
-                $scoringQuestion->update($request->only('name',  'scoring_question_category_id'));
+                $scoringQuestion->update($request->only('name', 'scoring_question_category_id'));
 
                 DB::commit();
                 flashMessage('Pertanyaan Skoring Diperbarui', 'Pertanyaan Skoring berhasil diperbarui');
@@ -193,9 +192,10 @@ class ScoringQuestionController extends Controller
             }
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Pertanyaan Skoring', 'Terjadi kesalahan saat memperbarui pertanyaan skoring', 'error');
-            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -219,7 +219,7 @@ class ScoringQuestionController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -240,31 +240,28 @@ class ScoringQuestionController extends Controller
         $scoringQuestionOptionResource = ScoringQuestionOptionResource::collection($scoringOptions);
 
         return inertia($component, [
-            'page_settings' => fn() => [
-                'title' => 'Pilihan Pertanyaan ' . $scoringQuestion->name,
+            'page_settings' => fn () => [
+                'title' => 'Pilihan Pertanyaan '.$scoringQuestion->name,
             ],
-            'scoringOptions' => fn() =>  $scoringQuestionOptionResource,
-            "selectedScoringQuestion" => fn() => $scoringQuestion,
+            'scoringOptions' => fn () => $scoringQuestionOptionResource,
+            'selectedScoringQuestion' => fn () => $scoringQuestion,
         ]);
     }
-
 
     public function showUpdateScoringOption(Request $request, ScoringQuestion $scoringQuestion, ScoringOption $scoringOption)
     {
 
         $component = 'admin/scoring-management/scoring-question/edit-option/edit-option-update/index';
 
-
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Pilihan Pertanyaan ' . $scoringQuestion->name,
+                'title' => 'Edit Pilihan Pertanyaan '.$scoringQuestion->name,
             ],
 
-            'scoringOption' => fn() => $scoringOption,
-            'selectedScoringQuestion' => fn() => $scoringQuestion,
+            'scoringOption' => fn () => $scoringOption,
+            'selectedScoringQuestion' => fn () => $scoringQuestion,
         ]);
     }
-
 
     public function updateScoringOption(Request $request, ScoringQuestion $scoringQuestion, ScoringOption $scoringOption)
     {
@@ -281,7 +278,7 @@ class ScoringQuestionController extends Controller
             DB::beginTransaction();
 
             if ($scoringOption->exists) {
-                $scoringOption->update($request->only('name',  'point'));
+                $scoringOption->update($request->only('name', 'point'));
 
                 DB::commit();
                 flashMessage('Pilihan Pertanyaan Diperbarui', 'Pilihan Pertanyaan berhasil diperbarui');
@@ -294,20 +291,20 @@ class ScoringQuestionController extends Controller
             }
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
-
 
     public function storeScoringOption(Request $request, ScoringQuestion $scoringQuestion)
     {
         $request->validate([
             'name' => 'required|string',
             'point' => 'required|integer',
-            "scoring_question_id" => 'required|integer',
+            'scoring_question_id' => 'required|integer',
         ], [
             'name.required' => 'Nama Pilihan wajib diisi',
             'name.string' => 'Nama Pilihan harus berupa string',
@@ -320,7 +317,7 @@ class ScoringQuestionController extends Controller
 
             // Create Scoring Question Category
             ScoringOption::query()
-                ->create($request->only('name', 'point', "scoring_question_id"));
+                ->create($request->only('name', 'point', 'scoring_question_id'));
 
             flashMessage('Pilihan Pertanyaan Ditambahkan', 'Pilihan Pertanyaan berhasil ditambahkan');
 
@@ -331,25 +328,24 @@ class ScoringQuestionController extends Controller
             ]);
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-
-    public function showStoreScoringOption(Request $request, ScoringQuestion $scoringQuestion,)
+    public function showStoreScoringOption(Request $request, ScoringQuestion $scoringQuestion)
     {
 
         $component = 'admin/scoring-management/scoring-question/edit-option/create/index';
 
-
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tambah Pilihan Pertanyaan ' . $scoringQuestion->name,
+                'title' => 'Tambah Pilihan Pertanyaan '.$scoringQuestion->name,
             ],
-            'selectedScoringQuestion' => fn() => $scoringQuestion,
+            'selectedScoringQuestion' => fn () => $scoringQuestion,
         ]);
     }
 }

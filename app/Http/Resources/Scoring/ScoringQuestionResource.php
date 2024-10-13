@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Scoring;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Carbon\Carbon;
 
 class ScoringQuestionResource extends JsonResource
 {
@@ -14,7 +14,6 @@ class ScoringQuestionResource extends JsonResource
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
-
     {
         Carbon::setLocale('id');
         // Get the category
@@ -23,12 +22,12 @@ class ScoringQuestionResource extends JsonResource
         // Handle case when there's no category
         if (is_null($category)) {
             return [
-                "id" => $this->resource->id,
-                "name" => $this->resource->name,
-                "count_options" => $this->resource->options()->count(),
-                "created_at" => $this->resource->created_at->translatedFormat('d F Y'),
-                "scoring_id" => null, // No scoring available if category is null
-                "category_id" => null
+                'id' => $this->resource->id,
+                'name' => $this->resource->name,
+                'count_options' => $this->resource->options()->count(),
+                'created_at' => $this->resource->created_at->translatedFormat('d F Y'),
+                'scoring_id' => null, // No scoring available if category is null
+                'category_id' => null,
             ];
         }
 
@@ -36,12 +35,12 @@ class ScoringQuestionResource extends JsonResource
         $scoring = $category->scoring;
 
         return [
-            "id" => $this->resource->id,
-            "name" => $this->resource->name,
-            "count_options" => $this->resource->options()->count(),
-            "created_at" => $this->resource->created_at->translatedFormat('d F Y'),
-            "scoring_id" => $scoring->id,
-            "category_id" => $category->id,
+            'id' => $this->resource->id,
+            'name' => $this->resource->name,
+            'count_options' => $this->resource->options()->count(),
+            'created_at' => $this->resource->created_at->translatedFormat('d F Y'),
+            'scoring_id' => $scoring->id,
+            'category_id' => $category->id,
         ];
     }
 }

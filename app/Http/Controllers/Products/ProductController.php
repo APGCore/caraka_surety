@@ -102,6 +102,7 @@ class ProductController extends Controller
             Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

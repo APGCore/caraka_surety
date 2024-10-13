@@ -69,8 +69,6 @@ class ScoringOptionController extends Controller
         try {
             DB::beginTransaction();
 
-
-
             if ($scoringOption->exists) {
                 $scoringOption->delete();
                 DB::commit();
@@ -81,7 +79,7 @@ class ScoringOptionController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Pilihan Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pilihan Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Option Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Option Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

@@ -46,9 +46,10 @@ class GuarantorToProductTypeController extends Controller
         $requestValid = $request->validated();
         $data = collect($requestValid['data']);
         try {
-
+            GuarantorToProductType::query()->where('guarantor_id', $requestValid['guarantor_id'])->delete();
             foreach ($data as $item) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
+                $item['full_name'] = $item['name'].' '.$item['job_group'];
                 GuarantorToProductType::query()->create($item);
             }
 
