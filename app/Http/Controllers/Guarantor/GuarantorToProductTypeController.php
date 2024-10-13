@@ -33,7 +33,7 @@ class GuarantorToProductTypeController extends Controller
     {
         $guarantor = Guarantor::query()->find($guarantorId);
         $productTypes = collect($guarantor->guarantorToProductTypes);
-        $products = $productTypes->pluck('product')->unique()->toArray();
+        $products = $productTypes->pluck('product')->unique()->values();
 
         return $this->responseSuccess('Data produk penjamin berhasil diambil', compact('products', 'productTypes'));
     }
