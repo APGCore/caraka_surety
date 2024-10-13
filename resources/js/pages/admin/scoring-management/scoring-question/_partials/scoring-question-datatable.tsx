@@ -63,19 +63,21 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
                     <DropdownMenuContent className="w-max mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          href={route("scoring-question.edit", {
+                          className="bg-black hover:bg-black/100 text-white shadow-sm px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                          href={route("scoring-question.edit-options", {
                             scoringQuestion: scoring.id,
                           })}>
-                          Edit pertanyaan
+                          Pilihan pertanyaan
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          href={route("scoring-question.edit-options", {
+                          className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                          href={route("scoring-question.edit", {
                             scoringQuestion: scoring.id,
                           })}>
-                          Pilihan pertanyaan
+                          Edit pertanyaan
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

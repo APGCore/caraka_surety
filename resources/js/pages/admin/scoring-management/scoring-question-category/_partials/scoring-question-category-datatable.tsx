@@ -66,6 +66,7 @@ const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatabl
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
+                          className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                           href={route("scoring-question-category.edit", {
                             scoringQuestionCategory: scoringQuestionCategory.id,
                           })}>

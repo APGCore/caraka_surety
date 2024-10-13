@@ -62,6 +62,9 @@ const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({
   };
 
   const handleSelectSkoring = (scoring_id: string) => {
+    if (scoringId === scoring_id) {
+      return;
+    }
     setScoringId(scoring_id);
     getData(select, search, scoring_id, "");
   };
