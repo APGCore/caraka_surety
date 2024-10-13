@@ -31,7 +31,6 @@ class UpdateRequest extends FormRequest
             'village' => ['required', 'string', 'max:255'],
             'fax' => ['nullable', 'string', 'max:255'],
             'pic' => ['required', 'string', 'max:255'],
-            'picture' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }

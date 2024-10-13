@@ -112,11 +112,11 @@ const PengajuanPage: PengajuanPageProps = ({ submissions }) => {
                           <Link href={route("submission.show", { id: submission.id })}>Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="cursor-pointer">
+                        {/* <DropdownMenuItem asChild className="cursor-pointer">
                           <Link href={`/pengajuan/edit/${submission.id}`}>Edit</Link>
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0">
+                        {/* <DropdownMenuItem className="p-0">
                           <AlertDialog>
                             <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                               Delete
@@ -140,7 +140,7 @@ const PengajuanPage: PengajuanPageProps = ({ submissions }) => {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

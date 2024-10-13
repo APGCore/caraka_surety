@@ -5,7 +5,8 @@ import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Editor } from "tinymce";
 import { PengajuanDetailPageProps } from "./pengajuan-detail-page.type";
-import templateContent from "./template";
+import templateContent from "./template-surat-pelaksanaan";
+import secondTemplateContent from "./template-surat-permohonan";
 
 const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) => {
   useEffect(() => {
@@ -16,24 +17,29 @@ const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) =
     htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
 
     tinymceScript.onload = () => {
-      window.tinymce.init({
-        selector: "#editor",
-        height: 500,
-        plugins: "link image code",
-        toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
-        promotion: false,
-        branding: false,
-        setup: (editor: any) => {
-          editor.ui.registry.addButton("exportToWordButton", {
-            text: "Export to Word",
-            onAction: exportToWord,
-          });
+      const setupEditor = (selector: string, editorId: string, template: string) => {
+        window.tinymce.init({
+          selector,
+          height: 500,
+          plugins: "link image code",
+          toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
+          promotion: false,
+          branding: false,
+          setup: (editor: any) => {
+            editor.ui.registry.addButton("exportToWordButton", {
+              text: "Export to Word",
+              onAction: () => exportToWord(editorId),
+            });
 
-          editor.on("init", () => {
-            editor.setContent(templateContent);
-          });
-        },
-      });
+            editor.on("init", () => {
+              editor.setContent(template);
+            });
+          },
+        });
+      };
+
+      setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
+      setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
     };
 
     document.body.appendChild(tinymceScript);
@@ -45,13 +51,13 @@ const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) =
     };
   }, []);
 
-  const exportToWord = () => {
-    const content = window.tinymce.get("editor").getContent();
-    const converted = window.htmlDocx.asBlob(content);
+  const exportToWord = (editorId: string) => {
+    const editorContent = window.tinymce.get(editorId).getContent();
+    const converted = window.htmlDocx.asBlob(editorContent);
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(converted);
-    link.download = "document.docx";
+    link.download = `${editorId}-document.docx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -116,8 +122,11 @@ const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) =
         </div>
       </div>
       <h1 className="text-2xl font-semibold">Output Surat</h1>
-
-      <textarea id="editor"></textarea>
+      <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
+      <textarea id="surat-pelaksanaan"></textarea>
+      <br />
+      <p className="text-xl font-semibold">Surat Permohonan</p>
+      <textarea id="surat-permohonan"></textarea>
 
       <div className="flex justify-end gap-3">
         <Button asChild>

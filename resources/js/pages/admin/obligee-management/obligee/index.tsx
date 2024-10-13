@@ -139,7 +139,7 @@ const ObligeeManagementPage: ObligeeManagementPageProps = (props) => {
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
                             href={route("obligee.edit", obligee.id)}
-                            className="text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                            className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>
                         </DropdownMenuItem>

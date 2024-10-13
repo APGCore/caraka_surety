@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('telephone');
             $table->string('fax')->nullable();
             $table->string('pic')->nullable();
-            $table->text('picture')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
