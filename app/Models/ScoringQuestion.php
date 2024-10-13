@@ -25,7 +25,7 @@ class ScoringQuestion extends Model
     // Define relationships
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ScoringQuestionCategory::class);
+        return $this->belongsTo(ScoringQuestionCategory::class, "scoring_question_category_id");
     }
 
     public function options(): HasMany

@@ -17,6 +17,7 @@ const AdminScoringQuestionPage: AdminScoringQuestionCategoryPropsPageProps = ({
   initialSelectedScoring,
   initialSelectedScoringQuestionCategory,
 }) => {
+  console.log(scoringQuestions);
   const [scorings, setScorings] = useState([]);
   const [scoringId, setScoringId] = useState<string>(() => getQueryParameter("scoring_id") || "");
   const [scoringQuestionCategory, setScoringQuestionCategory] = useState([]);

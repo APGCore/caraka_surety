@@ -134,6 +134,33 @@ class ScoringQuestionController extends Controller
     public function edit(ScoringQuestion $scoringQuestion)
     {
         //
+        $component = 'admin/scoring-management/scoring-question/edit/index';
+
+        // Eager load the related category
+        $scoringQuestion->load('category.scoring');
+
+
+        // Extract necessary fields directly
+        $category = $scoringQuestion->category; // Store the category in a variable to avoid repeated calls
+        $scoring = $category ? $category->scoring : null; // Get the scoring directly
+
+        $simplifiedData = [
+            'id' => $scoringQuestion->id,
+            'name' => $scoringQuestion->name,
+            'category_id' => $category->id ?? null, // Get only the category ID
+            'scoring_id' => $scoring->id ?? null, // Get only the scoring ID
+            'count_options' => $scoringQuestion->options()->count(),
+            'created_at' => $scoringQuestion->created_at->translatedFormat('d F Y'),
+        ];
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Edit Pertanyaan Skoring',
+            ],
+
+            'scoringQuestion' => fn() => $simplifiedData,
+
+        ]);
     }
 
     /**
@@ -141,7 +168,35 @@ class ScoringQuestionController extends Controller
      */
     public function update(Request $request, ScoringQuestion $scoringQuestion)
     {
-        //
+        $request->validate([
+            'name' => 'required|string',
+            'scoring_question_category_id' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Skoring wajib diisi',
+            'name.string' => 'Nama Skoring harus berupa string',
+            'scoring_question_category_id.required' => 'Id Scoring wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            if ($scoringQuestion->exists) {
+                $scoringQuestion->update($request->only('name',  'scoring_question_category_id'));
+
+                DB::commit();
+                flashMessage('Pertanyaan Skoring Diperbarui', 'Pertanyaan Skoring berhasil diperbarui');
+
+                return redirect()->route('scoring-question.index');
+            } else {
+                throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Memperbarui Pertanyaan Skoring', 'Terjadi kesalahan saat memperbarui pertanyaan skoring', 'error');
+            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
     }
 
     /**

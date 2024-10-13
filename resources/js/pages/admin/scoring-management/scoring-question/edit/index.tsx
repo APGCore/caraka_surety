@@ -4,27 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AdminLayout from "@/layouts/admin";
-import { getNumericValue } from "@/lib/getNumericValue";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler, useEffect, useState } from "react";
-import EditScoringQuestionCategoryHeader from "./_partials/edit-scoring-header";
-import { AdminEditScoringQuestionCategoryPageProps } from "./edit-scoring.type";
+import EditScoringQuestionHeader from "./_partials/edit-scoring-header";
+import { AdminEditScoringQuestionPageProps } from "./edit-scoring.type";
 
-const AdminEditScoringQuestionCategoryPage: AdminEditScoringQuestionCategoryPageProps = ({
-  scoringQuestionCategory,
-}) => {
+const AdminEditScoringQuestionPage: AdminEditScoringQuestionPageProps = ({ scoringQuestion }) => {
   const [scorings, setScorings] = useState([]);
+  const [scoringId, setScoringId] = useState<string>(() => scoringQuestion?.scoring_id || "");
+  const [scoringQuestionCategory, setScoringQuestionCategory] = useState([]);
+  const [scoringQuestionCategoryId, setScoringQuestionCategoryId] = useState<string>(
+    () => scoringQuestion?.category_id || "",
+  );
 
   const { data, setData, put, processing, errors, reset } = useForm<{
     name: string;
-    max_point: number | undefined;
-    scoring_id: string;
+    scoring_question_category_id: string;
   }>({
-    name: "",
-    max_point: undefined,
-    scoring_id: "",
+    name: scoringQuestion?.name || "",
+    scoring_question_category_id: scoringQuestion?.category_id || "",
   });
 
   useEffect(() => {
@@ -39,19 +39,22 @@ const AdminEditScoringQuestionCategoryPage: AdminEditScoringQuestionCategoryPage
   }, []);
 
   useEffect(() => {
-    if (scoringQuestionCategory?.name || scoringQuestionCategory?.max_point || scoringQuestionCategory?.scoring_id) {
-      setData({
-        name: scoringQuestionCategory?.name ?? "",
-        max_point: scoringQuestionCategory?.max_point ?? undefined,
-        scoring_id: scoringQuestionCategory?.scoring_id ?? "",
-      });
+    if (scoringId) {
+      axios
+        .get(route("scoring-question-category.get-by-scoring", scoringId))
+        .then((response) => {
+          setScoringQuestionCategory(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-  }, []);
+  }, [scoringId]);
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
 
-    put(route("scoring-question-category.update", scoringQuestionCategory?.id), {
+    put(route("scoring-question.update", scoringQuestion?.id), {
       onSuccess: () => {
         reset();
       },
@@ -68,7 +71,7 @@ const AdminEditScoringQuestionCategoryPage: AdminEditScoringQuestionCategoryPage
               <Input
                 id="name"
                 type="name"
-                placeholder="Masukan nama skoring"
+                placeholder="Masukan nama pertanyaan"
                 required
                 value={data.name}
                 onChange={(e) => setData("name", e.target.value)}
@@ -76,35 +79,38 @@ const AdminEditScoringQuestionCategoryPage: AdminEditScoringQuestionCategoryPage
               <InputError message={errors.name} className="mt-2" />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="max_point">Poin Maksimal</Label>
-              <Input
-                id="max_point"
-                type="number"
-                required
-                value={data.max_point}
-                placeholder="Masukan poin maksimal"
-                onChange={(e) => setData("max_point", getNumericValue(e))}
-              />
-              <InputError message={errors.max_point} className="mt-2" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="scoring_id">Skoring</Label>
+              <Label htmlFor="scoring_question_category_id">Skoring</Label>
               <Combobox
                 datas={scorings}
                 labelKey={"name"}
                 valueKey={"name"}
-                defaultValueId={scoringQuestionCategory?.scoring_id && data?.scoring_id}
+                defaultValueId={scoringId || scoringQuestion?.scoring_id}
                 placeholder={"Pilih Skoring"}
                 onSelect={(value) => {
-                  setData("scoring_id", value?.id);
+                  setScoringId(value?.id);
                 }}
               />
-              <InputError message={errors.scoring_id} className="mt-2" />
+              <InputError message={errors.scoring_question_category_id} className="mt-2" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="scoring_question_category_id">Kategori Pertanyaan</Label>
+              <Combobox
+                datas={scoringQuestionCategory}
+                labelKey={"name"}
+                valueKey={"name"}
+                placeholder={"Pilih Kategori Pertanyaan"}
+                defaultValueId={scoringQuestionCategoryId || scoringQuestion?.category_id}
+                onSelect={(value) => {
+                  setScoringQuestionCategoryId(value?.id);
+                  setData("scoring_question_category_id", value?.id);
+                }}
+              />
+              <InputError message={errors.scoring_question_category_id} className="mt-2" />
             </div>
             <div className="flex justify-end">
-              <Button form="skoring-form" className="w-full max-w-[270px]" disabled={processing}>
+              <Button form="skoring-form" className="w-full max-w-[220px]" disabled={processing}>
                 {processing && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-                Edit Kategori Pertanyaan Skoring
+                Edit Pertanyaan Skoring
               </Button>
             </div>
           </form>
@@ -114,14 +120,14 @@ const AdminEditScoringQuestionCategoryPage: AdminEditScoringQuestionCategoryPage
   );
 };
 
-export default AdminEditScoringQuestionCategoryPage;
+export default AdminEditScoringQuestionPage;
 
-AdminEditScoringQuestionCategoryPage.layout = (page: any) => {
+AdminEditScoringQuestionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <EditScoringQuestionCategoryHeader title={pagePropsData?.page_settings?.title} />
+      <EditScoringQuestionHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );

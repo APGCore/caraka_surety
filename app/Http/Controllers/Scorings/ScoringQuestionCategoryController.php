@@ -114,7 +114,6 @@ class ScoringQuestionCategoryController extends Controller
      */
     public function edit(ScoringQuestionCategory $scoringQuestionCategory)
     {
-        //
         $component = 'admin/scoring-management/scoring-question-category/edit/index';
 
         return inertia($component, [

@@ -1,9 +1,9 @@
 import React from "react";
 
-interface AdminEditScoringQuestionCategoryProps {
-  scoringQuestionCategory: any;
+interface AdminEditScoringQuestionProps {
+  scoringQuestion: any;
 }
 
-export type AdminEditScoringQuestionCategoryPageProps = React.FC<AdminEditScoringQuestionCategoryProps> & {
+export type AdminEditScoringQuestionPageProps = React.FC<AdminEditScoringQuestionProps> & {
   layout?: (page: any) => JSX.Element;
 };

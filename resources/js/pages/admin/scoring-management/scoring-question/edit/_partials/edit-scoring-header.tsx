@@ -9,22 +9,22 @@ import {
 import { Head } from "@inertiajs/react";
 import React from "react";
 
-interface EditScoringQuestionCategoryHeaderProps {
+interface EditScoringQuestionHeaderProps {
   title: string;
 }
 
-const EditScoringQuestionCategoryHeader: React.FC<EditScoringQuestionCategoryHeaderProps> = ({ title }) => {
+const EditScoringQuestionHeader: React.FC<EditScoringQuestionHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "Edit Kategori Pertayaan Skoring"} />
+      <Head title={title ?? "Edit Pertayaan Skoring"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("scoring-question-category.index")}>Kelola Kategori Pertanyaan</BreadcrumbLink>
+            <BreadcrumbLink href={route("scoring-question.index")}>Kelola Pertanyaan</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Kategori Pertayaan Skoring</BreadcrumbPage>
+            <BreadcrumbPage>Edit Pertayaan Skoring</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -35,4 +35,4 @@ const EditScoringQuestionCategoryHeader: React.FC<EditScoringQuestionCategoryHea
   );
 };
 
-export default EditScoringQuestionCategoryHeader;
+export default EditScoringQuestionHeader;
