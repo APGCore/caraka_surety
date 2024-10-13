@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Scoring\ScoringQuestionOptionResource;
 use App\Http\Resources\Scoring\ScoringQuestionResource;
 use App\Models\Scoring;
 use App\Models\ScoringOption;
@@ -222,5 +223,133 @@ class ScoringQuestionController extends Controller
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function showEditScoringOption(Request $request, ScoringQuestion $scoringQuestion)
+    {
+
+        $component = 'admin/scoring-management/scoring-question/edit-option/index';
+
+        $scoringOptions = ScoringOption::search($request->get('search'))
+            ->where('scoring_question_id', $scoringQuestion->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $scoringQuestionOptionResource = ScoringQuestionOptionResource::collection($scoringOptions);
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Pilihan Pertanyaan ' . $scoringQuestion->name,
+            ],
+            'scoringOptions' => fn() =>  $scoringQuestionOptionResource,
+            "selectedScoringQuestion" => fn() => $scoringQuestion,
+        ]);
+    }
+
+
+    public function showUpdateScoringOption(Request $request, ScoringQuestion $scoringQuestion, ScoringOption $scoringOption)
+    {
+
+        $component = 'admin/scoring-management/scoring-question/edit-option/edit-option-update/index';
+
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Edit Pilihan Pertanyaan ' . $scoringQuestion->name,
+            ],
+
+            'scoringOption' => fn() => $scoringOption,
+            'selectedScoringQuestion' => fn() => $scoringQuestion,
+        ]);
+    }
+
+
+    public function updateScoringOption(Request $request, ScoringQuestion $scoringQuestion, ScoringOption $scoringOption)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'point' => 'required|integer',
+        ], [
+            'name.required' => 'Nama Pilihan wajib diisi',
+            'name.string' => 'Nama Pilihan harus berupa string',
+            'point.required' => 'Poin Pilihan wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            if ($scoringOption->exists) {
+                $scoringOption->update($request->only('name',  'point'));
+
+                DB::commit();
+                flashMessage('Pilihan Pertanyaan Diperbarui', 'Pilihan Pertanyaan berhasil diperbarui');
+
+                return redirect()->route('scoring-question.edit-options', [
+                    'scoringQuestion' => $scoringQuestion->id,
+                ]);
+            } else {
+                throw new ThrottleRequestsException('Pilihan Pertanyaan tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
+            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+
+    public function storeScoringOption(Request $request, ScoringQuestion $scoringQuestion)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'point' => 'required|integer',
+            "scoring_question_id" => 'required|integer',
+        ], [
+            'name.required' => 'Nama Pilihan wajib diisi',
+            'name.string' => 'Nama Pilihan harus berupa string',
+            'point.required' => 'Poin Pilihan wajib diisi',
+            'scoring_question_id.required' => 'Scoring Id wajib diisi',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Create Scoring Question Category
+            ScoringOption::query()
+                ->create($request->only('name', 'point', "scoring_question_id"));
+
+            flashMessage('Pilihan Pertanyaan Ditambahkan', 'Pilihan Pertanyaan berhasil ditambahkan');
+
+            DB::commit();
+
+            return redirect()->route('scoring-question.edit-options', [
+                'scoringQuestion' => $scoringQuestion->id,
+            ]);
+        } catch (\Throwable $th) {
+            flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
+            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+
+            DB::rollBack();
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+
+
+    public function showStoreScoringOption(Request $request, ScoringQuestion $scoringQuestion,)
+    {
+
+        $component = 'admin/scoring-management/scoring-question/edit-option/create/index';
+
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Pilihan Pertanyaan ' . $scoringQuestion->name,
+            ],
+            'selectedScoringQuestion' => fn() => $scoringQuestion,
+        ]);
     }
 }

@@ -24,7 +24,7 @@ const EditScoringQuestionHeader: React.FC<EditScoringQuestionHeaderProps> = ({ t
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Edit Pertayaan Skoring</BreadcrumbPage>
+            <BreadcrumbPage>Pilihan Pertayaan Skoring</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

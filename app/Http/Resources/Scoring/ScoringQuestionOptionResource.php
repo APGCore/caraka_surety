@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ScoringResource extends JsonResource
+class ScoringQuestionOptionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,7 +15,6 @@ class ScoringResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         // Set locale to Indonesian for Carbon
         Carbon::setLocale('id');
 

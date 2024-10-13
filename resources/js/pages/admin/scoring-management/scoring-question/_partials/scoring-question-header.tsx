@@ -19,9 +19,9 @@ const ScoringQuestionHeader: React.FC<ScoringQuestionHeaderProps> = ({ title }) 
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Pertanyaan Skoring"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Skoring"}</h1>
         <Button asChild>
-          <Link href={route("scoring-question.create")}>Tambah Pertanyaan Skoring</Link>
+          <Link href={route("scoring.create")}>Tambah Skoring</Link>
         </Button>
       </div>
     </>

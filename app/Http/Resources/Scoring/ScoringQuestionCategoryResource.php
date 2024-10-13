@@ -20,7 +20,7 @@ class ScoringQuestionCategoryResource extends JsonResource
 
         return [
             ...parent::toArray($request),
-            'created_at' => $this->resource->created_at->format('d F Y'),
+            'created_at' => $this->resource->created_at->translatedFormat('d F Y'),
         ];
     }
 }

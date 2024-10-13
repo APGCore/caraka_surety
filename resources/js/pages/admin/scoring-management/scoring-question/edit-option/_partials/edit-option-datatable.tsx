@@ -25,12 +25,17 @@ import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
-interface ScoringQuestionDatatableProps {
-  scoringQuestions: any;
+interface ScoringQuestionOptionDatatableProps {
+  scoringOptions: any;
+  selectedScoringQuestion: any;
   onDelete: (scoring: any) => void;
 }
 
-const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ scoringQuestions, onDelete }) => {
+const ScoringQuestionOptionDatatable: React.FC<ScoringQuestionOptionDatatableProps> = ({
+  scoringOptions,
+  selectedScoringQuestion,
+  onDelete,
+}) => {
   return (
     <>
       <Table>
@@ -38,19 +43,19 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
           <TableRow>
             <TableHead className="w-0">#</TableHead>
             <TableHead>Nama</TableHead>
-            <TableHead>Jumlah Pilihan</TableHead>
+            <TableHead>Poin Pilihan</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead className="text-right" />
           </TableRow>
         </TableHeader>
         <TableBody>
           <RenderList
-            of={scoringQuestions?.data}
+            of={scoringOptions?.data}
             render={(scoring: any, index: number) => (
               <TableRow key={scoring.id}>
-                <TableCell>{scoringQuestions?.meta?.from + index}</TableCell>
+                <TableCell>{scoringOptions?.meta?.from + index}</TableCell>
                 <TableCell>{scoring.name}</TableCell>
-                <TableCell>{scoring.count_options}</TableCell>
+                <TableCell>{scoring.point}</TableCell>
                 <TableCell>{scoring.created_at}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -63,19 +68,11 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
                     <DropdownMenuContent className="w-max mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          href={route("scoring-question.edit", {
-                            scoringQuestion: scoring.id,
+                          href={route("scoring-question.edit-options-edit", {
+                            scoringQuestion: selectedScoringQuestion?.id,
+                            scoringOption: scoring.id,
                           })}>
-                          Edit pertanyaan
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          href={route("scoring-question.edit-options", {
-                            scoringQuestion: scoring.id,
-                          })}>
-                          Pilihan pertanyaan
+                          Edit pilihan
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -120,10 +117,10 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={scoringQuestions?.meta} />
-      <PaginationDatatable meta={scoringQuestions?.meta} only={["scoringQuestions"]} />
+      <ShowingCountDatatable meta={scoringOptions?.meta} />
+      <PaginationDatatable meta={scoringOptions?.meta} only={["scoringOptions"]} />
     </>
   );
 };
 
-export default ScoringQuestionDatatable;
+export default ScoringQuestionOptionDatatable;

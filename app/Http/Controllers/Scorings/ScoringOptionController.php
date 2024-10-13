@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
 use App\Models\ScoringOption;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ScoringOptionController extends Controller
 {
@@ -62,5 +65,25 @@ class ScoringOptionController extends Controller
     public function destroy(ScoringOption $scoringOption)
     {
         //
+
+        try {
+            DB::beginTransaction();
+
+
+
+            if ($scoringOption->exists) {
+                $scoringOption->delete();
+                DB::commit();
+                flashMessage('Pilihan Pertanyaan Skoring Dihapus', 'Pilihan Pertanyaan Skoring berhasil dihapus');
+            } else {
+                throw new ThrottleRequestsException('Pilihan Pertanyaan Skoring tidak ditemukan');
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Pilihan Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pilihan Pertanyaan Skoring', 'error');
+            Log::error('Scoring Question Option Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+        } finally {
+            return redirect()->back();
+        }
     }
 }
