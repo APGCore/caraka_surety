@@ -2,26 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Principal;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Location\DistrictController;
+use App\Http\Controllers\Location\RegencyController;
+use App\Http\Requests\Principal\UpdateRequest;
 use App\Http\Resources\Principal\PrincipalResource;
-use Inertia\Response;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Http\Controllers\Location\DistrictController;
-use App\Http\Controllers\Location\RegencyController;
-use App\Http\Requests\Principal\StoreRequest;
-use App\Http\Requests\Principal\UpdateRequest;
-use App\Http\Resources\Principal\ObligeeResource;
+use App\Models\Principal;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
-
-
-
-
-
+use Inertia\Response;
 
 class PrincipalController extends Controller
 {
@@ -138,7 +131,6 @@ class PrincipalController extends Controller
             'districts' => $districts,
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.

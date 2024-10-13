@@ -172,14 +172,6 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link
-                            className="bg-green-500 text-destructive-foreground shadow-sm hover:bg-green-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                            href={route("product-guarantor.index", guarantor.id)}>
-                            Produk
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                             href={route("guarantor.edit", guarantor.id)}>
                             Edit

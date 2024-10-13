@@ -1,46 +1,61 @@
-import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
+import InputLocation from "@/components/common/input-location";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
 import { Textarea } from "@/components/ui/textarea";
-import { Transition } from "@headlessui/react";
+import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
 interface Props {
-  submitForm: FormEventHandler<HTMLFormElement>;
-  data: any;
-  provinces: any;
-  selectProvince: (value: number) => void;
-  regencies: any;
-  selectRegency: (value: number) => void;
-  districts: any;
-  selectDistrict: (value: number) => void;
-  setData: any;
-  errors: any;
-  processing: any;
-  recentlySuccessful: any;
-  cancel: () => void;
+  branchOffice?: any;
+  routeSubmit: string;
+  routeBack: string;
 }
 
-const Form: React.FC<Props> = ({
-  submitForm,
-  data,
-  setData,
-  provinces,
-  selectProvince,
-  regencies,
-  selectRegency,
-  districts,
-  selectDistrict,
-  errors,
-  processing,
-  recentlySuccessful,
-  cancel,
-}) => {
+const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack }) => {
+  const { data, setData, post, patch, errors, processing } = useForm({
+    id: branchOffice?.id ?? null,
+    name: branchOffice?.name ?? "",
+    email: branchOffice?.email ?? "",
+    phone: branchOffice?.phone ?? "",
+    province_id: branchOffice?.province_id ?? null,
+    regency_id: branchOffice?.regency_id ?? null,
+    district_id: branchOffice?.district_id ?? null,
+    village: branchOffice?.village ?? "",
+    address: branchOffice?.address ?? "",
+    postal_code: branchOffice?.postal_code ?? "",
+  });
+
+  const cancel = () => {
+    router.get(routeBack);
+  };
+
+  const submit: FormEventHandler<HTMLFormElement> = (event: any) => {
+    event.preventDefault();
+
+    if (data.id) {
+      patch(routeSubmit, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => {
+          router.get(routeBack);
+        },
+      });
+    } else {
+      post(routeSubmit, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => {
+          router.get(routeBack);
+        },
+      });
+    }
+  };
+
   return (
-    <form onSubmit={submitForm} className="mt-6 space-y-6">
+    <form onSubmit={submit} className="mt-6 space-y-6">
       <div>
         <InputLabel htmlFor="name" value="Nama" />
 
@@ -58,100 +73,48 @@ const Form: React.FC<Props> = ({
       </div>
 
       <div>
-        <InputLabel htmlFor="fax" value="Fax" />
+        <InputLabel htmlFor="email" value="Email" />
 
         <TextInput
-          id="fax"
+          id="email"
           className="mt-1 block w-full"
-          value={data.fax}
-          onChange={(e) => setData("fax", e.target.value)}
+          value={data.email}
+          onChange={(e) => setData("email", e.target.value)}
           required
-          autoComplete="fax"
+          autoComplete="email"
         />
 
-        <InputError className="mt-2" message={errors.fax} />
+        <InputError className="mt-2" message={errors.email} />
       </div>
 
       <div>
-        <InputLabel htmlFor="pic" value="PIC" />
+        <InputLabel htmlFor="phone" value="Telepon" />
 
         <TextInput
-          id="pic"
+          id="phone"
           className="mt-1 block w-full"
-          value={data.pic}
-          onChange={(e) => setData("pic", e.target.value)}
+          value={data.phone}
+          onChange={(e) => setData("phone", e.target.value)}
           required
-          autoComplete="pic"
+          autoComplete="phone"
         />
 
-        <InputError className="mt-2" message={errors.pic} />
+        <InputError className="mt-2" message={errors.phone} />
       </div>
-
-      <div>
-        <InputLabel htmlFor="province_id" value="Provinsi" />
-
-        <Combobox
-          datas={provinces}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={data.province_id ?? ""}
-          onSelect={(value) => selectProvince(value)}
-          placeholder="Pilih Provinsi..."
-          notFoundText="Provinsi tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.province_id} />
-      </div>
-
-      <div>
-        <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
-
-        <Combobox
-          datas={regencies}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={data.regency_id ?? ""}
-          onSelect={(value) => selectRegency(value)}
-          placeholder="Pilih Kabupaten/Kota..."
-          notFoundText="Kabupaten/Kota tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.regency_id} />
-      </div>
-
-      <div>
-        <InputLabel htmlFor="district_id" value="Kecamatan" />
-
-        <Combobox
-          datas={districts}
-          labelKey="name"
-          valueKey="id"
-          defaultValue={data.district_id ?? ""}
-          onSelect={(value) => selectDistrict(value)}
-          placeholder="Pilih Kecamatan..."
-          notFoundText="Kecamatan tidak ditemukan."
-          className="mt-1 w-full"
-        />
-
-        <InputError className="mt-2" message={errors.district_id} />
-      </div>
-
-      <div>
-        <InputLabel htmlFor="village" value="Desa/Kelurahan" />
-
-        <TextInput
-          id="village"
-          className="mt-1 block w-full"
-          value={data.village}
-          onChange={(e) => setData("village", e.target.value)}
-          required
-          autoComplete="village"
-        />
-        <InputError className="mt-2" message={errors.village} />
-      </div>
-
+      <InputLocation
+        province_id={data.province_id}
+        setProvinceId={(id) => setData("province_id", id)}
+        error_province_id={errors.province_id}
+        regency_id={data.regency_id}
+        setRegencyId={(id) => setData("regency_id", id)}
+        error_regency_id={errors.regency_id}
+        district_id={data.district_id}
+        setDistrictId={(id) => setData("district_id", id)}
+        error_district_id={errors.district_id}
+        village={data.village}
+        setVillage={(value) => setData("village", value)}
+        error_village={errors.village}
+      />
       <div>
         <InputLabel htmlFor="address" value="Alamat" />
 
@@ -166,7 +129,6 @@ const Form: React.FC<Props> = ({
 
         <InputError className="mt-2" message={errors.address} />
       </div>
-
       <div>
         <InputLabel htmlFor="postal_code" value="Kode Pos" />
 
@@ -181,35 +143,10 @@ const Form: React.FC<Props> = ({
 
         <InputError className="mt-2" message={errors.postal_code} />
       </div>
-
-      <div>
-        <InputLabel htmlFor="description" value="Deskripsi" />
-
-        <Textarea
-          id="description"
-          className="mt-1 block w-full"
-          value={data.description}
-          onChange={(e) => setData("description", e.target.value)}
-          required
-          autoComplete="description"
-        />
-
-        <InputError className="mt-2" message={errors.description} />
-      </div>
-
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 
         <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
-
-        <Transition
-          show={recentlySuccessful}
-          enter="transition ease-in-out"
-          enterFrom="opacity-0"
-          leave="transition ease-in-out"
-          leaveTo="opacity-0">
-          <p className="text-sm text-gray-600">Saved.</p>
-        </Transition>
       </div>
     </form>
   );

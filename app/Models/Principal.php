@@ -13,7 +13,7 @@ use Laravel\Scout\Searchable;
 
 class Principal extends Model
 {
-    use HasFactory, SoftDeletes, Searchable;
+    use HasFactory, Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -21,7 +21,6 @@ class Principal extends Model
         'updated_at',
         'deleted_at',
     ];
-
 
     public function toSearchableArray(): array
     {
@@ -31,8 +30,6 @@ class Principal extends Model
             'address' => $this->address,
         ];
     }
-
-
 
     public function province(): BelongsTo
     {

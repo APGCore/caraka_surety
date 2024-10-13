@@ -153,8 +153,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
   };
 
   const productFiltered = useMemo(() => {
-    return products.filter((product: any) => !productsGuarantor.some((data: any) => data.id === product.id));
-  }, [productTypes, productsGuarantor]);
+    return products.filter((product: any) => !productsGuarantor?.some((data: any) => data.id === product.id));
+  }, [products, productsGuarantor]);
 
   const setAll = () => {
     const newValue = productTypeOwnedProduct.filter(
