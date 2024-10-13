@@ -13,4 +13,5 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     require_once __DIR__.'/scoring.php';
     require_once __DIR__.'/obligee.php';
     require_once __DIR__.'/bank.php';
+    require_once __DIR__.'/principal.php';
 });

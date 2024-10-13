@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ScoringQuestionCategorySeeder::class,
             ScoringQuestionSeeder::class,
             ScoringOptionSeeder::class,
+            PrincipalSeeder::class
         ]);
     }
 }
