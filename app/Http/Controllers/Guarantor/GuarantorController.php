@@ -107,8 +107,6 @@ class GuarantorController extends Controller
             $requestValid = $request->validated();
             if ($guarantor->getAttribute('picture') && Storage::exists($guarantor->getAttribute('picture'))) {
                 $requestValid['picture'] = Storage::put($guarantor->getAttribute('picture'), $request->file('upload_picture'), 'public');
-            } else {
-                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
             }
 
             $guarantor->update($requestValid);
