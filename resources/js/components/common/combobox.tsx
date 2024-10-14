@@ -18,6 +18,7 @@ export interface ComboboxProps<T> {
   className?: string;
   id?: string;
   disabledValue?: boolean;
+  reset?: boolean;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -26,6 +27,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   valueKey,
   defaultValue,
   defaultValueId,
+  reset = false,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -35,6 +37,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   useEffect(() => {
     if (defaultValue && datas) {
       setValue(defaultValue);
+      console.log(defaultValue);
     }
   }, [defaultValue, datas]);
 
@@ -44,6 +47,12 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
       setValue(data?.[valueKey] as string);
     }
   }, [defaultValueId, datas]);
+
+  useEffect(() => {
+    if (reset) {
+      setValue("");
+    }
+  }, [reset]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -103,7 +103,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
           const productTypes: GuarantorProductType[] = response.data.data.productTypes;
           setProductTypeOwnedProduct(productTypes);
 
-          if (response.data.data.products) {
+          if (response.data.data.products.length > 0) {
             setProductsGuarantor(response.data.data.products);
             const productId: number = response.data.data.products[0].id;
             setProductActive(productId);

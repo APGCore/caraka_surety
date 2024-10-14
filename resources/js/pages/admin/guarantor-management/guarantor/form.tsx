@@ -176,9 +176,24 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
         regency_id={data.regency_id}
         district_id={data.district_id}
         village={data.village}
-        setProvinceId={(value) => setData("province_id", value)}
-        setRegencyId={(value) => setData("regency_id", value)}
-        setDistrictId={(value) => setData("district_id", value)}
+        setProvinceId={(id) =>
+          setData((prev) => ({
+            ...prev,
+            province_id: id,
+            regency_id: null,
+            district_id: null,
+            village: "",
+          }))
+        }
+        setRegencyId={(id) =>
+          setData((prev) => ({
+            ...prev,
+            regency_id: id,
+            district_id: null,
+            village: "",
+          }))
+        }
+        setDistrictId={(id) => setData((prev) => ({ ...prev, district_id: id, village: "" }))}
         setVillage={(value) => setData("village", value)}
         error_province_id={errors.province_id}
         error_regency_id={errors.regency_id}

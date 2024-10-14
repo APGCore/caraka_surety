@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
             'data.*.product_type_id' => 'required|exists:product_types,id,deleted_at,NULL',
             'data.*.code' => 'required|string|max:255',
             'data.*.name' => 'required|string|max:255',
-            'data.*.job_group' => 'required|string|max:255',
+            'data.*.job_group' => 'nullable|string|max:255',
         ];
     }
 }

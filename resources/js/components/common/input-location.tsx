@@ -35,8 +35,13 @@ const InputLocation: React.FC<Props> = ({
   error_village,
 }) => {
   const [provinces, setProvinces] = useState([]);
+  const [thisProvinceId, setThisProvinceId] = useState(() => province_id);
   const [regencies, setRegencies] = useState([]);
+  const [thisRegencyId, setThisRegencyId] = useState(() => regency_id);
+  const [resetRegencyId, setResetRegencyId] = useState(false);
   const [districts, setDistricts] = useState([]);
+  const [thisDistrictId, setThisDistrictId] = useState(() => district_id);
+  const [resetDistrictId, setResetDistrictId] = useState(false);
 
   useEffect(() => {
     axios
@@ -50,33 +55,36 @@ const InputLocation: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    if (province_id) {
+    if (thisProvinceId) {
       setRegencies([]);
       setDistricts([]);
       axios
-        .get(route("regency.by-province", province_id))
+        .get(route("regency.by-province", thisProvinceId))
         .then((response) => {
           setRegencies(response.data);
+          setResetRegencyId(false);
+          setResetDistrictId(false);
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [province_id]);
+  }, [thisProvinceId]);
 
   useEffect(() => {
-    if (regency_id) {
+    if (thisRegencyId) {
       setDistricts([]);
       axios
-        .get(route("district.by-regency", regency_id))
+        .get(route("district.by-regency", thisRegencyId))
         .then((response) => {
           setDistricts(response.data);
+          setResetDistrictId(false);
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [regency_id]);
+  }, [thisRegencyId]);
 
   return (
     <>
@@ -86,9 +94,15 @@ const InputLocation: React.FC<Props> = ({
         <Combobox
           datas={provinces}
           labelKey="name"
-          valueKey="id"
-          defaultValue={province_id ?? ""}
-          onSelect={(value) => setProvinceId(value.id)}
+          valueKey="name"
+          defaultValueId={thisProvinceId ?? ""}
+          onSelect={(value) => {
+            setThisProvinceId(value.id);
+            setProvinceId(value.id);
+            setThisRegencyId(null);
+            setThisDistrictId(null);
+            setResetRegencyId(true);
+          }}
           placeholder="Pilih Provinsi..."
           notFoundText="Provinsi tidak ditemukan."
           className="mt-1 w-full"
@@ -102,9 +116,15 @@ const InputLocation: React.FC<Props> = ({
         <Combobox
           datas={regencies}
           labelKey="name"
-          valueKey="id"
-          defaultValue={regency_id ?? ""}
-          onSelect={(value) => setRegencyId(value.id)}
+          valueKey="name"
+          defaultValueId={thisRegencyId ?? ""}
+          reset={resetRegencyId}
+          onSelect={(value) => {
+            setThisRegencyId(value.id);
+            setRegencyId(value.id);
+            setThisDistrictId(null);
+            setResetDistrictId(true);
+          }}
           placeholder="Pilih Kabupaten/Kota..."
           notFoundText="Kabupaten/Kota tidak ditemukan."
           className="mt-1 w-full"
@@ -118,9 +138,13 @@ const InputLocation: React.FC<Props> = ({
         <Combobox
           datas={districts}
           labelKey="name"
-          valueKey="id"
-          defaultValue={district_id ?? ""}
-          onSelect={(value) => setDistrictId(value.id)}
+          valueKey="name"
+          defaultValueId={thisDistrictId ?? ""}
+          reset={resetDistrictId}
+          onSelect={(value) => {
+            setThisDistrictId(value.id);
+            setDistrictId(value.id);
+          }}
           placeholder="Pilih Kecamatan..."
           notFoundText="Kecamatan tidak ditemukan."
           className="mt-1 w-full"
@@ -139,6 +163,7 @@ const InputLocation: React.FC<Props> = ({
           required
           autoComplete="village"
         />
+
         <InputError className="mt-2" message={error_village} />
       </div>
     </>

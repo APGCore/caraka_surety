@@ -1,9 +1,7 @@
 import { generateUUID } from "@/lib/generate-uuid";
 import {
   Archive,
-  BackpackIcon,
   Building,
-  Building2,
   ChartNoAxesGantt,
   CircleDollarSign,
   FileBoxIcon,
@@ -170,14 +168,14 @@ export const adminLinks = [
   {
     title: "Kelola Pihak Terkait",
     route: [
-      {
-        id: generateUUID(),
-        name: "Principal",
-        route_name: "principal.index",
-        href: route("principal.index"),
-        Icon: Building2,
-        children: [],
-      },
+      // {
+      //   id: generateUUID(),
+      //   name: "Principal",
+      //   route_name: "principal.index",
+      //   href: route("principal.index"),
+      //   Icon: Building2,
+      //   children: [],
+      // },
       {
         id: generateUUID(),
         name: "Obligee",

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignIdFor(ProductType::class, 'product_type_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('code');
             $table->string('name');
-            $table->string('job_group');
+            $table->string('job_group')->nullable();
             $table->string('full_name');
             $table->timestamps();
         });

@@ -20,7 +20,7 @@ trait ResponseFormat
      */
     public function responseError($message, $data = null)
     {
-        return response(status: 400)->json([
+        return response()->json([
             'message' => $message,
             'data' => $data,
         ], 400);

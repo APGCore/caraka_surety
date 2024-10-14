@@ -6,7 +6,7 @@ import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler } from "react";
+import React, { FormEventHandler } from "react";
 
 interface Props {
   branchOffice?: any;
@@ -101,20 +101,37 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack }) => {
 
         <InputError className="mt-2" message={errors.phone} />
       </div>
+
       <InputLocation
         province_id={data.province_id}
-        setProvinceId={(id) => setData("province_id", id)}
-        error_province_id={errors.province_id}
         regency_id={data.regency_id}
-        setRegencyId={(id) => setData("regency_id", id)}
-        error_regency_id={errors.regency_id}
         district_id={data.district_id}
-        setDistrictId={(id) => setData("district_id", id)}
-        error_district_id={errors.district_id}
         village={data.village}
+        setProvinceId={(id) =>
+          setData((prev) => ({
+            ...prev,
+            province_id: id,
+            regency_id: null,
+            district_id: null,
+            village: "",
+          }))
+        }
+        setRegencyId={(id) =>
+          setData((prev) => ({
+            ...prev,
+            regency_id: id,
+            district_id: null,
+            village: "",
+          }))
+        }
+        setDistrictId={(id) => setData((prev) => ({ ...prev, district_id: id, village: "" }))}
         setVillage={(value) => setData("village", value)}
+        error_province_id={errors.province_id}
+        error_district_id={errors.district_id}
+        error_regency_id={errors.regency_id}
         error_village={errors.village}
       />
+
       <div>
         <InputLabel htmlFor="address" value="Alamat" />
 
