@@ -65,7 +65,7 @@ class PrincipalController extends Controller
 
         return inertia('admin/principal-management/principal/detail/index', [
             'page_settings' => [
-                'title' => 'Edit Principal',
+                'title' => 'Detail Principal',
             ],
             'principal' => $principal,
         ]);
