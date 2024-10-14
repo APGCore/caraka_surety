@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -129,6 +130,16 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
                                 <DialogTitle>{guarantor?.name}</DialogTitle>
                               </DialogHeader>
                               <div className="mt-4 grid gap-2">
+                                <div className="flex items-center justify-center mb-4">
+                                  <Avatar className="w-[200px] h-[200px] shadow-2xl">
+                                    <AvatarImage
+                                      src={guarantor?.picture || "https://github.com/shadcn.png"}
+                                      alt="@shadcn"
+                                      className="object-contain w-full h-full"
+                                    />
+                                    <AvatarFallback>Foto</AvatarFallback>
+                                  </Avatar>
+                                </div>
                                 <div className="flex items-center justify-between">
                                   <span className="font-normal">Penanggung Jawab(PIC)</span>
                                   <span>{guarantor?.pic ?? ""}</span>

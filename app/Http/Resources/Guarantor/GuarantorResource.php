@@ -4,6 +4,7 @@ namespace App\Http\Resources\Guarantor;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class GuarantorResource extends JsonResource
 {
@@ -16,6 +17,7 @@ class GuarantorResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'picture' => $this->resource->picture ? Storage::url($this->resource->picture) : null,
             'province' => $this->resource->province?->name,
             'regency' => $this->resource->regency?->name,
             'district' => $this->resource->district?->name,

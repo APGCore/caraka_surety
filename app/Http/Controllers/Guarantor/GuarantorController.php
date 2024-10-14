@@ -82,11 +82,11 @@ class GuarantorController extends Controller
      */
     public function edit(Guarantor $guarantor)
     {
-        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
-
         $picture = $guarantor->getAttribute('picture') ?
             Storage::url($guarantor->getAttribute('picture')) : '';
         $guarantor->setAttribute('picture', $picture);
+
+        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -105,8 +105,12 @@ class GuarantorController extends Controller
             DB::beginTransaction();
 
             $requestValid = $request->validated();
-            if ($guarantor->getAttribute('picture') && Storage::exists($guarantor->getAttribute('picture'))) {
-                $requestValid['picture'] = Storage::put($guarantor->getAttribute('picture'), $request->file('upload_picture'), 'public');
+            if ($request->file('upload_picture')) {
+                $picture = $guarantor->getAttribute('picture') ?? '';
+                if (Storage::exists($picture)) {
+                    Storage::delete($picture);
+                }
+                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
             }
 
             $guarantor->update($requestValid);
