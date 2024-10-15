@@ -22,7 +22,7 @@ class GuarantorToProductTypeController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Data Produk Penjamin',
+                'title' => 'Data Produk Asuransi',
             ],
             'guarantors' => $guarantors,
             'products' => $products,
@@ -35,7 +35,7 @@ class GuarantorToProductTypeController extends Controller
         $productTypes = collect($guarantor->guarantorToProductTypes);
         $products = $productTypes->pluck('product')->unique()->values();
 
-        return $this->responseSuccess('Data produk penjamin berhasil diambil', compact('products', 'productTypes'));
+        return $this->responseSuccess('Data produk asuransi berhasil diambil', compact('products', 'productTypes'));
     }
 
     /**
@@ -53,9 +53,9 @@ class GuarantorToProductTypeController extends Controller
                 GuarantorToProductType::query()->create($item);
             }
 
-            return $this->responseSuccess('Data produk penjamin berhasil disimpan');
+            return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {
-            return $this->responseError('Data produk penjamin gagal disimpan', $e->getMessage());
+            return $this->responseError('Data produk asuransi gagal disimpan', $e->getMessage());
         }
     }
 }

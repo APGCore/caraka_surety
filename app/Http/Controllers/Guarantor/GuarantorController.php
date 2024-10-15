@@ -30,7 +30,7 @@ class GuarantorController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Data Penjamin',
+                'title' => 'Data Asuransi',
             ],
             'guarantors' => fn () => $resource,
         ]);
@@ -46,7 +46,7 @@ class GuarantorController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tambah Penjamin',
+                'title' => 'Tambah Asuransi',
             ],
         ]);
     }
@@ -68,11 +68,11 @@ class GuarantorController extends Controller
             Guarantor::query()
                 ->create($requestValid);
 
-            flashMessage('Berhasil', 'Penambahan data penjamin berhasil');
+            flashMessage('Berhasil', 'Penambahan data asuransi berhasil');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Penambahan data penjamin gagal', 'error');
+            flashMessage('Gagal', 'Penambahan data asuransi gagal', 'error');
             Log::error('GuarantorController@store: ', ['message' => $e->getMessage()]);
         }
     }
@@ -90,7 +90,7 @@ class GuarantorController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Penjamin',
+                'title' => 'Edit Asuransi',
             ],
             'guarantor' => fn () => $guarantor,
         ]);
@@ -105,21 +105,19 @@ class GuarantorController extends Controller
             DB::beginTransaction();
 
             $requestValid = $request->validated();
-            if ($request->file('upload_picture')) {
-                $picture = $guarantor->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
-                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
+            $picture = $guarantor->getAttribute('picture') ?? '';
+            if (Storage::exists($picture)) {
+                Storage::delete($picture);
             }
+            $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
 
             $guarantor->update($requestValid);
 
-            flashMessage('Berhasil', 'Perubahan data penjamin berhasil');
+            flashMessage('Berhasil', 'Perubahan data asuransi berhasil');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Perubahan data penjamin gagal', 'error');
+            flashMessage('Gagal', 'Perubahan data asuransi gagal', 'error');
             Log::error('GuarantorController@update: ', ['message' => $e->getMessage()]);
         }
     }
@@ -136,13 +134,13 @@ class GuarantorController extends Controller
             }
             $guarantor->delete();
 
-            flashMessage('Berhasil', 'Data penjamin berhasil dihapus');
+            flashMessage('Berhasil', 'Data asuransi berhasil dihapus');
             DB::commit();
 
             return redirect()->route('guarantor.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Data penjamin gagal dihapus', 'error');
+            flashMessage('Gagal', 'Data asuransi gagal dihapus', 'error');
             Log::error('GuarantorController@destroy: ', ['message' => $e->getMessage()]);
 
             return back()->withErrors($e->getMessage());

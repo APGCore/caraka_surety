@@ -10,7 +10,7 @@ const secondTemplateContent = `
         <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: PT. MOTI BATARA ALKESINDO (NAMA PRINCIPAL),
         Jl. Agave Raya Blok A1 No. 19A RT. 09 RW. 04 Kedoya Selatan, Kebon Jeruk, Jakarta Barat (ALAMAT PRINCIPAL)
         sebagai Penyedia, selanjutnya disebut TERJAMIN, dan PT. ASURANSI UMUM VIDEI,
-        Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Penjamin,
+        Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Asuransi,
         selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak
         Politeknik Kesehatan Jakarta III (NAMA OBLIGEE), Jl. Arteri JORR, Jatiwarna, Kec. Pondok Melati, Bekasi (ALAMAT OBLIGEE)
         sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah Rp. 32.077.650,-

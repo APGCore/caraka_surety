@@ -84,7 +84,7 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Penjamin"
+              placeholder="Cari Asuransi"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -209,7 +209,7 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
                                     deleteProduct(guarantor);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
-                                  Continue Delete Penjamin
+                                  Continue Delete Asuransi
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -281,14 +281,14 @@ AdminProductsPage.layout = (page: any) => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("guarantor.index")}>Kelola Penjamin</BreadcrumbLink>
+            <BreadcrumbLink href={route("guarantor.index")}>Kelola Asuransi</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
         <Button asChild>
-          <Link href={route("guarantor.create")}>Tambah Penjamin</Link>
+          <Link href={route("guarantor.create")}>Tambah Asuransi</Link>
         </Button>
       </div>
       {page}

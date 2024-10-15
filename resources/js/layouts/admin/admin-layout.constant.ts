@@ -145,11 +145,11 @@ export const adminLinks = [
     ],
   },
   {
-    title: "Kelola Penjamin",
+    title: "Kelola Asuransi",
     route: [
       {
         id: generateUUID(),
-        name: "Penjamin",
+        name: "Asuransi",
         route_name: "guarantor.index",
         href: route("guarantor.index"),
         Icon: CircleDollarSign,
@@ -157,7 +157,7 @@ export const adminLinks = [
       },
       {
         id: generateUUID(),
-        name: "Produk Penjamin",
+        name: "Produk Asuransi",
         route_name: "product-guarantor.index",
         href: route("product-guarantor.index"),
         Icon: PackageSearch,

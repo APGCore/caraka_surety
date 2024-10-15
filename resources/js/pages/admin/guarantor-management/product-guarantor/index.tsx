@@ -119,7 +119,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     } else {
       toast({
         title: "Gagal",
-        description: "Pilih penjamin terlebih dahulu",
+        description: "Pilih asuransi terlebih dahulu",
         variant: "destructive",
       });
     }
@@ -266,7 +266,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
               labelKey={"name"}
               valueKey={"name"}
               defaultValue={guarantorSelected}
-              placeholder={"Pilih Penjamin"}
+              placeholder={"Pilih Asuransi"}
               onSelect={(value) => setGuarantorSelected(value.id)}
             />
           </div>

@@ -9,8 +9,8 @@ const GuarantorCreatePage: GuarantorEditPageProps = ({ guarantor }) => {
     <main className="space-y-2.5 flex items-center justify-center">
       <div className="max-w-xl w-full">
         <header>
-          <h2 className="text-lg font-medium text-gray-900">Mengubah Data Penjamin</h2>
-          <p className="mt-1 text-sm text-gray-600">Untuk mengubah data penjamin (Principal)</p>
+          <h2 className="text-lg font-medium text-gray-900">Mengubah Data Asuransi</h2>
+          <p className="mt-1 text-sm text-gray-600">Untuk mengubah data asuransi (Principal)</p>
         </header>
 
         <Form
