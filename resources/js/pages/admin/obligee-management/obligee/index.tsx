@@ -133,7 +133,7 @@ const ObligeeManagementPage: ObligeeManagementPageProps = (props) => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={route("obligee.show", { id: obligee.id })}>Detail</Link>
+                          <Link href={route("obligee.show", obligee.id)}>Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>

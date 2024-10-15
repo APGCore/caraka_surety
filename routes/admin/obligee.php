@@ -7,7 +7,7 @@ Route::prefix('obligee-management')->group(function () {
     Route::controller(ObligeeController::class)->prefix('obligee')
         ->name('obligee.')->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/show', 'show')->name('show');
+            Route::get('/show/{obligee}', 'show')->name('show');
             Route::get('/create', 'create')->name('create');
             Route::post('/store', 'store')->name('store');
             Route::delete('/{obligee}', 'destroy')->name('destroy');

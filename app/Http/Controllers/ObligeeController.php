@@ -132,7 +132,14 @@ class ObligeeController extends Controller
      */
     public function show(Obligee $obligee)
     {
-        //
+        $obligee = Obligee::with('province', 'regency', 'district')->findOrFail($obligee->id);
+
+        return inertia('admin/obligee-management/obligee/detail/index', [
+            'page_settings' => [
+                'title' => 'Detail Obligee',
+            ],
+            'obligee' => $obligee,
+        ]);
     }
 
     /**
