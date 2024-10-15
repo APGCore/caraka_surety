@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Product\ProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('required_docs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_type_id')->nullable()->references('id')->on('product_types')
-                ->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(ProductType::class, 'product_type_id')->nullable()
+                ->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();

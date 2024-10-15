@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Location\Province;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,12 +15,16 @@ class PrincipalSeeder extends Seeder
     {
         $principals = [];
 
+        $province = Province::query()->first();
+        $regency = $province->regency()->first();
+        $district = $regency->district()->first();
+
         for ($i = 1; $i <= 5; $i++) {
             $principals[] = [
                 'headquarter_id' => null,
-                'province_id' => 11,
-                'regency_id' => 97,
-                'district_id' => 49,
+                'province_id' => $province->id,
+                'regency_id' => $regency->id,
+                'district_id' => $district->id,
                 'village' => 'Dummy Village '.$i,
                 'name' => 'Dummy Principal '.$i,
                 'address' => '123 Dummy Street '.$i,

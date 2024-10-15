@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Location\Province;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('regencies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('province_id')->references('id')->on('provinces')
+            $table->foreignIdFor(Province::class)->constrained()
                 ->restrictOnDelete()->cascadeOnUpdate();
             $table->string('code');
             $table->string('name');

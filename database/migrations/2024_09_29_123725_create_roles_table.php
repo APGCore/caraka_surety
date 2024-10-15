@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Profile;
+use App\Models\Role;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,12 +21,14 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('profile_id')->nullable()->after('id')
-                ->references('id')->on('profiles')
-                ->nullOnDelete();
-            $table->foreignId('role_id')->nullable()->after('id')
-                ->references('id')->on('roles')
-                ->nullOnDelete();
+            $table->foreignIdFor(Profile::class, 'profile_id')
+                ->after('id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->foreignIdFor(Role::class, 'role_id')
+                ->after('id')
+                ->constrained()
+                ->cascadeOnDelete();
         });
     }
 
