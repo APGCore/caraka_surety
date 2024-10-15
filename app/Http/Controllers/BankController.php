@@ -130,7 +130,14 @@ class BankController extends Controller
      */
     public function show(Bank $bank)
     {
-        //
+        $bank = Bank::with('province', 'regency', 'district')->findOrFail($bank->id);
+
+        return inertia('admin/bank-management/bank/detail/index', [
+            'page_settings' => [
+                'title' => 'Detail Bank',
+            ],
+            'bank' => $bank,
+        ]);
     }
 
     /**

@@ -133,7 +133,7 @@ const BankManagementPage: BankManagementPageProps = (props) => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={route("bank.show", { id: bank.id })}>Detail</Link>
+                          <Link href={route("bank.show", bank.id)}>Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
