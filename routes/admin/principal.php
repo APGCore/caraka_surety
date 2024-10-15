@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PrincipalController;
+use App\Http\Controllers\RelatedParties\PrincipalController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('principal-management')->group(function () {

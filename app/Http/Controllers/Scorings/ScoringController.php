@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringResource;
-use App\Models\Scoring;
+use App\Models\Scoring\Scoring;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

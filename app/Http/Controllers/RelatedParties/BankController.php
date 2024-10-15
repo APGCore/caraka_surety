@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\RelatedParties;
 
-use App\Http\Requests\Obligee\StoreRequest;
-use App\Http\Requests\Obligee\UpdateRequest;
-use App\Http\Resources\Obligee\ObligeeResource;
-use App\Models\Obligee;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Bank\StoreRequest;
+use App\Http\Requests\Bank\UpdateRequest;
+use App\Http\Resources\Bank\BankResource;
+use App\Models\RelatedParties\Bank;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,45 +14,44 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
 
-class ObligeeController extends Controller
+class BankController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): Response
     {
-        $obligee = Obligee::search($request->get('search'))
+        $bank = Bank::search($request->get('search'))
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
-        $obligeeResource = ObligeeResource::collection($obligee);
+        $bankResource = BankResource::collection($bank);
 
         $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Obligee',
+                'title' => 'Kelola Bank',
             ],
-            'obligees' => fn () => $obligeeResource,
+            'banks' => fn () => $bankResource,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request): Response
+    public function create(Request $request)
     {
-
-        $obligees = Obligee::all();
+        $bank = Bank::all();
 
         $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tambah Data Obligee',
+                'title' => 'Tambah Bank',
             ],
-            'obligees' => $obligees,
+            'banks' => $bank,
         ]);
     }
 
@@ -67,100 +67,99 @@ class ObligeeController extends Controller
                 $requestValid['picture'] = $request->file('upload_picture')->store('banks', 'public');
             }
 
-            Obligee::query()
+            Bank::query()
                 ->create($requestValid);
 
-            flashMessage('Berhasil', 'Penambahan data obligee berhasil');
+            flashMessage('Berhasil', 'Penambahan data bank berhasil');
             DB::commit();
-
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Penambahan data obligee gagal', 'error');
+            flashMessage('Gagal', 'Penambahan data bank gagal', 'error');
             Log::error('ObligeeController@store: ', ['message' => $e->getMessage()]);
         } finally {
-            return redirect()->route('obligee.index');
+            return redirect()->route('bank.index');
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Obligee $obligee)
+    public function show(Bank $bank)
     {
-        $obligee = Obligee::with('province', 'regency', 'district')->findOrFail($obligee->id);
+        $bank = Bank::with('province', 'regency', 'district')->findOrFail($bank->getAttribute('id'));
 
-        return inertia('admin/obligee-management/obligee/detail/index', [
+        return inertia('admin/bank-management/bank/detail/index', [
             'page_settings' => [
-                'title' => 'Detail Obligee',
+                'title' => 'Detail Bank',
             ],
-            'obligee' => $obligee,
+            'bank' => $bank,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Obligee $obligee, Request $request)
+    public function edit(Bank $bank, Request $request)
     {
         $component = $request->path();
         $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Obligee',
+                'title' => 'Edit Bank',
             ],
-            'obligee' => $obligee,
+            'bank' => $bank,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, Obligee $obligee)
+    public function update(UpdateRequest $request, Bank $bank)
     {
         try {
             DB::beginTransaction();
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $picture = $obligee->getAttribute('picture') ?? '';
+                $picture = $bank->getAttribute('picture') ?? '';
                 if (Storage::exists($picture)) {
                     Storage::delete($picture);
                 }
                 $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
             }
-            $obligee->update($requestValid);
+            $bank->update($requestValid);
 
-            flashMessage('Berhasil', 'Perubahan data obligee berhasil');
+            flashMessage('Berhasil', 'Perubahan data bank berhasil');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Perubahan data obligee gagal', 'error');
+            flashMessage('Gagal', 'Perubahan data bank gagal', 'error');
             Log::error('ObligeeController@update: ', ['message' => $e->getMessage()]);
         } finally {
-            return redirect()->route('obligee.index');
+            return redirect()->route('bank.index');
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Obligee $obligee)
+    public function destroy(Bank $bank)
     {
         try {
             DB::beginTransaction();
 
-            if ($obligee->exists) {
-                $picture = $obligee->getAttribute('picture') ?? '';
+            if ($bank->exists) {
+                $picture = $bank->getAttribute('picture') ?? '';
                 if (Storage::exists($picture)) {
                     Storage::delete($picture);
                 }
-                $obligee->delete();
+                $bank->delete();
             } else {
-                throw new ThrottleRequestsException('Data Obligee tidak ditemukan');
+                throw new ThrottleRequestsException('Data bank tidak ditemukan');
             }
 
-            flashMessage('Data Obligee Dihapus', 'Data Obligee dihapus');
+            flashMessage('Data bank Dihapus', 'Data bank dihapus');
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();

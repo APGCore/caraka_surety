@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Scoring;
+use App\Models\Scoring\Scoring;
 use Illuminate\Database\Seeder;
 
 class ScoringSeeder extends Seeder

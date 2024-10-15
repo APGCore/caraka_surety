@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Product;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
-class Product extends Model
+class ProductType extends Model
 {
     use HasFactory, Searchable, SoftDeletes;
 
@@ -27,15 +26,10 @@ class Product extends Model
         ];
     }
 
-    public function productType(): BelongsToMany
+    public function product(): BelongsToMany
     {
         $productTypeToProduk = new ProductTypeToProduct;
 
-        return $this->belongsToMany(ProductType::class, $productTypeToProduk->getTable(), 'product_id', 'product_type_id');
-    }
-
-    public function productTypeToProduct(): HasMany
-    {
-        return $this->hasMany(ProductTypeToProduct::class);
+        return $this->belongsToMany(Product::class, $productTypeToProduk->getTable(), 'product_type_id', 'product_id');
     }
 }

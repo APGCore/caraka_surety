@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Scoring;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
-class ScoringQuestion extends Model
+class Scoring extends Model
 {
     use HasFactory, Searchable, SoftDeletes;
 
@@ -23,13 +22,8 @@ class ScoringQuestion extends Model
     }
 
     // Define relationships
-    public function category(): BelongsTo
+    public function categories(): HasMany
     {
-        return $this->belongsTo(ScoringQuestionCategory::class, 'scoring_question_category_id');
-    }
-
-    public function options(): HasMany
-    {
-        return $this->hasMany(ScoringOption::class);
+        return $this->hasMany(ScoringQuestionCategory::class);
     }
 }

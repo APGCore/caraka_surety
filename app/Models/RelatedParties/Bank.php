@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RelatedParties;
 
 use App\Models\Location\District;
 use App\Models\Location\Province;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
-class Obligee extends Model
+class Bank extends Model
 {
     use HasFactory, Searchable, SoftDeletes;
 

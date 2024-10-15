@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Guarantor\Product;
 
 use App\Models\Guarantor\Guarantor;
-use App\Models\Product;
-use App\Models\ProductType;
+use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest

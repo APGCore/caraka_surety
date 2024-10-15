@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
-use App\Models\Product;
+use App\Models\Product\Product;
 
 class GuarantorToProductTypeController extends Controller
 {

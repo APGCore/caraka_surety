@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Document;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProductType;
+use App\Models\Product\ProductType;
 use App\Models\RequiredDoc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

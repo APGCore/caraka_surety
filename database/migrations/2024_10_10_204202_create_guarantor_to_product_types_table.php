@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Guarantor\Guarantor;
-use App\Models\Product;
-use App\Models\ProductType;
+use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

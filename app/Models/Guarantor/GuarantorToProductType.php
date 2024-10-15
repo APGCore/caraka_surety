@@ -2,8 +2,8 @@
 
 namespace App\Models\Guarantor;
 
-use App\Models\Product;
-use App\Models\ProductType;
+use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

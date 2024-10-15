@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
-use App\Models\ScoringOption;
+use App\Models\Scoring\ScoringOption;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

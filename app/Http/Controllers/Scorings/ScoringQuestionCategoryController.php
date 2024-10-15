@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Scorings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringQuestionCategoryResource;
-use App\Models\Scoring;
-use App\Models\ScoringQuestionCategory;
+use App\Models\Scoring\Scoring;
+use App\Models\Scoring\ScoringQuestionCategory;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

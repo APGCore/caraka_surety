@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\BankController;
+use App\Http\Controllers\RelatedParties\BankController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('bank-management')->group(function () {

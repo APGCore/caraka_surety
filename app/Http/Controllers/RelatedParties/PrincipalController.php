@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\RelatedParties;
 
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\Location\DistrictController;
 use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Principal\UpdateRequest;
@@ -9,7 +10,7 @@ use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Models\Principal;
+use App\Models\RelatedParties\Principal;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
