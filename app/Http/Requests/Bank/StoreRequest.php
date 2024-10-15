@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Bank;
 
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -25,9 +28,9 @@ class StoreRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
-            'province_id' => ['required', 'exists:provinces,id'],
-            'regency_id' => ['required', 'exists:regencies,id'],
-            'district_id' => ['required', 'exists:districts,id'],
+            'province_id' => ['required', 'exists:'.Province::class.',id'],
+            'regency_id' => ['required', 'exists:'.Regency::class.',id'],
+            'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
             'fax' => ['nullable', 'string', 'max:255'],
             'pic' => ['required', 'string', 'max:255'],

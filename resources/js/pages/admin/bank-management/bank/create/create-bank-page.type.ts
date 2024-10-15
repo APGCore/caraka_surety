@@ -1,15 +1,7 @@
 import React from "react";
 
-interface CreateBankProps {
-  bank: any[];
-  provinces: any;
-  regencies?: any;
-  districts?: any;
-}
+interface CreateBankProps {}
 
 export type CreateBankPageProps = React.FC<CreateBankProps> & {
   layout?: (page: any) => JSX.Element;
-  provinces: any;
-  regencies?: any;
-  districts?: any;
 };

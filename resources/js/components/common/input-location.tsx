@@ -160,7 +160,6 @@ const InputLocation: React.FC<Props> = ({
           className="mt-1 block w-full"
           value={village}
           onChange={(e) => setVillage(e.target.value)}
-          required
           autoComplete="village"
         />
 

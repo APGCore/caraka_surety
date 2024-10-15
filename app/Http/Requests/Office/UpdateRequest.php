@@ -2,6 +2,10 @@
 
 namespace App\Http\Requests\Office;
 
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
+use App\Models\Profile;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -23,13 +27,13 @@ class UpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:profiles,email,'.$this->profile->id.',id,deleted_at,NULL'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Profile::class.',email,'.$this->id.',id,deleted_at,NULL'],
             'phone' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:255'],
-            'province_id' => ['required', 'integer', 'exists:provinces,id'],
-            'regency_id' => ['required', 'integer', 'exists:regencies,id'],
-            'district_id' => ['required', 'integer', 'exists:districts,id'],
+            'province_id' => ['required', 'exists:'.Province::class.',id'],
+            'regency_id' => ['required', 'exists:'.Regency::class.',id'],
+            'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
         ];
     }

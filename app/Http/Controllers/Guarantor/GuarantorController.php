@@ -105,11 +105,13 @@ class GuarantorController extends Controller
             DB::beginTransaction();
 
             $requestValid = $request->validated();
-            $picture = $guarantor->getAttribute('picture') ?? '';
-            if (Storage::exists($picture)) {
-                Storage::delete($picture);
+            if ($request->hasFile('upload_picture')) {
+                $picture = $guarantor->getAttribute('picture') ?? '';
+                if (Storage::exists($picture)) {
+                    Storage::delete($picture);
+                }
+                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
             }
-            $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
 
             $guarantor->update($requestValid);
 
@@ -129,8 +131,9 @@ class GuarantorController extends Controller
     {
         try {
             DB::beginTransaction();
-            if ($guarantor->getAttribute('picture')) {
-                Storage::delete($guarantor->getAttribute('picture'));
+            $picture = $guarantor->getAttribute('picture') ?? '';
+            if (Storage::exists($picture)) {
+                Storage::delete($picture);
             }
             $guarantor->delete();
 
