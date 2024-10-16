@@ -1,4 +1,5 @@
 import { Combobox } from "@/components/common/combobox";
+import InputError from "@/components/common/input-error";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,16 +23,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BlankPageProps } from "@/pages/admin/guarantor-management/blank/employee-page.type";
-import { Head, Link, router } from "@inertiajs/react";
+import { BlankPageProps } from "@/pages/admin/guarantor-management/blank/blank-page.type";
+import { Head, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import React, { useRef, useState } from "react";
 
 const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
   const { data: blanks, meta } = props.blanks;
@@ -41,6 +43,38 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+  const [openCreate, setOpenCreate] = useState<boolean>();
+  const [openCreateMulti, setOpenCreateMulti] = useState<boolean>();
+  const [openEdit, setOpenEdit] = useState<boolean>();
+  const isLoading = useRef<boolean>(false);
+  type DataForm = {
+    id?: number;
+    number: string;
+  };
+  const defaultDataForm: DataForm = {
+    number: "",
+  };
+  const [dataForm, setdataForm] = useState<DataForm>(defaultDataForm);
+  const [errors, setErrors] = useState<{ number: Array<string> | null }>({
+    number: null,
+  });
+  type DataCreateMulti = {
+    number_start: string;
+    number_end: string;
+  };
+  const defaultDataCreateMulti: DataCreateMulti = {
+    number_start: "",
+    number_end: "",
+  };
+  const [dataCreateMulti, setDataCreateMulti] = useState<DataCreateMulti>(defaultDataCreateMulti);
+  const [errorsMulti, setErrorsMulti] = useState<{
+    number_start: Array<string> | null;
+    number_end: Array<string> | null;
+  }>({
+    number_start: null,
+    number_end: null,
+  });
+
   const handleSelect = (e: string) => {
     setSelect(Number(e));
     getData(e, search, guarantorSelected);
@@ -53,11 +87,11 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
   const getData = (perPage: string, search: string, officeSelected: number) => {
     return router.get(
-      route("employee.index"),
+      route("blank.index"),
       pickBy({
         per_page: perPage,
         search,
-        office_id: officeSelected,
+        guarantor_id: officeSelected,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -65,32 +99,171 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
   const setOffice = (office: any) => {
     return router.get(
-      route("employee.index"),
+      route("blank.index"),
       pickBy({
-        office_id: office.id,
+        guarantor_id: office.id,
       }),
       { preserveState: true, preserveScroll: true },
     );
   };
 
-  const deleteData = (employee: any) => {
-    router.delete(route("employee.destroy", employee.id));
+  const deleteData = (blank: any) => {
+    router.delete(route("blank.destroy", blank.id));
+  };
+
+  const createBlangko = (e: React.FormEvent) => {
+    e.preventDefault();
+    isLoading.current = true;
+    axios
+      .post(route("blank.store"), { ...dataForm, guarantor_id: guarantorSelected })
+      .then(() => {
+        setOpenCreate(false);
+        setdataForm(defaultDataForm);
+        getData(String(select), search, guarantorSelected);
+      })
+      .catch((error) => {
+        setOpenCreate(true);
+        setErrors(error.response.data.errors);
+        console.log(error.response);
+      })
+      .finally(() => {
+        isLoading.current = false;
+      });
+  };
+
+  const createBlangkoMulti = (e: React.FormEvent) => {
+    e.preventDefault();
+    isLoading.current = true;
+    axios
+      .post(route("blank.store.multi"), { ...dataCreateMulti, guarantor_id: guarantorSelected })
+      .then(() => {
+        setOpenCreateMulti(false);
+        setDataCreateMulti(defaultDataCreateMulti);
+        getData(String(select), search, guarantorSelected);
+      })
+      .catch((error) => {
+        setOpenCreateMulti(true);
+        setErrorsMulti(error.response.data.errors);
+        console.log(error.response);
+      })
+      .finally(() => {
+        isLoading.current = false;
+      });
+  };
+
+  const updateBlangko = (e: React.FormEvent) => {
+    e.preventDefault();
+    isLoading.current = true;
+    axios
+      .post(route("blank.update", dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
+      .then(() => {
+        setOpenEdit(false);
+        setdataForm(defaultDataForm);
+        getData(String(select), search, guarantorSelected);
+      })
+      .catch((error) => {
+        setOpenEdit(true);
+        setErrors(error.response.data.errors);
+        console.log(error.response);
+      })
+      .finally(() => {
+        isLoading.current = false;
+      });
   };
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Karyawan</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Blangko</h1>
         <div className="flex gap-x-3">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: "default",
-              }),
-            )}
-            href={route("employee.create") + "?office_id=" + guarantorSelected}>
-            Tambah Karyawan
-          </Link>
+          <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
+            <AlertDialogTrigger asChild>
+              <Button>Tambah Blangko</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tambah Blangko</AlertDialogTitle>
+                <AlertDialogDescription>Tindakan ini akan menambah data Blangko</AlertDialogDescription>
+              </AlertDialogHeader>
+              <form onSubmit={(e) => createBlangko(e)} className="mt-6 space-y-6">
+                <div>
+                  <Label htmlFor="number">Nomor Blangko</Label>
+                  <Input
+                    id="number"
+                    value={dataForm.number}
+                    onChange={(e) => setdataForm({ ...dataForm, number: e.target.value })}
+                    type="text"
+                    className="mt-1 block w-full"
+                  />
+
+                  {(errors.number?.length ?? 0) > 0 &&
+                    errors.number?.map((error: string, index: number) => <InputError key={index} message={error} />)}
+                </div>
+
+                <div className="flex justify-end gap-x-3">
+                  <AlertDialogCancel onClick={() => setOpenCreate(false)}>Batal</AlertDialogCancel>
+                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
+                    Simpan
+                  </AlertDialogAction>
+                </div>
+              </form>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog open={openCreateMulti} onOpenChange={setOpenCreateMulti}>
+            <AlertDialogTrigger asChild>
+              <Button>Tambah Banyak Blangko</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tambah Banyak Blangko</AlertDialogTitle>
+                <AlertDialogDescription>Tindakan ini akan menambah banyak data Blangko</AlertDialogDescription>
+              </AlertDialogHeader>
+              <form onSubmit={(e) => createBlangkoMulti(e)} className="mt-6 space-y-6">
+                <div className="flex items-center justify-around">
+                  <div>
+                    <Label htmlFor="number">Nomor Blangko Pertama</Label>
+                    <Input
+                      id="number"
+                      value={dataCreateMulti.number_start}
+                      onChange={(e) => setDataCreateMulti({ ...dataCreateMulti, number_start: e.target.value })}
+                      type="text"
+                      className="mt-1 block w-full"
+                    />
+
+                    {(errorsMulti.number_start?.length ?? 0) > 0 &&
+                      errorsMulti.number_start?.map((error: string, index: number) => (
+                        <InputError key={index} message={error} />
+                      ))}
+                  </div>
+
+                  <ArrowRight className="mt-7" />
+
+                  <div>
+                    <Label htmlFor="number">Nomor Blangko Terakhir</Label>
+                    <Input
+                      id="number"
+                      value={dataCreateMulti.number_end}
+                      onChange={(e) => setDataCreateMulti({ ...dataCreateMulti, number_end: e.target.value })}
+                      type="text"
+                      className="mt-1 block w-full"
+                    />
+
+                    {(errorsMulti.number_end?.length ?? 0) > 0 &&
+                      errorsMulti.number_end?.map((error: string, index: number) => (
+                        <InputError key={index} message={error} />
+                      ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-x-3">
+                  <AlertDialogCancel onClick={() => setOpenCreateMulti(false)}>Batal</AlertDialogCancel>
+                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
+                    Simpan
+                  </AlertDialogAction>
+                </div>
+              </form>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
@@ -120,7 +293,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Karyawan" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Blangko" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -130,9 +303,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Jabatan</TableHead>
+              <TableHead>Nomor Blangko</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
@@ -142,9 +313,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
               blanks.map((blank: any, index: number) => (
                 <TableRow key={blank.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{blank.name}</TableCell>
-                  <TableCell>{blank.email}</TableCell>
-                  <TableCell>{blank.position}</TableCell>
+                  <TableCell>{blank.number}</TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -156,38 +325,48 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                          <Dialog>
-                            <DialogTrigger className="bg-black text-destructive-foreground shadow-sm hover:bg-black/60 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                              Show
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>{blank?.name}</DialogTitle>
-                              </DialogHeader>
-                              <div className="mt-4 grid gap-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-normal">Email</span>
-                                  <span>{blank?.email ?? "Email Belum Dimasukan"}</span>
+                          <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
+                            <AlertDialogTrigger
+                              className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                              onClick={() =>
+                                setdataForm({
+                                  id: blank.id,
+                                  number: blank.number,
+                                })
+                              }>
+                              Ubah Blangko
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Edit Blangko</AlertDialogTitle>
+                                <AlertDialogDescription>Tindakan ini akan mengubah data Blangko</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <form onSubmit={(e) => updateBlangko(e)} className="mt-6 space-y-6">
+                                <div>
+                                  <Label htmlFor="number">Nomor Blangko</Label>
+                                  <Input
+                                    id="number"
+                                    value={dataForm.number}
+                                    onChange={(e) => setdataForm({ ...dataForm, number: e.target.value })}
+                                    type="text"
+                                    className="mt-1 block w-full"
+                                  />
+
+                                  {(errors.number?.length ?? 0) > 0 &&
+                                    errors.number?.map((error: string, index: number) => (
+                                      <InputError key={index} message={error} />
+                                    ))}
                                 </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="font-normal">No. Telepon</span>
-                                  <span>{blank?.phone}</span>
+
+                                <div className="flex justify-end gap-x-3">
+                                  <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
+                                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
+                                    Simpan
+                                  </AlertDialogAction>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="font-normal">Jabatan</span>
-                                  <span>{blank?.position}</span>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
-                          <Link
-                            href={route("employee.edit", blank.id) + "?office_id=" + guarantorSelected}
-                            className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                            Edit
-                          </Link>
+                              </form>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>

@@ -37,7 +37,6 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   useEffect(() => {
     if (defaultValue && datas) {
       setValue(defaultValue);
-      console.log(defaultValue);
     }
   }, [defaultValue, datas]);
 

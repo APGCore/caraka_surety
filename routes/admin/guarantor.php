@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Guarantor\BlankController;
 use App\Http\Controllers\Guarantor\GuarantorController;
 use App\Http\Controllers\Guarantor\GuarantorToProductTypeController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,10 @@ Route::prefix('guarantor-management')->group(function () {
     });
 
     Route::prefix('blank')->name('blank.')->group(function () {
-        Route::get('/', [GuarantorController::class, 'index'])->name('index');
+        Route::get('/', [BlankController::class, 'index'])->name('index');
+        Route::post('store', [BlankController::class, 'store'])->name('store');
+        Route::post('store/multi', [BlankController::class, 'storeMulti'])->name('store.multi');
+        Route::put('update/{blank}', [BlankController::class, 'update'])->name('update');
+        Route::delete('destroy/{blank}', [BlankController::class, 'destroy'])->name('destroy');
     });
 });

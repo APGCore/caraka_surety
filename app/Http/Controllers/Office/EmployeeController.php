@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $offices = Profile::all();
-        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()->id);
+        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
 
         $employees = User::search($request->get('search'))
             ->where('profile_id', $officeSelected)

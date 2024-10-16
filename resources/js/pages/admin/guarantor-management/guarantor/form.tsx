@@ -121,6 +121,7 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
           className="mt-1 block w-full"
           value={data.pic}
           onChange={(e) => setData("pic", e.target.value)}
+          isFocused
           autoComplete="pic"
         />
 
@@ -136,7 +137,6 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
           value={data.name}
           onChange={(e) => setData("name", e.target.value)}
           required
-          isFocused
           autoComplete="name"
         />
 
