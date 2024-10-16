@@ -58,4 +58,14 @@ class Guarantor extends Model
     {
         return $this->belongsToMany(ProductType::class, 'guarantor_to_product_types', 'guarantor_id', 'product_type_id')->withPivot('code');
     }
+
+    public function headquarter(): BelongsTo
+    {
+        return $this->belongsTo(Guarantor::class, 'headquarter_id');
+    }
+
+    public function branchGuarantors(): HasMany
+    {
+        return $this->hasMany(Guarantor::class, 'headquarter_id');
+    }
 }

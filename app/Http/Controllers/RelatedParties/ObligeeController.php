@@ -11,7 +11,6 @@ use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
 
 class ObligeeController extends Controller
@@ -65,7 +64,8 @@ class ObligeeController extends Controller
             DB::beginTransaction();
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $requestValid['picture'] = $request->file('upload_picture')->store('banks', 'public');
+                $fileName = str_replace(' ', '_', $requestValid['name']);
+                $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'obligees', $fileName);
             }
 
             Obligee::query()
@@ -125,10 +125,10 @@ class ObligeeController extends Controller
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
                 $picture = $obligee->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
-                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
+                $this->deleteFile($picture);
+
+                $fileName = str_replace(' ', '_', $requestValid['name']);
+                $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'obligees', $fileName);
             }
             $obligee->update($requestValid);
 
@@ -153,9 +153,7 @@ class ObligeeController extends Controller
 
             if ($obligee->exists) {
                 $picture = $obligee->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
+                $this->deleteFile($picture);
                 $obligee->delete();
             } else {
                 throw new ThrottleRequestsException('Data Obligee tidak ditemukan');

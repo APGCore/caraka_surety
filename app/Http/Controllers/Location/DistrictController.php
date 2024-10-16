@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\DistrictResource;
 use App\Models\Location\District;
 use App\Models\Location\Regency;
-use App\Traits\RegionTrait;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,8 +17,6 @@ use Illuminate\Validation\ValidationException;
 
 class DistrictController extends Controller
 {
-    use RegionTrait;
-
     /**
      * Display a listing of the resource.
      */

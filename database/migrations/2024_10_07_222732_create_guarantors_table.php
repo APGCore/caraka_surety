@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('guarantors', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('headquarter_id')->nullable();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Regency::class, 'regency_id')->nullable()
@@ -32,6 +33,12 @@ return new class extends Migration
             $table->text('picture')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+        });
+
+        Schema::table('guarantors', function (Blueprint $table) {
+            $table->foreign('headquarter_id')->references('id')->on('guarantors')
+                ->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

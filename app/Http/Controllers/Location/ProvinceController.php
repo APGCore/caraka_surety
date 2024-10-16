@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Location;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Location\Province;
-use App\Traits\RegionTrait;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,8 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class ProvinceController extends Controller
 {
-    use RegionTrait;
-
     /**
      * Display a listing of the resource.
      */

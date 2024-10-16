@@ -61,7 +61,8 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $path = $request->file('upload_picture')->store('guarantors', 'public');
+                $fileName = 'guarantor_'. str_replace(' ', '_', $requestValid['name']);
+                $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
                 $requestValid['picture'] = $path;
             }
 
@@ -107,10 +108,10 @@ class GuarantorController extends Controller
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
                 $picture = $guarantor->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
-                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
+                $this->deleteFile($picture);
+
+                $fileName = 'guarantor_'. str_replace(' ', '_', $requestValid['name']);
+                $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
             $guarantor->update($requestValid);
@@ -132,9 +133,7 @@ class GuarantorController extends Controller
         try {
             DB::beginTransaction();
             $picture = $guarantor->getAttribute('picture') ?? '';
-            if (Storage::exists($picture)) {
-                Storage::delete($picture);
-            }
+            $this->deleteFile($picture);
             $guarantor->delete();
 
             flashMessage('Berhasil', 'Data asuransi berhasil dihapus');

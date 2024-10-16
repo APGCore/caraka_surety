@@ -3,7 +3,7 @@ import React from "react";
 interface BlankProps {
   guarantors: any;
   guarantorSelected: number;
-  employees: any;
+  blanks: any;
 }
 
 export type BlankPageProps = React.FC<BlankProps> & {

@@ -1,6 +1,7 @@
 import { generateUUID } from "@/lib/generate-uuid";
 import {
   Archive,
+  BookOpenCheck,
   Building,
   ChartNoAxesGantt,
   CircleDollarSign,
@@ -113,14 +114,6 @@ export const adminLinks = [
         Icon: MapPinHouse,
         children: [],
       },
-      // {
-      //   id: generateUUID(),
-      //   name: "Desa",
-      //   route_name: "villages.index",
-      //   href: route("villages.index"),
-      //   Icon: MapPinHouse,
-      //   children: [],
-      // },
     ],
   },
   {
@@ -161,6 +154,14 @@ export const adminLinks = [
         route_name: "product-guarantor.index",
         href: route("product-guarantor.index"),
         Icon: PackageSearch,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Blangko",
+        route_name: "blank.index",
+        href: route("blank.index"),
+        Icon: BookOpenCheck,
         children: [],
       },
     ],

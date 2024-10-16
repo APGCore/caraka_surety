@@ -11,7 +11,6 @@ use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
 
 class BankController extends Controller
@@ -64,7 +63,8 @@ class BankController extends Controller
             DB::beginTransaction();
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $requestValid['picture'] = $request->file('upload_picture')->store('banks', 'public');
+                $fileName = str_replace(' ', '_', $requestValid['name']);
+                $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'banks', $fileName);
             }
 
             Bank::query()
@@ -123,10 +123,10 @@ class BankController extends Controller
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
                 $picture = $bank->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
-                $requestValid['picture'] = $request->file('upload_picture')->store('guarantors', 'public');
+                $this->deleteFile($picture);
+
+                $fileName = str_replace(' ', '_', $requestValid['name']);
+                $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'banks', $fileName);
             }
             $bank->update($requestValid);
 
@@ -151,9 +151,7 @@ class BankController extends Controller
 
             if ($bank->exists) {
                 $picture = $bank->getAttribute('picture') ?? '';
-                if (Storage::exists($picture)) {
-                    Storage::delete($picture);
-                }
+                $this->deleteFile($picture);
                 $bank->delete();
             } else {
                 throw new ThrottleRequestsException('Data bank tidak ditemukan');

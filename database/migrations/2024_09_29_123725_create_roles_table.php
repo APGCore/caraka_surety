@@ -26,7 +26,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->foreignIdFor(Role::class, 'role_id')
-                ->after('id')
+                ->after('profile_id')
                 ->constrained()
                 ->cascadeOnDelete();
         });

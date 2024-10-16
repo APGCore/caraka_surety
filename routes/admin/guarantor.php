@@ -14,4 +14,8 @@ Route::prefix('guarantor-management')->group(function () {
         Route::put('update/{guarantorToProductType}', [GuarantorToProductTypeController::class, 'update'])->name('update');
         Route::delete('destroy/{guarantorToProductType}', [GuarantorToProductTypeController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('blank')->name('blank.')->group(function () {
+        Route::get('/', [GuarantorController::class, 'index'])->name('index');
+    });
 });

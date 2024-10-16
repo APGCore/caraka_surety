@@ -34,8 +34,8 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
 
-const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
-  const { data: employees, meta } = props.employees;
+const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
+  const { data: blanks, meta } = props.blanks;
 
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
@@ -138,14 +138,14 @@ const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {employees.length > 0 ? (
-              employees.map((employee: any, index: number) => (
-                <TableRow key={employee.id}>
+            {blanks.length > 0 ? (
+              blanks.map((blank: any, index: number) => (
+                <TableRow key={blank.id}>
                   <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{employee.name}</TableCell>
-                  <TableCell>{employee.email}</TableCell>
-                  <TableCell>{employee.position}</TableCell>
-                  <TableCell>{employee.created_at}</TableCell>
+                  <TableCell>{blank.name}</TableCell>
+                  <TableCell>{blank.email}</TableCell>
+                  <TableCell>{blank.position}</TableCell>
+                  <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -162,20 +162,20 @@ const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props 
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                               <DialogHeader>
-                                <DialogTitle>{employee?.name}</DialogTitle>
+                                <DialogTitle>{blank?.name}</DialogTitle>
                               </DialogHeader>
                               <div className="mt-4 grid gap-2">
                                 <div className="flex items-center justify-between">
                                   <span className="font-normal">Email</span>
-                                  <span>{employee?.email ?? "Email Belum Dimasukan"}</span>
+                                  <span>{blank?.email ?? "Email Belum Dimasukan"}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="font-normal">No. Telepon</span>
-                                  <span>{employee?.phone}</span>
+                                  <span>{blank?.phone}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className="font-normal">Jabatan</span>
-                                  <span>{employee?.position}</span>
+                                  <span>{blank?.position}</span>
                                 </div>
                               </div>
                             </DialogContent>
@@ -184,7 +184,7 @@ const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props 
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("employee.edit", employee.id) + "?office_id=" + guarantorSelected}
+                            href={route("employee.edit", blank.id) + "?office_id=" + guarantorSelected}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>
@@ -199,14 +199,14 @@ const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data karyawan {employee.name}?
+                                  Tindakan ini akan menghapus data blangko?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Batal</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    deleteData(employee);
+                                    deleteData(blank);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Lanjutkan Hapus
@@ -236,9 +236,9 @@ const EmployeePage: BlankPageProps = ({ guarantors, guarantorSelected, ...props 
   );
 };
 
-export default EmployeePage;
+export default BlankPage;
 
-EmployeePage.layout = (page: any) => {
+BlankPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
