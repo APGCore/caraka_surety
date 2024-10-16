@@ -8,5 +8,5 @@ use App\Traits\UploadFile;
 
 abstract class Controller
 {
-    use ResponseFormat, UploadFile, RegionTrait;
+    use RegionTrait, ResponseFormat, UploadFile;
 }

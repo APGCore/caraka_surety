@@ -13,7 +13,8 @@ trait UploadFile
     public function uploadFile(UploadedFile $file, $path, $fileName): string
     {
         $newFileName = time().'_'.$fileName;
-        return $file->storeAs($path, $newFileName,'public');
+
+        return $file->storeAs($path, $newFileName, 'public');
     }
 
     /**

@@ -61,7 +61,7 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $fileName = 'guarantor_'. str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
                 $requestValid['picture'] = $path;
             }
@@ -110,7 +110,7 @@ class GuarantorController extends Controller
                 $picture = $guarantor->getAttribute('picture') ?? '';
                 $this->deleteFile($picture);
 
-                $fileName = 'guarantor_'. str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
