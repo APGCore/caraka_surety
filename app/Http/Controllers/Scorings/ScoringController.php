@@ -136,19 +136,22 @@ class ScoringController extends Controller
                 $scoring->update($request->only('name', 'min_point'));
 
                 DB::commit();
-                flashMessage('Skoring Diperbarui', 'Skoring berhasil diperbarui');
+                // flashMessage('Skoring Diperbarui', 'Skoring berhasil diperbarui');
 
-                return redirect()->route('scoring.index');
+                // return redirect()->route('scoring.index');
+                return $this->responseSuccess('Skoring berhasil diedit!');
             } else {
                 throw new ThrottleRequestsException('Skoring tidak ditemukan');
             }
         } catch (\Throwable $th) {
-            flashMessage('Gagal Mengubah Skoring', 'Terjadi kesalahan saat merubah skoring', 'error');
+            // flashMessage('Gagal Mengubah Skoring', 'Terjadi kesalahan saat merubah skoring', 'error');
             Log::error('Scoring Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $th->getMessage());
+            // return redirect()->back()->with('error', $th->getMessage());
+
+            return $this->responseSuccess('Skoring gagal diedit');
         }
     }
 

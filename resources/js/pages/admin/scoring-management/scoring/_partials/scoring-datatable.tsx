@@ -24,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
+import FormSkoring from "./form";
 
 interface ScoringDatatableProps {
   scorings: any;
@@ -62,13 +63,14 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
                       <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
+                        {/* <Link
                           className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                           href={route("scoring.edit", {
                             scoring: scoring.id,
                           })}>
                           Edit
-                        </Link>
+                        </Link> */}
+                        <FormSkoring isEdit scoring={scoring} />
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>

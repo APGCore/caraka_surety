@@ -12,15 +12,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/cn";
 import { getNumericValue } from "@/lib/getNumericValue";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { RotateCw } from "lucide-react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { FormSkoringUtils } from "./form-skoring.utils";
 
-interface FormSkoringProps {}
+interface FormSkoringProps {
+  isEdit?: boolean;
+  scoring?: any;
+}
 
-const FormSkoring = () => {
+const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ name: Array<string> | null; min_point: Array<string> | null }>({
@@ -36,41 +41,98 @@ const FormSkoring = () => {
     min_point: undefined,
   });
 
+  useEffect(() => {
+    if (isEdit) {
+      setDataForm({
+        name: scoring?.name ?? "",
+        min_point: scoring?.min_point ?? undefined,
+      });
+    }
+  }, [isEdit, scoring]);
+
   const submit = () => {
     setIsLoading(true);
-    axios
-      .post(route("scoring.store"), { ...dataForm })
-      .then(() => {
-        toast({
-          title: "Berhasil",
-          description: "Skoring berhasil ditambahkan",
+
+    if (isEdit) {
+      axios
+        .put(
+          route(FormSkoringUtils.edit.route, {
+            scoring: scoring.id,
+          }),
+          { ...dataForm },
+        )
+        .then(() => {
+          toast({
+            ...FormSkoringUtils.edit.toast_success,
+          });
+          setErrors({ name: null, min_point: null });
+          setIsOpenForm(false);
+          router.get(
+            route("scoring.index"),
+            {},
+            {
+              preserveState: true,
+              preserveScroll: true,
+            },
+          );
+        })
+        .catch((error) => {
+          setErrors(error.response.data.errors);
+          toast({
+            ...FormSkoringUtils.edit.toast_failed,
+            variant: "destructive",
+          });
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
-        setErrors({ name: null, min_point: null });
-        setIsOpenForm(false);
-        router.get(route("scoring.index"));
-      })
-      .catch((error) => {
-        setErrors(error.response.data.errors);
-        toast({
-          title: "Gagal",
-          description: "Skoring gagal ditambahkan",
-          variant: "destructive",
+    } else {
+      axios
+        .post(route(FormSkoringUtils.create.route), { ...dataForm })
+        .then(() => {
+          toast({
+            ...FormSkoringUtils.create.toast_success,
+          });
+          setErrors({ name: null, min_point: null });
+          setIsOpenForm(false);
+          router.get(
+            route("scoring.index"),
+            {},
+            {
+              preserveState: true,
+              preserveScroll: true,
+            },
+          );
+        })
+        .catch((error) => {
+          setErrors(error.response.data.errors);
+          toast({
+            ...FormSkoringUtils.create.toast_failed,
+            variant: "destructive",
+          });
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    }
   };
 
   return (
     <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
       <AlertDialogTrigger asChild>
-        <Button>Tambah Skoring</Button>
+        <Button
+          className={cn({
+            "w-full": isEdit,
+          })}>
+          {isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Tambah Skoring</AlertDialogTitle>
-          <AlertDialogDescription>Tindakan ini akan menambah data Skoring</AlertDialogDescription>
+          <AlertDialogTitle>{isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {isEdit ? FormSkoringUtils.edit.sub_title : FormSkoringUtils.create.sub_title}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <form
           onSubmit={(e) => {
@@ -113,7 +175,7 @@ const FormSkoring = () => {
             <AlertDialogCancel onClick={() => setIsOpenForm(false)}>Batal</AlertDialogCancel>
             <Button form="skoring-form" className="w-max" disabled={isLoading}>
               {isLoading && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
-              Tambah Skoring
+              {isEdit ? FormSkoringUtils.edit.btn_label : FormSkoringUtils.create.btn_label}
             </Button>
           </div>
         </form>
