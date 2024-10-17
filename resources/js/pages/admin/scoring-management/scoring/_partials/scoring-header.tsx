@@ -2,6 +2,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/co
 import { Button } from "@/components/ui/button";
 import { Head, Link } from "@inertiajs/react";
 import React from "react";
+import FormSkoring from "./form";
 
 interface ScoringHeaderProps {
   title: string;
@@ -20,9 +21,10 @@ const ScoringHeader: React.FC<ScoringHeaderProps> = ({ title }) => {
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Skoring"}</h1>
-        <Button asChild>
+        <FormSkoring />
+        {/* <Button asChild>
           <Link href={route("scoring.create")}>Tambah Skoring</Link>
-        </Button>
+        </Button> */}
       </div>
     </>
   );
