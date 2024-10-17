@@ -62,14 +62,15 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
           aria-expanded={open}
           className={cn("w-full justify-between px-2 h-10", props.className)}>
           {(() => {
+            let label: string = labelButtonPlaceholder;
             if (defaultValueId) {
-              return datas.find((item) => item["id"] === defaultValueId)?.[labelKey] ?? labelButtonPlaceholder;
+              label = datas.find((item) => item["id"] === defaultValueId)?.[labelKey] ?? labelButtonPlaceholder;
             } else if (defaultValue) {
-              return datas.find((item) => item["id"] === defaultValue)?.[labelKey] ?? labelButtonPlaceholder;
+              label = datas.find((item) => item["id"] === defaultValue)?.[labelKey] ?? labelButtonPlaceholder;
             } else if (value && defaultValue !== null) {
-              return datas.find((item) => item[valueKey] === value)?.[labelKey] ?? labelButtonPlaceholder;
+              label = datas.find((item) => item[valueKey] === value)?.[labelKey] ?? labelButtonPlaceholder;
             }
-            return labelButtonPlaceholder;
+            return label.length > 15 ? label.slice(0, 15) + "..." : label;
           })()}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
