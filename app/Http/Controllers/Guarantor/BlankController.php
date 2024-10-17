@@ -26,7 +26,7 @@ class BlankController extends Controller
 
         $blanks = Blank::search($request->get('search'))
             ->where('guarantor_id', $guarantorSelected)
-            ->orderBy('number')
+            ->orderBy('id')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
