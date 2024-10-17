@@ -2,6 +2,7 @@ import { generateUUID } from "@/lib/generate-uuid";
 import {
   Archive,
   BookOpenCheck,
+  BookUp2,
   Building,
   ChartNoAxesGantt,
   CircleDollarSign,
@@ -162,6 +163,14 @@ export const adminLinks = [
         route_name: "blank.index",
         href: route("blank.index"),
         Icon: BookOpenCheck,
+        children: [],
+      },
+      {
+        id: generateUUID(),
+        name: "Pembagian Blangko",
+        route_name: "distribution-of-blank.index",
+        href: route("distribution-of-blank.index"),
+        Icon: BookUp2,
         children: [],
       },
     ],

@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers\Guarantor;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Guarantor\BlankResource;
+use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
+use App\Models\Profile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class DistributionOfBlankController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $guarantors = Guarantor::all();
+        $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
+        $offices = Profile::all();
+        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
+        $isAddBlank = $request->get('is_add_blank') === 'true';
+
+        $blanks = Blank::search($request->get('search'))
+            ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
+                $query->where('guarantor_id', $guarantorSelected)
+                    ->when($isAddBlank, function ($query) {
+                        $query->whereNull('profile_id')
+                            ->where('is_used', false);
+                    })
+                    ->when(! $isAddBlank, function ($query) use ($officeSelected) {
+                        $query->where('profile_id', $officeSelected);
+                    });
+            })
+            ->orderBy('id')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $blankResource = BlankResource::collection($blanks);
+
+        $component = $request->path().'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Pembagian Blangko',
+            ],
+            'guarantors' => $guarantors,
+            'guarantorSelected' => $guarantorSelected,
+            'offices' => $offices,
+            'officeSelected' => $officeSelected,
+            'blanks' => fn () => $blankResource,
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $requestValid = $request->validate([
+            'blanks.*.id' => 'required|integer|exists:'.Blank::class.',id',
+            'blanks.*.number' => 'required|integer|exists:'.Blank::class.',number',
+            'office_id' => 'required|exists:'.Profile::class.',id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($requestValid['blanks'] as $blank) {
+                $blank = Blank::query()
+                    ->find($blank['id']);
+                $blank->update([
+                    'profile_id' => $requestValid['office_id'],
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('distribution-of-blank.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
+
+            return back()->withErrors(['errors' => 'Gagal menyimpan data']);
+        }
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Blank $blank)
+    {
+        try {
+            DB::beginTransaction();
+            Blank::query()
+                ->find($blank->getAttribute('id'))
+                ->update([
+                    'profile_id' => null,
+                ]);
+
+            flashMessage('Berhasil', 'Data berhasil dihapus');
+            DB::commit();
+
+            return redirect()->route('distribution-of-blank.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on DistributionOfBlankController@destroy: {$e->getMessage()}");
+
+            return back()->withErrors(['errors' => 'Gagal menghapus data']);
+        }
+    }
+}

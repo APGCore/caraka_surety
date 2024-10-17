@@ -26,13 +26,13 @@ class BlankController extends Controller
 
         $blanks = Blank::search($request->get('search'))
             ->where('guarantor_id', $guarantorSelected)
-            ->orderBy('number')
+            ->orderBy('id')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
         $blankResource = BlankResource::collection($blanks);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -40,7 +40,7 @@ class BlankController extends Controller
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
-            'blanks' => fn() => $blankResource,
+            'blanks' => fn () => $blankResource,
         ]);
     }
 
@@ -61,9 +61,6 @@ class BlankController extends Controller
         } catch (\Exception $e) {
             Log::error('Error store blank', [$e->getMessage()]);
             DB::rollBack();
-
-
-
 
             return $this->responseError('Blangko gagal ditambahkan', [$e->getMessage()]);
         }

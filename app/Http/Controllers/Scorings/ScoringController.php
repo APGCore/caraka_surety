@@ -73,7 +73,6 @@ class ScoringController extends Controller
             Scoring::query()
                 ->create($request->only('name', 'min_point'));
 
-
             DB::commit();
 
             return $this->responseSuccess('Skoring berhasil ditambahkan');
@@ -81,7 +80,6 @@ class ScoringController extends Controller
             Log::error('Scoring Store: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
-
 
             return $this->responseError('Skoring gagal ditambahkan', [$e->getMessage()]);
         }

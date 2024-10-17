@@ -255,9 +255,9 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
                 <div className="flex justify-end gap-x-3">
                   <AlertDialogCancel onClick={() => setOpenCreateMulti(false)}>Batal</AlertDialogCancel>
-                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
+                  <Button type={"submit"} disabled={isLoading.current}>
                     Simpan
-                  </AlertDialogAction>
+                  </Button>
                 </div>
               </form>
             </AlertDialogContent>
@@ -358,9 +358,9 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
                                 <div className="flex justify-end gap-x-3">
                                   <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
-                                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
+                                  <Button type={"submit"} disabled={isLoading.current}>
                                     Simpan
-                                  </AlertDialogAction>
+                                  </Button>
                                 </div>
                               </form>
                             </AlertDialogContent>
