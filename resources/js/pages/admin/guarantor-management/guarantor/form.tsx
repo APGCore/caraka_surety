@@ -7,7 +7,7 @@ import TextInput from "@/components/common/text-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler, useRef, useState } from "react";
+import { FormEvent, FormEventHandler, useRef, useState } from "react";
 
 interface Props {
   guarantor?: any;
@@ -53,9 +53,8 @@ const Form: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
     router.get(routeBack);
   };
 
-  const submit: FormEventHandler<HTMLFormElement> = (event: any) => {
+  const submit: FormEventHandler<HTMLFormElement> = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (data.id) {
       router.post(
         routeSubmit,

@@ -3,7 +3,6 @@ import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -153,9 +152,9 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                 </div>
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type={"submit"} disabled={processing}>
+                  <Button type={"submit"} disabled={processing}>
                     Submit
-                  </AlertDialogAction>
+                  </Button>
                 </div>
               </form>
             </AlertDialogContent>
@@ -264,10 +263,10 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
 
                                 <div className="flex items-center justify-end gap-4">
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction type={"submit"} disabled={processing}>
+                                  <Button type={"submit"} disabled={processing}>
                                     {processing && <RotateCw className="animate-spin mr-2" />}
                                     Update
-                                  </AlertDialogAction>
+                                  </Button>
                                 </div>
                               </form>
                             </AlertDialogContent>
@@ -288,13 +287,13 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
+                                <Button
                                   onClick={() => {
                                     deleteProvince(province);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Continue Delete province
-                                </AlertDialogAction>
+                                </Button>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>

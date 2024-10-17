@@ -9,6 +9,7 @@ use App\Http\Requests\Guarantor\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,7 @@ class BlankController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): \Inertia\Response
     {
         $guarantors = Guarantor::all();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
@@ -46,7 +47,7 @@ class BlankController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): JsonResponse
     {
         $requestValidated = $request->validated();
         DB::beginTransaction();
@@ -68,7 +69,7 @@ class BlankController extends Controller
     /**
      * Store Multi Blanks
      */
-    public function storeMulti(StoreMultiRequest $request)
+    public function storeMulti(StoreMultiRequest $request): JsonResponse
     {
         $requestValidated = $request->validated();
 
@@ -102,7 +103,7 @@ class BlankController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, Blank $blank)
+    public function update(UpdateRequest $request, Blank $blank): JsonResponse
     {
         $requestValidated = $request->validated();
         DB::beginTransaction();

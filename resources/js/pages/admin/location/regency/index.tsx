@@ -4,7 +4,6 @@ import InputLabel from "@/components/common/input-label";
 import TextInput from "@/components/common/text-input";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -189,9 +188,9 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
 
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type={"submit"} disabled={processing}>
+                  <Button type={"submit"} disabled={processing}>
                     Submit
-                  </AlertDialogAction>
+                  </Button>
                 </div>
               </form>
             </AlertDialogContent>
@@ -330,10 +329,10 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
 
                                 <div className="flex items-center justify-end gap-4">
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction type={"submit"} disabled={processing}>
+                                  <Button type={"submit"} disabled={processing}>
                                     {processing && <RotateCw className="animate-spin mr-2" />}
                                     Update
-                                  </AlertDialogAction>
+                                  </Button>
                                 </div>
                               </form>
                             </AlertDialogContent>
@@ -354,13 +353,13 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
+                                <Button
                                   onClick={() => {
                                     deleteData(regency);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Continue Delete
-                                </AlertDialogAction>
+                                </Button>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>

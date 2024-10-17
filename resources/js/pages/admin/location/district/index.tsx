@@ -4,7 +4,6 @@ import InputLabel from "@/components/common/input-label";
 import TextInput from "@/components/common/text-input";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -189,9 +188,9 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
 
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction type={"submit"} disabled={processing}>
+                  <Button type={"submit"} disabled={processing}>
                     Submit
-                  </AlertDialogAction>
+                  </Button>
                 </div>
               </form>
             </AlertDialogContent>
@@ -331,10 +330,10 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
 
                                 <div className="flex items-center justify-end gap-4">
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction type={"submit"} disabled={processing}>
+                                  <Button type={"submit"} disabled={processing}>
                                     {processing && <RotateCw className="animate-spin mr-2" />}
                                     Update
-                                  </AlertDialogAction>
+                                  </Button>
                                 </div>
                               </form>
                             </AlertDialogContent>
@@ -355,13 +354,13 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
+                                <Button
                                   onClick={() => {
                                     deleteData(district);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Continue Delete
-                                </AlertDialogAction>
+                                </Button>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>

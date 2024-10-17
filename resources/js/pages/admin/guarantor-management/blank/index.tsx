@@ -34,7 +34,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { pickBy } from "lodash";
 import { ArrowRight } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { FormEventHandler, useRef, useState } from "react";
 
 const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
   const { data: blanks, meta } = props.blanks;
@@ -43,9 +43,9 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-  const [openCreate, setOpenCreate] = useState<boolean>();
-  const [openCreateMulti, setOpenCreateMulti] = useState<boolean>();
-  const [openEdit, setOpenEdit] = useState<boolean>();
+  const [openCreate, setOpenCreate] = useState<boolean>(false);
+  const [openCreateMulti, setOpenCreateMulti] = useState<boolean>(false);
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
   const isLoading = useRef<boolean>(false);
   type DataForm = {
     id?: number;
@@ -111,7 +111,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     router.delete(route("blank.destroy", blank.id));
   };
 
-  const createBlangko = (e: React.FormEvent) => {
+  const createBlangko: FormEventHandler<HTMLFormElement> = (e: React.FormEvent) => {
     e.preventDefault();
     isLoading.current = true;
     axios
@@ -122,8 +122,8 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         getData(String(select), search, guarantorSelected);
       })
       .catch((error) => {
-        setOpenCreate(true);
         setErrors(error.response.data.errors);
+        setOpenCreate(true);
         console.log(error.response);
       })
       .finally(() => {
@@ -202,9 +202,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
                 <div className="flex justify-end gap-x-3">
                   <AlertDialogCancel onClick={() => setOpenCreate(false)}>Batal</AlertDialogCancel>
-                  <AlertDialogAction type={"submit"} disabled={isLoading.current}>
-                    Simpan
-                  </AlertDialogAction>
+                  <Button type={"submit"}>Simpan</Button>
                 </div>
               </form>
             </AlertDialogContent>
