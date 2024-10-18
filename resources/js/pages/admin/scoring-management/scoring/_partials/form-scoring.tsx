@@ -16,9 +16,9 @@ import { cn } from "@/lib/cn";
 import { getNumericValue } from "@/lib/getNumericValue";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import { RotateCw } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { FormSkoringUtils } from "./form-skoring.utils";
+import { FormSkoringUtils } from "./form-scoring.utils";
 
 interface FormSkoringProps {
   isEdit?: boolean;
@@ -117,6 +117,13 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
     }
   };
 
+  const handleCloseForm = () => {
+    if (errors?.name || errors?.min_point) {
+      setErrors({ name: null, min_point: null });
+    }
+    setIsOpenForm(false);
+  };
+
   return (
     <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
       <AlertDialogTrigger asChild>
@@ -127,8 +134,8 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           {isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
+      <AlertDialogContent className="w-[400px] space-y-3">
+        <AlertDialogHeader className="space-y-1">
           <AlertDialogTitle>{isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}</AlertDialogTitle>
           <AlertDialogDescription>
             {isEdit ? FormSkoringUtils.edit.sub_title : FormSkoringUtils.create.sub_title}
@@ -141,40 +148,40 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           }}
           id="skoring-form"
           className="grid gap-6">
-          <div className="grid gap-2">
+          <div className="grid gap-[5px]">
             <Label htmlFor="name">Nama</Label>
             <Input
               id="name"
               type="name"
               placeholder="Masukan nama skoring"
-              required
+              //   required
               value={dataForm.name}
               onChange={(e) => setDataForm({ ...dataForm, name: e.target.value })}
             />
             {(errors.name?.length ?? 0) > 0 &&
               errors.name?.map((error: string, index: number) => (
-                <InputError key={index + 1} className="mt-2" message={error} />
+                <InputError key={index + 1} className="mt-1" message={error} />
               ))}
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-[5px]">
             <Label htmlFor="min_point">Poin Minimal</Label>
             <Input
               id="min_point"
               type="number"
-              required
+              //   required
               value={dataForm.min_point}
               placeholder="Masukan poin minimal"
               onChange={(e) => setDataForm({ ...dataForm, min_point: getNumericValue(e) })}
             />
             {(errors.min_point?.length ?? 0) > 0 &&
               errors.min_point?.map((error: string, index: number) => (
-                <InputError key={index + 1} className="mt-2" message={error} />
+                <InputError key={index + 1} className="mt-1" message={error} />
               ))}
           </div>
           <div className="flex justify-end gap-x-3">
-            <AlertDialogCancel onClick={() => setIsOpenForm(false)}>Batal</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
             <Button form="skoring-form" className="w-max" disabled={isLoading}>
-              {isLoading && <RotateCw className="animate-spin mr-2 flex-shrink-0" />}
+              {isLoading && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
               {isEdit ? FormSkoringUtils.edit.btn_label : FormSkoringUtils.create.btn_label}
             </Button>
           </div>

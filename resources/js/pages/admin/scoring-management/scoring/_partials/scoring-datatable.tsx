@@ -21,10 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
-import FormSkoring from "./form";
+import FormSkoring from "./form-scoring";
 
 interface ScoringDatatableProps {
   scorings: any;

@@ -2,7 +2,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/co
 import { Button } from "@/components/ui/button";
 import { Head, Link } from "@inertiajs/react";
 import React from "react";
-import FormSkoring from "./form";
+import FormSkoring from "./form-scoring";
 
 interface ScoringHeaderProps {
   title: string;
