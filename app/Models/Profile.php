@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\ProfileLimit;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -45,5 +48,10 @@ class Profile extends Model
     public function district(): BelongsTo
     {
         return $this->belongsTo(District::class);
+    }
+
+    public function guarantorLimit(): BelongsToMany
+    {
+        return $this->belongsToMany(Guarantor::class, ProfileLimit::class, 'profile_id', 'guarantor_id')->withPivot('limit');
     }
 }

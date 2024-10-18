@@ -1,3 +1,4 @@
+import InputCurrency from "@/components/common/input-currency";
 import InputError from "@/components/common/input-error";
 import RenderList from "@/components/common/render-list";
 import {
@@ -14,62 +15,68 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/cn";
-import { getNumericValue } from "@/lib/getNumericValue";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { FormSkoringUtils } from "./form-scoring.utils";
+import { FormProfileLimitsUtils } from "./form-profile-limits.utils";
 
-interface FormSkoringProps {
+interface FormProfileLimitsProps {
   isEdit?: boolean;
-  scoring?: any;
+  guarantorSelectedId: any;
+  profile?: any;
 }
 
-const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
+const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantorSelectedId, profile }) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ name: Array<string> | null; min_point: Array<string> | null }>({
+  const [errors, setErrors] = useState<{
+    guarantor_id: Array<number> | null;
+    profile_id: Array<number> | null;
+    name: Array<string> | null;
+    limit: Array<string> | null;
+  }>({
+    guarantor_id: null,
+    profile_id: null,
     name: null,
-    min_point: null,
+    limit: null,
   });
 
   const [dataForm, setDataForm] = useState<{
+    guarantor_id: number;
+    profile_id: number;
     name: string;
-    min_point: number | undefined;
+    limit: string | undefined;
   }>({
+    guarantor_id: guarantorSelectedId,
+    profile_id: profile?.id ?? 0,
     name: "",
-    min_point: undefined,
+    limit: undefined,
   });
 
   useEffect(() => {
-    if (isEdit) {
-      setDataForm({
-        name: scoring?.name ?? "",
-        limit: scoring?.min_point ?? undefined,
-      });
-    }
-  }, [isEdit, scoring]);
+    setDataForm({
+      guarantor_id: guarantorSelectedId,
+      profile_id: profile?.id ?? 0,
+      name: profile?.name ?? "",
+      limit: profile?.profile_limit?.pivot?.limit ?? undefined,
+    });
+  }, [profile]);
 
   const submit = () => {
     setIsLoading(true);
 
     if (isEdit) {
       axios
-        .put(
-          route(FormSkoringUtils.edit.route, {
-            scoring: scoring.id,
-          }),
-          { ...dataForm },
-        )
+        .put(route(FormProfileLimitsUtils.edit.route, profile?.profile_limit?.id), { ...dataForm })
         .then(() => {
           toast({
-            ...FormSkoringUtils.edit.toast_success,
+            ...FormProfileLimitsUtils.edit.toast_success,
           });
-          setErrors({ name: null, limit: null });
+          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
           setIsOpenForm(false);
           router.get(
-            route("scoring.index"),
+            route(FormProfileLimitsUtils.redirect),
             {},
             {
               preserveState: true,
@@ -80,7 +87,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
         .catch((error) => {
           setErrors(error.response.data.errors);
           toast({
-            ...FormSkoringUtils.edit.toast_failed,
+            ...FormProfileLimitsUtils.edit.toast_failed,
             variant: "destructive",
           });
         })
@@ -89,15 +96,15 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
         });
     } else {
       axios
-        .post(route(FormSkoringUtils.create.route), { ...dataForm })
+        .post(route(FormProfileLimitsUtils.create.route), { ...dataForm })
         .then(() => {
           toast({
-            ...FormSkoringUtils.create.toast_success,
+            ...FormProfileLimitsUtils.create.toast_success,
           });
-          setErrors({ name: null, limit: null });
+          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
           setIsOpenForm(false);
           router.get(
-            route("scoring.index"),
+            route(FormProfileLimitsUtils.redirect),
             {},
             {
               preserveState: true,
@@ -108,7 +115,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
         .catch((error) => {
           setErrors(error.response.data.errors);
           toast({
-            ...FormSkoringUtils.create.toast_failed,
+            ...FormProfileLimitsUtils.create.toast_failed,
             variant: "destructive",
           });
         })
@@ -120,7 +127,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
 
   const handleCloseForm = () => {
     if (errors?.name || errors?.limit) {
-      setErrors({ name: null, limit: null });
+      setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
     }
     setIsOpenForm(false);
   };
@@ -128,18 +135,17 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   return (
     <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
       <AlertDialogTrigger asChild>
-        <Button
-          className={cn({
-            "w-full": isEdit,
-          })}>
-          {isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}
+        <Button className={cn(FormProfileLimitsUtils.create.class_name)}>
+          {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-[400px] space-y-3">
         <AlertDialogHeader className="space-y-1">
-          <AlertDialogTitle>{isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            {isEdit ? FormSkoringUtils.edit.sub_title : FormSkoringUtils.create.sub_title}
+            {isEdit ? FormProfileLimitsUtils.edit.sub_title : FormProfileLimitsUtils.create.sub_title}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form
@@ -147,7 +153,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
             e.preventDefault();
             submit();
           }}
-          id="skoring-form"
+          id="profile-limit-form"
           className="grid gap-6">
           <div className="grid gap-[5px]">
             <Label htmlFor="name">Nama</Label>
@@ -156,34 +162,35 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
               type="name"
               placeholder="Masukan nama skoring"
               required
+              disabled
               value={dataForm.name}
               onChange={(e) => setDataForm({ ...dataForm, name: e.target.value })}
             />
             <RenderList
-              of={errors.name ?? []}
+              of={errors?.name ?? []}
               render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
             />
           </div>
           <div className="grid gap-[5px]">
-            <Label htmlFor="min_point">Poin Minimal</Label>
-            <Input
-              id="min_point"
-              type="number"
+            <Label htmlFor="limit">Limit Pengajuan</Label>
+            <InputCurrency
+              id="limit"
+              type="string"
               required
-              value={dataForm.min_point}
-              placeholder="Masukan poin minimal"
-              onChange={(e) => setDataForm({ ...dataForm, limit: getNumericValue(e) })}
+              value={dataForm.limit ?? ""}
+              placeholder="Masukan limit pengajuan"
+              onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
             />
             <RenderList
-              of={errors.min_point ?? []}
+              of={errors?.limit ?? []}
               render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
             />
           </div>
           <div className="flex justify-end gap-x-3">
             <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
-            <Button form="skoring-form" className="w-max" disabled={isLoading}>
+            <Button form="profile-limit-form" className="w-max" disabled={isLoading}>
               {isLoading && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
-              {isEdit ? FormSkoringUtils.edit.btn_label : FormSkoringUtils.create.btn_label}
+              {isEdit ? FormProfileLimitsUtils.edit.btn_label : FormProfileLimitsUtils.create.btn_label}
             </Button>
           </div>
         </form>
@@ -192,4 +199,4 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   );
 };
 
-export default FormSkoring;
+export default FormProfileLimits;
