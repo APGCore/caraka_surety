@@ -1,9 +1,9 @@
 import React from "react";
 
-interface PengajuanProps {
+interface SubmissionProps {
   submissions: any[];
 }
 
-export type PengajuanPageProps = React.FC<PengajuanProps> & {
+export type SubmissionPageProps = React.FC<SubmissionProps> & {
   layout?: (page: any) => JSX.Element;
 };

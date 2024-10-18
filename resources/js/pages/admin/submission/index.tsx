@@ -26,9 +26,9 @@ import AdminLayout from "@/layouts/admin";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { PengajuanPageProps } from "./pengajuan-page.type";
+import { SubmissionPageProps } from "./submission-page.type";
 
-const PengajuanPage: PengajuanPageProps = ({ submissions }) => {
+const SubmissionPage: SubmissionPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
 
@@ -182,9 +182,9 @@ const PengajuanPage: PengajuanPageProps = ({ submissions }) => {
   );
 };
 
-export default PengajuanPage;
+export default SubmissionPage;
 
-PengajuanPage.layout = (page: any) => {
+SubmissionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

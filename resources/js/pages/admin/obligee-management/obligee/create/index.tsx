@@ -7,7 +7,7 @@ import { Head } from "@inertiajs/react";
 const ObligeeCreatePage: React.FC<CreateObligeePageProps> & { layout?: any } = () => {
   return (
     <main className="space-y-2.5 flex items-center justify-center">
-      <div className="max-w-xl w-full">
+      <div className="border p-12 rounded-md shadow-md  max-w-xl w-full">
         <header>
           <h2 className="text-lg font-medium text-gray-900">Membuat Data Obligee</h2>
 

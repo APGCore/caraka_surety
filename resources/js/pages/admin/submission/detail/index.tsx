@@ -4,11 +4,13 @@ import AdminLayout from "@/layouts/admin";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Editor } from "tinymce";
-import { PengajuanDetailPageProps } from "./pengajuan-detail-page.type";
-import templateContent from "./template-surat-pelaksanaan";
-import secondTemplateContent from "./template-surat-permohonan";
+import templateDraftSurety from "../template-draft-surety";
+import templateAnalyst from "../template-hasil-analisa";
+import templateContent from "../template-surat-pelaksanaan";
+import secondTemplateContent from "../template-surat-permohonan";
+import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
-const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status }) => {
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
@@ -40,6 +42,8 @@ const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) =
 
       setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
       setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
+      setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
+      setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
     };
 
     document.body.appendChild(tinymceScript);
@@ -127,22 +131,25 @@ const PengajuanDetailPage: PengajuanDetailPageProps = ({ submission, status }) =
       <br />
       <p className="text-xl font-semibold">Surat Permohonan</p>
       <textarea id="surat-permohonan"></textarea>
+      <br />
+      <p className="text-xl font-semibold">Hasil Analisa</p>
+      <textarea id="hasil-analisa"></textarea>
+      <br />
+      <p className="text-xl font-semibold">Draft Surety</p>
+      <textarea id="draft-surety"></textarea>
 
       <div className="flex justify-end gap-3">
         <Button asChild>
           <Link href={route("submission.index")}>Kembali</Link>
-        </Button>
-        <Button asChild variant="secondary">
-          <Link href={`/pengajuan/edit/${submission}`}>Edit</Link>
         </Button>
       </div>
     </main>
   );
 };
 
-export default PengajuanDetailPage;
+export default SubmissionDetailPage;
 
-PengajuanDetailPage.layout = (page: any) => {
+SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
