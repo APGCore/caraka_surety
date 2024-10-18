@@ -20,23 +20,23 @@ class ProfileLimitController extends Controller
     public function index(Request $request)
     {
         $guarantors = Guarantor::with('profileLimit')->get();
-        $guarantorSelected = (int)($request->get('guarantor_id') ?? $guarantors->first()?->id);
+        $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
 
         $profiles = Profile::search($request->get('search'))
-                ->query(function (Builder $query) use ($guarantorSelected) {
-                    return $query->with(['guarantorLimit' => function ($query) use ($guarantorSelected) {
-                        $query->where('guarantor_id', $guarantorSelected);
-                    }]);
-                })
-                ->orderBy('id')
-                ->paginate($request->get('per_page') ?? 10)
-                ->appends('query', null)
-                ->appends($request->all());
+            ->query(function (Builder $query) use ($guarantorSelected) {
+                return $query->with(['guarantorLimit' => function ($query) use ($guarantorSelected) {
+                    $query->where('guarantor_id', $guarantorSelected);
+                }]);
+            })
+            ->orderBy('id')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
 
-//        dd($profiles);
+        //        dd($profiles);
         $profileResource = ProfileResource::collection($profiles);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -44,7 +44,7 @@ class ProfileLimitController extends Controller
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
-            'profiles' => fn() => $profileResource,
+            'profiles' => fn () => $profileResource,
         ]);
     }
 
@@ -56,7 +56,7 @@ class ProfileLimitController extends Controller
         try {
             DB::beginTransaction();
 
-            $limit = (int)str_replace('.', '', $request->get('limit'));
+            $limit = (int) str_replace('.', '', $request->get('limit'));
             ProfileLimit::query()->create(
                 [
                     'guarantor_id' => $request->get('guarantor_id'),
@@ -86,7 +86,7 @@ class ProfileLimitController extends Controller
                     'limit' => $limit,
                 ]
             );
-            if(!$updated) {
+            if (! $updated) {
                 throw new \Exception('Failed to update profile limit');
             }
 
@@ -106,7 +106,7 @@ class ProfileLimitController extends Controller
             DB::beginTransaction();
 
             $deleted = $profileLimit->delete();
-            if(!$deleted) {
+            if (! $deleted) {
                 throw new \Exception('Failed to delete profile limit');
             }
 
