@@ -16,25 +16,25 @@ class SubmissionController extends Controller
         $submissions = [
             [
                 'id' => 1,
-                'name' => 'Pengajuan 1',
+                'name' => 'submission 1',
                 'created_at' => '2024-01-01',
                 'status' => 'Pending',
             ],
             [
                 'id' => 2,
-                'name' => 'Pengajuan 2',
+                'name' => 'submission 2',
                 'created_at' => '2024-01-02',
                 'status' => 'Approved',
             ],
             [
                 'id' => 3,
-                'name' => 'Pengajuan 3',
+                'name' => 'submission 3',
                 'created_at' => '2024-01-03',
                 'status' => 'Rejected',
             ],
         ];
 
-        return inertia('admin/pengajuan/index', [
+        return inertia('admin/submission/index', [
             'submissions' => $submissions,
         ]);
 
@@ -61,7 +61,7 @@ class SubmissionController extends Controller
      */
     public function show(Submission $submission)
     {
-        return inertia('admin/pengajuan/detail', [
+        return inertia('admin/submission/detail/index', [
             'submission' => $submission,
         ]);
     }
