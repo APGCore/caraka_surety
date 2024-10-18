@@ -37,19 +37,10 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   const [dataForm, setDataForm] = useState<{
     name: string;
     min_point: number | undefined;
-  }>({
-    name: "",
-    min_point: undefined,
-  });
-
-  useEffect(() => {
-    if (isEdit) {
-      setDataForm({
-        name: scoring?.name ?? "",
-        min_point: scoring?.min_point ?? undefined,
-      });
-    }
-  }, [isEdit, scoring]);
+  }>(() => ({
+    name: isEdit ? scoring?.name : "",
+    min_point: isEdit ? scoring?.min_point : undefined,
+  }));
 
   const submit = () => {
     setIsLoading(true);
@@ -68,14 +59,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           });
           setErrors({ name: null, min_point: null });
           setIsOpenForm(false);
-          router.get(
-            route("scoring.index"),
-            {},
-            {
-              preserveState: true,
-              preserveScroll: true,
-            },
-          );
+          router.get(route("scoring.index"), {});
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -96,14 +80,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           });
           setErrors({ name: null, min_point: null });
           setIsOpenForm(false);
-          router.get(
-            route("scoring.index"),
-            {},
-            {
-              preserveState: true,
-              preserveScroll: true,
-            },
-          );
+          router.get(route("scoring.index"), {});
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
