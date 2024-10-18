@@ -1,4 +1,5 @@
 import InputError from "@/components/common/input-error";
+import RenderList from "@/components/common/render-list";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -154,29 +155,29 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
               id="name"
               type="name"
               placeholder="Masukan nama skoring"
-              //   required
+              required
               value={dataForm.name}
               onChange={(e) => setDataForm({ ...dataForm, name: e.target.value })}
             />
-            {(errors.name?.length ?? 0) > 0 &&
-              errors.name?.map((error: string, index: number) => (
-                <InputError key={index + 1} className="mt-1" message={error} />
-              ))}
+            <RenderList
+              of={errors.name ?? []}
+              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+            />
           </div>
           <div className="grid gap-[5px]">
             <Label htmlFor="min_point">Poin Minimal</Label>
             <Input
               id="min_point"
               type="number"
-              //   required
+              required
               value={dataForm.min_point}
               placeholder="Masukan poin minimal"
               onChange={(e) => setDataForm({ ...dataForm, min_point: getNumericValue(e) })}
             />
-            {(errors.min_point?.length ?? 0) > 0 &&
-              errors.min_point?.map((error: string, index: number) => (
-                <InputError key={index + 1} className="mt-1" message={error} />
-              ))}
+            <RenderList
+              of={errors.min_point ?? []}
+              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+            />
           </div>
           <div className="flex justify-end gap-x-3">
             <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
