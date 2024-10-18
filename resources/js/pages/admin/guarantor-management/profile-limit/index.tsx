@@ -14,7 +14,6 @@ import { ProfileLimitsPageProps } from "./profile-limits.type";
 const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelected, profiles }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
-  const [guarantorId, setGuarantorId] = useState<number>(() => guarantorSelected);
 
   const handleSelectProfileLimitLength = (per_page: string) => {
     setSelect(per_page);
@@ -25,12 +24,17 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelect
     getData(select, search);
   };
 
-  const getData = (per_page: string, search: string) => {
+  const handleSelectGuarantor = (guarantorId: number) => {
+    getData(select, search, guarantorId);
+  };
+
+  const getData = (per_page: string, search: string, guarantorId?: number) => {
     router.get(
       route(ProfileLimitsUtils.link.index),
       pickBy({
         per_page,
         search,
+        guarantor_id: guarantorId,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -52,7 +56,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelect
             defaultValue={guarantorSelected}
             placeholder={"Pilih Penjamin"}
             className={"w-[210px]"}
-            onSelect={(value) => setGuarantorId(value)}
+            onSelect={(value) => handleSelectGuarantor(value.id)}
           />
         </div>
         <SearchDatatable
