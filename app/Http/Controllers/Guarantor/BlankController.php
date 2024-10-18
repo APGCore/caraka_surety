@@ -73,21 +73,21 @@ class BlankController extends Controller
     {
         $requestValidated = $request->validated();
 
-        DB::beginTransaction();
         try {
-
+            DB::beginTransaction();
             $start = $requestValidated['number_start'];
             $end = $requestValidated['number_end'];
 
             $diff = (int) $end - (int) $start;
 
-            for ($i = 0; $i <= $diff; $i++) {
-                Blank::query()
-                    ->create([
-                        'guarantor_id' => $requestValidated['guarantor_id'],
-                        'number' => $start + $i,
-                    ]);
-            }
+            $data = array_map(fn ($i) => [
+                'guarantor_id' => $requestValidated['guarantor_id'],
+                'number' => ($start ?? 0) + $i,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], range(0, max($diff, 0)));
+
+            Blank::query()->insert($data);
 
             DB::commit();
 
