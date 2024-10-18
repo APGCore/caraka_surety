@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Guarantor\Blank;
 
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +25,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'guarantor_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
-            'number' => ['required', 'string', 'max:255'],
+            'number' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,'.$this->route('blank')->id.',id,deleted_at,NULL'],
         ];
     }
 }

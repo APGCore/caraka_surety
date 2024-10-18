@@ -62,20 +62,18 @@ class DistributionOfBlankController extends Controller
     {
         $requestValid = $request->validate([
             'blanks.*.id' => 'required|integer|exists:'.Blank::class.',id',
-            'blanks.*.number' => 'required|integer|exists:'.Blank::class.',number',
             'office_id' => 'required|exists:'.Profile::class.',id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            foreach ($requestValid['blanks'] as $blank) {
-                $blank = Blank::query()
-                    ->find($blank['id']);
-                $blank->update([
+            $blankIds = collect($requestValid['blanks'])->pluck('id');
+            Blank::query()
+                ->whereIn('id', $blankIds)
+                ->update([
                     'profile_id' => $requestValid['office_id'],
                 ]);
-            }
 
             DB::commit();
 

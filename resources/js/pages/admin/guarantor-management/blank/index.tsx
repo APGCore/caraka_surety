@@ -34,7 +34,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { pickBy } from "lodash";
 import { ArrowRight } from "lucide-react";
-import React, { FormEventHandler, useRef, useState } from "react";
+import React, { FormEventHandler, useState } from "react";
 
 const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
   const { data: blanks, meta } = props.blanks;
@@ -46,7 +46,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
   const [openCreate, setOpenCreate] = useState<boolean>(false);
   const [openCreateMulti, setOpenCreateMulti] = useState<boolean>(false);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
-  const isLoading = useRef<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   type DataForm = {
     id?: number;
     number: string;
@@ -113,7 +113,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
   const createBlangko: FormEventHandler<HTMLFormElement> = (e: React.FormEvent) => {
     e.preventDefault();
-    isLoading.current = true;
+    setIsLoading(true);
     axios
       .post(route("blank.store"), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
@@ -127,13 +127,13 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         console.log(error.response);
       })
       .finally(() => {
-        isLoading.current = false;
+        setIsLoading(false);
       });
   };
 
   const createBlangkoMulti = (e: React.FormEvent) => {
     e.preventDefault();
-    isLoading.current = true;
+    setIsLoading(true);
     axios
       .post(route("blank.store.multi"), { ...dataCreateMulti, guarantor_id: guarantorSelected })
       .then(() => {
@@ -147,13 +147,13 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         console.log(error.response);
       })
       .finally(() => {
-        isLoading.current = false;
+        setIsLoading(false);
       });
   };
 
   const updateBlangko = (e: React.FormEvent) => {
     e.preventDefault();
-    isLoading.current = true;
+    setIsLoading(true);
     axios
       .post(route("blank.update", dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
@@ -167,8 +167,15 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         console.log(error.response);
       })
       .finally(() => {
-        isLoading.current = false;
+        setIsLoading(false);
       });
+  };
+
+  const clear = () => {
+    setdataForm(defaultDataForm);
+    setDataCreateMulti(defaultDataCreateMulti);
+    setErrors({ number: null });
+    setErrorsMulti({ number_start: null, number_end: null });
   };
 
   return (
@@ -228,8 +235,8 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                       className="mt-1 block w-full"
                     />
 
-                    {(errorsMulti.number_start?.length ?? 0) > 0 &&
-                      errorsMulti.number_start?.map((error: string, index: number) => (
+                    {(errorsMulti?.number_start?.length ?? 0) > 0 &&
+                      errorsMulti?.number_start?.map((error: string, index: number) => (
                         <InputError key={index} message={error} />
                       ))}
                   </div>
@@ -246,16 +253,22 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                       className="mt-1 block w-full"
                     />
 
-                    {(errorsMulti.number_end?.length ?? 0) > 0 &&
-                      errorsMulti.number_end?.map((error: string, index: number) => (
+                    {(errorsMulti?.number_end?.length ?? 0) > 0 &&
+                      errorsMulti?.number_end?.map((error: string, index: number) => (
                         <InputError key={index} message={error} />
                       ))}
                   </div>
                 </div>
 
                 <div className="flex justify-end gap-x-3">
-                  <AlertDialogCancel onClick={() => setOpenCreateMulti(false)}>Batal</AlertDialogCancel>
-                  <Button type={"submit"} disabled={isLoading.current}>
+                  <AlertDialogCancel
+                    onClick={() => {
+                      clear();
+                      setOpenCreateMulti(false);
+                    }}>
+                    Batal
+                  </AlertDialogCancel>
+                  <Button type={"submit"} disabled={isLoading}>
                     Simpan
                   </Button>
                 </div>
@@ -358,7 +371,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
                                 <div className="flex justify-end gap-x-3">
                                   <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
-                                  <Button type={"submit"} disabled={isLoading.current}>
+                                  <Button type={"submit"} disabled={isLoading}>
                                     Simpan
                                   </Button>
                                 </div>

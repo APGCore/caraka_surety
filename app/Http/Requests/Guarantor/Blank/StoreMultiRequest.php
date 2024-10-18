@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Guarantor\Blank;
 
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,8 +25,8 @@ class StoreMultiRequest extends FormRequest
     {
         return [
             'guarantor_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
-            'number_start' => ['required', 'string', 'max:255'],
-            'number_end' => ['required', 'string', 'max:255'],
+            'number_start' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,NULL,id,deleted_at,NULL'],
+            'number_end' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,NULL,id,deleted_at,NULL'],
         ];
     }
 
@@ -40,9 +41,11 @@ class StoreMultiRequest extends FormRequest
             'number_start.required' => 'Nomor blangko pertama harus diisi',
             'number_start.string' => 'Nomor blangko pertama harus berupa string',
             'number_start.max' => 'Nomor blangko pertama maksimal 255 karakter',
+            'number_start.unique' => 'Nomor blangko pertama sudah digunakan',
             'number_end.required' => 'Nomor blangko terakhir harus diisi',
             'number_end.string' => 'Nomor blangko terakhir harus berupa string',
             'number_end.max' => 'Nomor blangko terakhir maksimal 255 karakter',
+            'number_end.unique' => 'Nomor blangko terakhir sudah digunakan',
         ];
     }
 }
