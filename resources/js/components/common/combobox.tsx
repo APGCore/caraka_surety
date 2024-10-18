@@ -13,6 +13,7 @@ export interface ComboboxProps<T> {
   defaultValue?: string | number | null; // Default value
   defaultValueId?: string | number | null; // Default value id
   onSelect?: (value: T) => void; // Callback when an item is selected
+  onReset?: (resetVal: boolean) => void; // Callback when reset
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found
   className?: string;
@@ -50,6 +51,9 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   useEffect(() => {
     if (reset) {
       setValue("");
+      if (props?.onReset && typeof props.onReset === "function") {
+        props.onReset(false);
+      }
     }
   }, [reset]);
 

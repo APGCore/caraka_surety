@@ -37,19 +37,10 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   const [dataForm, setDataForm] = useState<{
     name: string;
     min_point: number | undefined;
-  }>({
-    name: "",
-    min_point: undefined,
-  });
-
-  useEffect(() => {
-    if (isEdit) {
-      setDataForm({
-        name: scoring?.name ?? "",
-        limit: scoring?.min_point ?? undefined,
-      });
-    }
-  }, [isEdit, scoring]);
+  }>(() => ({
+    name: isEdit ? scoring?.name : "",
+    min_point: isEdit ? scoring?.min_point : undefined,
+  }));
 
   const submit = () => {
     setIsLoading(true);
@@ -66,16 +57,9 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           toast({
             ...FormSkoringUtils.edit.toast_success,
           });
-          setErrors({ name: null, limit: null });
+          setErrors({ name: null, min_point: null });
           setIsOpenForm(false);
-          router.get(
-            route("scoring.index"),
-            {},
-            {
-              preserveState: true,
-              preserveScroll: true,
-            },
-          );
+          router.get(route("scoring.index"), {});
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -94,16 +78,9 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
           toast({
             ...FormSkoringUtils.create.toast_success,
           });
-          setErrors({ name: null, limit: null });
+          setErrors({ name: null, min_point: null });
           setIsOpenForm(false);
-          router.get(
-            route("scoring.index"),
-            {},
-            {
-              preserveState: true,
-              preserveScroll: true,
-            },
-          );
+          router.get(route("scoring.index"), {});
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -119,8 +96,8 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
   };
 
   const handleCloseForm = () => {
-    if (errors?.name || errors?.limit) {
-      setErrors({ name: null, limit: null });
+    if (errors?.name || errors?.min_point) {
+      setErrors({ name: null, min_point: null });
     }
     setIsOpenForm(false);
   };
@@ -172,7 +149,7 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
               required
               value={dataForm.min_point}
               placeholder="Masukan poin minimal"
-              onChange={(e) => setDataForm({ ...dataForm, limit: getNumericValue(e) })}
+              onChange={(e) => setDataForm({ ...dataForm, min_point: getNumericValue(e) })}
             />
             <RenderList
               of={errors.min_point ?? []}

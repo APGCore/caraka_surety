@@ -24,6 +24,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
+import FormSkoringQuestion from "./form-scoring-question";
 
 interface ScoringQuestionDatatableProps {
   scoringQuestions: any;
@@ -72,13 +73,7 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                          href={route("scoring-question.edit", {
-                            scoringQuestion: scoring.id,
-                          })}>
-                          Edit pertanyaan
-                        </Link>
+                        <FormSkoringQuestion isEdit scoring_question_category={scoring} />
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
