@@ -1,6 +1,7 @@
 import { Combobox } from "@/components/common/combobox";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +32,7 @@ import { DistributionBlankPageProps } from "@/pages/admin/guarantor-management/d
 import { Head, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const DistributionBlank: DistributionBlankPageProps = ({
   guarantors,
@@ -206,6 +207,16 @@ const DistributionBlank: DistributionBlankPageProps = ({
           </form>
         </div>
       </div>
+
+      {isAddBlank && (
+        <div className="flex justify-between items-end">
+          <Alert variant="warning">
+            <AlertTitle>Pilih Blangko</AlertTitle>
+            <AlertDescription>Pilih Blangko yang akan dibagikan</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <div>
         <Table>
           <TableHeader>
