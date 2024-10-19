@@ -62,46 +62,41 @@ const ScoringQuestionDatatable: React.FC<ScoringQuestionDatatableProps> = ({ sco
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-max mr-8 mt-1">
-                      <DropdownMenuItem asChild className="cursor-pointer">
+                      <Button asChild className="h-[32px] justify-start pl-3 rounded-sm">
                         <Link
-                          className="bg-black hover:bg-black/100 text-white shadow-sm px-2 py-1.5 text-sm w-full rounded-sm text-start"
                           href={route("scoring-question.edit-options", {
                             scoringQuestion: scoring.id,
                           })}>
                           Pilihan pertanyaan
                         </Link>
-                      </DropdownMenuItem>
+                      </Button>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <FormSkoringQuestion isEdit scoring_question_category={scoring} />
-                      </DropdownMenuItem>
+                      <FormSkoringQuestion isEdit scoring_question_category={scoring} />
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
-                        <AlertDialog>
-                          <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                            Delete
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your scoring and remove your
-                                data from our servers.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  onDelete(scoring);
-                                }}
-                                className={buttonVariants({ variant: "destructive" })}>
-                                Continue Delete Scoring
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                          Delete
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your scoring and remove your
+                              data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                onDelete(scoring);
+                              }}
+                              className={buttonVariants({ variant: "destructive" })}>
+                              Continue Delete Scoring
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

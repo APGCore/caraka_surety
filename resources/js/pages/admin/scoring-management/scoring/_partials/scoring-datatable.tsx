@@ -61,33 +61,29 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <FormSkoring isEdit scoring={scoring} />
-                      </DropdownMenuItem>
+                      <FormSkoring isEdit scoring={scoring} />
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
-                        <AlertDialog>
-                          <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                            Delete
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-                              <AlertDialogDescription>Aksi ini akan menghapus data scoring ini.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Kembali</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  onDelete(scoring);
-                                }}
-                                className={buttonVariants({ variant: "destructive" })}>
-                                Lanjutkan Hapus Skoring
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                          Delete
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                            <AlertDialogDescription>Aksi ini akan menghapus data scoring ini.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Kembali</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                onDelete(scoring);
+                              }}
+                              className={buttonVariants({ variant: "destructive" })}>
+                              Lanjutkan Hapus Skoring
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

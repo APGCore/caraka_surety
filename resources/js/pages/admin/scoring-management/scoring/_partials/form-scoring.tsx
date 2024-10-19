@@ -107,9 +107,10 @@ const FormSkoring: React.FC<FormSkoringProps> = ({ isEdit, scoring }) => {
       <AlertDialogTrigger asChild>
         <Button
           className={cn({
-            "w-full": isEdit,
+            "bg-amber-500 hover:bg-amber-500/90 shadow-sm  px-2 py-1.5 text-sm w-full rounded-sm text-start h-[32px] justify-start":
+              isEdit,
           })}>
-          {isEdit ? FormSkoringUtils.edit.title : FormSkoringUtils.create.title}
+          {isEdit ? FormSkoringUtils.edit.btn_label : FormSkoringUtils.create.title}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-[400px] space-y-3">

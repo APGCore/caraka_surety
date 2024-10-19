@@ -144,7 +144,8 @@ const FormSkoringQuestion: React.FC<FormSkoringQuestionProps> = ({ isEdit, scori
       <AlertDialogTrigger asChild>
         <Button
           className={cn({
-            "w-full": isEdit,
+            "bg-amber-500 hover:bg-amber-500/90 shadow-sm  px-2 py-1.5 text-sm w-full rounded-sm text-start h-[32px] justify-start":
+              isEdit,
           })}>
           {isEdit ? FormSkoringQuestionUtils.edit.title : FormSkoringQuestionUtils.create.title}
         </Button>

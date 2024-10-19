@@ -17,7 +17,7 @@ export const FormSkoringUtils = {
     route: "scoring.update",
     title: "Edit Skoring",
     sub_title: "Tindakan ini akan mengedit data Skoring",
-    btn_label: "Edit Skoring",
+    btn_label: "Edit",
     toast_success: {
       title: "Berhasil",
       description: "Skoring berhasil diedit",
