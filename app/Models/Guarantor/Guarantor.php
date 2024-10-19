@@ -6,6 +6,7 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\Product\ProductType;
+use App\Models\Profile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,5 +68,10 @@ class Guarantor extends Model
     public function branchGuarantors(): HasMany
     {
         return $this->hasMany(Guarantor::class, 'headquarter_id');
+    }
+
+    public function profileLimit(): BelongsToMany
+    {
+        return $this->belongsToMany(Profile::class, ProfileLimit::class, 'guarantor_id', 'profile_id')->withPivot('limit');
     }
 }
