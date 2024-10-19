@@ -1,186 +1,220 @@
 import Clock from "@/components/common/clock";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import useFlashMessageToast from "@/hooks/use-flash-message";
-import { cn } from "@/lib/cn";
 import { Link } from "@inertiajs/react";
-import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
-import { adminLinks } from "./admin-layout.constant";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronRight,
+  ChevronsUpDown,
+  CreditCard,
+  GalleryVerticalEnd,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
+import { adminRoute } from "./admin-layout.constant";
 import { AdminLayoutPageProps } from "./admin-layout.type";
 
 export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
+  console.log({
+    r: route().current("scoring-question.*"),
+  });
+
   return (
-    <div className="grid h-screen  w-full md:grid-cols-[250px_1fr] md:overflow-hidden">
-      <div className="hidden h-screen border-r bg-muted/40 md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6" />
-              <span className="">BPR Bonding</span>
-            </Link>
-          </div>
-          <div className="flex-1 pb-10 overflow-y-auto">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4 space-y-3">
-              {adminLinks.map((admin, index) => {
-                if (admin.title !== "Dashboard") {
-                  return (
-                    <div key={index + 1}>
-                      <p className="pl-3 font-bold pb-1.5">{admin.title}</p>
-                      {admin.route.map((r) => {
-                        const isActiveRoute = route().current(r.route_name);
-                        const Icon = r.Icon;
-                        return (
-                          <Link
-                            key={r.id}
-                            href={r.href}
-                            className={cn(
-                              "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:text-white hover:bg-black",
-                              {
-                                "bg-black text-white": isActiveRoute,
-                              },
-                            )}>
-                            <Icon className="h-4 w-4" />
-                            {r.name}
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <GalleryVerticalEnd className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">BPR Bonding</span>
+                  <span className="truncate text-xs">Enterprise</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              {adminRoute.navMain.map((item) => {
+                return (
+                  <Collapsible key={item.title} asChild defaultOpen={item.isActive} className="group/collapsible">
+                    {item.items.length > 0 ? (
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton tooltip={item.title}>
+                            {item.icon && <item.icon />}
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.items?.map((subItem) => (
+                              <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild isActive={route().current(`${subItem.route_name}.*`)}>
+                                  <Link href={subItem.href}>
+                                    <span>{subItem.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    ) : (
+                      <SidebarMenuItem>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={item.route_name ? route().current(`${item.route_name}.*`) : false}>
+                          {item.icon && <item.icon />}
+                          <Link href={item?.href ?? "#"} className="w-full">
+                            <span>{item.title}</span>
                           </Link>
-                        );
-                      })}
-                    </div>
-                  );
-                }
-
-                return admin.route.map((r) => {
-                  const isActiveRoute = route().current(r.route_name);
-                  const Icon = r.Icon;
-
-                  return (
-                    <Link
-                      key={r.id}
-                      href={r.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:text-white hover:bg-black",
-                        {
-                          "bg-black text-white": isActiveRoute,
-                        },
-                      )}>
-                      <Icon className="h-4 w-4" />
-                      {r.name}
-                    </Link>
-                  );
-                });
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )}
+                  </Collapsible>
+                );
               })}
-            </nav>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage src={adminRoute.user.avatar} alt={adminRoute.user.name} />
+                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{adminRoute.user.name}</span>
+                      <span className="truncate text-xs">{adminRoute.user.email}</span>
+                    </div>
+                    <ChevronsUpDown className="ml-auto size-4" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  side="bottom"
+                  align="end"
+                  sideOffset={4}>
+                  <DropdownMenuLabel className="p-0 font-normal">
+                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                      <Avatar className="h-8 w-8 rounded-lg">
+                        <AvatarImage src={adminRoute.user.avatar} alt={adminRoute.user.name} />
+                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      </Avatar>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{adminRoute.user.name}</span>
+                        <span className="truncate text-xs">{adminRoute.user.email}</span>
+                      </div>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <Sparkles />
+                      Upgrade to Pro
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <BadgeCheck />
+                      Account
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <CreditCard />
+                      Billing
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Bell />
+                      Notifications
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <LogOut />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 fixed z-20 top-0 md:w-[calc(100%_-_255px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
+          <div className="flex justify-between pr-4 w-full">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+            </div>
+            <div>
+              <Clock />
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="flex-grow  md:overflow-y-auto">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 fixed top-0 md:w-[calc(100%_-_240px)] w-full flex-grow bg-white z-10">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <nav className="grid gap-2 text-lg font-medium">
-                <Link href="#" className="flex items-center gap-2 text-lg font-semibold">
-                  <Package2 className="h-6 w-6" />
-                  <span className="sr-only">Acme Inc</span>
-                </Link>
-                <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
-                  <Home className="h-5 w-5" />
-                  Dashboard
-                </Link>
-                <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground">
-                  <ShoppingCart className="h-5 w-5" />
-                  Orders
-                  <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">6</Badge>
-                </Link>
-                <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
-                  <Package className="h-5 w-5" />
-                  Products
-                </Link>
-                <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
-                  <Users className="h-5 w-5" />
-                  Customers
-                </Link>
-                <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
-                  <LineChart className="h-5 w-5" />
-                  Analytics
-                </Link>
-              </nav>
-              <div className="mt-auto">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Upgrade to Pro</CardTitle>
-                    <CardDescription>Unlock all features and get unlimited access to our support team.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button size="sm" className="w-full">
-                      Upgrade
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </SheetContent>
-          </Sheet>
-          <div className="w-full flex-1">
-            <Clock />
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-x-3">
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <CircleUser className="h-5 w-5" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-                <span className="font-bold text-sm">{user?.name?.slice(0, 7)}</span>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href={route("profile.edit")} as="button">
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href={route("logout")} method="post" as="button">
-                  Log Out
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </header>
-        <main className="flex flex-1 pt-[80px] flex-col gap-4 p-6 lg:gap-6 ">{children}</main>
-      </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[60px]">
+          {children}
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        </div>
+      </SidebarInset>
       <Toaster />
-    </div>
+    </SidebarProvider>
   );
 };
 

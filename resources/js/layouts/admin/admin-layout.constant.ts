@@ -1,245 +1,166 @@
-import { generateUUID } from "@/lib/generate-uuid";
-import {
-  Archive,
-  BookOpenCheck,
-  BookUp2,
-  Building,
-  ChartNoAxesCombined,
-  ChartNoAxesGantt,
-  CircleDollarSign,
-  FileBoxIcon,
-  Home,
-  Landmark,
-  MapPinHouse,
-  PackageSearch,
-  SquareChartGantt,
-  User,
-} from "lucide-react";
+import { Archive, BookOpenCheck, ChartNoAxesGantt, Home, MapPinHouse, User } from "lucide-react";
 
-export const adminLinks = [
-  {
-    title: "Dashboard",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Dashboard",
-        route_name: "admin.index",
-        href: route("admin.index"),
-        Icon: Home,
-        children: [],
-      },
-    ],
+export const adminRoute = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
 
-  {
-    title: "Kelola Perusahaan",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Daftar Cabang",
-        route_name: "branch.index",
-        href: route("branch.index"),
-        Icon: User,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Karyawan",
-        route_name: "employee.index",
-        href: route("employee.index"),
-        Icon: User,
-        children: [],
-      },
-    ],
-  },
-
-  {
-    title: "Kelola Pengajuan",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Daftar Pengajuan",
-        route_name: "submission.index",
-        href: route("submission.index"),
-        Icon: Archive,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Prasyarat Dokumen",
-        route_name: "document.index",
-        href: route("document.index"),
-        Icon: FileBoxIcon,
-        children: [],
-      },
-    ],
-  },
-
-  //   {
-  //     title: "Kelola Prasyarat Dokumen",
-  //     route: [
-  //       {
-  //         id: generateUUID(),
-  //         name: "Dokumen Umum",
-  //         route_name: "document.index",
-  //         href: route("document.index"),
-  //         Icon: FileBoxIcon,
-  //         children: [],
-  //       },
-  //     ],
-  //   },
-
-  {
-    title: "Wilayah",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Provinsi",
-        route_name: "province.index",
-        href: route("province.index"),
-        Icon: MapPinHouse,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Kabupaten",
-        route_name: "regency.index",
-        href: route("regency.index"),
-        Icon: MapPinHouse,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Kecamatan",
-        route_name: "district.index",
-        href: route("district.index"),
-        Icon: MapPinHouse,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Produk",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Jenis Produk",
-        route_name: "product-types.index",
-        href: route("product-types.index"),
-        Icon: ChartNoAxesGantt,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Produk",
-        route_name: "products.index",
-        href: route("products.index"),
-        Icon: SquareChartGantt,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Asuransi",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Asuransi",
-        route_name: "guarantor.index",
-        href: route("guarantor.index"),
-        Icon: CircleDollarSign,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Produk Asuransi",
-        route_name: "product-guarantor.index",
-        href: route("product-guarantor.index"),
-        Icon: PackageSearch,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Blangko",
-        route_name: "blank.index",
-        href: route("blank.index"),
-        Icon: BookOpenCheck,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Pembagian Blangko",
-        route_name: "distribution-of-blank.index",
-        href: route("distribution-of-blank.index"),
-        Icon: BookUp2,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Limit Pengajuan Kantor",
-        route_name: "profile-limit.index",
-        href: route("profile-limit.index"),
-        Icon: ChartNoAxesCombined,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Pihak Terkait",
-    route: [
-      // {
-      //   id: generateUUID(),
-      //   name: "Principal",
-      //   route_name: "principal.index",
-      //   href: route("principal.index"),
-      //   Icon: Building2,
-      //   children: [],
-      // },
-      {
-        id: generateUUID(),
-        name: "Obligee",
-        route_name: "obligee.index",
-        href: route("obligee.index"),
-        Icon: Building,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Bank",
-        route_name: "bank.index",
-        href: route("bank.index"),
-        Icon: Landmark,
-        children: [],
-      },
-    ],
-  },
-  {
-    title: "Kelola Skoring",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Skoring",
-        route_name: "scoring.index",
-        href: route("scoring.index"),
-        Icon: ChartNoAxesGantt,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Kategori Pertanyaan",
-        route_name: "scoring-question-category.index",
-        href: route("scoring-question-category.index"),
-        Icon: ChartNoAxesGantt,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Pertanyaan",
-        route_name: "scoring-question.index",
-        href: route("scoring-question.index"),
-        Icon: ChartNoAxesGantt,
-        children: [],
-      },
-    ],
-  },
-];
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "#",
+      route_name: "admin",
+      href: route("admin.index"),
+      icon: Home,
+      isActive: true,
+      items: [],
+    },
+    {
+      title: "Kelola Perusahaan",
+      url: "#",
+      icon: User,
+      isActive: true,
+      items: [
+        {
+          title: "Daftar Cabang",
+          route_name: "branch",
+          href: route("branch.index"),
+          url: "#",
+        },
+        {
+          title: "Karyawan",
+          route_name: "employee",
+          href: route("employee.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Pengajuan",
+      url: "#",
+      icon: Archive,
+      items: [
+        {
+          title: "Daftar Pengajuan",
+          route_name: "submission",
+          href: route("submission.index"),
+          url: "#",
+        },
+        {
+          title: "Prasyarat Dokumen",
+          route_name: "document",
+          href: route("document.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Wilayah",
+      url: "#",
+      icon: MapPinHouse,
+      items: [
+        {
+          title: "Provinsi",
+          route_name: "province",
+          href: route("province.index"),
+          url: "#",
+        },
+        {
+          title: "Kabupaten",
+          route_name: "regency",
+          href: route("regency.index"),
+          url: "#",
+        },
+        {
+          title: "Kecamatan",
+          route_name: "district",
+          href: route("district.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Produk",
+      url: "#",
+      icon: ChartNoAxesGantt,
+      items: [
+        {
+          title: "Jenis Produk",
+          route_name: "product-types",
+          href: route("product-types.index"),
+          url: "#",
+        },
+        {
+          title: "Produk",
+          route_name: "products",
+          href: route("products.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Asuransi",
+      url: "#",
+      icon: BookOpenCheck,
+      items: [
+        {
+          title: "Asuransi",
+          route_name: "guarantor",
+          href: route("guarantor.index"),
+          url: "#",
+        },
+        {
+          title: "Produk Asuransi",
+          route_name: "product-guarantor",
+          href: route("product-guarantor.index"),
+          url: "#",
+        },
+        {
+          title: "Blangko",
+          route_name: "blank",
+          href: route("blank.index"),
+          url: "#",
+        },
+        {
+          title: "Pembagian Blangko",
+          route_name: "distribution-of-blank",
+          href: route("distribution-of-blank.index"),
+          url: "#",
+        },
+        {
+          title: "Limit Pengajuan Kantor",
+          route_name: "profile-limit",
+          href: route("profile-limit.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Skoring",
+      url: "#",
+      icon: ChartNoAxesGantt,
+      items: [
+        {
+          title: "Skoring",
+          route_name: "scoring",
+          href: route("scoring.index"),
+          url: "#",
+        },
+        {
+          title: "Kategori Pertanyaan",
+          route_name: "scoring-question-category",
+          href: route("scoring-question-category.index"),
+          url: "#",
+        },
+        {
+          title: "Pertanyaan",
+          route_name: "scoring-question",
+          href: route("scoring-question.index"),
+          url: "#",
+        },
+      ],
+    },
+  ],
+};
