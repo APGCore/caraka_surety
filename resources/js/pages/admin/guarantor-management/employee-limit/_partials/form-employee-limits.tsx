@@ -18,39 +18,44 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";
 import React, { useState } from "react";
-import { FormProfileLimitsUtils } from "./form-profile-limits.utils";
+import { FormEmployeeLimitsUtils } from "./form-employee-limits.utils";
 
-interface FormProfileLimitsProps {
+interface FormEmployeeLimitsProps {
   isEdit?: boolean;
   guarantorSelectedId: any;
-  profile?: any;
+  profileSelectedId: any;
+  employee?: any;
 }
 
-const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantorSelectedId, profile }) => {
+const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
+  isEdit,
+  guarantorSelectedId,
+  profileSelectedId,
+  employee,
+}) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const defaultData = { guarantor_id: null, profile_id: null, employee_id: null, name: null, limit: null };
   const [errors, setErrors] = useState<{
     guarantor_id: Array<number> | null;
     profile_id: Array<number> | null;
+    employee_id: Array<number> | null;
     name: Array<string> | null;
     limit: Array<string> | null;
-  }>({
-    guarantor_id: null,
-    profile_id: null,
-    name: null,
-    limit: null,
-  });
+  }>(defaultData);
 
   const [dataForm, setDataForm] = useState<{
     guarantor_id: number;
     profile_id: number;
+    employee_id: number;
     name: string;
     limit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
-    profile_id: profile?.id ?? 0,
-    name: profile?.name ?? "",
-    limit: profile?.profile_limit?.limit ?? undefined,
+    profile_id: profileSelectedId ?? 0,
+    employee_id: employee?.id ?? 0,
+    name: employee?.name ?? "",
+    limit: employee?.employee_limit?.limit ?? undefined,
   });
 
   const submit = () => {
@@ -58,19 +63,20 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
 
     if (isEdit) {
       axios
-        .put(route(FormProfileLimitsUtils.edit.route, profile?.profile_limit?.id), { ...dataForm })
+        .put(route(FormEmployeeLimitsUtils.edit.route, employee?.employee_limit?.id), { ...dataForm })
         .then(() => {
           toast({
-            ...FormProfileLimitsUtils.edit.toast_success,
+            ...FormEmployeeLimitsUtils.edit.toast_success,
           });
-          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+          setErrors(defaultData);
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect));
+          router.get(route(FormEmployeeLimitsUtils.redirect));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
           toast({
-            ...FormProfileLimitsUtils.edit.toast_failed,
+            ...FormEmployeeLimitsUtils.edit.toast_failed,
+            description: error.response.data.message,
             variant: "destructive",
           });
         })
@@ -79,19 +85,20 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
         });
     } else {
       axios
-        .post(route(FormProfileLimitsUtils.create.route), { ...dataForm })
+        .post(route(FormEmployeeLimitsUtils.create.route), { ...dataForm })
         .then(() => {
           toast({
-            ...FormProfileLimitsUtils.create.toast_success,
+            ...FormEmployeeLimitsUtils.create.toast_success,
           });
-          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+          setErrors(defaultData);
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect));
+          router.get(route(FormEmployeeLimitsUtils.redirect));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
           toast({
-            ...FormProfileLimitsUtils.create.toast_failed,
+            ...FormEmployeeLimitsUtils.create.toast_failed,
+            description: error.response.data.message,
             variant: "destructive",
           });
         })
@@ -103,7 +110,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
 
   const handleCloseForm = () => {
     if (errors?.name || errors?.limit) {
-      setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+      setErrors(defaultData);
     }
     setIsOpenForm(false);
   };
@@ -111,17 +118,17 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
   return (
     <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
       <AlertDialogTrigger asChild>
-        <Button className={cn(FormProfileLimitsUtils.create.class_name)}>
-          {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
+        <Button className={cn(FormEmployeeLimitsUtils.create.class_name)}>
+          {isEdit ? FormEmployeeLimitsUtils.edit.title : FormEmployeeLimitsUtils.create.title} {dataForm?.name}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-[400px] space-y-3">
         <AlertDialogHeader className="space-y-1">
           <AlertDialogTitle>
-            {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title} {dataForm.name}
+            {isEdit ? FormEmployeeLimitsUtils.edit.title : FormEmployeeLimitsUtils.create.title}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {isEdit ? FormProfileLimitsUtils.edit.sub_title : FormProfileLimitsUtils.create.sub_title}
+            {isEdit ? FormEmployeeLimitsUtils.edit.sub_title : FormEmployeeLimitsUtils.create.sub_title}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form
@@ -150,7 +157,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
             <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
             <Button form="profile-limit-form" className="w-max" disabled={isLoading}>
               {isLoading && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
-              {isEdit ? FormProfileLimitsUtils.edit.btn_label : FormProfileLimitsUtils.create.btn_label}
+              {isEdit ? FormEmployeeLimitsUtils.edit.btn_label : FormEmployeeLimitsUtils.create.btn_label}
             </Button>
           </div>
         </form>
@@ -159,4 +166,4 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
   );
 };
 
-export default FormProfileLimits;
+export default FormEmployeeLimits;

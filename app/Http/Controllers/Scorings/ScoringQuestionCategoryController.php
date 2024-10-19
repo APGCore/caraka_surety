@@ -19,7 +19,7 @@ class ScoringQuestionCategoryController extends Controller
     public function index(Request $request)
     {
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $selectedScoring = Scoring::query()
             ->when($request->get('scoring_id'), function ($query, $scoringId) {
@@ -41,8 +41,8 @@ class ScoringQuestionCategoryController extends Controller
             'page_settings' => [
                 'title' => 'Kategori Pertanyaan Skoring',
             ],
-            'scoringQuestionCategories' => fn() => $scoringQuestionCategoriesResource,
-            'initialSelectedScoring' => fn() => $selectedScoring,
+            'scoringQuestionCategories' => fn () => $scoringQuestionCategoriesResource,
+            'initialSelectedScoring' => fn () => $selectedScoring,
         ]);
     }
 
@@ -51,7 +51,7 @@ class ScoringQuestionCategoryController extends Controller
      */
     public function create(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -90,7 +90,7 @@ class ScoringQuestionCategoryController extends Controller
 
             return $this->responseSuccess('Kategori Pertanyaan Skoring berhasil ditambahkan!');
         } catch (\Throwable $e) {
-            Log::error('Scoring Question Category Store: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Category Store: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -118,7 +118,7 @@ class ScoringQuestionCategoryController extends Controller
                 'title' => 'Edit Kategori Pertanyaan Skoring',
             ],
 
-            'scoringQuestionCategory' => fn() => $scoringQuestionCategory,
+            'scoringQuestionCategory' => fn () => $scoringQuestionCategory,
 
         ]);
     }
@@ -147,13 +147,14 @@ class ScoringQuestionCategoryController extends Controller
                 $scoringQuestionCategory->update($request->only('name', 'max_point', 'scoring_id'));
 
                 DB::commit();
+
                 return $this->responseSuccess('Kategori Pertanyaan Skoring berhasil ditambahkan!');
             } else {
                 throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
             }
         } catch (\Throwable $e) {
 
-            Log::error('Scoring Question Category Update: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Category Update: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -180,7 +181,7 @@ class ScoringQuestionCategoryController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kategori Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Kategori Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Category Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Category Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }

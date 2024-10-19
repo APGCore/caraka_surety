@@ -21,6 +21,7 @@ export interface ComboboxProps<T> {
   id?: string;
   disabledValue?: boolean;
   reset?: boolean;
+  shortValue?: boolean;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -30,6 +31,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   defaultValue,
   defaultValueId,
   reset = false,
+  shortValue = false,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -58,6 +60,10 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
     }
   }, [reset]);
 
+  const shortText = (text: string, length: number) => {
+    return text.length > length ? text.slice(0, length) + "..." : text;
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -75,7 +81,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
             } else if (value && defaultValue !== null) {
               label = datas.find((item) => item[valueKey] === value)?.[labelKey] ?? labelButtonPlaceholder;
             }
-            return label.length > 15 ? label.slice(0, props?.dotLength || 15) + "..." : label;
+            return shortValue ? shortText(label, 15) : label;
           })()}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

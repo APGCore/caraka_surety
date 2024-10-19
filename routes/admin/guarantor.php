@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Guarantor\BlankController;
 use App\Http\Controllers\Guarantor\DistributionOfBlankController;
+use App\Http\Controllers\Guarantor\EmployeeLimitController;
 use App\Http\Controllers\Guarantor\GuarantorController;
 use App\Http\Controllers\Guarantor\GuarantorToProductTypeController;
 use App\Http\Controllers\Guarantor\ProfileLimitController;
@@ -37,5 +38,12 @@ Route::prefix('guarantor-management')->group(function () {
         Route::post('store', [ProfileLimitController::class, 'store'])->name('store');
         Route::put('update/{profileLimit}', [ProfileLimitController::class, 'update'])->name('update');
         Route::delete('destroy/{profileLimit}', [ProfileLimitController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('employee-limit')->name('employee-limit.')->group(function () {
+        Route::get('/', [EmployeeLimitController::class, 'index'])->name('index');
+        Route::post('store', [EmployeeLimitController::class, 'store'])->name('store');
+        Route::put('update/{employeeLimit}', [EmployeeLimitController::class, 'update'])->name('update');
+        Route::delete('destroy/{employeeLimit}', [EmployeeLimitController::class, 'destroy'])->name('destroy');
     });
 });

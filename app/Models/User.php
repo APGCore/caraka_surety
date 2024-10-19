@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Guarantor\EmployeeLimit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -65,5 +67,10 @@ class User extends Authenticatable
     public function hasRole($id): bool
     {
         return $this->role_id === $id;
+    }
+
+    public function employeeLimit(): HasMany
+    {
+        return $this->hasMany(EmployeeLimit::class, 'employee_id');
     }
 }

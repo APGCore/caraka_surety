@@ -17,6 +17,9 @@ class EmployeeResource extends JsonResource
         return [
             ...parent::toArray($request),
             'position' => $this->resource->role->name,
+            'employee_limit' => $this->whenLoaded('employeeLimit', function () {
+                return $this->resource->employeeLimit->first();
+            }),
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

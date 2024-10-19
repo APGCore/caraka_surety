@@ -1,4 +1,4 @@
-import { Archive, BookOpenCheck, Boxes, ChartColumn, ChartNoAxesGantt, Home, MapPinHouse, User } from "lucide-react";
+import { Archive, BookOpenCheck, Boxes, ChartColumn, Home, MapPinHouse, User } from "lucide-react";
 
 export const adminRoute = {
   user: {
@@ -133,6 +133,12 @@ export const adminRoute = {
           title: "Limit Pengajuan Kantor",
           route_name: "profile-limit",
           href: route("profile-limit.index"),
+          url: "#",
+        },
+        {
+          title: "Limit Pengajuan Karyawan",
+          route_name: "employee-limit",
+          href: route("employee-limit.index"),
           url: "#",
         },
       ],

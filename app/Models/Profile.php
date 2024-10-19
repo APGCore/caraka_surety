@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -53,5 +54,10 @@ class Profile extends Model
     public function guarantorLimit(): BelongsToMany
     {
         return $this->belongsToMany(Guarantor::class, ProfileLimit::class, 'profile_id', 'guarantor_id')->withPivot('limit');
+    }
+
+    public function profileLimit(): HasMany
+    {
+        return $this->hasMany(ProfileLimit::class, 'profile_id');
     }
 }

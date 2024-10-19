@@ -24,22 +24,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { textCurrency } from "@/lib/text-currency";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
-import FormProfileLimits from "./form-profile-limits";
+import FormEmployeeLimits from "./form-employee-limits";
 
-interface ProfileLimitsDatatableProps {
-  profiles: any;
+interface EmployeeLimitsDatatableProps {
+  employees: any;
   guarantorSelectedId: any;
+  profileSelectedId: any;
   onDelete: (limitProfile: any) => void;
 }
 
-const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profiles, guarantorSelectedId, onDelete }) => {
+const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
+  employees,
+  guarantorSelectedId,
+  profileSelectedId,
+  onDelete,
+}) => {
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
-            <TableHead>Kantor</TableHead>
+            <TableHead>Karyawan</TableHead>
             <TableHead>Limit</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
@@ -47,19 +53,21 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profile
         </TableHeader>
         <TableBody>
           <RenderList
-            of={profiles?.data}
-            render={(profile: any, index: number) => (
-              <TableRow key={profile.id}>
-                <TableCell>{profiles.meta?.from + index}</TableCell>
-                <TableCell>{profile.name}</TableCell>
+            of={employees?.data}
+            render={(employee: any, index: number) => (
+              <TableRow key={employee.id}>
+                <TableCell>{employees?.meta?.from + index}</TableCell>
+                <TableCell>{employee.name}</TableCell>
                 <TableCell>
-                  {profile.profile_limit?.limit
-                    ? "Rp. " + textCurrency(profile.profile_limit?.limit)
-                    : "Belum Di setting"}
+                  {employee.employee_limit?.limit
+                    ? "Rp. " + textCurrency(employee.employee_limit?.limit)
+                    : "Belum di setting"}
                 </TableCell>
-                <TableCell>{profile.created_at}</TableCell>
+                <TableCell>{employee.created_at}</TableCell>
                 <TableCell className="text-right">
-                  {(!guarantorSelectedId && <div className="text-center">Pilih Penjamin terlebih dahulu</div>) || (
+                  {!guarantorSelectedId || !profileSelectedId ? (
+                    <div className="text-center">Pilih Penjamin atau kantor terlebih dahulu</div>
+                  ) : (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
@@ -69,10 +77,19 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profile
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          {profile.profile_limit?.limit ? (
-                            <FormProfileLimits isEdit guarantorSelectedId={guarantorSelectedId} profile={profile} />
+                          {employee.employee_limit?.limit ? (
+                            <FormEmployeeLimits
+                              isEdit
+                              guarantorSelectedId={guarantorSelectedId}
+                              profileSelectedId={profileSelectedId}
+                              employee={employee}
+                            />
                           ) : (
-                            <FormProfileLimits guarantorSelectedId={guarantorSelectedId} profile={profile} />
+                            <FormEmployeeLimits
+                              guarantorSelectedId={guarantorSelectedId}
+                              profileSelectedId={profileSelectedId}
+                              employee={employee}
+                            />
                           )}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -90,7 +107,7 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profile
                                 <AlertDialogCancel>Kembali</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    onDelete(profile.profile_limit);
+                                    onDelete(employee.employee_limit);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Lanjutkan Hapus Limit
@@ -115,10 +132,10 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profile
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={profiles?.meta} />
-      <PaginationDatatable meta={profiles?.meta} only={["profiles"]} />
+      <ShowingCountDatatable meta={employees?.meta} />
+      <PaginationDatatable meta={employees?.meta} only={["profiles"]} />
     </>
   );
 };
 
-export default ProfileLimitsDatatable;
+export default EmployeeLimitsDatatable;

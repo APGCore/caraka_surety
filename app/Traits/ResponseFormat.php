@@ -12,7 +12,7 @@ trait ResponseFormat
         return response()->json([
             'message' => $message,
             'data' => $data,
-        ], 200);
+        ]);
     }
 
     /**
@@ -20,9 +20,6 @@ trait ResponseFormat
      */
     public function responseError($message, $data = null)
     {
-        return response()->json([
-            'message' => $message,
-            'data' => $data,
-        ], 400);
+        return response()->json($data, 400);
     }
 }

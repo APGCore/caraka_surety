@@ -8,6 +8,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,21 +20,22 @@ class ProfileLimitController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::with('profileLimit')->get();
+        $guarantors = Guarantor::all();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
 
         $profiles = Profile::search($request->get('search'))
             ->query(function (Builder $query) use ($guarantorSelected) {
-                return $query->with(['guarantorLimit' => function ($query) use ($guarantorSelected) {
-                    $query->where('guarantor_id', $guarantorSelected);
-                }]);
+                return $query->when($guarantorSelected, function ($query) use ($guarantorSelected) {
+                    $query->with(['profileLimit' => function ($query) use ($guarantorSelected) {
+                        $query->where('guarantor_id', $guarantorSelected);
+                    }]);
+                });
             })
             ->orderBy('id')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 
-        //        dd($profiles);
         $profileResource = ProfileResource::collection($profiles);
 
         $component = $request->path().'/index';
@@ -51,49 +53,74 @@ class ProfileLimitController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): void
+    public function store(Request $request): JsonResponse
     {
+        $requestValid = $request->validate(
+            [
+                'guarantor_id' => 'required|exists:'.Guarantor::class.',id',
+                'profile_id' => 'required|exists:'.Profile::class.',id',
+                'limit' => 'required',
+            ],
+            [
+                'guarantor_id.required' => 'Kantor belum dipilih',
+                'profile_id.required' => 'Profil belum dipilih',
+                'limit.required' => 'Limit wajib diisi',
+            ]
+        );
+
         try {
             DB::beginTransaction();
 
-            $limit = (int) str_replace('.', '', $request->get('limit'));
+            $limit = (int) str_replace('.', '', $requestValid['limit']);
             ProfileLimit::query()->create(
                 [
-                    'guarantor_id' => $request->get('guarantor_id'),
-                    'profile_id' => $request->get('profile_id'),
+                    'guarantor_id' => $requestValid['guarantor_id'],
+                    'profile_id' => $requestValid['profile_id'],
                     'limit' => $limit,
                 ]
             );
 
             DB::commit();
+
+            return $this->responseSuccess('Berhasil menambahkan limit kantor');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error store profile limit', ['error' => $e->getMessage()]);
+
+            return $this->responseError('Gagal menambahkan limit kantor', ['message' => $e->getMessage()]);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProfileLimit $profileLimit): void
+    public function update(Request $request, ProfileLimit $profileLimit): JsonResponse
     {
+        $requestValid = $request->validate(
+            ['limit' => 'required'],
+            ['limit.required' => 'Limit wajib diisi']);
+
         try {
             DB::beginTransaction();
 
-            $limit = (int) str_replace('.', '', $request->get('limit'));
+            $limit = (int) str_replace('.', '', $requestValid['limit']);
             $updated = $profileLimit->update(
                 [
                     'limit' => $limit,
                 ]
             );
             if (! $updated) {
-                throw new \Exception('Failed to update profile limit');
+                throw new \Exception('Gagal mengubah limit kantor');
             }
 
             DB::commit();
+
+            return $this->responseSuccess('Berhasil mengubah limit kantor');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error update profile limit', ['error' => $e->getMessage()]);
+
+            return $this->responseError('Gagal mengubah limit kantor', ['message' => $e->getMessage()]);
         }
     }
 
@@ -107,7 +134,7 @@ class ProfileLimitController extends Controller
 
             $deleted = $profileLimit->delete();
             if (! $deleted) {
-                throw new \Exception('Failed to delete profile limit');
+                throw new \Exception('Gagal menghapus limit kantor');
             }
 
             DB::commit();
