@@ -3,6 +3,10 @@ export interface User {
   name: string;
   email: string;
   email_verified_at?: string;
+  picture?: string;
+  profile_id?: number;
+  role_id?: number;
+  phone?: number;
 }
 
 interface FlashMessageProps {

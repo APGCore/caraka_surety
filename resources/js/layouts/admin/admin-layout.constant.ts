@@ -1,4 +1,4 @@
-import { Archive, BookOpenCheck, ChartNoAxesGantt, Home, MapPinHouse, User } from "lucide-react";
+import { Archive, BookOpenCheck, Boxes, ChartColumn, ChartNoAxesGantt, Home, MapPinHouse, User } from "lucide-react";
 
 export const adminRoute = {
   user: {
@@ -84,7 +84,7 @@ export const adminRoute = {
     {
       title: "Kelola Produk",
       url: "#",
-      icon: ChartNoAxesGantt,
+      icon: Boxes,
       items: [
         {
           title: "Jenis Produk",
@@ -140,7 +140,7 @@ export const adminRoute = {
     {
       title: "Kelola Skoring",
       url: "#",
-      icon: ChartNoAxesGantt,
+      icon: ChartColumn,
       items: [
         {
           title: "Skoring",

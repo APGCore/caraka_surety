@@ -1,13 +1,6 @@
 import Clock from "@/components/common/clock";
+import RenderList from "@/components/common/render-list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
@@ -39,25 +32,12 @@ import {
 import { Toaster } from "@/components/ui/toaster";
 import useFlashMessageToast from "@/hooks/use-flash-message";
 import { Link } from "@inertiajs/react";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronRight,
-  ChevronsUpDown,
-  CreditCard,
-  GalleryVerticalEnd,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronRight, ChevronsUpDown, GalleryVerticalEnd, LogOut, UserRound } from "lucide-react";
 import { adminRoute } from "./admin-layout.constant";
 import { AdminLayoutPageProps } from "./admin-layout.type";
 
 export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
-
-  console.log({
-    r: route().current("scoring-question.*"),
-  });
 
   return (
     <SidebarProvider>
@@ -82,47 +62,54 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
         <SidebarContent>
           <SidebarGroup>
             <SidebarMenu>
-              {adminRoute.navMain.map((item) => {
-                return (
-                  <Collapsible key={item.title} asChild defaultOpen={item.isActive} className="group/collapsible">
-                    {item.items.length > 0 ? (
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton tooltip={item.title}>
+              <RenderList
+                of={adminRoute.navMain}
+                render={(item) => {
+                  const hasActiveSubItem = item?.items.some((subItem) => route().current(`${subItem.route_name}.*`));
+                  return (
+                    <Collapsible key={item.title} asChild defaultOpen={hasActiveSubItem} className="group/collapsible">
+                      {item.items.length > 0 ? (
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton tooltip={item.title}>
+                              {item.icon && <item.icon />}
+                              <span>{item.title}</span>
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              <RenderList
+                                of={item.items}
+                                render={(subItem) => (
+                                  <SidebarMenuSubItem key={subItem.title}>
+                                    <SidebarMenuSubButton asChild isActive={route().current(`${subItem.route_name}.*`)}>
+                                      <Link href={subItem.href}>
+                                        <span>{subItem.title}</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                )}
+                              />
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      ) : (
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            tooltip={item.title}
+                            isActive={item.route_name ? route().current(`${item.route_name}.*`) : false}>
                             {item.icon && <item.icon />}
-                            <span>{item.title}</span>
-                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            <Link href={item?.href ?? "#"} className="w-full">
+                              <span>{item.title}</span>
+                            </Link>
                           </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.items?.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton asChild isActive={route().current(`${subItem.route_name}.*`)}>
-                                  <Link href={subItem.href}>
-                                    <span>{subItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    ) : (
-                      <SidebarMenuItem>
-                        <SidebarMenuButton
-                          tooltip={item.title}
-                          isActive={item.route_name ? route().current(`${item.route_name}.*`) : false}>
-                          {item.icon && <item.icon />}
-                          <Link href={item?.href ?? "#"} className="w-full">
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )}
-                  </Collapsible>
-                );
-              })}
+                        </SidebarMenuItem>
+                      )}
+                    </Collapsible>
+                  );
+                }}
+              />
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
@@ -135,12 +122,12 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
                     size="lg"
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={adminRoute.user.avatar} alt={adminRoute.user.name} />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarImage src={user?.picture || ""} alt={user?.name} />
+                      <AvatarFallback className="rounded-lg">{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{adminRoute.user.name}</span>
-                      <span className="truncate text-xs">{adminRoute.user.email}</span>
+                      <span className="truncate font-semibold">{user?.name}</span>
+                      <span className="truncate text-xs">{user?.email}</span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
@@ -153,41 +140,32 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={adminRoute.user.avatar} alt={adminRoute.user.name} />
-                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                        <AvatarImage src={user?.picture || ""} alt={user?.name} />
+                        <AvatarFallback className="rounded-lg">
+                          {user.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">{adminRoute.user.name}</span>
-                        <span className="truncate text-xs">{adminRoute.user.email}</span>
+                        <span className="truncate font-semibold">{user?.name}</span>
+                        <span className="truncate text-xs">{user?.email}</span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <Sparkles />
-                      Upgrade to Pro
+                    <DropdownMenuItem className="space-x-2">
+                      <UserRound />
+                      <Link href={route("profile.edit")} as="button" className="flex-1 text-start">
+                        Profile
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <BadgeCheck />
-                      Account
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <CreditCard />
-                      Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Bell />
-                      Notifications
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="space-x-2 bg-red-500 text-white">
                     <LogOut />
-                    Log out
+                    <Link href={route("logout")} method="post" as="button" className="flex-1 text-start">
+                      Log Out
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -197,7 +175,7 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 fixed z-20 top-0 md:w-[calc(100%_-_255px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_255px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
           <div className="flex justify-between pr-4 w-full">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
@@ -208,10 +186,7 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
             </div>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-[60px]">
-          {children}
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]">{children}</div>
       </SidebarInset>
       <Toaster />
     </SidebarProvider>
