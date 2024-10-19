@@ -21,7 +21,7 @@ class ScoringQuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         $selectedScoring = Scoring::query()
             ->when($request->get('scoring_id'), function ($query, $scoringId) {
@@ -74,7 +74,7 @@ class ScoringQuestionController extends Controller
     public function create(Request $request)
     {
         //
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -109,13 +109,13 @@ class ScoringQuestionController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Pertanyaan Skoring berhasil ditambah!');
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
 
-            Log::error('Scoring Question Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Store: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
-            return $this->responseSuccess('Pertanyaan Skoring gagal ditambahkan');
+            return $this->responseError('Pertanyaan Skoring gagal ditambahkan', [$e->getMessage()]);
         }
     }
 
@@ -156,7 +156,7 @@ class ScoringQuestionController extends Controller
                 'title' => 'Edit Pertanyaan Skoring',
             ],
 
-            'scoringQuestion' => fn () => $simplifiedData,
+            'scoringQuestion' => fn() => $simplifiedData,
 
         ]);
     }
@@ -187,13 +187,13 @@ class ScoringQuestionController extends Controller
             } else {
                 throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan!');
             }
-        } catch (\Throwable $th) {
+        } catch (\Throwable $e) {
 
-            Log::error('Scoring Question Edit: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Edit: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
-            return $this->responseSuccess('Pertanyaan Skoring gagal diedit!');
+            return $this->responseError('Pertanyaan Skoring gagal diedit!', [$e->getMessage()]);
         }
     }
 
@@ -216,7 +216,7 @@ class ScoringQuestionController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -237,11 +237,11 @@ class ScoringQuestionController extends Controller
         $scoringQuestionOptionResource = ScoringQuestionOptionResource::collection($scoringOptions);
 
         return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Pilihan Pertanyaan '.$scoringQuestion->name,
+            'page_settings' => fn() => [
+                'title' => 'Pilihan Pertanyaan ' . $scoringQuestion->name,
             ],
-            'scoringOptions' => fn () => $scoringQuestionOptionResource,
-            'selectedScoringQuestion' => fn () => $scoringQuestion,
+            'scoringOptions' => fn() => $scoringQuestionOptionResource,
+            'selectedScoringQuestion' => fn() => $scoringQuestion,
         ]);
     }
 
@@ -252,11 +252,11 @@ class ScoringQuestionController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Pilihan Pertanyaan '.$scoringQuestion->name,
+                'title' => 'Edit Pilihan Pertanyaan ' . $scoringQuestion->name,
             ],
 
-            'scoringOption' => fn () => $scoringOption,
-            'selectedScoringQuestion' => fn () => $scoringQuestion,
+            'scoringOption' => fn() => $scoringOption,
+            'selectedScoringQuestion' => fn() => $scoringQuestion,
         ]);
     }
 
@@ -288,7 +288,7 @@ class ScoringQuestionController extends Controller
             }
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -325,7 +325,7 @@ class ScoringQuestionController extends Controller
             ]);
         } catch (\Throwable $th) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Question Update: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -340,9 +340,9 @@ class ScoringQuestionController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tambah Pilihan Pertanyaan '.$scoringQuestion->name,
+                'title' => 'Tambah Pilihan Pertanyaan ' . $scoringQuestion->name,
             ],
-            'selectedScoringQuestion' => fn () => $scoringQuestion,
+            'selectedScoringQuestion' => fn() => $scoringQuestion,
         ]);
     }
 }

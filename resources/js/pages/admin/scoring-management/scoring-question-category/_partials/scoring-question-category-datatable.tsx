@@ -21,9 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
+import FormSkoringQuestionCategory from "./form-scoring-question-category";
 
 interface ScoringQuestionCategoryDatatableProps {
   scoringQuestionCategories: any;
@@ -64,42 +64,32 @@ const ScoringQuestionCategoryDatatable: React.FC<ScoringQuestionCategoryDatatabl
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
-                          className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                          href={route("scoring-question-category.edit", {
-                            scoringQuestionCategory: scoringQuestionCategory.id,
-                          })}>
-                          Edit
-                        </Link>
-                      </DropdownMenuItem>
+                      <FormSkoringQuestionCategory isEdit scoringQuestionCategory={scoringQuestionCategory} />
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
-                        <AlertDialog>
-                          <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                            Delete
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your scoringQuestionCategory
-                                and remove your data from our servers.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  onDelete(scoringQuestionCategory);
-                                }}
-                                className={buttonVariants({ variant: "destructive" })}>
-                                Continue Delete Scoring
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                          Delete
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your scoringQuestionCategory
+                              and remove your data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                onDelete(scoringQuestionCategory);
+                              }}
+                              className={buttonVariants({ variant: "destructive" })}>
+                              Continue Delete Scoring
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

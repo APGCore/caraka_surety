@@ -17,6 +17,7 @@ export interface ComboboxProps<T> {
   placeholder?: string; // Placeholder text
   notFoundText?: string; // Text to display when no item is found
   className?: string;
+  dotLength?: number;
   id?: string;
   disabledValue?: boolean;
   reset?: boolean;
@@ -74,7 +75,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
             } else if (value && defaultValue !== null) {
               label = datas.find((item) => item[valueKey] === value)?.[labelKey] ?? labelButtonPlaceholder;
             }
-            return label.length > 15 ? label.slice(0, 15) + "..." : label;
+            return label.length > 15 ? label.slice(0, props?.dotLength || 15) + "..." : label;
           })()}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -87,9 +88,9 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
           <CommandList>
             <CommandEmpty>{props?.notFoundText ?? "No item found."}</CommandEmpty>
             <CommandGroup>
-              {datas.map((item) => (
+              {datas.map((item, idx) => (
                 <CommandItem
-                  key={item[valueKey] as React.Key}
+                  key={idx + 1}
                   value={item[valueKey] as string}
                   disabled={item.isChoosed === true}
                   onSelect={(currentValue) => {
