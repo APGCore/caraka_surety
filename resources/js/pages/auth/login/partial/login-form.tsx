@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "@inertiajs/react";
-import { RotateCw } from "lucide-react";
+import { LoaderCircle, RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
 const LoginForm = () => {
@@ -26,14 +26,14 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Enter your email below to login to your account.</CardDescription>
+    <Card className="w-[400px]">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl">Masuk BPR Bonding</CardTitle>
+        <CardDescription>Masukkan email Anda untuk masuk ke akun.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} id="login-form" className="grid gap-4">
-          <div className="grid gap-2">
+          <div className="grid gap-[5px]">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -41,11 +41,11 @@ const LoginForm = () => {
               placeholder="Masukan email"
               required
               value={data.email}
-              onChange={(e: any) => setData("email", e.target.value)}
+              onChange={(e) => setData("email", e.target.value)}
             />
-            <InputError message={errors.email} className="mt-2" />
+            <InputError message={errors.email} className="mt-1" />
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-[5px]">
             <Label htmlFor="password">Password</Label>
             <PasswordInput
               id="password"
@@ -53,16 +53,16 @@ const LoginForm = () => {
               required
               value={data.password}
               placeholder="Masukan password"
-              onChange={(e: any) => setData("password", e.target.value)}
+              onChange={(e) => setData("password", e.target.value)}
             />
-            <InputError message={errors.password} className="mt-2" />
+            <InputError message={errors.password} className="mt-1" />
           </div>
         </form>
       </CardContent>
       <CardFooter>
         <Button form="login-form" className="w-full" disabled={processing}>
-          {processing && <RotateCw className="animate-spin mr-2" />}
-          Sign in
+          {processing && <LoaderCircle className="animate-spin mr-1" />}
+          Masuk
         </Button>
       </CardFooter>
     </Card>
