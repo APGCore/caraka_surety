@@ -37,7 +37,6 @@ class SubmissionController extends Controller
         return inertia('admin/submission/index', [
             'submissions' => $submissions,
         ]);
-
     }
 
     /**
@@ -88,5 +87,87 @@ class SubmissionController extends Controller
     public function destroy(Submission $submission)
     {
         //
+    }
+
+
+    public function displayCreateByStaff()
+    {
+        $component = 'staff/submission-management/create/index';
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Buat Pengajuan',
+            ],
+        ]);
+    }
+
+
+    public function displayHistoryByStaff()
+    {
+        $component = 'staff/submission-management/history/index';
+
+
+        $submissions = [
+            [
+                'id' => 1,
+                'name' => 'submission 1',
+                'created_at' => '2024-01-01',
+                'status' => 'Pending',
+            ],
+            [
+                'id' => 2,
+                'name' => 'submission 2',
+                'created_at' => '2024-01-02',
+                'status' => 'Approved',
+            ],
+            [
+                'id' => 3,
+                'name' => 'submission 3',
+                'created_at' => '2024-01-03',
+                'status' => 'Rejected',
+            ],
+        ];
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Histori Pengajuan',
+            ],
+            'submissions' => fn() => $submissions
+        ]);
+    }
+
+    public function displayDocumentDraftByStaff()
+    {
+        $component = 'staff/submission-management/document-draft/index';
+
+
+
+        $submissions = [
+            [
+                'id' => 1,
+                'name' => 'submission 1',
+                'created_at' => '2024-01-01',
+                'status' => 'Pending',
+            ],
+            [
+                'id' => 2,
+                'name' => 'submission 2',
+                'created_at' => '2024-01-02',
+                'status' => 'Approved',
+            ],
+            [
+                'id' => 3,
+                'name' => 'submission 3',
+                'created_at' => '2024-01-03',
+                'status' => 'Rejected',
+            ],
+        ];
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Draft Dokumen Pengajuan',
+            ],
+            'submissions' => fn() => $submissions
+        ]);
     }
 }
