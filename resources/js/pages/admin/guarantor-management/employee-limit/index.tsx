@@ -85,16 +85,16 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
           <div>
             <div className="flex items-center gap-x-2">
               <span className="text-sm text-gray-400">Limit Pengajuan:</span>
-              {limit.limit ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit.limit)}</span>
+              {limit?.limit ? (
+                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
               ) : (
                 <span className="text-sm text-gray-400">Belum Di setting</span>
               )}
             </div>
             <div className="flex items-center gap-x-2">
               <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
-              {limit.limit_used ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit.limit_used)}</span>
+              {limit?.limit_used ? (
+                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
               ) : (
                 <span className="text-sm text-gray-400">Belum Ada</span>
               )}

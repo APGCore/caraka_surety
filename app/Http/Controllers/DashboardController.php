@@ -6,14 +6,12 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-
     public function dashboardAdmin(Request $request)
     {
         $component = 'admin/dashboard/index';
 
         return inertia($component);
     }
-
 
     public function dashboardStaff(Request $request)
     {

@@ -73,12 +73,13 @@ class AuthenticatedSessionController extends Controller
         $userLogin = User::find(Auth::id());
         if ($userLogin->hasRole(1)) {
             flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.', type: 'success');
+
             return redirect()->intended(route('admin.index', absolute: false));
         } elseif ($userLogin->hasRole(5)) {
             flashMessage('Berhasil Login sebagai Staff!', 'Anda berhasil login sebagai Staff.', type: 'success');
+
             return redirect()->intended(route('staff.index', absolute: false));
         }
-
 
         //        elseif ($userLogin->hasRole(2)) {
         // staff

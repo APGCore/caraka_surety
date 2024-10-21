@@ -30,12 +30,14 @@ class EmployeeLimitController extends Controller
             ->where('guarantor_id', $guarantorSelected)
             ->where('profile_id', $profileSelected)
             ->first();
-        $limit_used = EmployeeLimit::query()
-            ->where('guarantor_id', $guarantorSelected)
-            ->where('profile_id', $profileSelected)
-            ->sum('limit');
+        if ($limit) {
+            $limit_used = EmployeeLimit::query()
+                ->where('guarantor_id', $guarantorSelected)
+                ->where('profile_id', $profileSelected)
+                ->sum('limit');
 
-        $limit->setAttribute('limit_used', $limit_used);
+            $limit->setAttribute('limit_used', $limit_used);
+        }
 
         $employees = User::search($request->get('search'))
             ->query(function (Builder $query) use ($guarantorSelected, $profileSelected) {

@@ -7,6 +7,7 @@ use App\Http\Requests\Guarantor\StoreRequest;
 use App\Http\Requests\Guarantor\UpdateRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -147,5 +148,14 @@ class GuarantorController extends Controller
 
             return back()->withErrors($e->getMessage());
         }
+    }
+
+    public function getAll(): JsonResponse
+    {
+        $guarantors = Guarantor::query()
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($guarantors);
     }
 }
