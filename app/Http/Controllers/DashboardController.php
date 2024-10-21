@@ -17,6 +17,38 @@ class DashboardController extends Controller
     {
         $component = 'staff/dashboard/index';
 
-        return inertia(component: $component);
+        return inertia($component);
+    }
+
+
+
+    public function dashboardManager(Request $request)
+    {
+        $component = 'manager/dashboard/index';
+
+        return inertia($component);
+    }
+
+
+    public function dashboardDireksi(Request $request)
+    {
+        $component = 'direksi/dashboard/index';
+
+        return inertia($component);
+    }
+
+
+    public function dashboardStaffCabang(Request $request)
+    {
+        $component = 'staff-cabang/dashboard/index';
+
+        return inertia($component);
+    }
+
+    public function dashboardKepalaCabang(Request $request)
+    {
+        $component = 'kepala-cabang/dashboard/index';
+
+        return inertia($component);
     }
 }

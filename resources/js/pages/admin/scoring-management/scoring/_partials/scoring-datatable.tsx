@@ -1,3 +1,4 @@
+import ConfirmDialog from "@/components/common/confirm-dialog";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
@@ -63,27 +64,16 @@ const ScoringDatatable: React.FC<ScoringDatatableProps> = ({ scorings, onDelete 
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
                       <FormSkoring isEdit scoring={scoring} />
                       <DropdownMenuSeparator />
-                      <AlertDialog>
-                        <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                          Delete
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-                            <AlertDialogDescription>Aksi ini akan menghapus data scoring ini.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Kembali</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => {
-                                onDelete(scoring);
-                              }}
-                              className={buttonVariants({ variant: "destructive" })}>
-                              Lanjutkan Hapus Skoring
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      <ConfirmDialog
+                        title="Apakah Anda yakin?"
+                        desription="Aksi ini akan menghapus data scoring ini."
+                        cancelLabel="Kembali"
+                        actionLabel="Lanjutkan Hapus Skoring"
+                        triggerLabel="Delete"
+                        type="delete"
+                        value={scoring}
+                        onAction={() => onDelete(scoring)}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

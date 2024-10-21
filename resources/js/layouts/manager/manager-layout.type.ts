@@ -6,4 +6,3 @@ export interface ManagerLayoutProps extends React.PropsWithChildren {
 }
 
 export type ManagerLayoutPageProps = React.FC<ManagerLayoutProps>;
-

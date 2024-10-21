@@ -1,48 +1,41 @@
-import { generateUUID } from "@/lib/generate-uuid";
-import { Home, Shield, User } from "lucide-react";
+import { Archive, Home } from "lucide-react";
 
-export const kepalaCabangLinks = [
-  {
-    title: "Dashboard",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Dashboard",
-        route_name: "admin.index",
-        href: route("admin.index"),
-        Icon: Home,
-        children: [],
-      },
-    ],
-  },
+export const kepalaCabangRoute = {
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "#",
+      route_name: "staff",
+      href: route("staff.index"),
+      icon: Home,
+      isActive: true,
+      items: [],
+    },
 
-  {
-    title: "Kelola Perusahaan",
-    route: [
-      {
-        id: generateUUID(),
-        name: "Daftar Cabang",
-        route_name: "cabang",
-        href: "cabang",
-        Icon: User,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Karyawan",
-        route_name: "karyawan.index",
-        href: "karyawan",
-        Icon: User,
-        children: [],
-      },
-      {
-        id: generateUUID(),
-        name: "Akses Aplikasi",
-        route_name: "manajemen-akses",
-        href: "manajemen-akses",
-        Icon: Shield,
-        children: [],
-      },
-    ],
-  },
-];
+    {
+      title: "Kelola Pengajuan",
+      url: "#",
+      icon: Archive,
+      items: [
+        {
+          title: "List Pengajuan",
+          route_name: "kepala-cabang-submission-list",
+          href: route("kepala-cabang-submission-list.submission"),
+          url: "#",
+        },
+        {
+          title: "Riwayat Pengajuan",
+          route_name: "kepala-cabang-submission-history",
+          href: route("kepala-cabang-submission-history.submission"),
+          url: "#",
+        },
+        {
+          title: "Draft Dokumen Pengajuan",
+          route_name: "kepala-cabang-submission-document-draft",
+          href: route("kepala-cabang-submission-document-draft.submission"),
+          url: "#",
+        },
+      ],
+    },
+  ],
+};

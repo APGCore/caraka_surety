@@ -1,0 +1,60 @@
+const templateDraftSurety = `
+<h2 style="text-align: center;">SURETY BOND (DUMMY)</h2>
+
+<p style="text-align: justify; margin-bottom: 10px;">Nomor Surety Bond   :  SB-40.91.02.AAAAAAA.11.22</p>
+<p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  Rp. 34.000.000</p>
+
+<table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+    <tr>
+        <td style="width: 30px; vertical-align: top;">1.</td>
+        <td style="text-align: justify;">Kami yang bertanda tangan di bawah ini: PT. ASURANSI UMUM VIDEI (NAMA PENJAMIN), berkantor di Graha Mustika Ratu, Jl. Jend. Gatot Subroto, Jakarta (ALAMAT PENJAMIN), selanjutnya disebut sebagai PENJAMIN, menyatakan dengan ini menjamin kewajiban PT. MOTI BATARA ALKESINDO (NAMA PRINCIPAL), berkantor di Jl. Agave Raya Blok A1 No. 19A, Jakarta Barat (ALAMAT PRINCIPAL), selanjutnya disebut sebagai PRINCIPAL, terhadap PT. POLITEKNIK KESEHATAN JAKARTA III (NAMA OBLIGEE), berkantor di Jl. Arteri JORR, Bekasi (ALAMAT OBLIGEE), yang selanjutnya disebut sebagai OBLIGEE.</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">2.</td>
+        <td style="text-align: justify;">PENJAMIN bertanggung jawab untuk membayar kepada OBLIGEE sejumlah Rp. 34.000.000 (BESARAN NILAI JAMINAN) dalam hal PRINCIPAL gagal memenuhi kewajibannya dalam menyelesaikan Pekerjaan Pengadaan Alat Laboratorium Politeknik Kesehatan Jakarta III (NAMA PEKERJAAN) sesuai dengan ketentuan dalam kontrak Nomor KN.01.01/V/6747/2019 (NOMOR KONTRAK) tanggal 30 September 2019 (TANGGAL KONTRAK).</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">3.</td>
+        <td style="text-align: justify;">Jaminan ini berlaku efektif sejak tanggal 01 Oktober 2019 dan berakhir pada 29 Desember 2019 (MASA BERLAKU), atau sampai dengan berakhirnya masa pemeliharaan yang telah disepakati dalam kontrak, mana yang lebih lama.</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">4.</td>
+        <td style="text-align: justify;">Jaminan ini akan berlaku apabila PRINCIPAL gagal melaksanakan kewajiban sebagaimana ditentukan dalam kontrak, termasuk tetapi tidak terbatas pada keterlambatan penyelesaian pekerjaan atau pemutusan kontrak karena kelalaian PRINCIPAL.</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">5.</td>
+        <td style="text-align: justify;">PENJAMIN akan membayar kepada OBLIGEE tanpa syarat dalam jangka waktu paling lambat 14 (empat belas) hari kerja setelah menerima tuntutan tertulis dari OBLIGEE berdasarkan pernyataan bahwa PRINCIPAL gagal memenuhi kewajiban.</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top;">6.</td>
+        <td style="text-align: justify;">Tuntutan pencairan jaminan ini harus diajukan oleh OBLIGEE selambat-lambatnya 30 (tiga puluh) hari setelah berakhirnya masa berlaku jaminan ini.</td>
+    </tr>
+</table>
+
+<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <tr>
+        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 (TANGGAL PENERBITAN)</td>
+        <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
+    </tr>
+    <tr>
+        <td style="text-align: left;">PT. ASURANSI UMUM VIDEI (PENJAMIN)</td>
+        <td style="text-align: right;">PT. MOTI BATARA ALKESINDO (PRINCIPAL)</td>
+    </tr>
+    <tr>
+        <td style="text-align: left;"><br></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">
+            Muhammad Ridzqan Hanafis (NAMA PENANGGUNG JAWAB PENJAMIN)<br>
+            Direktur (JABATAN PENJAMIN)
+        </td>
+        <td style="text-align: right;">
+            Marthen F Surentu<br>
+            Kepala Cabang
+        </td>
+    </tr>
+</table>
+`;
+
+export default templateDraftSurety;

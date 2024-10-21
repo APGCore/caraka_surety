@@ -71,31 +71,37 @@ class AuthenticatedSessionController extends Controller
         // Redirect to the intended page (e.g., dashboard)
 
         $userLogin = User::find(Auth::id());
-        if ($userLogin->hasRole(1)) {
+
+        $userRole = $userLogin->role_id;
+
+
+        if ($userRole == 1) {
             flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.', type: 'success');
 
             return redirect()->intended(route('admin.index', absolute: false));
-        } elseif ($userLogin->hasRole(5)) {
+        } elseif ($userRole == 2) {
+            flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.', type: 'success');
+
+            return redirect()->intended(route('direksi.index', absolute: false));
+        } elseif ($userRole == 3) {
+            flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.', type: 'success');
+
+            return redirect()->intended(route('kepala-cabang.index', absolute: false));
+        } elseif ($userRole == 4) {
+            flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.', type: 'success');
+
+            return redirect()->intended(route('manager.index', absolute: false));
+        } elseif ($userRole == 5) {
             flashMessage('Berhasil Login sebagai Staff!', 'Anda berhasil login sebagai Staff.', type: 'success');
+
+            return redirect()->intended(route('staff.index', absolute: false));
+        } elseif ($userRole == 6) {
+            flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.', type: 'success');
 
             return redirect()->intended(route('staff.index', absolute: false));
         }
 
-        //        elseif ($userLogin->hasRole(2)) {
-        // staff
-        //            return redirect()->intended(route('directors.index', absolute: false));
-        //        } elseif ($userLogin->hasRole(3)) {
-        // user
-        //            return redirect()->intended(route('manager.index', absolute: false));
-        //        } elseif ($userLogin->hasRole(4)) {
-        // user
-        //            return redirect()->intended(route('branch_manager.index', absolute: false));
-        //        } elseif ($userLogin->hasRole(5)) {
-        // user
-        //            return redirect()->intended(route('staff.index', absolute: false));
-        //        }
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('login', absolute: false));
     }
 
     /**
