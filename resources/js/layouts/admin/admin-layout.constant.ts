@@ -1,4 +1,4 @@
-import { Archive, BookOpenCheck, Boxes, ChartColumn, Home, MapPinHouse, User } from "lucide-react";
+import { Archive, BookOpenCheck, Boxes, Building, ChartColumn, Home, MapPinHouse, User } from "lucide-react";
 
 export const adminRoute = {
   user: {
@@ -145,6 +145,25 @@ export const adminRoute = {
           title: "Tarif Penjamin",
           route_name: "guarantor-rate",
           href: route("guarantor-rate.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Pihak Terkait",
+      url: "#",
+      icon: Building,
+      items: [
+        {
+          title: "Obligee",
+          route_name: "obligee",
+          href: route("obligee.index"),
+          url: "#",
+        },
+        {
+          title: "Bank",
+          route_name: "bank",
+          href: route("bank.index"),
           url: "#",
         },
       ],

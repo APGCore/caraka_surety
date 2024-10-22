@@ -5,8 +5,8 @@ export const kepalaCabangRoute = {
     {
       title: "Dashboard",
       url: "#",
-      route_name: "staff",
-      href: route("staff.index"),
+      route_name: "kepala-cabang",
+      href: route("kepala-cabang.index"),
       icon: Home,
       isActive: true,
       items: [],

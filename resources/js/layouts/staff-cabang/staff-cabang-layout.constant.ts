@@ -5,8 +5,8 @@ export const staffCabangRoute = {
     {
       title: "Dashboard",
       url: "#",
-      route_name: "staff",
-      href: route("staff.index"),
+      route_name: "staff-cabang",
+      href: route("staff-cabang.index"),
       icon: Home,
       isActive: true,
       items: [],

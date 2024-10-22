@@ -5,8 +5,8 @@ export const managerRoute = {
     {
       title: "Dashboard",
       url: "#",
-      route_name: "staff",
-      href: route("staff.index"),
+      route_name: "manager",
+      href: route("manager.index"),
       icon: Home,
       isActive: true,
       items: [],
