@@ -141,6 +141,12 @@ export const adminRoute = {
           href: route("employee-limit.index"),
           url: "#",
         },
+        {
+          title: "Tarif Penjamin",
+          route_name: "guarantor-rate",
+          href: route("guarantor-rate.index"),
+          url: "#",
+        },
       ],
     },
     {

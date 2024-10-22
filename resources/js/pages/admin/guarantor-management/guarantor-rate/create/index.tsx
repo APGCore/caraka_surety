@@ -1,0 +1,32 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import AdminLayout from "@/layouts/admin";
+import FormGuarantorRate from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate";
+import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
+import { GuarantorRateCreatePageProps } from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
+
+const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantorToProductType }) => {
+  return (
+    <Card className="w-[800px] mx-auto">
+      <CardHeader>
+        <CardTitle>Kelola Tarif Asuransi</CardTitle>
+        <CardDescription>Silakan Isi Data Di bawah</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormGuarantorRate rate={guarantorToProductType} />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default GuarantorRateCreate;
+
+GuarantorRateCreate.layout = (page: any) => {
+  const pagePropsData = page.props;
+
+  return (
+    <AdminLayout user={pagePropsData?.auth?.user}>
+      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
+      {page}
+    </AdminLayout>
+  );
+};

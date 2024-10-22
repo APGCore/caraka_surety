@@ -17,6 +17,7 @@ class ProductTipeResource extends JsonResource
         return [
             ...parent::toArray($request),
             'isChoosed' => $this->resource->product()->exists(),
+            'guarantor_to_product_type' => $this->whenLoaded('guarantorToProductType', $this->resource->guarantorToProductType->first()),
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

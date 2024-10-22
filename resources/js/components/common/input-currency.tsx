@@ -24,6 +24,7 @@ const InputCurrency = (props: InputCurrencyProps) => {
   return (
     <input
       {...rest}
+      type={props.type ?? "text"}
       value={textCurrency(value)}
       onChange={handleChange}
       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400 focus:border-blue-400"

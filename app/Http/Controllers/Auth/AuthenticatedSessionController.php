@@ -74,7 +74,6 @@ class AuthenticatedSessionController extends Controller
 
         $userRole = $userLogin->role_id;
 
-
         if ($userRole == 1) {
             flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.', type: 'success');
 

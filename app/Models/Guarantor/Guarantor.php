@@ -5,6 +5,7 @@ namespace App\Models\Guarantor;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,11 +56,6 @@ class Guarantor extends Model
         return $this->hasMany(GuarantorToProductType::class, 'guarantor_id');
     }
 
-    public function productType(): BelongsToMany
-    {
-        return $this->belongsToMany(ProductType::class, 'guarantor_to_product_types', 'guarantor_id', 'product_type_id')->withPivot('code');
-    }
-
     public function headquarter(): BelongsTo
     {
         return $this->belongsTo(Guarantor::class, 'headquarter_id');
@@ -73,5 +69,26 @@ class Guarantor extends Model
     public function profileLimit(): BelongsToMany
     {
         return $this->belongsToMany(Profile::class, ProfileLimit::class, 'guarantor_id', 'profile_id')->withPivot('limit');
+    }
+
+    protected array $pivot = [
+        'code',
+        'name',
+        'job_group',
+        'full_name',
+    ];
+
+    public function product(): BelongsToMany
+    {
+        $guarantorToProductType = new GuarantorToProductType;
+
+        return $this->belongsToMany(Product::class, $guarantorToProductType->getTable(), 'guarantor_id', 'product_id')->withPivot($this->pivot);
+    }
+
+    public function productType(): BelongsToMany
+    {
+        $guarantorToProductType = new GuarantorToProductType;
+
+        return $this->belongsToMany(ProductType::class, $guarantorToProductType->getTable(), 'guarantor_id', 'product_type_id')->withPivot($this->pivot);
     }
 }

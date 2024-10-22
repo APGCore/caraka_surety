@@ -20,8 +20,6 @@ class DashboardController extends Controller
         return inertia($component);
     }
 
-
-
     public function dashboardManager(Request $request)
     {
         $component = 'manager/dashboard/index';
@@ -29,14 +27,12 @@ class DashboardController extends Controller
         return inertia($component);
     }
 
-
     public function dashboardDireksi(Request $request)
     {
         $component = 'direksi/dashboard/index';
 
         return inertia($component);
     }
-
 
     public function dashboardStaffCabang(Request $request)
     {
