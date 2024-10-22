@@ -12,7 +12,7 @@ interface FormEmployeeLimitsProps {
 }
 
 const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
-  const { data, setData, post, errors, processing, recentlySuccessful } = useForm<{
+  const { data, setData, post, errors, processing } = useForm<{
     minimum_bill?: string;
     minimum_payment?: string;
     selling_rate?: number;
