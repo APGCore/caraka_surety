@@ -6,7 +6,7 @@ import { GuarantorRateCreatePageProps } from "@/pages/admin/guarantor-management
 
 const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantorToProductType }) => {
   return (
-    <Card className="w-[800px] mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Kelola Tarif Asuransi</CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>

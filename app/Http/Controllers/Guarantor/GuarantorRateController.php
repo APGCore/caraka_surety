@@ -96,10 +96,10 @@ class GuarantorRateController extends Controller
                 'minimum_payment' => $this->currencyConvert($requestValid['minimum_payment']),
                 'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
                 'payment_administration' => $this->currencyConvert($requestValid['payment_administration']),
-                'management_fee' => $this->currencyConvert($requestValid['management_fee']),
                 'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
+                'stamp_duty' => $this->currencyConvert($requestValid['stamp_duty']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
-                'revised_rate float' => $this->currencyConvert($requestValid['revised_rate']),
+                'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
             ];
 
             $guarantorToProductType->update($data);
