@@ -8,7 +8,7 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     // Check if the user is authenticated
-    if (!Auth::check()) {
+    if (! Auth::check()) {
         return redirect()->route('login'); // Redirect to login if not authenticated
     }
 
@@ -32,7 +32,6 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [UserController::class, 'edit'])->name('profile.edit');

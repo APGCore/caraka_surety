@@ -22,17 +22,24 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'max:32'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:255'],
             'fax' => ['nullable', 'string', 'max:255'],
             'pic' => ['required', 'string', 'max:255'],
+            'picture' => ['nullable', 'string', 'max:255'],
             'upload_picture' => ['nullable', 'image', 'max:2048'],
             'province_id' => ['required', 'exists:provinces,id'],
             'regency_id' => ['required', 'exists:regencies,id'],
             'district_id' => ['required', 'exists:districts,id'],
             'village' => ['required', 'string', 'max:255'],
+
+            // pattern
+            'prefix' => ['nullable', 'string', 'max:255'],
+            'content' => ['required', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

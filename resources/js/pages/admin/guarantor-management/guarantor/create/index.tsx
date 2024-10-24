@@ -1,21 +1,20 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
+import FormGuarantor from "@/pages/admin/guarantor-management/guarantor/_partials/form-guarantor";
+import GuarantorHeader from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-header";
 import { GuarantorCreatePageProps } from "@/pages/admin/guarantor-management/guarantor/create/guarantor-create-page.type";
-import Form from "@/pages/admin/guarantor-management/guarantor/form";
-import { Head } from "@inertiajs/react";
 
 const GuarantorCreatePage: GuarantorCreatePageProps = () => {
   return (
-    <main className="space-y-2.5 flex items-center justify-center">
-      <div className="max-w-xl w-full">
-        <header>
-          <h2 className="text-lg font-medium text-gray-900">Membuat Data Asuransi</h2>
-          <p className="mt-1 text-sm text-gray-600">Untuk membuat data asuransi (Principal) baru</p>
-        </header>
-
-        <Form routeSubmit={route("guarantor.store")} routeBack={route("guarantor.index")} />
-      </div>
-    </main>
+    <Card className="w-[800px] mx-auto">
+      <CardHeader>
+        <CardTitle>Membuat Data Asuransi</CardTitle>
+        <CardDescription>Untuk membuat data asuransi (Principal) baru</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormGuarantor routeSubmit={route("guarantor.store")} routeBack={route("guarantor.index")} />
+      </CardContent>
+    </Card>
   );
 };
 
@@ -26,14 +25,7 @@ GuarantorCreatePage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <GuarantorHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );

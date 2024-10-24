@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
+            $table->string('code', 32);
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('address');
@@ -33,7 +34,6 @@ return new class extends Migration
             $table->text('picture')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
         });
 
         Schema::table('guarantors', function (Blueprint $table) {

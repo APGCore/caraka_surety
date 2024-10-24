@@ -7,7 +7,6 @@ use App\Http\Requests\Guarantor\StoreRequest;
 use App\Http\Requests\Guarantor\UpdateRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -67,8 +66,15 @@ class GuarantorController extends Controller
                 $requestValid['picture'] = $path;
             }
 
-            Guarantor::query()
-                ->create($requestValid);
+            $guarantor = Guarantor::query()
+                ->create($requestValid)
+                ->load('pattern');
+
+            $guarantor->pattern()->create([
+                'prefix' => $requestValid['prefix'],
+                'content' => $requestValid['content'],
+                'suffix' => $requestValid['suffix'],
+            ]);
 
             flashMessage('Berhasil', 'Penambahan data asuransi berhasil');
             DB::commit();
@@ -87,6 +93,7 @@ class GuarantorController extends Controller
         $picture = $guarantor->getAttribute('picture') ?
             Storage::url($guarantor->getAttribute('picture')) : '';
         $guarantor->setAttribute('picture', $picture);
+        $guarantor->load('pattern');
 
         $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
@@ -108,7 +115,7 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $picture = $guarantor->getAttribute('picture') ?? '';
+                $picture = $guarantor->getAttribute('picture') ?? null;
                 $this->deleteFile($picture);
 
                 $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
@@ -116,6 +123,11 @@ class GuarantorController extends Controller
             }
 
             $guarantor->update($requestValid);
+            $guarantor->pattern()->update([
+                'prefix' => $requestValid['prefix'],
+                'content' => $requestValid['content'],
+                'suffix' => $requestValid['suffix'],
+            ]);
 
             flashMessage('Berhasil', 'Perubahan data asuransi berhasil');
             DB::commit();
@@ -150,7 +162,7 @@ class GuarantorController extends Controller
         }
     }
 
-    public function getAll(): JsonResponse
+    public function getAll()
     {
         $guarantors = Guarantor::query()
             ->orderBy('name')

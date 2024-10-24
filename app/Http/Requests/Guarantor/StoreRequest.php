@@ -22,6 +22,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'max:32'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
@@ -33,6 +34,11 @@ class StoreRequest extends FormRequest
             'regency_id' => ['required', 'exists:regencies,id'],
             'district_id' => ['required', 'exists:districts,id'],
             'village' => ['required', 'string', 'max:255'],
+
+            // pattern
+            'prefix' => ['nullable', 'string', 'max:255'],
+            'content' => ['required', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class Guarantor extends Model
 {
-    use HasFactory,Searchable, SoftDeletes;
+    use HasFactory, Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -31,6 +32,7 @@ class Guarantor extends Model
     {
         return [
             'pic' => $this->getAttribute('pic'),
+            'code' => $this->getAttribute('code'),
             'name' => $this->getAttribute('name'),
             'telephone' => $this->getAttribute('telephone'),
         ];
@@ -90,5 +92,10 @@ class Guarantor extends Model
         $guarantorToProductType = new GuarantorToProductType;
 
         return $this->belongsToMany(ProductType::class, $guarantorToProductType->getTable(), 'guarantor_id', 'product_type_id')->withPivot($this->pivot);
+    }
+
+    public function pattern(): HasOne
+    {
+        return $this->hasOne(Pattern::class);
     }
 }

@@ -98,6 +98,7 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Penanggung Jawab(PIC)</TableHead>
+              <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Tanggal Dibuat</TableHead>
               <TableHead className="text-right" />
@@ -109,6 +110,7 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
                 <TableRow key={guarantor.id}>
                   <TableCell>{guarantors?.meta?.from + index}</TableCell>
                   <TableCell>{guarantor.pic}</TableCell>
+                  <TableCell>{guarantor.code}</TableCell>
                   <TableCell>{guarantor.name}</TableCell>
                   <TableCell>{guarantor.created_at}</TableCell>
                   <TableCell className="text-right">

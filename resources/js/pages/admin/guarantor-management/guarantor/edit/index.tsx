@@ -1,25 +1,25 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
+import FormGuarantor from "@/pages/admin/guarantor-management/guarantor/_partials/form-guarantor";
 import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-create-page.type";
-import Form from "@/pages/admin/guarantor-management/guarantor/form";
 import { Head } from "@inertiajs/react";
 
 const GuarantorCreatePage: GuarantorEditPageProps = ({ guarantor }) => {
   return (
-    <main className="space-y-2.5 flex items-center justify-center">
-      <div className="max-w-xl w-full">
-        <header>
-          <h2 className="text-lg font-medium text-gray-900">Mengubah Data Asuransi</h2>
-          <p className="mt-1 text-sm text-gray-600">Untuk mengubah data asuransi (Principal)</p>
-        </header>
-
-        <Form
+    <Card className="w-[800px] mx-auto">
+      <CardHeader>
+        <CardTitle>Mengubah Data Asuransi</CardTitle>
+        <CardDescription>Untuk mengubah data asuransi (Principal)</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormGuarantor
           guarantor={guarantor}
           routeSubmit={route("guarantor.update", guarantor.id)}
           routeBack={route("guarantor.index")}
         />
-      </div>
-    </main>
+      </CardContent>
+    </Card>
   );
 };
 

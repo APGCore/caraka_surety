@@ -88,7 +88,7 @@ const InputLocation: React.FC<Props> = ({
 
   return (
     <>
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="province_id" value="Provinsi" />
 
         <Combobox
@@ -110,7 +110,7 @@ const InputLocation: React.FC<Props> = ({
 
         <InputError className="mt-2" message={error_province_id} />
       </div>
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
 
         <Combobox
@@ -132,7 +132,7 @@ const InputLocation: React.FC<Props> = ({
 
         <InputError className="mt-2" message={error_regency_id} />
       </div>
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="district_id" value="Kecamatan" />
 
         <Combobox
@@ -152,7 +152,7 @@ const InputLocation: React.FC<Props> = ({
 
         <InputError className="mt-2" message={error_district_id} />
       </div>
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="village" value="Desa/Kelurahan" />
 
         <TextInput
