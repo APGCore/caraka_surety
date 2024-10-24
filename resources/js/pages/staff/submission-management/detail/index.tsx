@@ -1,13 +1,13 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/layouts/admin";
-import templateApplication from "@/pages/staff/submission-management/template-surat-permohonan";
+import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
+import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
+import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
+import templateApplication from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Editor } from "tinymce";
-import templateDraftSurety from "../template-draft-surety";
-import templateAnalyst from "../template-hasil-analisa";
-import templateContent from "../template-surat-pelaksanaan";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status }) => {

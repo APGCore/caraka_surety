@@ -76,10 +76,8 @@ const secondTemplateContent = `
 <div style="width: 100%; overflow: hidden;">
     <table style="width: 100%; border-collapse: collapse;">
         <tr>
-            <!-- Kolom kiri kosong -->
             <td style="width: 50%;"></td>
 
-            <!-- Kolom kanan berisi teks -->
             <td style="width: 50%; text-align: left;">
                 <p style="margin-bottom: 10px;">Nama Principal</p>
                 <p style="margin-bottom: 50px;"></p> <!-- Space for signature -->
