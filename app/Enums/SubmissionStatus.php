@@ -13,9 +13,9 @@ enum SubmissionStatus: string
     public static function getValues(): array
     {
         return [
-            self::PROCESS,
-            self::APPROVED,
-            self::REJECTED,
+            self::PROCESS->value,
+            self::APPROVED->value,
+            self::REJECTED->value,
         ];
     }
 }

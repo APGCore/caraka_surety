@@ -19,11 +19,11 @@ return new class extends Migration
     {
         Schema::create('submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->nullOnDelete();
-            $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->nullOnDelete();
-            $table->foreignIdFor(Product::class, 'product_id')->constrained()->nullOnDelete();
-            $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->nullOnDelete();
-            $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->nullOnDelete();
+            $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Product::class, 'product_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
             $table->string('contract_doc_name');
             $table->string('contract_doc_number');
             $table->string('contract_doc_date');
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->timestamp('guarantee_issue_date');
             $table->string('job_location');
             $table->string('source_of_funds');
-            $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS); // status
+            $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
             $table->text('note')->nullable();
             $table->text('note_scoring')->nullable();
             $table->text('min_point_scoring')->nullable();
