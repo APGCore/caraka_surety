@@ -7,6 +7,8 @@ use App\Http\Requests\Guarantor\StoreRequest;
 use App\Http\Requests\Guarantor\UpdateRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\Product\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -169,5 +171,25 @@ class GuarantorController extends Controller
             ->get();
 
         return response()->json($guarantors);
+    }
+
+    public function product(Guarantor $guarantor)
+    {
+        $guarantor->load('product:id,name');
+
+        // unique product
+        $product = $guarantor->product->unique('id');
+
+        return response()->json($product);
+    }
+
+    public function productType(Guarantor $guarantor, Product $product)
+    {
+        $guarantorProductType = GuarantorToProductType::query()
+            ->where('guarantor_id', $guarantor->getAttribute('id'))
+            ->where('product_id', $product->getAttribute('id'))
+            ->get(['id', 'code', 'name', 'job_group', 'full_name']);
+
+        return response()->json($guarantorProductType);
     }
 }

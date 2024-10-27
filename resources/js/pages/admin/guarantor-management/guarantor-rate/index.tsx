@@ -16,7 +16,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
   guarantorSelected,
   products,
   productSelected,
-  productTypes,
+  guarantorProductTypes,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
@@ -84,7 +84,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           placeholder="Cari Jenis Produk"
         />
       </div>
-      <GuarantorRateDatatable productTypes={productTypes} />
+      <GuarantorRateDatatable guarantorProductTypes={guarantorProductTypes} />
     </main>
   );
 };

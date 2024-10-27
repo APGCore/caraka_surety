@@ -7,10 +7,10 @@ import { Link } from "@inertiajs/react";
 import React from "react";
 
 interface GuarantorRateDatatableProps {
-  productTypes: any;
+  guarantorProductTypes: any;
 }
 
-const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ productTypes }) => {
+const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarantorProductTypes }) => {
   return (
     <>
       <Table>
@@ -23,15 +23,15 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ product
         </TableHeader>
         <TableBody>
           <RenderList
-            of={productTypes?.data}
-            render={(productType: any) => (
-              <TableRow key={productType.id}>
-                <TableCell>{productType.guarantor_to_product_type?.code}</TableCell>
-                <TableCell>{productType.guarantor_to_product_type?.full_name}</TableCell>
+            of={guarantorProductTypes?.data}
+            render={(guarantorProductType: any) => (
+              <TableRow key={guarantorProductType.id}>
+                <TableCell>{guarantorProductType.code}</TableCell>
+                <TableCell>{guarantorProductType.full_name}</TableCell>
                 <TableCell className="text-right">
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                    href={route(GuarantorRateUtils.link.create, productType.guarantor_to_product_type?.id)}>
+                    href={route(GuarantorRateUtils.link.create, guarantorProductType.id)}>
                     Setting Tarif
                   </Link>
                 </TableCell>
@@ -47,8 +47,8 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ product
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={productTypes?.meta} />
-      <PaginationDatatable meta={productTypes?.meta} only={["profiles"]} />
+      <ShowingCountDatatable meta={guarantorProductTypes?.meta} />
+      <PaginationDatatable meta={guarantorProductTypes?.meta} only={["profiles"]} />
     </>
   );
 };

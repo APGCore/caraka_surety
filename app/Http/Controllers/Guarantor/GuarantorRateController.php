@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Guarantor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Rate\StoreRequest;
-use App\Http\Resources\Product\ProductTipeResource;
+use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
-use App\Models\Product\ProductType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -27,32 +26,19 @@ class GuarantorRateController extends Controller
         $guarantorSelected = $guarantor->id ?? null;
         $productSelected = $product->id ?? null;
 
-        $productTypesId = $productSelected
-            ? Guarantor::query()
-                ->whereHas('product', fn ($query) => $query->where('product_id', $productSelected))
-                ->with('productType')
-                ->get()
-                ->pluck('productType')
-                ->flatten()
-                ->pluck('id')
-                ->unique()
-            : [];
-
-        $productTypes = ProductType::search($request->get('search'))
-            ->query(function ($query) use ($guarantor, $product, $productTypesId) {
-                $query->with('guarantorToProductType', function ($query) use ($guarantor, $product) {
-                    $query->where('guarantor_id', $guarantor->id)
-                        ->where('product_id', $product->id);
-                })->whereIn('id', $productTypesId);
+        $guarantorProductTypes = GuarantorToProductType::search($request->get('search'))
+            ->query(function ($query) use ($guarantorSelected, $productSelected) {
+                $query->where('guarantor_id', $guarantorSelected)
+                    ->where('product_id', $productSelected);
             })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
 
-        $resource = ProductTipeResource::collection($productTypes);
+        $resource = GuarantorToProductTypeResource::collection($guarantorProductTypes);
 
-        $component = request()->path().'/index';
+        $component = request()->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -62,7 +48,7 @@ class GuarantorRateController extends Controller
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
             'productSelected' => $productSelected,
-            'productTypes' => fn () => $resource,
+            'guarantorProductTypes' => fn() => $resource,
         ]);
     }
 
@@ -71,7 +57,7 @@ class GuarantorRateController extends Controller
      */
     public function create(Request $request, GuarantorToProductType $guarantorToProductType): \Inertia\Response
     {
-        $component = str_replace('/'.$guarantorToProductType->getAttribute('id'), '', $request->path()).'/index';
+        $component = str_replace('/' . $guarantorToProductType->getAttribute('id'), '', $request->path()) . '/index';
 
         return inertia($component, [
             'page_settings' => [

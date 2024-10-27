@@ -5,7 +5,7 @@ interface GuarantorRateProps {
   guarantorSelected: any;
   products: any;
   productSelected: any;
-  productTypes: any;
+  guarantorProductTypes: any;
 }
 
 export type GuarantorRatePageProps = React.FC<GuarantorRateProps> & {

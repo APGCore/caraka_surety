@@ -20,7 +20,7 @@ class ProfileLimitSeeder extends Seeder
             ],
             [
                 'guarantor_id' => 1,
-                'profile_id' => 1,
+                'profile_id' => 2,
                 'limit' => '50000000',
             ],
         ];
