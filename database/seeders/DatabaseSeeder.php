@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
             ScoringQuestionSeeder::class,
             ScoringOptionSeeder::class,
             PrincipalSeeder::class,
+            GuarantorSeeder::class,
+            GuarantorToProductTypeSeeder::class,
+            BlankSeeder::class,
+            ProfileLimitSeeder::class,
+            EmployeeLimitSeeder::class,
         ]);
     }
 }
