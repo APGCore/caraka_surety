@@ -1,8 +1,10 @@
+import { CalendarPicker } from "@/components/common/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import StaffLayoutPage from "@/layouts/staff";
 import SubmissionCreateHeader from "./_partials/create-page-header";
+import SumberDanaPengajuanSelect from "./_partials/sumber-dana";
 import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
@@ -59,6 +61,60 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             <div className="grid gap-[5px]">
               <Label className="text-md">Alamat</Label>
               <Textarea className="text-md" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
+          <div className="grid gap-4">
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Produk</Label>
+              <SumberDanaPengajuanSelect />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Jenis Jaminan</Label>
+              <SumberDanaPengajuanSelect />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Obligee</Label>
+              <SumberDanaPengajuanSelect />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Jenis Dokumen</Label>
+              <Input className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Nomor Dokumen</Label>
+              <Input className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Tanggal Dokumen</Label>
+              <Input className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Nilai Kontrak</Label>
+              <Input className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Nilai Jaminan</Label>
+              <Input className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Jangka Waktu</Label>
+              <Input className="text-md" type="number" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Tanggal Terbit Jaminan</Label>
+              <CalendarPicker />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Lokasi Proyek</Label>
+              <Textarea className="text-md" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Sumber Dana</Label>
+              <SumberDanaPengajuanSelect />
             </div>
           </div>
         </div>
