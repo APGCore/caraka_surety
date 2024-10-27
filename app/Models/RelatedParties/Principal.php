@@ -45,4 +45,9 @@ class Principal extends Model
     {
         return $this->belongsTo(District::class);
     }
+
+    public function principalRatios()
+    {
+        return $this->hasMany(PrincipalRatio::class);
+    }
 }

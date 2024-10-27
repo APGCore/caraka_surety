@@ -38,7 +38,7 @@ class GuarantorRateController extends Controller
 
         $resource = GuarantorToProductTypeResource::collection($guarantorProductTypes);
 
-        $component = request()->path() . '/index';
+        $component = request()->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -48,7 +48,7 @@ class GuarantorRateController extends Controller
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
             'productSelected' => $productSelected,
-            'guarantorProductTypes' => fn() => $resource,
+            'guarantorProductTypes' => fn () => $resource,
         ]);
     }
 
@@ -57,7 +57,7 @@ class GuarantorRateController extends Controller
      */
     public function create(Request $request, GuarantorToProductType $guarantorToProductType): \Inertia\Response
     {
-        $component = str_replace('/' . $guarantorToProductType->getAttribute('id'), '', $request->path()) . '/index';
+        $component = str_replace('/'.$guarantorToProductType->getAttribute('id'), '', $request->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
