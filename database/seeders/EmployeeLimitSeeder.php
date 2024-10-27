@@ -30,7 +30,7 @@ class EmployeeLimitSeeder extends Seeder
                 'profile_id' => 1,
                 'employee_id' => 4,
                 'limit' => '30000000',
-            ]
+            ],
         ];
 
         foreach ($employeeLimits as $employeeLimit) {

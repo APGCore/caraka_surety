@@ -22,7 +22,7 @@ class ProfileLimitSeeder extends Seeder
                 'guarantor_id' => 1,
                 'profile_id' => 1,
                 'limit' => '50000000',
-            ]
+            ],
         ];
 
         foreach ($profileLimits as $profileLimit) {
