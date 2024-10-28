@@ -4,6 +4,7 @@ use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use Illuminate\Database\Migrations\Migration;
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->foreignIdFor(Product::class, 'product_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
             $table->string('contract_doc_name');
             $table->string('contract_doc_number');
             $table->string('contract_doc_date');

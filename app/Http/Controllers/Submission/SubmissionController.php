@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Submission;
 
 use App\Http\Controllers\Controller;
-use App\Models\Submission;
+use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
 
 class SubmissionController extends Controller
