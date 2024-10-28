@@ -31,9 +31,9 @@ return new class extends Migration
             $table->float('guarantee_value');
             $table->integer('time_period');
             $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->timestamp('end_date')->nullable();
             $table->string('job_name');
-            $table->timestamp('guarantee_issue_date');
+            $table->timestamp('guarantee_issue_date')->nullable();
             $table->string('job_location');
             $table->string('source_of_funds');
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status

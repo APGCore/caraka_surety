@@ -4,7 +4,7 @@ import AdminLayout from "@/layouts/admin";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
-import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-jastan";
+import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Editor } from "tinymce";

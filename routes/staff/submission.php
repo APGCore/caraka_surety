@@ -10,5 +10,6 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/create', 'displayCreateByStaff')->name('create.submission');
             Route::get('/history', 'displayHistoryByStaff')->name('history.submission');
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
+            Route::get('/getAllBanks', 'getAllBanks')->name('getbanks.submission');
         });
 });
