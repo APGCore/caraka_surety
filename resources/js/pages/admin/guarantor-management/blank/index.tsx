@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/hooks/use-toast";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { BlankPageProps } from "@/pages/admin/guarantor-management/blank/blank-page.type";
@@ -120,6 +121,11 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         setOpenCreate(false);
         setdataForm(defaultDataForm);
         getData(String(select), search, guarantorSelected);
+        toast({
+          title: "Berhasil",
+          description: "Data Blangko berhasil ditambahkan",
+        });
+        clear();
       })
       .catch((error) => {
         setErrors(error.response.data.errors);
@@ -140,6 +146,11 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
         setOpenCreateMulti(false);
         setDataCreateMulti(defaultDataCreateMulti);
         getData(String(select), search, guarantorSelected);
+        toast({
+          title: "Berhasil",
+          description: "Data Blangko berhasil ditambahkan",
+        });
+        clear();
       })
       .catch((error) => {
         setOpenCreateMulti(true);
@@ -155,11 +166,16 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     e.preventDefault();
     setIsLoading(true);
     axios
-      .post(route("blank.update", dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
+      .put(route("blank.update", dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
         setOpenEdit(false);
         setdataForm(defaultDataForm);
         getData(String(select), search, guarantorSelected);
+        toast({
+          title: "Berhasil",
+          description: "Data Blangko berhasil diubah",
+        });
+        clear();
       })
       .catch((error) => {
         setOpenEdit(true);

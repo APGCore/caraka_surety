@@ -43,15 +43,17 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
       post(route(FormGuarantorRateUtils.create.route, rate.id), {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: () => {
-          handleBack();
-        },
       });
     }
   };
 
   const handleBack = () => {
-    router.get(route(FormGuarantorRateUtils.index.route));
+    router.get(
+      route(FormGuarantorRateUtils.index.route, {
+        guarantor_id: rate?.guarantor_id,
+        product_id: rate?.product_id,
+      }),
+    );
   };
 
   return (

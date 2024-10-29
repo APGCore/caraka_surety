@@ -8,7 +8,7 @@ const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantorToProductT
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Kelola Tarif Asuransi</CardTitle>
+        <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductType?.full_name}</CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>

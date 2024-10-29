@@ -170,7 +170,7 @@ class GuarantorController extends Controller
             ->orderBy('name')
             ->get();
 
-        return response()->json($guarantors);
+        return $this->responseSuccess('Berhasil mengambil data penjamin',$guarantors);
     }
 
     public function product(Guarantor $guarantor)
@@ -180,7 +180,7 @@ class GuarantorController extends Controller
         // unique product
         $product = $guarantor->product->unique('id');
 
-        return response()->json($product);
+        return $this->responseSuccess('Berhasil mengambil data produk', $product);
     }
 
     public function productType(Guarantor $guarantor, Product $product)
@@ -190,6 +190,6 @@ class GuarantorController extends Controller
             ->where('product_id', $product->getAttribute('id'))
             ->get(['id', 'code', 'name', 'job_group', 'full_name']);
 
-        return response()->json($guarantorProductType);
+        return $this->responseSuccess('Berhasil mengambil data produk asuransi', $guarantorProductType);
     }
 }

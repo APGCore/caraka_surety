@@ -76,12 +76,12 @@ class DistributionOfBlankController extends Controller
                 ]);
 
             DB::commit();
-
+            flashMessage('Berhasil', 'Data berhasil disimpan');
             return redirect()->route('distribution-of-blank.index');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
-
+            flashMessage('Gagal', 'Gagal menyimpan data', 'error');
             return back()->withErrors(['errors' => 'Gagal menyimpan data']);
         }
 
@@ -107,7 +107,7 @@ class DistributionOfBlankController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@destroy: {$e->getMessage()}");
-
+            flashMessage('Gagal', 'Gagal menghapus data', 'error');
             return back()->withErrors(['errors' => 'Gagal menghapus data']);
         }
     }

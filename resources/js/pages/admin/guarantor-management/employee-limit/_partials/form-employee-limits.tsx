@@ -70,7 +70,12 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
           });
           setErrors(defaultData);
           setIsOpenForm(false);
-          router.get(route(FormEmployeeLimitsUtils.redirect));
+          router.get(
+            route(FormEmployeeLimitsUtils.redirect, {
+              guarantor_id: guarantorSelectedId,
+              profile_id: profileSelectedId,
+            }),
+          );
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -92,7 +97,12 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
           });
           setErrors(defaultData);
           setIsOpenForm(false);
-          router.get(route(FormEmployeeLimitsUtils.redirect));
+          router.get(
+            route(FormEmployeeLimitsUtils.redirect, {
+              guarantor_id: guarantorSelectedId,
+              profile_id: profileSelectedId,
+            }),
+          );
         })
         .catch((error) => {
           setErrors(error.response.data.errors);

@@ -26,7 +26,7 @@ class BlankController extends Controller
 
         $blanks = Blank::search($request->get('search'))
             ->where('guarantor_id', $guarantorSelected)
-            ->orderBy('id')
+            ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
@@ -131,9 +131,11 @@ class BlankController extends Controller
             $blank->delete();
 
             DB::commit();
+            flashMessage('Berhasil', 'Blangko berhasil dihapus');
         } catch (\Exception $e) {
             Log::error('Error destroy blank', [$e->getMessage()]);
             DB::rollBack();
+            flashMessage('Gagal', 'Blangko gagal dihapus', 'error');
         }
     }
 }

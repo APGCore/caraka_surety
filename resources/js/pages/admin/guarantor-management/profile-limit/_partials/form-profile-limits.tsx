@@ -65,7 +65,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
           });
           setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect));
+          router.get(route(FormProfileLimitsUtils.redirect, { guarantor_id: guarantorSelectedId }));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -86,7 +86,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
           });
           setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect));
+          router.get(route(FormProfileLimitsUtils.redirect, { guarantor_id: guarantorSelectedId }));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
