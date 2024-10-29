@@ -1,7 +1,12 @@
 import { Combobox } from "@/components/common/combobox";
+import React from "react";
 import { sumberDanaOptions } from "./sumber-dana.contant";
 
-const SumberDanaPengajuanSelect = () => {
+interface SumberDanaPengajuanSelectProps {
+  placeholder?: string;
+}
+
+const SumberDanaPengajuanSelect: React.FC<SumberDanaPengajuanSelectProps> = ({ placeholder }) => {
   return (
     <Combobox
       datas={sumberDanaOptions}
@@ -10,7 +15,7 @@ const SumberDanaPengajuanSelect = () => {
       onSelect={(value) => {
         console.log(value);
       }}
-      placeholder="Pilih Sumber Dana..."
+      placeholder={placeholder || "Pilih Sumber Dana"}
       notFoundText="Sumber Dana tidak ditemukan."
       className="w-full"
     />

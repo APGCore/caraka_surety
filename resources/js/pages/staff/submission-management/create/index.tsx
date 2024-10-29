@@ -1,9 +1,9 @@
 import { CalendarPicker } from "@/components/common/calendar";
+import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import StaffLayoutPage from "@/layouts/staff";
 import axios from "axios";
@@ -104,35 +104,39 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           <div className="grid gap-4">
             <div className="grid gap-[5px]">
               <Label className="text-md">Produk</Label>
-              <SumberDanaPengajuanSelect />
+              <SumberDanaPengajuanSelect placeholder="Pilih Produk" />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Asuransi/Penjamin</Label>
+              <SumberDanaPengajuanSelect placeholder="Pilih Asuransi/Penjamin" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jenis Jaminan</Label>
-              <SumberDanaPengajuanSelect />
+              <SumberDanaPengajuanSelect placeholder="Pilih Jenis Jaminan" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Obligee</Label>
-              <SumberDanaPengajuanSelect />
+              <SumberDanaPengajuanSelect placeholder="Pilih Obligee" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jenis Dokumen</Label>
-              <Input className="text-md" />
+              <SumberDanaPengajuanSelect placeholder="Pilih Jenis Dokumen" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Nomor Dokumen</Label>
-              <Input className="text-md" />
+              <Input className="text-md" type="number" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Tanggal Dokumen</Label>
-              <Input className="text-md" />
+              <CalendarPicker />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Nilai Kontrak</Label>
-              <Input className="text-md" />
+              <Input className="text-md" type="number" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Nilai Jaminan</Label>
-              <Input className="text-md" />
+              <Input className="text-md" type="number" />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jangka Waktu</Label>
@@ -158,39 +162,40 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           <div className="grid gap-4">
             <div className="grid gap-[5px]">
               <Label className="text-md">Profil Perusahaan Principal</Label>
-              <Input className="text-md" />
+              {/* <Input className="text-md" /> */}
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy Akte Pendirian Perusahaan</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy KTP (Kartu Tanda Penduduk)</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy TDP (Tanda Daftar Perusahaan)</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Surat Izin Usaha Perdagangan (SIUP)</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy Nomor Pokok Wajib Pajak (NPWP)</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Surat Keterangan Domisili (SKDP/SITU)</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy Tanda Keanggotaan dari asosiasi Profesi KADIN/ GAPENSI/ARDIN</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Copy Neraca Laba Principal untuk 2 (dua) tahun terakhir</Label>
-              <Input className="text-md" />
+              <FileInput />
             </div>
           </div>
         </div>
