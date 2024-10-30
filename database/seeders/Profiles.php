@@ -19,7 +19,7 @@ class Profiles extends Seeder
 
         Profile::create([
             'id' => 1,
-            'name' => 'Admin',
+            'name' => 'Pusat',
             'province_id' => $province->id,
             'regency_id' => $regency->id,
             'district_id' => $district->id,

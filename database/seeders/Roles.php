@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\RoleEnum;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
@@ -12,25 +13,12 @@ class Roles extends Seeder
      */
     public function run(): void
     {
-        Role::create([
-            'name' => 'Admin',
-        ]);
+        $roles = RoleEnum::getValues();
 
-        Role::create([
-            'name' => 'Direksi',
-        ]);
-
-        Role::create([
-            'name' => 'Kepala Cabang',
-        ]);
-
-        Role::create([
-            'name' => 'Manager',
-        ]);
-
-        Role::create([
-            'name' => 'Staff',
-        ]);
-
+        foreach ($roles as $role) {
+            Role::create([
+                'name' => $role,
+            ]);
+        }
     }
 }

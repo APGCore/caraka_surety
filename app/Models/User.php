@@ -64,9 +64,9 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function hasRole($id): bool
+    public function hasRole($role): bool
     {
-        return $this->role_id === $id;
+        return $this->role()->where('name', $role)->exists();
     }
 
     public function employeeLimit(): HasMany

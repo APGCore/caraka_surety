@@ -1,6 +1,6 @@
-import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
+import InputLocation from "@/components/common/input-location";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
@@ -10,15 +10,9 @@ import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
 export default function UpdateProfileBprInformation({
-  provinces,
-  regencies,
-  districts,
   profile,
   className = "",
 }: {
-  provinces: Array<object>;
-  regencies: Array<object>;
-  districts: Array<object>;
   profile?: any;
   className?: string;
 }) {
@@ -28,10 +22,10 @@ export default function UpdateProfileBprInformation({
     email?: string;
     phone?: string;
     address?: string;
-    province_id?: number | null;
-    regency_id?: number | null;
-    district_id?: number | null;
-    village?: string;
+    province_id: number | null;
+    regency_id: number | null;
+    district_id: number | null;
+    village: string;
     postal_code?: string;
   }>({
     id: profile?.id,
@@ -39,79 +33,12 @@ export default function UpdateProfileBprInformation({
     email: profile?.email,
     phone: profile?.phone,
     address: profile?.address,
-    province_id: profile?.province_id,
-    regency_id: profile?.regency_id,
-    district_id: profile?.district_id,
-    village: profile?.village,
+    province_id: profile?.province_id ?? null,
+    regency_id: profile?.regency_id ?? null,
+    district_id: profile?.district_id ?? null,
+    village: profile?.village ?? "",
     postal_code: profile?.postal_code,
   });
-  let direct = route("profile.edit");
-
-  const selectProvince = (value: any) => {
-    setData((previousData) => {
-      return {
-        ...previousData,
-        province_id: value.id,
-        regency_id: null,
-        district_id: null,
-      };
-    });
-
-    router.get(
-      direct,
-      {
-        province_id: value.id,
-      },
-      {
-        preserveScroll: true,
-        preserveState: true,
-      },
-    );
-  };
-
-  const selectRegency = (value: any) => {
-    setData((previousData) => {
-      return {
-        ...previousData,
-        regency_id: value.id,
-        district_id: null,
-      };
-    });
-
-    router.get(
-      direct,
-      {
-        province_id: data.province_id,
-        regency_id: value.id,
-      },
-      {
-        preserveScroll: true,
-        preserveState: true,
-      },
-    );
-  };
-
-  const selectDistrict = (value: any) => {
-    setData((previousData) => {
-      return {
-        ...previousData,
-        district_id: value.id,
-      };
-    });
-
-    router.get(
-      direct,
-      {
-        province_id: data.province_id,
-        regency_id: data.regency_id,
-        district_id: value.id,
-      },
-      {
-        preserveScroll: true,
-        preserveState: true,
-      },
-    );
-  };
 
   const cancel = () => {
     router.get(route("profile.edit"));
@@ -180,68 +107,36 @@ export default function UpdateProfileBprInformation({
 
           <InputError className="mt-2" message={errors.phone} />
         </div>
-        <div>
-          <InputLabel htmlFor="province_id" value="Provinsi" />
 
-          <Combobox
-            datas={provinces}
-            labelKey="name"
-            valueKey="id"
-            defaultValue={data.province_id ?? ""}
-            onSelect={(value) => selectProvince(value)}
-            placeholder="Pilih Provinsi..."
-            notFoundText="Provinsi tidak ditemukan."
-            className="mt-1 w-full"
-          />
+        <InputLocation
+          province_id={data.province_id}
+          regency_id={data.regency_id}
+          district_id={data.district_id}
+          village={data.village}
+          setProvinceId={(id) =>
+            setData((prev) => ({
+              ...prev,
+              province_id: id,
+              regency_id: null,
+              district_id: null,
+              village: "",
+            }))
+          }
+          setRegencyId={(id) =>
+            setData((prev) => ({
+              ...prev,
+              regency_id: id,
+              district_id: null,
+              village: "",
+            }))
+          }
+          setDistrictId={(id) => setData((prev) => ({ ...prev, district_id: id, village: "" }))}
+          setVillage={(value) => setData("village", value)}
+          error_province_id={errors.province_id}
+          error_regency_id={errors.regency_id}
+          error_district_id={errors.district_id}
+        />
 
-          <InputError className="mt-2" message={errors.province_id} />
-        </div>
-        <div>
-          <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
-
-          <Combobox
-            datas={regencies}
-            labelKey="name"
-            valueKey="id"
-            defaultValue={data.regency_id ?? ""}
-            onSelect={(value) => selectRegency(value)}
-            placeholder="Pilih Kabupaten/Kota..."
-            notFoundText="Kabupaten/Kota tidak ditemukan."
-            className="mt-1 w-full"
-          />
-
-          <InputError className="mt-2" message={errors.regency_id} />
-        </div>
-        <div>
-          <InputLabel htmlFor="district_id" value="Kecamatan" />
-
-          <Combobox
-            datas={districts}
-            labelKey="name"
-            valueKey="id"
-            defaultValue={data.district_id ?? ""}
-            onSelect={(value) => selectDistrict(value)}
-            placeholder="Pilih Kecamatan..."
-            notFoundText="Kecamatan tidak ditemukan."
-            className="mt-1 w-full"
-          />
-
-          <InputError className="mt-2" message={errors.district_id} />
-        </div>
-
-        <div>
-          <InputLabel htmlFor="village" value="Desa/Kelurahan" />
-
-          <TextInput
-            id="village"
-            className="mt-1 block w-full"
-            value={data.village}
-            onChange={(e) => setData("village", e.target.value)}
-            autoComplete="village"
-          />
-
-          <InputError className="mt-2" message={errors.village} />
-        </div>
         <div>
           <InputLabel htmlFor="address" value="Alamat" />
 
