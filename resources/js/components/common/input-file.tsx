@@ -50,7 +50,10 @@ const FileInput: React.FC<InputFileProps> = ({
   return (
     <div className={cn(className)}>
       <button
-        onClick={() => {
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           inputRef.current?.click();
         }}
         className="border-2 border-dashed h-[164px] w-full border-gray-200 rounded-lg flex flex-col gap-1 p-6 items-center">
