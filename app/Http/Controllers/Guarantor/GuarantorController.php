@@ -9,6 +9,7 @@ use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -28,15 +29,14 @@ class GuarantorController extends Controller
             ->appends($request->all());
 
         $resource = GuarantorResource::collection($guarantors);
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Data Asuransi',
             ],
-            'guarantors' => fn () => $resource,
+            'guarantors' => fn() => $resource,
         ]);
-
     }
 
     /**
@@ -44,7 +44,7 @@ class GuarantorController extends Controller
      */
     public function create(): \Inertia\Response
     {
-        $component = request()->path().'/index';
+        $component = request()->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -63,7 +63,7 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
                 $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
                 $requestValid['picture'] = $path;
             }
@@ -97,13 +97,13 @@ class GuarantorController extends Controller
         $guarantor->setAttribute('picture', $picture);
         $guarantor->load('pattern');
 
-        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
+        $component = str_replace('/' . $guarantor->getAttribute('id'), '', request()->path()) . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Asuransi',
             ],
-            'guarantor' => fn () => $guarantor,
+            'guarantor' => fn() => $guarantor,
         ]);
     }
 
@@ -120,7 +120,7 @@ class GuarantorController extends Controller
                 $picture = $guarantor->getAttribute('picture') ?? null;
                 $this->deleteFile($picture);
 
-                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
@@ -170,7 +170,7 @@ class GuarantorController extends Controller
             ->orderBy('name')
             ->get();
 
-        return $this->responseSuccess('Berhasil mengambil data penjamin',$guarantors);
+        return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
 
     public function product(Guarantor $guarantor)
@@ -191,5 +191,20 @@ class GuarantorController extends Controller
             ->get(['id', 'code', 'name', 'job_group', 'full_name']);
 
         return $this->responseSuccess('Berhasil mengambil data produk asuransi', $guarantorProductType);
+    }
+
+
+    public function getGuarantorByProductId(Product $product)
+
+    {
+        $guarantors = GuarantorToProductType::query()
+            ->where('product_id', $product->id)
+            ->get(['guarantor_id']);
+
+        $guaratorIds = $guarantors->pluck('guarantor_id')->unique();
+
+        $guarantors = Guarantor::whereIn('id', $guaratorIds)->get();
+
+        return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
 }

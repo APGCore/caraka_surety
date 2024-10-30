@@ -94,20 +94,21 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
           <CommandList>
             <CommandEmpty>{props?.notFoundText ?? "No item found."}</CommandEmpty>
             <CommandGroup>
-              {datas.map((item, idx) => (
-                <CommandItem
-                  key={idx + 1}
-                  value={item[valueKey] as string}
-                  disabled={item.isChoosed === true}
-                  onSelect={(currentValue) => {
-                    props.onSelect?.(item);
-                    setValue(currentValue === value ? value : currentValue);
-                    setOpen(false);
-                  }}>
-                  <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
-                  {item[labelKey]}
-                </CommandItem>
-              ))}
+              {datas?.length > 0 &&
+                datas.map((item, idx) => (
+                  <CommandItem
+                    key={idx + 1}
+                    value={item[valueKey] as string}
+                    disabled={item.isChoosed === true}
+                    onSelect={(currentValue) => {
+                      props.onSelect?.(item);
+                      setValue(currentValue === value ? value : currentValue);
+                      setOpen(false);
+                    }}>
+                    <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
+                    {item[labelKey]}
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </CommandList>
         </Command>

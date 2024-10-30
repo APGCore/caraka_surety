@@ -1,4 +1,5 @@
 import { CalendarPicker } from "@/components/common/calendar";
+import { Combobox } from "@/components/common/combobox";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,15 @@ import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [scoring, setScoring] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [guarantors, setGuarantors] = useState<any[]>([]);
+  const [selectedGuarantor, setSelectedGuarantor] = useState(null);
+  const [productTypes, setProductTypes] = useState<any[]>([]);
+  const [selectedProductType, setSelectedProductType] = useState(null);
+  const [isResetProductType, setIsResetProductType] = useState(false);
+  const [isResetGuarantor, setIsResetGuarantor] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState({});
-
   const scoringOptionIds = Object.values(selectedOptions);
 
   const handleOptionChange = (questionId: string, optionId: string) => {
@@ -24,11 +32,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       [questionId]: optionId,
     }));
   };
-
-  console.log({
-    selectedOptions,
-    scoringOptionIds,
-  });
 
   useEffect(() => {
     axios
@@ -41,6 +44,54 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         console.log(error);
       });
   }, []);
+
+  useEffect(() => {
+    axios
+      .get(route("staff-products-get.all"))
+      .then((response) => {
+        setProducts(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedProducts) {
+      axios
+        .get(route("staff-guarantor-get.byProduct", { product: selectedProducts }))
+        .then((response) => {
+          setGuarantors(response.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [selectedProducts]);
+
+  useEffect(() => {
+    if (selectedGuarantor && selectedProducts) {
+      axios
+        .get(
+          route("staff-product-types-get.by-product-and-guarantor", {
+            productId: selectedProducts,
+            guarantorId: selectedGuarantor,
+          }),
+        )
+
+        .then((response) => {
+          console.log({
+            productId: selectedProducts,
+            guarantorId: selectedGuarantor,
+            data: response.data.data,
+          });
+          setProductTypes(response.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [selectedGuarantor, selectedProducts]);
 
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
@@ -104,15 +155,53 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           <div className="grid gap-4">
             <div className="grid gap-[5px]">
               <Label className="text-md">Produk</Label>
-              <SumberDanaPengajuanSelect placeholder="Pilih Produk" />
+              <Combobox
+                datas={products}
+                labelKey="name"
+                valueKey="name"
+                placeholder="Pilih Produk"
+                onSelect={(val: any) => {
+                  if (val.id !== selectedProducts) {
+                    setSelectedGuarantor(null);
+                    setSelectedProductType(null);
+                    setIsResetGuarantor(true);
+                    setIsResetProductType(true);
+                  }
+                  setSelectedProducts(val.id);
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Asuransi/Penjamin</Label>
-              <SumberDanaPengajuanSelect placeholder="Pilih Asuransi/Penjamin" />
+              <Combobox
+                datas={guarantors}
+                labelKey="name"
+                valueKey="name"
+                reset={isResetGuarantor}
+                onReset={(resetVal) => setIsResetGuarantor(resetVal)}
+                placeholder="Pilih Asuransi/Penjamin"
+                onSelect={(val: any) => {
+                  if (val.id !== selectedGuarantor) {
+                    setSelectedProductType(null);
+                    setIsResetProductType(true);
+                  }
+                  setSelectedGuarantor(val.id);
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jenis Jaminan</Label>
-              <SumberDanaPengajuanSelect placeholder="Pilih Jenis Jaminan" />
+              <Combobox
+                datas={productTypes}
+                labelKey="name"
+                valueKey="name"
+                placeholder="Pilih Jenis Jaminan"
+                reset={isResetProductType}
+                onReset={(resetVal) => setIsResetProductType(resetVal)}
+                onSelect={(val: any) => {
+                  setSelectedProductType(val.id);
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Obligee</Label>
@@ -215,7 +304,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           return (
                             <div className="space-y-3">
                               <div className="font-[600]">
-                                {" "}
                                 <span className="mr-3">{idx + 1}.</span>
                                 <span>{scoringQuestions?.name}</span>
                               </div>
