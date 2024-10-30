@@ -170,7 +170,7 @@ class GuarantorController extends Controller
             ->orderBy('name')
             ->get();
 
-        return $this->responseSuccess('Berhasil mengambil data penjamin',$guarantors);
+        return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
 
     public function product(Guarantor $guarantor)

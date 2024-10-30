@@ -17,7 +17,7 @@ class ScoringController extends Controller
      */
     public function index(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         $scorings = Scoring::search($request->get('search'))
             ->orderBy('created_at', 'desc')
@@ -31,7 +31,7 @@ class ScoringController extends Controller
             'page_settings' => [
                 'title' => 'Skoring',
             ],
-            'scorings' => fn() => $scoringResource,
+            'scorings' => fn () => $scoringResource,
         ]);
     }
 
@@ -40,7 +40,7 @@ class ScoringController extends Controller
      */
     public function create(Request $request)
     {
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -77,7 +77,7 @@ class ScoringController extends Controller
 
             return $this->responseSuccess('Skoring berhasil ditambahkan');
         } catch (\Throwable $e) {
-            Log::error('Scoring Store: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Store: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -106,7 +106,7 @@ class ScoringController extends Controller
                 'title' => 'Edit Skoring',
             ],
 
-            'scoring' => fn() => $scoring,
+            'scoring' => fn () => $scoring,
 
         ]);
     }
@@ -141,7 +141,7 @@ class ScoringController extends Controller
             }
         } catch (\Throwable $e) {
 
-            Log::error('Scoring Update: ' . json_encode($e->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Update: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
 
             DB::rollBack();
 
@@ -168,7 +168,7 @@ class ScoringController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Skoring', 'Terjadi kesalahan saat menghapus Skoring', 'error');
-            Log::error('Scoring Delete: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Scoring Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -186,9 +186,7 @@ class ScoringController extends Controller
 
         if ($scoring->exists) {
 
-
             $data = $scoring->load(['categories', 'categories.questions', 'categories.questions.options']);
-
 
             return response()->json($data);
         } else {

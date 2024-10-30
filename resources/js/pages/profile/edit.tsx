@@ -11,17 +11,11 @@ export default function Edit({
   status,
   auth,
   profile,
-  provinces,
-  regencies,
-  districts,
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
   auth: object;
   profile: object;
-  provinces: Array<object>;
-  regencies: Array<object>;
-  districts: Array<object>;
 }>) {
   return (
     <AdminLayout user={auth?.user}>
@@ -38,9 +32,6 @@ export default function Edit({
               <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
                 <UpdateProfileBprInformationForm
                   profile={profile}
-                  provinces={provinces}
-                  regencies={regencies}
-                  districts={districts}
                   className="max-w-xl"
                 />
               </div>
