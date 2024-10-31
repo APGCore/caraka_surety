@@ -28,8 +28,8 @@ const LoginForm = () => {
   return (
     <Card className="w-[400px]">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Masuk BPR Bonding</CardTitle>
-        <CardDescription>Masukkan email Anda untuk masuk ke akun.</CardDescription>
+        <CardTitle className="text-2xl">Masuk APG - Core System</CardTitle>
+        <CardDescription>Masukkan email dan password.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} id="login-form" className="grid gap-4">

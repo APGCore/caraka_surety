@@ -27,13 +27,13 @@ class ObligeeController extends Controller
             ->appends($request->all());
         $obligeeResource = ObligeeResource::collection($obligee);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Obligee',
             ],
-            'obligees' => fn () => $obligeeResource,
+            'obligees' => fn() => $obligeeResource,
         ]);
     }
 
@@ -45,7 +45,7 @@ class ObligeeController extends Controller
 
         $obligees = Obligee::all();
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -73,7 +73,6 @@ class ObligeeController extends Controller
 
             flashMessage('Berhasil', 'Penambahan data obligee berhasil');
             DB::commit();
-
         } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data obligee gagal', 'error');
@@ -104,7 +103,7 @@ class ObligeeController extends Controller
     public function edit(Obligee $obligee, Request $request)
     {
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')).'/index';
+        $component = substr($component, 0, strrpos($component, '/')) . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -164,9 +163,18 @@ class ObligeeController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Destroy: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function getObligee(Request $request)
+    {
+        $obligee = Obligee::query()
+            ->get();
+
+
+        return $this->responseSuccess("Sukses get All Obligee", $obligee);
     }
 }

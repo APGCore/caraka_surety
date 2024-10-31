@@ -6,6 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import useGetAllBank from "@/hooks/api/useGetAllBank";
+import useGetAllObligee from "@/hooks/api/useGetAllObligee";
+import useGetAllProduct from "@/hooks/api/useGetAllProduct";
+import useGetGuarantorByProductId from "@/hooks/api/useGetGuarantorByProductId";
+import useGetProductTypesByProductAndGuarantor from "@/hooks/api/useGetProductTypesByProductAndGuarantor";
+import useGetScoringById from "@/hooks/api/useGetScoringById";
 import StaffLayoutPage from "@/layouts/staff";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -14,15 +20,15 @@ import SumberDanaPengajuanSelect from "./_partials/sumber-dana";
 import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
-  const [scoring, setScoring] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
   const [selectedProducts, setSelectedProducts] = useState(null);
-  const [guarantors, setGuarantors] = useState<any[]>([]);
   const [selectedGuarantor, setSelectedGuarantor] = useState(null);
-  const [productTypes, setProductTypes] = useState<any[]>([]);
   const [selectedProductType, setSelectedProductType] = useState(null);
   const [isResetProductType, setIsResetProductType] = useState(false);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
+  const [selectedObligee, setSelectedObligee] = useState(null);
+  const [selectedBank, setSelectedBank] = useState(null);
+
+  // SCORING
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);
 
@@ -33,72 +39,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }));
   };
 
-  useEffect(() => {
-    axios
-      .get(route("staff-scoring-get.byId", { scoring: 1 }))
-      .then((response) => {
-        // console.log(response.data.categories);
-        setScoring(response.data.categories);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
-  useEffect(() => {
-    axios
-      .get(route("staff-products-get.all"))
-      .then((response) => {
-        setProducts(response.data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (selectedProducts) {
-      axios
-        .get(route("staff-guarantor-get.byProduct", { product: selectedProducts }))
-        .then((response) => {
-          setGuarantors(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [selectedProducts]);
-
-  useEffect(() => {
-    if (selectedGuarantor && selectedProducts) {
-      axios
-        .get(
-          route("staff-product-types-get.by-product-and-guarantor", {
-            productId: selectedProducts,
-            guarantorId: selectedGuarantor,
-          }),
-        )
-
-        .then((response) => {
-          console.log({
-            productId: selectedProducts,
-            guarantorId: selectedGuarantor,
-            data: response.data.data,
-          });
-          setProductTypes(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [selectedGuarantor, selectedProducts]);
+  const { scorings } = useGetScoringById({ selectedScoringId: 1 });
+  const { banks } = useGetAllBank();
+  const { obligees } = useGetAllObligee();
+  const { products } = useGetAllProduct();
+  const { guarantors } = useGetGuarantorByProductId({ selectedProductId: selectedProducts });
+  const { productTypes } = useGetProductTypesByProductAndGuarantor({
+    selectedProductId: selectedProducts,
+    selectedGuarantorId: selectedGuarantor,
+  });
 
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
       <form className="space-y-16">
         <div>
           <h2 className="text-2xl font-bold mb-3">Data Perusahaan</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             <div className="grid gap-[5px]">
               <Label className="text-md">Nama</Label>
               <Input className="text-md" placeholder="Nama perusahaan" />
@@ -152,7 +108,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
         <div>
           <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-5">
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Paket Pekerjaan</Label>
+              <Input className="text-md" placeholder="Masukan Paket Pekerjaan" />
+            </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Produk</Label>
               <Combobox
@@ -205,7 +165,27 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Obligee</Label>
-              <SumberDanaPengajuanSelect placeholder="Pilih Obligee" />
+              <Combobox
+                datas={obligees}
+                labelKey="name"
+                valueKey="name"
+                placeholder="Pilih Obligee"
+                onSelect={(val: any) => {
+                  setSelectedObligee(val.id);
+                }}
+              />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Banks</Label>
+              <Combobox
+                datas={banks}
+                labelKey="name"
+                valueKey="name"
+                placeholder="Pilih Bank"
+                onSelect={(val: any) => {
+                  setSelectedBank(val.id);
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jenis Dokumen</Label>
@@ -248,7 +228,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
         <div>
           <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-5">
             <div className="grid gap-[5px]">
               <Label className="text-md">Profil Perusahaan Principal</Label>
               <FileInput />
@@ -292,7 +272,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           <h2 className="text-2xl font-bold mb-8">Skoring</h2>
           <div className="grid gap-16">
             <RenderList
-              of={scoring}
+              of={scorings}
               render={(scoringCategories) => {
                 return (
                   <div className="grid gap-[14px]">
