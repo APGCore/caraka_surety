@@ -10,7 +10,6 @@ Route::prefix('product-management')->group(function () {
             Route::get('/all', 'getAllProducts')->name('get.all');
         });
 
-
     Route::controller(ProductTipeController::class)->prefix('product-types')
         ->name('staff-product-types-')->group(function () {
             Route::get('/', 'index')->name('index');

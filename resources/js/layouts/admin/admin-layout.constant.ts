@@ -43,15 +43,21 @@ export const adminRoute = {
       icon: Archive,
       items: [
         {
-          title: "Daftar Pengajuan",
-          route_name: "submission",
-          href: route("submission.index"),
-          url: "#",
-        },
-        {
           title: "Prasyarat Dokumen",
           route_name: "document",
           href: route("document.index"),
+          url: "#",
+        },
+        {
+          title: "Sumber Dana",
+          route_name: "source-of-funds",
+          href: route("source-of-funds.index"),
+          url: "#",
+        },
+        {
+          title: "Daftar Pengajuan",
+          route_name: "submission",
+          href: route("submission.index"),
           url: "#",
         },
       ],

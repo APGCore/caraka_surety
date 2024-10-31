@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ProductTypeSeeder::class,
             ProductTypeToProductSeeder::class,
             RequiredDocSeeder::class,
+            SourceOfFundSeeder::class,
             ScoringSeeder::class,
             ScoringQuestionCategorySeeder::class,
             ScoringQuestionSeeder::class,
