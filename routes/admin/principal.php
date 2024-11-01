@@ -13,6 +13,5 @@ Route::prefix('principal-management')->group(function () {
             Route::delete('/{principal}', 'destroy')->name('destroy');
             Route::get('/edit/{principal}', 'edit')->name('edit');
             Route::patch('/{principal}', 'update')->name('update');
-
         });
 });

@@ -3,6 +3,9 @@
 use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
 use App\Models\Product\Product;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
@@ -36,7 +39,10 @@ return new class extends Migration
             $table->timestamp('end_date')->nullable();
             $table->string('job_name');
             $table->timestamp('guarantee_issue_date')->nullable();
-            $table->string('job_location');
+            $table->foreignIdFor(Province::class, 'job_location_province_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Regency::class, 'job_location_regency_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(District::class, 'job_location_district_id')->nullable()->constrained()->noActionOnDelete();
+            $table->string('job_location_village');
             $table->string('source_of_funds');
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
             $table->text('note')->nullable();
