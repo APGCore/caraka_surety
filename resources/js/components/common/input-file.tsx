@@ -114,7 +114,7 @@ const FileInput: React.FC<InputFileProps> = ({
         ref={inputRef}
         hidden
         type="file"
-        required={required}
+        required={required && preview === null}
         onChange={(e) => {
           const file = e?.target?.files ? e.target.files[0] : null;
 
