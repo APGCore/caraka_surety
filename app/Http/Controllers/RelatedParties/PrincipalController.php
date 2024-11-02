@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
-use function Pest\Laravel\get;
 
 class PrincipalController extends Controller
 {
@@ -184,6 +183,7 @@ class PrincipalController extends Controller
     public function getAll()
     {
         $principals = Principal::query()
+            ->with(['documents'])
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
