@@ -39,7 +39,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [principalDocs, setPrincipalDocs] = useState<Array<object>>([]);
   const [principalFiles, setPrincipalFiles] = useState<Array<object>>([]);
 
-  const fetchPrincipalDocuments = (principalId: number) => {
+  const fetchPrincipalDocuments = (principalId?: number) => {
     axios.get(route("references.principal.documents", { principal_id: principalId })).then((response) => {
       setPrincipalDocs(response.data.data);
     });
@@ -185,6 +185,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     setFormSearchPrincipalState("not-search");
+                    fetchPrincipalDocuments();
                   }}>
                   Tambah Data Baru
                 </Button>
@@ -206,6 +207,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     setFormSearchPrincipalState("idle");
+                    setPrincipalDocs([]);
+                    setPrincipalFiles([]);
                   }}>
                   Kembali Cari Data
                 </Button>

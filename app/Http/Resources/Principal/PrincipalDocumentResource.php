@@ -19,11 +19,11 @@ class PrincipalDocumentResource extends JsonResource
 
         return [
             ...parent::toArray($request),
-            'principal_document' => (object) [
+            'principal_document' => $principalDocument->count() > 0 ? (object) [
                 ...$principalDocument,
                 'path' => $principalDocument->get('url')
                     ? Storage::url($principalDocument->get('url')) : null,
-            ],
+            ] : null,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }
