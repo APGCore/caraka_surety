@@ -21,7 +21,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submissions', function (Blueprint $table) {
+        $province = new Province();
+        $regency = new Regency();
+        $district = new District();
+        Schema::create('submissions', function (Blueprint $table) use ($province, $regency, $district) {
             $table->id();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
@@ -39,9 +42,9 @@ return new class extends Migration
             $table->timestamp('end_date')->nullable();
             $table->string('job_name');
             $table->timestamp('guarantee_issue_date')->nullable();
-            $table->foreignIdFor(Province::class, 'job_location_province_id')->constrained()->noActionOnDelete();
-            $table->foreignIdFor(Regency::class, 'job_location_regency_id')->nullable()->constrained()->noActionOnDelete();
-            $table->foreignIdFor(District::class, 'job_location_district_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignId('job_location_province_id')->references('id')->on($province->getTable())->noActionOnDelete();
+            $table->foreignId('job_location_regency_id')->references('id')->on($regency->getTable())->noActionOnDelete();
+            $table->foreignId('job_location_district_id')->references('id')->on($district->getTable())->noActionOnDelete();
             $table->string('job_location_village');
             $table->string('source_of_funds');
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
