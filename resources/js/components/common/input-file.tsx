@@ -18,6 +18,7 @@ interface InputFileProps {
   onFileChange?: (file: File | null) => void;
   validation?: string[];
   reset?: number | boolean;
+  previewValue?: string;
   required?: boolean;
 }
 
@@ -27,10 +28,11 @@ const FileInput: React.FC<InputFileProps> = ({
   onFileChange,
   reset,
   validation = ["image/jpeg", "image/png", "application/pdf"],
+  previewValue,
   required = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(() => previewValue || null);
   const [files, setFiles] = useState<File | null>(null);
 
   const handleReset = () => {
@@ -84,7 +86,7 @@ const FileInput: React.FC<InputFileProps> = ({
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-black font-semibold text-xl">Preview {files?.name}</AlertDialogTitle>
               </AlertDialogHeader>
-              {files?.type === "application/pdf" ? (
+              {files?.type === "application/pdf" || preview.includes(".pdf") ? (
                 <embed src={preview} className="w-full h-[500px]" type="application/pdf" />
               ) : (
                 <img src={preview} alt="preview" className="w-full object-contain max-h-[500px] " />

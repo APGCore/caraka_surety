@@ -9,6 +9,6 @@ Route::prefix('references')->name('references.')->group(function () {
     Route::controller(PrincipalController::class)->prefix('principal')
         ->name('principal.')->group(function () {
             Route::get('all', 'getAll')->name('all');
-            Route::get('document/{principal}', 'getDocument')->name('documents');
+            Route::get('document', 'getDocument')->name('documents');
         });
 });

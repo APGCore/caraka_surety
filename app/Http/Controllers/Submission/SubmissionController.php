@@ -74,7 +74,8 @@ class SubmissionController extends Controller
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
                 $document['name'] = $document['required_doc_name'];
-                $path = "principal/{$principal?->id}-{$principal?->name}/documents";
+                $principalName = $principal?->name ? str_replace(' ', '_', $principal?->name) : 'principal';
+                $path = "principal/{$principal?->id}-{$principalName}/documents";
 
                 if ($principalDocument['required_doc_id']) {
                     $this->deleteFile($createPrincipal->documents()

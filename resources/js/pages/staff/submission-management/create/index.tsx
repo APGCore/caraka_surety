@@ -40,7 +40,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [principalFiles, setPrincipalFiles] = useState<Array<object>>([]);
 
   const fetchPrincipalDocuments = (principalId: number) => {
-    axios.get(route("references.principal.documents", principalId)).then((response) => {
+    axios.get(route("references.principal.documents", { principal_id: principalId })).then((response) => {
       setPrincipalDocs(response.data.data);
     });
   };
@@ -433,15 +433,21 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             <div>
               <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
               <div className="grid gap-5">
-                {principalDocs?.map((doc: any) => (
-                  <div className="grid gap-[5px]">
-                    <Label className="text-md">{doc.name}</Label>
-                    <FileInput
-                      onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                      required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
-                    />
-                  </div>
-                ))}
+                <RenderList
+                  of={principalDocs}
+                  render={(doc) => {
+                    return (
+                      <div className="grid gap-[5px]">
+                        <Label className="text-md">{doc.name}</Label>
+                        <FileInput
+                          onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
+                          previewValue={doc.principal_document?.path}
+                          required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
+                        />
+                      </div>
+                    );
+                  }}
+                />
               </div>
             </div>
           </>

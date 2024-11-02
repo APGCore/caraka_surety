@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Location\DistrictController;
 use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Principal\UpdateRequest;
+use App\Http\Resources\Principal\PrincipalDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Location\District;
 use App\Models\Location\Province;
@@ -189,12 +190,21 @@ class PrincipalController extends Controller
         return $this->responseSuccess('Data Principal', $principals);
     }
 
-    public function getDocument(Principal $principal)
+    public function getDocument(Request $request)
     {
+        $request->validate([
+            'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
+        ]);
+        $principal = Principal::query()
+            ->where('id', $request->get('principal_id'))
+            ->first();
+
         $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($principal) {
             $query->where('principal_id', $principal->getAttribute('id'));
         }])->get();
 
-        return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $requiredDocuments);
+        $resource = PrincipalDocumentResource::collection($requiredDocuments);
+
+        return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $resource);
     }
 }
