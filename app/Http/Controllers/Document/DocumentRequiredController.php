@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Document;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product\ProductType;
+use App\Models\RelatedParties\Principal;
 use App\Models\RequiredDoc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -127,5 +128,15 @@ class DocumentRequiredController extends Controller
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function getByPrincipal(Principal $principal)
+    {
+        $requiredDocs = RequiredDoc::with('productType')->get();
+
+        return inertia('admin/documents/principal/index', [
+            'reqDocs' => $requiredDocs,
+            'principal' => $principal,
+        ]);
     }
 }

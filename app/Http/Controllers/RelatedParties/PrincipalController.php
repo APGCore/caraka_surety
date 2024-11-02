@@ -11,6 +11,7 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\RelatedParties\Principal;
+use App\Models\RequiredDoc;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,13 +32,13 @@ class PrincipalController extends Controller
             ->appends($request->all());
         $principalResource = PrincipalResource::collection($principal);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Principal',
             ],
-            'principals' => fn() => $principalResource,
+            'principals' => fn () => $principalResource,
         ]);
     }
 
@@ -120,7 +121,7 @@ class PrincipalController extends Controller
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -173,12 +174,11 @@ class PrincipalController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
     }
-
 
     public function getAll()
     {
@@ -187,5 +187,14 @@ class PrincipalController extends Controller
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
+    }
+
+    public function getDocument(Principal $principal)
+    {
+        $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($principal) {
+            $query->where('principal_id', $principal->getAttribute('id'));
+        }])->get();
+
+        return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $requiredDocuments);
     }
 }

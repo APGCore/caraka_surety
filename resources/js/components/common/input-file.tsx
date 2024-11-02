@@ -18,6 +18,7 @@ interface InputFileProps {
   onFileChange?: (file: File | null) => void;
   validation?: string[];
   reset?: number | boolean;
+  required?: boolean;
 }
 
 const FileInput: React.FC<InputFileProps> = ({
@@ -26,6 +27,7 @@ const FileInput: React.FC<InputFileProps> = ({
   onFileChange,
   reset,
   validation = ["image/jpeg", "image/png", "application/pdf"],
+  required = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -110,6 +112,7 @@ const FileInput: React.FC<InputFileProps> = ({
         ref={inputRef}
         hidden
         type="file"
+        required={required}
         onChange={(e) => {
           const file = e?.target?.files ? e.target.files[0] : null;
 

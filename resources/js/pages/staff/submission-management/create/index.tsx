@@ -20,6 +20,7 @@ import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
 import StaffLayoutPage from "@/layouts/staff";
 import { useForm } from "@inertiajs/react";
+import axios from "axios";
 import { useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import SumberDanaPengajuanSelect from "./_partials/sumber-dana";
@@ -32,11 +33,33 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Principal
   const { principals } = useGetAllPrincipal();
-  const [selectedPrincipal, setSelectedPrincipal] = useState(null);
+  const [selectedPrincipal, setSelectedPrincipal] = useState<object | null>(null);
+
+  // Principal Documents
+  const [principalDocs, setPrincipalDocs] = useState<Array<object>>([]);
+  const [principalFiles, setPrincipalFiles] = useState<Array<object>>([]);
+
+  const fetchPrincipalDocuments = (principalId: number) => {
+    axios.get(route("references.principal.documents", principalId)).then((response) => {
+      setPrincipalDocs(response.data.data);
+    });
+  };
+
+  const changePrincipalDoc = (file: File | null, document: object) => {
+    const newFiles = principalFiles.filter((doc) => doc.required_doc_id !== document.id);
+    if (file) {
+      newFiles.push({ required_doc_id: document.id, required_doc_name: document.name, file });
+    }
+    setData("principal", { ...data.principal, documents: newFiles });
+    setPrincipalFiles(newFiles);
+  };
 
   // Principal Province
   const { provinces: principalProvinces } = useGetAllProvince();
-  const [selectedPrincipalProvince, setSelectedPrincipalProvince] = useState<{ id: number; name: string } | null>(null);
+  const [selectedPrincipalProvince, setSelectedPrincipalProvince] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Principal Regency
   const { regencies: principalRegencies } = useGetRegencyByProvinceId({ province_id: selectedPrincipalProvince?.id });
@@ -44,7 +67,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Principal District
   const { districts: principalDistricts } = useGetDistrictByRegencyId({ regency_id: selectedPrincipalRegency?.id });
-  const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<{ id: number; name: string } | null>(null);
+  const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
   // Job Location Province
   const { provinces: jobLocationProvinces } = useGetAllProvince();
@@ -76,7 +102,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     selectedProductId: selectedProducts,
     selectedGuarantorId: selectedGuarantor,
   });
-  const [selectedProductType, setSelectedProductType] = useState(null);
+  const [selectedProductType, setSelectedProductType] = useState<object | null>(null);
   const [isResetProductType, setIsResetProductType] = useState(false);
 
   // Source of Fund
@@ -98,8 +124,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
-
-  //   console.log(selectedPrincipalProvince?.id);
 
   const { data, setData } = useForm({
     principal: {
@@ -152,6 +176,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onSelect={(val: any) => {
                     setFormSearchPrincipalState("search");
                     setSelectedPrincipal(val);
+                    fetchPrincipalDocuments(val.id);
                   }}
                 />
                 <Button
@@ -169,181 +194,257 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         )}
 
         {(formSearchPrincipalState === "search" || formSearchPrincipalState === "not-search") && (
-          <div>
-            <div className="flex justify-between">
-              <h2 className="text-2xl font-bold mb-3">
-                {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
-              </h2>
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setFormSearchPrincipalState("idle");
-                }}>
-                Kembali Cari Data
-              </Button>
-            </div>
-            <div className="grid gap-5">
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Nama</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Nama perusahaan"
-                  value={data.principal.name}
-                  onChange={(e) => setData("principal", { ...data.principal, name: e.target.value })}
-                />
+          <>
+            <div>
+              <div className="flex justify-between">
+                <h2 className="text-2xl font-bold mb-3">
+                  {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
+                </h2>
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setFormSearchPrincipalState("idle");
+                  }}>
+                  Kembali Cari Data
+                </Button>
               </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">NPWP</Label>
-                <Input
-                  className="text-md"
-                  placeholder="No NPWP"
-                  value={data.principal.npwp}
-                  onChange={(e) => setData("principal", { ...data.principal, npwp: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">No. Telepon</Label>
-                <Input
-                  className="text-md"
-                  placeholder="No Telepon Perusahaan"
-                  value={data.principal.telephone}
-                  onChange={(e) => setData("principal", { ...data.principal, telephone: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">NIB</Label>
-                <Input
-                  className="text-md"
-                  placeholder="No NIB"
-                  value={data.principal.nib}
-                  onChange={(e) => setData("principal", { ...data.principal, nib: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">SIUP/SIUJK</Label>
-                <Input
-                  className="text-md"
-                  placeholder="No SIUP/SIUJK"
-                  value={data.principal.siup_siujk}
-                  onChange={(e) => setData("principal", { ...data.principal, siup_siujk: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Nama Direksi</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Nama Direksi Perusahaan"
-                  value={data.principal.director_name}
-                  onChange={(e) => setData("principal", { ...data.principal, director_name: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Jabatan</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Jabatan PIC"
-                  value={data.principal.director_position}
-                  onChange={(e) => setData("principal", { ...data.principal, director_position: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Nomor Handphone</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Nomor telepon Jabatan"
-                  value={data.principal.director_phone}
-                  onChange={(e) => setData("principal", { ...data.principal, director_phone: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Komisaris</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Komisaris"
-                  value={data.principal.commissioner}
-                  onChange={(e) => setData("principal", { ...data.principal, commissioner: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Perusahaan Berdiri Tahun</Label>
-                <Input
-                  className="text-md"
-                  type="number"
-                  placeholder="Tahun berdiri perusahaan"
-                  value={data.principal.year_established}
-                  onChange={(e) => setData("principal", { ...data.principal, year_established: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Akte Perubahan Terakhir</Label>
-                <Input
-                  className="text-md"
-                  placeholder="Akte perubahan terakir"
-                  value={data.principal.last_deed}
-                  onChange={(e) => setData("principal", { ...data.principal, last_deed: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-[5px]">
-                <Label className="text-md">Alamat Perusahaan</Label>
-                <div className="grid gap-2 mt-2">
-                  <div className="grid gap-[5px]">
-                    <Label className="text-sm">Provinsi</Label>
-                    <Combobox
-                      datas={principalProvinces}
-                      labelKey="name"
-                      valueKey="name"
-                      placeholder="Pilih Provinsi"
-                      onSelect={(val: any) => {
-                        setData("principal", { ...data.principal, province_id: val.id });
-                        setSelectedPrincipalProvince(val);
-                      }}
-                    />
-                  </div>
-                  <div className="grid gap-[5px]">
-                    <Label className="text-sm">Kabupaten/Kota</Label>
-                    <Combobox
-                      datas={principalRegencies}
-                      labelKey="name"
-                      valueKey="name"
-                      placeholder="Pilih Kabupaten/Kota"
-                      onSelect={(val: any) => {
-                        setData("principal", { ...data.principal, regency_id: val?.id });
-                        setSelectedPrincipalRegency(val);
-                      }}
-                    />
-                  </div>
-                  <div className="grid gap-[5px]">
-                    <Label className="text-sm">Kecamatan</Label>
-                    <Combobox
-                      datas={principalDistricts}
-                      labelKey="name"
-                      valueKey="name"
-                      placeholder="Pilih Kecamatan"
-                      onSelect={(val: any) => {
-                        setData("principal", { ...data.principal, disctrict_id: val?.id });
-                        setSelectedPrincipalDistrict(val);
-                      }}
-                    />
-                  </div>
-                  <div className="grid gap-[5px]">
-                    <Label className="text-sm">Desa</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="Masukan nama Desa Perusahaan"
-                      value={data.principal.village}
-                      onChange={(e) => setData("principal", { ...data.principal, village: e.target.value })}
-                    />
-                  </div>
-                  {/* <div className="grid gap-[5px]">
+              <div className="grid gap-5">
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nama</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Nama perusahaan"
+                    value={data.principal.name}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">NPWP</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="No NPWP"
+                    value={data.principal.npwp}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        npwp: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">No. Telepon</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="No Telepon Perusahaan"
+                    value={data.principal.telephone}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        telephone: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">NIB</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="No NIB"
+                    value={data.principal.nib}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        nib: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">SIUP/SIUJK</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="No SIUP/SIUJK"
+                    value={data.principal.siup_siujk}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        siup_siujk: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nama Direksi</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Nama Direksi Perusahaan"
+                    value={data.principal.director_name}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        director_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Jabatan</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Jabatan PIC"
+                    value={data.principal.director_position}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        director_position: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nomor Handphone</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Nomor telepon Jabatan"
+                    value={data.principal.director_phone}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        director_phone: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Komisaris</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Komisaris"
+                    value={data.principal.commissioner}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        commissioner: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Perusahaan Berdiri Tahun</Label>
+                  <Input
+                    className="text-md"
+                    type="number"
+                    placeholder="Tahun berdiri perusahaan"
+                    value={data.principal.year_established}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        year_established: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Akte Perubahan Terakhir</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Akte perubahan terakir"
+                    value={data.principal.last_deed}
+                    onChange={(e) =>
+                      setData("principal", {
+                        ...data.principal,
+                        last_deed: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Alamat Perusahaan</Label>
+                  <div className="grid gap-2 mt-2">
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Provinsi</Label>
+                      <Combobox
+                        datas={principalProvinces}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Provinsi"
+                        onSelect={(val: any) => {
+                          setData("principal", { ...data.principal, province_id: val.id });
+                          setSelectedPrincipalProvince(val);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Kabupaten/Kota</Label>
+                      <Combobox
+                        datas={principalRegencies}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Kabupaten/Kota"
+                        onSelect={(val: any) => {
+                          setData("principal", { ...data.principal, regency_id: val?.id });
+                          setSelectedPrincipalRegency(val);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Kecamatan</Label>
+                      <Combobox
+                        datas={principalDistricts}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Kecamatan"
+                        onSelect={(val: any) => {
+                          setData("principal", { ...data.principal, disctrict_id: val?.id });
+                          setSelectedPrincipalDistrict(val);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Desa</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Masukan nama Desa Perusahaan"
+                        value={data.principal.village}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            village: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    {/* <div className="grid gap-[5px]">
                     <Label className="text-sm">Alamat Lengkap</Label>
                     <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
                   </div> */}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
+              <div className="grid gap-5">
+                {principalDocs?.map((doc: any) => (
+                  <div className="grid gap-[5px]">
+                    <Label className="text-md">{doc.name}</Label>
+                    <FileInput
+                      onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
+                      required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         <div>
@@ -515,48 +616,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
-          <div className="grid gap-5">
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Profil Perusahaan Principal</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy Akte Pendirian Perusahaan</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy KTP (Kartu Tanda Penduduk)</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy TDP (Tanda Daftar Perusahaan)</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Surat Izin Usaha Perdagangan (SIUP)</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy Nomor Pokok Wajib Pajak (NPWP)</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Surat Keterangan Domisili (SKDP/SITU)</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy Tanda Keanggotaan dari asosiasi Profesi KADIN/ GAPENSI/ARDIN</Label>
-              <FileInput />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Copy Neraca Laba Principal untuk 2 (dua) tahun terakhir</Label>
-              <FileInput />
             </div>
           </div>
         </div>

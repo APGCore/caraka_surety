@@ -21,9 +21,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $province = new Province();
-        $regency = new Regency();
-        $district = new District();
+        $province = new Province;
+        $regency = new Regency;
+        $district = new District;
         Schema::create('submissions', function (Blueprint $table) use ($province, $regency, $district) {
             $table->id();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();

@@ -21,13 +21,13 @@ class SourceOfFundController extends Controller
 
         $sourceOfFundsResource = SourceOfFundsResource::collection($sourceOfFunds);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Sumber Dana',
             ],
-            'sourceOfFunds' => fn() => $sourceOfFundsResource,
+            'sourceOfFunds' => fn () => $sourceOfFundsResource,
         ]);
     }
 

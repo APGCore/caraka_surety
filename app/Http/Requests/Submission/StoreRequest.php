@@ -43,7 +43,7 @@ class StoreRequest extends FormRequest
             'principal.province_id' => ['required', 'exists:'.Province::class.',id,deleted_at,NULL'],
             'principal.regency_id' => ['required', 'exists:'.Regency::class.',id,deleted_at,NULL'],
             'principal.district_id' => ['required', 'exists:'.District::class.',id,deleted_at,NULL'],
-            'principal.village' => ['required', 'string', 'max:255'],
+            'principal.village' => ['nullable', 'string', 'max:255'],
             'principal.name' => ['required', 'string', 'max:255'], // nama perusahaan
             'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
             'principal.telephone' => ['required', 'string', 'max:255'], // telepon perusahaan

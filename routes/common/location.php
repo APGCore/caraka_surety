@@ -5,7 +5,6 @@ use App\Http\Controllers\Location\ProvinceController;
 use App\Http\Controllers\Location\RegencyController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::prefix('references')->name('references.')->group(function () {
 
     // references.province.*
