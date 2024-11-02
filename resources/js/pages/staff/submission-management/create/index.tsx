@@ -26,10 +26,6 @@ import SumberDanaPengajuanSelect from "./_partials/sumber-dana";
 import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
-  // Form State
-  const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
-  const { data, setData } = useForm();
-
   // Product
   const { products } = useGetAllProduct();
   const [selectedProducts, setSelectedProducts] = useState(null);
@@ -100,6 +96,38 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);
 
+  // Form State
+  const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
+
+  //   console.log(selectedPrincipalProvince?.id);
+
+  const { data, setData } = useForm({
+    principal: {
+      id: "",
+      province_id: undefined,
+      regency_id: undefined,
+      disctrict_id: undefined,
+      village: "",
+      name: "",
+      address: "",
+      telephone: "",
+      fax: "",
+      npwp: "",
+      nib: "",
+      siup_siujk: "",
+      head_name: "",
+      director_name: "",
+      director_position: "",
+      director_phone: "",
+      commissioner: "",
+      year_established: "",
+      last_deed: "",
+      documents: [],
+    },
+  });
+
+  console.log(data.principal);
+
   const handleOptionChange = (questionId: string, optionId: string) => {
     setSelectedOptions((prev) => ({
       ...prev,
@@ -159,47 +187,103 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             <div className="grid gap-5">
               <div className="grid gap-[5px]">
                 <Label className="text-md">Nama</Label>
-                <Input className="text-md" placeholder="Nama perusahaan" />
+                <Input
+                  className="text-md"
+                  placeholder="Nama perusahaan"
+                  value={data.principal.name}
+                  onChange={(e) => setData("principal", { ...data.principal, name: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">NPWP</Label>
-                <Input className="text-md" placeholder="No NPWP" />
+                <Input
+                  className="text-md"
+                  placeholder="No NPWP"
+                  value={data.principal.npwp}
+                  onChange={(e) => setData("principal", { ...data.principal, npwp: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">No. Telepon</Label>
-                <Input className="text-md" placeholder="No PIC Perusahaan" />
+                <Input
+                  className="text-md"
+                  placeholder="No Telepon Perusahaan"
+                  value={data.principal.telephone}
+                  onChange={(e) => setData("principal", { ...data.principal, telephone: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">NIB</Label>
-                <Input className="text-md" placeholder="No NIB" />
+                <Input
+                  className="text-md"
+                  placeholder="No NIB"
+                  value={data.principal.nib}
+                  onChange={(e) => setData("principal", { ...data.principal, nib: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">SIUP/SIUJK</Label>
-                <Input className="text-md" placeholder="No SIUP/SIUJK" />
+                <Input
+                  className="text-md"
+                  placeholder="No SIUP/SIUJK"
+                  value={data.principal.siup_siujk}
+                  onChange={(e) => setData("principal", { ...data.principal, siup_siujk: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Nama Direksi</Label>
-                <Input className="text-md" placeholder="Nama Direksi Perusahaan" />
+                <Input
+                  className="text-md"
+                  placeholder="Nama Direksi Perusahaan"
+                  value={data.principal.director_name}
+                  onChange={(e) => setData("principal", { ...data.principal, director_name: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Jabatan</Label>
-                <Input className="text-md" placeholder="Jabatan PIC" />
+                <Input
+                  className="text-md"
+                  placeholder="Jabatan PIC"
+                  value={data.principal.director_position}
+                  onChange={(e) => setData("principal", { ...data.principal, director_position: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Nomor Handphone</Label>
-                <Input className="text-md" placeholder="Nomor telepon Jabatan" />
+                <Input
+                  className="text-md"
+                  placeholder="Nomor telepon Jabatan"
+                  value={data.principal.director_phone}
+                  onChange={(e) => setData("principal", { ...data.principal, director_phone: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Komisaris</Label>
-                <Input className="text-md" placeholder="Komisaris" />
+                <Input
+                  className="text-md"
+                  placeholder="Komisaris"
+                  value={data.principal.commissioner}
+                  onChange={(e) => setData("principal", { ...data.principal, commissioner: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Perusahaan Berdiri Tahun</Label>
-                <Input className="text-md" type="number" placeholder="Tahun berdiri perusahaan" />
+                <Input
+                  className="text-md"
+                  type="number"
+                  placeholder="Tahun berdiri perusahaan"
+                  value={data.principal.year_established}
+                  onChange={(e) => setData("principal", { ...data.principal, year_established: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Akte Perubahan Terakhir</Label>
-                <Input className="text-md" placeholder="Akte perubahan terakir" />
+                <Input
+                  className="text-md"
+                  placeholder="Akte perubahan terakir"
+                  value={data.principal.last_deed}
+                  onChange={(e) => setData("principal", { ...data.principal, last_deed: e.target.value })}
+                />
               </div>
               <div className="grid gap-[5px]">
                 <Label className="text-md">Alamat Perusahaan</Label>
@@ -212,6 +296,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       valueKey="name"
                       placeholder="Pilih Provinsi"
                       onSelect={(val: any) => {
+                        setData("principal", { ...data.principal, province_id: val.id });
                         setSelectedPrincipalProvince(val);
                       }}
                     />
@@ -224,6 +309,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       valueKey="name"
                       placeholder="Pilih Kabupaten/Kota"
                       onSelect={(val: any) => {
+                        setData("principal", { ...data.principal, regency_id: val?.id });
                         setSelectedPrincipalRegency(val);
                       }}
                     />
@@ -236,18 +322,24 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       valueKey="name"
                       placeholder="Pilih Kecamatan"
                       onSelect={(val: any) => {
+                        setData("principal", { ...data.principal, disctrict_id: val?.id });
                         setSelectedPrincipalDistrict(val);
                       }}
                     />
                   </div>
                   <div className="grid gap-[5px]">
                     <Label className="text-sm">Desa</Label>
-                    <Input className="text-md" placeholder="Masukan nama Desa Perusahaan" />
+                    <Input
+                      className="text-md"
+                      placeholder="Masukan nama Desa Perusahaan"
+                      value={data.principal.village}
+                      onChange={(e) => setData("principal", { ...data.principal, village: e.target.value })}
+                    />
                   </div>
-                  <div className="grid gap-[5px]">
+                  {/* <div className="grid gap-[5px]">
                     <Label className="text-sm">Alamat Lengkap</Label>
                     <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
