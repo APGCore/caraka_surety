@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
+use function Pest\Laravel\get;
 
 class PrincipalController extends Controller
 {
@@ -31,13 +32,13 @@ class PrincipalController extends Controller
             ->appends($request->all());
         $principalResource = PrincipalResource::collection($principal);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Principal',
             ],
-            'principals' => fn () => $principalResource,
+            'principals' => fn() => $principalResource,
         ]);
     }
 
@@ -120,7 +121,7 @@ class PrincipalController extends Controller
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')).'/index';
+        $component = substr($component, 0, strrpos($component, '/')) . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -173,9 +174,18 @@ class PrincipalController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Destroy: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
+    }
+
+
+    public function getAll()
+    {
+        $principals = Principal::query()
+            ->get();
+
+        return $this->responseSuccess('Data Principal', $principals);
     }
 }

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { Head } from "@inertiajs/react";

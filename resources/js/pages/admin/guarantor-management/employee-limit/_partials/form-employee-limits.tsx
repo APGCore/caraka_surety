@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/general/use-toast";
 import { cn } from "@/lib/cn";
 import { router } from "@inertiajs/react";
 import axios from "axios";

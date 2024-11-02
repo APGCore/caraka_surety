@@ -30,7 +30,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/use-flash-message";
+import useFlashMessageToast from "@/hooks/general/use-flash-message";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, ChevronsUpDown, GalleryVerticalEnd, LogOut, UserRound } from "lucide-react";
 import { staffCabangRoute } from "./staff-cabang-layout.constant";

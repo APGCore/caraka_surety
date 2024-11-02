@@ -21,13 +21,13 @@ class SourceOfFundController extends Controller
 
         $sourceOfFundsResource = SourceOfFundsResource::collection($sourceOfFunds);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Sumber Dana',
             ],
-            'sourceOfFunds' => fn () => $sourceOfFundsResource,
+            'sourceOfFunds' => fn() => $sourceOfFundsResource,
         ]);
     }
 
@@ -98,5 +98,13 @@ class SourceOfFundController extends Controller
                 'line' => $e->getLine(),
             ]);
         }
+    }
+
+    public function getAll()
+    {
+        $sourceOfFunds = SourceOfFund::query()
+            ->get();
+
+        return $this->responseSuccess('Data Sumber Dana', $sourceOfFunds);
     }
 }

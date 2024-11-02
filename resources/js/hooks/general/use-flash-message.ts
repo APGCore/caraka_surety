@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/general/use-toast";
 import { usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 

@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/use-flash-message";
+import useFlashMessageToast from "@/hooks/general/use-flash-message";
 import { GuestLayoutPageProps } from "./guest-layout.type";
 
 const GuestLayoutPage: GuestLayoutPageProps = ({ children }) => {
