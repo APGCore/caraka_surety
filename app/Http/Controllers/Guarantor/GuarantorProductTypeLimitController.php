@@ -9,6 +9,8 @@ use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GuarantorProductTypeLimitController extends Controller
 {
@@ -77,18 +79,89 @@ class GuarantorProductTypeLimitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'guarantor_id' => 'required|exists:guarantors,id',
-            'product_id' => 'required|exists:products,id',
-            'guarantor_to_product_type_id' => 'required|exists:guarantor_to_product_types,id',
-            'limit' => 'required|numeric|min:1',
+            'guarantor_id' => 'required|exists:'.Guarantor::class.',id',
+            'guarantor_to_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id',
+            'limit' => 'required',
         ]);
 
-        GuarantorProductTypeLimit::create([
-            'guarantor_id' => $request->get('guarantor_id'),
-            'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
-            'limit' => $request->get('limit'),
+        try {
+            DB::beginTransaction();
+            GuarantorProductTypeLimit::create([
+                'guarantor_id' => $request->get('guarantor_id'),
+                'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
+                'limit' => (int) str_replace('.', '', $request->get('limit')),
+            ]);
+            DB::commit();
+            flashMessage('success', 'Limit berhasil disimpan');
+
+            return redirect()->route('guarantor-product-type-limit.index', [
+                'guarantor_id' => $request->get('guarantor_id'),
+                'product_id' => $request->get('product_id'),
+            ])->with('success', 'Limit berhasil disimpan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('error', 'Limit gagal disimpan', 'error');
+            Log::error('Error store limit: ', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()->with('error', 'Limit gagal disimpan');
+        }
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, GuarantorProductTypeLimit $guarantorProductTypeLimit)
+    {
+        $request->validate([
+            'limit' => 'required',
         ]);
 
-        return redirect()->back()->with('success', 'Limit berhasil disimpan');
+        try {
+            DB::beginTransaction();
+            $guarantorProductTypeLimit->update([
+                'limit' => (int) str_replace('.', '', $request->get('limit')),
+            ]);
+            DB::commit();
+            flashMessage('success', 'Limit berhasil diubah');
+
+            return redirect()->route('guarantor-product-type-limit.index', [
+                'guarantor_id' => $request->get('guarantor_id'),
+                'product_id' => $request->get('product_id'),
+            ])->with('success', 'Limit berhasil diubah');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('error', 'Limit gagal diubah', 'error');
+            Log::error('Error update limit: ', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()->with('error', 'Limit gagal diubah');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(GuarantorProductTypeLimit $guarantorProductTypeLimit)
+    {
+        try {
+            $guarantorProductTypeLimit->delete();
+            flashMessage('success', 'Limit berhasil dihapus');
+
+            return redirect()->back()->with('success', 'Limit berhasil dihapus');
+        } catch (\Exception $e) {
+            flashMessage('error', 'Limit gagal dihapus', 'error');
+            Log::error('Error delete limit: ', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back()->with('error', 'Limit gagal dihapus');
+        }
     }
 }

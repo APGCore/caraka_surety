@@ -33,11 +33,17 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
       put(route(FormGuarantorProductTypeRateUtils.update.route, data.id), {
         preserveState: true,
         preserveScroll: true,
+        onSuccess: () => {
+          closeForm && closeForm();
+        },
       });
     } else {
       post(route(FormGuarantorProductTypeRateUtils.create.route), {
         preserveState: true,
         preserveScroll: true,
+        onSuccess: () => {
+          closeForm && closeForm();
+        },
       });
     }
   };

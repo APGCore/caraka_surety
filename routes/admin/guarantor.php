@@ -59,5 +59,8 @@ Route::prefix('guarantor-management')->group(function () {
     Route::controller(GuarantorProductTypeLimitController::class)->prefix('guarantor-product-type-limit')
         ->name('guarantor-product-type-limit.')->group(function () {
             Route::get('/', 'index')->name('index');
+            Route::post('store', 'store')->name('store');
+            Route::put('update/{guarantorProductTypeLimit}', 'update')->name('update');
+            Route::delete('destroy/{guarantorProductTypeLimit}', 'destroy')->name('destroy');
         });
 });
