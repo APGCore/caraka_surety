@@ -153,6 +153,7 @@ const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => 
                 <div className="flex items-center gap-4 justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <Button type={"submit"} disabled={processing}>
+                    {processing && <RotateCw className="animate-spin mr-2" />}
                     Submit
                   </Button>
                 </div>

@@ -18,6 +18,7 @@ class HandleRoleUsers
     {
         if (! auth()->user()->hasRoles($roles)) {
             $route = User::query()->find(auth()->id())?->role?->route_name;
+
             return redirect()->route($route);
         }
 

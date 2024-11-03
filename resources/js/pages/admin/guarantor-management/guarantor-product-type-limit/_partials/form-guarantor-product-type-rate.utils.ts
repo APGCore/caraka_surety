@@ -1,11 +1,11 @@
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 
-export const FormGuarantorRateUtils = {
+export const FormGuarantorProductTypeRateUtils = {
   index: {
-    route: GuarantorRateUtils.link.index,
+    route: GuarantorProductTypeRateUtils.link.index,
   },
   create: {
-    route: GuarantorRateUtils.link.store,
+    route: GuarantorProductTypeRateUtils.link.store,
     title: "Setting Tarif Asuransi",
     sub_title: "Tindakan ini akan mengatur data Tarif Asuransi",
     btn_label: "Simpan",
@@ -18,5 +18,8 @@ export const FormGuarantorRateUtils = {
       title: "Gagal",
       description: "Tarif Asuransi gagal di setting",
     },
+  },
+  update: {
+    route: GuarantorProductTypeRateUtils.link.update,
   },
 };

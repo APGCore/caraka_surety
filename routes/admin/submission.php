@@ -9,8 +9,6 @@ Route::prefix('submission-management')->group(function () {
         ->name('submission.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/show', 'show')->name('show');
-            // add submission
-            Route::post('/store', 'store')->name('store');
         });
 
     Route::controller(SourceOfFundController::class)->prefix('source-of-funds')

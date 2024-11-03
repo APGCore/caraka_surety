@@ -3,12 +3,12 @@ import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor
 import { Head } from "@inertiajs/react";
 import React from "react";
 
-interface GuarantorRateHeaderProps {
+interface GuarantorProductTypeRateHeaderProps {
   title: string;
   guarantor: any;
 }
 
-const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, guarantor }) => {
+const GuarantorProductTypeRateHeader: React.FC<GuarantorProductTypeRateHeaderProps> = ({ title, guarantor }) => {
   return (
     <>
       <Head title={title ?? "Tarif Asuransi"} />
@@ -30,4 +30,4 @@ const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, guaran
   );
 };
 
-export default GuarantorRateHeader;
+export default GuarantorProductTypeRateHeader;

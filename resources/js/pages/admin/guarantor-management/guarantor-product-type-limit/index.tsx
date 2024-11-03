@@ -3,19 +3,21 @@ import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import GuarantorRateDatatable from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
-import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { textCurrency } from "@/lib/text-currency";
+import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
+import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
+import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import { GuarantorRatePageProps } from "./guarantor-rate.type";
+import { GuarantorProductTypeRatePageProps } from "./guarantor-product-type-rate.type";
 
-const GuarantorRatePage: GuarantorRatePageProps = ({
+const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
   guarantors,
   guarantorSelected,
   products,
   productSelected,
+  limit,
   guarantorProductTypes,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
@@ -40,7 +42,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
 
   const getData = (per_page: string, search: string, guarantorId?: number, productId?: number) => {
     router.get(
-      route(GuarantorRateUtils.link.index),
+      route(GuarantorProductTypeRateUtils.link.index),
       pickBy({
         per_page,
         search,
@@ -76,7 +78,26 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectProduct(value.id)}
           />
+          <div>
+            <div className="flex items-center gap-x-2">
+              <span className="text-sm text-gray-400">Limit Pengajuan:</span>
+              {limit?.limit ? (
+                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
+              ) : (
+                <span className="text-sm text-gray-400">Belum Di setting</span>
+              )}
+            </div>
+            <div className="flex items-center gap-x-2">
+              <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
+              {limit?.limit_used ? (
+                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
+              ) : (
+                <span className="text-sm text-gray-400">Belum Ada</span>
+              )}
+            </div>
+          </div>
         </div>
+
         <SearchDatatable
           value={search}
           onChange={setSearch}
@@ -84,7 +105,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           placeholder="Cari Jenis Produk"
         />
       </div>
-      <GuarantorRateDatatable guarantorProductTypes={guarantorProductTypes} />
+      <GuarantorProductTypeRateDatatable guarantorProductTypes={guarantorProductTypes} />
     </main>
   );
 };
@@ -96,7 +117,10 @@ GuarantorRatePage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
+      <GuarantorProductTypeRateHeader
+        title={pagePropsData?.page_settings?.title}
+        guarantor={pagePropsData?.guarantor}
+      />
       {page}
     </AdminLayout>
   );

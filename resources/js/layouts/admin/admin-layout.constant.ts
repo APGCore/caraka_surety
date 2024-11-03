@@ -148,6 +148,12 @@ export const adminRoute = {
           url: "#",
         },
         {
+          title: "Limit Pengajuan Produk Penjamin",
+          route_name: "guarantor-product-type-limit",
+          href: route("guarantor-product-type-limit.index"),
+          url: "#",
+        },
+        {
           title: "Tarif Penjamin",
           route_name: "guarantor-rate",
           href: route("guarantor-rate.index"),

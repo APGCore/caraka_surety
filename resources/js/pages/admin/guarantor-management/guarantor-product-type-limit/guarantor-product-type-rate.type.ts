@@ -1,13 +1,14 @@
 import React from "react";
 
-interface GuarantorRateProps {
+interface GuarantorProductTypeRateProps {
   guarantors: any;
   guarantorSelected: any;
   products: any;
   productSelected: any;
+  limit: any;
   guarantorProductTypes: any;
 }
 
-export type GuarantorRatePageProps = React.FC<GuarantorRateProps> & {
+export type GuarantorProductTypeRatePageProps = React.FC<GuarantorProductTypeRateProps> & {
   layout?: (page: any) => JSX.Element;
 };

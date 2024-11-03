@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -57,8 +58,13 @@ class GuarantorToProductType extends Model
         return $this->belongsTo(ProductType::class);
     }
 
-    public function guarantorProductTypeLimit(): HasMany
+    public function limits(): HasMany
     {
         return $this->hasMany(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id');
+    }
+
+    public function limit(): HasOne
+    {
+        return $this->hasOne(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id');
     }
 }
