@@ -119,6 +119,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // SCORING
   const { scorings } = useGetScoringById({ selectedScoringId: 1 });
+
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);
 
@@ -173,19 +174,46 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     scoring: {
       id: 1,
       note: "",
-      min_point: "",
+      min_point: 60,
       scores: [],
     },
   });
 
-  console.log(data);
+  const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
+    const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
 
-  const handleOptionChange = (questionId: string, optionId: string) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [questionId]: optionId,
-    }));
+    // If score with the same questionId exists, update it
+    if (existingScoreIndex !== -1) {
+      const updatedScores = [...data.scoring.scores];
+      updatedScores[existingScoreIndex] = {
+        ...updatedScores[existingScoreIndex],
+        scoring_question_category_id: questionCategoryId,
+        scoring_option_id: optionId,
+        point: val,
+      };
+
+      setData("scoring", {
+        ...data.scoring,
+        scores: updatedScores,
+      });
+    } else {
+      // If no matching score is found, add a new entry
+      setData("scoring", {
+        ...data.scoring,
+        scores: [
+          ...data.scoring.scores,
+          {
+            scoring_question_category_id: questionCategoryId,
+            scoring_question_id: questionId,
+            scoring_option_id: optionId,
+            point: val,
+          },
+        ],
+      });
+    }
   };
+
+  console.log(data.scoring);
 
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
@@ -713,7 +741,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     valueKey="name"
                     placeholder="Pilih Provinsi"
                     onSelect={(val: any) => {
-                      setSelectedPrincipalProvince(val);
+                      setData("submission", { ...data.submission, job_location_province_id: val.id });
+                      setSelectedJobLocationProvince(val);
                     }}
                   />
                 </div>
@@ -725,7 +754,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     valueKey="name"
                     placeholder="Pilih Kabupaten/Kota"
                     onSelect={(val: any) => {
-                      setSelectedPrincipalRegency(val);
+                      setData("submission", { ...data.submission, job_location_regency_id: val.id });
+                      setSelectedJobLocationRegency(val);
                     }}
                   />
                 </div>
@@ -737,17 +767,24 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     valueKey="name"
                     placeholder="Pilih Kecamatan"
                     onSelect={(val: any) => {
-                      setSelectedPrincipalDistrict(val);
+                      setData("submission", { ...data.submission, job_location_district_id: val.id });
+                      setSelectedJobLocationDistrict(val);
                     }}
                   />
                 </div>
                 <div className="grid gap-[5px]">
                   <Label className="text-sm">Desa</Label>
-                  <Input className="text-md" placeholder="Masukan nama Desa" />
-                </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-sm">Alamat Lengkap</Label>
-                  <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                  <Input
+                    className="text-md"
+                    placeholder="Masukan nama Desa"
+                    value={data.submission.job_location_village}
+                    onChange={(e) =>
+                      setData("submission", {
+                        ...data.submission,
+                        job_location_village: e.target.value,
+                      })
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -778,19 +815,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   of={scoringQuestions?.options}
                                   render={(scoringOptions) => {
                                     return (
-                                      <div className="flex items-center space-x-2">
+                                      <div className="flex items-center space-x-2 ">
                                         <RadioGroupItem
                                           value={scoringOptions?.name}
-                                          id={scoringOptions?.name}
+                                          id={`option-${scoringOptions?.id}`}
                                           onClick={() =>
                                             handleOptionChange(
+                                              scoringCategories?.id,
                                               scoringQuestions.id,
                                               scoringOptions.id,
-                                              //   scoringOptions.points,
+                                              scoringOptions.point,
                                             )
                                           }
                                         />
-                                        <Label htmlFor="option-one">{scoringOptions?.name}</Label>
+                                        <Label className="cursor-pointer" htmlFor={`option-${scoringOptions?.id}`}>
+                                          {scoringOptions?.name}
+                                        </Label>
                                       </div>
                                     );
                                   }}
