@@ -21,9 +21,9 @@ import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
 import StaffLayoutPage from "@/layouts/staff";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
+import dayjs from "dayjs";
 import { useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
-import SumberDanaPengajuanSelect from "./_partials/sumber-dana";
 import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
@@ -148,9 +148,37 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       last_deed: "",
       documents: [],
     },
+    submission: {
+      guarantor_id: "",
+      product_id: "",
+      guarantor_to_product_type_id: "",
+      obligee_id: "",
+      bank_id: "",
+      contract_doc_name: "",
+      contract_doc_number: "",
+      contract_doc_date: undefined as Date | undefined,
+      contract_value: "",
+      guarantee_value: "",
+      time_period: "",
+      start_date: undefined as Date | undefined,
+      end_date: undefined as Date | undefined,
+      job_location_province_id: "",
+      job_location_regency_id: "",
+      job_location_district_id: "",
+      job_location_village: "",
+      job_location_source_of_fund_id: "",
+      note: "",
+    },
+
+    scoring: {
+      id: 1,
+      note: "",
+      min_point: "",
+      scores: [],
+    },
   });
 
-  console.log(data.principal);
+  console.log(data);
 
   const handleOptionChange = (questionId: string, optionId: string) => {
     setSelectedOptions((prev) => ({
@@ -459,10 +487,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         <div>
           <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
           <div className="grid gap-5">
-            <div className="grid gap-[5px]">
+            {/* <div className="grid gap-[5px]">
               <Label className="text-md">Paket Pekerjaan</Label>
               <Input className="text-md" placeholder="Masukan Paket Pekerjaan" />
-            </div>
+            </div> */}
             <div className="grid gap-[5px]">
               <Label className="text-md">Produk</Label>
               <Combobox
@@ -477,6 +505,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     setIsResetGuarantor(true);
                     setIsResetProductType(true);
                   }
+                  setData("submission", { ...data.submission, product_id: val?.id });
                   setSelectedProducts(val.id);
                 }}
               />
@@ -495,6 +524,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     setSelectedProductType(null);
                     setIsResetProductType(true);
                   }
+                  setData("submission", { ...data.submission, guarantor_id: val?.id });
                   setSelectedGuarantor(val.id);
                 }}
               />
@@ -509,6 +539,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 reset={isResetProductType}
                 onReset={(resetVal) => setIsResetProductType(resetVal)}
                 onSelect={(val: any) => {
+                  setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
                   setSelectedProductType(val.id);
                 }}
               />
@@ -521,6 +552,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 valueKey="name"
                 placeholder="Pilih Obligee"
                 onSelect={(val: any) => {
+                  setData("submission", { ...data.submission, obligee_id: val?.id });
                   setSelectedObligee(val.id);
                 }}
               />
@@ -533,37 +565,126 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 valueKey="name"
                 placeholder="Pilih Bank"
                 onSelect={(val: any) => {
+                  setData("submission", { ...data.submission, bank_id: val?.id });
                   setSelectedBank(val.id);
                 }}
               />
             </div>
             <div className="grid gap-[5px]">
-              <Label className="text-md">Jenis Dokumen</Label>
-              <SumberDanaPengajuanSelect placeholder="Pilih Jenis Dokumen" />
+              <Label className="text-md">Nama Dokumen Kontrak</Label>
+              <Input
+                className="text-md"
+                placeholder="Nama Dokumen Kontrak"
+                value={data.submission.contract_doc_name}
+                onChange={(e) =>
+                  setData("submission", {
+                    ...data.submission,
+                    contract_doc_name: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="grid gap-[5px]">
-              <Label className="text-md">Nomor Dokumen</Label>
-              <Input className="text-md" type="number" placeholder="Nomor Dokumen" />
+              <Label className="text-md">Nomor Dokumen Kontrak</Label>
+              <Input
+                className="text-md"
+                placeholder="Nomor Dokumen Kontrak"
+                value={data.submission.contract_doc_number}
+                onChange={(e) =>
+                  setData("submission", {
+                    ...data.submission,
+                    contract_doc_number: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="grid gap-[5px]">
-              <Label className="text-md">Tanggal Dokumen</Label>
-              <CalendarPicker />
+              <Label className="text-md">Tanggal Dokumen Kontrak</Label>
+              <CalendarPicker
+                onPickDate={(d) => {
+                  setData("submission", {
+                    ...data.submission,
+                    contract_doc_date: d,
+                  });
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Nilai Kontrak</Label>
-              <Input className="text-md" type="number" placeholder="Nilai Kontrak" />
+              <Input
+                className="text-md"
+                type="number"
+                placeholder="Nilai Kontrak"
+                value={data.submission.contract_value}
+                onChange={(e) =>
+                  setData("submission", {
+                    ...data.submission,
+                    contract_value: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Nilai Jaminan</Label>
-              <Input className="text-md" type="number" placeholder="Nilai Jaminan" />
+              <Input
+                className="text-md"
+                type="number"
+                placeholder="Nilai Jaminan"
+                value={data.submission.guarantee_value}
+                onChange={(e) =>
+                  setData("submission", {
+                    ...data.submission,
+                    guarantee_value: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Jangka Waktu</Label>
-              <Input className="text-md" type="number" placeholder="Jangka Waktu" />
+              <Input
+                className="text-md"
+                type="number"
+                placeholder="Jangka Waktu"
+                value={data.submission.time_period}
+                onChange={(e) =>
+                  setData("submission", {
+                    ...data.submission,
+                    time_period: e.target.value,
+                    end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
+                  })
+                }
+              />
             </div>
             <div className="grid gap-[5px]">
-              <Label className="text-md">Tanggal Terbit Jaminan</Label>
-              <CalendarPicker />
+              <Label className="text-md">Tanggal Mulai Kontrak</Label>
+              <CalendarPicker
+                onPickDate={(d) => {
+                  setData("submission", {
+                    ...data.submission,
+                    start_date: d,
+                    time_period: "0",
+                    end_date: d,
+                  });
+                }}
+              />
+            </div>
+            <div className="grid gap-[5px]">
+              <Label className="text-md">Tanggal Selesai Kontrak </Label>
+              <CalendarPicker
+                initialDate={
+                  data?.submission?.end_date ?? dayjs().add(Number(data?.submission?.time_period), "day").toDate()
+                }
+                onPickDate={(e) => {
+                  setData("submission", {
+                    ...data.submission,
+                    end_date: e,
+                    time_period: dayjs(e)
+                      .startOf("day")
+                      .diff(dayjs(data.submission.start_date).startOf("day"), "day")
+                      .toString(),
+                  });
+                }}
+              />
             </div>
             <div className="grid gap-[5px]">
               <Label className="text-md">Sumber Dana</Label>
@@ -573,6 +694,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 valueKey="name"
                 placeholder="Pilih Sumber Dana"
                 onSelect={(val) => {
+                  setData("submission", {
+                    ...data.submission,
+                    job_location_source_of_fund_id: val?.id,
+                  });
                   setSelectedSourceOfFund(val);
                 }}
               />

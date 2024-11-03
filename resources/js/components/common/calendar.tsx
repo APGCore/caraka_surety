@@ -2,18 +2,26 @@ import { cn } from "@/lib/cn";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { id as LocaleId } from "date-fns/locale";
+import dayjs from "dayjs";
 import * as React from "react";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface CalendarPickerProps extends React.HTMLAttributes<HTMLDivElement> {
+  initialDate?: Date;
   onPickDate?: (date: Date | undefined) => void;
 }
 
-const CalendarPicker: React.FC<CalendarPickerProps> = ({ className, onPickDate }) => {
-  const [date, setDate] = React.useState<Date | undefined>(() => new Date());
+const CalendarPicker: React.FC<CalendarPickerProps> = ({ className, onPickDate, initialDate }) => {
+  const [date, setDate] = React.useState<Date | undefined>(() => initialDate ?? dayjs().toDate());
   const [isOpenCalendar, setIsOpenCalendar] = React.useState(false);
+
+  React.useEffect(() => {
+    if (initialDate) {
+      setDate(initialDate);
+    }
+  }, [initialDate]);
 
   return (
     <Popover open={isOpenCalendar} onOpenChange={setIsOpenCalendar}>
