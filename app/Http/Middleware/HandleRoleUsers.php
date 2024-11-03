@@ -14,9 +14,9 @@ class HandleRoleUsers
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (! auth()->user()->hasRole($role)) {
+        if (! auth()->user()->hasRoles($roles)) {
             $route = User::query()->find(auth()->id())?->role?->route_name;
             return redirect()->route($route);
         }

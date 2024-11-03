@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->role()->where('name', $role)->exists();
     }
 
+    public function hasRoles(array $roles): bool
+    {
+        return $this->role()->whereIn('name', $roles)->exists();
+    }
+
     public function employeeLimit(): HasMany
     {
         return $this->hasMany(EmployeeLimit::class, 'employee_id');
