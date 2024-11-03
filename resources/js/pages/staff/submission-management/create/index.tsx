@@ -22,6 +22,7 @@ import StaffLayoutPage from "@/layouts/staff";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
+import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { SubmissionCreatePageProps } from "./create-page.type";
@@ -126,12 +127,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
 
-  const { data, setData } = useForm({
+  const { data, setData, post, processing } = useForm({
     principal: {
       id: "",
       province_id: undefined,
       regency_id: undefined,
-      disctrict_id: undefined,
+      district_id: undefined,
       village: "",
       name: "",
       address: "",
@@ -167,7 +168,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       job_location_regency_id: "",
       job_location_district_id: "",
       job_location_village: "",
-      job_location_source_of_fund_id: "",
+      source_of_fund_id: "",
       note: "",
     },
 
@@ -213,11 +214,27 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }
   };
 
-  console.log(data.scoring);
+  const handleSubmit = () => {
+    post(route("staff-submission-form.store"), {
+      onError: (errors) => {
+        console.log(errors);
+      },
+      onSuccess: () => {
+        console.log("success");
+      },
+    });
+  };
+
+  console.log(data);
 
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
-      <form className="space-y-16">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="space-y-16">
         {formSearchPrincipalState === "idle" && (
           <div>
             <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
@@ -462,7 +479,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         valueKey="name"
                         placeholder="Pilih Kecamatan"
                         onSelect={(val: any) => {
-                          setData("principal", { ...data.principal, disctrict_id: val?.id });
+                          setData("principal", { ...data.principal, district_id: val?.id });
                           setSelectedPrincipalDistrict(val);
                         }}
                       />
@@ -481,10 +498,20 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }
                       />
                     </div>
-                    {/* <div className="grid gap-[5px]">
-                    <Label className="text-sm">Alamat Lengkap</Label>
-                    <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
-                  </div> */}
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Alamat Lengkap</Label>
+                      <Textarea
+                        className="text-md"
+                        placeholder="Masukan Jalan/RT/RW dsb."
+                        value={data.principal.address}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            address: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -501,7 +528,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <FileInput
                           onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
                           previewValue={doc.principal_document?.path}
-                          required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
+                          //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
                         />
                       </div>
                     );
@@ -724,7 +751,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 onSelect={(val) => {
                   setData("submission", {
                     ...data.submission,
-                    job_location_source_of_fund_id: val?.id,
+                    source_of_fund_id: val?.id,
                   });
                   setSelectedSourceOfFund(val);
                 }}
@@ -847,6 +874,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             />
           </div>
         </div>
+        <Button type="submit" disabled={processing}>
+          {processing && <LoaderCircle className="animate-spin mr-1" />}
+          Submit
+        </Button>
       </form>
     </div>
   );
