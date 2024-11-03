@@ -1,9 +1,8 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
-    Route::get('/', Controllers\DashboardAdminController::class)
-        ->name('admin.index');
-});
+Route::get('/', Controllers\DashboardAdminController::class)
+    ->name(RoleEnum::AdminRoute->value);

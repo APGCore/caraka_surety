@@ -33,13 +33,13 @@ class PrincipalController extends Controller
             ->appends($request->all());
         $principalResource = PrincipalResource::collection($principal);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Principal',
             ],
-            'principals' => fn() => $principalResource,
+            'principals' => fn () => $principalResource,
         ]);
     }
 
@@ -92,7 +92,7 @@ class PrincipalController extends Controller
                 $regencyController->synchronize($request->merge(['code' => $province->code]));
             }
             $regencies = $regenciesQuery->where('province_id', $request->get('province_id'))->get();
-            $principal->setAttribute('province_id', (int)$request->get('province_id'));
+            $principal->setAttribute('province_id', (int) $request->get('province_id'));
         } elseif ($principal->province_id) {
             $regencies = Regency::query()
                 ->where('province_id', $principal->province_id)
@@ -110,7 +110,7 @@ class PrincipalController extends Controller
                 $districtController->synchronize($request->merge(['code' => $regency->code]));
             }
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))->get();
-            $principal->setAttribute('regency_id', (int)$request->get('regency_id'));
+            $principal->setAttribute('regency_id', (int) $request->get('regency_id'));
         } elseif ($principal->regency_id) {
             $districts = District::query()
                 ->where('regency_id', $principal->regency_id)
@@ -118,11 +118,11 @@ class PrincipalController extends Controller
         }
 
         if ($request->get('district_id')) {
-            $principal->setAttribute('district_id', (int)$request->get('district_id'));
+            $principal->setAttribute('district_id', (int) $request->get('district_id'));
         }
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -175,7 +175,7 @@ class PrincipalController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -193,7 +193,7 @@ class PrincipalController extends Controller
     public function getDocument(Request $request)
     {
         $request->validate([
-            'principal_id' => 'nullable|exists:' . Principal::class . ',id,deleted_at,NULL',
+            'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
         ]);
         $principal = Principal::query()
             ->where('id', $request->get('principal_id'))

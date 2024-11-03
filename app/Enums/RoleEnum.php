@@ -5,10 +5,15 @@ namespace App\Enums;
 enum RoleEnum: string
 {
     case Admin = 'Admin';
+    case AdminRoute = 'admin.index';
     case Direksi = 'Direksi';
+    case DireksiRoute = 'direksi.index';
     case KepalaCabang = 'Kepala Cabang';
+    case KepalaCabangRoute = 'kepala-cabang.index';
     case Manager = 'Manager';
+    case ManagerRoute = 'manager.index';
     case Staff = 'Staff';
+    case StaffRoute = 'staff.index';
 
     public static function getValues(): array
     {
@@ -18,6 +23,17 @@ enum RoleEnum: string
             self::KepalaCabang->value,
             self::Manager->value,
             self::Staff->value,
+        ];
+    }
+
+    public static function getRoute(): array
+    {
+        return [
+            self::Admin->value => self::AdminRoute->value,
+            self::Direksi->value => self::DireksiRoute->value,
+            self::KepalaCabang->value => self::KepalaCabangRoute->value,
+            self::Manager->value => self::ManagerRoute->value,
+            self::Staff->value => self::StaffRoute->value,
         ];
     }
 }

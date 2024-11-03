@@ -1,8 +1,10 @@
 <?php
 
+use App\Enums\RoleEnum;
+use App\Http\Middleware\HandleRoleUsers;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->prefix('admin')->group(function () {
+Route::middleware(['auth', HandleRoleUsers::class.':'.RoleEnum::Admin->value])->prefix('admin')->group(function () {
     require_once __DIR__.'/dashboard.php';
     require_once __DIR__.'/location.php';
     require_once __DIR__.'/products.php';
