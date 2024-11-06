@@ -19,13 +19,14 @@ import useGetProductTypesByProductAndGuarantor from "@/hooks/api/product/useGetP
 import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
 import StaffLayoutPage from "@/layouts/staff";
+import { getNumericValue } from "@/lib/getNumericValue";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
-import { SubmissionCreatePageProps } from "./create-page.type";
+import { SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Product
@@ -127,7 +128,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
 
-  const { data, setData, post, processing } = useForm({
+  const { data, setData, post, processing } = useForm<SubmissionFormProps>({
     principal: {
       id: "",
       province_id: undefined,
@@ -136,17 +137,17 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       village: "",
       name: "",
       address: "",
-      telephone: "",
+      telephone: undefined,
       fax: "",
       npwp: "",
-      nib: "",
+      nib: undefined,
       siup_siujk: "",
       head_name: "",
       director_name: "",
       director_position: "",
-      director_phone: "",
+      director_phone: undefined,
       commissioner: "",
-      year_established: "",
+      year_established: undefined,
       last_deed: "",
       documents: [],
     },
@@ -307,10 +308,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     className="text-md"
                     placeholder="No NPWP"
                     value={data.principal.npwp}
+                    min="0"
+                    type="number"
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        npwp: e.target.value,
+                        npwp: getNumericValue(e),
                       })
                     }
                   />
@@ -321,10 +324,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     className="text-md"
                     placeholder="No Telepon Perusahaan"
                     value={data.principal.telephone}
+                    min="0"
+                    type="number"
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        telephone: e.target.value,
+                        telephone: getNumericValue(e),
                       })
                     }
                   />
@@ -334,25 +339,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   <Input
                     className="text-md"
                     placeholder="No NIB"
+                    type="number"
                     value={data.principal.nib}
+                    min="0"
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        nib: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">SIUP/SIUJK</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="No SIUP/SIUJK"
-                    value={data.principal.siup_siujk}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        siup_siujk: e.target.value,
+                        nib: getNumericValue(e),
                       })
                     }
                   />
@@ -386,24 +379,26 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-md">Nomor Handphone</Label>
+                  <Label className="text-md">No. Telephone Direksi</Label>
                   <Input
                     className="text-md"
                     placeholder="Nomor telepon Jabatan"
                     value={data.principal.director_phone}
+                    min="0"
+                    type="number"
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        director_phone: e.target.value,
+                        director_phone: getNumericValue(e),
                       })
                     }
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-md">Komisaris</Label>
+                  <Label className="text-md">Nama Komisaris</Label>
                   <Input
                     className="text-md"
-                    placeholder="Komisaris"
+                    placeholder="Nama Komisaris"
                     value={data.principal.commissioner}
                     onChange={(e) =>
                       setData("principal", {
@@ -420,10 +415,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     type="number"
                     placeholder="Tahun berdiri perusahaan"
                     value={data.principal.year_established}
+                    min="0"
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        year_established: e.target.value,
+                        year_established: getNumericValue(e),
                       })
                     }
                   />
@@ -542,10 +538,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         <div>
           <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
           <div className="grid gap-5">
-            {/* <div className="grid gap-[5px]">
-              <Label className="text-md">Paket Pekerjaan</Label>
-              <Input className="text-md" placeholder="Masukan Paket Pekerjaan" />
-            </div> */}
             <div className="grid gap-[5px]">
               <Label className="text-md">Produk</Label>
               <Combobox
@@ -812,6 +804,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       })
                     }
                   />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-sm">Alamat Lengkap</Label>
+                  <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
                 </div>
               </div>
             </div>
