@@ -28,12 +28,12 @@ class DatabaseSeeder extends Seeder
             ScoringOptionSeeder::class,
             PrincipalSeeder::class,
             GuarantorSeeder::class,
-            ObligeeSeeder::class,
-            BankSeeder::class,
             GuarantorToProductTypeSeeder::class,
-            BlankSeeder::class,
-            ProfileLimitSeeder::class,
-            EmployeeLimitSeeder::class,
+            //            ObligeeSeeder::class,
+            //            BankSeeder::class,
+            //            BlankSeeder::class,
+            //            ProfileLimitSeeder::class,
+            //            EmployeeLimitSeeder::class,
         ]);
     }
 }

@@ -57,12 +57,12 @@ class ProductTipeController extends Controller
      */
     public function store(Request $request)
     {
-        //
-
         $request->validate([
+            'no' => 'required|integer',
             'name' => 'required|string',
             'description' => 'required|string',
         ], [
+            'no.required' => 'Nomor Urut wajib diisi',
             'name.required' => 'Nama Jenis Produk wajib diisi',
             'name.string' => 'Nama Jenis Produk harus berupa string',
             'description.required' => 'Deskripsi Jenis Produk wajib diisi',
@@ -71,8 +71,8 @@ class ProductTipeController extends Controller
 
         try {
             DB::beginTransaction();
-            $productType = ProductType::query()
-                ->create($request->only('name', 'description'));
+            ProductType::query()
+                ->create($request->only('no', 'name', 'description'));
 
             flashMessage('Jenis Produk Ditambahkan', 'Jenis Produk berhasil ditambahkan');
             DB::commit();
@@ -117,14 +117,21 @@ class ProductTipeController extends Controller
     {
         //
         $request->validate([
+            'no' => 'required|integer',
             'name' => 'required|string',
             'description' => 'required|string',
+        ], [
+            'no.required' => 'Nomor Urut wajib diisi',
+            'name.required' => 'Nama Jenis Produk wajib diisi',
+            'name.string' => 'Nama Jenis Produk harus berupa string',
+            'description.required' => 'Deskripsi Jenis Produk wajib diisi',
+            'description.string' => 'Deskripsi Jenis Produk harus berupa string',
         ]);
 
         try {
             DB::beginTransaction();
             if ($productTipe->exists) {
-                $productTipe->update($request->only('name', 'description'));
+                $productTipe->update($request->only('no', 'name', 'description'));
             } else {
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }

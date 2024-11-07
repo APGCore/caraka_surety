@@ -17,6 +17,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
@@ -34,9 +35,10 @@ type GuarantorProductType = {
   code: string;
   name: string;
   job_group: string;
+  job_type: string;
 };
 
-const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products }) => {
+const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products, jobGroups, jobTypes }) => {
   const [productActive, setProductActive] = useState<number>();
   const [showSelectProduct, setShowSelectProduct] = useState<boolean>(true);
   const [productTypes, setProductTypes] = useState<Array<GuarantorProductType>>([]);
@@ -50,6 +52,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     code: "",
     name: "",
     job_group: "",
+    job_type: "",
   };
 
   const [productTypeOwnedProduct, setProductTypeOwnedProduct] = useState<Array<GuarantorProductType>>([
@@ -216,6 +219,40 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
     });
   };
 
+  const changeJobGroup = (value: any, id: number, val: any) => {
+    const newValue = values[id].job_group === value ? "" : value;
+    setValues((prev) => {
+      const newValues = [...prev];
+      newValues[id] = {
+        id: val.id,
+        product_id: productActive || 0,
+        product_type_id: values[id].product_type_id,
+        code: values[id].code,
+        name: values[id].name,
+        job_group: newValue == "-" ? null : newValue,
+        job_type: values[id].job_type,
+      };
+      return newValues;
+    });
+  };
+
+  const changeJobType = (value: any, id: number, val: any) => {
+    const newValue = values[id].job_type === value ? "" : value;
+    setValues((prev) => {
+      const newValues = [...prev];
+      newValues[id] = {
+        id: val.id,
+        product_id: productActive || 0,
+        product_type_id: values[id].product_type_id,
+        code: values[id].code,
+        name: values[id].name,
+        job_group: values[id].job_group,
+        job_type: newValue == "-" ? null : newValue,
+      };
+      return newValues;
+    });
+  };
+
   const clear = () => {
     setShowSelectProduct(true);
     setProductTypeOwnedProduct([]);
@@ -375,6 +412,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                               code: newValue,
                               name: values[id].name,
                               job_group: values[id].job_group,
+                              job_type: values[id].job_type,
                             };
                             return newValues;
                           });
@@ -411,6 +449,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                                           code: values[id].code,
                                           name: newValue,
                                           job_group: values[id].job_group,
+                                          job_type: values[id].job_type,
                                         };
                                         return newValues;
                                       });
@@ -432,28 +471,38 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products 
                         </PopoverContent>
                       </Popover>
 
-                      <Input
-                        id="job_group"
-                        type="text"
-                        placeholder="Kelompok Pekerjaan"
-                        value={values[id]?.job_group}
-                        className="mt-2 h-[40px]"
-                        onChange={(value) => {
-                          const newValue = values[id].job_group === value.target.value ? "" : value.target.value;
-                          setValues((prev) => {
-                            const newValues = [...prev];
-                            newValues[id] = {
-                              id: val.id,
-                              product_id: productActive || 0,
-                              product_type_id: values[id].product_type_id,
-                              code: values[id].code,
-                              name: values[id].name,
-                              job_group: newValue,
-                            };
-                            return newValues;
-                          });
-                        }}
-                      />
+                      <Select
+                        onValueChange={(value) => changeJobGroup(value, id, val)}
+                        defaultValue={values[id]?.job_group}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value={"-"}>-</SelectItem>
+                            {jobGroups.map((jobGroup: any) => (
+                              <SelectItem value={jobGroup}>{jobGroup}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+
+                      <Select
+                        onValueChange={(value) => changeJobType(value, id, val)}
+                        defaultValue={values[id]?.job_type}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Tipe Pekarjaan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value={"-"}>-</SelectItem>
+                            {jobTypes.map((groupType: any) => (
+                              <SelectItem value={groupType}>{groupType}</SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+
                       {/* Delete Combobox Button */}
                       {choosedProductTypes.length > 1 && (
                         <Button

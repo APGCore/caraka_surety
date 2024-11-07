@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Guarantor\Product;
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
@@ -31,7 +33,8 @@ class StoreRequest extends FormRequest
             'data.*.product_type_id' => 'required|exists:'.ProductType::class.',id,deleted_at,NULL',
             'data.*.code' => 'required|string|max:255',
             'data.*.name' => 'required|string|max:255',
-            'data.*.job_group' => 'nullable|string|max:255',
+            'data.*.job_group' => 'nullable|string|in:'.implode(',', JobGroup::getValues()),
+            'data.*.job_type' => 'nullable|string|in:'.implode(',', JobType::getValues()),
         ];
     }
 }

@@ -15,46 +15,57 @@ class ProductTypeSeeder extends Seeder
 
         $productTypes = [
             [
+                'no' => 1,
                 'name' => 'Jaminan Penawaran',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 2,
                 'name' => 'Jaminan Pelaksanaan',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 3,
                 'name' => 'Jaminan Uang Muka',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 4,
                 'name' => 'Jaminan Pemeliharaan',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 1,
                 'name' => 'KABER',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 2,
                 'name' => 'KITE',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 3,
                 'name' => 'Impor Sementara',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 1,
                 'name' => 'CAR/EAR',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 2,
                 'name' => 'Marine Hull',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 3,
                 'name' => 'Marine Cargo',
                 'description' => 'lorem ipsum',
             ],
             [
+                'no' => 4,
                 'name' => 'TPL',
                 'description' => 'lorem ipsum',
             ],

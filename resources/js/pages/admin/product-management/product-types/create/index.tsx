@@ -11,6 +11,7 @@ import CreateProductTypeHeader from "./_partials/create-product-type-header";
 
 const AdminCreateProductTypePage = () => {
   const { data, setData, post, processing, errors, reset } = useForm({
+    no: "",
     name: "",
     description: "",
   });
@@ -20,6 +21,7 @@ const AdminCreateProductTypePage = () => {
 
     post(route("product-types.store"), {
       onSuccess: () => {
+        reset("no");
         reset("name");
         reset("description");
       },
@@ -31,6 +33,18 @@ const AdminCreateProductTypePage = () => {
       <div className="border p-12 rounded-md shadow-md flex justify-center">
         <div className="w-full max-w-lg ">
           <form onSubmit={submit} id="login-form" className="grid gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="no">Nomor</Label>
+              <Input
+                id="no"
+                type="number"
+                placeholder="Masukan nomor urut"
+                required
+                value={data.no}
+                onChange={(e) => setData("no", e.target.value)}
+              />
+              <InputError message={errors.no} className="mt-2" />
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Nama</Label>
               <Input

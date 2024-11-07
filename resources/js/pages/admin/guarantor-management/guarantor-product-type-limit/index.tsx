@@ -63,7 +63,7 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
             labelKey={"name"}
             valueKey={"name"}
             defaultValue={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
+            placeholder={"Pilih Asuransi"}
             className={"w-[210px]"}
             shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}

@@ -1,4 +1,4 @@
-import { Archive, BookOpenCheck, Boxes, Building, ChartColumn, Home, MapPinHouse, User } from "lucide-react";
+import { Archive, BookOpenCheck, Boxes, Building, ChartColumn, Home, Infinity, MapPinHouse, User } from "lucide-react";
 
 export const adminRoute = {
   user: {
@@ -124,6 +124,12 @@ export const adminRoute = {
           url: "#",
         },
         {
+          title: "Tarif Penjamin",
+          route_name: "guarantor-rate",
+          href: route("guarantor-rate.index"),
+          url: "#",
+        },
+        {
           title: "Blangko",
           route_name: "blank",
           href: route("blank.index"),
@@ -135,28 +141,29 @@ export const adminRoute = {
           href: route("distribution-of-blank.index"),
           url: "#",
         },
+      ],
+    },
+    {
+      title: "Kelola Limit Pengajuan",
+      url: "#",
+      icon: Infinity,
+      items: [
         {
-          title: "Limit Pengajuan Kantor",
-          route_name: "profile-limit",
-          href: route("profile-limit.index"),
-          url: "#",
-        },
-        {
-          title: "Limit Pengajuan Karyawan",
-          route_name: "employee-limit",
-          href: route("employee-limit.index"),
-          url: "#",
-        },
-        {
-          title: "Limit Pengajuan Produk Penjamin",
+          title: "Produk Asuransi",
           route_name: "guarantor-product-type-limit",
           href: route("guarantor-product-type-limit.index"),
           url: "#",
         },
         {
-          title: "Tarif Penjamin",
-          route_name: "guarantor-rate",
-          href: route("guarantor-rate.index"),
+          title: "Kantor",
+          route_name: "profile-limit",
+          href: route("profile-limit.index"),
+          url: "#",
+        },
+        {
+          title: "Karyawan",
+          route_name: "employee-limit",
+          href: route("employee-limit.index"),
           url: "#",
         },
       ],

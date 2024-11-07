@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
@@ -19,10 +21,13 @@ return new class extends Migration
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Product::class, 'product_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(ProductType::class, 'product_type_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->integer('no');
             $table->string('code');
             $table->string('name');
-            $table->string('job_group')->nullable();
             $table->string('full_name');
+            $table->enum('job_group', JobGroup::getValues())->nullable();
+            $table->enum('job_type', JobType::getValues())->nullable();
+
             $table->float('minimum_bill', 5)->default(0);
             $table->float('minimum_payment', 5)->default(0);
             $table->float('selling_rate', 5)->default(0);

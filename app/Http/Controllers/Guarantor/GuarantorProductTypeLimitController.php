@@ -62,7 +62,7 @@ class GuarantorProductTypeLimitController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Setting Limit Produk Penjamin',
+                'title' => 'Setting Limit Produk Asuransi',
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,

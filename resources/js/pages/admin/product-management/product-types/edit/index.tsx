@@ -1,19 +1,10 @@
 import InputError from "@/components/common/input-error";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import AdminLayout from "@/layouts/admin";
-import Edit from "@/pages/profile/edit";
-import { Head, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
 import EditProductTypeHeader from "./_partials/edit-product-type-header";
@@ -21,6 +12,7 @@ import { AdminEditProductTypePageProps } from "./edit-product-type.type";
 
 const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }) => {
   const { data, setData, put, processing, errors, reset } = useForm({
+    no: "",
     name: "",
     description: "",
   });
@@ -28,6 +20,7 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
   useEffect(() => {
     if (productType?.name || productType?.description) {
       setData({
+        no: productType?.no ?? "",
         name: productType?.name ?? "",
         description: productType?.description ?? "",
       });
@@ -50,6 +43,18 @@ const AdminEditProductTypePage: AdminEditProductTypePageProps = ({ productType }
       <div className="border p-8 rounded-md shadow-md flex justify-center">
         <div className="w-full max-w-lg">
           <form onSubmit={submit} id="login-form" className="grid gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="no">Nomor</Label>
+              <Input
+                id="no"
+                type="number"
+                placeholder="Masukan nomor urut"
+                required
+                value={data.no}
+                onChange={(e) => setData("no", e.target.value)}
+              />
+              <InputError message={errors.no} className="mt-2" />
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Nama</Label>
               <Input

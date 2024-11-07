@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
@@ -17,6 +19,8 @@ class GuarantorToProductTypeController extends Controller
     {
         $guarantors = Guarantor::all();
         $products = Product::all();
+        $jobGroups = JobGroup::getValues();
+        $jobTypes = JobType::getValues();
 
         $component = request()->path().'/index';
 
@@ -26,6 +30,8 @@ class GuarantorToProductTypeController extends Controller
             ],
             'guarantors' => $guarantors,
             'products' => $products,
+            'jobGroups' => $jobGroups,
+            'jobTypes' => $jobTypes,
         ]);
     }
 
@@ -49,7 +55,7 @@ class GuarantorToProductTypeController extends Controller
             GuarantorToProductType::query()->where('guarantor_id', $requestValid['guarantor_id'])->delete();
             foreach ($data as $item) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
-                $item['full_name'] = $item['name'].' '.$item['job_group'];
+                $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
                 GuarantorToProductType::query()->create($item);
             }
 

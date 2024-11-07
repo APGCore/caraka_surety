@@ -154,6 +154,7 @@ class DistrictController extends Controller
             'code.required' => 'Kode Kabupaten wajib diisi',
             'code.exists' => 'Kabupaten tidak ditemukan',
         ]);
+
         try {
             DB::beginTransaction();
             $responses = $this->syncApi('kecamatan', [
