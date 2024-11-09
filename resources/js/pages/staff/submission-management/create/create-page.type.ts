@@ -14,17 +14,17 @@ type Principal = {
   village: string;
   name: string;
   address: string;
-  telephone: number | undefined;
+  telephone: number | string | undefined;
   fax: string;
-  npwp: number | undefined;
-  nib: number | undefined;
+  npwp: number | string | undefined;
+  nib: number | string | undefined;
   siup_siujk: string;
   head_name: string;
   director_name: string;
   director_position: string;
-  director_phone: number | undefined;
+  director_phone: number | string | undefined;
   commissioner: string;
-  year_established?: number;
+  year_established?: number | string | undefined;
   last_deed: string;
   documents: any[]; // Adjust `any` to a more specific type if needed
 };

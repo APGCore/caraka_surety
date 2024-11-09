@@ -159,7 +159,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       bank_id: "",
       contract_doc_name: "",
       contract_doc_number: "",
-      contract_doc_date: undefined as Date | undefined,
+      contract_doc_date: new Date(),
       contract_value: "",
       guarantee_value: "",
       time_period: "",
@@ -313,7 +313,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        npwp: getNumericValue(e),
+                        npwp: String(getNumericValue(e)),
                       })
                     }
                   />
@@ -329,7 +329,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        telephone: getNumericValue(e),
+                        telephone: String(getNumericValue(e)),
                       })
                     }
                   />
@@ -345,7 +345,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        nib: getNumericValue(e),
+                        nib: String(getNumericValue(e)),
                       })
                     }
                   />
@@ -389,7 +389,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        director_phone: getNumericValue(e),
+                        director_phone: String(getNumericValue(e)),
                       })
                     }
                   />
@@ -419,7 +419,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     onChange={(e) =>
                       setData("principal", {
                         ...data.principal,
-                        year_established: getNumericValue(e),
+                        year_established: String(getNumericValue(e)),
                       })
                     }
                   />
