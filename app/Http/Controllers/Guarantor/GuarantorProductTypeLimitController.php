@@ -7,7 +7,6 @@ use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
-use App\Models\Guarantor\ProfileLimit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,20 +26,6 @@ class GuarantorProductTypeLimitController extends Controller
 
         $guarantorSelected = $guarantor->id ?? null;
         $productSelected = $product->id ?? null;
-
-        $limit = ProfileLimit::query()
-            ->where('guarantor_id', $guarantorSelected)
-            ->first();
-        if ($limit) {
-            $limit_used = GuarantorProductTypeLimit::query()
-                ->where('guarantor_id', $guarantorSelected)
-                ->whereHas('guarantorToProductType', function ($query) use ($productSelected) {
-                    $query->where('product_id', $productSelected);
-                })
-                ->sum('limit');
-
-            $limit->setAttribute('limit_used', $limit_used);
-        }
 
         $guarantorProductTypes = GuarantorToProductType::search($request->get('search'))
             ->query(function ($query) use ($guarantorSelected, $productSelected) {
@@ -68,7 +53,6 @@ class GuarantorProductTypeLimitController extends Controller
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
             'productSelected' => $productSelected,
-            'limit' => $limit,
             'guarantorProductTypes' => fn () => $resource,
         ]);
     }
@@ -86,10 +70,15 @@ class GuarantorProductTypeLimitController extends Controller
 
         try {
             DB::beginTransaction();
+            $limit = (float) str_replace('.', '', $request->get('limit'));
+            $limitInherit = $request->get('limit_inherit')
+                ? (float) str_replace('.', '', $request->get('limit_inherit'))
+                : $limit;
             GuarantorProductTypeLimit::create([
                 'guarantor_id' => $request->get('guarantor_id'),
                 'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
-                'limit' => (int) str_replace('.', '', $request->get('limit')),
+                'limit' => $limit,
+                'limit_inherit' => $limitInherit,
             ]);
             DB::commit();
             flashMessage('success', 'Limit berhasil disimpan');
@@ -122,8 +111,13 @@ class GuarantorProductTypeLimitController extends Controller
 
         try {
             DB::beginTransaction();
+            $limit = (float) str_replace('.', '', $request->get('limit'));
+            $limitInherit = $request->get('limit_inherit')
+                ? (float) str_replace('.', '', $request->get('limit_inherit'))
+                : $limit;
             $guarantorProductTypeLimit->update([
-                'limit' => (int) str_replace('.', '', $request->get('limit')),
+                'limit' => $limit,
+                'limit_inherit' => $limitInherit,
             ]);
             DB::commit();
             flashMessage('success', 'Limit berhasil diubah');

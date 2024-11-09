@@ -17,4 +17,9 @@ class Submission extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    public function scores()
+    {
+        return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
+    }
 }

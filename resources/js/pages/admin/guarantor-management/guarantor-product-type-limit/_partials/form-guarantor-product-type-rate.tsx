@@ -21,11 +21,13 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
     guarantor_id: number;
     guarantor_to_product_type_id: number;
     limit: string;
+    limit_inherit: string;
   }>({
     id: guarantorProductType.limit?.id,
     guarantor_id: guarantorProductType.guarantor_id,
     guarantor_to_product_type_id: guarantorProductType.id,
     limit: guarantorProductType.limit?.limit ?? "",
+    limit_inherit: guarantorProductType.limit?.limit_inherit ?? false,
   });
 
   const submit = () => {
@@ -73,6 +75,22 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
           </div>
 
           <InputError message={errors?.limit} />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="limit-inherit" className="block text-sm font-medium text-gray-700">
+            Limit Turunan
+          </label>
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-900 text-sm">Rp. </span>
+            <InputCurrency
+              id="minimum_bill"
+              name="minimum_bill"
+              value={data.limit?.toString() ?? ""}
+              onChange={(e) => setData({ ...data, limit_inherit: e })}
+            />
+          </div>
+          <InputError message={errors?.limit_inherit} />
         </div>
       </div>
       <div className="flex justify-end gap-x-3">

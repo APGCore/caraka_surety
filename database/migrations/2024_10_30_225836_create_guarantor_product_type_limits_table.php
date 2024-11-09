@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete();
             $table->unsignedBigInteger('guarantor_to_product_type_id')->nullable();
             $table->float('limit');
+            $table->float('limit_inherit');
             $table->timestamps();
 
             $table->foreign('guarantor_to_product_type_id', 'guarantor_to_product_type_fk')

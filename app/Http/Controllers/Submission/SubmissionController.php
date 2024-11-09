@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Submission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
-use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -98,27 +97,25 @@ class SubmissionController extends Controller
 
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['principal_id'] = $createPrincipal->id;
-            $submission['note_scoring'] = $scoring['note'];
-            $submission['min_point_scoring'] = $scoring['min_point'];
+            $dataSubmission['note_scoring'] = $scoring['note'];
+            $dataSubmission['min_point_scoring'] = $scoring['min_point'];
+            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? \Carbon\Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
+            $dataSubmission['start_date'] = $submission['start_date'] ? \Carbon\Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['end_date'] = $submission['end_date'] ? \Carbon\Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
 
-            Submission::query()
+            $submission = Submission::query()
                 ->create($dataSubmission);
 
-            $dataScoring = collect($scoring->scores)->toArray();
+            $submission->update([
+                'min_point_scoring' => $scoring['min_point'],
+                'note_scoring' => $scoring['note'],
+            ]);
 
-            // delete old scoring record
-            Scoring::query()
-                ->where('submission_id', $submission->id)
-                ->delete();
-
-            // create new scoring record
-            foreach ($dataScoring as $score) {
-                $score['submission_id'] = $submission->id;
-                $score['scoring_id'] = $scoring->id;
-
-                Scoring::query()
-                    ->create($score);
+            $scores = $scoring['scores'];
+            foreach ($scores as &$score) {
+                $score['scoring_id'] = $scoring['id'];
             }
+            $submission->scores()->createMany($scores);
 
             DB::commit();
 
@@ -177,7 +174,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -209,10 +206,10 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -242,10 +239,10 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 }

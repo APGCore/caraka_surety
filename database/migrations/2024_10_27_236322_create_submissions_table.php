@@ -38,15 +38,14 @@ return new class extends Migration
             $table->float('contract_value');
             $table->float('guarantee_value');
             $table->integer('time_period');
-            $table->timestamp('start_date');
-            $table->timestamp('end_date')->nullable();
-            $table->string('job_name');
-            $table->timestamp('guarantee_issue_date')->nullable();
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
+            $table->date('guarantee_issue_date')->nullable();
             $table->foreignId('job_location_province_id')->references('id')->on($province->getTable())->noActionOnDelete();
             $table->foreignId('job_location_regency_id')->references('id')->on($regency->getTable())->noActionOnDelete();
             $table->foreignId('job_location_district_id')->references('id')->on($district->getTable())->noActionOnDelete();
             $table->string('job_location_village');
-            $table->string('source_of_funds');
+            $table->foreignId('source_of_fund_id')->references('id')->on('source_of_funds')->noActionOnDelete();
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
             $table->text('note')->nullable();
             $table->text('note_scoring')->nullable();

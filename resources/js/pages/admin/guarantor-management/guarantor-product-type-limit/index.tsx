@@ -3,7 +3,6 @@ import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { textCurrency } from "@/lib/text-currency";
 import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
 import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
 import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
@@ -17,7 +16,6 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
   guarantorSelected,
   products,
   productSelected,
-  limit,
   guarantorProductTypes,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
@@ -78,24 +76,6 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectProduct(value.id)}
           />
-          <div>
-            <div className="flex items-center gap-x-2">
-              <span className="text-sm text-gray-400">Limit Pengajuan:</span>
-              {limit?.limit ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
-              ) : (
-                <span className="text-sm text-gray-400">Belum Di setting</span>
-              )}
-            </div>
-            <div className="flex items-center gap-x-2">
-              <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
-              {limit?.limit_used ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
-              ) : (
-                <span className="text-sm text-gray-400">Belum Ada</span>
-              )}
-            </div>
-          </div>
         </div>
 
         <SearchDatatable

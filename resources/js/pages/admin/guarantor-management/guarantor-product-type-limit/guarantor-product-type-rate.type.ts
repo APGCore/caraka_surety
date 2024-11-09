@@ -5,7 +5,6 @@ interface GuarantorProductTypeRateProps {
   guarantorSelected: any;
   products: any;
   productSelected: any;
-  limit: any;
   guarantorProductTypes: any;
 }
 

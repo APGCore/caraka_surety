@@ -29,9 +29,9 @@ class DatabaseSeeder extends Seeder
             PrincipalSeeder::class,
             GuarantorSeeder::class,
             GuarantorToProductTypeSeeder::class,
-            //            ObligeeSeeder::class,
-            //            BankSeeder::class,
-            //            BlankSeeder::class,
+            ObligeeSeeder::class,
+            BankSeeder::class,
+            BlankSeeder::class,
             //            ProfileLimitSeeder::class,
             //            EmployeeLimitSeeder::class,
         ]);
