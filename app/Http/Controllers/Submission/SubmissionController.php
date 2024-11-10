@@ -121,9 +121,17 @@ class SubmissionController extends Controller
 
             flashMessage('success', 'Berhasil membuat pengajuan');
 
-            return back()->with('success', 'Berhasil membuat pengajuan');
+            return back();
+            // return back()->with('success', 'Berhasil membuat pengajuan');
+
         } catch (\Exception $e) {
             DB::rollBack();
+
+            dd([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+                'line' => $e->getLine(),
+            ]);
             Log::error('SubmissionController@store: ', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
@@ -131,7 +139,9 @@ class SubmissionController extends Controller
             ]);
             flashMessage('error', 'Gagal membuat pengajuan', 'error');
 
-            return back()->with('error', 'Gagal membuat pengajuan');
+            // return back()->with('error', 'Gagal membuat pengajuan');
+
+            return back();
         }
     }
 
@@ -174,7 +184,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -206,10 +216,10 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -239,10 +249,10 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 }

@@ -38,8 +38,8 @@ type Submission = {
   contract_doc_name: string;
   contract_doc_number: string;
   contract_doc_date?: Date;
-  contract_value: string;
-  guarantee_value: string;
+  contract_value?: string;
+  guarantee_value?: string;
   time_period: string;
   start_date?: Date;
   end_date?: Date;
@@ -62,4 +62,9 @@ export interface SubmissionFormProps {
   principal: Principal;
   submission: Submission;
   scoring: Scoring;
+}
+
+export interface ISelectedPrincipalDistrict {
+  id: number;
+  name: string;
 }

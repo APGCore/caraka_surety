@@ -25,8 +25,17 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
-import { SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
+import { ISelectedPrincipalDistrict, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
+}
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Product
@@ -38,19 +47,41 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedPrincipal, setSelectedPrincipal] = useState<object | null>(null);
 
   // Principal Documents
-  const [principalDocs, setPrincipalDocs] = useState<Array<object>>([]);
-  const [principalFiles, setPrincipalFiles] = useState<Array<object>>([]);
+  const [principalDocs, setPrincipalDocs] = useState<
+    Array<{
+      id: number;
+      name: string;
+      principal_document: {
+        path: string;
+      };
+    }>
+  >([]);
+  const [principalFiles, setPrincipalFiles] = useState<
+    Array<{
+      required_doc_id: number;
+      required_doc_name: string;
+      file: File;
+    }>
+  >([]);
 
   const fetchPrincipalDocuments = (principalId?: number) => {
     axios.get(route("references.principal.documents", { principal_id: principalId })).then((response) => {
+      // console.log(response.data.data);
       setPrincipalDocs(response.data.data);
     });
   };
 
-  const changePrincipalDoc = (file: File | null, document: object) => {
-    const newFiles = principalFiles.filter((doc) => doc.required_doc_id !== document.id);
+  const changePrincipalDoc = (
+    file: File | null,
+    document: {
+      id: number;
+      name: string;
+      file: File;
+    },
+  ) => {
+    const newFiles = principalFiles.filter((doc) => doc?.required_doc_id !== document?.id);
     if (file) {
-      newFiles.push({ required_doc_id: document.id, required_doc_name: document.name, file });
+      newFiles.push({ required_doc_id: document?.id, required_doc_name: document?.name, file });
     }
     setData("principal", { ...data.principal, documents: newFiles });
     setPrincipalFiles(newFiles);
@@ -69,10 +100,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Principal District
   const { districts: principalDistricts } = useGetDistrictByRegencyId({ regency_id: selectedPrincipalRegency?.id });
-  const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+
+  const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
   // Job Location Province
   const { provinces: jobLocationProvinces } = useGetAllProvince();
@@ -163,8 +192,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       contract_value: "",
       guarantee_value: "",
       time_period: "",
-      start_date: undefined as Date | undefined,
-      end_date: undefined as Date | undefined,
+      start_date: new Date(),
+      end_date: new Date(),
       job_location_province_id: "",
       job_location_regency_id: "",
       job_location_district_id: "",
@@ -215,18 +244,90 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }
   };
 
+  const handleReset = () => {
+    setData({
+      principal: {
+        id: "",
+        province_id: undefined,
+        regency_id: undefined,
+        district_id: undefined,
+        village: "",
+        name: "",
+        address: "",
+        telephone: undefined,
+        fax: "",
+        npwp: "",
+        nib: undefined,
+        siup_siujk: "",
+        head_name: "",
+        director_name: "",
+        director_position: "",
+        director_phone: undefined,
+        commissioner: "",
+        year_established: undefined,
+        last_deed: "",
+        documents: [],
+      },
+      submission: {
+        guarantor_id: "",
+        product_id: "",
+        guarantor_to_product_type_id: "",
+        obligee_id: "",
+        bank_id: "",
+        contract_doc_name: "",
+        contract_doc_number: "",
+        contract_doc_date: new Date(),
+        contract_value: "",
+        guarantee_value: "",
+        time_period: "",
+        start_date: new Date(),
+        end_date: new Date(),
+        job_location_province_id: "",
+        job_location_regency_id: "",
+        job_location_district_id: "",
+        job_location_village: "",
+        source_of_fund_id: "",
+        note: "",
+      },
+
+      scoring: {
+        id: 1,
+        note: "",
+        min_point: 60,
+        scores: [],
+      },
+    });
+
+    setPrincipalDocs([]);
+    setPrincipalFiles([]);
+    setSelectedBank(null);
+    setSelectedGuarantor(null);
+    setSelectedObligee(null);
+    setSelectedPrincipal(null);
+    setSelectedPrincipalDistrict(null);
+    setSelectedPrincipalProvince(null);
+    setSelectedPrincipalRegency(null);
+    setSelectedProductType(null);
+    setSelectedProducts(null);
+    setSelectedSourceOfFund(null);
+    setSelectedJobLocationProvince(null);
+    setSelectedJobLocationRegency(null);
+    setSelectedJobLocationDistrict(null);
+    setFormSearchPrincipalState("idle");
+  };
+
   const handleSubmit = () => {
+    console.log(data);
     post(route("staff-submission-form.store"), {
       onError: (errors) => {
         console.log(errors);
       },
       onSuccess: () => {
         console.log("success");
+        handleReset();
       },
     });
   };
-
-  console.log(data);
 
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
@@ -250,6 +351,31 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onSelect={(val: any) => {
                     setFormSearchPrincipalState("search");
                     setSelectedPrincipal(val);
+                    // Set Principal Data
+                    setData("principal", {
+                      ...data.principal,
+                      id: val.id,
+                      province_id: val.province_id,
+                      regency_id: val.regency_id,
+                      district_id: val.district_id,
+                      village: val.village,
+                      name: val.name,
+                      address: val.address,
+                      telephone: val.telephone,
+                      fax: val.fax,
+                      npwp: val.npwp,
+                      nib: val.nib,
+                      siup_siujk: val.siup_siujk,
+                      head_name: val.head_name,
+                      director_name: val.director_name,
+                      director_position: val.director_position,
+                      director_phone: val.director_phone,
+                      commissioner: val.commissioner,
+                      year_established: val.year_established,
+                      last_deed: val.last_deed,
+                      // documents: [],
+                    });
+
                     fetchPrincipalDocuments(val.id);
                   }}
                 />
@@ -280,9 +406,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setFormSearchPrincipalState("idle");
-                    setPrincipalDocs([]);
-                    setPrincipalFiles([]);
+                    handleReset();
                   }}>
                   Kembali Cari Data
                 </Button>
@@ -448,6 +572,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Provinsi"
+                        defaultValueId={data?.principal?.province_id}
                         onSelect={(val: any) => {
                           setData("principal", { ...data.principal, province_id: val.id });
                           setSelectedPrincipalProvince(val);
@@ -461,6 +586,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Kabupaten/Kota"
+                        defaultValueId={data?.principal?.regency_id}
                         onSelect={(val: any) => {
                           setData("principal", { ...data.principal, regency_id: val?.id });
                           setSelectedPrincipalRegency(val);
@@ -474,6 +600,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Kecamatan"
+                        defaultValueId={data?.principal?.district_id}
                         onSelect={(val: any) => {
                           setData("principal", { ...data.principal, district_id: val?.id });
                           setSelectedPrincipalDistrict(val);
@@ -523,7 +650,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <Label className="text-md">{doc.name}</Label>
                         <FileInput
                           onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                          previewValue={doc.principal_document?.path}
+                          previewValue={doc?.principal_document?.path}
                           //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
                         />
                       </div>
@@ -532,348 +659,362 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 />
               </div>
             </div>
-          </>
-        )}
-
-        <div>
-          <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
-          <div className="grid gap-5">
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Produk</Label>
-              <Combobox
-                datas={products}
-                labelKey="name"
-                valueKey="name"
-                placeholder="Pilih Produk"
-                onSelect={(val: any) => {
-                  if (val.id !== selectedProducts) {
-                    setSelectedGuarantor(null);
-                    setSelectedProductType(null);
-                    setIsResetGuarantor(true);
-                    setIsResetProductType(true);
-                  }
-                  setData("submission", { ...data.submission, product_id: val?.id });
-                  setSelectedProducts(val.id);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Asuransi/Penjamin</Label>
-              <Combobox
-                datas={guarantors}
-                labelKey="name"
-                valueKey="name"
-                reset={isResetGuarantor}
-                onReset={(resetVal) => setIsResetGuarantor(resetVal)}
-                placeholder="Pilih Asuransi/Penjamin"
-                onSelect={(val: any) => {
-                  if (val.id !== selectedGuarantor) {
-                    setSelectedProductType(null);
-                    setIsResetProductType(true);
-                  }
-                  setData("submission", { ...data.submission, guarantor_id: val?.id });
-                  setSelectedGuarantor(val.id);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Jenis Jaminan</Label>
-              <Combobox
-                datas={productTypes}
-                labelKey="name"
-                valueKey="name"
-                placeholder="Pilih Jenis Jaminan"
-                reset={isResetProductType}
-                onReset={(resetVal) => setIsResetProductType(resetVal)}
-                onSelect={(val: any) => {
-                  setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
-                  setSelectedProductType(val.id);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Obligee</Label>
-              <Combobox
-                datas={obligees}
-                labelKey="name"
-                valueKey="name"
-                placeholder="Pilih Obligee"
-                onSelect={(val: any) => {
-                  setData("submission", { ...data.submission, obligee_id: val?.id });
-                  setSelectedObligee(val.id);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Banks</Label>
-              <Combobox
-                datas={banks}
-                labelKey="name"
-                valueKey="name"
-                placeholder="Pilih Bank"
-                onSelect={(val: any) => {
-                  setData("submission", { ...data.submission, bank_id: val?.id });
-                  setSelectedBank(val.id);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Nama Dokumen Kontrak</Label>
-              <Input
-                className="text-md"
-                placeholder="Nama Dokumen Kontrak"
-                value={data.submission.contract_doc_name}
-                onChange={(e) =>
-                  setData("submission", {
-                    ...data.submission,
-                    contract_doc_name: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Nomor Dokumen Kontrak</Label>
-              <Input
-                className="text-md"
-                placeholder="Nomor Dokumen Kontrak"
-                value={data.submission.contract_doc_number}
-                onChange={(e) =>
-                  setData("submission", {
-                    ...data.submission,
-                    contract_doc_number: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Tanggal Dokumen Kontrak</Label>
-              <CalendarPicker
-                onPickDate={(d) => {
-                  setData("submission", {
-                    ...data.submission,
-                    contract_doc_date: d,
-                  });
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Nilai Kontrak</Label>
-              <Input
-                className="text-md"
-                type="number"
-                placeholder="Nilai Kontrak"
-                value={data.submission.contract_value}
-                onChange={(e) =>
-                  setData("submission", {
-                    ...data.submission,
-                    contract_value: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Nilai Jaminan</Label>
-              <Input
-                className="text-md"
-                type="number"
-                placeholder="Nilai Jaminan"
-                value={data.submission.guarantee_value}
-                onChange={(e) =>
-                  setData("submission", {
-                    ...data.submission,
-                    guarantee_value: e.target.value,
-                  })
-                }
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Jangka Waktu</Label>
-              <Input
-                className="text-md"
-                type="number"
-                placeholder="Jangka Waktu"
-                value={data.submission.time_period}
-                onChange={(e) =>
-                  setData("submission", {
-                    ...data.submission,
-                    time_period: e.target.value,
-                    end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
-                  })
-                }
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Tanggal Mulai Kontrak</Label>
-              <CalendarPicker
-                onPickDate={(d) => {
-                  setData("submission", {
-                    ...data.submission,
-                    start_date: d,
-                    time_period: "0",
-                    end_date: d,
-                  });
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Tanggal Selesai Kontrak </Label>
-              <CalendarPicker
-                initialDate={
-                  data?.submission?.end_date ?? dayjs().add(Number(data?.submission?.time_period), "day").toDate()
-                }
-                onPickDate={(e) => {
-                  setData("submission", {
-                    ...data.submission,
-                    end_date: e,
-                    time_period: dayjs(e)
-                      .startOf("day")
-                      .diff(dayjs(data.submission.start_date).startOf("day"), "day")
-                      .toString(),
-                  });
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Sumber Dana</Label>
-              <Combobox
-                datas={sourceOfFunds}
-                labelKey="name"
-                valueKey="name"
-                placeholder="Pilih Sumber Dana"
-                onSelect={(val) => {
-                  setData("submission", {
-                    ...data.submission,
-                    source_of_fund_id: val?.id,
-                  });
-                  setSelectedSourceOfFund(val);
-                }}
-              />
-            </div>
-            <div className="grid gap-[5px]">
-              <Label className="text-md">Lokasi Proyek</Label>
-              <div className="grid gap-2 mt-2">
+            <div>
+              <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
+              <div className="grid gap-5">
                 <div className="grid gap-[5px]">
-                  <Label className="text-sm">Provinsi</Label>
+                  <Label className="text-md">Produk</Label>
                   <Combobox
-                    datas={principalProvinces}
+                    datas={products}
                     labelKey="name"
                     valueKey="name"
-                    placeholder="Pilih Provinsi"
+                    placeholder="Pilih Produk"
                     onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, job_location_province_id: val.id });
-                      setSelectedJobLocationProvince(val);
+                      if (val.id !== selectedProducts) {
+                        setSelectedGuarantor(null);
+                        setSelectedProductType(null);
+                        setIsResetGuarantor(true);
+                        setIsResetProductType(true);
+                      }
+                      setData("submission", { ...data.submission, product_id: val?.id });
+                      setSelectedProducts(val.id);
                     }}
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-sm">Kabupaten/Kota</Label>
+                  <Label className="text-md">Asuransi/Penjamin</Label>
                   <Combobox
-                    datas={principalRegencies}
+                    datas={guarantors}
                     labelKey="name"
                     valueKey="name"
-                    placeholder="Pilih Kabupaten/Kota"
+                    reset={isResetGuarantor}
+                    onReset={(resetVal) => setIsResetGuarantor(resetVal)}
+                    placeholder="Pilih Asuransi/Penjamin"
                     onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, job_location_regency_id: val.id });
-                      setSelectedJobLocationRegency(val);
+                      if (val.id !== selectedGuarantor) {
+                        setSelectedProductType(null);
+                        setIsResetProductType(true);
+                      }
+                      setData("submission", { ...data.submission, guarantor_id: val?.id });
+                      setSelectedGuarantor(val.id);
                     }}
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-sm">Kecamatan</Label>
+                  <Label className="text-md">Jenis Jaminan</Label>
                   <Combobox
-                    datas={principalDistricts}
+                    datas={productTypes}
                     labelKey="name"
                     valueKey="name"
-                    placeholder="Pilih Kecamatan"
+                    placeholder="Pilih Jenis Jaminan"
+                    reset={isResetProductType}
+                    onReset={(resetVal) => setIsResetProductType(resetVal)}
                     onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, job_location_district_id: val.id });
-                      setSelectedJobLocationDistrict(val);
+                      setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
+                      setSelectedProductType(val.id);
                     }}
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-sm">Desa</Label>
+                  <Label className="text-md">Obligee</Label>
+                  <Combobox
+                    datas={obligees}
+                    labelKey="name"
+                    valueKey="name"
+                    placeholder="Pilih Obligee"
+                    onSelect={(val: any) => {
+                      setData("submission", { ...data.submission, obligee_id: val?.id });
+                      setSelectedObligee(val.id);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Banks</Label>
+                  <Combobox
+                    datas={banks}
+                    labelKey="name"
+                    valueKey="name"
+                    placeholder="Pilih Bank"
+                    onSelect={(val: any) => {
+                      setData("submission", { ...data.submission, bank_id: val?.id });
+                      setSelectedBank(val.id);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nama Dokumen Kontrak</Label>
                   <Input
                     className="text-md"
-                    placeholder="Masukan nama Desa"
-                    value={data.submission.job_location_village}
+                    placeholder="Nama Dokumen Kontrak"
+                    value={data.submission.contract_doc_name}
                     onChange={(e) =>
                       setData("submission", {
                         ...data.submission,
-                        job_location_village: e.target.value,
+                        contract_doc_name: e.target.value,
                       })
                     }
                   />
                 </div>
                 <div className="grid gap-[5px]">
-                  <Label className="text-sm">Alamat Lengkap</Label>
-                  <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                  <Label className="text-md">Nomor Dokumen Kontrak</Label>
+                  <Input
+                    className="text-md"
+                    placeholder="Nomor Dokumen Kontrak"
+                    value={data.submission.contract_doc_number}
+                    onChange={(e) =>
+                      setData("submission", {
+                        ...data.submission,
+                        contract_doc_number: e.target.value,
+                      })
+                    }
+                  />
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Tanggal Dokumen Kontrak</Label>
+                  <CalendarPicker
+                    onPickDate={(d) => {
+                      setData("submission", {
+                        ...data.submission,
+                        contract_doc_date: d,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nilai Kontrak</Label>
+                  <CurrencyInput
+                    intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                    defaultValue={data.submission.contract_value}
+                    placeholder="Nilai Kontrak"
+                    onValueChange={(val) => {
+                      setData("submission", {
+                        ...data.submission,
+                        contract_value: val,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Nilai Jaminan</Label>
+                  {/* <Input
+                    className="text-md"
+                    type="number"
+                    placeholder="Nilai Jaminan"
+                    value={data.submission.guarantee_value}
+                    onChange={(e) =>
+                      setData("submission", {
+                        ...data.submission,
+                        guarantee_value: e.target.value,
+                      })
+                    }
+                  /> */}
 
-        <div>
-          <h2 className="text-2xl font-bold mb-8">Skoring</h2>
-          <div className="grid gap-16">
-            <RenderList
-              of={scorings}
-              render={(scoringCategories) => {
-                return (
-                  <div className="grid gap-[14px]">
-                    <Label className="text-xl underline underline-offset-4">Kategori {scoringCategories?.name}</Label>
-                    <div className="space-y-8">
-                      <RenderList
-                        of={scoringCategories?.questions}
-                        render={(scoringQuestions, idx) => {
-                          return (
-                            <div className="space-y-3">
-                              <div className="font-[600]">
-                                <span className="mr-3">{idx + 1}.</span>
-                                <span>{scoringQuestions?.name}</span>
-                              </div>
-                              <RadioGroup defaultValue="option-one" className="flex flex-col gap-y-3.5 ml-6">
-                                <RenderList
-                                  of={scoringQuestions?.options}
-                                  render={(scoringOptions) => {
-                                    return (
-                                      <div className="flex items-center space-x-2 ">
-                                        <RadioGroupItem
-                                          value={scoringOptions?.name}
-                                          id={`option-${scoringOptions?.id}`}
-                                          onClick={() =>
-                                            handleOptionChange(
-                                              scoringCategories?.id,
-                                              scoringQuestions.id,
-                                              scoringOptions.id,
-                                              scoringOptions.point,
-                                            )
-                                          }
-                                        />
-                                        <Label className="cursor-pointer" htmlFor={`option-${scoringOptions?.id}`}>
-                                          {scoringOptions?.name}
-                                        </Label>
-                                      </div>
-                                    );
-                                  }}
-                                />
-                              </RadioGroup>
-                            </div>
-                          );
+                  <CurrencyInput
+                    intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                    defaultValue={data.submission.guarantee_value}
+                    placeholder="Nilai Jaminan"
+                    onValueChange={(val) => {
+                      setData("submission", {
+                        ...data.submission,
+                        guarantee_value: val,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Jangka Waktu</Label>
+                  <Input
+                    className="text-md"
+                    type="number"
+                    placeholder="Jangka Waktu"
+                    value={data.submission.time_period}
+                    onChange={(e) =>
+                      setData("submission", {
+                        ...data.submission,
+                        time_period: e.target.value,
+                        end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
+                      })
+                    }
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Tanggal Mulai Kontrak</Label>
+                  <CalendarPicker
+                    onPickDate={(d) => {
+                      setData("submission", {
+                        ...data.submission,
+                        start_date: d,
+                        time_period: "0",
+                        end_date: d,
+                      });
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Tanggal Selesai Kontrak </Label>
+                  <CalendarPicker
+                    initialDate={
+                      data?.submission?.end_date ?? dayjs().add(Number(data?.submission?.time_period), "day").toDate()
+                    }
+                    onPickDate={(e) => {
+                      setData("submission", {
+                        ...data.submission,
+                        end_date: e,
+                        time_period: dayjs(e)
+                          .startOf("day")
+                          .diff(dayjs(data.submission.start_date).startOf("day"), "day")
+                          .toString(),
+                      });
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Sumber Dana</Label>
+                  <Combobox
+                    datas={sourceOfFunds}
+                    labelKey="name"
+                    valueKey="name"
+                    placeholder="Pilih Sumber Dana"
+                    onSelect={(val) => {
+                      setData("submission", {
+                        ...data.submission,
+                        source_of_fund_id: val?.id,
+                      });
+                      setSelectedSourceOfFund(val);
+                    }}
+                  />
+                </div>
+                <div className="grid gap-[5px]">
+                  <Label className="text-md">Lokasi Proyek</Label>
+                  <div className="grid gap-2 mt-2">
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Provinsi</Label>
+                      <Combobox
+                        datas={principalProvinces}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Provinsi"
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, job_location_province_id: val.id });
+                          setSelectedJobLocationProvince(val);
                         }}
                       />
                     </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Kabupaten/Kota</Label>
+                      <Combobox
+                        datas={principalRegencies}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Kabupaten/Kota"
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, job_location_regency_id: val.id });
+                          setSelectedJobLocationRegency(val);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Kecamatan</Label>
+                      <Combobox
+                        datas={principalDistricts}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Kecamatan"
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, job_location_district_id: val.id });
+                          setSelectedJobLocationDistrict(val);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Desa</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Masukan nama Desa"
+                        value={data.submission.job_location_village}
+                        onChange={(e) =>
+                          setData("submission", {
+                            ...data.submission,
+                            job_location_village: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-[5px]">
+                      <Label className="text-sm">Alamat Lengkap</Label>
+                      <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                    </div>
                   </div>
-                );
-              }}
-            />
-          </div>
-        </div>
-        <Button type="submit" disabled={processing}>
-          {processing && <LoaderCircle className="animate-spin mr-1" />}
-          Submit
-        </Button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold mb-8">Skoring</h2>
+              <div className="grid gap-16">
+                <RenderList
+                  of={scorings}
+                  render={(scoringCategories) => {
+                    return (
+                      <div className="grid gap-[14px]">
+                        <Label className="text-xl underline underline-offset-4">
+                          Kategori {scoringCategories?.name}
+                        </Label>
+                        <div className="space-y-8">
+                          <RenderList
+                            of={scoringCategories?.questions}
+                            render={(scoringQuestions, idx) => {
+                              return (
+                                <div className="space-y-3">
+                                  <div className="font-[600]">
+                                    <span className="mr-3">{idx + 1}.</span>
+                                    <span>{scoringQuestions?.name}</span>
+                                  </div>
+                                  <RadioGroup defaultValue="option-one" className="flex flex-col gap-y-3.5 ml-6">
+                                    <RenderList
+                                      of={scoringQuestions?.options}
+                                      render={(scoringOptions) => {
+                                        return (
+                                          <div className="flex items-center space-x-2 ">
+                                            <RadioGroupItem
+                                              value={scoringOptions?.name}
+                                              id={`option-${scoringOptions?.id}`}
+                                              onClick={() =>
+                                                handleOptionChange(
+                                                  scoringCategories?.id,
+                                                  scoringQuestions.id,
+                                                  scoringOptions.id,
+                                                  scoringOptions.point,
+                                                )
+                                              }
+                                            />
+                                            <Label className="cursor-pointer" htmlFor={`option-${scoringOptions?.id}`}>
+                                              {scoringOptions?.name}
+                                            </Label>
+                                          </div>
+                                        );
+                                      }}
+                                    />
+                                  </RadioGroup>
+                                </div>
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <Button type="submit" disabled={processing}>
+              {processing && <LoaderCircle className="animate-spin mr-1" />}
+              Submit
+            </Button>
+          </>
+        )}
       </form>
     </div>
   );
