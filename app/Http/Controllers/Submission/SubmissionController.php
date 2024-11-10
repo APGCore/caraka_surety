@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -194,26 +195,20 @@ class SubmissionController extends Controller
     {
         $component = 'staff/submission-management/history/index';
 
-        $submissions = [
-            [
-                'id' => 1,
-                'name' => 'submission 1',
-                'created_at' => '2024-01-01',
-                'status' => 'Pending',
-            ],
-            [
-                'id' => 2,
-                'name' => 'submission 2',
-                'created_at' => '2024-01-02',
-                'status' => 'Approved',
-            ],
-            [
-                'id' => 3,
-                'name' => 'submission 3',
-                'created_at' => '2024-01-03',
-                'status' => 'Rejected',
-            ],
-        ];
+        Carbon::setLocale('id');
+
+        $submissions = Submission::query()
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
 
         return inertia($component, [
             'page_settings' => fn() => [

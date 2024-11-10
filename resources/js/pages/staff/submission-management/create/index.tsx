@@ -29,14 +29,6 @@ import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
 
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
-
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Product
   const { products } = useGetAllProduct();
@@ -54,8 +46,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       principal_document: {
         path: string;
       };
+      file: File;
     }>
   >([]);
+
   const [principalFiles, setPrincipalFiles] = useState<
     Array<{
       required_doc_id: number;

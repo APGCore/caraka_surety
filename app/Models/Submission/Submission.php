@@ -2,6 +2,12 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorProductTypeLimit;
+use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\RelatedParties\Bank;
+use App\Models\RelatedParties\Obligee;
+use App\Models\RelatedParties\Principal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,5 +27,36 @@ class Submission extends Model
     public function scores()
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
+    }
+
+
+    public function principal()
+    {
+        return $this->belongsTo(Principal::class, 'principal_id', 'id');
+    }
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class, 'bank_id', 'id');
+    }
+
+    public function obligee()
+    {
+        return $this->belongsTo(Obligee::class, 'obligee_id', 'id');
+    }
+
+    public function sourceOfFund()
+    {
+        return $this->belongsTo(SourceOfFund::class, 'source_of_fund_id', 'id');
+    }
+
+    public function guarantor()
+    {
+        return $this->belongsTo(Guarantor::class, 'guarantor_id', 'id');
+    }
+
+    public function guarantorToProductType()
+    {
+        return $this->belongsTo(GuarantorToProductType::class, 'guarantor_to_product_type_id', 'id');
     }
 }
