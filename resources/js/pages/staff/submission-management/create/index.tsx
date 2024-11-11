@@ -46,6 +46,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       principal_document: {
         path: string;
       };
+      doc: string;
       file: File;
     }>
   >([]);
@@ -143,7 +144,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedBank, setSelectedBank] = useState(null);
 
   // SCORING
-  const { scorings } = useGetScoringById({ selectedScoringId: 1 });
+  const { scorings } = useGetScoringById({
+    selectedScoringId: 1,
+  });
 
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);

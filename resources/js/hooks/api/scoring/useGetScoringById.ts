@@ -6,7 +6,22 @@ interface IUseGetScoringById {
 }
 
 const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
-  const [scorings, setScorings] = useState([]);
+  const [scorings, setScorings] = useState<
+    Array<{
+      id: string;
+      name: string;
+      questions: Array<{
+        id: string;
+        name: string;
+        options: Array<{
+          id: string;
+          name: string;
+          point: string;
+        }>;
+      }>;
+    }>
+  >([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 

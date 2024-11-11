@@ -1,6 +1,14 @@
 import React from "react";
 
-interface SubmissionCreateProps {}
+interface SubmissionCreateProps {
+  question: string;
+  name: string;
+  scoringOptions: ScoringOptions[];
+  scoringCategories: ScoringCategories;
+  scoringQuestions: ScoringQuestions;
+  required_doc_id: any;
+  id: any;
+}
 
 export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {
   layout?: (page: any) => JSX.Element;
@@ -56,6 +64,29 @@ type Scoring = {
   note: string;
   min_point: number;
   scores: any[]; // Adjust `any` to a more specific type if needed
+};
+
+type Document = {
+  name: string;
+  principal_document?: { path: string };
+};
+
+type ScoringCategories = {
+  id: number;
+  name: string;
+  questions: ScoringQuestions[];
+};
+
+type ScoringQuestions = {
+  id: number;
+  name: string;
+  options: ScoringOptions[];
+};
+
+type ScoringOptions = {
+  id: number;
+  name: string;
+  point: number;
 };
 
 export interface SubmissionFormProps {
