@@ -148,6 +148,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     selectedScoringId: 1,
   });
 
+  console.log(scorings);
+
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);
 
@@ -314,7 +316,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   };
 
   const handleSubmit = () => {
-    console.log(data);
+    // console.log(data);
     post(route("staff-submission-form.store"), {
       onError: (errors) => {
         console.log(errors);
@@ -794,19 +796,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 </div>
                 <div className="grid gap-[5px]">
                   <Label className="text-md">Nilai Jaminan</Label>
-                  {/* <Input
-                    className="text-md"
-                    type="number"
-                    placeholder="Nilai Jaminan"
-                    value={data.submission.guarantee_value}
-                    onChange={(e) =>
-                      setData("submission", {
-                        ...data.submission,
-                        guarantee_value: e.target.value,
-                      })
-                    }
-                  /> */}
-
                   <CurrencyInput
                     intlConfig={{ locale: "id-ID", currency: "IDR" }}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
@@ -957,7 +946,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     return (
                       <div className="grid gap-[14px]">
                         <Label className="text-xl underline underline-offset-4">
-                          Kategori {scoringCategories?.name}
+                          Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
                         </Label>
                         <div className="space-y-8">
                           <RenderList
@@ -969,12 +958,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                     <span className="mr-3">{idx + 1}.</span>
                                     <span>{scoringQuestions?.name}</span>
                                   </div>
-                                  <RadioGroup defaultValue="option-one" className="flex flex-col gap-y-3.5 ml-6">
+                                  <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
                                     <RenderList
                                       of={scoringQuestions?.options}
                                       render={(scoringOptions) => {
                                         return (
-                                          <div className="flex items-center space-x-2 ">
+                                          <div className="flex items-center space-x-2">
                                             <RadioGroupItem
                                               value={scoringOptions?.name}
                                               id={`option-${scoringOptions?.id}`}
@@ -987,8 +976,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                                 )
                                               }
                                             />
-                                            <Label className="cursor-pointer" htmlFor={`option-${scoringOptions?.id}`}>
-                                              {scoringOptions?.name}
+                                            <Label
+                                              className="cursor-pointer w-full flex justify-between"
+                                              htmlFor={`option-${scoringOptions?.id}`}>
+                                              {scoringOptions?.name}{" "}
+                                              <span className="font-[800]">({scoringOptions?.point} Poin)</span>
                                             </Label>
                                           </div>
                                         );

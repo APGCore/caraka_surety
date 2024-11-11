@@ -59,7 +59,6 @@ class SubmissionController extends Controller
     {
         $validated = $request->validated();
 
-        // dd($validated);
         try {
             DB::beginTransaction();
             $principal = $validated['principal'];
@@ -75,13 +74,16 @@ class SubmissionController extends Controller
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
                 $document['name'] = $document['required_doc_name'];
-                $principalName = $principal?->name ? str_replace(' ', '_', $principal?->name) : 'principal';
-                $path = "principal/{$principal?->id}-{$principalName}/documents";
+                $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
+                $path = "principal/{$principal['id']}-{$principalName}/documents";
 
-                if ($principalDocument['required_doc_id']) {
-                    $this->deleteFile($createPrincipal->documents()
-                        ->where('required_doc_id', $principalDocument['required_doc_id'])
-                        ->first()?->url);
+
+                $existingDocument = $createPrincipal->documents()
+                    ->where('required_doc_id', $principalDocument['required_doc_id'])
+                    ->first();
+
+                if ($existingDocument && $existingDocument->url) {
+                    $this->deleteFile($existingDocument->url);
                 }
 
                 $document['url'] = $this->uploadFile(
@@ -100,9 +102,9 @@ class SubmissionController extends Controller
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['note_scoring'] = $scoring['note'];
             $dataSubmission['min_point_scoring'] = $scoring['min_point'];
-            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? \Carbon\Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
-            $dataSubmission['start_date'] = $submission['start_date'] ? \Carbon\Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['end_date'] = $submission['end_date'] ? \Carbon\Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
+            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
 
             $submission = Submission::query()
                 ->create($dataSubmission);
@@ -113,9 +115,11 @@ class SubmissionController extends Controller
             ]);
 
             $scores = $scoring['scores'];
+
             foreach ($scores as &$score) {
                 $score['scoring_id'] = $scoring['id'];
             }
+
             $submission->scores()->createMany($scores);
 
             DB::commit();
@@ -123,8 +127,6 @@ class SubmissionController extends Controller
             flashMessage('success', 'Berhasil membuat pengajuan');
 
             return back();
-            // return back()->with('success', 'Berhasil membuat pengajuan');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -138,9 +140,8 @@ class SubmissionController extends Controller
                 'trace' => $e->getTrace(),
                 'line' => $e->getLine(),
             ]);
-            flashMessage('error', 'Gagal membuat pengajuan', 'error');
 
-            // return back()->with('error', 'Gagal membuat pengajuan');
+            flashMessage('error', 'Gagal membuat pengajuan', 'error');
 
             return back();
         }

@@ -10,6 +10,7 @@ const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
     Array<{
       id: string;
       name: string;
+      max_point: string;
       questions: Array<{
         id: string;
         name: string;
