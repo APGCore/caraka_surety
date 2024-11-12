@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ManagerLayoutPage from "@/layouts/manager";
 import StaffLayoutPage from "@/layouts/staff";
 import { Head } from "@inertiajs/react";
 import { data } from "./dashboard-utils";
@@ -136,9 +137,9 @@ ManagerDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <ManagerLayoutPage user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </StaffLayoutPage>
+    </ManagerLayoutPage>
   );
 };
