@@ -2,6 +2,7 @@ import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SubmissionStatus } from "@/types/submission-status";
 import React from "react";
 
 function formatRupiah(value: number) {
@@ -14,10 +15,9 @@ function formatRupiah(value: number) {
 
 interface SubmissionHistoryDatatableProps {
   submissions: any;
-  onDelete: (submission: any) => void;
 }
 
-const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions, onDelete }) => {
+const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
   return (
     <>
       <Table>
@@ -44,9 +44,9 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
-                      submission.status === "Approved"
+                      submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
-                        : submission.status === "Rejected"
+                        : submission.status === SubmissionStatus.REJECTED
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
