@@ -181,7 +181,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -207,10 +207,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -240,10 +240,10 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -267,10 +267,38 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
+        ]);
+    }
+
+    public function displayHistoryByManager()
+    {
+        $component = 'manager/submission-management/history/index';
+
+        Carbon::setLocale('id');
+
+        $submissions = Submission::query()
+            ->where('checked_by', '=', auth()->user()->id)
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Riwayat Pengajuan',
+            ],
+            'submissions' => fn() => $submissions,
         ]);
     }
 
