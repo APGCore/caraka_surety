@@ -272,4 +272,6 @@ class SubmissionController extends Controller
             'submissions' => fn () => $submissions,
         ]);
     }
+
+    public function approve() {}
 }
