@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Submission;
 
+use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
@@ -273,5 +274,41 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function approve() {}
+    public function approve(Submission $submission)
+    {
+        $updated = $submission->update([
+            'checked_by' => auth()->user()->getAuthIdentifier(),
+            'checked_at' => now(),
+            'status' => SubmissionStatus::APPROVED->value,
+        ]);
+
+        if (! $updated) {
+            flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
+
+            return back();
+        }
+
+        flashMessage('success', 'Berhasil menyetujui pengajuan');
+
+        return back();
+    }
+
+    public function reject(Submission $submission)
+    {
+        $updated = $submission->update([
+            'checked_by' => auth()->user()->getAuthIdentifier(),
+            'checked_at' => now(),
+            'status' => SubmissionStatus::REJECTED->value,
+        ]);
+
+        if (! $updated) {
+            flashMessage('error', 'Gagal menolak pengajuan', 'error');
+
+            return back();
+        }
+
+        flashMessage('success', 'Berhasil menolak pengajuan');
+
+        return back();
+    }
 }

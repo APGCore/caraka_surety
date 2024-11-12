@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
-            $table->foreignId('approved_by')->nullable()->references('id')->on('users')->noActionOnDelete();
+            $table->foreignId('checked_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->string('contract_doc_name');
             $table->string('contract_doc_number');
             $table->string('contract_doc_date');
@@ -51,6 +51,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->text('note_scoring')->nullable();
             $table->text('min_point_scoring')->nullable();
+            $table->timestamp('checked_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

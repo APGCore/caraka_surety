@@ -47,7 +47,7 @@ const SubmissionListPage: SubmissionListPageProps = ({ submissions }) => {
           </form>
         </div>
       </div>
-      <SubmissionListDatatable submissions={submissions} onDelete={() => {}} />
+      <SubmissionListDatatable submissions={submissions} />
     </main>
   );
 };
