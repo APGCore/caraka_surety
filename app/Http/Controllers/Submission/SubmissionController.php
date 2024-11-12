@@ -145,12 +145,16 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Submission $submission)
+    public function show($id)
     {
-        return inertia('admin/submission/detail/index', [
+        $submission = Submission::with(['principal', 'guarantorToProductType'])
+                        ->findOrFail($id);
+
+        return inertia('staff/submission-management/detail/index', [
             'submission' => $submission,
         ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.

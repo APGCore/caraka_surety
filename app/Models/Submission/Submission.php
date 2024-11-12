@@ -7,6 +7,7 @@ use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
+use App\Models\Scoring\ScoringQuestion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -57,4 +58,5 @@ class Submission extends Model
     {
         return $this->belongsTo(GuarantorToProductType::class, 'guarantor_to_product_type_id', 'id');
     }
+
 }

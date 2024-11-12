@@ -1,16 +1,17 @@
+import SecondaryButton from "@/components/common/secondary-button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/layouts/admin";
+import StaffLayoutPage from "@/layouts/staff";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
-import templateApplication from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
-import { Head, Link, usePage } from "@inertiajs/react";
-import { useEffect } from "react";
-import { Editor } from "tinymce";
+import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
+import { Head, Link } from "@inertiajs/react";
+import React, { useEffect } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
@@ -41,7 +42,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status })
       };
 
       setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
-      setupEditor("#surat-permohonan", "surat-permohonan", templateApplication);
+      setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
       setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
       setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
     };
@@ -69,79 +70,129 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status })
 
   return (
     <main className="space-y-5">
-      <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>
-      <div className="border rounded-lg p-4 space-y-4 bg-white">
-        <div>
-          <strong>Status:</strong>{" "}
-          <span
-            className={`px-2 py-1 text-xs font-semibold rounded ${
-              status === "Approved"
-                ? "bg-green-100 text-green-800"
-                : status === "Rejected"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
-            }`}>
-            {status}
-          </span>
-        </div>
-        <div>
-          <strong>Nama Perusahaan :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Alamat Perusahaan:</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>NPWP :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>No Telp Perusahaan:</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>NIB :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>SIUP / SIUJK :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Nama Direksi :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Jabatan :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Nomor Handphone :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Komisiaris :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Perusahaan Berdiri Tahun :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Akte Perubahan Terakhir :</strong> <span>{submission}</span>
-        </div>
-        <div>
-          <strong>Detail Pengajuan:</strong>
-          <p>{submission}</p>
-        </div>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>
+        <SecondaryButton>
+          <Link href={route("staff-submission-history.submission")}>Kembali</Link>
+        </SecondaryButton>
       </div>
-      <h1 className="text-2xl font-semibold">Output Surat</h1>
-      <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
-      <textarea id="surat-pelaksanaan"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Surat Permohonan</p>
-      <textarea id="surat-permohonan"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Hasil Analisa</p>
-      <textarea id="hasil-analisa"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Draft Surety</p>
-      <textarea id="draft-surety"></textarea>
+      <div className="border rounded-lg p-4 space-y-6 bg-white">
+        {/* Status */}
+        <div>
+          <h2>
+            <strong>Status:</strong>{" "}
+            <span
+              className={`px-2 py-1 text-xs font-semibold rounded ${
+                status === "Approved"
+                  ? "bg-green-100 text-green-800"
+                  : status === "Rejected"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-yellow-100 text-yellow-800"
+              } uppercase`}>
+              {submission.status}
+            </span>
+          </h2>
+        </div>
 
-      <div className="flex justify-end gap-3">
-        <Button asChild>
-          <Link href={route("submission.index")}>Kembali</Link>
-        </Button>
+        {/* Tabel Detail Data */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Data Pribadi Perusahaan</h2>
+          <table className="table-fixed w-full border border-gray-300">
+            <tbody>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nama Perusahaan</td>
+                <td className="p-2 w-1/2">{submission.principal?.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Alamat Perusahaan</td>
+                <td className="p-2 w-1/2">{submission.principal?.address}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">NPWP</td>
+                <td className="p-2 w-1/2">{submission.principal?.npwp}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">No Telp Perusahaan</td>
+                <td className="p-2 w-1/2">{submission.principal?.telephone}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">NIB</td>
+                <td className="p-2 w-1/2">{submission.principal?.nib}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">SIUP / SIUJK</td>
+                <td className="p-2 w-1/2">{submission.principal?.siup_siujk}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nama Direksi</td>
+                <td className="p-2 w-1/2">{submission.principal?.director_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Jabatan</td>
+                <td className="p-2 w-1/2">{submission.principal?.director_position}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nomor Handphone</td>
+                <td className="p-2 w-1/2">{submission.principal?.director_phone}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Komisaris</td>
+                <td className="p-2 w-1/2">{submission.principal?.commissioner}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Data Kontrak */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Data Kontrak</h2>
+          <table className="table-fixed w-full border border-gray-300">
+            <tbody>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nilai Kontrak</td>
+                <td className="p-2 w-1/2">
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                  }).format(submission.contract_value)}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nilai Jaminan</td>
+                <td className="p-2 w-1/2">
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                  }).format(submission.guarantee_value)}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Lokasi Pekerjaan</td>
+                <td className="p-2 w-1/2">{submission.job_location_village}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Mulai Tanggal</td>
+                <td className="p-2 w-1/2">
+                  {new Date(submission.start_date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+              </tr>
+              <tr>
+                <td className="p-2 font-semibold w-1/2">Selesai Tanggal</td>
+                <td className="p-2 w-1/2">
+                  {new Date(submission.end_date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   );
@@ -153,8 +204,8 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.applicant_name ?? "Pengajuan"}`} />
+    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+      <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.companyName ?? "Pengajuan"}`} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -163,6 +214,6 @@ SubmissionDetailPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </StaffLayoutPage>
   );
 };

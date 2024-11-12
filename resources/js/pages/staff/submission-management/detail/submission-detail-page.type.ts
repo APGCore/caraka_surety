@@ -1,8 +1,106 @@
 import React from "react";
 
 interface SubmissionDetailProps {
-  submission: any[];
-  status: any;
+  submission: {
+    status: string;
+    contract_value: number;
+    guarantee_value: number;
+    job_location_village: string;
+    start_date: string;
+    end_date: string;
+    principal: {
+      address: string;
+      commissioner: string;
+      created_at: string;
+      created_by: number;
+      deleted_at: string | null;
+      director_name: string;
+      director_phone: string;
+      director_position: string;
+      district_id: number;
+      fax: string;
+      head_name: string;
+      headquarter_id: number | null;
+      id: number;
+      is_approved: number;
+      last_deed: string;
+      name: string;
+      nib: string;
+      npwp: string;
+      pic: string;
+      picture: string | null;
+      province_id: number;
+      regency_id: number;
+      siup_siujk: string;
+      telephone: string;
+      updated_at: string;
+      village: string;
+      year_established: string;
+    };
+  };
+  bank_id: number;
+  contract_doc_date: string;
+  contract_doc_name: string;
+  contract_doc_number: string;
+  contract_value: number;
+  created_at: string;
+  deleted_at: string | null;
+  end_date: string;
+  guarantee_issue_date: string | null;
+  guarantee_value: number;
+  guarantor_id: number;
+  guarantor_to_product_type: {
+    id: number;
+    guarantor_id: number;
+    product_id: number;
+    product_type_id: number;
+    no: number;
+  };
+  guarantor_to_product_type_id: number;
+  id: number;
+  job_location_district_id: number;
+  job_location_province_id: number;
+  job_location_regency_id: number;
+  job_location_village: string;
+  min_point_scoring: string;
+  note: string | null;
+  note_scoring: string | null;
+  obligee_id: number;
+  principal: {
+    address: string;
+    commissioner: string;
+    created_at: string;
+    created_by: number;
+    deleted_at: string | null;
+    director_name: string;
+    director_phone: string;
+    director_position: string;
+    district_id: number;
+    fax: string;
+    head_name: string;
+    headquarter_id: number | null;
+    id: number;
+    is_approved: number;
+    last_deed: string;
+    name: string;
+    nib: string;
+    npwp: string;
+    pic: string;
+    picture: string | null;
+    province_id: number;
+    regency_id: number;
+    siup_siujk: string;
+    telephone: string;
+    updated_at: string;
+    village: string;
+    year_established: string;
+  };
+  principal_id: number;
+  product_id: number;
+  source_of_fund_id: number;
+  start_date: string;
+  time_period: number;
+  updated_at: string;
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {

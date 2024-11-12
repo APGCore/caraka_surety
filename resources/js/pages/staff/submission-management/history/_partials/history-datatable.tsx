@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
@@ -52,7 +53,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             <TableHead>Nilai Kontrak</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
-            <TableHead className="text-right" />
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,11 +78,18 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                   </span>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
+                <TableCell className="text-right">
+                  <Link href={route("staff-submission-detail.submission", { id: submission.id })}>
+                    <Button variant="outline" size="sm">
+                      Detail
+                    </Button>
+                  </Link>
+                </TableCell>
               </TableRow>
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={7} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>
