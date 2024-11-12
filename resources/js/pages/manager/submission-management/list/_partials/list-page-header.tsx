@@ -9,11 +9,11 @@ import {
 import { Head } from "@inertiajs/react";
 import React from "react";
 
-interface SubmissionHistoryHeaderProps {
+interface SubmissionListHeaderProps {
   title: string;
 }
 
-const SubmissionHistoryHeader: React.FC<SubmissionHistoryHeaderProps> = ({ title }) => {
+const SubmissionListHeader: React.FC<SubmissionListHeaderProps> = ({ title }) => {
   return (
     <>
       <Head title={title ?? "History Pengajuan"} />
@@ -24,15 +24,15 @@ const SubmissionHistoryHeader: React.FC<SubmissionHistoryHeaderProps> = ({ title
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>History Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>List Pengajuan</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "History Pengajuan"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "List Pengajuan"}</h1>
       </div>
     </>
   );
 };
 
-export default SubmissionHistoryHeader;
+export default SubmissionListHeader;

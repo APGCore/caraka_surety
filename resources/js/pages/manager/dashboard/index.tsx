@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManagerLayoutPage from "@/layouts/manager";
-import StaffLayoutPage from "@/layouts/staff";
 import { Head } from "@inertiajs/react";
 import { data } from "./dashboard-utils";
 import { ManagerDashboardPageProps } from "./manager-dashboard-page.type";

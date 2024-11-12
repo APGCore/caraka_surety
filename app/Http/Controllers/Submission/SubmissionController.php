@@ -251,4 +251,32 @@ class SubmissionController extends Controller
             'submissions' => fn() => $submissions,
         ]);
     }
+
+
+    public function displaySubmissionByManager()
+    {
+        $component = 'manager/submission-management/list/index';
+
+        Carbon::setLocale('id');
+
+        $submissions = Submission::query()
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'List Pengajuan',
+            ],
+            'submissions' => fn() => $submissions,
+        ]);
+    }
 }
