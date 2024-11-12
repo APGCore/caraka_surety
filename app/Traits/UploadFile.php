@@ -12,7 +12,8 @@ trait UploadFile
      */
     public function uploadFile(UploadedFile $file, $path, $fileName): string
     {
-        $newFileName = time().'_'.$fileName;
+        $extension = $file->getClientOriginalExtension();
+        $newFileName = time().'_'.$fileName.'.'.$extension;
 
         return $file->storeAs($path, $newFileName, 'public');
     }
@@ -22,8 +23,8 @@ trait UploadFile
      */
     public function deleteFile($pathAndFileName): void
     {
-        if (Storage::exists($pathAndFileName)) {
-            Storage::delete($pathAndFileName);
+        if (Storage::disk('public')->exists($pathAndFileName)) {
+            Storage::disk('public')->delete($pathAndFileName);
         }
     }
 }

@@ -67,6 +67,7 @@ class SubmissionController extends Controller
             $scoring = $validated['scoring'];
 
             $createPrincipal = Principal::query()
+                ->with('documents')
                 ->updateOrCreate([
                     'id' => $principal['id'] ?? null,
                 ], collect($principal)->toArray());
@@ -76,7 +77,6 @@ class SubmissionController extends Controller
                 $document['name'] = $document['required_doc_name'];
                 $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
                 $path = "principal/{$principal['id']}-{$principalName}/documents";
-
 
                 $existingDocument = $createPrincipal->documents()
                     ->where('required_doc_id', $principalDocument['required_doc_id'])
@@ -129,12 +129,6 @@ class SubmissionController extends Controller
             return back();
         } catch (\Exception $e) {
             DB::rollBack();
-
-            dd([
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'line' => $e->getLine(),
-            ]);
             Log::error('SubmissionController@store: ', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTrace(),
@@ -186,7 +180,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -212,10 +206,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -245,13 +239,12 @@ class SubmissionController extends Controller
         ];
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
-
 
     public function displaySubmissionByManager()
     {
@@ -273,10 +266,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 }

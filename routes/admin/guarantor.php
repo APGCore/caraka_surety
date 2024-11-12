@@ -11,7 +11,14 @@ use App\Http\Controllers\Guarantor\ProfileLimitController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('guarantor-management')->group(function () {
-    Route::resource('guarantor', GuarantorController::class);
+    Route::controller(GuarantorController::class)->prefix('guarantor')->name('guarantor.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('store', 'store')->name('store');
+        Route::get('edit/{guarantor}', 'edit')->name('edit');
+        Route::post('update/{guarantor}', 'update')->name('update');
+        Route::delete('destroy/{guarantor}', 'destroy')->name('destroy');
+    });
 
     Route::prefix('product-guarantor')->name('product-guarantor.')->group(function () {
         Route::get('/', [GuarantorToProductTypeController::class, 'index'])->name('index');

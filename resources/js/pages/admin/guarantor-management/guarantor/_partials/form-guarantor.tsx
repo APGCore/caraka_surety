@@ -121,27 +121,16 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
 
   const submit: FormEventHandler<HTMLFormElement> = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (data.id) {
-      router.post(
-        routeSubmit,
-        { ...data, _method: "put" },
-        {
-          preserveScroll: true,
-          preserveState: true,
-          onFinish: () => {
-            router.get(routeBack);
-          },
-        },
-      );
-    } else {
-      post(routeSubmit, {
-        preserveScroll: true,
-        preserveState: true,
-        onFinish: () => {
-          router.get(routeBack);
-        },
-      });
-    }
+    post(routeSubmit, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        router.get(routeBack);
+      },
+      onError: (value: any) => {
+        console.log(value);
+      },
+    });
   };
 
   useEffect(() => {
@@ -347,6 +336,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
                   onChange={(e) => changeContent(e.target.value)}
                   autoComplete="content"
                 />
+                <InputError className="mt-2" message={errors.content} />
               </div>
               <div className="space-y-2 w-full">
                 <InputLabel htmlFor="suffix" value="Akhiran" />

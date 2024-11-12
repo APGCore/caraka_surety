@@ -117,25 +117,35 @@ class GuarantorController extends Controller
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
                 $picture = $guarantor->getAttribute('picture') ?? null;
-                $this->deleteFile($picture);
+                if ($picture) {
+                    $this->deleteFile($picture);
+                }
 
                 $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
             $guarantor->update($requestValid);
-            $guarantor->pattern()->update([
+            $guarantor->load('pattern');
+
+            $patternData = [
                 'prefix' => $requestValid['prefix'],
                 'content' => $requestValid['content'],
                 'suffix' => $requestValid['suffix'],
-            ]);
+            ];
+
+            if ($guarantor->pattern === null) {
+                $guarantor->pattern()->create($patternData);
+            } else {
+                $guarantor->pattern->update($patternData);
+            }
 
             flashMessage('Berhasil', 'Perubahan data asuransi berhasil');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Perubahan data asuransi gagal', 'error');
             Log::error('GuarantorController@update: ', ['message' => $e->getMessage()]);
+            flashMessage('Gagal', 'Perubahan data asuransi gagal', 'error');
         }
     }
 
