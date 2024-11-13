@@ -49,7 +49,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
           </form>
         </div>
       </div>
-      <SubmissionHistoryDatatable submissions={submissions} onDelete={() => {}} />
+      <SubmissionHistoryDatatable submissions={submissions} />
     </main>
   );
 };
