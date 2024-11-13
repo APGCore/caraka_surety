@@ -18,6 +18,7 @@ export default function UpdateProfileBprInformation({
 }) {
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
     id?: number;
+    code?: string;
     name?: string;
     email?: string;
     phone?: string;
@@ -29,6 +30,7 @@ export default function UpdateProfileBprInformation({
     postal_code?: string;
   }>({
     id: profile?.id,
+    code: profile?.code,
     name: profile?.name,
     email: profile?.email,
     phone: profile?.phone,
@@ -64,6 +66,20 @@ export default function UpdateProfileBprInformation({
       </header>
 
       <form onSubmit={submit} className="mt-6 space-y-6">
+        <div>
+          <InputLabel htmlFor="code" value="Kode" />
+
+          <TextInput
+            id="code"
+            className="mt-1 block w-full"
+            value={data.code}
+            onChange={(e) => setData("code", e.target.value)}
+            required
+            autoComplete="code"
+          />
+
+          <InputError className="mt-2" message={errors.code} />
+        </div>
         <div>
           <InputLabel htmlFor="name" value="Nama" />
 

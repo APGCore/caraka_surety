@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Office;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Profile;
@@ -24,7 +25,10 @@ class EmployeeController extends Controller
         $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
 
         $employees = User::search($request->get('search'))
-            ->where('profile_id', $officeSelected)
+            ->query(function ($query) use ($officeSelected) {
+                $query->where('role_id', '!=', 1)
+                    ->where('profile_id', $officeSelected);
+            })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
@@ -53,10 +57,13 @@ class EmployeeController extends Controller
         ]);
         $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
+        $managers = User::query()->whereHas('role', function ($query) {
+            $query->where('name', RoleEnum::Manager->value);
+        })->get();
 
         $component = $request->path().'/index';
 
-        return inertia($component, compact('officeSelected', 'roles'));
+        return inertia($component, compact('officeSelected', 'roles', 'managers'));
     }
 
     /**
@@ -69,8 +76,9 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:'.User::class.',email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|same:password',
-            'phone' => 'required|string',
+            'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'head_id' => 'nullable|exists:users,id',
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
         ]);
@@ -112,11 +120,15 @@ class EmployeeController extends Controller
         $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
         $employee = User::query()->find($employee->getAttribute('id'));
+        $managers = User::query()
+            ->whereHas('role', function ($query) {
+                $query->where('name', RoleEnum::Manager->value);
+            })->get();
 
         $component = $request->path();
         $component = substr($component, 0, strrpos($component, '/')).'/index';
 
-        return inertia($component, compact('officeSelected', 'roles', 'employee'));
+        return inertia($component, compact('officeSelected', 'roles', 'employee', 'managers'));
     }
 
     /**
@@ -127,8 +139,9 @@ class EmployeeController extends Controller
         $requestValid = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:'.User::class.',email,'.$employee->getAttribute('id'),
-            'phone' => 'required|string',
+            'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'head_id' => 'nullable|exists:users,id',
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
             'password' => 'nullable|string|min:8',

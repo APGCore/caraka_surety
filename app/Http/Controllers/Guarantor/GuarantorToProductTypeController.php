@@ -9,6 +9,7 @@ use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use Illuminate\Support\Facades\Log;
 
 class GuarantorToProductTypeController extends Controller
 {
@@ -61,6 +62,12 @@ class GuarantorToProductTypeController extends Controller
 
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {
+            Log::error('Error store guarantor to product type', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
             return $this->responseError('Data produk asuransi gagal disimpan', $e->getMessage());
         }
     }

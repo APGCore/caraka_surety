@@ -39,6 +39,7 @@ class UserController extends Controller
     public function updateCenter(Request $request)
     {
         $requestValidated = $request->validate([
+            'code' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:profiles,email,1,id,deleted_at,NULL'],
             'phone' => ['required', 'string', 'max:255'],

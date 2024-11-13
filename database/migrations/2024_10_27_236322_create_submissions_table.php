@@ -33,6 +33,7 @@ return new class extends Migration
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignId('checked_by')->nullable()->references('id')->on('users')->noActionOnDelete();
+            $table->foreignId('staff_id')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->string('contract_doc_name');
             $table->string('contract_doc_number');
             $table->string('contract_doc_date');

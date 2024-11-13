@@ -17,6 +17,7 @@ interface Props {
 const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack }) => {
   const { data, setData, post, patch, errors, processing } = useForm({
     id: branchOffice?.id ?? null,
+    code: branchOffice?.code ?? "",
     name: branchOffice?.name ?? "",
     email: branchOffice?.email ?? "",
     phone: branchOffice?.phone ?? "",
@@ -57,6 +58,21 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack }) => {
   return (
     <form onSubmit={submit} className="mt-6 space-y-6">
       <div>
+        <InputLabel htmlFor="code" value="Kode" />
+
+        <TextInput
+          id="code"
+          className="mt-1 block w-full"
+          value={data.code}
+          onChange={(e) => setData("code", e.target.value)}
+          required
+          isFocused
+          autoComplete="code"
+        />
+
+        <InputError className="mt-2" message={errors.code} />
+      </div>
+      <div>
         <InputLabel htmlFor="name" value="Nama" />
 
         <TextInput
@@ -80,7 +96,6 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack }) => {
           className="mt-1 block w-full"
           value={data.email}
           onChange={(e) => setData("email", e.target.value)}
-          required
           autoComplete="email"
         />
 

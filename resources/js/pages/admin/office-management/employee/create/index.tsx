@@ -5,11 +5,12 @@ import Form from "@/pages/admin/office-management/employee/form";
 import { Head, router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
-const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles }) => {
+const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, managers }) => {
   const { data, setData, post, errors, processing } = useForm<{
     name: string;
     email: string;
     phone: string;
+    head_id: number | null;
     role_id: number | null;
     profile_id: number;
     password: string;
@@ -18,6 +19,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles }) 
     name: "",
     email: "",
     phone: "",
+    head_id: null,
     role_id: null,
     profile_id: officeSelected,
     password: "",
@@ -49,6 +51,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles }) 
             data={data}
             setData={setData}
             roles={roles}
+            managers={managers}
             errors={errors}
             processing={processing}
             officeSelected={officeSelected}

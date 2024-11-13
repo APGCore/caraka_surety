@@ -19,6 +19,7 @@ class Profiles extends Seeder
 
         Profile::create([
             'id' => 1,
+            'code' => '14',
             'name' => 'Pusat',
             'province_id' => $province->id,
             'regency_id' => $regency->id,
@@ -28,6 +29,7 @@ class Profiles extends Seeder
 
         Profile::create([
             'id' => 2,
+            'code' => '15',
             'name' => 'Cabang 1',
             'province_id' => $province->id,
             'regency_id' => $regency->id,

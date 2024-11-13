@@ -109,6 +109,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
+              <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Dibuat</TableHead>
@@ -120,6 +121,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
               profiles.map((profile: any, index: number) => (
                 <TableRow key={profile.id}>
                   <TableCell>{meta.from + index}</TableCell>
+                  <TableCell>{profile?.code}</TableCell>
                   <TableCell>{profile?.name}</TableCell>
                   <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
                   <TableCell>{profile?.created_at}</TableCell>

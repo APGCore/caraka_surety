@@ -30,6 +30,7 @@ import { ProductGuarantorPageProps } from "./product-guarantor-page.type";
 
 type GuarantorProductType = {
   id: number;
+  no: number;
   product_id: number;
   product_type_id: number;
   code: string;
@@ -47,6 +48,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   const [productSelected, setProductSelected] = useState<number | null>(null);
   const guarantorProductTypeDefault = {
     id: 0,
+    no: 0,
     product_id: 0,
     product_type_id: 0,
     code: "",
@@ -179,6 +181,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
             ? {
                 ...type,
                 id: selectedItem.id,
+                no: selectedItem.no,
                 product_id: productActive || 0,
                 product_type_id: selectedItem.product_type_id,
                 code: selectedItem.code,
@@ -192,8 +195,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   };
 
   const addCombobox = () => {
-    setChoosedProductTypes((prev: any) => [...prev, guarantorProductTypeDefault]);
-    setValues((prev) => [...prev, guarantorProductTypeDefault]);
+    setChoosedProductTypes((prev: any) => [...prev, { ...guarantorProductTypeDefault, no: prev.length }]);
+    setValues((prev) => [...prev, { ...guarantorProductTypeDefault, no: prev.length }]);
     setOpenStates((prev) => [...prev, false]);
   };
 
@@ -225,6 +228,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
       const newValues = [...prev];
       newValues[id] = {
         id: val.id,
+        no: values[id].no,
         product_id: productActive || 0,
         product_type_id: values[id].product_type_id,
         code: values[id].code,
@@ -242,6 +246,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
       const newValues = [...prev];
       newValues[id] = {
         id: val.id,
+        no: values[id].no,
         product_id: productActive || 0,
         product_type_id: values[id].product_type_id,
         code: values[id].code,
@@ -395,6 +400,33 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                   {choosedProductTypes.map((val, id) => (
                     <div key={id} className="space-y-2 flex items-center gap-x-2">
                       <Input
+                        id="no"
+                        type="number"
+                        placeholder="No"
+                        value={values[id]?.no}
+                        className="mt-2 h-[40px] w-[15%]"
+                        min={1}
+                        onChange={(value) => {
+                          const newValue =
+                            values[id].no === parseInt(value.target.value) ? 0 : parseInt(value.target.value);
+                          setValues((prev) => {
+                            const newValues = [...prev];
+
+                            newValues[id] = {
+                              id: val.id,
+                              product_id: productActive || 0,
+                              product_type_id: values[id].product_type_id,
+                              no: newValue,
+                              code: values[id].code,
+                              name: values[id].name,
+                              job_group: values[id].job_group,
+                              job_type: values[id].job_type,
+                            };
+                            return newValues;
+                          });
+                        }}
+                      />
+                      <Input
                         id="code"
                         type="text"
                         placeholder="Kode"
@@ -407,6 +439,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
 
                             newValues[id] = {
                               id: val.id,
+                              no: values[id].no,
                               product_id: productActive || 0,
                               product_type_id: values[id].product_type_id,
                               code: newValue,
@@ -444,6 +477,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                                         const newValues = [...prev];
                                         newValues[id] = {
                                           id: val.id,
+                                          no: values[id].no,
                                           product_id: productActive || 0,
                                           product_type_id: framework.id,
                                           code: values[id].code,

@@ -31,6 +31,7 @@ class StoreRequest extends FormRequest
             'data' => 'required|array',
             'data.*.product_id' => 'required|exists:'.Product::class.',id,deleted_at,NULL',
             'data.*.product_type_id' => 'required|exists:'.ProductType::class.',id,deleted_at,NULL',
+            'data.*.no' => 'required|numeric|min:1',
             'data.*.code' => 'required|string|max:255',
             'data.*.name' => 'required|string|max:255',
             'data.*.job_group' => 'nullable|string|in:'.implode(',', JobGroup::getValues()),
