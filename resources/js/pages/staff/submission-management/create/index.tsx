@@ -339,7 +339,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         {formSearchPrincipalState === "idle" && (
           <div>
             <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
-            <div className="grid gap-[5px]">
+            <div className="grid gap-1">
               <Label className="text-md">Perusahaan</Label>
               <div className="flex gap-x-5">
                 <Combobox
@@ -411,8 +411,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 </Button>
               </div>
               <div className="grid gap-5">
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Nama</Label>
+                <div className="grid w-full gap-1">
+                  <Label className="text-sm">Nama</Label>
                   <Input
                     className="text-md"
                     placeholder="Nama perusahaan"
@@ -425,56 +425,60 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">NPWP</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="No NPWP"
-                    value={data.principal.npwp}
-                    min="0"
-                    type="number"
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        npwp: String(getNumericValue(e)),
-                      })
-                    }
-                  />
+
+                <div className="flex gap-5">
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">No. Telepon</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="No Telepon Perusahaan"
+                      value={data.principal.telephone}
+                      min="0"
+                      type="number"
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          telephone: String(getNumericValue(e)),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">NPWP</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="No NPWP"
+                      value={data.principal.npwp}
+                      min="0"
+                      type="number"
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          npwp: String(getNumericValue(e)),
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">NIB</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="No NIB"
+                      type="number"
+                      value={data.principal.nib}
+                      min="0"
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          nib: String(getNumericValue(e)),
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">No. Telepon</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="No Telepon Perusahaan"
-                    value={data.principal.telephone}
-                    min="0"
-                    type="number"
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        telephone: String(getNumericValue(e)),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">NIB</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="No NIB"
-                    type="number"
-                    value={data.principal.nib}
-                    min="0"
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        nib: String(getNumericValue(e)),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Nama Direksi</Label>
+                <div className="grid w-full gap-1">
+                  <Label className="text-sm">Nama Direksi</Label>
                   <Input
                     className="text-md"
                     placeholder="Nama Direksi Perusahaan"
@@ -487,38 +491,40 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Jabatan</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Jabatan PIC"
-                    value={data.principal.director_position}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        director_position: e.target.value,
-                      })
-                    }
-                  />
+                <div className="flex gap-5">
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">No. Telephone Direksi</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Nomor telepon Jabatan"
+                      value={data.principal.director_phone}
+                      min="0"
+                      type="number"
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          director_phone: String(getNumericValue(e)),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">Jabatan</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Jabatan PIC"
+                      value={data.principal.director_position}
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          director_position: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">No. Telephone Direksi</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nomor telepon Jabatan"
-                    value={data.principal.director_phone}
-                    min="0"
-                    type="number"
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        director_phone: String(getNumericValue(e)),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Nama Komisaris</Label>
+                <div className="grid w-full gap-1">
+                  <Label className="text-sm">Nama Komisaris</Label>
                   <Input
                     className="text-md"
                     placeholder="Nama Komisaris"
@@ -531,108 +537,114 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Perusahaan Berdiri Tahun</Label>
-                  <Input
-                    className="text-md"
-                    type="number"
-                    placeholder="Tahun berdiri perusahaan"
-                    value={data.principal.year_established}
-                    min="0"
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        year_established: String(getNumericValue(e)),
-                      })
-                    }
-                  />
+                <div className="flex gap-5">
+                  <div className="grid w-full  gap-1">
+                    <Label className="text-sm">Perusahaan Berdiri Tahun</Label>
+                    <Input
+                      className="text-md"
+                      type="number"
+                      placeholder="Tahun berdiri perusahaan"
+                      value={data.principal.year_established}
+                      min="0"
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          year_established: String(getNumericValue(e)),
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">Akte Perubahan Terakhir</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Akte perubahan terakir"
+                      value={data.principal.last_deed}
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          last_deed: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-[5px]">
-                  <Label className="text-md">Akte Perubahan Terakhir</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Akte perubahan terakir"
-                    value={data.principal.last_deed}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        last_deed: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Alamat Perusahaan</Label>
-                  <div className="grid gap-2 mt-2">
-                    <div className="grid gap-[5px]">
-                      <Label className="text-sm">Provinsi</Label>
-                      <Combobox
-                        datas={principalProvinces}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Provinsi"
-                        defaultValueId={data?.principal?.province_id}
-                        onSelect={(val: any) => {
-                          setData("principal", { ...data.principal, province_id: val.id });
-                          setSelectedPrincipalProvince(val);
-                        }}
-                      />
+                  <div className="grid gap-10 mt-2">
+                    <div className="flex gap-5">
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-sm">Provinsi</Label>
+                        <Combobox
+                          datas={principalProvinces}
+                          labelKey="name"
+                          valueKey="name"
+                          placeholder="Pilih Provinsi"
+                          defaultValueId={data?.principal?.province_id}
+                          onSelect={(val: any) => {
+                            setData("principal", { ...data.principal, province_id: val.id });
+                            setSelectedPrincipalProvince(val);
+                          }}
+                        />
+                      </div>
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-sm">Kabupaten/Kota</Label>
+                        <Combobox
+                          datas={principalRegencies}
+                          labelKey="name"
+                          valueKey="name"
+                          placeholder="Pilih Kabupaten/Kota"
+                          defaultValueId={data?.principal?.regency_id}
+                          onSelect={(val: any) => {
+                            setData("principal", { ...data.principal, regency_id: val?.id });
+                            setSelectedPrincipalRegency(val);
+                          }}
+                        />
+                      </div>
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-sm">Kecamatan</Label>
+                        <Combobox
+                          datas={principalDistricts}
+                          labelKey="name"
+                          valueKey="name"
+                          placeholder="Pilih Kecamatan"
+                          defaultValueId={data?.principal?.district_id}
+                          onSelect={(val: any) => {
+                            setData("principal", { ...data.principal, district_id: val?.id });
+                            setSelectedPrincipalDistrict(val);
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="grid gap-[5px]">
-                      <Label className="text-sm">Kabupaten/Kota</Label>
-                      <Combobox
-                        datas={principalRegencies}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Kabupaten/Kota"
-                        defaultValueId={data?.principal?.regency_id}
-                        onSelect={(val: any) => {
-                          setData("principal", { ...data.principal, regency_id: val?.id });
-                          setSelectedPrincipalRegency(val);
-                        }}
-                      />
-                    </div>
-                    <div className="grid gap-[5px]">
-                      <Label className="text-sm">Kecamatan</Label>
-                      <Combobox
-                        datas={principalDistricts}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Kecamatan"
-                        defaultValueId={data?.principal?.district_id}
-                        onSelect={(val: any) => {
-                          setData("principal", { ...data.principal, district_id: val?.id });
-                          setSelectedPrincipalDistrict(val);
-                        }}
-                      />
-                    </div>
-                    <div className="grid gap-[5px]">
-                      <Label className="text-sm">Desa</Label>
-                      <Input
-                        className="text-md"
-                        placeholder="Masukan nama Desa Perusahaan"
-                        value={data.principal.village}
-                        onChange={(e) =>
-                          setData("principal", {
-                            ...data.principal,
-                            village: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="grid gap-[5px]">
-                      <Label className="text-sm">Alamat Lengkap</Label>
-                      <Textarea
-                        className="text-md"
-                        placeholder="Masukan Jalan/RT/RW dsb."
-                        value={data.principal.address}
-                        onChange={(e) =>
-                          setData("principal", {
-                            ...data.principal,
-                            address: e.target.value,
-                          })
-                        }
-                      />
+                    <div className="flex items-start gap-5">
+                      <div className="grid gap-1 w-full h-max">
+                        <Label className="text-sm">Desa</Label>
+                        <Input
+                          className="text-md"
+                          placeholder="Masukan nama Desa Perusahaan"
+                          value={data.principal.village}
+                          onChange={(e) =>
+                            setData("principal", {
+                              ...data.principal,
+                              village: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-sm">Alamat Lengkap</Label>
+                        <Textarea
+                          className="text-md"
+                          placeholder="Masukan Jalan/RT/RW dsb."
+                          value={data.principal.address}
+                          onChange={(e) =>
+                            setData("principal", {
+                              ...data.principal,
+                              address: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -645,7 +657,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   of={principalDocs}
                   render={(doc) => {
                     return (
-                      <div className="grid gap-[5px]">
+                      <div className="grid gap-1">
                         <Label className="text-md">{doc.name}</Label>
                         <FileInput
                           onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
@@ -661,7 +673,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             <div>
               <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
               <div className="grid gap-5">
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Produk</Label>
                   <Combobox
                     datas={products}
@@ -680,7 +692,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Asuransi/Penjamin</Label>
                   <Combobox
                     datas={guarantors}
@@ -699,7 +711,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Jenis Jaminan</Label>
                   <Combobox
                     datas={productTypes}
@@ -714,7 +726,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Obligee</Label>
                   <Combobox
                     datas={obligees}
@@ -727,7 +739,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Banks</Label>
                   <Combobox
                     datas={banks}
@@ -740,7 +752,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Nama Dokumen Kontrak</Label>
                   <Input
                     className="text-md"
@@ -754,7 +766,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Nomor Dokumen Kontrak</Label>
                   <Input
                     className="text-md"
@@ -768,7 +780,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Tanggal Dokumen Kontrak</Label>
                   <CalendarPicker
                     onPickDate={(d) => {
@@ -779,7 +791,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Nilai Kontrak</Label>
                   <CurrencyInput
                     intlConfig={{ locale: "id-ID", currency: "IDR" }}
@@ -794,7 +806,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Nilai Jaminan</Label>
                   <CurrencyInput
                     intlConfig={{ locale: "id-ID", currency: "IDR" }}
@@ -809,7 +821,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Jangka Waktu</Label>
                   <Input
                     className="text-md"
@@ -825,7 +837,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Tanggal Mulai Kontrak</Label>
                   <CalendarPicker
                     onPickDate={(d) => {
@@ -838,7 +850,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Tanggal Selesai Kontrak </Label>
                   <CalendarPicker
                     initialDate={
@@ -856,7 +868,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Sumber Dana</Label>
                   <Combobox
                     datas={sourceOfFunds}
@@ -872,10 +884,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     }}
                   />
                 </div>
-                <div className="grid gap-[5px]">
+                <div className="grid gap-1">
                   <Label className="text-md">Lokasi Proyek</Label>
                   <div className="grid gap-2 mt-2">
-                    <div className="grid gap-[5px]">
+                    <div className="grid gap-1">
                       <Label className="text-sm">Provinsi</Label>
                       <Combobox
                         datas={principalProvinces}
@@ -888,7 +900,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-[5px]">
+                    <div className="grid gap-1">
                       <Label className="text-sm">Kabupaten/Kota</Label>
                       <Combobox
                         datas={principalRegencies}
@@ -901,7 +913,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-[5px]">
+                    <div className="grid gap-1">
                       <Label className="text-sm">Kecamatan</Label>
                       <Combobox
                         datas={principalDistricts}
@@ -914,7 +926,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-[5px]">
+                    <div className="grid gap-1">
                       <Label className="text-sm">Desa</Label>
                       <Input
                         className="text-md"
@@ -928,7 +940,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }
                       />
                     </div>
-                    <div className="grid gap-[5px]">
+                    <div className="grid gap-1">
                       <Label className="text-sm">Alamat Lengkap</Label>
                       <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
                     </div>

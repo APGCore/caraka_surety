@@ -60,13 +60,13 @@ const FileInput: React.FC<InputFileProps> = ({
           e.stopPropagation();
           inputRef.current?.click();
         }}
-        className="border-2 border-dashed h-[164px] w-full border-gray-200 rounded-lg flex flex-col gap-1 p-6 items-center">
-        <FileIcon className="w-12 h-12 flex-shrink-0" />
+        className="border-2 border-dashed h-[150px] w-full  border-gray-200 rounded-lg flex flex-col gap-1 p-6 items-center">
+        <FileIcon className="w-10 h-10 flex-shrink-0" />
         {!files ? (
           <>
             <span className="text-sm font-medium text-gray-500">Klik untuk upload file Anda!</span>
             <span className="text-xs text-gray-500">PDF atau Gambar</span>
-            <span className="text-xs text-gray-500">Ukuran file tidak boleh lebih dari 10 MB</span>
+            <span className="text-xs text-gray-500">Ukuran file tidak boleh lebih dari 2 MB</span>
           </>
         ) : (
           <p className="text-sm text-gray-500 mt-1">
