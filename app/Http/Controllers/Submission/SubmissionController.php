@@ -210,6 +210,7 @@ class SubmissionController extends Controller
 
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('staff_id', '=', auth()->user()->getAuthIdentifier())
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
@@ -249,7 +250,7 @@ class SubmissionController extends Controller
         Carbon::setLocale('id');
 
         $staffs = User::query()
-            ->where('head_id', auth()->user()->getAuthIdentifier())
+            ->where('head_id', '=', auth()->user()->getAuthIdentifier())
             ->pluck('id');
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
