@@ -1,5 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import PrimaryButton from "@/components/common/primary-button";
+import RenderList from "@/components/common/render-list";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ type GuarantorProductType = {
   no: number;
   product_id: number;
   product_type_id: number;
+  code_product: string;
   code: string;
   name: string;
   job_group: string;
@@ -51,6 +53,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
     no: 0,
     product_id: 0,
     product_type_id: 0,
+    code_product: "",
     code: "",
     name: "",
     job_group: "",
@@ -94,7 +97,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
     let data: Array<any>;
     data = productsGuarantor || [];
     const product = products.find((product: any) => product.id === productSelected);
-    data.push(product);
+    data.push({ ...product, code_product: "" });
 
     setProductsGuarantor(data);
     setProductSelected(null);
@@ -184,6 +187,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                 no: selectedItem.no,
                 product_id: productActive || 0,
                 product_type_id: selectedItem.product_type_id,
+                code_product: productsGuarantor.find((product: any) => product.id === productActive)?.code,
                 code: selectedItem.code,
                 name: selectedItem.name,
                 job_group: selectedItem.job_group,
@@ -231,6 +235,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
         no: values[id].no,
         product_id: productActive || 0,
         product_type_id: values[id].product_type_id,
+        code_product: productsGuarantor.find((product: any) => product.id == productActive)?.code,
         code: values[id].code,
         name: values[id].name,
         job_group: newValue == "-" ? null : newValue,
@@ -249,11 +254,25 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
         no: values[id].no,
         product_id: productActive || 0,
         product_type_id: values[id].product_type_id,
+        code_product: productsGuarantor.find((product: any) => product.id === productActive)?.code,
         code: values[id].code,
         name: values[id].name,
         job_group: values[id].job_group,
         job_type: newValue == "-" ? null : newValue,
       };
+      return newValues;
+    });
+  };
+
+  const changeProductCode = (event: any) => {
+    productsGuarantor.find((product: any) => product.id === productActive).code = event.target.value;
+    setValues((prev) => {
+      const newValues = [...prev];
+
+      newValues.forEach((value) => {
+        value.code_product = productsGuarantor.find((product: any) => product.id === productActive)?.code;
+      });
+
       return newValues;
     });
   };
@@ -274,7 +293,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
         route("product-guarantor.store"),
         {
           guarantor_id: guarantorSelected,
-          data: productTypeOwnedProduct,
+          data: productTypeOwnedProduct.sort((a, b) => a.id - b.id),
         },
         {
           headers: {
@@ -372,27 +391,40 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
             <div className="flex w-full">
               <div className="p-4 w-[30%]">
                 <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
-                {productsGuarantor?.map((product) => (
-                  <>
-                    <div className="flex align-center space-x-2">
-                      <Button
-                        className={cn(
-                          `w-full`,
-                          productActive == product.id ? "bg-green-700 hover:bg-green-500" : "hover:bg-gray-400",
-                        )}
-                        onClick={() => selectProduct(product)}>
-                        {product.name}
-                      </Button>
-                      <Button
-                        type="button"
-                        className="bg-destructive hover:bg-destructive/80"
-                        onClick={() => removeProduct(product)}>
-                        Hapus
-                      </Button>
-                    </div>
-                    <Separator className="my-2" />
-                  </>
-                ))}
+                <RenderList
+                  of={productsGuarantor}
+                  render={(product) => {
+                    return (
+                      <>
+                        <div className="flex align-center space-x-2">
+                          <Input
+                            id="code"
+                            type="text"
+                            placeholder="Kode"
+                            value={product.code}
+                            className="w-[40%]"
+                            onChange={(value) => changeProductCode(value)}
+                          />
+                          <Button
+                            className={cn(
+                              `w-full`,
+                              productActive == product.id ? "bg-green-700 hover:bg-green-500" : "hover:bg-gray-400",
+                            )}
+                            onClick={() => selectProduct(product)}>
+                            {product.name}
+                          </Button>
+                          <Button
+                            type="button"
+                            className="bg-destructive hover:bg-destructive/80"
+                            onClick={() => removeProduct(product)}>
+                            Hapus
+                          </Button>
+                        </div>
+                        <Separator className="my-2" />
+                      </>
+                    );
+                  }}
+                />
               </div>
               <div className="p-4 pt-6 w-[70%]">
                 <div className="grid gap-2 ">
@@ -417,6 +449,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                               product_id: productActive || 0,
                               product_type_id: values[id].product_type_id,
                               no: newValue,
+                              code_product: productsGuarantor.find((product: any) => product.id === productActive)
+                                ?.code,
                               code: values[id].code,
                               name: values[id].name,
                               job_group: values[id].job_group,
@@ -442,6 +476,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                               no: values[id].no,
                               product_id: productActive || 0,
                               product_type_id: values[id].product_type_id,
+                              code_product: productsGuarantor.find((product: any) => product.id === productActive)
+                                ?.code,
                               code: newValue,
                               name: values[id].name,
                               job_group: values[id].job_group,
@@ -480,6 +516,9 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                                           no: values[id].no,
                                           product_id: productActive || 0,
                                           product_type_id: framework.id,
+                                          code_product: productsGuarantor.find(
+                                            (product: any) => product.id === productActive,
+                                          )?.code,
                                           code: values[id].code,
                                           name: newValue,
                                           job_group: values[id].job_group,
@@ -514,9 +553,10 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                         <SelectContent>
                           <SelectGroup>
                             <SelectItem value={"-"}>-</SelectItem>
-                            {jobGroups.map((jobGroup: any) => (
-                              <SelectItem value={jobGroup}>{jobGroup}</SelectItem>
-                            ))}
+                            <RenderList
+                              of={jobGroups}
+                              render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                            />
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -530,9 +570,10 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                         <SelectContent>
                           <SelectGroup>
                             <SelectItem value={"-"}>-</SelectItem>
-                            {jobTypes.map((groupType: any) => (
-                              <SelectItem value={groupType}>{groupType}</SelectItem>
-                            ))}
+                            <RenderList
+                              of={jobTypes}
+                              render={(groupType: string) => <SelectItem value={groupType}>{groupType}</SelectItem>}
+                            />
                           </SelectGroup>
                         </SelectContent>
                       </Select>

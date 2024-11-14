@@ -235,6 +235,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/document-draft/index';
 
         $submissions = Submission::with('principal')->get();
+
         return inertia($component, [
             'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',

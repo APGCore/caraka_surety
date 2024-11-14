@@ -86,7 +86,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     setPreviewPattern(data.prefix + contentConverted + value);
   };
 
-  const convertPattern = async (value: string) => {
+  const convertPattern = (value: string) => {
     if (value === "") {
       setPreviewPattern("");
       return;
@@ -326,6 +326,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
                   onChange={(e) => changePrefix(e.target.value)}
                   autoComplete="prefix"
                 />
+                <InputError className="mt-2" message={errors.prefix} />
               </div>
               <div className="space-y-2 w-full">
                 <InputLabel htmlFor="content" value="Isian" />
@@ -347,6 +348,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
                   onChange={(e) => changeSuffix(e.target.value)}
                   autoComplete="suffix"
                 />
+                <InputError className="mt-2" message={errors.suffix} />
               </div>
             </div>
           </div>
@@ -364,6 +366,11 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
               <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{KB}")}>
                 Kode Blangko (KB)
               </Button>
+              <PopoverCustom
+                title={"No Terakhir Kode Blangko (NOKB)"}
+                code={"{NOKB}"}
+                onSave={(code, length) => setSequence(code, length)}
+              />
               <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{d}")}>
                 Hari (d)
               </Button>
@@ -377,6 +384,9 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
                 Tahun (Y)
               </Button>
               {/* no urut */}
+              <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{NOA}")}>
+                Nomor Urut Agent (NOA)
+              </Button>
               <PopoverCustom
                 title={"No Urut Setiap Hari (NOD)"}
                 code={"{NOD}"}
@@ -432,7 +442,7 @@ const PopoverCustom = ({
       <PopoverContent className="w-80">
         <div className="grid gap-4">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">Panjang No Urut</h4>
+            <h4 className="font-medium leading-none">Panjang Nomor</h4>
             <p className="text-sm text-muted-foreground">Jika anda menuliskan 5 maka akan dibuat (00001)</p>
           </div>
           <div className="grid gap-2">

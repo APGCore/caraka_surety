@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignIdFor(Product::class, 'product_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(ProductType::class, 'product_type_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->integer('no');
+            $table->string('code_product');
             $table->string('code');
             $table->string('name');
             $table->string('full_name');

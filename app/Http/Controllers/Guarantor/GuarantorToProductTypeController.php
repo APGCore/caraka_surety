@@ -38,9 +38,15 @@ class GuarantorToProductTypeController extends Controller
 
     public function getByGuarantor($guarantorId)
     {
-        $guarantor = Guarantor::query()->find($guarantorId);
+        $guarantor = Guarantor::query()
+            ->with(['guarantorToProductTypes', 'guarantorToProductTypes.product', 'guarantorToProductTypes.productType'])
+            ->find($guarantorId);
         $productTypes = collect($guarantor->guarantorToProductTypes);
-        $products = $productTypes->pluck('product')->unique()->values();
+        $products = $productTypes->pluck('product')->unique()->values()->map(function ($product) use ($productTypes) {
+            $product->code = $productTypes->where('product_id', $product->id)->first()->code_product;
+
+            return $product;
+        });
 
         return $this->responseSuccess('Data produk asuransi berhasil diambil', compact('products', 'productTypes'));
     }
@@ -53,12 +59,14 @@ class GuarantorToProductTypeController extends Controller
         $requestValid = $request->validated();
         $data = collect($requestValid['data']);
         try {
-            GuarantorToProductType::query()->where('guarantor_id', $requestValid['guarantor_id'])->delete();
-            foreach ($data as $item) {
+            $data->each(function ($item) use ($requestValid) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
                 $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
-                GuarantorToProductType::query()->create($item);
-            }
+                GuarantorToProductType::query()
+                    ->updateOrCreate([
+                        'id' => $item['id'] ?? null,
+                    ], $item);
+            });
 
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {

@@ -55,7 +55,7 @@ class Guarantor extends Model
 
     public function guarantorToProductTypes(): HasMany
     {
-        return $this->hasMany(GuarantorToProductType::class, 'guarantor_id');
+        return $this->hasMany(GuarantorToProductType::class, 'guarantor_id')->orderBy('id');
     }
 
     public function headquarter(): BelongsTo
