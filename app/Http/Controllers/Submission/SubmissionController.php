@@ -147,12 +147,22 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function showDetailSubmission($id)
     {
         $submission = Submission::with(['principal', 'guarantorToProductType'])
             ->findOrFail($id);
 
-        return inertia('staff/submission-management/detail/index', [
+        return inertia('staff/submission-management/history/detail/index', [
+            'submission' => $submission,
+        ]);
+    }
+
+    public function showDetailDocsSubmission($id)
+    {
+        $submission = Submission::with(['principal', 'guarantorToProductType'])
+            ->findOrFail($id);
+
+        return inertia('staff/submission-management/document-draft/detail/index', [
             'submission' => $submission,
         ]);
     }
@@ -223,27 +233,7 @@ class SubmissionController extends Controller
     {
         $component = 'staff/submission-management/document-draft/index';
 
-        $submissions = [
-            [
-                'id' => 1,
-                'name' => 'submission 1',
-                'created_at' => '2024-01-01',
-                'status' => 'Pending',
-            ],
-            [
-                'id' => 2,
-                'name' => 'submission 2',
-                'created_at' => '2024-01-02',
-                'status' => 'Approved',
-            ],
-            [
-                'id' => 3,
-                'name' => 'submission 3',
-                'created_at' => '2024-01-03',
-                'status' => 'Rejected',
-            ],
-        ];
-
+        $submissions = Submission::with('principal')->get();
         return inertia($component, [
             'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',

@@ -12,7 +12,8 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
             Route::get('/getAllBanks', 'getAllBanks')->name('getbanks.submission');
             Route::post('/store', 'store')->name('form.store');
-            Route::get('/detail/{id}', 'show')->name('detail.submission');
+            Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
+            Route::get('/draft-doc/{id}', 'showDetailDocsSubmission')->name('docs.submission');
 
         });
 });
