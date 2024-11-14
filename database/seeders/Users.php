@@ -48,6 +48,7 @@ class Users extends Seeder
             'name' => 'Staff',
             'email' => 'staffbpr@gmail.com',
             'password' => bcrypt('password'),
+            'head_id' => 4,
             'profile_id' => 1,
             'role_id' => 5,
         ]);

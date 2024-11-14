@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -257,8 +258,12 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
+        $staffs = User::query()
+            ->where('head_id', auth()->user()->getAuthIdentifier())
+            ->pluck('id');
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->whereIn('staff_id', $staffs)
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
