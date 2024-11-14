@@ -37,8 +37,40 @@ interface SubmissionDetailProps {
       village: string;
       year_established: string;
     };
+    guarantor_to_product_type: {
+      name: string;
+      full_name: string;
+      job_group: string;
+    };
+    obligee: {
+      name: string;
+      address: string;
+    };
+    source_of_fund: {
+      name: string;
+    };
+    contract_doc_name: string;
+    contract_doc_number: string;
+    contract_doc_date: string; // Format: YYYY-MM-DD
+    time_period: number;
+    job_name: string;
+    guarantee_issue_date: string; // Format: YYYY-MM-DD
+    job_location: string;
   };
-  bank_id: number;
+  bank: {
+    id: number;
+    name: string;
+    address: string;
+    telephone: string;
+    fax: string;
+    pic: string;
+    created_at: string;
+    updated_at: string;
+    village: string;
+    district_id: number;
+    province_id: number;
+    regency_id: number;
+  };
   contract_doc_date: string;
   contract_doc_name: string;
   contract_doc_number: string;
@@ -48,13 +80,34 @@ interface SubmissionDetailProps {
   end_date: string;
   guarantee_issue_date: string | null;
   guarantee_value: number;
+  guarantor: {
+    id: number;
+    name: string;
+    address: string;
+    telephone: string;
+    fax: string;
+    email: string;
+    code: string;
+    pic: string;
+    created_at: string;
+    updated_at: string;
+    district_id: number;
+    province_id: number;
+    regency_id: number;
+    village: string;
+  };
   guarantor_id: number;
   guarantor_to_product_type: {
     id: number;
     guarantor_id: number;
     product_id: number;
     product_type_id: number;
-    no: number;
+    name: string;
+    full_name: string;
+    job_group: string;
+    code: string;
+    created_at: string;
+    updated_at: string;
   };
   guarantor_to_product_type_id: number;
   id: number;
@@ -65,6 +118,20 @@ interface SubmissionDetailProps {
   min_point_scoring: string;
   note: string | null;
   note_scoring: string | null;
+  obligee: {
+    id: number;
+    name: string;
+    address: string;
+    telephone: string;
+    fax: string;
+    pic: string;
+    village: string;
+    district_id: number;
+    province_id: number;
+    regency_id: number;
+    created_at: string;
+    updated_at: string;
+  };
   obligee_id: number;
   principal: {
     address: string;
@@ -97,6 +164,12 @@ interface SubmissionDetailProps {
   };
   principal_id: number;
   product_id: number;
+  source_of_fund: {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+  };
   source_of_fund_id: number;
   start_date: string;
   time_period: number;

@@ -79,6 +79,7 @@ class StoreRequest extends FormRequest
             'submission.time_period' => ['required', 'numeric'], // jangka waktu (165 Hari)
             'submission.start_date' => ['required', 'date'], // tanggal mulai
             'submission.end_date' => ['nullable', 'date'], // tanggal berakhir
+            'submission.job_name' => ['required', 'string'], // nama pekerjaan
             'submission.job_location_province_id' => ['required', 'exists:'.Province::class.',id'], // id provinsi lokasi pekerjaan
             'submission.job_location_regency_id' => ['required', 'exists:'.Regency::class.',id'], // id kabupaten/kota lokasi pekerjaan
             'submission.job_location_district_id' => ['required', 'exists:'.District::class.',id'], // id kecamatan lokasi pekerjaan

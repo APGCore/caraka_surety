@@ -51,6 +51,7 @@ type Submission = {
   time_period: string;
   start_date?: Date;
   end_date?: Date;
+  job_name : string;
   job_location_province_id: string;
   job_location_regency_id: string;
   job_location_district_id: string;
