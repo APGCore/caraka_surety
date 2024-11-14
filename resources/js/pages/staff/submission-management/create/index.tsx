@@ -24,7 +24,7 @@ import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
@@ -155,6 +155,66 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
+
+  const [formStep, setFormStep] = useState<"principal" | "docs" | "contract" | "skoring">("principal");
+  const [steps, setSteps] = useState([
+    {
+      title: "Profile",
+      name: "principal",
+      isActive: true,
+    },
+    {
+      title: "Dokumen",
+      name: "docs",
+      isActive: false,
+    },
+    {
+      title: "Kontrak",
+      name: "contract",
+      isActive: false,
+    },
+    {
+      title: "Skoring",
+      name: "skoring",
+      isActive: false,
+    },
+  ]);
+
+  const handleActiveStep = (targetStep: string) => {
+    const targetIndex = steps.findIndex((step) => step.name === targetStep);
+    const updatedSteps = steps.map((step, index) => ({
+      ...step,
+      isActive: index <= targetIndex,
+    }));
+    setSteps(updatedSteps);
+  };
+
+  const handleClickStep = (stepName: string) => {
+    setFormStep(stepName as "principal" | "docs" | "contract" | "skoring");
+    handleActiveStep(stepName);
+  };
+
+  const handleNextStepForm = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (formStep === "principal") {
+      handleClickStep("docs");
+    } else if (formStep === "docs") {
+      handleClickStep("contract");
+    } else if (formStep === "contract") {
+      handleClickStep("skoring");
+    }
+  }, [formStep]);
+
+  const handlePrevStepForm = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (formStep === "docs") {
+      handleClickStep("principal");
+    } else if (formStep === "contract") {
+      handleClickStep("docs");
+    } else if (formStep === "skoring") {
+      handleClickStep("contract");
+    }
+  }, [formStep]);
 
   const { data, setData, post, processing } = useForm<SubmissionFormProps>({
     principal: {
@@ -397,636 +457,716 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
         {(formSearchPrincipalState === "search" || formSearchPrincipalState === "not-search") && (
           <>
-            <div>
-              <div className="flex justify-between">
-                <h2 className="text-2xl font-bold mb-3">
-                  {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
-                </h2>
-                <Button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleReset();
-                  }}>
-                  Kembali Cari Data
-                </Button>
-              </div>
-              <div className="grid gap-5">
-                <div className="grid w-full gap-1">
-                  <Label className="text-sm">Nama</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nama perusahaan"
-                    value={data.principal.name}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+            {/* Stepper Indicator */}
+            <div className="flex">
+              <RenderList
+                of={steps}
+                render={(step, index) => {
+                  return (
+                    <Fragment>
+                      <div
+                        onClick={() => handleClickStep(step.name)}
+                        className="flex items-center cursor-pointer flex-col justify-center">
+                        {/* Bullet with number */}
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                            step.isActive ? "bg-black text-white" : "bg-gray-300 text-gray-700"
+                          }`}>
+                          {index + 1}
+                        </div>
 
-                <div className="flex gap-5">
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">No. Telepon</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="No Telepon Perusahaan"
-                      value={data.principal.telephone}
-                      min="0"
-                      type="number"
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          telephone: String(getNumericValue(e)),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">NPWP</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="No NPWP"
-                      value={data.principal.npwp}
-                      min="0"
-                      type="number"
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          npwp: String(getNumericValue(e)),
-                        })
-                      }
-                    />
-                  </div>
+                        {/* Step label */}
+                        <span
+                          className={`transition-all duration-300 ${
+                            step.isActive ? "text-black font-semibold" : "text-gray-500"
+                          }`}>
+                          {step.title}
+                        </span>
+                      </div>
 
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">NIB</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="No NIB"
-                      type="number"
-                      value={data.principal.nib}
-                      min="0"
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          nib: String(getNumericValue(e)),
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid w-full gap-1">
-                  <Label className="text-sm">Nama Direksi</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nama Direksi Perusahaan"
-                    value={data.principal.director_name}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        director_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex gap-5">
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">No. Telephone Direksi</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="Nomor telepon Jabatan"
-                      value={data.principal.director_phone}
-                      min="0"
-                      type="number"
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          director_phone: String(getNumericValue(e)),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">Jabatan</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="Jabatan PIC"
-                      value={data.principal.director_position}
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          director_position: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid w-full gap-1">
-                  <Label className="text-sm">Nama Komisaris</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nama Komisaris"
-                    value={data.principal.commissioner}
-                    onChange={(e) =>
-                      setData("principal", {
-                        ...data.principal,
-                        commissioner: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex gap-5">
-                  <div className="grid w-full  gap-1">
-                    <Label className="text-sm">Perusahaan Berdiri Tahun</Label>
-                    <Input
-                      className="text-md"
-                      type="number"
-                      placeholder="Tahun berdiri perusahaan"
-                      value={data.principal.year_established}
-                      min="0"
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          year_established: String(getNumericValue(e)),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">Akte Perubahan Terakhir</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="Akte perubahan terakir"
-                      value={data.principal.last_deed}
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          last_deed: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Alamat Perusahaan</Label>
-                  <div className="grid gap-10 mt-2">
-                    <div className="flex gap-5">
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-sm">Provinsi</Label>
-                        <Combobox
-                          datas={principalProvinces}
-                          labelKey="name"
-                          valueKey="name"
-                          placeholder="Pilih Provinsi"
-                          defaultValueId={data?.principal?.province_id}
-                          onSelect={(val: any) => {
-                            setData("principal", { ...data.principal, province_id: val.id });
-                            setSelectedPrincipalProvince(val);
-                          }}
+                      {/* Arrow between steps */}
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`w-full mt-5 h-1 mx-5 transition-all duration-300 ${
+                            steps[index + 1].isActive ? "bg-black" : "bg-gray-300"
+                          }`}
                         />
-                      </div>
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-sm">Kabupaten/Kota</Label>
-                        <Combobox
-                          datas={principalRegencies}
-                          labelKey="name"
-                          valueKey="name"
-                          placeholder="Pilih Kabupaten/Kota"
-                          defaultValueId={data?.principal?.regency_id}
-                          onSelect={(val: any) => {
-                            setData("principal", { ...data.principal, regency_id: val?.id });
-                            setSelectedPrincipalRegency(val);
-                          }}
-                        />
-                      </div>
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-sm">Kecamatan</Label>
-                        <Combobox
-                          datas={principalDistricts}
-                          labelKey="name"
-                          valueKey="name"
-                          placeholder="Pilih Kecamatan"
-                          defaultValueId={data?.principal?.district_id}
-                          onSelect={(val: any) => {
-                            setData("principal", { ...data.principal, district_id: val?.id });
-                            setSelectedPrincipalDistrict(val);
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-5">
-                      <div className="grid gap-1 w-full h-max">
-                        <Label className="text-sm">Desa</Label>
-                        <Input
-                          className="text-md"
-                          placeholder="Masukan nama Desa Perusahaan"
-                          value={data.principal.village}
-                          onChange={(e) =>
-                            setData("principal", {
-                              ...data.principal,
-                              village: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-sm">Alamat Lengkap</Label>
-                        <Textarea
-                          className="text-md"
-                          placeholder="Masukan Jalan/RT/RW dsb."
-                          value={data.principal.address}
-                          onChange={(e) =>
-                            setData("principal", {
-                              ...data.principal,
-                              address: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      )}
+                    </Fragment>
+                  );
+                }}
+              />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
-              <div className="grid gap-5">
-                <RenderList
-                  of={principalDocs}
-                  render={(doc) => {
-                    return (
-                      <div className="grid gap-1">
-                        <Label className="text-md">{doc.name}</Label>
-                        <FileInput
-                          onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                          previewValue={doc?.principal_document?.path}
-                          //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
-                        />
-                      </div>
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
-              <div className="grid gap-5">
-                <div className="grid gap-1">
-                  <Label className="text-md">Produk</Label>
-                  <Combobox
-                    datas={products}
-                    labelKey="name"
-                    valueKey="name"
-                    placeholder="Pilih Produk"
-                    onSelect={(val: any) => {
-                      if (val.id !== selectedProducts) {
-                        setSelectedGuarantor(null);
-                        setSelectedProductType(null);
-                        setIsResetGuarantor(true);
-                        setIsResetProductType(true);
+            {formStep === "principal" && (
+              <div>
+                <div className="flex justify-between">
+                  <h2 className="text-2xl font-bold mb-3">
+                    {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
+                  </h2>
+                  <Button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleReset();
+                    }}>
+                    Kembali Cari Data
+                  </Button>
+                </div>
+                <div className="grid gap-5">
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">Nama</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Nama perusahaan"
+                      value={data.principal.name}
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          name: e.target.value,
+                        })
                       }
-                      setData("submission", { ...data.submission, product_id: val?.id });
-                      setSelectedProducts(val.id);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Asuransi/Penjamin</Label>
-                  <Combobox
-                    datas={guarantors}
-                    labelKey="name"
-                    valueKey="name"
-                    reset={isResetGuarantor}
-                    onReset={(resetVal) => setIsResetGuarantor(resetVal)}
-                    placeholder="Pilih Asuransi/Penjamin"
-                    onSelect={(val: any) => {
-                      if (val.id !== selectedGuarantor) {
-                        setSelectedProductType(null);
-                        setIsResetProductType(true);
-                      }
-                      setData("submission", { ...data.submission, guarantor_id: val?.id });
-                      setSelectedGuarantor(val.id);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Jenis Jaminan</Label>
-                  <Combobox
-                    datas={productTypes}
-                    labelKey="name"
-                    valueKey="name"
-                    placeholder="Pilih Jenis Jaminan"
-                    reset={isResetProductType}
-                    onReset={(resetVal) => setIsResetProductType(resetVal)}
-                    onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
-                      setSelectedProductType(val.id);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Obligee</Label>
-                  <Combobox
-                    datas={obligees}
-                    labelKey="name"
-                    valueKey="name"
-                    placeholder="Pilih Obligee"
-                    onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, obligee_id: val?.id });
-                      setSelectedObligee(val.id);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Banks</Label>
-                  <Combobox
-                    datas={banks}
-                    labelKey="name"
-                    valueKey="name"
-                    placeholder="Pilih Bank"
-                    onSelect={(val: any) => {
-                      setData("submission", { ...data.submission, bank_id: val?.id });
-                      setSelectedBank(val.id);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Job Name</Label>
-                  <input
-                    type="text"
-                    className="border border-gray-300 p-2 rounded-md"
-                    placeholder="Masukkan Nama Pekerjaan"
-                    value={data.submission.job_name}
-                    onChange={(e) => setData("submission", { ...data.submission, job_name: e.target.value })}
-                  />
-                </div>
+                    />
+                  </div>
 
-                <div className="grid gap-1">
-                  <Label className="text-md">Nama Dokumen Kontrak</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nama Dokumen Kontrak"
-                    value={data.submission.contract_doc_name}
-                    onChange={(e) =>
-                      setData("submission", {
-                        ...data.submission,
-                        contract_doc_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Nomor Dokumen Kontrak</Label>
-                  <Input
-                    className="text-md"
-                    placeholder="Nomor Dokumen Kontrak"
-                    value={data.submission.contract_doc_number}
-                    onChange={(e) =>
-                      setData("submission", {
-                        ...data.submission,
-                        contract_doc_number: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Tanggal Dokumen Kontrak</Label>
-                  <CalendarPicker
-                    onPickDate={(d) => {
-                      setData("submission", {
-                        ...data.submission,
-                        contract_doc_date: d,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Nilai Kontrak</Label>
-                  <CurrencyInput
-                    intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
-                    defaultValue={data.submission.contract_value}
-                    placeholder="Nilai Kontrak"
-                    onValueChange={(val) => {
-                      setData("submission", {
-                        ...data.submission,
-                        contract_value: val,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Nilai Jaminan</Label>
-                  <CurrencyInput
-                    intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
-                    defaultValue={data.submission.guarantee_value}
-                    placeholder="Nilai Jaminan"
-                    onValueChange={(val) => {
-                      setData("submission", {
-                        ...data.submission,
-                        guarantee_value: val,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Jangka Waktu</Label>
-                  <Input
-                    className="text-md"
-                    type="number"
-                    placeholder="Jangka Waktu"
-                    value={data.submission.time_period}
-                    onChange={(e) =>
-                      setData("submission", {
-                        ...data.submission,
-                        time_period: e.target.value,
-                        end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Tanggal Mulai Kontrak</Label>
-                  <CalendarPicker
-                    onPickDate={(d) => {
-                      setData("submission", {
-                        ...data.submission,
-                        start_date: d,
-                        time_period: "0",
-                        end_date: d,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Tanggal Selesai Kontrak </Label>
-                  <CalendarPicker
-                    initialDate={
-                      data?.submission?.end_date ?? dayjs().add(Number(data?.submission?.time_period), "day").toDate()
-                    }
-                    onPickDate={(e) => {
-                      setData("submission", {
-                        ...data.submission,
-                        end_date: e,
-                        time_period: dayjs(e)
-                          .startOf("day")
-                          .diff(dayjs(data.submission.start_date).startOf("day"), "day")
-                          .toString(),
-                      });
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Sumber Dana</Label>
-                  <Combobox
-                    datas={sourceOfFunds}
-                    labelKey="name"
-                    valueKey="name"
-                    placeholder="Pilih Sumber Dana"
-                    onSelect={(val) => {
-                      setData("submission", {
-                        ...data.submission,
-                        source_of_fund_id: val?.id,
-                      });
-                      setSelectedSourceOfFund(val);
-                    }}
-                  />
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-md">Lokasi Proyek</Label>
-                  <div className="grid gap-2 mt-2">
-                    <div className="grid gap-1">
-                      <Label className="text-sm">Provinsi</Label>
-                      <Combobox
-                        datas={principalProvinces}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Provinsi"
-                        onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, job_location_province_id: val.id });
-                          setSelectedJobLocationProvince(val);
-                        }}
-                      />
-                    </div>
-                    <div className="grid gap-1">
-                      <Label className="text-sm">Kabupaten/Kota</Label>
-                      <Combobox
-                        datas={principalRegencies}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Kabupaten/Kota"
-                        onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, job_location_regency_id: val.id });
-                          setSelectedJobLocationRegency(val);
-                        }}
-                      />
-                    </div>
-                    <div className="grid gap-1">
-                      <Label className="text-sm">Kecamatan</Label>
-                      <Combobox
-                        datas={principalDistricts}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Kecamatan"
-                        onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, job_location_district_id: val.id });
-                          setSelectedJobLocationDistrict(val);
-                        }}
-                      />
-                    </div>
-                    <div className="grid gap-1">
-                      <Label className="text-sm">Desa</Label>
+                  <div className="flex gap-5">
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">No. Telepon</Label>
                       <Input
                         className="text-md"
-                        placeholder="Masukan nama Desa"
-                        value={data.submission.job_location_village}
+                        placeholder="No Telepon Perusahaan"
+                        value={data.principal.telephone}
+                        min="0"
+                        type="number"
                         onChange={(e) =>
-                          setData("submission", {
-                            ...data.submission,
-                            job_location_village: e.target.value,
+                          setData("principal", {
+                            ...data.principal,
+                            telephone: String(getNumericValue(e)),
                           })
                         }
                       />
                     </div>
-                    <div className="grid gap-1">
-                      <Label className="text-sm">Alamat Lengkap</Label>
-                      <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">NPWP</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="No NPWP"
+                        value={data.principal.npwp}
+                        min="0"
+                        type="number"
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            npwp: String(getNumericValue(e)),
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">NIB</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="No NIB"
+                        type="number"
+                        value={data.principal.nib}
+                        min="0"
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            nib: String(getNumericValue(e)),
+                          })
+                        }
+                      />
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold mb-8">Skoring</h2>
-              <div className="grid gap-16">
-                <RenderList
-                  of={scorings}
-                  render={(scoringCategories) => {
-                    return (
-                      <div className="grid gap-[14px]">
-                        <Label className="text-xl underline underline-offset-4">
-                          Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
-                        </Label>
-                        <div className="space-y-8">
-                          <RenderList
-                            of={scoringCategories?.questions}
-                            render={(scoringQuestions, idx) => {
-                              return (
-                                <div className="space-y-3">
-                                  <div className="font-[600]">
-                                    <span className="mr-3">{idx + 1}.</span>
-                                    <span>{scoringQuestions?.name}</span>
-                                  </div>
-                                  <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
-                                    <RenderList
-                                      of={scoringQuestions?.options}
-                                      render={(scoringOptions) => {
-                                        return (
-                                          <div className="flex items-center space-x-2">
-                                            <RadioGroupItem
-                                              value={scoringOptions?.name}
-                                              id={`option-${scoringOptions?.id}`}
-                                              onClick={() =>
-                                                handleOptionChange(
-                                                  scoringCategories?.id,
-                                                  scoringQuestions.id,
-                                                  scoringOptions.id,
-                                                  scoringOptions.point,
-                                                )
-                                              }
-                                            />
-                                            <Label
-                                              className="cursor-pointer w-full flex justify-between"
-                                              htmlFor={`option-${scoringOptions?.id}`}>
-                                              {scoringOptions?.name}{" "}
-                                              <span className="font-[800]">({scoringOptions?.point} Poin)</span>
-                                            </Label>
-                                          </div>
-                                        );
-                                      }}
-                                    />
-                                  </RadioGroup>
-                                </div>
-                              );
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">Nama Direksi</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Nama Direksi Perusahaan"
+                      value={data.principal.director_name}
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          director_name: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">No. Telephone Direksi</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Nomor telepon Jabatan"
+                        value={data.principal.director_phone}
+                        min="0"
+                        type="number"
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            director_phone: String(getNumericValue(e)),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">Jabatan</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Jabatan PIC"
+                        value={data.principal.director_position}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            director_position: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="grid w-full gap-1">
+                    <Label className="text-sm">Nama Komisaris</Label>
+                    <Input
+                      className="text-md"
+                      placeholder="Nama Komisaris"
+                      value={data.principal.commissioner}
+                      onChange={(e) =>
+                        setData("principal", {
+                          ...data.principal,
+                          commissioner: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid w-full  gap-1">
+                      <Label className="text-sm">Perusahaan Berdiri Tahun</Label>
+                      <Input
+                        className="text-md"
+                        type="number"
+                        placeholder="Tahun berdiri perusahaan"
+                        value={data.principal.year_established}
+                        min="0"
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            year_established: String(getNumericValue(e)),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">Akte Perubahan Terakhir</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Akte perubahan terakir"
+                        value={data.principal.last_deed}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            last_deed: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-1">
+                    <Label className="text-md">Alamat Perusahaan</Label>
+                    <div className="grid gap-10 mt-2">
+                      <div className="flex gap-5">
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Provinsi</Label>
+                          <Combobox
+                            datas={principalProvinces}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Provinsi"
+                            defaultValueId={data?.principal?.province_id}
+                            onSelect={(val: any) => {
+                              setData("principal", { ...data.principal, province_id: val.id });
+                              setSelectedPrincipalProvince(val);
+                            }}
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kabupaten/Kota</Label>
+                          <Combobox
+                            datas={principalRegencies}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Kabupaten/Kota"
+                            defaultValueId={data?.principal?.regency_id}
+                            onSelect={(val: any) => {
+                              setData("principal", { ...data.principal, regency_id: val?.id });
+                              setSelectedPrincipalRegency(val);
+                            }}
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kecamatan</Label>
+                          <Combobox
+                            datas={principalDistricts}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Kecamatan"
+                            defaultValueId={data?.principal?.district_id}
+                            onSelect={(val: any) => {
+                              setData("principal", { ...data.principal, district_id: val?.id });
+                              setSelectedPrincipalDistrict(val);
                             }}
                           />
                         </div>
                       </div>
-                    );
-                  }}
-                />
+                      <div className="flex items-start gap-5">
+                        <div className="grid gap-1 w-full h-max">
+                          <Label className="text-sm">Desa</Label>
+                          <Input
+                            className="text-md"
+                            placeholder="Masukan nama Desa Perusahaan"
+                            value={data.principal.village}
+                            onChange={(e) =>
+                              setData("principal", {
+                                ...data.principal,
+                                village: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Alamat Lengkap</Label>
+                          <Textarea
+                            className="text-md"
+                            placeholder="Masukan Jalan/RT/RW dsb."
+                            value={data.principal.address}
+                            onChange={(e) =>
+                              setData("principal", {
+                                ...data.principal,
+                                address: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
+            )}
+
+            {formStep === "docs" && (
+              <div>
+                <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
+                <div className="grid gap-5">
+                  <RenderList
+                    of={principalDocs}
+                    render={(doc) => {
+                      return (
+                        <div className="grid gap-1">
+                          <Label className="text-md">{doc.name}</Label>
+                          <FileInput
+                            onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
+                            previewValue={doc?.principal_document?.path}
+                            //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
+                          />
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {formStep === "contract" && (
+              <div>
+                <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
+                <div className="grid gap-5">
+                  <div className="flex gap-5">
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Produk</Label>
+                      <Combobox
+                        datas={products}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Produk"
+                        onSelect={(val: any) => {
+                          if (val.id !== selectedProducts) {
+                            setSelectedGuarantor(null);
+                            setSelectedProductType(null);
+                            setIsResetGuarantor(true);
+                            setIsResetProductType(true);
+                          }
+                          setData("submission", { ...data.submission, product_id: val?.id });
+                          setSelectedProducts(val.id);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Asuransi/Penjamin</Label>
+                      <Combobox
+                        datas={guarantors}
+                        labelKey="name"
+                        valueKey="name"
+                        reset={isResetGuarantor}
+                        onReset={(resetVal) => setIsResetGuarantor(resetVal)}
+                        placeholder="Pilih Asuransi/Penjamin"
+                        onSelect={(val: any) => {
+                          if (val.id !== selectedGuarantor) {
+                            setSelectedProductType(null);
+                            setIsResetProductType(true);
+                          }
+                          setData("submission", { ...data.submission, guarantor_id: val?.id });
+                          setSelectedGuarantor(val.id);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Jenis Jaminan</Label>
+                      <Combobox
+                        datas={productTypes}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Jenis Jaminan"
+                        reset={isResetProductType}
+                        onReset={(resetVal) => setIsResetProductType(resetVal)}
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
+                          setSelectedProductType(val.id);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Obligee</Label>
+                      <Combobox
+                        datas={obligees}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Obligee"
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, obligee_id: val?.id });
+                          setSelectedObligee(val.id);
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Banks</Label>
+                      <Combobox
+                        datas={banks}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Bank"
+                        onSelect={(val: any) => {
+                          setData("submission", { ...data.submission, bank_id: val?.id });
+                          setSelectedBank(val.id);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Nama Dokumen Kontrak</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Nama Dokumen Kontrak"
+                        value={data.submission.contract_doc_name}
+                        onChange={(e) =>
+                          setData("submission", {
+                            ...data.submission,
+                            contract_doc_name: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Nomor Dokumen Kontrak</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Nomor Dokumen Kontrak"
+                        value={data.submission.contract_doc_number}
+                        onChange={(e) =>
+                          setData("submission", {
+                            ...data.submission,
+                            contract_doc_number: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Tanggal Dokumen Kontrak</Label>
+                      <CalendarPicker
+                        onPickDate={(d) => {
+                          setData("submission", {
+                            ...data.submission,
+                            contract_doc_date: d,
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Nilai Kontrak</Label>
+                      <CurrencyInput
+                        intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                        defaultValue={data.submission.contract_value}
+                        placeholder="Nilai Kontrak"
+                        onValueChange={(val) => {
+                          setData("submission", {
+                            ...data.submission,
+                            contract_value: val,
+                          });
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Nilai Jaminan</Label>
+                      <CurrencyInput
+                        intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                        defaultValue={data.submission.guarantee_value}
+                        placeholder="Nilai Jaminan"
+                        onValueChange={(val) => {
+                          setData("submission", {
+                            ...data.submission,
+                            guarantee_value: val,
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-5">
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Jangka Waktu</Label>
+                      <Input
+                        className="text-md"
+                        type="number"
+                        placeholder="Jangka Waktu"
+                        value={data.submission.time_period}
+                        onChange={(e) =>
+                          setData("submission", {
+                            ...data.submission,
+                            time_period: e.target.value,
+                            end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Tanggal Mulai Kontrak</Label>
+                      <CalendarPicker
+                        onPickDate={(d) => {
+                          setData("submission", {
+                            ...data.submission,
+                            start_date: d,
+                            time_period: "0",
+                            end_date: d,
+                          });
+                        }}
+                      />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Tanggal Selesai Kontrak </Label>
+                      <CalendarPicker
+                        initialDate={
+                          data?.submission?.end_date ??
+                          dayjs().add(Number(data?.submission?.time_period), "day").toDate()
+                        }
+                        onPickDate={(e) => {
+                          setData("submission", {
+                            ...data.submission,
+                            end_date: e,
+                            time_period: dayjs(e)
+                              .startOf("day")
+                              .diff(dayjs(data.submission.start_date).startOf("day"), "day")
+                              .toString(),
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-1">
+                    <Label className="text-md">Sumber Dana</Label>
+                    <Combobox
+                      datas={sourceOfFunds}
+                      labelKey="name"
+                      valueKey="name"
+                      placeholder="Pilih Sumber Dana"
+                      onSelect={(val) => {
+                        setData("submission", {
+                          ...data.submission,
+                          source_of_fund_id: val?.id,
+                        });
+                        setSelectedSourceOfFund(val);
+                      }}
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <Label className="text-md">Lokasi Proyek</Label>
+                    <div className="grid gap-5 mt-2">
+                      <div className="flex gap-5">
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Provinsi</Label>
+                          <Combobox
+                            datas={principalProvinces}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Provinsi"
+                            onSelect={(val: any) => {
+                              setData("submission", { ...data.submission, job_location_province_id: val.id });
+                              setSelectedJobLocationProvince(val);
+                            }}
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kabupaten/Kota</Label>
+                          <Combobox
+                            datas={principalRegencies}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Kabupaten/Kota"
+                            onSelect={(val: any) => {
+                              setData("submission", { ...data.submission, job_location_regency_id: val.id });
+                              setSelectedJobLocationRegency(val);
+                            }}
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kecamatan</Label>
+                          <Combobox
+                            datas={principalDistricts}
+                            labelKey="name"
+                            valueKey="name"
+                            placeholder="Pilih Kecamatan"
+                            onSelect={(val: any) => {
+                              setData("submission", { ...data.submission, job_location_district_id: val.id });
+                              setSelectedJobLocationDistrict(val);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-5">
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Desa</Label>
+                          <Input
+                            className="text-md"
+                            placeholder="Masukan nama Desa"
+                            value={data.submission.job_location_village}
+                            onChange={(e) =>
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_village: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Alamat Lengkap</Label>
+                          <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {formStep === "skoring" && (
+              <div>
+                <h2 className="text-2xl font-bold mb-8">Skoring</h2>
+                <div className="grid gap-16">
+                  <RenderList
+                    of={scorings}
+                    render={(scoringCategories) => {
+                      return (
+                        <div className="grid gap-[14px]">
+                          <Label className="text-xl underline underline-offset-4">
+                            Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
+                          </Label>
+                          <div className="space-y-8">
+                            <RenderList
+                              of={scoringCategories?.questions}
+                              render={(scoringQuestions, idx) => {
+                                return (
+                                  <div className="space-y-3">
+                                    <div className="font-[600]">
+                                      <span className="mr-3">{idx + 1}.</span>
+                                      <span>{scoringQuestions?.name}</span>
+                                    </div>
+                                    <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
+                                      <RenderList
+                                        of={scoringQuestions?.options}
+                                        render={(scoringOptions) => {
+                                          return (
+                                            <div className="flex items-center space-x-2">
+                                              <RadioGroupItem
+                                                value={scoringOptions?.name}
+                                                id={`option-${scoringOptions?.id}`}
+                                                onClick={() =>
+                                                  handleOptionChange(
+                                                    scoringCategories?.id,
+                                                    scoringQuestions.id,
+                                                    scoringOptions.id,
+                                                    scoringOptions.point,
+                                                  )
+                                                }
+                                              />
+                                              <Label
+                                                className="cursor-pointer w-full flex justify-between"
+                                                htmlFor={`option-${scoringOptions?.id}`}>
+                                                {scoringOptions?.name}{" "}
+                                                <span className="font-[800]">({scoringOptions?.point} Poin)</span>
+                                              </Label>
+                                            </div>
+                                          );
+                                        }}
+                                      />
+                                    </RadioGroup>
+                                  </div>
+                                );
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-5  justify-end">
+              {formStep !== "principal" && (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handlePrevStepForm();
+                  }}
+                  type="button">
+                  Sebelumnya
+                </Button>
+              )}
+              {formStep === "skoring" ? (
+                <Button type="submit" disabled={processing}>
+                  {processing && <LoaderCircle className="animate-spin mr-1" />}
+                  Submit
+                </Button>
+              ) : (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleNextStepForm();
+                  }}
+                  type="button">
+                  Selanjutnya
+                </Button>
+              )}
             </div>
-            <Button type="submit" disabled={processing}>
-              {processing && <LoaderCircle className="animate-spin mr-1" />}
-              Submit
-            </Button>
           </>
         )}
       </form>
