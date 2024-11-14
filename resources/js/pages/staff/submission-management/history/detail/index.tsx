@@ -68,6 +68,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     document.body.removeChild(link);
   };
 
+  console.log(submission);
+
   return (
     <main className="space-y-5">
       <div className="flex justify-between items-center">
@@ -149,6 +151,40 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           <table className="table-fixed w-full border border-gray-300">
             <tbody>
               <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Produk</td>
+                <td className="p-2 w-1/2">{submission.guarantor_to_product_type.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Jenis Jaminan</td>
+                <td className="p-2 w-1/2">{submission.guarantor_to_product_type.full_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nama Obligee</td>
+                <td className="p-2 w-1/2">{submission.obligee.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Alamat Obligee</td>
+                <td className="p-2 w-1/2">{submission.obligee.address}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Jenis Dokumen</td>
+                <td className="p-2 w-1/2">{submission.contract_doc_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nomor Dokumen</td>
+                <td className="p-2 w-1/2">{submission.contract_doc_number}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Tanggal Dokumen</td>
+                <td className="p-2 w-1/2">
+                  {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+              </tr>
+              <tr className="border-b">
                 <td className="p-2 font-semibold w-1/2">Nilai Kontrak</td>
                 <td className="p-2 w-1/2">
                   {new Intl.NumberFormat("id-ID", {
@@ -167,8 +203,34 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </td>
               </tr>
               <tr className="border-b">
-                <td className="p-2 font-semibold w-1/2">Lokasi Pekerjaan</td>
-                <td className="p-2 w-1/2">{submission.job_location_village}</td>
+                <td className="p-2 font-semibold w-1/2">Jangka Waktu</td>
+                <td className="p-2 w-1/2">{submission.time_period} hari</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Nama Pekerjaan</td>
+                <td className="p-2 w-1/2">{submission.job_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Tanggal Terbit Jaminan</td>
+                <td className="p-2 w-1/2">
+                  {new Date(submission.guarantee_issue_date).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Lokasi Proyek</td>
+                <td className="p-2 w-1/2">{submission.job_location}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Sumber Dana</td>
+                <td className="p-2 w-1/2">{submission.source_of_fund.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Kelompok Pekerjaan</td>
+                <td className="p-2 w-1/2">{submission.guarantor_to_product_type.job_group}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold w-1/2">Mulai Tanggal</td>

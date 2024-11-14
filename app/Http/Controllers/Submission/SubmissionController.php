@@ -149,7 +149,7 @@ class SubmissionController extends Controller
      */
     public function showDetailSubmission($id)
     {
-        $submission = Submission::with(['principal', 'guarantorToProductType'])
+        $submission = Submission::with(['principal', 'guarantorToProductType', 'obligee', 'sourceOfFund'])
             ->findOrFail($id);
 
         return inertia('staff/submission-management/history/detail/index', [
