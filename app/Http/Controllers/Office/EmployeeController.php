@@ -57,13 +57,21 @@ class EmployeeController extends Controller
         ]);
         $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
-        $managers = User::query()->whereHas('role', function ($query) {
-            $query->where('name', RoleEnum::Manager->value);
-        })->get();
+        if ($officeSelected == 1) {
+            $role = RoleEnum::Manager->value;
+        } else {
+            $role = RoleEnum::KepalaCabang->value;
+        }
+        $headers = User::query()
+            ->where('profile_id', $officeSelected)
+            ->whereHas('role', function ($query) use ($role) {
+                $query->where('name', $role);
+            })
+            ->get();
 
         $component = $request->path().'/index';
 
-        return inertia($component, compact('officeSelected', 'roles', 'managers'));
+        return inertia($component, compact('officeSelected', 'roles', 'headers'));
     }
 
     /**
@@ -120,15 +128,21 @@ class EmployeeController extends Controller
         $officeSelected = (int) $request->get('office_id');
         $roles = Role::query()->whereNot('id', 1)->get();
         $employee = User::query()->find($employee->getAttribute('id'));
-        $managers = User::query()
-            ->whereHas('role', function ($query) {
-                $query->where('name', RoleEnum::Manager->value);
-            })->get();
+        if ($officeSelected == 1) {
+            $role = RoleEnum::Manager->value;
+        } else {
+            $role = RoleEnum::KepalaCabang->value;
+        }
+        $headers = User::query()
+            ->whereHas('role', function ($query) use ($role) {
+                $query->where('name', $role);
+            })
+            ->get();
 
         $component = $request->path();
         $component = substr($component, 0, strrpos($component, '/')).'/index';
 
-        return inertia($component, compact('officeSelected', 'roles', 'employee', 'managers'));
+        return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers'));
     }
 
     /**

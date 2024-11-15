@@ -4,22 +4,58 @@ import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { router } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
 interface Props {
   officeSelected: number;
-  submitForm: FormEventHandler<HTMLFormElement>;
-  data: any;
-  setData: any;
-  errors: any;
-  processing: any;
   roles: any;
-  managers: any;
+  headers: any;
+  employee?: any;
 }
 
-const Form: React.FC<Props> = ({ officeSelected, submitForm, data, setData, errors, roles, managers, processing }) => {
+const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => {
+  const { data, setData, post, patch, errors, processing } = useForm<{
+    name: string;
+    email: string;
+    phone: string;
+    head_id: number | null;
+    role_id: number | null;
+    profile_id: number;
+    password: string;
+    password_confirmation: string;
+  }>({
+    name: employee?.name || "",
+    email: employee?.email || "",
+    phone: employee?.phone || "",
+    head_id: employee?.head_id || null,
+    role_id: employee?.role_id || null,
+    profile_id: officeSelected,
+    password: employee?.password || "",
+    password_confirmation: employee?.password || "",
+  });
+
+  const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
+    event.preventDefault();
+    if (!employee) {
+      post(route("employee.store"), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          router.get(route("employee.index", { office_id: officeSelected }));
+        },
+      });
+    } else {
+      patch(route("employee.update", employee.id), {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          router.get(route("employee.index", { office_id: officeSelected }));
+        },
+      });
+    }
+  };
   return (
     <form onSubmit={submitForm} className="mt-6 space-y-6">
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -75,10 +111,11 @@ const Form: React.FC<Props> = ({ officeSelected, submitForm, data, setData, erro
             id="role"
             name="role"
             onChange={(e) => {
-              setData({
+              setData((prev) => ({
+                ...prev,
                 role_id: parseInt(e.target.value),
                 ...(parseInt(e.target.value) == 5 && { head_id: null }),
-              });
+              }));
             }}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
             <option value="">Pilih Role</option>
@@ -95,20 +132,20 @@ const Form: React.FC<Props> = ({ officeSelected, submitForm, data, setData, erro
           {data.role_id == 5 && (
             <>
               <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Manager
+                Atasan
               </label>
               <Select
                 value={data?.head_id?.toString() || ""}
                 onValueChange={(value) => {
-                  setData("head_id", value);
+                  setData("head_id", parseInt(value));
                 }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Pilih Manager" />
+                  <SelectValue placeholder="Pilih Atasan" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <RenderList
-                      of={managers}
+                      of={headers}
                       render={(manager: any) => (
                         <SelectItem key={manager.id} value={manager.id.toString()}>
                           {manager.name}

@@ -2,40 +2,9 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import AdminLayout from "@/layouts/admin";
 import { EmployeePageEditProps } from "@/pages/admin/office-management/employee/edit/employee-edit-page.type";
 import Form from "@/pages/admin/office-management/employee/form";
-import { Head, router, useForm } from "@inertiajs/react";
-import { FormEventHandler } from "react";
+import { Head } from "@inertiajs/react";
 
-const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, managers, employee }) => {
-  const { data, setData, patch, errors, processing } = useForm<{
-    name: string;
-    email: string;
-    phone: string;
-    head_id: number | null;
-    role_id: number;
-    profile_id: number;
-    password: string;
-    password_confirmation: string;
-  }>({
-    name: employee.name,
-    email: employee.email,
-    phone: employee.phone,
-    head_id: employee.head_id,
-    role_id: employee.role_id,
-    profile_id: employee.profile_id || officeSelected,
-    password: employee.password,
-    password_confirmation: employee.password,
-  });
-
-  const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
-    event.preventDefault();
-    patch(route("employee.update", employee.id), {
-      preserveScroll: true,
-      preserveState: true,
-      onSuccess: () => {
-        router.get(route("employee.index", { office_id: officeSelected }));
-      },
-    });
-  };
+const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, headers, employee }) => {
   return (
     <main>
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -46,16 +15,7 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, mana
             <p className="mt-1 text-sm text-gray-600">Untuk mengubah data karyawan</p>
           </header>
 
-          <Form
-            submitForm={submitForm}
-            data={data}
-            setData={setData}
-            roles={roles}
-            managers={managers}
-            errors={errors}
-            processing={processing}
-            officeSelected={officeSelected}
-          />
+          <Form roles={roles} headers={headers} employee={employee} officeSelected={officeSelected} />
         </div>
       </div>
     </main>

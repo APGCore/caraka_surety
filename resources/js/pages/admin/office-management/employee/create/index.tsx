@@ -2,40 +2,9 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import AdminLayout from "@/layouts/admin";
 import { EmployeePageCreateProps } from "@/pages/admin/office-management/employee/create/employee-create-page.type";
 import Form from "@/pages/admin/office-management/employee/form";
-import { Head, router, useForm } from "@inertiajs/react";
-import { FormEventHandler } from "react";
+import { Head } from "@inertiajs/react";
 
-const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, managers }) => {
-  const { data, setData, post, errors, processing } = useForm<{
-    name: string;
-    email: string;
-    phone: string;
-    head_id: number | null;
-    role_id: number | null;
-    profile_id: number;
-    password: string;
-    password_confirmation: string;
-  }>({
-    name: "",
-    email: "",
-    phone: "",
-    head_id: null,
-    role_id: null,
-    profile_id: officeSelected,
-    password: "",
-    password_confirmation: "",
-  });
-
-  const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
-    event.preventDefault();
-    post(route("employee.store"), {
-      preserveScroll: true,
-      preserveState: true,
-      onSuccess: () => {
-        router.get(route("employee.index", { office_id: officeSelected }));
-      },
-    });
-  };
+const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, headers }) => {
   return (
     <main>
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -46,16 +15,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, ma
             <p className="mt-1 text-sm text-gray-600">Untuk membuat data karyawan baru</p>
           </header>
 
-          <Form
-            submitForm={submitForm}
-            data={data}
-            setData={setData}
-            roles={roles}
-            managers={managers}
-            errors={errors}
-            processing={processing}
-            officeSelected={officeSelected}
-          />
+          <Form roles={roles} headers={headers} officeSelected={officeSelected} />
         </div>
       </div>
     </main>
