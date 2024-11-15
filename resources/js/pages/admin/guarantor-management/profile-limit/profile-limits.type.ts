@@ -3,6 +3,10 @@ import React from "react";
 interface ProfileLimitsProps {
   guarantors: any;
   guarantorSelected: number;
+  guarantorProducts: any;
+  guarantorProductSelected: any;
+  guarantorProductTypes: any;
+  guarantorProductTypeSelected: any;
   profiles: any;
 }
 

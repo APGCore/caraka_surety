@@ -22,32 +22,45 @@ import { FormProfileLimitsUtils } from "./form-profile-limits.utils";
 
 interface FormProfileLimitsProps {
   isEdit?: boolean;
-  guarantorSelectedId: any;
+  guarantorSelectedId: number;
+  guarantorProductId: number;
+  guarantorProductTypeId: number;
   profile?: any;
 }
 
-const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantorSelectedId, profile }) => {
+const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
+  isEdit,
+  guarantorSelectedId,
+  guarantorProductId,
+  guarantorProductTypeId,
+  profile,
+}) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{
-    guarantor_id: Array<number> | null;
-    profile_id: Array<number> | null;
-    name: Array<string> | null;
-    limit: Array<string> | null;
-  }>({
+  const defaultErrors = {
     guarantor_id: null,
+    guarantor_to_product_type_id: null,
     profile_id: null,
     name: null,
     limit: null,
-  });
+  };
+  const [errors, setErrors] = useState<{
+    guarantor_id: Array<number> | null;
+    guarantor_to_product_type_id: Array<number> | null;
+    profile_id: Array<number> | null;
+    name: Array<string> | null;
+    limit: Array<string> | null;
+  }>(defaultErrors);
 
   const [dataForm, setDataForm] = useState<{
     guarantor_id: number;
+    guarantor_to_product_type_id: number;
     profile_id: number;
     name: string;
     limit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
+    guarantor_to_product_type_id: guarantorProductTypeId,
     profile_id: profile?.id ?? 0,
     name: profile?.name ?? "",
     limit: profile?.profile_limit?.limit ?? undefined,
@@ -63,9 +76,15 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
           toast({
             ...FormProfileLimitsUtils.edit.toast_success,
           });
-          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+          setErrors(defaultErrors);
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect, { guarantor_id: guarantorSelectedId }));
+          router.get(
+            route(FormProfileLimitsUtils.redirect, {
+              guarantor_id: guarantorSelectedId,
+              guarantor_product_id: guarantorProductId,
+              guarantor_product_type_id: guarantorProductTypeId,
+            }),
+          );
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -84,9 +103,15 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
           toast({
             ...FormProfileLimitsUtils.create.toast_success,
           });
-          setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+          setErrors(defaultErrors);
           setIsOpenForm(false);
-          router.get(route(FormProfileLimitsUtils.redirect, { guarantor_id: guarantorSelectedId }));
+          router.get(
+            route(FormProfileLimitsUtils.redirect, {
+              guarantor_id: guarantorSelectedId,
+              guarantor_product_id: guarantorProductId,
+              guarantor_product_type_id: guarantorProductTypeId,
+            }),
+          );
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -103,7 +128,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({ isEdit, guarantor
 
   const handleCloseForm = () => {
     if (errors?.name || errors?.limit) {
-      setErrors({ guarantor_id: null, profile_id: null, name: null, limit: null });
+      setErrors(defaultErrors);
     }
     setIsOpenForm(false);
   };

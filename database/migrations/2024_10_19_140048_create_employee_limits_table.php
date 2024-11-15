@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Profile;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ return new class extends Migration
         Schema::create('employee_limits', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Profile::class, 'profile_id')->constrained()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained()->on('users')->cascadeOnDelete();
             $table->float('limit');

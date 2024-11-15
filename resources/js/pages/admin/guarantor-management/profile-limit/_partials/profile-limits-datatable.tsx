@@ -28,11 +28,19 @@ import FormProfileLimits from "./form-profile-limits";
 
 interface ProfileLimitsDatatableProps {
   profiles: any;
-  guarantorSelectedId: any;
+  guarantorSelectedId: number;
+  guarantorProductId: number;
+  guarantorProductTypeId: number;
   onDelete: (limitProfile: any) => void;
 }
 
-const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profiles, guarantorSelectedId, onDelete }) => {
+const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
+  profiles,
+  guarantorSelectedId,
+  guarantorProductId,
+  guarantorProductTypeId,
+  onDelete,
+}) => {
   return (
     <>
       <Table>
@@ -69,11 +77,13 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({ profile
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          {profile.profile_limit?.limit ? (
-                            <FormProfileLimits isEdit guarantorSelectedId={guarantorSelectedId} profile={profile} />
-                          ) : (
-                            <FormProfileLimits guarantorSelectedId={guarantorSelectedId} profile={profile} />
-                          )}
+                          <FormProfileLimits
+                            isEdit={profile.profile_limit?.limit != undefined}
+                            guarantorSelectedId={guarantorSelectedId}
+                            guarantorProductId={guarantorProductId}
+                            guarantorProductTypeId={guarantorProductTypeId}
+                            profile={profile}
+                          />
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>

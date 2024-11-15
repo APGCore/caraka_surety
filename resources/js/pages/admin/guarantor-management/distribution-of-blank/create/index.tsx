@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import AdminLayout from "@/layouts/admin";
+import Form from "@/pages/admin/guarantor-management/distribution-of-blank/form";
 import { EmployeePageCreateProps } from "@/pages/admin/office-management/employee/create/employee-create-page.type";
-import Form from "@/pages/admin/office-management/employee/form";
 import { Head, router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 

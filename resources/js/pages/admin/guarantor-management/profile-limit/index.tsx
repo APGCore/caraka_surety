@@ -11,7 +11,15 @@ import ProfileLimitsDatatable from "./_partials/profile-limits-datatable";
 import ProfileLimitsHeader from "./_partials/profile-limits-header";
 import { ProfileLimitsPageProps } from "./profile-limits.type";
 
-const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelected, profiles }) => {
+const ProfileLimitsPage: ProfileLimitsPageProps = ({
+  guarantors,
+  guarantorSelected,
+  guarantorProducts,
+  guarantorProductSelected,
+  guarantorProductTypes,
+  guarantorProductTypeSelected,
+  profiles,
+}) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
 
@@ -28,13 +36,28 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelect
     getData(select, search, guarantorId);
   };
 
-  const getData = (per_page: string, search: string, guarantorId?: number) => {
+  const handleSelectGuarantorProduct = (guarantorProductId: number) => {
+    getData(select, search, guarantorSelected, guarantorProductId);
+  };
+  const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
+    getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeId);
+  };
+
+  const getData = (
+    per_page: string,
+    search: string,
+    guarantorId?: number,
+    guarantorProductId?: number,
+    guarantorProductTypeId?: number,
+  ) => {
     router.get(
       route(ProfileLimitsUtils.link.index),
       pickBy({
         per_page,
         search,
         guarantor_id: guarantorId,
+        guarantor_product_id: guarantorProductId,
+        guarantor_product_type_id: guarantorProductTypeId,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -58,6 +81,24 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelect
             className={"w-[210px]"}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
+          <Combobox
+            datas={guarantorProducts}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorProductSelected}
+            placeholder={"Pilih Produk"}
+            className={"w-min-[210px]"}
+            onSelect={(value) => handleSelectGuarantorProduct(value.id)}
+          />
+          <Combobox
+            datas={guarantorProductTypes}
+            labelKey={"full_name"}
+            valueKey={"full_name"}
+            defaultValue={guarantorProductTypeSelected}
+            placeholder={"Pilih Jenis Jaminan"}
+            className={"w-min-[210px]"}
+            onSelect={(value) => handleSelectGuarantorProductType(value.id)}
+          />
         </div>
         <SearchDatatable
           value={search}
@@ -69,6 +110,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({ guarantors, guarantorSelect
       <ProfileLimitsDatatable
         profiles={profiles}
         guarantorSelectedId={guarantorSelected}
+        guarantorProductId={guarantorProductSelected}
+        guarantorProductTypeId={guarantorProductTypeSelected}
         onDelete={deleteProfileLimit}
       />
     </main>

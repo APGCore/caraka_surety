@@ -15,11 +15,13 @@ class ProfileLimitSeeder extends Seeder
         $profileLimits = [
             [
                 'guarantor_id' => 1,
+                'guarantor_to_product_type_id' => 1,
                 'profile_id' => 1,
                 'limit' => '100000000',
             ],
             [
                 'guarantor_id' => 1,
+                'guarantor_to_product_type_id' => 1,
                 'profile_id' => 2,
                 'limit' => '50000000',
             ],

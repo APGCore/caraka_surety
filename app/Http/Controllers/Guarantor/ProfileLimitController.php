@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guarantor;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,14 +21,20 @@ class ProfileLimitController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::all();
+        $guarantors = Guarantor::query()->select('id', 'name')
+            ->get();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
+        $guarantor = $guarantors->find($guarantorSelected)->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
+        $guarantorProducts = $guarantor->guarantorToProductTypes->pluck('product')->unique()->values();
+        $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
+        $guarantorProductTypes = $guarantor->guarantorToProductTypes->where('product_id', $guarantorProductSelected)->values();
+        $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
 
         $profiles = Profile::search($request->get('search'))
-            ->query(function (Builder $query) use ($guarantorSelected) {
-                return $query->when($guarantorSelected, function ($query) use ($guarantorSelected) {
-                    $query->with(['profileLimit' => function ($query) use ($guarantorSelected) {
-                        $query->where('guarantor_id', $guarantorSelected);
+            ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected) {
+                return $query->when($guarantorSelected, function ($query) use ($guarantorSelected, $guarantorProductTypeSelected) {
+                    $query->with(['profileLimit' => function ($query) use ($guarantorSelected, $guarantorProductTypeSelected) {
+                        $query->where('guarantor_id', $guarantorSelected)->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
                     }]);
                 });
             })
@@ -46,6 +53,10 @@ class ProfileLimitController extends Controller
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
+            'guarantorProducts' => $guarantorProducts,
+            'guarantorProductSelected' => $guarantorProductSelected,
+            'guarantorProductTypes' => $guarantorProductTypes,
+            'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
             'profiles' => fn () => $profileResource,
         ]);
     }
@@ -57,12 +68,14 @@ class ProfileLimitController extends Controller
     {
         $requestValid = $request->validate(
             [
-                'guarantor_id' => 'required|exists:'.Guarantor::class.',id',
-                'profile_id' => 'required|exists:'.Profile::class.',id',
+                'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
+                'guarantor_to_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
+                'profile_id' => 'required|exists:'.Profile::class.',id,deleted_at,NULL',
                 'limit' => 'required',
             ],
             [
                 'guarantor_id.required' => 'Kantor belum dipilih',
+                'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
                 'profile_id.required' => 'Profil belum dipilih',
                 'limit.required' => 'Limit wajib diisi',
             ]
@@ -75,6 +88,7 @@ class ProfileLimitController extends Controller
             ProfileLimit::query()->create(
                 [
                     'guarantor_id' => $requestValid['guarantor_id'],
+                    'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
                     'profile_id' => $requestValid['profile_id'],
                     'limit' => $limit,
                 ]

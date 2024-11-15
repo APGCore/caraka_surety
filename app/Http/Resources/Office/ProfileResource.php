@@ -16,9 +16,6 @@ class ProfileResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'province' => $this->resource->province?->name,
-            'regency' => $this->resource->regency?->name,
-            'district' => $this->resource->district?->name,
             'profile_limit' => $this->whenLoaded('profileLimit', function () {
                 return $this->resource->profileLimit->first();
             }),

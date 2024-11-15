@@ -15,18 +15,21 @@ class EmployeeLimitSeeder extends Seeder
         $employeeLimits = [
             [
                 'guarantor_id' => 1,
+                'guarantor_to_product_type_id' => 1,
                 'profile_id' => 1,
                 'employee_id' => 2,
                 'limit' => '70000000',
             ],
             [
                 'guarantor_id' => 1,
+                'guarantor_to_product_type_id' => 1,
                 'profile_id' => 2,
                 'employee_id' => 3,
                 'limit' => '50000000',
             ],
             [
                 'guarantor_id' => 1,
+                'guarantor_to_product_type_id' => 1,
                 'profile_id' => 1,
                 'employee_id' => 4,
                 'limit' => '30000000',
