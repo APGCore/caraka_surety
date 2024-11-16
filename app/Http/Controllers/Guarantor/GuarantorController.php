@@ -22,6 +22,13 @@ class GuarantorController extends Controller
     public function index(Request $request)
     {
         $guarantors = Guarantor::search($request->get('search'))
+            ->query(function ($query) {
+                return $query->with([
+                    'province',
+                    'regency',
+                    'district',
+                ]);
+            })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)

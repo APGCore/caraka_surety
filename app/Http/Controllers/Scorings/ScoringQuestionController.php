@@ -49,6 +49,9 @@ class ScoringQuestionController extends Controller
             // Continue with the query only if a valid category is selected
             $scoringQuestion = ScoringQuestion::search($request->get('search'))
                 ->where('scoring_question_category_id', $selectedScoringQuestionCategory->id)
+                ->query(function ($query) {
+                    return $query->with(['category', 'category.scoring', 'options']);
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate($request->get('per_page') ?? 10)
                 ->appends('query', null)

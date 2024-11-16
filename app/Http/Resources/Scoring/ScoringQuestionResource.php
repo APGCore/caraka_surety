@@ -24,7 +24,7 @@ class ScoringQuestionResource extends JsonResource
             return [
                 'id' => $this->resource->id,
                 'name' => $this->resource->name,
-                'count_options' => $this->resource->options()->count(),
+                'count_options' => count($this->resource->options),
                 'created_at' => $this->resource->created_at->translatedFormat('d F Y'),
                 'scoring_id' => null, // No scoring available if category is null
                 'category_id' => null,
@@ -37,7 +37,7 @@ class ScoringQuestionResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'name' => $this->resource->name,
-            'count_options' => $this->resource->options()->count(),
+            'count_options' => count($this->resource->options),
             'created_at' => $this->resource->created_at->translatedFormat('d F Y'),
             'scoring_id' => $scoring->id,
             'category_id' => $category->id,

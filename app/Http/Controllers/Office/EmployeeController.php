@@ -26,7 +26,8 @@ class EmployeeController extends Controller
 
         $employees = User::search($request->get('search'))
             ->query(function ($query) use ($officeSelected) {
-                $query->where('role_id', '!=', 1)
+                $query->with('role')
+                    ->where('role_id', '!=', 1)
                     ->where('profile_id', $officeSelected);
             })
             ->orderBy('name')
@@ -64,6 +65,7 @@ class EmployeeController extends Controller
         }
         $headers = User::query()
             ->where('profile_id', $officeSelected)
+            ->with('role')
             ->whereHas('role', function ($query) use ($role) {
                 $query->where('name', $role);
             })
@@ -134,6 +136,7 @@ class EmployeeController extends Controller
             $role = RoleEnum::KepalaCabang->value;
         }
         $headers = User::query()
+            ->with('role')
             ->whereHas('role', function ($query) use ($role) {
                 $query->where('name', $role);
             })

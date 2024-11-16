@@ -21,6 +21,9 @@ class RegencyController extends Controller
     {
         $provinces = Province::all();
         $regencies = Regency::search($request->get('search'))
+            ->query(function ($query) {
+                return $query->with('province');
+            })
             ->orderBy('code')
             ->paginate($request->per_page ?? 10)
             ->appends('query', null)

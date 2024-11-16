@@ -43,6 +43,7 @@ class EmployeeLimitController extends Controller
             ->query(function (Builder $query) use ($guarantorSelected, $profileSelected) {
                 return $query->whereIn('role_id', [2, 3, 4])
                     ->where('profile_id', $profileSelected)
+                    ->with('role')
                     ->when($guarantorSelected && $profileSelected, function ($query) use ($guarantorSelected, $profileSelected) {
                         $query->with(['employeeLimit' => function ($query) use ($guarantorSelected, $profileSelected) {
                             $query->where('guarantor_id', $guarantorSelected)->where('profile_id', $profileSelected);

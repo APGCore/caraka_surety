@@ -24,6 +24,9 @@ class DistrictController extends Controller
     {
         $regencies = Regency::all();
         $districts = District::search($request->get('search'))
+            ->query(function ($query) {
+                return $query->with('regency');
+            })
             ->orderBy('code')
             ->paginate($request->per_page ?? 10)
             ->appends('query', null)

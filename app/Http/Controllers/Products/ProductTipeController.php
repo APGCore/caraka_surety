@@ -20,6 +20,9 @@ class ProductTipeController extends Controller
         $component = $request->path().'/index';
 
         $productTypes = ProductType::search($request->get('search'))
+            ->query(function ($query) {
+                return $query->with(['product', 'guarantorToProductType']);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate((int) $request->get('per_page') ?? 10)
             ->appends('query', null)
