@@ -22,22 +22,34 @@ import { FormEmployeeLimitsUtils } from "./form-employee-limits.utils";
 
 interface FormEmployeeLimitsProps {
   isEdit?: boolean;
-  guarantorSelectedId: any;
-  profileSelectedId: any;
+  guarantorSelectedId: number;
+  guarantorProductSelectedId: number;
+  guarantorProductTypeSelectedId: number;
+  profileSelectedId: number;
   employee?: any;
 }
 
 const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
   isEdit,
   guarantorSelectedId,
+  guarantorProductSelectedId,
+  guarantorProductTypeSelectedId,
   profileSelectedId,
   employee,
 }) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const defaultData = { guarantor_id: null, profile_id: null, employee_id: null, name: null, limit: null };
+  const defaultData = {
+    guarantor_id: null,
+    guarantor_to_product_type_id: null,
+    profile_id: null,
+    employee_id: null,
+    name: null,
+    limit: null,
+  };
   const [errors, setErrors] = useState<{
     guarantor_id: Array<number> | null;
+    guarantor_to_product_type_id: Array<number> | null;
     profile_id: Array<number> | null;
     employee_id: Array<number> | null;
     name: Array<string> | null;
@@ -46,12 +58,14 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
 
   const [dataForm, setDataForm] = useState<{
     guarantor_id: number;
+    guarantor_to_product_type_id: number;
     profile_id: number;
     employee_id: number;
     name: string;
     limit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
+    guarantor_to_product_type_id: guarantorProductTypeSelectedId,
     profile_id: profileSelectedId ?? 0,
     employee_id: employee?.id ?? 0,
     name: employee?.name ?? "",
@@ -60,62 +74,35 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
 
   const submit = () => {
     setIsLoading(true);
+    const request = isEdit
+      ? axios.put(route(FormEmployeeLimitsUtils.edit.route, employee?.employee_limit?.id), { ...dataForm })
+      : axios.post(route(FormEmployeeLimitsUtils.create.route), { ...dataForm });
 
-    if (isEdit) {
-      axios
-        .put(route(FormEmployeeLimitsUtils.edit.route, employee?.employee_limit?.id), { ...dataForm })
-        .then(() => {
-          toast({
-            ...FormEmployeeLimitsUtils.edit.toast_success,
-          });
-          setErrors(defaultData);
-          setIsOpenForm(false);
-          router.get(
-            route(FormEmployeeLimitsUtils.redirect, {
-              guarantor_id: guarantorSelectedId,
-              profile_id: profileSelectedId,
-            }),
-          );
-        })
-        .catch((error) => {
-          setErrors(error.response.data.errors);
-          toast({
-            ...FormEmployeeLimitsUtils.edit.toast_failed,
-            description: error.response.data.message,
-            variant: "destructive",
-          });
-        })
-        .finally(() => {
-          setIsLoading(false);
+    request
+      .then(() => {
+        toast(isEdit ? FormEmployeeLimitsUtils.edit.toast_success : FormEmployeeLimitsUtils.create.toast_success);
+        setErrors(defaultData);
+        setIsOpenForm(false);
+        router.get(
+          route(FormEmployeeLimitsUtils.redirect, {
+            guarantor_id: guarantorSelectedId,
+            guarantor_product_id: guarantorProductSelectedId,
+            guarantor_product_type_id: guarantorProductTypeSelectedId,
+            profile_id: profileSelectedId,
+          }),
+        );
+      })
+      .catch((error) => {
+        setErrors(error.response.data.errors);
+        toast({
+          ...(isEdit ? FormEmployeeLimitsUtils.edit.toast_failed : FormEmployeeLimitsUtils.create.toast_failed),
+          description: error.response.data.message,
+          variant: "destructive",
         });
-    } else {
-      axios
-        .post(route(FormEmployeeLimitsUtils.create.route), { ...dataForm })
-        .then(() => {
-          toast({
-            ...FormEmployeeLimitsUtils.create.toast_success,
-          });
-          setErrors(defaultData);
-          setIsOpenForm(false);
-          router.get(
-            route(FormEmployeeLimitsUtils.redirect, {
-              guarantor_id: guarantorSelectedId,
-              profile_id: profileSelectedId,
-            }),
-          );
-        })
-        .catch((error) => {
-          setErrors(error.response.data.errors);
-          toast({
-            ...FormEmployeeLimitsUtils.create.toast_failed,
-            description: error.response.data.message,
-            variant: "destructive",
-          });
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleCloseForm = () => {

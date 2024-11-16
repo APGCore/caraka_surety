@@ -28,14 +28,18 @@ import FormEmployeeLimits from "./form-employee-limits";
 
 interface EmployeeLimitsDatatableProps {
   employees: any;
-  guarantorSelectedId: any;
-  profileSelectedId: any;
+  guarantorSelectedId: number;
+  guarantorProductSelectedId: number;
+  guarantorProductTypeSelectedId: number;
+  profileSelectedId: number;
   onDelete: (limitProfile: any) => void;
 }
 
 const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
   employees,
   guarantorSelectedId,
+  guarantorProductSelectedId,
+  guarantorProductTypeSelectedId,
   profileSelectedId,
   onDelete,
 }) => {
@@ -77,20 +81,14 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          {employee.employee_limit?.limit ? (
-                            <FormEmployeeLimits
-                              isEdit
-                              guarantorSelectedId={guarantorSelectedId}
-                              profileSelectedId={profileSelectedId}
-                              employee={employee}
-                            />
-                          ) : (
-                            <FormEmployeeLimits
-                              guarantorSelectedId={guarantorSelectedId}
-                              profileSelectedId={profileSelectedId}
-                              employee={employee}
-                            />
-                          )}
+                          <FormEmployeeLimits
+                            isEdit={employee.employee_limit?.limit}
+                            guarantorSelectedId={guarantorSelectedId}
+                            guarantorProductSelectedId={guarantorProductSelectedId}
+                            guarantorProductTypeSelectedId={guarantorProductTypeSelectedId}
+                            profileSelectedId={profileSelectedId}
+                            employee={employee}
+                          />
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Guarantor\EmployeeLimit;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile;
 use App\Models\User;
@@ -24,6 +25,11 @@ class EmployeeLimitController extends Controller
     {
         $guarantors = Guarantor::all();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
+        $guarantor = $guarantors->find($guarantorSelected)->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
+        $guarantorProducts = $guarantor->guarantorToProductTypes->pluck('product')->unique()->values();
+        $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
+        $guarantorProductTypes = $guarantor->guarantorToProductTypes->where('product_id', $guarantorProductSelected)->values();
+        $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
         $profiles = Profile::all();
         $profileSelected = (int) ($request->get('profile_id') ?? $profiles->first()?->id);
         $limit = ProfileLimit::query()
@@ -40,13 +46,15 @@ class EmployeeLimitController extends Controller
         }
 
         $employees = User::search($request->get('search'))
-            ->query(function (Builder $query) use ($guarantorSelected, $profileSelected) {
+            ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
                 return $query->whereIn('role_id', [2, 3, 4])
                     ->where('profile_id', $profileSelected)
                     ->with('role')
-                    ->when($guarantorSelected && $profileSelected, function ($query) use ($guarantorSelected, $profileSelected) {
-                        $query->with(['employeeLimit' => function ($query) use ($guarantorSelected, $profileSelected) {
-                            $query->where('guarantor_id', $guarantorSelected)->where('profile_id', $profileSelected);
+                    ->when($guarantorSelected && $profileSelected, function ($query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
+                        $query->with(['employeeLimit' => function ($query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
+                            $query->where('guarantor_id', $guarantorSelected)
+                                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
+                                ->where('profile_id', $profileSelected);
                         }]);
                     });
             })
@@ -65,6 +73,10 @@ class EmployeeLimitController extends Controller
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
+            'guarantorProducts' => $guarantorProducts,
+            'guarantorProductSelected' => $guarantorProductSelected,
+            'guarantorProductTypes' => $guarantorProductTypes,
+            'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
             'profiles' => $profiles,
             'profileSelected' => $profileSelected,
             'limit' => $limit,
@@ -80,12 +92,14 @@ class EmployeeLimitController extends Controller
         $requestValid = $request->validate(
             [
                 'guarantor_id' => 'required|exists:'.Guarantor::class.',id',
+                'guarantor_to_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id',
                 'profile_id' => 'required|exists:'.Profile::class.',id',
                 'employee_id' => 'required|exists:'.User::class.',id',
                 'limit' => 'required',
             ],
             [
                 'guarantor_id.required' => 'Kantor belum dipilih',
+                'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
                 'profile_id.required' => 'Profil belum dipilih',
                 'employee_id.required' => 'Karyawan belum dipilih',
                 'limit.required' => 'Limit wajib diisi',
@@ -113,9 +127,7 @@ class EmployeeLimitController extends Controller
 
             EmployeeLimit::query()->create(
                 [
-                    'guarantor_id' => $requestValid['guarantor_id'],
-                    'profile_id' => $requestValid['profile_id'],
-                    'employee_id' => $requestValid['employee_id'],
+                    ...$requestValid,
                     'limit' => $limit,
                 ]
             );

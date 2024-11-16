@@ -30,4 +30,9 @@ class ProfileLimit extends Model
     {
         return $this->belongsTo(Profile::class);
     }
+
+    public function guarantorToProductType(): BelongsTo
+    {
+        return $this->belongsTo(GuarantorToProductType::class);
+    }
 }

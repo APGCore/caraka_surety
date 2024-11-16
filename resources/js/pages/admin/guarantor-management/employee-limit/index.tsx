@@ -15,6 +15,10 @@ import { EmployeeLimitsPageProps } from "./employee-limits.type";
 const ProfileLimitsPage: EmployeeLimitsPageProps = ({
   guarantors,
   guarantorSelected,
+  guarantorProducts,
+  guarantorProductSelected,
+  guarantorProductTypes,
+  guarantorProductTypeSelected,
   profiles,
   profileSelected,
   limit,
@@ -25,32 +29,59 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
 
   const handleSelectProfileLimitLength = (per_page: string) => {
     setSelect(per_page);
-    getData(per_page, search);
+    getData({ per_page, search });
   };
 
   const handleSearchProfileLimit = () => {
-    getData(select, search);
+    getData({ per_page: select, search });
   };
 
   const handleSelectGuarantor = (guarantorId: number) => {
-    getData(select, search, guarantorId);
+    getData({ per_page: select, search, guarantor_id: guarantorId });
   };
 
   const handleSelectProfile = (profileId: number) => {
-    getData(select, search, guarantorSelected, profileId);
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      profile_id: profileId,
+    };
+    getData(data);
   };
 
-  const getData = (per_page: string, search: string, guarantorId?: number, profileId?: number) => {
-    router.get(
-      route(EmployeeLimitsUtils.link.index),
-      pickBy({
-        per_page,
-        search,
-        guarantor_id: guarantorId,
-        profile_id: profileId,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
+  const handleSelectGuarantorProduct = (guarantorProductId: number) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductId,
+      profile_id: profileSelected,
+    };
+    getData(data);
+  };
+
+  const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductSelected,
+      guarantor_product_type_id: guarantorProductTypeId,
+      profile_id: profileSelected,
+    };
+    getData(data);
+  };
+
+  const getData = (data: {
+    per_page: string;
+    search: string;
+    guarantor_id?: number;
+    guarantor_product_id?: number;
+    guarantor_product_type_id?: number;
+    profile_id?: number;
+  }) => {
+    router.get(route(EmployeeLimitsUtils.link.index), pickBy(data), { preserveState: true, preserveScroll: true });
   };
 
   const deleteProfileLimit = (profileLimit: any) => {
@@ -59,6 +90,22 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
 
   return (
     <main className="space-y-2.5">
+      <div className="flex items-center gap-x-2">
+        <span className="text-sm text-gray-400">Limit Pengajuan:</span>
+        {limit?.limit ? (
+          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
+        ) : (
+          <span className="text-sm text-gray-400">Belum Di setting</span>
+        )}
+      </div>
+      <div className="flex items-center gap-x-2">
+        <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
+        {limit?.limit_used ? (
+          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
+        ) : (
+          <span className="text-sm text-gray-400">Belum Ada</span>
+        )}
+      </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
@@ -82,24 +129,24 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectProfile(value.id)}
           />
-          <div>
-            <div className="flex items-center gap-x-2">
-              <span className="text-sm text-gray-400">Limit Pengajuan:</span>
-              {limit?.limit ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
-              ) : (
-                <span className="text-sm text-gray-400">Belum Di setting</span>
-              )}
-            </div>
-            <div className="flex items-center gap-x-2">
-              <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
-              {limit?.limit_used ? (
-                <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
-              ) : (
-                <span className="text-sm text-gray-400">Belum Ada</span>
-              )}
-            </div>
-          </div>
+          <Combobox
+            datas={guarantorProducts}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorProductSelected}
+            placeholder={"Pilih Produk"}
+            className={"w-min-[210px]"}
+            onSelect={(value) => handleSelectGuarantorProduct(value.id)}
+          />
+          <Combobox
+            datas={guarantorProductTypes}
+            labelKey={"full_name"}
+            valueKey={"full_name"}
+            defaultValue={guarantorProductTypeSelected}
+            placeholder={"Pilih Jenis Jaminan"}
+            className={"w-min-[210px]"}
+            onSelect={(value) => handleSelectGuarantorProductType(value.id)}
+          />
         </div>
         <SearchDatatable
           value={search}
@@ -111,6 +158,8 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
       <EmployeeLimitsDatatable
         employees={employees}
         guarantorSelectedId={guarantorSelected}
+        guarantorProductSelectedId={guarantorProductSelected}
+        guarantorProductTypeSelectedId={guarantorProductTypeSelected}
         profileSelectedId={profileSelected}
         onDelete={deleteProfileLimit}
       />
