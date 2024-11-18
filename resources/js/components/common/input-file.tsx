@@ -18,7 +18,7 @@ interface InputFileProps {
   onFileChange?: (file: File | null) => void;
   validation?: string[];
   reset?: number | boolean;
-  previewValue?: string;
+  previewValue?: string | File | null;
   required?: boolean;
 }
 
@@ -32,7 +32,7 @@ const FileInput: React.FC<InputFileProps> = ({
   required = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(() => previewValue || null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File | null>(null);
 
   const handleReset = () => {
@@ -50,6 +50,13 @@ const FileInput: React.FC<InputFileProps> = ({
       handleReset();
     }
   }, [reset]);
+
+  useEffect(() => {
+    if (previewValue) {
+      setFiles(previewValue as File);
+      setPreview(URL.createObjectURL(previewValue as File));
+    }
+  }, [previewValue]);
 
   return (
     <div className={cn(className)}>

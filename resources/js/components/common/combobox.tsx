@@ -102,7 +102,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
                     disabled={item.isChoosed === true}
                     onSelect={(currentValue) => {
                       props.onSelect?.(item);
-                      setValue(currentValue === value ? value : currentValue);
+                      setValue(currentValue === value ? "" : currentValue);
                       setOpen(false);
                     }}>
                     <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />

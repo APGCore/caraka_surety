@@ -24,7 +24,7 @@ import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
-import { Fragment, useCallback, useMemo, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
@@ -93,6 +93,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const { regencies: principalRegencies } = useGetRegencyByProvinceId({ province_id: selectedPrincipalProvince?.id });
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
+  console.log({
+    selectedPrincipalProvince,
+    principalRegencies,
+  });
   // Principal District
   const { districts: principalDistricts } = useGetDistrictByRegencyId({ regency_id: selectedPrincipalRegency?.id });
 
@@ -269,6 +273,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       scores: [],
     },
   });
+
+  console.log(data.submission.product_id);
 
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
@@ -683,7 +689,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Provinsi"
-                            defaultValueId={data?.principal?.province_id}
+                            defaultValueId={data?.principal?.province_id || selectedPrincipalProvince?.id}
                             onSelect={(val: any) => {
                               setData("principal", { ...data.principal, province_id: val.id });
                               setSelectedPrincipalProvince(val);
@@ -697,7 +703,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kabupaten/Kota"
-                            defaultValueId={data?.principal?.regency_id}
+                            defaultValueId={data?.principal?.regency_id || selectedPrincipalRegency?.id}
                             onSelect={(val: any) => {
                               setData("principal", { ...data.principal, regency_id: val?.id });
                               setSelectedPrincipalRegency(val);
@@ -711,7 +717,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kecamatan"
-                            defaultValueId={data?.principal?.district_id}
+                            defaultValueId={data?.principal?.district_id || selectedPrincipalDistrict?.id}
                             onSelect={(val: any) => {
                               setData("principal", { ...data.principal, district_id: val?.id });
                               setSelectedPrincipalDistrict(val);
@@ -762,12 +768,19 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   <RenderList
                     of={principalDocs}
                     render={(doc) => {
+                      const findFiles = principalFiles.find((file) => file.required_doc_id === doc.id);
+
+                      console.log({
+                        findFiles,
+                        url: findFiles?.file && URL.createObjectURL(findFiles?.file),
+                      });
+
                       return (
                         <div className="grid gap-1">
                           <Label className="text-md">{doc.name}</Label>
                           <FileInput
                             onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                            previewValue={doc?.principal_document?.path}
+                            previewValue={findFiles?.file ? findFiles?.file : doc?.principal_document?.path}
                             //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
                           />
                         </div>
@@ -790,6 +803,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Produk"
+                        defaultValueId={data?.submission?.product_id || selectedProducts}
                         onSelect={(val: any) => {
                           if (val.id !== selectedProducts) {
                             setSelectedGuarantor(null);
@@ -809,6 +823,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         reset={isResetGuarantor}
+                        defaultValueId={data?.submission?.guarantor_id || selectedGuarantor}
                         onReset={(resetVal) => setIsResetGuarantor(resetVal)}
                         placeholder="Pilih Asuransi/Penjamin"
                         onSelect={(val: any) => {
@@ -829,6 +844,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         valueKey="name"
                         placeholder="Pilih Jenis Jaminan"
                         reset={isResetProductType}
+                        defaultValueId={
+                          data?.submission?.guarantor_to_product_type_id ||
+                          (selectedProductType as string | number | null | undefined)
+                        }
                         onReset={(resetVal) => setIsResetProductType(resetVal)}
                         onSelect={(val: any) => {
                           setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
@@ -845,6 +864,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Obligee"
+                        defaultValueId={data?.submission?.obligee_id || selectedObligee}
                         onSelect={(val: any) => {
                           setData("submission", { ...data.submission, obligee_id: val?.id });
                           setSelectedObligee(val.id);
@@ -858,9 +878,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Bank"
+                        defaultValueId={data?.submission?.bank_id || selectedBank}
                         onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, bank_id: val?.id });
-                          setSelectedBank(val.id);
+                          setData("submission", {
+                            ...data.submission,
+                            bank_id: data?.submission?.bank_id === val?.id ? "" : val.id,
+                          });
+                          setSelectedBank((prev) => (prev === val.id ? null : val.id));
                         }}
                       />
                     </div>
@@ -995,6 +1019,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       labelKey="name"
                       valueKey="name"
                       placeholder="Pilih Sumber Dana"
+                      defaultValueId={data?.submission?.source_of_fund_id || selectedSourceOfFund}
                       onSelect={(val) => {
                         setData("submission", {
                           ...data.submission,
@@ -1011,10 +1036,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Provinsi</Label>
                           <Combobox
-                            datas={principalProvinces}
+                            datas={jobLocationProvinces}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Provinsi"
+                            defaultValueId={
+                              data?.submission?.job_location_province_id || selectedJobLocationProvince?.id
+                            }
                             onSelect={(val: any) => {
                               setData("submission", { ...data.submission, job_location_province_id: val.id });
                               setSelectedJobLocationProvince(val);
@@ -1024,10 +1052,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kabupaten/Kota</Label>
                           <Combobox
-                            datas={principalRegencies}
+                            datas={jobLocationRegencies}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kabupaten/Kota"
+                            defaultValueId={data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id}
                             onSelect={(val: any) => {
                               setData("submission", { ...data.submission, job_location_regency_id: val.id });
                               setSelectedJobLocationRegency(val);
@@ -1037,10 +1066,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kecamatan</Label>
                           <Combobox
-                            datas={principalDistricts}
+                            datas={jobLocationDistricts}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kecamatan"
+                            defaultValueId={
+                              data?.submission?.job_location_district_id || selectedJobLocationDistrict?.id
+                            }
                             onSelect={(val: any) => {
                               setData("submission", { ...data.submission, job_location_district_id: val.id });
                               setSelectedJobLocationDistrict(val);
