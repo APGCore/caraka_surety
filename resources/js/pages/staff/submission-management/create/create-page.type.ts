@@ -34,7 +34,8 @@ type Principal = {
   commissioner: string;
   year_established?: number | string | undefined;
   last_deed: string;
-  documents: any[]; // Adjust `any` to a more specific type if needed
+  documents: Document[]; // Adjust `any` to a more specific type if needed
+  ratios: Ratio[]; // Adjust `any` to a more specific type if needed
 };
 
 type Submission = {
@@ -51,7 +52,7 @@ type Submission = {
   time_period: string;
   start_date?: Date;
   end_date?: Date;
-  job_name : string;
+  job_name: string;
   job_location_province_id: string;
   job_location_regency_id: string;
   job_location_district_id: string;
@@ -68,8 +69,9 @@ type Scoring = {
 };
 
 type Document = {
-  name: string;
-  principal_document?: { path: string };
+  required_doc_id: number;
+  required_doc_name: string;
+  file: File;
 };
 
 type ScoringCategories = {
@@ -89,6 +91,19 @@ type ScoringOptions = {
   name: string;
   point: number;
 };
+
+export interface Ratio {
+  current_assets: string;
+  current_debt: string;
+  total_debt: string;
+  total_assets: string;
+  revenue: string;
+  net_income: string;
+  liquidity_ratios?: string;
+  solvency_ratios?: string;
+  profitability_ratios?: string;
+  year: number;
+}
 
 export interface SubmissionFormProps {
   principal: Principal;

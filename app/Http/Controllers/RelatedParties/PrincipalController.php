@@ -210,4 +210,16 @@ class PrincipalController extends Controller
 
         return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $resource);
     }
+
+    public function getRatios($principalId)
+    {
+        $principal = Principal::query()
+            ->with('principalRatios')
+            ->where('id', $principalId)
+            ->first();
+
+        $ratios = $principal?->principalRatios ?? [];
+
+        return $this->responseSuccess('Data Ratio', $ratios);
+    }
 }

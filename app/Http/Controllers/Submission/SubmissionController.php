@@ -65,15 +65,16 @@ class SubmissionController extends Controller
             DB::beginTransaction();
             $principal = $validated['principal'];
             $principalDocuments = $validated['principal']['documents'];
+            $principalRatios = $validated['principal']['ratios'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
 
             $createPrincipal = Principal::query()
-                ->with('documents')
+                ->with(['documents', 'principalRatios'])
                 ->updateOrCreate([
                     'id' => $principal['id'] ?? null,
                 ], collect($principal)->toArray());
-
+            // create principal document
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
                 $document['name'] = $document['required_doc_name'];
@@ -98,6 +99,13 @@ class SubmissionController extends Controller
                     ->updateOrCreate([
                         'required_doc_id' => $principalDocument['required_doc_id'],
                     ], $document);
+            }
+            // create principal ratios
+            foreach ($principalRatios as $principalRatio) {
+                $createPrincipal->principalRatios
+                    ->updateOrCreate([
+                        'year' => $principalRatio['year'],
+                    ], $principalRatio);
             }
 
             $dataSubmission = collect($submission)->toArray();

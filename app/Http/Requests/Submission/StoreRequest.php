@@ -64,6 +64,16 @@ class StoreRequest extends FormRequest
             'principal.documents.*.required_doc_name' => ['required', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
             'principal.documents.*.file' => ['nullable', 'file', 'mimes:pdf', 'max:2048'], // file dokumen wajib
 
+            // principal ratios
+            'principal.ratios' => ['required', 'array', 'min:1'],
+            'principal.ratios.*.current_asset' => ['required', 'numeric'], // aktiva lancar
+            'principal.ratios.*.current_dept' => ['required', 'numeric'], // utang lancar
+            'principal.ratios.*.total_debt' => ['required', 'numeric'], // total utang
+            'principal.ratios.*.total_assets' => ['required', 'numeric'], // total aktiva
+            'principal.ratios.*.revenue' => ['required', 'numeric'], // pendapatan
+            'principal.ratios.*.net_income' => ['required', 'numeric'], // laba bersih
+            'principal.ratios.*.year' => ['required', 'numeric'], // tahun
+
             // submission
             'submission' => ['required'],
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin

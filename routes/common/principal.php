@@ -10,5 +10,6 @@ Route::middleware('auth')->prefix('references')->name('references.')
             ->name('principal.')->group(function () {
                 Route::get('all', 'getAll')->name('all');
                 Route::get('document', 'getDocument')->name('documents');
+                Route::get('getRatios/{principalId}', 'getRatios')->name('ratios');
             });
     });

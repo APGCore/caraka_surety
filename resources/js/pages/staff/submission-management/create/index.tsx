@@ -2,10 +2,20 @@ import { CalendarPicker } from "@/components/common/calendar";
 import { Combobox } from "@/components/common/combobox";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import useGetAllBank from "@/hooks/api/bank/useGetAllBank";
 import useGetGuarantorByProductId from "@/hooks/api/guarantor/useGetGuarantorByProductId";
@@ -27,7 +37,7 @@ import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
-import { ISelectedPrincipalDistrict, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
+import { ISelectedPrincipalDistrict, Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Product
@@ -59,10 +69,59 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }>
   >([]);
 
+  const defaultPrincipalRatios: Ratio = {
+    current_assets: "",
+    current_debt: "",
+    total_debt: "",
+    total_assets: "",
+    revenue: "",
+    net_income: "",
+    year: dayjs().year(),
+  };
+
+  const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
+  const [comparisonRatios, setComparisonRatios] = useState<{
+    liquidity_ratios?: boolean;
+    solvency_ratios?: boolean;
+    profitability_ratios?: boolean;
+  }>({});
+
+  const handleComparisonRatios = (ratios: Ratio[]) => {
+    setComparisonRatios({
+      liquidity_ratios: ratios[0].liquidity_ratios
+        ? Number(ratios[0].liquidity_ratios) > Number(ratios[1].liquidity_ratios)
+        : undefined,
+      solvency_ratios: ratios[0].solvency_ratios
+        ? Number(ratios[0].solvency_ratios) > Number(ratios[1].solvency_ratios)
+        : undefined,
+      profitability_ratios: ratios[0].profitability_ratios
+        ? Number(ratios[0].profitability_ratios) > Number(ratios[1].profitability_ratios)
+        : undefined,
+    });
+  };
+
+  const calculateRatios = (value1: string, value2: string) => {
+    const result = (Number(value1) / Number(value2)).toFixed(2);
+
+    return result === "Infinity" ? undefined : isNaN(Number(result)) ? undefined : result;
+  };
+
   const fetchPrincipalDocuments = (principalId?: number) => {
     axios.get(route("references.principal.documents", { principal_id: principalId })).then((response) => {
       // console.log(response.data.data);
       setPrincipalDocs(response.data.data);
+    });
+  };
+
+  const fetchPrincipalRatios = (principalId?: number) => {
+    axios.get(route("references.principal.ratios", principalId)).then((response) => {
+      // console.log(response.data.data);
+      if (response.data.data.length > 0) {
+        setData("principal", {
+          ...data.principal,
+          ratios: response.data.data,
+        });
+      }
     });
   };
 
@@ -93,10 +152,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const { regencies: principalRegencies } = useGetRegencyByProvinceId({ province_id: selectedPrincipalProvince?.id });
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
-  console.log({
-    selectedPrincipalProvince,
-    principalRegencies,
-  });
   // Principal District
   const { districts: principalDistricts } = useGetDistrictByRegencyId({ regency_id: selectedPrincipalRegency?.id });
 
@@ -151,8 +206,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const { scorings } = useGetScoringById({
     selectedScoringId: 1,
   });
-
-  console.log(scorings);
 
   const [selectedOptions, setSelectedOptions] = useState({});
   const scoringOptionIds = Object.values(selectedOptions);
@@ -242,6 +295,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       year_established: undefined,
       last_deed: "",
       documents: [],
+      ratios: [
+        defaultPrincipalRatios,
+        {
+          ...defaultPrincipalRatios,
+          year: dayjs().year() - 1,
+        },
+      ],
     },
     submission: {
       guarantor_id: "",
@@ -273,8 +333,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       scores: [],
     },
   });
-
-  console.log(data.submission.product_id);
 
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
@@ -333,6 +391,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         year_established: undefined,
         last_deed: "",
         documents: [],
+        ratios: [],
       },
       submission: {
         guarantor_id: "",
@@ -691,7 +750,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             placeholder="Pilih Provinsi"
                             defaultValueId={data?.principal?.province_id || selectedPrincipalProvince?.id}
                             onSelect={(val: any) => {
-                              setData("principal", { ...data.principal, province_id: val.id });
+                              setData("principal", {
+                                ...data.principal,
+                                province_id: val.id,
+                              });
                               setSelectedPrincipalProvince(val);
                             }}
                           />
@@ -705,7 +767,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             placeholder="Pilih Kabupaten/Kota"
                             defaultValueId={data?.principal?.regency_id || selectedPrincipalRegency?.id}
                             onSelect={(val: any) => {
-                              setData("principal", { ...data.principal, regency_id: val?.id });
+                              setData("principal", {
+                                ...data.principal,
+                                regency_id: val?.id,
+                              });
                               setSelectedPrincipalRegency(val);
                             }}
                           />
@@ -719,7 +784,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             placeholder="Pilih Kecamatan"
                             defaultValueId={data?.principal?.district_id || selectedPrincipalDistrict?.id}
                             onSelect={(val: any) => {
-                              setData("principal", { ...data.principal, district_id: val?.id });
+                              setData("principal", {
+                                ...data.principal,
+                                district_id: val?.id,
+                              });
                               setSelectedPrincipalDistrict(val);
                             }}
                           />
@@ -831,7 +899,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             setSelectedProductType(null);
                             setIsResetProductType(true);
                           }
-                          setData("submission", { ...data.submission, guarantor_id: val?.id });
+                          setData("submission", {
+                            ...data.submission,
+                            guarantor_id: val?.id,
+                          });
                           setSelectedGuarantor(val.id);
                         }}
                       />
@@ -850,7 +921,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }
                         onReset={(resetVal) => setIsResetProductType(resetVal)}
                         onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, guarantor_to_product_type_id: val?.id });
+                          setData("submission", {
+                            ...data.submission,
+                            guarantor_to_product_type_id: val?.id,
+                          });
                           setSelectedProductType(val.id);
                         }}
                       />
@@ -1044,7 +1118,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               data?.submission?.job_location_province_id || selectedJobLocationProvince?.id
                             }
                             onSelect={(val: any) => {
-                              setData("submission", { ...data.submission, job_location_province_id: val.id });
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_province_id: val.id,
+                              });
                               setSelectedJobLocationProvince(val);
                             }}
                           />
@@ -1058,7 +1135,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             placeholder="Pilih Kabupaten/Kota"
                             defaultValueId={data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id}
                             onSelect={(val: any) => {
-                              setData("submission", { ...data.submission, job_location_regency_id: val.id });
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_regency_id: val.id,
+                              });
                               setSelectedJobLocationRegency(val);
                             }}
                           />
@@ -1074,7 +1154,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               data?.submission?.job_location_district_id || selectedJobLocationDistrict?.id
                             }
                             onSelect={(val: any) => {
-                              setData("submission", { ...data.submission, job_location_district_id: val.id });
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_district_id: val.id,
+                              });
                               setSelectedJobLocationDistrict(val);
                             }}
                           />
@@ -1166,6 +1249,256 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       );
                     }}
                   />
+                  <div className="flex gap-8">
+                    <div className="grid gap-3 w-[550px]">
+                      <div className="pt-2 text-black h-[45px]">Tahun</div>
+                      <div className="pt-2 text-black h-[45px]">Aktiva Lancar</div>
+                      <div className="pt-2 text-black h-[45px]">Utang Lancar</div>
+                      <div className="pt-2 text-black h-[45px]">Total Utang</div>
+                      <div className="pt-2 text-black h-[45px]">Total Aktiva</div>
+                      <div className="pt-2 text-black h-[45px]">Pendapatan</div>
+                      <div className="pt-2 text-black h-[45px]">Laba Bersih</div>
+                      <div className="pt-2 text-black h-[45px] flex justify-between">
+                        Rasio Likuiditas
+                        {comparisonRatios.liquidity_ratios == true && (
+                          <Badge variant="success" className="flex-shrink-0 h-6">
+                            Naik
+                          </Badge>
+                        )}
+                        {comparisonRatios.liquidity_ratios == false && (
+                          <Badge variant="destructive" className="flex-shrink-0 h-6">
+                            Turun
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="pt-2 text-black h-[45px] flex justify-between">
+                        Rasio Profitabilitas
+                        {comparisonRatios.profitability_ratios == true && (
+                          <Badge variant="success" className="flex-shrink-0 h-6">
+                            Naik
+                          </Badge>
+                        )}
+                        {comparisonRatios.profitability_ratios == false && (
+                          <Badge variant="destructive" className="flex-shrink-0 h-6">
+                            Turun
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="pt-2 text-black h-[45px] flex justify-between">
+                        Rasio Solvabilitas
+                        {comparisonRatios.solvency_ratios == true && (
+                          <Badge variant="success" className="flex-shrink-0 h-6">
+                            Naik
+                          </Badge>
+                        )}
+                        {comparisonRatios.solvency_ratios == false && (
+                          <Badge variant="destructive" className="flex-shrink-0 h-6">
+                            Turun
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <RenderList
+                      of={data.principal.ratios}
+                      render={(ratio, index) => {
+                        return (
+                          <div className="grid gap-3 w-full">
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Select
+                                value={ratio.year?.toString() ?? years[index].toString()}
+                                onValueChange={(year) => {
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios: data.principal.ratios.map((r, i) =>
+                                      i === index
+                                        ? {
+                                            ...r,
+                                            year: Number(year),
+                                          }
+                                        : r,
+                                    ),
+                                  });
+                                }}>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Pilih Tahun" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>Tahun</SelectLabel>
+                                    <RenderList
+                                      of={years}
+                                      render={(year) => {
+                                        return <SelectItem value={year.toString()}>{year}</SelectItem>;
+                                      }}
+                                    />
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Aktiva Lancar"
+                                value={ratio.current_assets ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const liquidity = calculateRatios(value, ratio.current_debt);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        current_assets: value,
+                                        liquidity_ratios: liquidity,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Utang Lancar"
+                                value={ratio.current_debt ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const liquidity = calculateRatios(ratio.current_assets, value);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        current_debt: value,
+                                        liquidity_ratios: liquidity,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Total Utang"
+                                value={ratio.total_debt ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const solvency = calculateRatios(ratio.total_assets, value);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        total_debt: value,
+                                        solvency_ratios: solvency,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Total Aktiva"
+                                value={ratio.total_assets ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const solvency = calculateRatios(value, ratio.total_debt);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        total_assets: value,
+                                        solvency_ratios: solvency,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Pendapatan"
+                                value={ratio.revenue ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const profitability = calculateRatios(value, ratio.net_income);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        revenue: value,
+                                        profitability_ratios: profitability,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="grid gap-1 h-[30px] w-full">
+                              <Input
+                                className="text-md"
+                                placeholder="Laba Bersih"
+                                value={ratio.net_income ?? ""}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                                  const profitability = calculateRatios(ratio.revenue, value);
+                                  const ratios = data.principal.ratios.map((r, i) => {
+                                    if (i === index) {
+                                      return {
+                                        ...r,
+                                        net_income: value,
+                                        profitability_ratios: profitability,
+                                      };
+                                    }
+                                    return r;
+                                  });
+                                  setData("principal", {
+                                    ...data.principal,
+                                    ratios,
+                                  });
+                                  handleComparisonRatios(ratios);
+                                }}
+                              />
+                            </div>
+                            <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
+                            <div className="pt-2 h-[30px] w-full text-black">{ratio.profitability_ratios ?? "??"}</div>
+                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
+                          </div>
+                        );
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             )}
