@@ -963,6 +963,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="grid gap-1">
+                    <Label className="text-md">Job Name</Label>
+                    <input
+                      type="text"
+                      className="border border-gray-300 p-2 rounded-md"
+                      placeholder="Masukkan Nama Pekerjaan"
+                      value={data.submission.job_name}
+                      onChange={(e) => setData("submission", { ...data.submission, job_name: e.target.value })}
+                    />
+                  </div>
+
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Nama Dokumen Kontrak</Label>

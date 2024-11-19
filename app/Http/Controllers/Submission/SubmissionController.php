@@ -61,6 +61,8 @@ class SubmissionController extends Controller
     {
         $validated = $request->validated();
 
+        // @dd($request->all());
+
         try {
             DB::beginTransaction();
             $principal = $validated['principal'];
@@ -157,13 +159,30 @@ class SubmissionController extends Controller
      */
     public function showDetailSubmission($id)
     {
-        $submission = Submission::with(['principal', 'guarantorToProductType', 'obligee', 'sourceOfFund'])
-            ->findOrFail($id);
+        $submission = Submission::with([
+            'principal',
+            'guarantorToProductType',
+            'obligee',
+            'sourceOfFund',
+            'submissionDocs',
+            'scores.scoring',
+            'scores.scoringQuestionCategory',
+            'scores.scoringQuestion',
+            'scores.scoringOption',
+        ])->findOrFail($id);
+
+        $submission->scores->map(function ($score) {
+            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+            $score->question_name = $score->scoringQuestion->name ?? '-';
+            $score->option_name = $score->scoringOption->name ?? '-';
+            return $score;
+        });
 
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => $submission,
         ]);
     }
+
 
     public function showDetailDocsSubmission($id)
     {

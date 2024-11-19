@@ -2,6 +2,7 @@ import React from "react";
 
 interface SubmissionDetailProps {
   submission: {
+    documents: string;
     status: string;
     contract_value: number;
     guarantee_value: number;
@@ -49,6 +50,30 @@ interface SubmissionDetailProps {
     source_of_fund: {
       name: string;
     };
+
+    scores: {
+      id: number;
+      scoring_id: number;
+      scoring_question_category_id: number;
+      scoring_question_id: number;
+      scoring_option_id: number;
+      point: number;
+      category_name: string;
+      question_name: string;
+      option_name: string;
+      reduce: any;
+      grouped: string;
+      score: any;
+    };
+
+    submission_docs: {
+      name: string;
+      id: number;
+      length: any;
+      map: any;
+      doc: string;
+    };
+
     contract_doc_name: string;
     contract_doc_number: string;
     contract_doc_date: string; // Format: YYYY-MM-DD
@@ -173,6 +198,9 @@ interface SubmissionDetailProps {
   source_of_fund_id: number;
   start_date: string;
   time_period: number;
+  scores: {
+    score: string;
+  };
   updated_at: string;
 }
 

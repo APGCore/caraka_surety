@@ -2,7 +2,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/co
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/layouts/admin";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
-import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { Head, Link, usePage } from "@inertiajs/react";
@@ -10,6 +9,7 @@ import { useEffect } from "react";
 import { Editor } from "tinymce";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
+import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status }) => {
   useEffect(() => {
     const tinymceScript = document.createElement("script");

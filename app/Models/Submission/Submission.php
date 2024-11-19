@@ -57,4 +57,9 @@ class Submission extends Model
     {
         return $this->belongsTo(GuarantorToProductType::class, 'guarantor_to_product_type_id', 'id');
     }
+
+    public function submissionDocs()
+    {
+        return $this->hasMany(SubmissionDoc::class, 'submission_id', 'id');
+    }
 }

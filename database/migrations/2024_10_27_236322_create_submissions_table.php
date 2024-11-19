@@ -43,7 +43,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->date('guarantee_issue_date')->nullable();
-            $table->text('job_name');
+            $table->text('job_name')->nullable();
             $table->foreignId('job_location_province_id')->references('id')->on($province->getTable())->noActionOnDelete();
             $table->foreignId('job_location_regency_id')->references('id')->on($regency->getTable())->noActionOnDelete();
             $table->foreignId('job_location_district_id')->references('id')->on($district->getTable())->noActionOnDelete();
