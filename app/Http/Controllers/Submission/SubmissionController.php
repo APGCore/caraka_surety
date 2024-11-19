@@ -54,6 +54,27 @@ class SubmissionController extends Controller
         //
     }
 
+    private function prepareDataRatio($ratios): array
+    {
+        $data = [];
+        foreach ($ratios as $ratio) {
+            $data[] = [
+                'current_assets' => $this->currencyConvert($ratio['current_assets']),
+                'current_debt' => $this->currencyConvert($ratio['current_debt']),
+                'total_debt' => $this->currencyConvert($ratio['total_debt']),
+                'total_assets' => $this->currencyConvert($ratio['total_assets']),
+                'revenue' => $this->currencyConvert($ratio['revenue']),
+                'net_income' => $this->currencyConvert($ratio['net_income']),
+                'liquidity_ratios' => $this->currencyConvert($ratio['liquidity_ratios']),
+                'solvency_ratios' => $this->currencyConvert($ratio['solvency_ratios']),
+                'profitability_ratios' => $this->currencyConvert($ratio['profitability_ratios']),
+                'year' => $ratio['year'],
+            ];
+        }
+
+        return $data;
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -76,6 +97,42 @@ class SubmissionController extends Controller
                 ->updateOrCreate([
                     'id' => $principal['id'] ?? null,
                 ], collect($principal)->toArray());
+
+            // create principal ratios
+            foreach ($principalRatios as $principalRatio) {
+                $createPrincipal->principalRatios()
+                    ->updateOrCreate([
+                        'year' => $principalRatio['year'],
+                    ], $principalRatio);
+            }
+
+            $dataSubmission = collect($submission)->toArray();
+            $dataSubmission['principal_id'] = $createPrincipal->id;
+            $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
+            $dataSubmission['note_scoring'] = $scoring['note'];
+            $dataSubmission['min_point_scoring'] = $scoring['min_point'];
+            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
+            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
+            $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
+
+            $submission = Submission::query()
+                ->create($dataSubmission);
+
+            $submission->update([
+                'min_point_scoring' => $scoring['min_point'],
+                'note_scoring' => $scoring['note'],
+            ]);
+
+            $scores = $scoring['scores'];
+
+            foreach ($scores as &$score) {
+                $score['scoring_id'] = $scoring['id'];
+            }
+
+            $submission->scores()->createMany($scores);
+
             // create principal document
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
@@ -102,38 +159,6 @@ class SubmissionController extends Controller
                         'required_doc_id' => $principalDocument['required_doc_id'],
                     ], $document);
             }
-            // create principal ratios
-            foreach ($principalRatios as $principalRatio) {
-                $createPrincipal->principalRatios
-                    ->updateOrCreate([
-                        'year' => $principalRatio['year'],
-                    ], $principalRatio);
-            }
-
-            $dataSubmission = collect($submission)->toArray();
-            $dataSubmission['principal_id'] = $createPrincipal->id;
-            $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
-            $dataSubmission['note_scoring'] = $scoring['note'];
-            $dataSubmission['min_point_scoring'] = $scoring['min_point'];
-            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
-            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
-
-            $submission = Submission::query()
-                ->create($dataSubmission);
-
-            $submission->update([
-                'min_point_scoring' => $scoring['min_point'],
-                'note_scoring' => $scoring['note'],
-            ]);
-
-            $scores = $scoring['scores'];
-
-            foreach ($scores as &$score) {
-                $score['scoring_id'] = $scoring['id'];
-            }
-
-            $submission->scores()->createMany($scores);
 
             DB::commit();
 
@@ -144,8 +169,8 @@ class SubmissionController extends Controller
             DB::rollBack();
             Log::error('SubmissionController@store: ', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
                 'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ]);
 
             flashMessage('error', 'Gagal membuat pengajuan', 'error');
@@ -175,6 +200,7 @@ class SubmissionController extends Controller
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
             $score->option_name = $score->scoringOption->name ?? '-';
+
             return $score;
         });
 
@@ -182,7 +208,6 @@ class SubmissionController extends Controller
             'submission' => $submission,
         ]);
     }
-
 
     public function showDetailDocsSubmission($id)
     {

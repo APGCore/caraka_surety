@@ -66,12 +66,12 @@ class StoreRequest extends FormRequest
 
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
-            'principal.ratios.*.current_asset' => ['required', 'numeric'], // aktiva lancar
-            'principal.ratios.*.current_dept' => ['required', 'numeric'], // utang lancar
-            'principal.ratios.*.total_debt' => ['required', 'numeric'], // total utang
-            'principal.ratios.*.total_assets' => ['required', 'numeric'], // total aktiva
-            'principal.ratios.*.revenue' => ['required', 'numeric'], // pendapatan
-            'principal.ratios.*.net_income' => ['required', 'numeric'], // laba bersih
+            'principal.ratios.*.current_assets' => ['required', 'string'], // aktiva lancar
+            'principal.ratios.*.current_debt' => ['required', 'string'], // utang lancar
+            'principal.ratios.*.total_debt' => ['required', 'string'], // total utang
+            'principal.ratios.*.total_assets' => ['required', 'string'], // total aktiva
+            'principal.ratios.*.revenue' => ['required', 'string'], // pendapatan
+            'principal.ratios.*.net_income' => ['required', 'string'], // laba bersih
             'principal.ratios.*.year' => ['required', 'numeric'], // tahun
 
             // submission
