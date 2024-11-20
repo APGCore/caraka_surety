@@ -79,6 +79,67 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     year: dayjs().year(),
   };
 
+  const { data, setData, post, processing } = useForm<SubmissionFormProps>({
+    principal: {
+      id: "",
+      province_id: undefined,
+      regency_id: undefined,
+      district_id: undefined,
+      village: "",
+      name: "",
+      address: "",
+      telephone: undefined,
+      fax: "",
+      npwp: "",
+      nib: undefined,
+      siup_siujk: "",
+      head_name: "",
+      director_name: "",
+      director_position: "",
+      director_phone: undefined,
+      commissioner: "",
+      year_established: undefined,
+      last_deed: "",
+      documents: [],
+      ratios: [
+        defaultPrincipalRatios,
+        {
+          ...defaultPrincipalRatios,
+          year: dayjs().year() - 1,
+        },
+      ],
+    },
+    submission: {
+      guarantor_id: "",
+      product_id: "",
+      guarantor_to_product_type_id: "",
+      obligee_id: "",
+      bank_id: "",
+      contract_doc_name: "",
+      contract_doc_number: "",
+      contract_doc_date: new Date(),
+      contract_value: "",
+      guarantee_value: "",
+      time_period: "",
+      start_date: new Date(),
+      end_date: new Date(),
+      job_name: "",
+      job_location_province_id: "",
+      job_location_regency_id: "",
+      job_location_district_id: "",
+      job_location_village: "",
+      source_of_fund_id: "",
+      note: "",
+    },
+
+    scoring: {
+      id: 1,
+      note: "",
+      min_point: 60,
+      scores: [],
+    },
+  });
+
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
   const [comparisonRatios, setComparisonRatios] = useState<{
     liquidity_ratios?: boolean;
@@ -148,11 +209,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   } | null>(null);
 
   // Principal Regency
-  const { regencies: principalRegencies } = useGetRegencyByProvinceId({ province_id: selectedPrincipalProvince?.id });
+  const { regencies: principalRegencies } = useGetRegencyByProvinceId({
+    province_id: data?.principal?.province_id || selectedPrincipalProvince?.id,
+  });
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Principal District
-  const { districts: principalDistricts } = useGetDistrictByRegencyId({ regency_id: selectedPrincipalRegency?.id });
+  const { districts: principalDistricts } = useGetDistrictByRegencyId({
+    regency_id: data?.principal?.regency_id || selectedPrincipalRegency?.id,
+  });
 
   const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
@@ -164,14 +229,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Job Location Regency
   const { regencies: jobLocationRegencies } = useGetRegencyByProvinceId({
-    province_id: selectedJobLocationProvince?.id,
+    province_id: data?.submission?.job_location_province_id || selectedJobLocationProvince?.id,
   });
   const [selectedJobLocationRegency, setSelectedJobLocationRegency] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Job Location District
-  const { districts: jobLocationDistricts } = useGetDistrictByRegencyId({ regency_id: selectedJobLocationRegency?.id });
+  const { districts: jobLocationDistricts } = useGetDistrictByRegencyId({
+    regency_id: data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id,
+  });
   const [selectedJobLocationDistrict, setSelectedJobLocationDistrict] = useState<{ id: number; name: string } | null>(
     null,
   );
@@ -271,67 +338,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       handleClickStep("contract");
     }
   }, [formStep]);
-
-  const { data, setData, post, processing } = useForm<SubmissionFormProps>({
-    principal: {
-      id: "",
-      province_id: undefined,
-      regency_id: undefined,
-      district_id: undefined,
-      village: "",
-      name: "",
-      address: "",
-      telephone: undefined,
-      fax: "",
-      npwp: "",
-      nib: undefined,
-      siup_siujk: "",
-      head_name: "",
-      director_name: "",
-      director_position: "",
-      director_phone: undefined,
-      commissioner: "",
-      year_established: undefined,
-      last_deed: "",
-      documents: [],
-      ratios: [
-        defaultPrincipalRatios,
-        {
-          ...defaultPrincipalRatios,
-          year: dayjs().year() - 1,
-        },
-      ],
-    },
-    submission: {
-      guarantor_id: "",
-      product_id: "",
-      guarantor_to_product_type_id: "",
-      obligee_id: "",
-      bank_id: "",
-      contract_doc_name: "",
-      contract_doc_number: "",
-      contract_doc_date: new Date(),
-      contract_value: "",
-      guarantee_value: "",
-      time_period: "",
-      start_date: new Date(),
-      end_date: new Date(),
-      job_name: "",
-      job_location_province_id: "",
-      job_location_regency_id: "",
-      job_location_district_id: "",
-      job_location_village: "",
-      source_of_fund_id: "",
-      note: "",
-    },
-
-    scoring: {
-      id: 1,
-      note: "",
-      min_point: 60,
-      scores: [],
-    },
-  });
 
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
