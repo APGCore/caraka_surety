@@ -1524,6 +1524,20 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       }}
                     />
                   </div>
+                  <div className="grid gap-1 w-full">
+                    <Label className="text-sm">Catatan Skoring</Label>
+                    <Textarea
+                      className="text-md"
+                      placeholder="Masukan Catatan Skoring"
+                      value={data?.scoring?.note}
+                      onChange={(e) =>
+                        setData("scoring", {
+                          ...data.scoring,
+                          note: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
             )}
