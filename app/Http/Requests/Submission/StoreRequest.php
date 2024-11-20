@@ -101,7 +101,6 @@ class StoreRequest extends FormRequest
             'scoring' => ['required'],
             'scoring.id' => ['required', 'exists:'.Scoring::class.',id,deleted_at,NULL'], // id scoring
             'scoring.note' => ['nullable', 'string'], // catatan
-            'scoring.min_point' => ['nullable', 'numeric'], // minimal point
             'scoring.scores' => ['required', 'array'], // skor
             'scoring.scores.*.scoring_question_category_id' => ['required', 'exists:'.ScoringQuestionCategory::class.',id,deleted_at,NULL'], // id kategori pertanyaan skor
             'scoring.scores.*.scoring_question_id' => ['required', 'exists:'.ScoringQuestion::class.',id,deleted_at,NULL'], // id pertanyaan skor

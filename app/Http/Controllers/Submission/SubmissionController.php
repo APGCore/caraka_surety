@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
+use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use App\Models\User;
 use Carbon\Carbon;
@@ -110,7 +111,8 @@ class SubmissionController extends Controller
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
             $dataSubmission['note_scoring'] = $scoring['note'];
-            $dataSubmission['min_point_scoring'] = $scoring['min_point'];
+            $modelScoring = Scoring::query()->find($scoring['id']);
+            $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
             $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
             $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
             $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
@@ -119,11 +121,6 @@ class SubmissionController extends Controller
 
             $submission = Submission::query()
                 ->create($dataSubmission);
-
-            $submission->update([
-                'min_point_scoring' => $scoring['min_point'],
-                'note_scoring' => $scoring['note'],
-            ]);
 
             $scores = $scoring['scores'];
 
