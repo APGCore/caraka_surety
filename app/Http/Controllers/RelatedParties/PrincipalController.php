@@ -218,7 +218,7 @@ class PrincipalController extends Controller
             ->where('id', $principalId)
             ->first();
 
-        $ratios = $principal?->principalRatios ?? [];
+        $ratios = $principal?->principalRatios->take(2) ?? [];
 
         return $this->responseSuccess('Data Ratio', $ratios);
     }

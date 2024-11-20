@@ -113,14 +113,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
-  const fetchPrincipalRatios = (principalId?: number) => {
-    axios.get(route("references.principal.ratios", principalId)).then((response) => {
+  const fetchPrincipalRatios = async (principalId?: number) => {
+    return await axios.get(route("references.principal.ratios", principalId)).then((response) => {
       // console.log(response.data.data);
       if (response.data.data.length > 0) {
-        setData("principal", {
-          ...data.principal,
-          ratios: response.data.data,
-        });
+        return response.data.data;
+      } else {
+        return [defaultPrincipalRatios, { ...defaultPrincipalRatios, year: dayjs().year() - 1 }];
       }
     });
   };
@@ -474,9 +473,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   labelKey="name"
                   valueKey="name"
                   placeholder="Pilih Data Perusahaan"
-                  onSelect={(val: any) => {
+                  onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     setSelectedPrincipal(val);
+                    const ratios = await fetchPrincipalRatios(val.id);
                     // Set Principal Data
                     setData("principal", {
                       ...data.principal,
@@ -499,10 +499,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       commissioner: val.commissioner,
                       year_established: val.year_established,
                       last_deed: val.last_deed,
+                      ratios,
                       // documents: [],
                     });
 
                     fetchPrincipalDocuments(val.id);
+                    handleComparisonRatios(ratios);
                   }}
                 />
                 <Button
@@ -971,7 +973,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       className="border border-gray-300 p-2 rounded-md"
                       placeholder="Masukkan Nama Pekerjaan"
                       value={data.submission.job_name}
-                      onChange={(e) => setData("submission", { ...data.submission, job_name: e.target.value })}
+                      onChange={(e) =>
+                        setData("submission", {
+                          ...data.submission,
+                          job_name: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
