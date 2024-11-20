@@ -135,7 +135,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     scoring: {
       id: 1,
       note: "",
-      min_point: 60,
       scores: [],
     },
   });
@@ -424,7 +423,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       scoring: {
         id: 1,
         note: "",
-        min_point: 60,
         scores: [],
       },
     });
