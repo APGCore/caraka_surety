@@ -13,6 +13,7 @@ trait UploadFile
     public function uploadFile(UploadedFile $file, $path, $fileName): string
     {
         $extension = $file->getClientOriginalExtension();
+        $fileName = str_replace(' ', '_', $fileName);
         $newFileName = time().'_'.$fileName.'.'.$extension;
 
         return $file->storeAs($path, $newFileName, 'public');

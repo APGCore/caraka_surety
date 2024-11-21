@@ -11,12 +11,16 @@ use App\Models\Product\Product;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
+use App\Models\RelatedParties\PrincipalDocument;
+use App\Models\RelatedParties\PrincipalRatio;
 use App\Models\RequiredDoc;
 use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringOption;
 use App\Models\Scoring\ScoringQuestion;
 use App\Models\Scoring\ScoringQuestionCategory;
 use App\Models\Submission\SourceOfFund;
+use App\Models\Submission\Submission;
+use App\Models\Submission\SubmissionScore;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -60,12 +64,14 @@ class StoreRequest extends FormRequest
             'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
             // principal documents
             'principal.documents' => ['required', 'array'],
+            'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
             'principal.documents.*.required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
             'principal.documents.*.required_doc_name' => ['required', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
             'principal.documents.*.file' => ['nullable', 'file', 'mimes:pdf', 'max:2048'], // file dokumen wajib
 
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
+            'principal.ratios.*.id' => ['nullable', 'string', 'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
             'principal.ratios.*.current_assets' => ['required', 'string'], // aktiva lancar
             'principal.ratios.*.current_debt' => ['required', 'string'], // utang lancar
             'principal.ratios.*.total_debt' => ['required', 'string'], // total utang
@@ -76,6 +82,7 @@ class StoreRequest extends FormRequest
 
             // submission
             'submission' => ['required'],
+            'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
             'submission.product_id' => ['required', 'exists:'.Product::class.',id,deleted_at,NULL'], // id produk
             'submission.guarantor_to_product_type_id' => ['required', 'exists:'.GuarantorToProductType::class.',id,deleted_at,NULL'], // id penjamin ke tipe produk
@@ -101,7 +108,9 @@ class StoreRequest extends FormRequest
             'scoring' => ['required'],
             'scoring.id' => ['required', 'exists:'.Scoring::class.',id,deleted_at,NULL'], // id scoring
             'scoring.note' => ['nullable', 'string'], // catatan
+
             'scoring.scores' => ['required', 'array'], // skor
+            'scoring.scores.*.id' => ['nullable', 'exists:'.SubmissionScore::class.',id,deleted_at,NULL'], // id kategori pertanyaan skor
             'scoring.scores.*.scoring_question_category_id' => ['required', 'exists:'.ScoringQuestionCategory::class.',id,deleted_at,NULL'], // id kategori pertanyaan skor
             'scoring.scores.*.scoring_question_id' => ['required', 'exists:'.ScoringQuestion::class.',id,deleted_at,NULL'], // id pertanyaan skor
             'scoring.scores.*.scoring_option_id' => ['required', 'exists:'.ScoringOption::class.',id,deleted_at,NULL'], // id opsi skor

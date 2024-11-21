@@ -28,8 +28,9 @@ import useGetAllProduct from "@/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
+import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import StaffLayoutPage from "@/layouts/staff";
-import { getNumericValue } from "@/lib/getNumericValue";
+import { getNumericValue } from "@/lib/get-numeric-value";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -46,7 +47,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Principal
   const { principals } = useGetAllPrincipal();
-  const [selectedPrincipal, setSelectedPrincipal] = useState<object | null>(null);
 
   // Principal Documents
   const [principalDocs, setPrincipalDocs] = useState<
@@ -136,29 +136,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       id: 1,
       note: "",
       scores: [],
+      min_point: 0,
     },
   });
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
-  const [comparisonRatios, setComparisonRatios] = useState<{
-    liquidity_ratios?: boolean;
-    solvency_ratios?: boolean;
-    profitability_ratios?: boolean;
-  }>({});
-
-  const handleComparisonRatios = (ratios: Ratio[]) => {
-    setComparisonRatios({
-      liquidity_ratios: ratios[0].liquidity_ratios
-        ? Number(ratios[0].liquidity_ratios) > Number(ratios[1].liquidity_ratios)
-        : undefined,
-      solvency_ratios: ratios[0].solvency_ratios
-        ? Number(ratios[0].solvency_ratios) > Number(ratios[1].solvency_ratios)
-        : undefined,
-      profitability_ratios: ratios[0].profitability_ratios
-        ? Number(ratios[0].profitability_ratios) > Number(ratios[1].profitability_ratios)
-        : undefined,
-    });
-  };
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const calculateRatios = (value1: string, value2: string) => {
     const result = (Number(value1) / Number(value2)).toFixed(2);
@@ -271,9 +254,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const { scorings } = useGetScoringById({
     selectedScoringId: 1,
   });
-
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const scoringOptionIds = Object.values(selectedOptions);
 
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
@@ -424,6 +404,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         id: 1,
         note: "",
         scores: [],
+        min_point: 0,
       },
     });
 
@@ -432,7 +413,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     setSelectedBank(null);
     setSelectedGuarantor(null);
     setSelectedObligee(null);
-    setSelectedPrincipal(null);
     setSelectedPrincipalDistrict(null);
     setSelectedPrincipalProvince(null);
     setSelectedPrincipalRegency(null);
@@ -479,7 +459,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   placeholder="Pilih Data Perusahaan"
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
-                    setSelectedPrincipal(val);
                     const ratios = await fetchPrincipalRatios(val.id);
                     // Set Principal Data
                     setData("principal", {

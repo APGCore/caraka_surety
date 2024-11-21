@@ -1,25 +1,31 @@
+import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
+import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminLayout from "@/layouts/admin";
+import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import StaffLayoutPage from "@/layouts/staff";
+import { cn } from "@/lib/cn";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { Head, Link } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    tinymceScript.async = true;
+    tinymceScript.defer = true;
 
     const htmlDocxScript = document.createElement("script");
     htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
+    htmlDocxScript.async = true;
+    htmlDocxScript.defer = true;
 
     tinymceScript.onload = () => {
       const setupEditor = (selector: string, editorId: string, template: string) => {
@@ -47,10 +53,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
       setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
       setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
+      document.body.appendChild(tinymceScript);
+      document.body.appendChild(htmlDocxScript);
     };
-
-    document.body.appendChild(tinymceScript);
-    document.body.appendChild(htmlDocxScript);
+    handleComparisonRatios(submission.principal?.ratios);
 
     return () => {
       document.body.removeChild(tinymceScript);
@@ -74,10 +80,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     document.body.removeChild(link);
   };
 
-  const [content, setContent] = useState("<p>Ini adalah konten awal</p>");
-
   const currentDate = new Date();
-  const options = { year: "numeric", month: "long", day: "numeric" };
+  const options = { year: "numeric" as const, month: "long" as const, day: "numeric" as const };
   const formattedDate = currentDate.toLocaleDateString("id-ID", options).toUpperCase();
 
   const formatCurrency = (value: number | string) => {
@@ -127,9 +131,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     // created_date: submission.created_at,
   };
 
-  const initialContent = replaceTemplatePlaceholders(templateAnalyst, data);
+  const calculateTotalPoint = (scores: any) => {
+    return scores.reduce((total: number, score: any) => total + score.point, 0);
+  };
 
-  console.log(submission);
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   return (
     <main className="space-y-5">
@@ -175,43 +181,43 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-2 font-semibold w-1/2">Nama Perusahaan</td>
-                    <td className="p-2 w-1/2">{submission.principal?.name}</td>
+                    <td className="p-2 w-[20cm]">: {submission.principal?.name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Alamat Perusahaan</td>
-                    <td className="p-2 w-1/2">{submission.principal?.address}</td>
+                    <td className="p-2 font-semibold">Alamat Perusahaan</td>
+                    <td className="p-2">: {submission.principal?.address}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">NPWP</td>
-                    <td className="p-2 w-1/2">{submission.principal?.npwp}</td>
+                    <td className="p-2 font-semibold">NPWP</td>
+                    <td className="p-2">: {submission.principal?.npwp}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">No Telp Perusahaan</td>
-                    <td className="p-2 w-1/2">{submission.principal?.telephone}</td>
+                    <td className="p-2 font-semibold">No Telp Perusahaan</td>
+                    <td className="p-2">: {submission.principal?.telephone}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">NIB</td>
-                    <td className="p-2 w-1/2">{submission.principal?.nib}</td>
+                    <td className="p-2 font-semibold">NIB</td>
+                    <td className="p-2">: {submission.principal?.nib}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">SIUP / SIUJK</td>
-                    <td className="p-2 w-1/2">{submission.principal?.siup_siujk}</td>
+                    <td className="p-2 font-semibold">SIUP / SIUJK</td>
+                    <td className="p-2">: {submission.principal?.siup_siujk}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nama Direksi</td>
-                    <td className="p-2 w-1/2">{submission.principal?.director_name}</td>
+                    <td className="p-2 font-semibold">Nama Direksi</td>
+                    <td className="p-2">: {submission.principal?.director_name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Jabatan</td>
-                    <td className="p-2 w-1/2">{submission.principal?.director_position}</td>
+                    <td className="p-2 font-semibold">Jabatan</td>
+                    <td className="p-2">: {submission.principal?.director_position}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nomor Handphone</td>
-                    <td className="p-2 w-1/2">{submission.principal?.director_phone}</td>
+                    <td className="p-2 font-semibold">Nomor Handphone</td>
+                    <td className="p-2">: {submission.principal?.director_phone}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Komisaris</td>
-                    <td className="p-2 w-1/2">{submission.principal?.commissioner}</td>
+                    <td className="p-2 font-semibold">Komisaris</td>
+                    <td className="p-2">: {submission.principal?.commissioner}</td>
                   </tr>
                 </tbody>
               </table>
@@ -224,31 +230,32 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-2 font-semibold w-1/2">Produk</td>
-                    <td className="p-2 w-1/2">{submission.guarantor_to_product_type.name}</td>
+                    <td className="p-2 w-[20cm]">: {submission.guarantor_to_product_type.name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Jenis Jaminan</td>
-                    <td className="p-2 w-1/2">{submission.guarantor_to_product_type.full_name}</td>
+                    <td className="p-2 font-semibold">Jenis Jaminan</td>
+                    <td className="p-2">: {submission.guarantor_to_product_type.full_name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nama Obligee</td>
-                    <td className="p-2 w-1/2">{submission.obligee.name}</td>
+                    <td className="p-2 font-semibold">Nama Obligee</td>
+                    <td className="p-2">: {submission.obligee.name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Alamat Obligee</td>
-                    <td className="p-2 w-1/2">{submission.obligee.address}</td>
+                    <td className="p-2 font-semibold">Alamat Obligee</td>
+                    <td className="p-2">: {submission.obligee.address}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Jenis Dokumen</td>
-                    <td className="p-2 w-1/2">{submission.contract_doc_name}</td>
+                    <td className="p-2 font-semibold">Jenis Dokumen</td>
+                    <td className="p-2">: {submission.contract_doc_name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nomor Dokumen</td>
-                    <td className="p-2 w-1/2">{submission.contract_doc_number}</td>
+                    <td className="p-2 font-semibold">Nomor Dokumen</td>
+                    <td className="p-2">: {submission.contract_doc_number}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Tanggal Dokumen</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Tanggal Dokumen</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
@@ -257,8 +264,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nilai Kontrak</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Nilai Kontrak</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
@@ -266,8 +274,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nilai Jaminan</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Nilai Jaminan</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Intl.NumberFormat("id-ID", {
                         style: "currency",
                         currency: "IDR",
@@ -275,16 +284,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Jangka Waktu</td>
-                    <td className="p-2 w-1/2">{submission.time_period} hari</td>
+                    <td className="p-2 font-semibold">Jangka Waktu</td>
+                    <td className="p-2">: {submission.time_period} hari</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Nama Pekerjaan</td>
-                    <td className="p-2 w-1/2">{submission.job_name}</td>
+                    <td className="p-2 font-semibold">Nama Pekerjaan</td>
+                    <td className="p-2">: {submission.job_name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Tanggal Terbit Jaminan</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Date(submission.guarantee_issue_date).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
@@ -293,20 +303,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Lokasi Proyek</td>
-                    <td className="p-2 w-1/2">{submission.job_location}</td>
+                    <td className="p-2 font-semibold">Lokasi Proyek</td>
+                    <td className="p-2">: {submission.job_location}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Sumber Dana</td>
-                    <td className="p-2 w-1/2">{submission.source_of_fund.name}</td>
+                    <td className="p-2 font-semibold">Sumber Dana</td>
+                    <td className="p-2">: {submission.source_of_fund.name}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Kelompok Pekerjaan</td>
-                    <td className="p-2 w-1/2">{submission.guarantor_to_product_type.job_group}</td>
+                    <td className="p-2 font-semibold">Kelompok Pekerjaan</td>
+                    <td className="p-2">: {submission.guarantor_to_product_type.job_group}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold w-1/2">Mulai Tanggal</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Mulai Tanggal</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Date(submission.start_date).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
@@ -315,8 +326,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-2 font-semibold w-1/2">Selesai Tanggal</td>
-                    <td className="p-2 w-1/2">
+                    <td className="p-2 font-semibold">Selesai Tanggal</td>
+                    <td className="p-2">
+                      :{" "}
                       {new Date(submission.end_date).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
@@ -330,47 +342,261 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
             {/* List Scoring Result */}
             <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">Data Scores</h2>
+              <h2 className="text-lg font-semibold mb-4 mt-5">
+                {submission.scores?.[0].scoring.name} ({submission.scores?.[0].scoring.min_point})
+              </h2>
               <table className="table-fixed w-full border border-gray-300">
                 <thead>
-                  <tr className="border-b bg-gray-100">
-                    <th className="p-2 font-semibold text-left w-1/12">ID</th>
-                    <th className="p-2 font-semibold text-left w-2/12">Point</th>
-                    <th className="p-2 font-semibold text-left">Question Name</th>
-                    <th className="p-2 font-semibold text-left">Opsi</th>
+                  <tr className="border-b bg-gray-300">
+                    <th className="p-2 font-semibold text-left w-[150pt]">kategori Pertanyaan</th>
+                    <th className="p-2 font-semibold text-left">Pertanyaan</th>
+                    <th className="p-2 font-semibold text-left">Jawaban</th>
+                    <th className="p-2 font-semibold text-center w-2/12">Point</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Object.entries(
-                    submission.scores.reduce((grouped, score) => {
-                      if (!grouped[score.category_name]) {
-                        grouped[score.category_name] = [];
+                    submission.scores.reduce((grouped: any, score: any) => {
+                      const { scoring_question_category_id, scoring_question_category, ...rest } = score;
+                      if (!grouped[scoring_question_category_id]) {
+                        grouped[scoring_question_category_id] = {
+                          ...scoring_question_category,
+                          items: [],
+                        };
                       }
-                      grouped[score.category_name].push(score);
+                      grouped[scoring_question_category_id].items.push(rest);
                       return grouped;
                     }, {}),
-                  ).map(([categoryName, scores]) => (
-                    <React.Fragment key={categoryName}>
-                      <tr className="border-b bg-gray-200">
-                        <td colSpan={4} className="p-2 font-bold">
-                          {categoryName}
-                        </td>
-                      </tr>
-                      {scores.map((score) => (
-                        <tr key={score.id} className="border-b">
-                          <td className="p-2 text-left w-1/12">{score.id}</td>
-                          <td className="p-2 text-left w-2/12">{score.point}</td>
-                          <td className="p-2 text-left">{score.question_name}</td>
-                          <td className="p-2 text-left">{score.option_name}</td>
+                  ).map(([id, scores]: [any, any]) => {
+                    return (
+                      <React.Fragment key={id}>
+                        <tr className="border-b bg-gray-100">
+                          <td colSpan={4} className="p-2 font-bold">
+                            {scores.name} ({scores.max_point})
+                          </td>
                         </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
+                        {scores.items.map((score: any) => (
+                          <tr key={score.id} className="border-b">
+                            <td className="p-2 text-left"></td>
+                            <td className="p-2 text-left">{score.question_name}</td>
+                            <td className="p-2 text-left">{score.option_name}</td>
+                            <td className="p-2 text-center">{score.point}</td>
+                          </tr>
+                        ))}
+                        <tr className="bg-gray-50">
+                          <td className="p-2" colSpan={3}>
+                            Sub Total:
+                          </td>
+                          <td className="p-2 text-center">
+                            {scores.items.reduce((total: number, score: any) => total + score.point, 0)}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
+
+                <tfoot>
+                  <tr className="border-b bg-gray-300">
+                    <td className="p-2 font-semibold" colSpan={3}>
+                      Total:
+                    </td>
+                    <td className="p-2 text-center">{calculateTotalPoint(submission.scores)}</td>
+                  </tr>
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className={cn({
+                        "p-2 text-center": true,
+                        "bg-green-300":
+                          submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores),
+                        "bg-red-300":
+                          submission.scores?.[0].scoring.min_point >= calculateTotalPoint(submission.scores),
+                      })}>
+                      {submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores) ? (
+                        <span className="text-green-800">Disetujui</span>
+                      ) : (
+                        <span className="text-red-800">
+                          Ditolak (
+                          {"Nilai " +
+                            calculateTotalPoint(submission.scores) +
+                            " Kurang Dari " +
+                            submission.scores?.[0].scoring.min_point}
+                          )
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 
-            <TinyMCEEditor id="example-editor" initialContent={initialContent} />
+            <div>
+              <h2 className="text-lg font-semibold mb-4 mt-5">Analisis Rasio Keuangan Perusahaan</h2>
+              <div className="flex justify-between w-full">
+                <div className="w-[40%]">
+                  <table className="table-fixed border w-full border-gray-300">
+                    <thead>
+                      <tr className="border-b bg-gray-100">
+                        <th className="p-2 font-semibold text-left w-1/2">Rasio</th>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <th className="p-2 font-semibold text-left w-1/2">{ratio.year}</th>;
+                          }}
+                        />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Aktiva Lancar</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.current_assets}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.current_debt}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.total_debt}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.total_assets}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.revenue}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.net_income}</td>;
+                          }}
+                        />
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="w-[40%]">
+                  <table className="table-fixed w-full border border-gray-300">
+                    <thead>
+                      <tr className="border-b bg-gray-100">
+                        <th className="p-2 font-semibold text-left w-[200px]">Rasio</th>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <th className="p-2 font-semibold text-left w-1/5">{ratio.year}</th>;
+                          }}
+                        />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b bg-gray-100">
+                        <td className="p-2 font-semibold text-left">
+                          Rasio Likuiditas
+                          {comparisonRatios.liquidity_ratios == true && (
+                            <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                              Naik
+                            </Badge>
+                          )}
+                          {comparisonRatios.liquidity_ratios == false && (
+                            <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                              Turun
+                            </Badge>
+                          )}
+                        </td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left">{ratio.liquidity_ratios}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b bg-gray-100">
+                        <td className="p-2 font-semibold text-left">
+                          Rasio Profitabilitas
+                          {comparisonRatios.profitability_ratios == true && (
+                            <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                              Naik
+                            </Badge>
+                          )}
+                          {comparisonRatios.profitability_ratios == false && (
+                            <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                              Turun
+                            </Badge>
+                          )}
+                        </td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left">{ratio.profitability_ratios}</td>;
+                          }}
+                        />
+                      </tr>
+                      <tr className="border-b bg-gray-100">
+                        <td className="p-2 font-semibold text-left">
+                          Rasio Solvabilitas
+                          {comparisonRatios.solvency_ratios == true && (
+                            <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                              Naik
+                            </Badge>
+                          )}
+                          {comparisonRatios.solvency_ratios == false && (
+                            <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                              Turun
+                            </Badge>
+                          )}
+                        </td>
+                        <RenderList
+                          of={submission.principal?.ratios}
+                          render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-left">{ratio.solvency_ratios}</td>;
+                          }}
+                        />
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
+              <div>
+                <TinyMCEEditor
+                  id="example-editor"
+                  initialContent={replaceTemplatePlaceholders(templateAnalyst, data)}
+                />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="submitted">
@@ -388,7 +614,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {submission.submission_docs.map((doc) => (
+                    {submission.submission_docs.map((doc: any) => (
                       <tr key={doc.id} className="border-b">
                         <td className="p-2">{doc.name}</td>
                         <td className="p-2">{doc.description || "-"}</td>

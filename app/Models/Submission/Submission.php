@@ -2,11 +2,11 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Models\Guarantor\Guarantor;
-use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AdminLayout from "@/layouts/admin";
-import { getNumericValue } from "@/lib/getNumericValue";
+import { getNumericValue } from "@/lib/get-numeric-value";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import { RotateCw } from "lucide-react";

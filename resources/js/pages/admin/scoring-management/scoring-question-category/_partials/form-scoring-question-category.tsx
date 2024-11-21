@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/general/use-toast";
 import { cn } from "@/lib/cn";
-import { getNumericValue } from "@/lib/getNumericValue";
+import { getNumericValue } from "@/lib/get-numeric-value";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";

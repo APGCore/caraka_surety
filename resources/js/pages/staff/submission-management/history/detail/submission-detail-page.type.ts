@@ -1,4 +1,30 @@
+import { Ratio } from "@/pages/staff/submission-management/create/create-page.type";
 import React from "react";
+
+interface Document {
+  name: string;
+  number: string;
+  url: string;
+}
+
+interface Score {
+  id: number;
+  scoring_id: number;
+  scoring: any;
+  scoring_question_category_id: number;
+  scoring_question_category: any;
+  scoring_question_id: number;
+  scoring_question: any;
+  scoring_option_id: number;
+  scoring_option: any;
+  point: number;
+  category_name: string;
+  question_name: string;
+  option_name: string;
+  reduce: any;
+  grouped: string;
+  score: any;
+}
 
 interface SubmissionDetailProps {
   submission: {
@@ -37,6 +63,8 @@ interface SubmissionDetailProps {
       updated_at: string;
       village: string;
       year_established: string;
+      documents: Document[];
+      ratios: Ratio[];
     };
     guarantor_to_product_type: {
       name: string;
@@ -51,20 +79,7 @@ interface SubmissionDetailProps {
       name: string;
     };
 
-    scores: {
-      id: number;
-      scoring_id: number;
-      scoring_question_category_id: number;
-      scoring_question_id: number;
-      scoring_option_id: number;
-      point: number;
-      category_name: string;
-      question_name: string;
-      option_name: string;
-      reduce: any;
-      grouped: string;
-      score: any;
-    };
+    scores: Score[];
 
     submission_docs: {
       name: string;

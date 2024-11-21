@@ -183,6 +183,8 @@ class SubmissionController extends Controller
     {
         $submission = Submission::with([
             'principal',
+            'principal.documents',
+            'principal.principalRatios',
             'guarantorToProductType',
             'obligee',
             'sourceOfFund',
@@ -192,6 +194,9 @@ class SubmissionController extends Controller
             'scores.scoringQuestion',
             'scores.scoringOption',
         ])->findOrFail($id);
+
+        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+        ($submission->principal->principalRatios);
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
