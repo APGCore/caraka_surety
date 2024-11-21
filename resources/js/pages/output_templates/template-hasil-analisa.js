@@ -6,12 +6,12 @@ const templateAnalyst = `
             <strong>SURETY BOND</strong><br>
             JAMINAN .............<br>
             PT..........<br>
-            Nomor : ...../BPR/bulan/tahun
+            Nomor : [NOMOR]]/]BPR/[BULAN]/[TAHUN]
         </td>
     </tr>
      <tr style="width: 100%;">
         <td style="width: 50%;">Hari, Tanggal Pengajuan</td>
-        <td style="width: 50%;"></td>
+        <td style="width: 50%;">[TGL_PENGAJUAN]</td>
     </tr>
 </table>
 

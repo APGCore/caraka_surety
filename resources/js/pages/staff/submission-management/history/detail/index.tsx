@@ -1,4 +1,5 @@
 import SecondaryButton from "@/components/common/secondary-button";
+import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +10,7 @@ import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { Head, Link } from "@inertiajs/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
@@ -72,6 +73,61 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     link.click();
     document.body.removeChild(link);
   };
+
+  const [content, setContent] = useState("<p>Ini adalah konten awal</p>");
+
+  const currentDate = new Date();
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  const formattedDate = currentDate.toLocaleDateString("id-ID", options).toUpperCase();
+
+  const formatCurrency = (value: number | string) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(Number(value));
+  };
+
+  const replaceTemplatePlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_TERJAMIN]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NIB]", data.principal.nib)
+      .replace("[NAMA_OBLIGEE]", data.obligee.name)
+      .replace("[ALAMAT_OBLIGEE]", data.obligee.address)
+      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[LOKASI_PROYEK]", data.location)
+      .replace("[JENIS_JAMINAN]", data.guarantee_type)
+      .replace("[TANGGAL]", formattedDate)
+      .replace("[SUMBER_DANA]", data.obligee.source_of_fund);
+  };
+
+  const data = {
+    principal: {
+      name: submission.principal?.name,
+      address: submission.principal?.address,
+      npwp: submission.principal?.npwp,
+      nib: submission.principal?.nib,
+    },
+    obligee: {
+      address: submission.obligee.address,
+      name: submission.obligee.name,
+      source_of_fund: submission.source_of_fund.name,
+    },
+    contract_value: submission.contract_value,
+    guarantee_value: submission.guarantee_value,
+    guarantee_type: submission.guarantor_to_product_type.name,
+    time_period: submission.time_period,
+    job_name: submission.job_name,
+    location: submission.job_location_village,
+    // created_date: submission.created_at,
+  };
+
+  const initialContent = replaceTemplatePlaceholders(templateAnalyst, data);
 
   console.log(submission);
 
@@ -314,8 +370,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </table>
             </div>
 
-            <p className="text-xl font-semibold mb-4 mt-5">Hasil Analisa</p>
-            <textarea id="hasil-analisa"></textarea>
+            <TinyMCEEditor id="example-editor" initialContent={initialContent} />
           </TabsContent>
 
           <TabsContent value="submitted">

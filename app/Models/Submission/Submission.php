@@ -2,6 +2,9 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Location\District;
+use App\Models\Location\Province;
+use App\Models\Location\Regency;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\RelatedParties\Bank;
@@ -61,5 +64,22 @@ class Submission extends Model
     public function submissionDocs()
     {
         return $this->hasMany(SubmissionDoc::class, 'submission_id', 'id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'job_location_province_id');
+    }
+
+    // Relasi ke tabel regencies
+    public function regency()
+    {
+        return $this->belongsTo(Regency::class, 'job_location_regency_id');
+    }
+
+    // Relasi ke tabel districts
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'job_location_district_id');
     }
 }

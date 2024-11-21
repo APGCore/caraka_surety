@@ -100,7 +100,7 @@ interface SubmissionDetailProps {
   contract_doc_name: string;
   contract_doc_number: string;
   contract_value: number;
-  created_at: string;
+  created_at: string | null;
   deleted_at: string | null;
   end_date: string;
   guarantee_issue_date: string | null;
