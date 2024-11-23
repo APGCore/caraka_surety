@@ -63,6 +63,7 @@ class DashboardController extends Controller
             ->orderByDesc('created_at')
             ->get();
     }
+
     public function dashboardAdmin(Request $request)
     {
         $component = 'admin/dashboard/index';
