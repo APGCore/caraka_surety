@@ -1,75 +1,23 @@
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { textCurrency } from "@/lib/text-currency";
+import { RecentSalesPageProps } from "@/pages/staff/dashboard/partials/recent-sales/recent-sales.type";
 
-const data = [
-  {
-    pt: "PT KAM",
-    jumlah: "Rp 1.000.000",
-    produk: "Surety Bond",
-  },
-  {
-    pt: "PT ABC",
-    jumlah: "Rp 2.500.000",
-    produk: "Custom Bond",
-  },
-  {
-    pt: "PT XYZ",
-    jumlah: "Rp 1.750.000",
-    produk: "Performance Bond",
-  },
-  {
-    pt: "PT DEF",
-    jumlah: "Rp 3.000.000",
-    produk: "Bid Bond",
-  },
-  {
-    pt: "PT GHI",
-    jumlah: "Rp 2.200.000",
-    produk: "Maintenance Bond",
-  },
-  {
-    pt: "PT KAM",
-    jumlah: "Rp 1.000.000",
-    produk: "Surety Bond",
-  },
-  {
-    pt: "PT ABC",
-    jumlah: "Rp 2.500.000",
-    produk: "Custom Bond",
-  },
-  {
-    pt: "PT XYZ",
-    jumlah: "Rp 1.750.000",
-    produk: "Performance Bond",
-  },
-  {
-    pt: "PT DEF",
-    jumlah: "Rp 3.000.000",
-    produk: "Bid Bond",
-  },
-  {
-    pt: "PT GHI",
-    jumlah: "Rp 2.200.000",
-    produk: "Maintenance Bond",
-  },
-];
-
-const RecentSales = () => {
+const RecentSales: RecentSalesPageProps = ({ submissions }) => {
   return (
     <div className="space-y-8 max-h-[350px] overflow-y-auto pr-5">
-      <Show when={data?.length > 0}>
+      <Show when={submissions?.length > 0}>
         <RenderList
-          of={data}
-          render={(e) => {
+          of={submissions}
+          render={(e: any) => {
             return (
               <div className="flex items-center">
                 <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">{e.pt}</p>
-                  <p className="text-sm text-muted-foreground">{e.produk}</p>
+                  <p className="text-sm font-medium leading-none">{e.principal.name}</p>
+                  <p className="text-sm text-muted-foreground">{e.product.name}</p>
                 </div>
                 <div className="ml-auto">
-                  <p className="text-sm font-medium leading-none">{e.jumlah}</p>
+                  <p className="text-sm font-medium leading-none">Rp. {textCurrency(e.contract_value)}</p>
                 </div>
               </div>
             );

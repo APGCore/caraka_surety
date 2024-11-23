@@ -7,6 +7,7 @@ use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use App\Models\Product\Product;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
@@ -54,6 +55,11 @@ class Submission extends Model
     public function guarantor()
     {
         return $this->belongsTo(Guarantor::class, 'guarantor_id', 'id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     public function guarantorToProductType()

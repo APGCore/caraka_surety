@@ -1,13 +1,32 @@
+import RenderList from "@/components/common/render-list";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StaffLayoutPage from "@/layouts/staff";
-import { Head } from "@inertiajs/react";
-import { data } from "./dashboard-utils";
+import { DashboardUtils } from "@/pages/staff/dashboard/dashboard.utils";
+import { Head, router } from "@inertiajs/react";
+import { pickBy } from "lodash";
 import { Overview } from "./partials/overview";
 import { RecentSales } from "./partials/recent-sales";
 import { StaffDashboardPageProps } from "./staff-dashboard-page.type";
 
-const StaffDashboardPage: StaffDashboardPageProps = () => {
+const StaffDashboardPage: StaffDashboardPageProps = ({
+  total_submission,
+  total_submission_process,
+  total_submission_approved,
+  total_submission_rejected,
+  products,
+  graph_data,
+  submissions,
+}) => {
+  const changeProduct = (productId: any) => {
+    router.get(
+      route(DashboardUtils.link.index),
+      pickBy({
+        product_id: productId,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
+  };
   return (
     <div className="flex-1 space-y-4  pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -31,7 +50,7 @@ const StaffDashboardPage: StaffDashboardPageProps = () => {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">231</div>
+              <div className="text-2xl font-bold">{total_submission}</div>
             </CardContent>
           </Card>
           <Card>
@@ -52,7 +71,7 @@ const StaffDashboardPage: StaffDashboardPageProps = () => {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">50</div>
+              <div className="text-2xl font-bold">{total_submission_process}</div>
             </CardContent>
           </Card>
           <Card>
@@ -72,7 +91,7 @@ const StaffDashboardPage: StaffDashboardPageProps = () => {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">10</div>
+              <div className="text-2xl font-bold">{total_submission_approved}</div>
             </CardContent>
           </Card>
           <Card>
@@ -91,7 +110,7 @@ const StaffDashboardPage: StaffDashboardPageProps = () => {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">5</div>
+              <div className="text-2xl font-bold">{total_submission_rejected}</div>
             </CardContent>
           </Card>
         </div>
@@ -99,28 +118,31 @@ const StaffDashboardPage: StaffDashboardPageProps = () => {
           <Card className="lg:col-span-4 space-y-10">
             <div className="flex items-center justify-between w-full p-5 ">
               <CardTitle className=" w-max">Grafik Pengajuan</CardTitle>
-              <Select>
+              <Select onValueChange={changeProduct}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Surety Bond" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="light">Surety Bond</SelectItem>
-                  <SelectItem value="dark">Jaminan Pelaksanaan</SelectItem>
-                  <SelectItem value="system">Bank Garansi</SelectItem>
+                  <RenderList
+                    of={products}
+                    render={(product: any) => {
+                      return <SelectItem value={product.id}>{product.name}</SelectItem>;
+                    }}
+                  />
                 </SelectContent>
               </Select>
             </div>
             <CardContent className="pl-2">
-              <Overview data={data} />
+              <Overview data={graph_data} />
             </CardContent>
           </Card>
           <Card className="lg:col-span-3">
             <CardHeader>
               <CardTitle>Pengajuan Terakhir</CardTitle>
-              <CardDescription>Terdapat 200 pengajuan baru bulan ini.</CardDescription>
+              <CardDescription>Terdapat {submissions.length} pengajuan baru bulan ini.</CardDescription>
             </CardHeader>
             <CardContent>
-              <RecentSales />
+              <RecentSales submissions={submissions} />
             </CardContent>
           </Card>
         </div>
