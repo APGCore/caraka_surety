@@ -29,18 +29,18 @@ class DashboardController extends Controller
     {
         // get month names in Indonesian
         $monthNames = [
-            'Januari',
-            'Februari',
-            'Maret',
-            'April',
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
             'Mei',
             'Juni',
             'Juli',
-            'Agustus',
-            'September',
-            'Oktober',
-            'November',
-            'Desember',
+            'Agus',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des',
         ];
 
         $submissions = Submission::query()

@@ -19,7 +19,7 @@ const Overview: React.FC<OverviewProps> = ({ data }) => {
     <ChartContainer config={chartConfig}>
       <BarChart data={data}>
         <CartesianGrid vertical={false} />
-        <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+        <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
         <ChartTooltip content={<ChartTooltipContent />} />
 
         <YAxis
