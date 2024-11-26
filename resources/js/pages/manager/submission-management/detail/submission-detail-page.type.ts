@@ -28,6 +28,7 @@ interface Score {
 
 interface SubmissionDetailProps {
   submission: {
+    id?: number;
     documents: string;
     status: string;
     contract_value: number;
@@ -78,7 +79,6 @@ interface SubmissionDetailProps {
     source_of_fund: {
       name: string;
     };
-
     scores: Score[];
 
     submission_docs: {
@@ -96,6 +96,11 @@ interface SubmissionDetailProps {
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;
+
+    // limit
+    employee_limit: number;
+    product_limit: number;
+    beyond_the_limit: boolean;
   };
   bank: {
     id: number;

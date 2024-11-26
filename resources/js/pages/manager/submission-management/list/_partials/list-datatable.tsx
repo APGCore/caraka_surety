@@ -1,31 +1,11 @@
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import axios from "axios";
-import { LoaderCircle } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 
 function formatRupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -40,39 +20,6 @@ interface SubmissionListDatatableProps {
 }
 
 const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submissions }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const handleApprove = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("manager-submission-approve", submissionId))
-      .then((response) => {
-        console.log("success approve submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.log("error approve submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const handleReject = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("manager-submission-reject", submissionId))
-      .then((response) => {
-        console.log("success reject submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.log("error reject submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   return (
     <>
       <Table>
@@ -91,11 +38,15 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
           <RenderList
             of={submissions}
             render={(submission: any, index: number) => (
-              <TableRow key={submission.id}>
+              <TableRow
+                key={submission.id}
+                className={submission.manager_limit < submission.contract_value ? "bg-amber-300" : ""}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
-                <TableCell>{formatRupiah(submission?.contract_value)}</TableCell>
+                <TableCell>
+                  {formatRupiah(submission?.contract_value)} limit {formatRupiah(submission?.manager_limit)}
+                </TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
@@ -110,88 +61,15 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                        <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-36 mr-8 mt-1">
-                      <DropdownMenuItem
-                        className="p-0 cursor-pointer"
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          router.visit(route("manager-submission-detail.submission", submission.id));
-                        }}>
-                        <Button
-                          variant="default"
-                          className="bg-blue-600 text-destructive-foreground shadow-sm hover:bg-blue-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                          Detail
-                        </Button>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {submission.status === SubmissionStatus.PROCESS && (
-                        <>
-                          <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="default"
-                                  disabled={isLoading}
-                                  className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                                  Approve
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Batal</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    className="bg-green-600 hover:bg-green-400"
-                                    onClick={() => handleApprove(submission.id)}>
-                                    Setujui
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      {submission.status === SubmissionStatus.PROCESS && (
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="default"
-                                disabled={isLoading}
-                                className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                                {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                                Reject
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  className="bg-red-600 hover:bg-red-400"
-                                  onClick={() => handleReject(submission.id)}>
-                                  Tolak
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    variant="default"
+                    className="bg-white text-black shadow-sm hover:bg-white px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.visit(route("manager-submission-detail.submission", submission.id));
+                    }}>
+                    Detail
+                  </Button>
                 </TableCell>
               </TableRow>
             )}

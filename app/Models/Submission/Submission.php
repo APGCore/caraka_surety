@@ -2,7 +2,9 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Guarantor\EmployeeLimit;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
 use App\Models\Location\Province;
@@ -13,6 +15,9 @@ use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -27,65 +32,75 @@ class Submission extends Model
         'deleted_at',
     ];
 
-    public function scores()
+    public function scores(): HasMany
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
     }
 
-    public function principal()
+    public function principal(): BelongsTo
     {
         return $this->belongsTo(Principal::class, 'principal_id', 'id');
     }
 
-    public function bank()
+    public function bank(): BelongsTo
     {
         return $this->belongsTo(Bank::class, 'bank_id', 'id');
     }
 
-    public function obligee()
+    public function obligee(): BelongsTo
     {
         return $this->belongsTo(Obligee::class, 'obligee_id', 'id');
     }
 
-    public function sourceOfFund()
+    public function sourceOfFund(): BelongsTo
     {
         return $this->belongsTo(SourceOfFund::class, 'source_of_fund_id', 'id');
     }
 
-    public function guarantor()
+    public function guarantor(): BelongsTo
     {
         return $this->belongsTo(Guarantor::class, 'guarantor_id', 'id');
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
-    public function guarantorToProductType()
+    public function guarantorToProductType(): BelongsTo
     {
         return $this->belongsTo(GuarantorToProductType::class, 'guarantor_to_product_type_id', 'id');
     }
 
-    public function submissionDocs()
+    public function submissionDocs(): HasMany
     {
         return $this->hasMany(SubmissionDoc::class, 'submission_id', 'id');
     }
 
-    public function province()
+    public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class, 'job_location_province_id');
     }
 
     // Relasi ke tabel regencies
-    public function regency()
+    public function regency(): BelongsTo
     {
         return $this->belongsTo(Regency::class, 'job_location_regency_id');
     }
 
     // Relasi ke tabel districts
-    public function district()
+    public function district(): BelongsTo
     {
         return $this->belongsTo(District::class, 'job_location_district_id');
+    }
+
+    public function employeeLimit(): HasMany
+    {
+        return $this->hasMany(EmployeeLimit::class, 'guarantor_to_product_type_id', 'guarantor_to_product_type_id');
+    }
+
+    public function guarantorProductTypeLimit(): HasOne
+    {
+        return $this->hasOne(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id', 'guarantor_to_product_type_id');
     }
 }

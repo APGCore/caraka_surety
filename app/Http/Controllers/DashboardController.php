@@ -99,7 +99,6 @@ class DashboardController extends Controller
             'submissions' => $submissionThisMonth,
         ];
 
-
         $component = 'staff/dashboard/index';
 
         return inertia($component, $props);

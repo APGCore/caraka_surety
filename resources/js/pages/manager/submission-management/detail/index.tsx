@@ -1,21 +1,39 @@
 import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import ManagerLayoutPage from "@/layouts/manager";
 import { cn } from "@/lib/cn";
+import { textCurrency } from "@/lib/text-currency";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
-import { Head, Link } from "@inertiajs/react";
-import React, { useEffect } from "react";
+import { SubmissionStatus } from "@/types/submission-status";
+import { Head, Link, router } from "@inertiajs/react";
+import axios from "axios";
+import { AlertCircle, LoaderCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
@@ -137,8 +155,51 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
+  const handleApprove = (submissionId: number) => {
+    setIsLoading(true);
+    axios
+      .post(route("manager-submission-approve", submissionId))
+      .then((response) => {
+        console.log("success approve submission", response);
+        router.reload();
+      })
+      .catch((error) => {
+        console.log("error approve submission", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleReject = (submissionId: number) => {
+    setIsLoading(true);
+    axios
+      .post(route("manager-submission-reject", submissionId))
+      .then((response) => {
+        console.log("success reject submission", response);
+        router.reload();
+      })
+      .catch((error) => {
+        console.log("error reject submission", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
     <main className="space-y-5">
+      {submission.beyond_the_limit && (
+        <div className="fixed top-20 w-[81%] z-[100]">
+          <Alert variant="destructive" className="bg-red-100">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Peringatan</AlertTitle>
+            <AlertDescription>
+              Pengajuan Melebihi Batas Limit Pengajuan Rp. {textCurrency(submission.contract_value)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>
         <SecondaryButton>
@@ -634,6 +695,58 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </TabsContent>
         </Tabs>
+        {submission.status === SubmissionStatus.PROCESS && !submission.beyond_the_limit && (
+          <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="default"
+                  disabled={isLoading}
+                  className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                  Reject
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-600 hover:bg-red-400"
+                    onClick={() => submission.id && handleReject(submission.id)}>
+                    Tolak
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="default"
+                  disabled={isLoading}
+                  className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                  Approve
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-green-600 hover:bg-green-400"
+                    onClick={() => submission.id && handleApprove(submission.id)}>
+                    Setujui
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
     </main>
   );
@@ -646,8 +759,8 @@ SubmissionDetailPage.layout = (page: any) => {
 
   return (
     <ManagerLayoutPage user={pagePropsData?.auth?.user}>
-      <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.companyName ?? "Pengajuan"}`} />
-      <Breadcrumb>
+      <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.principal?.name ?? "Pengajuan"}`} />
+      <Breadcrumb className={pagePropsData?.submission.beyond_the_limit ? "mt-20" : ""}>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href={route("submission.index")}>Kelola Pengajuan</BreadcrumbLink>

@@ -442,7 +442,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <th className="p-2 font-semibold text-left w-1/2">{ratio.year}</th>;
+                            return <th className="p-2 font-semibold text-center w-1/2">{ratio.year}</th>;
                           }}
                         />
                       </tr>
@@ -453,7 +453,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.current_assets}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_assets}</td>;
                           }}
                         />
                       </tr>
@@ -462,7 +462,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.current_debt}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_debt}</td>;
                           }}
                         />
                       </tr>
@@ -471,7 +471,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.total_debt}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_debt}</td>;
                           }}
                         />
                       </tr>
@@ -480,7 +480,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.total_assets}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_assets}</td>;
                           }}
                         />
                       </tr>
@@ -489,7 +489,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.revenue}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.revenue}</td>;
                           }}
                         />
                       </tr>
@@ -498,7 +498,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left w-1/2">{ratio.net_income}</td>;
+                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.net_income}</td>;
                           }}
                         />
                       </tr>
@@ -513,7 +513,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <th className="p-2 font-semibold text-left w-1/5">{ratio.year}</th>;
+                            return <th className="p-2 font-semibold text-center w-1/5">{ratio.year}</th>;
                           }}
                         />
                       </tr>
@@ -536,7 +536,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left">{ratio.liquidity_ratios}</td>;
+                            return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
                           }}
                         />
                       </tr>
@@ -557,7 +557,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left">{ratio.profitability_ratios}</td>;
+                            return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}</td>;
                           }}
                         />
                       </tr>
@@ -578,7 +578,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <RenderList
                           of={submission.principal?.ratios}
                           render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-left">{ratio.solvency_ratios}</td>;
+                            return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
                           }}
                         />
                       </tr>

@@ -221,7 +221,6 @@ class SubmissionController extends Controller
         ]);
     }
 
-
     public function showDetailSubmissionManager($id)
     {
         $submission = Submission::with([
@@ -236,7 +235,13 @@ class SubmissionController extends Controller
             'scores.scoringQuestionCategory',
             'scores.scoringQuestion',
             'scores.scoringOption',
+            'employeeLimit',
+            'guarantorProductTypeLimit',
         ])->findOrFail($id);
+
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
+        $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->contract_value;
 
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
@@ -263,8 +268,6 @@ class SubmissionController extends Controller
             'submission' => $submission,
         ]);
     }
-
-
 
     public function showDetailSubmissionDireksi($id)
     {
@@ -297,7 +300,6 @@ class SubmissionController extends Controller
             'submission' => $submission,
         ]);
     }
-
 
     public function showDetailDocsSubmissionDireksi($id)
     {
@@ -338,7 +340,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -350,6 +352,7 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
+        $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->where('staff_id', '=', auth()->user()->getAuthIdentifier())
@@ -365,10 +368,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -379,10 +382,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -392,31 +395,36 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
+        $authId = auth()->user()->getAuthIdentifier();
         $staffs = User::query()
-            ->where('head_id', '=', auth()->user()->getAuthIdentifier())
+            ->where('head_id', '=', $authId)
             ->pluck('id');
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->whereIn('staff_id', $staffs)
             ->get()
-            ->map(function ($submission) {
+            ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
+                $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
 
                 return [
                     ...$submission->toArray(),
+                    'manager_limit' => $managerLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
                     'created_at' => $date,
                 ];
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
-
 
     public function displaySubmissionByDireksi()
     {
@@ -442,10 +450,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -470,13 +478,12 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
-
 
     public function displayHistoryByManager()
     {
@@ -499,10 +506,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
