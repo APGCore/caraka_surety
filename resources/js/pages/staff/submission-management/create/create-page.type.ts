@@ -93,7 +93,7 @@ type ScoringOptions = {
 };
 
 export interface Ratio {
-  current_assets: string;
+  current_asset: string;
   current_debt: string;
   total_debt: string;
   total_assets: string;

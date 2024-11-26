@@ -70,7 +70,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   >([]);
 
   const defaultPrincipalRatios: Ratio = {
-    current_assets: "",
+    current_asset: "",
     current_debt: "",
     total_debt: "",
     total_assets: "",
@@ -294,10 +294,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const handleClickStep = (stepName: string) => {
     setFormStep(stepName as "principal" | "docs" | "contract" | "skoring");
     handleActiveStep(stepName);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleNextStepForm = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleNextStepForm = () => {
     if (formStep === "principal") {
       handleClickStep("docs");
     } else if (formStep === "docs") {
@@ -305,10 +306,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     } else if (formStep === "contract") {
       handleClickStep("skoring");
     }
-  }, [formStep]);
+  };
 
-  const handlePrevStepForm = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handlePrevStepForm = () => {
     if (formStep === "docs") {
       handleClickStep("principal");
     } else if (formStep === "contract") {
@@ -316,7 +316,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     } else if (formStep === "skoring") {
       handleClickStep("contract");
     }
-  }, [formStep]);
+  };
 
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
@@ -351,6 +351,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       });
     }
   };
+
+  console.log({
+    skoring: data.scoring,
+  });
 
   const handleReset = () => {
     setData({
@@ -950,7 +954,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
 
                   <div className="grid gap-1">
-                    <Label className="text-md">Job Name</Label>
+                    <Label className="text-md">Nama Pekerjaan</Label>
                     <input
                       type="text"
                       className="border border-gray-300 p-2 rounded-md"
@@ -1217,11 +1221,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                       <RenderList
                                         of={scoringQuestions?.options}
                                         render={(scoringOptions) => {
+                                          const isOptionChecked = data?.scoring.scores.some(
+                                            (s) => s.scoring_option_id === scoringOptions?.id,
+                                          );
+
                                           return (
                                             <div className="flex items-center space-x-2">
                                               <RadioGroupItem
-                                                value={scoringOptions?.name}
+                                                value={String(scoringOptions?.id)}
                                                 id={`option-${scoringOptions?.id}`}
+                                                checked={isOptionChecked}
                                                 onClick={() =>
                                                   handleOptionChange(
                                                     scoringCategories?.id,
@@ -1341,7 +1350,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               <Input
                                 className="text-md"
                                 placeholder="Aktiva Lancar"
-                                value={ratio.current_assets ?? ""}
+                                value={ratio.current_asset ?? ""}
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
                                   const liquidity = calculateRatios(value, ratio.current_debt);
@@ -1349,7 +1358,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                     if (i === index) {
                                       return {
                                         ...r,
-                                        current_assets: value,
+                                        current_asset: value,
                                         liquidity_ratios: liquidity,
                                       };
                                     }
@@ -1370,7 +1379,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 value={ratio.current_debt ?? ""}
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const liquidity = calculateRatios(ratio.current_assets, value);
+                                  const liquidity = calculateRatios(ratio.current_asset, value);
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
                                       return {
