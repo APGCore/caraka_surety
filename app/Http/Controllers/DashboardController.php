@@ -13,9 +13,9 @@ class DashboardController extends Controller
     {
         $submissions = Submission::query()->get();
         $totalSubmission = $submissions->count();
-        $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS)->count();
-        $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED)->count();
-        $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED)->count();
+        $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
+        $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
+        $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED->value)->count();
 
         return [
             'total' => $totalSubmission,
@@ -29,8 +29,18 @@ class DashboardController extends Controller
     {
         // get month names in Indonesian
         $monthNames = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+            'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember',
         ];
 
         $submissions = Submission::query()
@@ -88,6 +98,8 @@ class DashboardController extends Controller
             'graph_data' => $chartSubmissionThisYear,
             'submissions' => $submissionThisMonth,
         ];
+
+
         $component = 'staff/dashboard/index';
 
         return inertia($component, $props);

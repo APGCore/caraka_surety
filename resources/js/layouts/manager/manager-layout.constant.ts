@@ -29,12 +29,12 @@ export const managerRoute = {
           href: route("manager-submission-history.submission"),
           url: "#",
         },
-        {
-          title: "Draft Dokumen Pengajuan",
-          route_name: "manager-submission-document-draft",
-          href: route("manager-submission-document-draft.submission"),
-          url: "#",
-        },
+        // {
+        //   title: "Draft Dokumen Pengajuan",
+        //   route_name: "manager-submission-document-draft",
+        //   href: route("manager-submission-document-draft.submission"),
+        //   url: "#",
+        // },
       ],
     },
   ],

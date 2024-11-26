@@ -29,12 +29,12 @@ export const direksiRoute = {
           href: route("direksi-submission-history.submission"),
           url: "#",
         },
-        {
-          title: "Draft Dokumen Pengajuan",
-          route_name: "direksi-submission-document-draft",
-          href: route("direksi-submission-document-draft.submission"),
-          url: "#",
-        },
+        // {
+        //   title: "Draft Dokumen Pengajuan",
+        //   route_name: "direksi-submission-document-draft",
+        //   href: route("direksi-submission-document-draft.submission"),
+        //   url: "#",
+        // },
       ],
     },
   ],
