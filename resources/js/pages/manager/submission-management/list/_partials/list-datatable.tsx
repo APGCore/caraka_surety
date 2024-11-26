@@ -118,6 +118,19 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-36 mr-8 mt-1">
+                      <DropdownMenuItem
+                        className="p-0 cursor-pointer"
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          router.visit(route("manager-submission-detail.submission", submission.id));
+                        }}>
+                        <Button
+                          variant="default"
+                          className="bg-blue-600 text-destructive-foreground shadow-sm hover:bg-blue-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                          Detail
+                        </Button>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       {submission.status === SubmissionStatus.PROCESS && (
                         <>
                           <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>

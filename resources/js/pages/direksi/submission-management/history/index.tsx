@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import DireksiLayoutPage from "@/layouts/direksi";
 import StaffLayoutPage from "@/layouts/staff";
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
@@ -150,9 +151,9 @@ SubmissionHistoryPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
       <SubmissionHistoryHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </StaffLayoutPage>
+    </DireksiLayoutPage>
   );
 };

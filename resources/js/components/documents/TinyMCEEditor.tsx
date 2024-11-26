@@ -46,7 +46,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     document.body.appendChild(tinymceScript);
 
     return () => {
-      window.tinymce.remove(`#${id}`);
+      if (window.tinymce?.get(id)) {
+        window.tinymce.remove(`#${id}`);
+      }
       document.body.removeChild(tinymceScript);
     };
   }, [id, initialContent, onContentChange]);

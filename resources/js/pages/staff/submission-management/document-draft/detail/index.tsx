@@ -1,60 +1,103 @@
+import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/layouts/admin";
 import StaffLayoutPage from "@/layouts/staff";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
-import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
-import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
+// import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
+import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
+import templatePermohonan from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Editor } from "tinymce";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const data = {
+    principal: {
+      name: submission.principal?.name,
+      address: submission.principal?.address,
+      npwp: submission.principal?.npwp,
+      nib: submission.principal?.nib,
+    },
+    // obligee: {
+    //   address: submission.obligee.address,
+    //   name: submission.obligee.name,
+    //   source_of_fund: submission.source_of_fund.name,
+    // },
+    // contract_value: submission.contract_value,
+    // guarantee_value: submission.guarantee_value,
+    // location: submission.job_location_village,
+    // created_date: submission.created_at,
+  };
+
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    tinymceScript.async = true;
+    tinymceScript.defer = true;
 
     const htmlDocxScript = document.createElement("script");
     htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
+    htmlDocxScript.async = true;
+    htmlDocxScript.defer = true;
 
-    tinymceScript.onload = () => {
+    // Function to initialize TinyMCE editors after scripts are loaded
+    const setupEditors = () => {
+      // Function to initialize a single editor
       const setupEditor = (selector: string, editorId: string, template: string) => {
-        window.tinymce.init({
-          selector,
-          height: 500,
-          plugins: "link image code",
-          toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
-          promotion: false,
-          branding: false,
-          setup: (editor: any) => {
-            editor.ui.registry.addButton("exportToWordButton", {
-              text: "Export to Word",
-              onAction: () => exportToWord(editorId),
-            });
+        console.log(`Initializing editor for: ${editorId}`);
 
-            editor.on("init", () => {
-              editor.setContent(template);
-            });
-          },
-        });
+        // Ensure that the selector element exists in the DOM before initializing
+        const editorElement = document.querySelector(selector);
+        if (editorElement) {
+          console.log(`Found element for ${editorId}, initializing TinyMCE...`);
+          window.tinymce.init({
+            selector,
+            height: 500,
+            plugins: "link image code",
+            toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
+            promotion: false,
+            branding: false,
+            setup: (editor: any) => {
+              editor.ui.registry.addButton("exportToWordButton", {
+                text: "Export to Word",
+                onAction: () => exportToWord(editorId),
+              });
+
+              editor.on("init", () => {
+                console.log(`Editor ${editorId} initialized with content:`, template);
+                editor.setContent(template);
+              });
+            },
+          });
+        } else {
+          console.warn(`Element for ${editorId} not found, skipping initialization.`);
+        }
       };
 
-      setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
-      setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
-      setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
-      setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
+      setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", replacePelaksanaanPlaceholders(templatePelaksanaan, data));
+      setupEditor("#surat-permohonan", "surat-permohonan", replacePermohonanPlaceholders(templatePermohonan, data));
+      setupEditor("#hasil-analisa", "hasil-analisa", replaceAnalystPlaceholders(templateAnalyst, data));
+      setupEditor("#draft-surety", "draft-surety", replaceDraftSuretyPlaceholders(templateDraftSurety, data));
     };
 
+    tinymceScript.onload = () => {
+      htmlDocxScript.onload = () => {
+        setupEditors(); // Call setup editors after both scripts are loaded
+      };
+      document.body.appendChild(htmlDocxScript); // Append htmlDocxScript after tinymceScript is loaded
+    };
+
+    // Append tinymceScript to the body
     document.body.appendChild(tinymceScript);
-    document.body.appendChild(htmlDocxScript);
 
     return () => {
       document.body.removeChild(tinymceScript);
-      document.body.removeChild(htmlDocxScript);
+      //   document.body.removeChild(htmlDocxScript);
     };
-  }, []);
+  }, [data]);
 
   console.log(submission);
 
@@ -70,6 +113,62 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     document.body.removeChild(link);
   };
 
+  const formatCurrency = (value: number | string) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(Number(value));
+  };
+
+  const replacePelaksanaanPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_PRINCIPAL]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[LOKASI_PROYEK]", data.location);
+  };
+
+  const replacePermohonanPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_OBLIGEE]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NIB]", data.principal.nib)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period);
+  };
+
+  const replaceAnalystPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_TERJAMIN]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[JENIS_JAMINAN]", data.guarantee_type)
+      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[LOKASI_PROYEK]", data.location);
+  };
+
+  const replaceDraftSuretyPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_TERJAMIN]", data.principal.name)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[LOKASI_PROYEK]", data.location);
+  };
+
   return (
     <main className="space-y-5">
       <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>
@@ -78,13 +177,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           <strong>Status:</strong>{" "}
           <span
             className={`px-2 py-1 text-xs font-semibold rounded ${
-              status === "Approved"
+              submission.status === "approved"
                 ? "bg-green-100 text-green-800"
-                : status === "Rejected"
+                : submission.status === "rejected"
                   ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  : submission.status === "process"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-gray-100 text-gray-800"
             }`}>
-            {status}
+            {submission.status === "approved"
+              ? "DISETUJUI"
+              : submission.status === "rejected"
+                ? "DITOLAK"
+                : submission.status === "process"
+                  ? "PROSES"
+                  : "Unknown"}
           </span>
         </div>
         <div>
@@ -187,22 +294,43 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         </div>
       </div>
       <h1 className="text-2xl font-semibold">Output Surat</h1>
-      <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
-      <textarea id="surat-pelaksanaan"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Surat Permohonan</p>
-      <textarea id="surat-permohonan"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Hasil Analisa</p>
-      <textarea id="hasil-analisa"></textarea>
-      <br />
-      <p className="text-xl font-semibold">Draft Surety</p>
-      <textarea id="draft-surety"></textarea>
-
-      <div className="flex justify-end gap-3">
-        <Button asChild>
-          <Link href={route("submission.index")}>Kembali</Link>
-        </Button>
+      {/* <div>
+        {submission.status === "approved" ? (
+          <>
+            <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
+            <TinyMCEEditor
+              id="surat-pelaksanaan"
+              initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+            />
+            <br />
+            <p className="text-xl font-semibold">Surat Permohonan</p>
+            <TinyMCEEditor
+              id="surat-permohonan"
+              initialContent={replacePermohonanPlaceholders(templatePermohonan, data)}
+            />
+            <br />
+            <p className="text-xl font-semibold">Draft Surety Bond</p>
+            <TinyMCEEditor
+              id="draft-surety"
+              initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
+            />
+          </>
+        ) : (
+          <p className="text-red-500 text-lg font-semibold">Pengajuan belum diterima</p>
+        )}
+      </div> */}
+      <div>
+        <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
+        <TinyMCEEditor
+          id="surat-pelaksanaan"
+          initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+        />
+        <br />
+        <p className="text-xl font-semibold">Surat Permohonan</p>
+        <TinyMCEEditor id="surat-permohonan" initialContent={replacePermohonanPlaceholders(templatePermohonan, data)} />
+        <br />
+        <p className="text-xl font-semibold">Draft Surety Bond</p>
+        <TinyMCEEditor id="draft-surety" initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)} />
       </div>
     </main>
   );

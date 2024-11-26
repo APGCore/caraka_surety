@@ -2,32 +2,32 @@ const templateContent = `
 <h2 style="text-align: center;">JAMINAN PELAKSANAAN (DUMMY)</h2>
 
 <p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  40.91.02.AAAAAAA.11.22</p>
-<p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  Rp. 34.000.000</p>
+<p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [NILAI_JAMINAN]</p>
 
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 30px; vertical-align: top;">1.</td>
-        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: PT. MOTI BATARA ALKESINDO (NAMA PRINCIPAL),
-        Jl. Agave Raya Blok A1 No. 19A RT. 09 RW. 04 Kedoya Selatan, Kebon Jeruk, Jakarta Barat (ALAMAT PRINCIPAL)
+        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: PT. MOTI BATARA ALKESINDO [NAMA_PRINCIPAL],
+        Jl. Agave Raya Blok A1 No. 19A RT. 09 RW. 04 Kedoya Selatan, Kebon Jeruk, Jakarta Barat [ALAMAT_PRINCIPAL]
         sebagai Penyedia, selanjutnya disebut TERJAMIN, dan PT. ASURANSI UMUM VIDEI,
         Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Asuransi,
         selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak
-        Politeknik Kesehatan Jakarta III (NAMA OBLIGEE), Jl. Arteri JORR, Jatiwarna, Kec. Pondok Melati, Bekasi (ALAMAT OBLIGEE)
+        Politeknik Kesehatan Jakarta III [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
         sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah Rp. 32.077.650,-
-        (terbilang: Tiga Puluh Dua Juta Tujuh Puluh Tujuh Ribu Enam Ratus Lima Puluh Rupiah) (BESARAN NILAI JAMINAN).</td>
+        (terbilang: Tiga Puluh Dua Juta Tujuh Puluh Tujuh Ribu Enam Ratus Lima Puluh Rupiah) [BESARAN_NILAI_JAMINAN].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">2.</td>
         <td style="text-align: justify;">Maka kami, TERJAMIN dan PENJAMIN dengan ini mengikatkan diri untuk melakukan pembayaran jumlah tersebut di atas
         dengan baik dan benar bilamana TERJAMIN tidak memenuhi kewajiban dalam melaksanakan pelelangan Pekerjaan
-        Pengadaan Alat Laboratorium Jurusan Keperawatan Poltekkes Kemenkes Jakarta III (NAMA PEKERJAAN)
-        yang telah dipercayakan kepadanya atas dasar Surat Penunjukan Penyedia Barang/Jasa (SPPBJ) (NAMA DOKUMEN)
-        Nomor: KN.01.01/V/6747/2019 (NOMOR DOKUMEN) tanggal 30 September 2019 (TANGGAL DOKUMEN).</td>
+        Pengadaan Alat Laboratorium Jurusan Keperawatan Poltekkes Kemenkes Jakarta III [NAMA_PEKERJAAN]
+        yang telah dipercayakan kepadanya atas dasar Surat Penunjukan Penyedia Barang/Jasa (SPPBJ) [NAMA_DOKUMEN]
+        Nomor: KN.01.01/V/6747/2019 [NOMOR_DOKUMEN] tanggal 30 September 2019 [TANGGAL_DOKUMEN].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">3.</td>
         <td style="text-align: justify;">Surat Jaminan ini berlaku selama 90 (Sembilan Puluh) hari kalender dan efektif mulai dari 01 Oktober 2019
-        sampai dengan tanggal 29 Desember 2019 (JANGKA WAKTU).</td>
+        sampai dengan tanggal 29 Desember 2019 [JANGKA_WAKTU].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">4.</td>
@@ -63,12 +63,12 @@ const templateContent = `
 
 <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
     <tr>
-        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 (TANGGAL PENERBITAN)</td>
+        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 [TANGGAL_PENERBITAN]</td>
         <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
     </tr>
     <tr>
-        <td style="text-align: left;">PT. ASURANSI UMUM VIDEI (TERJAMIN) (PENJAMIN)</td>
-        <td style="text-align: right;">PT. MOTI BATARA ALKESINDO (NAMA PRINCIPAL)</td>
+        <td style="text-align: left;">PT. ASURANSI UMUM VIDEI [NAMA_ASURANSI]</td>
+        <td style="text-align: right;">PT. MOTI BATARA ALKESINDO [NAMA_PRINCIPAL]</td>
     </tr>
     <tr>
         <td style="text-align: left;"><br></td>
@@ -76,8 +76,8 @@ const templateContent = `
     </tr>
     <tr>
         <td style="text-align: left;">
-            Muhammad Ridzqan Hanafis (NAMA PENANGGUNG JAWAB)<br>
-            D i r e k t u r (JABATAN PJ)
+            Muhammad Ridzqan Hanafis [NAMA_PIC]<br>
+            D i r e k t u r [JABATAN]
         </td>
         <td style="text-align: right;">
             Marthen F Surentu<br>

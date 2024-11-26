@@ -13,5 +13,8 @@ Route::prefix('submission-management')->group(function () {
 
             Route::post('/approve/{submission}', 'approve')->name('approve');
             Route::post('/reject/{submission}', 'reject')->name('reject');
+
+            Route::get('/detail/{id}', 'showDetailSubmissionManager')->name('detail.submission');
+            Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionManager')->name('docs.submission');
         });
 });

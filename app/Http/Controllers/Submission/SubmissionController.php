@@ -221,6 +221,94 @@ class SubmissionController extends Controller
         ]);
     }
 
+
+    public function showDetailSubmissionManager($id)
+    {
+        $submission = Submission::with([
+            'principal',
+            'principal.documents',
+            'principal.principalRatios',
+            'guarantorToProductType',
+            'obligee',
+            'sourceOfFund',
+            'submissionDocs',
+            'scores.scoring',
+            'scores.scoringQuestionCategory',
+            'scores.scoringQuestion',
+            'scores.scoringOption',
+        ])->findOrFail($id);
+
+        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+        ($submission->principal->principalRatios);
+
+        $submission->scores->map(function ($score) {
+            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+            $score->question_name = $score->scoringQuestion->name ?? '-';
+            $score->option_name = $score->scoringOption->name ?? '-';
+
+            return $score;
+        });
+
+        return inertia('manager/submission-management/detail/index', [
+            'submission' => $submission,
+        ]);
+    }
+
+    public function showDetailDocsSubmissionManager($id)
+    {
+        $submission = Submission::with(['principal', 'guarantorToProductType'])
+            ->findOrFail($id);
+
+        return inertia('manager/submission-management/document-draft/detail/index', [
+            'submission' => $submission,
+        ]);
+    }
+
+
+
+    public function showDetailSubmissionDireksi($id)
+    {
+        $submission = Submission::with([
+            'principal',
+            'principal.documents',
+            'principal.principalRatios',
+            'guarantorToProductType',
+            'obligee',
+            'sourceOfFund',
+            'submissionDocs',
+            'scores.scoring',
+            'scores.scoringQuestionCategory',
+            'scores.scoringQuestion',
+            'scores.scoringOption',
+        ])->findOrFail($id);
+
+        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+        ($submission->principal->principalRatios);
+
+        $submission->scores->map(function ($score) {
+            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+            $score->question_name = $score->scoringQuestion->name ?? '-';
+            $score->option_name = $score->scoringOption->name ?? '-';
+
+            return $score;
+        });
+
+        return inertia('direksi/submission-management/history/detail/index', [
+            'submission' => $submission,
+        ]);
+    }
+
+
+    public function showDetailDocsSubmissionDireksi($id)
+    {
+        $submission = Submission::with(['principal', 'guarantorToProductType'])
+            ->findOrFail($id);
+
+        return inertia('direksi/submission-management/document-draft/detail/index', [
+            'submission' => $submission,
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -328,6 +416,67 @@ class SubmissionController extends Controller
             'submissions' => fn() => $submissions,
         ]);
     }
+
+
+    public function displaySubmissionByDireksi()
+    {
+        $component = 'direksi/submission-management/list/index';
+
+        Carbon::setLocale('id');
+
+        $staffs = User::query()
+            ->where('head_id', '=', auth()->user()->getAuthIdentifier())
+            ->pluck('id');
+        $submissions = Submission::query()
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->whereIn('staff_id', $staffs)
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'List Pengajuan',
+            ],
+            'submissions' => fn() => $submissions,
+        ]);
+    }
+
+    public function displayHistoryByDireksi()
+    {
+        $component = 'direksi/submission-management/history/index';
+
+        Carbon::setLocale('id');
+
+        $submissions = Submission::query()
+            ->where('checked_by', '=', auth()->user()->getAuthIdentifier())
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn() => [
+                'title' => 'Riwayat Pengajuan',
+            ],
+            'submissions' => fn() => $submissions,
+        ]);
+    }
+
 
     public function displayHistoryByManager()
     {
