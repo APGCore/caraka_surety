@@ -24,7 +24,9 @@ import { textCurrency } from "@/lib/text-currency";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
+import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
+import templatePermohonan from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { SubmissionStatus } from "@/types/submission-status";
 import { Head, Link, router } from "@inertiajs/react";
 import axios from "axios";
@@ -36,51 +38,52 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const tinymceScript = document.createElement("script");
-    tinymceScript.src = "/js/tinymce/tinymce.min.js";
-    tinymceScript.async = true;
-    tinymceScript.defer = true;
-
-    const htmlDocxScript = document.createElement("script");
-    htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
-    htmlDocxScript.async = true;
-    htmlDocxScript.defer = true;
-
-    tinymceScript.onload = () => {
-      const setupEditor = (selector: string, editorId: string, template: string) => {
-        window.tinymce.init({
-          selector,
-          height: 500,
-          plugins: "link image code",
-          toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
-          promotion: false,
-          branding: false,
-          setup: (editor: any) => {
-            editor.ui.registry.addButton("exportToWordButton", {
-              text: "Export to Word",
-              onAction: () => exportToWord(editorId),
-            });
-
-            editor.on("init", () => {
-              editor.setContent(template);
-            });
-          },
-        });
-      };
-
-      setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
-      setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
-      setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
-      setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
-      document.body.appendChild(tinymceScript);
-      document.body.appendChild(htmlDocxScript);
-    };
     handleComparisonRatios(submission.principal?.ratios);
 
-    return () => {
-      document.body.removeChild(tinymceScript);
-      document.body.removeChild(htmlDocxScript);
-    };
+    // const tinymceScript = document.createElement("script");
+    // tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    // tinymceScript.async = true;
+    // tinymceScript.defer = true;
+
+    // const htmlDocxScript = document.createElement("script");
+    // htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
+    // htmlDocxScript.async = true;
+    // htmlDocxScript.defer = true;
+
+    // tinymceScript.onload = () => {
+    //   const setupEditor = (selector: string, editorId: string, template: string) => {
+    //     window.tinymce.init({
+    //       selector,
+    //       height: 500,
+    //       plugins: "link image code",
+    //       toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
+    //       promotion: false,
+    //       branding: false,
+    //       setup: (editor: any) => {
+    //         editor.ui.registry.addButton("exportToWordButton", {
+    //           text: "Export to Word",
+    //           onAction: () => exportToWord(editorId),
+    //         });
+
+    //         editor.on("init", () => {
+    //           editor.setContent(template);
+    //         });
+    //       },
+    //     });
+    //   };
+
+    //   setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
+    //   setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
+    //   setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
+    //   setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
+    //   document.body.appendChild(tinymceScript);
+    //   document.body.appendChild(htmlDocxScript);
+    // };
+
+    // return () => {
+    //   document.body.removeChild(tinymceScript);
+    //   document.body.removeChild(htmlDocxScript);
+    // };
   }, []);
 
   const viewDocument = (url: string) => {
@@ -112,7 +115,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const replaceTemplatePlaceholders = (template: string, data: any) => {
     return template
-      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_JAMINAN]", data.guarantee_type)
+      .replace("[NAMA_PRINCIPAL]", data.principal.name)
+      .replace("[TGL_PENGAJUAN]", formattedDate)
       .replace("[NAMA_TERJAMIN]", data.principal.name)
       .replace("[ALAMAT_TERJAMIN]", data.principal.address)
       .replace("[NPWP]", data.principal.npwp)
@@ -127,6 +132,56 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[JENIS_JAMINAN]", data.guarantee_type)
       .replace("[TANGGAL]", formattedDate)
       .replace("[SUMBER_DANA]", data.obligee.source_of_fund);
+  };
+  const replacePelaksanaanPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_PRINCIPAL]", data.principal.name)
+      .replace("[NAMA_PRINCIPAL_TTD]", data.principal.name)
+      .replace("[NAMA_PIC]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[LOKASI_PROYEK]", data.location);
+  };
+
+  const replacePermohonanPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_OBLIGEE]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NIB]", data.principal.nib)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period);
+  };
+
+  const replaceAnalystPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_TERJAMIN]", data.principal.name)
+      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[JENIS_JAMINAN]", data.guarantee_type)
+      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[LOKASI_PROYEK]", data.location);
+  };
+
+  const replaceDraftSuretyPlaceholders = (template: string, data: any) => {
+    return template
+      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_TERJAMIN]", data.principal.name)
+      .replace("[NPWP]", data.principal.npwp)
+      .replace("[NAMA_PEKERJAAN]", data.job_name)
+      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
+      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
+      .replace("[JANGKA_WAKTU]", data.time_period)
+      .replace("[LOKASI_PROYEK]", data.location);
   };
 
   const data = {
@@ -661,6 +716,25 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   initialContent={replaceTemplatePlaceholders(templateAnalyst, data)}
                 />
               </div>
+            </div>
+            <div className="pt-6">
+              <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
+              <TinyMCEEditor
+                id="surat-pelaksanaan"
+                initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+              />
+              <br />
+              <p className="text-xl font-semibold">Surat Permohonan</p>
+              <TinyMCEEditor
+                id="surat-permohonan"
+                initialContent={replacePermohonanPlaceholders(templatePermohonan, data)}
+              />
+              <br />
+              <p className="text-xl font-semibold">Draft Surety Bond</p>
+              <TinyMCEEditor
+                id="draft-surety"
+                initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
+              />
             </div>
           </TabsContent>
 

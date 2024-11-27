@@ -29,12 +29,12 @@ export const staffRoute = {
           href: route("staff-submission-history.submission"),
           url: "#",
         },
-        // {
-        //   title: "Draft Dokumen Pengajuan",
-        //   route_name: "staff-submission-document-draft",
-        //   href: route("staff-submission-document-draft.submission"),
-        //   url: "#",
-        // },
+        {
+          title: "Draft Dokumen Pengajuan",
+          route_name: "staff-submission-document-draft",
+          href: route("staff-submission-document-draft.submission"),
+          url: "#",
+        },
       ],
     },
   ],

@@ -7,7 +7,7 @@ Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
         ->name('direksi-submission-')
         ->group(function () {
-            // Route::get('/list', 'displaySubmissionByDireksi')->name('list.submission');
+            Route::get('/list', 'displaySubmissionByDireksi')->name('list.submission');
             Route::get('/history', 'displayHistoryByDireksi')->name('history.submission');
             Route::get('/create', 'displayCreateByStaff')->name('create.submission');
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');

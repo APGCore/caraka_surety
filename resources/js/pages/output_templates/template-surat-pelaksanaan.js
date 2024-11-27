@@ -68,7 +68,7 @@ const templateContent = `
     </tr>
     <tr>
         <td style="text-align: left;">PT. ASURANSI UMUM VIDEI [NAMA_ASURANSI]</td>
-        <td style="text-align: right;">PT. MOTI BATARA ALKESINDO [NAMA_PRINCIPAL]</td>
+        <td style="text-align: right;">[NAMA_PRINCIPAL_TTD]</td>
     </tr>
     <tr>
         <td style="text-align: left;"><br></td>
