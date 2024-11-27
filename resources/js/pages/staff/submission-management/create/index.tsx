@@ -70,7 +70,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   >([]);
 
   const defaultPrincipalRatios: Ratio = {
-    current_asset: "",
+    current_assets: "",
     current_debt: "",
     total_debt: "",
     total_assets: "",
@@ -1344,7 +1344,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               <Input
                                 className="text-md"
                                 placeholder="Aktiva Lancar"
-                                value={ratio.current_asset ?? ""}
+                                value={ratio.current_assets ?? ""}
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
                                   const liquidity = calculateRatios(value, ratio.current_debt);
@@ -1352,7 +1352,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                     if (i === index) {
                                       return {
                                         ...r,
-                                        current_asset: value,
+                                        current_assets: value,
                                         liquidity_ratios: liquidity,
                                       };
                                     }
@@ -1373,7 +1373,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 value={ratio.current_debt ?? ""}
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const liquidity = calculateRatios(ratio.current_asset, value);
+                                  const liquidity = calculateRatios(ratio.current_assets, value);
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
                                       return {

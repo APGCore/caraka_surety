@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('principal_ratios', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->cascadeOnDelete();
-            $table->float('current_asset');
+            $table->float('current_assets');
             $table->float('current_debt');
             $table->float('total_debt');
             $table->float('total_assets');

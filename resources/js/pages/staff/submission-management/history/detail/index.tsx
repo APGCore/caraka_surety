@@ -10,9 +10,7 @@ import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
-import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
-import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import templatePermohonan from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { SubmissionStatus } from "@/types/submission-status";
 import { Head, Link } from "@inertiajs/react";
@@ -353,11 +351,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
                     <td className="p-2">
                       :{" "}
-                      {new Date(submission.guarantee_issue_date).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {submission?.guarantee_issue_date &&
+                        new Date(submission.guarantee_issue_date).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
                     </td>
                   </tr>
                   <tr className="border-b">
@@ -657,7 +656,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   initialContent={replaceTemplatePlaceholders(templateAnalyst, data)}
                 />
               </div>
-            </div> 
+            </div>
             <div className="pt-6">
               <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
               <TinyMCEEditor

@@ -72,7 +72,7 @@ class StoreRequest extends FormRequest
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
             'principal.ratios.*.id' => ['nullable', 'string', 'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
-            'principal.ratios.*.current_asset' => ['required', 'string'], // aktiva lancar
+            'principal.ratios.*.current_assets' => ['required', 'string'], // aktiva lancar
             'principal.ratios.*.current_debt' => ['required', 'string'], // utang lancar
             'principal.ratios.*.total_debt' => ['required', 'string'], // total utang
             'principal.ratios.*.total_assets' => ['required', 'string'], // total aktiva
