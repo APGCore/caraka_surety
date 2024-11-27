@@ -1,3 +1,4 @@
+import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
@@ -11,6 +12,7 @@ import templateDraftSurety from "@/pages/output_templates/template-draft-surety"
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";
 import secondTemplateContent from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
+import { SubmissionStatus } from "@/types/submission-status";
 import { Head, Link } from "@inertiajs/react";
 import React, { useEffect } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
@@ -152,9 +154,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <strong>Status:</strong>{" "}
             <span
               className={`px-2 py-1 text-xs font-semibold rounded ${
-                status === "Approved"
+                submission.status === SubmissionStatus.APPROVED
                   ? "bg-green-100 text-green-800"
-                  : status === "Rejected"
+                  : submission.status === SubmissionStatus.REJECTED
                     ? "bg-red-100 text-red-800"
                     : "bg-yellow-100 text-yellow-800"
               } uppercase`}>
@@ -413,16 +415,19 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         "bg-red-300":
                           submission.scores?.[0].scoring.min_point >= calculateTotalPoint(submission.scores),
                       })}>
+                      <span className="pr-1">Disarankan Untuk</span>
                       {submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores) ? (
-                        <span className="text-green-800">Disetujui</span>
+                        <span className="text-green-800">
+                          Disetujui Karena Nilai {calculateTotalPoint(submission.scores)} Lebih Dari{" "}
+                          {submission.scores?.[0].scoring.min_point}
+                        </span>
                       ) : (
                         <span className="text-red-800">
-                          Ditolak (
-                          {"Nilai " +
+                          Ditolak Karena
+                          {" Nilai " +
                             calculateTotalPoint(submission.scores) +
                             " Kurang Dari " +
                             submission.scores?.[0].scoring.min_point}
-                          )
                         </span>
                       )}
                     </td>
@@ -603,29 +608,30 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             {/* List Dokumen */}
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Dokumen yang Diunggah</h2>
-              {submission.submission_docs && submission.submission_docs.length > 0 ? (
+              {submission.required_docs && submission.required_docs.length > 0 ? (
                 <table className="table-fixed w-full border border-gray-300">
                   <thead>
                     <tr className="border-b bg-gray-100">
                       <th className="p-2 text-left">Nama Dokumen</th>
                       <th className="p-2 text-left">Deskripsi</th>
-                      <th className="p-2 text-left">Status</th>
                       <th className="p-2 text-left">Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {submission.submission_docs.map((doc: any) => (
-                      <tr key={doc.id} className="border-b">
-                        <td className="p-2">{doc.name}</td>
-                        <td className="p-2">{doc.description || "-"}</td>
-                        <td className="p-2">{doc.status || "Tidak ada status"}</td>
-                        <td className="p-2">
-                          <button onClick={() => viewDocument(doc.url)} className="text-blue-500 hover:underline">
-                            Lihat Dokumen
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    <RenderList
+                      of={submission.required_docs}
+                      render={(doc) => {
+                        return (
+                          <tr key={doc.id} className="border-b">
+                            <td className="p-2">{doc.name}</td>
+                            <td className="p-2">{doc.description || "-"}</td>
+                            <td className="p-2">
+                              {doc?.url ? <PreviewFile preview={doc.url} /> : "File Belum Diunggah"}
+                            </td>
+                          </tr>
+                        );
+                      }}
+                    />
                   </tbody>
                 </table>
               ) : (

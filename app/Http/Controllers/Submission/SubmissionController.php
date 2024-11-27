@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\RelatedParties\Principal;
+use App\Models\RequiredDoc;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
@@ -53,27 +55,6 @@ class SubmissionController extends Controller
     public function create()
     {
         //
-    }
-
-    private function prepareDataRatio($ratios): array
-    {
-        $data = [];
-        foreach ($ratios as $ratio) {
-            $data[] = [
-                'current_assets' => $this->currencyConvert($ratio['current_assets']),
-                'current_debt' => $this->currencyConvert($ratio['current_debt']),
-                'total_debt' => $this->currencyConvert($ratio['total_debt']),
-                'total_assets' => $this->currencyConvert($ratio['total_assets']),
-                'revenue' => $this->currencyConvert($ratio['revenue']),
-                'net_income' => $this->currencyConvert($ratio['net_income']),
-                'liquidity_ratios' => $this->currencyConvert($ratio['liquidity_ratios']),
-                'solvency_ratios' => $this->currencyConvert($ratio['solvency_ratios']),
-                'profitability_ratios' => $this->currencyConvert($ratio['profitability_ratios']),
-                'year' => $ratio['year'],
-            ];
-        }
-
-        return $data;
     }
 
     /**
@@ -195,6 +176,17 @@ class SubmissionController extends Controller
             'scores.scoringOption',
         ])->findOrFail($id);
 
+        $principalDocs = collect($submission->principal->documents);
+        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+            ->map(function ($doc) use ($principalDocs) {
+                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+                if ($principalDoc) {
+                    $doc->name = $principalDoc->name;
+                    $doc->url = Storage::url($principalDoc->url);
+                }
+
+                return $doc;
+            });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -242,7 +234,17 @@ class SubmissionController extends Controller
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->contract_value;
+        $principalDocs = collect($submission->principal->documents);
+        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+            ->map(function ($doc) use ($principalDocs) {
+                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+                if ($principalDoc) {
+                    $doc->name = $principalDoc->name;
+                    $doc->url = Storage::url($principalDoc->url);
+                }
 
+                return $doc;
+            });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -340,7 +342,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -368,10 +370,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -382,10 +384,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -419,10 +421,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -450,10 +452,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -478,10 +480,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -506,10 +508,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 

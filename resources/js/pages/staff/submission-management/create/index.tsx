@@ -35,7 +35,7 @@ import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
@@ -826,12 +826,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     of={principalDocs}
                     render={(doc) => {
                       const findFiles = principalFiles.find((file) => file.required_doc_id === doc.id);
-
-                      console.log({
-                        findFiles,
-                        url: findFiles?.file && URL.createObjectURL(findFiles?.file),
-                      });
-
                       return (
                         <div className="grid gap-1">
                           <Label className="text-md">{doc.name}</Label>

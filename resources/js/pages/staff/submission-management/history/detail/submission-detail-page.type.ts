@@ -26,6 +26,15 @@ interface Score {
   score: any;
 }
 
+interface RequiredDoc {
+  id: number;
+  product_type_id: number;
+  name: string;
+  description: string;
+  url?: string;
+  created_at: string;
+}
+
 interface SubmissionDetailProps {
   submission: {
     documents: string;
@@ -81,13 +90,7 @@ interface SubmissionDetailProps {
 
     scores: Score[];
 
-    submission_docs: {
-      name: string;
-      id: number;
-      length: any;
-      map: any;
-      doc: string;
-    };
+    required_docs: RequiredDoc[];
 
     contract_doc_name: string;
     contract_doc_number: string;

@@ -1,8 +1,10 @@
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SubmissionStatus } from "@/types/submission-status";
+import { Link } from "@inertiajs/react";
 import React from "react";
 
 function formatRupiah(value: number) {
@@ -54,6 +56,13 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                   </span>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
+                <TableCell className="text-right">
+                  <Link href={route("manager-submission-detail.submission", { id: submission.id })}>
+                    <Button variant="outline" size="sm">
+                      Detail
+                    </Button>
+                  </Link>
+                </TableCell>
               </TableRow>
             )}
             renderFallback={() => (

@@ -9,8 +9,7 @@ Route::prefix('submission-management')->group(function () {
         ->group(function () {
             // Route::get('/list', 'displaySubmissionByDireksi')->name('list.submission');
             Route::get('/history', 'displayHistoryByDireksi')->name('history.submission');
-            Route::get('/create', 'displayCreateByStaff')->name('list.submission');
-            Route::get('/history', 'displayHistoryByStaff')->name('history.submission');
+            Route::get('/create', 'displayCreateByStaff')->name('create.submission');
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
             Route::get('/detail/{id}', 'showDetailSubmissionDireksi')->name('detail.submission');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionDireksi')->name('docs.submission');

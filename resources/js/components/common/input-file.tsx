@@ -1,13 +1,5 @@
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { PreviewFile } from "@/components/common/preview-file";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { FileIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -83,34 +75,7 @@ const FileInput: React.FC<InputFileProps> = ({
       </button>
       {preview && (
         <div className="flex justify-end mt-3 gap-x-3">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button>Preview</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent
-              aria-describedby="test"
-              className="w-[500px]  h-[calc(100vh_-_30px)] py-4  rounded-[2px] overflow-hidden">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-black font-semibold text-xl">Preview {files?.name}</AlertDialogTitle>
-              </AlertDialogHeader>
-              {files?.type === "application/pdf" || preview.includes(".pdf") ? (
-                <embed src={preview} className="w-full h-[500px]" type="application/pdf" />
-              ) : (
-                <img src={preview} alt="preview" className="w-full object-contain max-h-[500px] " />
-              )}
-              <AlertDialogFooter>
-                <AlertDialogCancel
-                  className={cn(
-                    "text-white hover:text-white",
-                    buttonVariants({
-                      variant: "default",
-                    }),
-                  )}>
-                  Tutup
-                </AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <PreviewFile files={files} preview={preview} />
           <Button variant={"destructive"} onClick={handleReset}>
             Reset
           </Button>

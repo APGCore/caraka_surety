@@ -1,18 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import StaffLayoutPage from "@/layouts/staff";
-import { Link } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import SubmissionHistoryDatatable from "./_partials/history-datatable";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
@@ -21,8 +10,6 @@ import { SubmissionHistoryPageProps } from "./history-page.type";
 const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
-
-  console.log(submissions);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

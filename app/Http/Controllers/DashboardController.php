@@ -108,7 +108,6 @@ class DashboardController extends Controller
     {
         $component = 'manager/dashboard/index';
 
-
         $productId = $request->get('product_id');
         $countOfSubmission = $this->getCountOfSubmission();
         $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
@@ -131,7 +130,6 @@ class DashboardController extends Controller
     public function dashboardDireksi(Request $request)
     {
         $component = 'direksi/dashboard/index';
-
 
         $productId = $request->get('product_id');
         $countOfSubmission = $this->getCountOfSubmission();
