@@ -4,8 +4,8 @@ const templateAnalyst = `
         <td colspan="2">
             <strong>RESUME ANALISA PENJAMINAN</strong><br>
             <strong>SURETY BOND</strong><br>
-            JAMINAN .............<br>
-            PT..........<br>
+            [NAMA_JAMINAN]<br>
+            [NAMA_PRINCIPAL]<br>
             Nomor : [NOMOR]]/]BPR/[BULAN]/[TAHUN]
         </td>
     </tr>

@@ -93,9 +93,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     }).format(Number(value));
   };
 
+  console.log(submission);
+
   const replaceTemplatePlaceholders = (template: string, data: any) => {
     return template
-      .replace("[TGL_PENGAJUAN]", data.created_at)
+      .replace("[NAMA_JAMINAN]", data.guarantee_type)
+      .replace("[NAMA_PRINCIPAL]", data.principal.name)
+      .replace("[TGL_PENGAJUAN]", formattedDate)
       .replace("[NAMA_TERJAMIN]", data.principal.name)
       .replace("[ALAMAT_TERJAMIN]", data.principal.address)
       .replace("[NPWP]", data.principal.npwp)
@@ -130,7 +134,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     time_period: submission.time_period,
     job_name: submission.job_name,
     location: submission.job_location_village,
-    // created_date: submission.created_at,
+    created_date: submission.created_at,
   };
 
   const calculateTotalPoint = (scores: any) => {
@@ -597,7 +601,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
               <div>
                 <TinyMCEEditor
-                  id="example-editor"
+                  id="hasil-analisis"
                   initialContent={replaceTemplatePlaceholders(templateAnalyst, data)}
                 />
               </div>

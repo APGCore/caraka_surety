@@ -44,6 +44,7 @@ interface SubmissionDetailProps {
     job_location_village: string;
     start_date: string;
     end_date: string;
+    created_at: string;
     principal: {
       address: string;
       commissioner: string;
