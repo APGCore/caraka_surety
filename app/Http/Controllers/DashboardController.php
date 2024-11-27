@@ -108,14 +108,48 @@ class DashboardController extends Controller
     {
         $component = 'manager/dashboard/index';
 
-        return inertia($component);
+
+        $productId = $request->get('product_id');
+        $countOfSubmission = $this->getCountOfSubmission();
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
+        $submissionThisMonth = $this->getSubmissionThisMonth();
+        $products = Product::query()->get();
+
+        $props = [
+            'total_submission' => $countOfSubmission['total'],
+            'total_submission_process' => $countOfSubmission['process'],
+            'total_submission_approved' => $countOfSubmission['approved'],
+            'total_submission_rejected' => $countOfSubmission['rejected'],
+            'products' => $products,
+            'graph_data' => $chartSubmissionThisYear,
+            'submissions' => $submissionThisMonth,
+        ];
+
+        return inertia($component, $props);
     }
 
     public function dashboardDireksi(Request $request)
     {
         $component = 'direksi/dashboard/index';
 
-        return inertia($component);
+
+        $productId = $request->get('product_id');
+        $countOfSubmission = $this->getCountOfSubmission();
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
+        $submissionThisMonth = $this->getSubmissionThisMonth();
+        $products = Product::query()->get();
+
+        $props = [
+            'total_submission' => $countOfSubmission['total'],
+            'total_submission_process' => $countOfSubmission['process'],
+            'total_submission_approved' => $countOfSubmission['approved'],
+            'total_submission_rejected' => $countOfSubmission['rejected'],
+            'products' => $products,
+            'graph_data' => $chartSubmissionThisYear,
+            'submissions' => $submissionThisMonth,
+        ];
+
+        return inertia($component, $props);
     }
 
     public function dashboardStaffCabang(Request $request)

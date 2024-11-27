@@ -23,6 +23,8 @@ const Overview: React.FC<OverviewProps> = ({ data }) => {
         <ChartTooltip content={<ChartTooltipContent />} />
 
         <YAxis
+          min={0}
+          allowDecimals={false}
           stroke="#888888"
           fontSize={12}
           tickLine={false}
