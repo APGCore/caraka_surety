@@ -3,11 +3,12 @@ import React from "react";
 interface ShowProps<T> {
   when: T | null | false;
   children: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
-const Show = <T,>({ when, children }: ShowProps<T>) => {
+const Show = <T,>({ when, children, fallback }: ShowProps<T>) => {
   if (!when) {
-    return null;
+    return fallback || null;
   }
 
   return children;

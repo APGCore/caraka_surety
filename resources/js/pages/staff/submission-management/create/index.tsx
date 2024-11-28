@@ -2,6 +2,7 @@ import { CalendarPicker } from "@/components/common/calendar";
 import { Combobox } from "@/components/common/combobox";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -384,7 +385,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       },
       submission: {
         guarantor_id: "",
-        product_id: "",
+        product_id: undefined,
         guarantor_to_product_type_id: "",
         obligee_id: "",
         bank_id: "",
@@ -451,7 +452,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           handleSubmit();
         }}
         className="space-y-16">
-        {formSearchPrincipalState === "idle" && (
+        {/* FORMSTATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
+        <Show when={formSearchPrincipalState === "idle"}>
           <div>
             <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
             <div className="grid gap-1">
@@ -508,11 +510,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               </div>
             </div>
           </div>
-        )}
+        </Show>
 
-        {(formSearchPrincipalState === "search" || formSearchPrincipalState === "not-search") && (
+        {/* FORMSTATE HAVE CHOOSE TO SEARCH/NOT PRINCIPAL */}
+        <Show when={formSearchPrincipalState === "search" || formSearchPrincipalState === "not-search"}>
           <>
-            {/* Stepper Indicator */}
+            {/* STEPPER INDICATOR */}
             <div className="flex">
               <RenderList
                 of={steps}
@@ -522,7 +525,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <div
                         onClick={() => handleClickStep(step.name)}
                         className="flex items-center cursor-pointer flex-col justify-center">
-                        {/* Bullet with number */}
+                        {/* STEPPER BULLET */}
                         <div
                           className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
                             step.isActive ? "bg-black text-white" : "bg-gray-300 text-gray-700"
@@ -530,7 +533,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           {index + 1}
                         </div>
 
-                        {/* Step label */}
+                        {/* STEPPER LABEL */}
                         <span
                           className={`transition-all duration-300 ${
                             step.isActive ? "text-black font-semibold" : "text-gray-500"
@@ -539,7 +542,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         </span>
                       </div>
 
-                      {/* Arrow between steps */}
+                      {/* ARROW BETWEEN STEPPER */}
                       {index < steps.length - 1 && (
                         <div
                           className={`w-full mt-5 h-1 mx-5 transition-all duration-300 ${
@@ -552,10 +555,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 }}
               />
             </div>
-            {formStep === "principal" && (
+
+            {/* PRINCIPAL SECTION */}
+            <Show when={formStep === "principal"}>
               <div>
                 <div className="flex justify-between">
-                  <h2 className="text-2xl font-bold mb-3">
+                  <h2 className="text-2xl font-bold mb-8">
                     {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
                   </h2>
                   <Button
@@ -817,11 +822,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </Show>
 
-            {formStep === "docs" && (
+            {/* PRINCIPAL DOCS SECTION */}
+            <Show when={formStep === "docs"}>
               <div>
-                <h2 className="text-2xl font-bold mb-3">Dokumen Perusahaan</h2>
+                <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                 <div className="grid gap-5">
                   <RenderList
                     of={principalDocs}
@@ -841,11 +847,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   />
                 </div>
               </div>
-            )}
+            </Show>
 
-            {formStep === "contract" && (
+            {/* CONTRACT SECTION */}
+            <Show when={formStep === "contract"}>
               <div>
-                <h2 className="text-2xl font-bold mb-3">Kontrak</h2>
+                <h2 className="text-2xl font-bold mb-8">Kontrak</h2>
                 <div className="grid gap-5">
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
@@ -929,23 +936,25 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Banks</Label>
-                      <Combobox
-                        datas={banks}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Bank"
-                        defaultValueId={data?.submission?.bank_id || selectedBank}
-                        onSelect={(val: any) => {
-                          setData("submission", {
-                            ...data.submission,
-                            bank_id: data?.submission?.bank_id === val?.id ? "" : val.id,
-                          });
-                          setSelectedBank((prev) => (prev === val.id ? null : val.id));
-                        }}
-                      />
-                    </div>
+                    <Show when={data.submission.product_id === 2}>
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-md">Banks</Label>
+                        <Combobox
+                          datas={banks}
+                          labelKey="name"
+                          valueKey="name"
+                          placeholder="Pilih Bank"
+                          defaultValueId={data?.submission?.bank_id || selectedBank}
+                          onSelect={(val: any) => {
+                            setData("submission", {
+                              ...data.submission,
+                              bank_id: data?.submission?.bank_id === val?.id ? "" : val.id,
+                            });
+                            setSelectedBank((prev) => (prev === val.id ? null : val.id));
+                          }}
+                        />
+                      </div>
+                    </Show>
                   </div>
 
                   <div className="grid gap-1">
@@ -1191,9 +1200,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </Show>
 
-            {formStep === "skoring" && (
+            {/* SKORING SECTION */}
+            <Show when={formStep === "skoring"}>
               <div>
                 <h2 className="text-2xl font-bold mb-8">Skoring</h2>
                 <div className="grid gap-16">
@@ -1524,10 +1534,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </Show>
 
+            {/* BUTTON  PREV / NEXT / SUBMIT*/}
             <div className="flex gap-5  justify-end">
-              {formStep !== "principal" && (
+              {/* SHOW PREV IF SECTION IS NOT PRINCIPAL */}
+              <Show when={formStep !== "principal"}>
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
@@ -1537,13 +1549,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   type="button">
                   Sebelumnya
                 </Button>
-              )}
-              {formStep === "skoring" ? (
-                <Button type="submit" disabled={processing}>
-                  {processing && <LoaderCircle className="animate-spin mr-1" />}
-                  Submit
-                </Button>
-              ) : (
+              </Show>
+
+              {/* SHOW NEXT IF SECTION IS NOT SKORING */}
+              <Show when={formStep !== "skoring"}>
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
@@ -1553,10 +1562,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   type="button">
                   Selanjutnya
                 </Button>
-              )}
+              </Show>
+
+              {/* SHOW SUBMIT IF SECTION IS SKORING */}
+              <Show when={formStep === "skoring"}>
+                <Button type="submit" disabled={processing}>
+                  {processing && <LoaderCircle className="animate-spin mr-1" />}
+                  Submit
+                </Button>
+              </Show>
             </div>
           </>
-        )}
+        </Show>
       </form>
     </div>
   );

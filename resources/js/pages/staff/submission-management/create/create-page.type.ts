@@ -40,7 +40,7 @@ type Principal = {
 
 type Submission = {
   guarantor_id: string;
-  product_id: string;
+  product_id?: number | string | undefined;
   guarantor_to_product_type_id: string;
   obligee_id: string;
   bank_id: string;
