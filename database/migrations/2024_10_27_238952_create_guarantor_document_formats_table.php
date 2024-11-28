@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Guarantor\GuarantorDocumentFormat;
-use App\Models\Submission\Submission;
+use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submission_docs', function (Blueprint $table) {
+        Schema::create('guarantor_document_formats', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Submission::class, 'submission_id')->constrained()->noActionOnDelete();
-            $table->foreignIdFor(GuarantorDocumentFormat::class, 'guarantor_document_format_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Guarantor::class, 'guarantor_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->nullable()->constrained()->noActionOnDelete();
             $table->string('name');
             $table->text('format_document');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submission_docs');
+        Schema::dropIfExists('guarantor_document_formats');
     }
 };

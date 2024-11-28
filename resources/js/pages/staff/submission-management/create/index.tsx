@@ -1197,67 +1197,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h2 className="text-2xl font-bold mb-8">Skoring</h2>
                 <div className="grid gap-16">
-                  <RenderList
-                    of={scorings}
-                    render={(scoringCategories) => {
-                      return (
-                        <div className="grid gap-[14px]">
-                          <Label className="text-xl underline underline-offset-4">
-                            Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
-                          </Label>
-                          <div className="space-y-8">
-                            <RenderList
-                              of={scoringCategories?.questions}
-                              render={(scoringQuestions, idx) => {
-                                return (
-                                  <div className="space-y-3">
-                                    <div className="font-[600]">
-                                      <span className="mr-3">{idx + 1}.</span>
-                                      <span>{scoringQuestions?.name}</span>
-                                    </div>
-                                    <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
-                                      <RenderList
-                                        of={scoringQuestions?.options}
-                                        render={(scoringOptions) => {
-                                          const isOptionChecked = data?.scoring.scores.some(
-                                            (s) => s.scoring_option_id === scoringOptions?.id,
-                                          );
-
-                                          return (
-                                            <div className="flex items-center space-x-2">
-                                              <RadioGroupItem
-                                                value={String(scoringOptions?.id)}
-                                                id={`option-${scoringOptions?.id}`}
-                                                checked={isOptionChecked}
-                                                onClick={() =>
-                                                  handleOptionChange(
-                                                    scoringCategories?.id,
-                                                    scoringQuestions.id,
-                                                    scoringOptions.id,
-                                                    scoringOptions.point,
-                                                  )
-                                                }
-                                              />
-                                              <Label
-                                                className="cursor-pointer w-full flex justify-between"
-                                                htmlFor={`option-${scoringOptions?.id}`}>
-                                                {scoringOptions?.name}{" "}
-                                                <span className="font-[800]">({scoringOptions?.point} Poin)</span>
-                                              </Label>
-                                            </div>
-                                          );
-                                        }}
-                                      />
-                                    </RadioGroup>
-                                  </div>
-                                );
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    }}
-                  />
                   <div className="flex gap-8">
                     <div className="grid gap-3 w-[550px]">
                       <div className="pt-2 text-black h-[45px]">Tahun</div>
@@ -1508,6 +1447,67 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       }}
                     />
                   </div>
+                  <RenderList
+                    of={scorings}
+                    render={(scoringCategories) => {
+                      return (
+                        <div className="grid gap-[14px]">
+                          <Label className="text-xl underline underline-offset-4">
+                            Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
+                          </Label>
+                          <div className="space-y-8">
+                            <RenderList
+                              of={scoringCategories?.questions}
+                              render={(scoringQuestions, idx) => {
+                                return (
+                                  <div className="space-y-3">
+                                    <div className="font-[600]">
+                                      <span className="mr-3">{idx + 1}.</span>
+                                      <span>{scoringQuestions?.name}</span>
+                                    </div>
+                                    <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
+                                      <RenderList
+                                        of={scoringQuestions?.options}
+                                        render={(scoringOptions) => {
+                                          const isOptionChecked = data?.scoring.scores.some(
+                                            (s) => s.scoring_option_id === scoringOptions?.id,
+                                          );
+
+                                          return (
+                                            <div className="flex items-center space-x-2">
+                                              <RadioGroupItem
+                                                value={String(scoringOptions?.id)}
+                                                id={`option-${scoringOptions?.id}`}
+                                                checked={isOptionChecked}
+                                                onClick={() =>
+                                                  handleOptionChange(
+                                                    scoringCategories?.id,
+                                                    scoringQuestions.id,
+                                                    scoringOptions.id,
+                                                    scoringOptions.point,
+                                                  )
+                                                }
+                                              />
+                                              <Label
+                                                className="cursor-pointer w-full flex justify-between"
+                                                htmlFor={`option-${scoringOptions?.id}`}>
+                                                {scoringOptions?.name}{" "}
+                                                <span className="font-[800]">({scoringOptions?.point} Poin)</span>
+                                              </Label>
+                                            </div>
+                                          );
+                                        }}
+                                      />
+                                    </RadioGroup>
+                                  </div>
+                                );
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
                   <div className="grid gap-1 w-full">
                     <Label className="text-sm">Catatan Skoring</Label>
                     <Textarea
