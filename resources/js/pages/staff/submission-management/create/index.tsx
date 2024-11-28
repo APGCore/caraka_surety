@@ -864,13 +864,23 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         placeholder="Pilih Produk"
                         defaultValueId={data?.submission?.product_id || selectedProducts}
                         onSelect={(val: any) => {
+                          let changedSubmission = {
+                            ...data.submission,
+                          };
                           if (val.id !== selectedProducts) {
                             setSelectedGuarantor(null);
                             setSelectedProductType(null);
                             setIsResetGuarantor(true);
                             setIsResetProductType(true);
+                            changedSubmission["guarantor_id"] = "";
+                            changedSubmission["guarantor_to_product_type_id"] = "";
+                            if (data?.submission?.bank_id) {
+                              changedSubmission["bank_id"] = "";
+                              setSelectedBank(null);
+                            }
                           }
-                          setData("submission", { ...data.submission, product_id: val?.id });
+                          changedSubmission["product_id"] = val?.id;
+                          setData("submission", changedSubmission);
                           setSelectedProducts(val.id);
                         }}
                       />
@@ -1205,7 +1215,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             {/* SKORING SECTION */}
             <Show when={formStep === "skoring"}>
               <div>
-                <h2 className="text-2xl font-bold mb-8">Skoring</h2>
+                <h1 className="text-2xl font-bold mb-8">Skoring</h1>
+                <h2 className="text-xl font-semibold mb-8">Laporan Keuangan Perusahaan</h2>
                 <div className="grid gap-16">
                   <div className="flex gap-8">
                     <div className="grid gap-3 w-[550px]">
@@ -1463,7 +1474,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       return (
                         <div className="grid gap-[14px]">
                           <Label className="text-xl underline underline-offset-4">
-                            Kategori {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maksimal)
+                            {scoringCategories?.name} ({scoringCategories?.max_point} Poin Maks)
                           </Label>
                           <div className="space-y-8">
                             <RenderList
