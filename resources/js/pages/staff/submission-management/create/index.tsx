@@ -31,6 +31,7 @@ import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import StaffLayoutPage from "@/layouts/staff";
+import { cn } from "@/lib/cn";
 import { getNumericValue } from "@/lib/get-numeric-value";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
@@ -90,7 +91,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       village: "",
       name: "",
       address: "",
-      telephone: undefined,
+      telephone: "",
       fax: "",
       npwp: "",
       nib: undefined,
@@ -467,7 +468,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     const ratios = await fetchPrincipalRatios(val.id);
-                    // Set Principal Data
+                    // SETTING PRINCIPAL DATA
                     setData("principal", {
                       ...data.principal,
                       id: val.id,
@@ -490,7 +491,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       last_deed: val.last_deed,
                       ratios,
-                      // documents: [],
                     });
 
                     fetchPrincipalDocuments(val.id);
@@ -522,32 +522,40 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                 render={(step, index) => {
                   return (
                     <Fragment>
-                      <div
-                        onClick={() => handleClickStep(step.name)}
+                      {/* STEPPER BULLET */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleClickStep(step.name);
+                        }}
                         className="flex items-center cursor-pointer flex-col justify-center">
-                        {/* STEPPER BULLET */}
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
-                            step.isActive ? "bg-black text-white" : "bg-gray-300 text-gray-700"
-                          }`}>
+                          className={cn(
+                            "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 bg-gray-300 text-gray-700",
+                            {
+                              "bg-black text-white": step.isActive,
+                            },
+                          )}>
                           {index + 1}
                         </div>
 
                         {/* STEPPER LABEL */}
                         <span
-                          className={`transition-all duration-300 ${
-                            step.isActive ? "text-black font-semibold" : "text-gray-500"
-                          }`}>
+                          className={cn("transition-all duration-300 text-gray-500", {
+                            "text-black font-semibold": step.isActive,
+                          })}>
                           {step.title}
                         </span>
-                      </div>
+                      </button>
 
                       {/* ARROW BETWEEN STEPPER */}
                       {index < steps.length - 1 && (
                         <div
-                          className={`w-full mt-5 h-1 mx-5 transition-all duration-300 ${
-                            steps[index + 1].isActive ? "bg-black" : "bg-gray-300"
-                          }`}
+                          className={cn("w-full mt-5 h-1 mx-5 transition-all duration-300 bg-gray-300", {
+                            "bg-black": steps[index + 1].isActive,
+                          })}
                         />
                       )}
                     </Fragment>
@@ -588,7 +596,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       }
                     />
                   </div>
-
                   <div className="flex gap-5">
                     <div className="grid w-full gap-1">
                       <Label className="text-sm">No. Telepon</Label>
@@ -1578,7 +1585,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               {/* SHOW SUBMIT IF SECTION IS SKORING */}
               <Show when={formStep === "skoring"}>
                 <Button type="submit" disabled={processing}>
-                  {processing && <LoaderCircle className="animate-spin mr-1" />}
+                  {/* SHOW CIRCLE LOADER IND */}
+                  <Show when={processing}>
+                    <LoaderCircle className="animate-spin mr-1" />
+                  </Show>
                   Submit
                 </Button>
               </Show>
