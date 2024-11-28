@@ -33,6 +33,7 @@ import StaffLayoutPage from "@/layouts/staff";
 import { getNumericValue } from "@/lib/get-numeric-value";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
+import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { Fragment, useState } from "react";
@@ -1056,6 +1057,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Tanggal Mulai Kontrak</Label>
                       <CalendarPicker
+                        disabled={{
+                          before: subDays(new Date(), 90),
+                        }}
                         onPickDate={(d) => {
                           setData("submission", {
                             ...data.submission,

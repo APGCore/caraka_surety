@@ -5,15 +5,16 @@ import { id as LocaleId } from "date-fns/locale";
 import dayjs from "dayjs";
 import * as React from "react";
 import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
+import { Calendar, CalendarProps } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-interface CalendarPickerProps extends React.HTMLAttributes<HTMLDivElement> {
+type CalendarPickerProps = CalendarProps & {
   initialDate?: Date;
   onPickDate?: (date: Date | undefined) => void;
-}
+  className?: string;
+};
 
-const CalendarPicker: React.FC<CalendarPickerProps> = ({ className, onPickDate, initialDate }) => {
+const CalendarPicker: React.FC<CalendarPickerProps> = ({ className, onPickDate, initialDate, ...props }) => {
   const [date, setDate] = React.useState<Date | undefined>(() => initialDate ?? dayjs().toDate());
   const [isOpenCalendar, setIsOpenCalendar] = React.useState(false);
 
@@ -42,6 +43,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({ className, onPickDate, 
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="end">
         <Calendar
+          {...props}
           locale={LocaleId}
           initialFocus
           mode="single"
