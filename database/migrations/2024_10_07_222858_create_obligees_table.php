@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('telephone');
             $table->string('fax')->nullable();
             $table->string('pic')->nullable();
+            $table->string('no_ppk')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

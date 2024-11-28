@@ -80,13 +80,19 @@ class StoreRequest extends FormRequest
             'principal.ratios.*.net_income' => ['required', 'string'], // laba bersih
             'principal.ratios.*.year' => ['required', 'numeric'], // tahun
 
+            // obligiee
+            'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'], // id obligee
+            'obligee.name' => ['required', 'string'],
+            'obligee.pic' => ['required', 'string'],
+            'obligee.address' => ['required', 'string'],
+            'obligee.no_ppk' => ['nullable', 'string'],
+
             // submission
             'submission' => ['required'],
             'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
             'submission.product_id' => ['required', 'exists:'.Product::class.',id,deleted_at,NULL'], // id produk
             'submission.guarantor_to_product_type_id' => ['required', 'exists:'.GuarantorToProductType::class.',id,deleted_at,NULL'], // id penjamin ke tipe produk
-            'submission.obligee_id' => ['required', 'exists:'.Obligee::class.',id,deleted_at,NULL'], // id obligee
             'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
             'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
             'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak

@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\Document\RequiredDoc;
+use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
@@ -71,6 +72,7 @@ class SubmissionController extends Controller
             $principal = $validated['principal'];
             $principalDocuments = $validated['principal']['documents'];
             $principalRatios = $validated['principal']['ratios'];
+            $obligiee = $validated['obligee'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
 
@@ -88,9 +90,16 @@ class SubmissionController extends Controller
                     ], $principalRatio);
             }
 
+            // create or update obligiee
+            $obligiee = Obligee::query()
+                ->updateOrCreate([
+                    'id' => $obligiee['id'] ?? null,
+                ], $obligiee);
+
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
+            $dataSubmission['obligee_id'] = $obligiee->id;
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
             $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
