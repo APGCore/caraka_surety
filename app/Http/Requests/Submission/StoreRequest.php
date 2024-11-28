@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Submission;
 
+use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
@@ -13,7 +14,6 @@ use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\RelatedParties\PrincipalDocument;
 use App\Models\RelatedParties\PrincipalRatio;
-use App\Models\RequiredDoc;
 use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringOption;
 use App\Models\Scoring\ScoringQuestion;

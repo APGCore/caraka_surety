@@ -38,31 +38,6 @@ export const adminRoute = {
       ],
     },
     {
-      title: "Kelola Pengajuan",
-      url: "#",
-      icon: Archive,
-      items: [
-        {
-          title: "Prasyarat Dokumen",
-          route_name: "document",
-          href: route("document.index"),
-          url: "#",
-        },
-        {
-          title: "Sumber Dana",
-          route_name: "source-of-funds",
-          href: route("source-of-funds.index"),
-          url: "#",
-        },
-        {
-          title: "Daftar Pengajuan",
-          route_name: "submission",
-          href: route("submission.index"),
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Kelola Wilayah",
       url: "#",
       icon: MapPinHouse,
@@ -208,6 +183,37 @@ export const adminRoute = {
           title: "Pertanyaan",
           route_name: "scoring-question",
           href: route("scoring-question.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Pengajuan",
+      url: "#",
+      icon: Archive,
+      items: [
+        {
+          title: "Prasyarat Dokumen",
+          route_name: "document",
+          href: route("document.index"),
+          url: "#",
+        },
+        {
+          title: "Sumber Dana",
+          route_name: "source-of-funds",
+          href: route("source-of-funds.index"),
+          url: "#",
+        },
+        {
+          title: "Daftar Pengajuan",
+          route_name: "submission",
+          href: route("submission.index"),
+          url: "#",
+        },
+        {
+          title: "Format Dokumen",
+          route_name: "document-format",
+          href: route("document-format.index"),
           url: "#",
         },
       ],

@@ -2,6 +2,7 @@
 
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\Product\Product;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,9 +14,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('guarantor_document_formats', function (Blueprint $table) {
+        Schema::create('document_formats', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Product::class, 'product_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->nullable()->constrained()->noActionOnDelete();
             $table->string('name');
             $table->text('format_document');
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('guarantor_document_formats');
+        Schema::dropIfExists('document_formats');
     }
 };

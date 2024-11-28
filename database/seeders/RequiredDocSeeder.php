@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\RequiredDoc;
+use App\Models\Document\RequiredDoc;
 use Illuminate\Database\Seeder;
 
 class RequiredDocSeeder extends Seeder

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Document;
 
 use App\Http\Controllers\Controller;
+use App\Models\Document\RequiredDoc;
 use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Principal;
-use App\Models\RequiredDoc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\Guarantor;
+namespace App\Models\Document;
 
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Submission\Submission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
-class GuarantorDocumentFormat extends Model
+class DocumentFormat extends Model
 {
     use HasFactory, Searchable, SoftDeletes;
 

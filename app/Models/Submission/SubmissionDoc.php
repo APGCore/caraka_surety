@@ -2,7 +2,7 @@
 
 namespace App\Models\Submission;
 
-use App\Models\RequiredDoc;
+use App\Models\Document\RequiredDoc;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

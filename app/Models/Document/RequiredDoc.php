@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Document;
 
 use App\Models\Product\ProductType;
 use App\Models\RelatedParties\PrincipalDocument;
