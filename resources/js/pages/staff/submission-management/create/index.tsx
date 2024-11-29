@@ -118,6 +118,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       pic: "",
       address: "",
       no_ppk: "",
+      telephone: "",
     },
     submission: {
       guarantor_id: "",
@@ -260,6 +261,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     pic?: string;
     address?: string;
     no_ppk?: string;
+    telephone?: string;
   } | null>({});
   const [isAddNewObligee, setIsAddNewObligee] = useState(false);
 
@@ -269,7 +271,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       data.obligee.pic !== "" ||
       data.obligee.address !== "" ||
       data.obligee.no_ppk !== "" ||
-      data.obligee.id !== "";
+      data.obligee.id !== "" ||
+      data.obligee.telephone !== "";
 
     console.log({
       isHaveDataObligee,
@@ -285,6 +288,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           pic: "",
           address: "",
           no_ppk: "",
+          telephone: "",
         });
         setSelectedObligee(null);
       }
@@ -296,6 +300,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     data.obligee.no_ppk,
     data.obligee.pic,
     data.obligee.address,
+    data.obligee.telephone,
     isAddNewObligee,
   ]);
 
@@ -436,6 +441,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         pic: "",
         address: "",
         no_ppk: "",
+        telephone: "",
       },
       submission: {
         guarantor_id: "",
@@ -1010,6 +1016,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               pic: val?.pic,
                               address: val?.address,
                               no_ppk: val?.no_ppk,
+                              telephone: val?.telephone,
                             });
                             setSelectedObligee({
                               id: val?.id,
@@ -1017,6 +1024,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               pic: val?.pic,
                               address: val?.address,
                               no_ppk: val?.no_ppk,
+                              telephone: val?.telephone,
                             });
                           }}
                         />
@@ -1066,6 +1074,20 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 setData("obligee", {
                                   ...data.obligee,
                                   no_ppk: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">No Telepon</Label>
+                            <Input
+                              className="text-sm"
+                              placeholder="Masukan nomor telepon"
+                              value={data.obligee.telephone}
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  telephone: e.target.value,
                                 })
                               }
                             />

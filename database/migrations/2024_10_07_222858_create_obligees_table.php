@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('village')->nullable();
             $table->string('name');
             $table->string('address');
-            $table->string('telephone');
+            $table->string('telephone')->nullable();
             $table->string('fax')->nullable();
             $table->string('pic')->nullable();
             $table->string('no_ppk')->nullable();

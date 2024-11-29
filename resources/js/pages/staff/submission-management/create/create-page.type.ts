@@ -74,6 +74,7 @@ type Obligee = {
   pic?: string;
   address?: string;
   no_ppk?: string;
+  telephone?: string;
 };
 
 type Document = {

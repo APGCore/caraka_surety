@@ -43,10 +43,10 @@ class StoreRequest extends FormRequest
         return [
             // principals
             'principal' => ['required'],
-            'principal.id' => ['nullable', 'exists:'.Principal::class.',id'],
-            'principal.province_id' => ['required', 'exists:'.Province::class.',id'],
-            'principal.regency_id' => ['required', 'exists:'.Regency::class.',id'],
-            'principal.district_id' => ['required', 'exists:'.District::class.',id'],
+            'principal.id' => ['nullable', 'exists:' . Principal::class . ',id'],
+            'principal.province_id' => ['required', 'exists:' . Province::class . ',id'],
+            'principal.regency_id' => ['required', 'exists:' . Regency::class . ',id'],
+            'principal.district_id' => ['required', 'exists:' . District::class . ',id'],
             'principal.village' => ['nullable', 'string', 'max:255'],
             'principal.name' => ['required', 'string', 'max:255'], // nama perusahaan
             'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
@@ -64,14 +64,14 @@ class StoreRequest extends FormRequest
             'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
             // principal documents
             'principal.documents' => ['required', 'array'],
-            'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
-            'principal.documents.*.required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
-            'principal.documents.*.required_doc_name' => ['required', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
+            'principal.documents.*.id' => ['nullable', 'exists:' . PrincipalDocument::class . ',id,deleted_at,NULL'], // id dokumen perusahaan
+            'principal.documents.*.required_doc_id' => ['required', 'exists:' . RequiredDoc::class . ',id,deleted_at,NULL'], // id dokumen wajib
+            'principal.documents.*.required_doc_name' => ['required', 'exists:' . RequiredDoc::class . ',name,deleted_at,NULL'], // nama dokumen wajib
             'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
 
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
-            'principal.ratios.*.id' => ['nullable', 'string', 'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
+            'principal.ratios.*.id' => ['nullable', 'string', 'exists:' . PrincipalRatio::class . ',id,deleted_at,NULL'], // id rasio
             'principal.ratios.*.current_assets' => ['required', 'string'], // aktiva lancar
             'principal.ratios.*.current_debt' => ['required', 'string'], // utang lancar
             'principal.ratios.*.total_debt' => ['required', 'string'], // total utang
@@ -81,19 +81,20 @@ class StoreRequest extends FormRequest
             'principal.ratios.*.year' => ['required', 'numeric'], // tahun
 
             // obligiee
-            'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'], // id obligee
+            'obligee.id' => ['nullable', 'exists:' . Obligee::class . ',id,deleted_at,NULL'], // id obligee
             'obligee.name' => ['required', 'string'],
             'obligee.pic' => ['required', 'string'],
             'obligee.address' => ['required', 'string'],
             'obligee.no_ppk' => ['nullable', 'string'],
+            'obligee.telephone' => ['nullable', 'string'],
 
             // submission
             'submission' => ['required'],
-            'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
-            'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
-            'submission.product_id' => ['required', 'exists:'.Product::class.',id,deleted_at,NULL'], // id produk
-            'submission.guarantor_to_product_type_id' => ['required', 'exists:'.GuarantorToProductType::class.',id,deleted_at,NULL'], // id penjamin ke tipe produk
-            'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
+            'submission.id' => ['nullable', 'exists:' . Submission::class . ',id,deleted_at,NULL'], // id submission
+            'submission.guarantor_id' => ['required', 'exists:' . Guarantor::class . ',id,deleted_at,NULL'], // id penjamin
+            'submission.product_id' => ['required', 'exists:' . Product::class . ',id,deleted_at,NULL'], // id produk
+            'submission.guarantor_to_product_type_id' => ['required', 'exists:' . GuarantorToProductType::class . ',id,deleted_at,NULL'], // id penjamin ke tipe produk
+            'submission.bank_id' => ['nullable', 'exists:' . Bank::class . ',id,deleted_at,NULL'], // id bank
             'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
             'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
             'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
@@ -103,23 +104,23 @@ class StoreRequest extends FormRequest
             'submission.start_date' => ['required', 'date'], // tanggal mulai
             'submission.end_date' => ['nullable', 'date'], // tanggal berakhir
             'submission.job_name' => ['nullable', 'string'], // nama pekerjaan
-            'submission.job_location_province_id' => ['required', 'exists:'.Province::class.',id'], // id provinsi lokasi pekerjaan
-            'submission.job_location_regency_id' => ['required', 'exists:'.Regency::class.',id'], // id kabupaten/kota lokasi pekerjaan
-            'submission.job_location_district_id' => ['required', 'exists:'.District::class.',id'], // id kecamatan lokasi pekerjaan
+            'submission.job_location_province_id' => ['required', 'exists:' . Province::class . ',id'], // id provinsi lokasi pekerjaan
+            'submission.job_location_regency_id' => ['required', 'exists:' . Regency::class . ',id'], // id kabupaten/kota lokasi pekerjaan
+            'submission.job_location_district_id' => ['required', 'exists:' . District::class . ',id'], // id kecamatan lokasi pekerjaan
             'submission.job_location_village' => ['required', 'string', 'max:255'], // desa lokasi pekerjaan
-            'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
+            'submission.source_of_fund_id' => ['required', 'exists:' . SourceOfFund::class . ',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
 
             // scoring
             'scoring' => ['required'],
-            'scoring.id' => ['required', 'exists:'.Scoring::class.',id,deleted_at,NULL'], // id scoring
+            'scoring.id' => ['required', 'exists:' . Scoring::class . ',id,deleted_at,NULL'], // id scoring
             'scoring.note' => ['nullable', 'string'], // catatan
 
             'scoring.scores' => ['required', 'array'], // skor
-            'scoring.scores.*.id' => ['nullable', 'exists:'.SubmissionScore::class.',id,deleted_at,NULL'], // id kategori pertanyaan skor
-            'scoring.scores.*.scoring_question_category_id' => ['required', 'exists:'.ScoringQuestionCategory::class.',id,deleted_at,NULL'], // id kategori pertanyaan skor
-            'scoring.scores.*.scoring_question_id' => ['required', 'exists:'.ScoringQuestion::class.',id,deleted_at,NULL'], // id pertanyaan skor
-            'scoring.scores.*.scoring_option_id' => ['required', 'exists:'.ScoringOption::class.',id,deleted_at,NULL'], // id opsi skor
+            'scoring.scores.*.id' => ['nullable', 'exists:' . SubmissionScore::class . ',id,deleted_at,NULL'], // id kategori pertanyaan skor
+            'scoring.scores.*.scoring_question_category_id' => ['required', 'exists:' . ScoringQuestionCategory::class . ',id,deleted_at,NULL'], // id kategori pertanyaan skor
+            'scoring.scores.*.scoring_question_id' => ['required', 'exists:' . ScoringQuestion::class . ',id,deleted_at,NULL'], // id pertanyaan skor
+            'scoring.scores.*.scoring_option_id' => ['required', 'exists:' . ScoringOption::class . ',id,deleted_at,NULL'], // id opsi skor
             'scoring.scores.*.point' => ['required', 'numeric'], // point skor
         ];
     }
