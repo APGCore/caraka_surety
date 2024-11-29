@@ -68,6 +68,14 @@ type Scoring = {
   scores: any[]; // Adjust `any` to a more specific type if needed
 };
 
+type Obligee = {
+  id?: number | string | undefined;
+  name?: string;
+  pic?: string;
+  address?: string;
+  no_ppk?: string;
+};
+
 type Document = {
   required_doc_id: number;
   required_doc_name: string;
@@ -107,6 +115,7 @@ export interface Ratio {
 
 export interface SubmissionFormProps {
   principal: Principal;
+  obligee: Obligee;
   submission: Submission;
   scoring: Scoring;
 }

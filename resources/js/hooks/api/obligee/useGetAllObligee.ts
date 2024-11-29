@@ -14,6 +14,7 @@ const useGetAllObligee = () => {
       .then((response) => {
         if (!ignore) {
           setObligees(response.data.data);
+          console.log("GET ALL OBLIGEES: ", response.data.data);
         }
       })
       .catch((error) => {

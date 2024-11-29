@@ -38,7 +38,7 @@ import axios from "axios";
 import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
@@ -111,6 +111,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           year: dayjs().year() - 1,
         },
       ],
+    },
+    obligee: {
+      id: "",
+      name: "",
+      pic: "",
+      address: "",
+      no_ppk: "",
     },
     submission: {
       guarantor_id: "",
@@ -247,7 +254,50 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   // Obligee
   const { obligees } = useGetAllObligee();
-  const [selectedObligee, setSelectedObligee] = useState(null);
+  const [selectedObligee, setSelectedObligee] = useState<{
+    id?: number;
+    name?: string;
+    pic?: string;
+    address?: string;
+    no_ppk?: string;
+  } | null>({});
+  const [isAddNewObligee, setIsAddNewObligee] = useState(false);
+
+  const handleNewObligee = useCallback(() => {
+    const isHaveDataObligee =
+      data.obligee.name !== "" ||
+      data.obligee.pic !== "" ||
+      data.obligee.address !== "" ||
+      data.obligee.no_ppk !== "" ||
+      data.obligee.id !== "";
+
+    console.log({
+      isHaveDataObligee,
+      isAddNewObligee,
+      obg: data.obligee,
+    });
+
+    if (!isAddNewObligee) {
+      if (isHaveDataObligee) {
+        setData("obligee", {
+          id: "",
+          name: "",
+          pic: "",
+          address: "",
+          no_ppk: "",
+        });
+        setSelectedObligee(null);
+      }
+    }
+    setIsAddNewObligee((prev) => !prev);
+  }, [
+    data.obligee.id,
+    data.obligee.name,
+    data.obligee.no_ppk,
+    data.obligee.pic,
+    data.obligee.address,
+    isAddNewObligee,
+  ]);
 
   // Bank
   const { banks } = useGetAllBank();
@@ -355,10 +405,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }
   };
 
-  console.log({
-    skoring: data.scoring,
-  });
-
   const handleReset = () => {
     setData({
       principal: {
@@ -383,6 +429,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         last_deed: "",
         documents: [],
         ratios: [],
+      },
+      obligee: {
+        id: "",
+        name: "",
+        pic: "",
+        address: "",
+        no_ppk: "",
       },
       submission: {
         guarantor_id: "",
@@ -433,7 +486,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   };
 
   const handleSubmit = () => {
-    // console.log(data);
+    console.log(data);
     post(route("staff-submission-form.store"), {
       onError: (errors) => {
         console.log(errors);
@@ -938,42 +991,133 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                   </div>
-                  <div className="flex gap-5">
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Obligee</Label>
-                      <Combobox
-                        datas={obligees}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Obligee"
-                        defaultValueId={data?.submission?.obligee_id || selectedObligee}
-                        onSelect={(val: any) => {
-                          setData("submission", { ...data.submission, obligee_id: val?.id });
-                          setSelectedObligee(val.id);
-                        }}
-                      />
-                    </div>
-                    <Show when={data.submission.product_id === 2}>
+                  <div className="flex gap-5 items-end">
+                    {/* SHOW WHILE NOT CREATED NEW OBLIGEE */}
+                    <Show when={!isAddNewObligee}>
                       <div className="grid gap-1 w-full">
-                        <Label className="text-md">Banks</Label>
+                        <Label className="text-md">Obligee</Label>
                         <Combobox
-                          datas={banks}
+                          datas={obligees}
                           labelKey="name"
                           valueKey="name"
-                          placeholder="Pilih Bank"
-                          defaultValueId={data?.submission?.bank_id || selectedBank}
+                          placeholder="Pilih Obligee"
+                          defaultValueId={data?.obligee?.id || selectedObligee?.id}
                           onSelect={(val: any) => {
-                            setData("submission", {
-                              ...data.submission,
-                              bank_id: data?.submission?.bank_id === val?.id ? "" : val.id,
+                            setData("obligee", {
+                              ...data.obligee,
+                              id: val?.id,
+                              name: val?.name,
+                              pic: val?.pic,
+                              address: val?.address,
+                              no_ppk: val?.no_ppk,
                             });
-                            setSelectedBank((prev) => (prev === val.id ? null : val.id));
+                            setSelectedObligee({
+                              id: val?.id,
+                              name: val?.name,
+                              pic: val?.pic,
+                              address: val?.address,
+                              no_ppk: val?.no_ppk,
+                            });
                           }}
                         />
                       </div>
                     </Show>
+
+                    {/* SHOW WHILE CREATED NEW OBLIGEE */}
+                    <Show when={isAddNewObligee}>
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-md">Tambah Data Obligee</Label>
+                        <div className="flex flex-col gap-3 mt-3">
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">Nama</Label>
+                            <Input
+                              className="text-sm"
+                              placeholder="Masukan nama obligee"
+                              value={data.obligee.name}
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">PIC</Label>
+                            <Input
+                              className="text-sm"
+                              placeholder="Masukan nama PIC Obligee"
+                              value={data.obligee.pic}
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  pic: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">No PPK</Label>
+                            <Input
+                              className="text-sm"
+                              placeholder="Masukan nomor PPK"
+                              value={data.obligee.no_ppk}
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  no_ppk: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">Alamat</Label>
+                            <Textarea
+                              className="text-sm"
+                              placeholder="Masukan Alamat Obligee"
+                              value={data.obligee.address}
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  address: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </Show>
+
+                    <Button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleNewObligee();
+                      }}>
+                      {!isAddNewObligee ? "Tambah Obligee" : "Batal Tambah"}
+                    </Button>
                   </div>
 
+                  <Show when={data.submission.product_id === 2}>
+                    <div className="grid gap-1">
+                      <Label className="text-md">Banks</Label>
+                      <Combobox
+                        datas={banks}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Bank"
+                        defaultValueId={data?.submission?.bank_id || selectedBank}
+                        onSelect={(val: any) => {
+                          setData("submission", {
+                            ...data.submission,
+                            bank_id: data?.submission?.bank_id === val?.id ? "" : val.id,
+                          });
+                          setSelectedBank((prev) => (prev === val.id ? null : val.id));
+                        }}
+                      />
+                    </div>
+                  </Show>
                   <div className="grid gap-1">
                     <Label className="text-md">Nama Pekerjaan</Label>
                     <input
