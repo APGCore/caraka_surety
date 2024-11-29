@@ -23,16 +23,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
-interface ProfileLimitsDatatableProps {
-  profiles: any;
+interface DocumentFormatDatatableProps {
+  documentFormats: any;
   guarantorSelectedId: number;
-  guarantorProductId: number;
+  productSelectedId: number;
   guarantorProductTypeId: number;
   onDelete: (limitProfile: any) => void;
 }
 
-const DocumentFormatDatatable: React.FC<ProfileLimitsDatatableProps> = ({
-  profiles,
+const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({
+  documentFormats,
   guarantorSelectedId,
   onDelete,
 }) => {
@@ -49,12 +49,12 @@ const DocumentFormatDatatable: React.FC<ProfileLimitsDatatableProps> = ({
         </TableHeader>
         <TableBody>
           <RenderList
-            of={profiles?.data}
-            render={(profile: any, index: number) => (
-              <TableRow key={profile.id}>
-                <TableCell>{profiles.meta?.from + index}</TableCell>
-                <TableCell>{profile.name}</TableCell>
-                <TableCell>{profile.created_at}</TableCell>
+            of={documentFormats?.data}
+            render={(documentFormat: any, index: number) => (
+              <TableRow key={documentFormat.id}>
+                <TableCell>{documentFormats.meta?.from + index}</TableCell>
+                <TableCell>{documentFormat.name}</TableCell>
+                <TableCell>{documentFormat.created_at}</TableCell>
                 <TableCell className="text-right">
                   {(!guarantorSelectedId && <div className="text-center">Pilih Penjamin terlebih dahulu</div>) || (
                     <DropdownMenu>
@@ -79,7 +79,7 @@ const DocumentFormatDatatable: React.FC<ProfileLimitsDatatableProps> = ({
                                 <AlertDialogCancel>Kembali</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => {
-                                    onDelete(profile.profile_limit);
+                                    onDelete(documentFormat.profile_limit);
                                   }}
                                   className={buttonVariants({ variant: "destructive" })}>
                                   Lanjutkan Hapus
@@ -104,8 +104,8 @@ const DocumentFormatDatatable: React.FC<ProfileLimitsDatatableProps> = ({
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={profiles?.meta} />
-      <PaginationDatatable meta={profiles?.meta} only={["profiles"]} />
+      <ShowingCountDatatable meta={documentFormats?.meta} />
+      <PaginationDatatable meta={documentFormats?.meta} only={["profiles"]} />
     </>
   );
 };

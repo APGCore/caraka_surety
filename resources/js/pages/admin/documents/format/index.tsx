@@ -9,16 +9,16 @@ import { pickBy } from "lodash";
 import React, { useState } from "react";
 import DocumentFormatDatatable from "./_partials/document-format-datatable";
 import DocumentFormatHeader from "./_partials/document-format-header";
-import { ProfileLimitsPageProps } from "./document-format.type";
+import { DocumentFormatPageProps } from "./document-format.type";
 
-const ProfileLimitsPage: ProfileLimitsPageProps = ({
+const DocumentFormatPage: DocumentFormatPageProps = ({
   guarantors,
   guarantorSelected,
-  guarantorProducts,
-  guarantorProductSelected,
+  products,
+  productSelected,
   guarantorProductTypes,
   guarantorProductTypeSelected,
-  profiles,
+  documentFormats,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
@@ -33,14 +33,17 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
   };
 
   const handleSelectGuarantor = (guarantorId: number) => {
-    getData(select, search, guarantorId);
+    const id = guarantorSelected === guarantorId ? undefined : guarantorId;
+    getData(select, search, id);
   };
 
   const handleSelectGuarantorProduct = (guarantorProductId: number) => {
-    getData(select, search, guarantorSelected, guarantorProductId);
+    const id = productSelected === guarantorProductId ? undefined : guarantorProductId;
+    getData(select, search, guarantorSelected, id);
   };
   const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
-    getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeId);
+    const id = guarantorProductTypeSelected === guarantorProductTypeId ? undefined : guarantorProductTypeId;
+    getData(select, search, guarantorSelected, productSelected, id);
   };
 
   const getData = (
@@ -59,11 +62,10 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         guarantor_product_id: guarantorProductId,
         guarantor_product_type_id: guarantorProductTypeId,
       }),
-      { preserveState: true, preserveScroll: true },
     );
   };
 
-  const deleteProfileLimit = (profileLimit: any) => {
+  const deleteFormatLimit = (profileLimit: any) => {
     router.delete(route(DocumentFormatUtils.link.destroy, profileLimit.id));
   };
 
@@ -82,10 +84,10 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
           <Combobox
-            datas={guarantorProducts}
+            datas={products}
             labelKey={"name"}
             valueKey={"name"}
-            defaultValue={guarantorProductSelected}
+            defaultValue={productSelected}
             placeholder={"Pilih Produk"}
             className={"w-min-[210px]"}
             onSelect={(value) => handleSelectGuarantorProduct(value.id)}
@@ -108,19 +110,19 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         />
       </div>
       <DocumentFormatDatatable
-        profiles={profiles}
+        documentFormats={documentFormats}
         guarantorSelectedId={guarantorSelected}
-        guarantorProductId={guarantorProductSelected}
+        productSelectedId={productSelected}
         guarantorProductTypeId={guarantorProductTypeSelected}
-        onDelete={deleteProfileLimit}
+        onDelete={deleteFormatLimit}
       />
     </main>
   );
 };
 
-export default ProfileLimitsPage;
+export default DocumentFormatPage;
 
-ProfileLimitsPage.layout = (page: any) => {
+DocumentFormatPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
