@@ -68,9 +68,9 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
-                      submission.status === "Approved"
+                      submission.status === "approved"
                         ? "bg-green-100 text-green-800"
-                        : submission.status === "Rejected"
+                        : submission.status === "rejected"
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
