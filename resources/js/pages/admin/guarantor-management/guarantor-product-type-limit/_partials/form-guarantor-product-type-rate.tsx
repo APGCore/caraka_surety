@@ -61,7 +61,7 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
       <div className="w-[400px] mx-auto space-y-4">
         <div className="space-y-2">
           <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
-            Limit Nilai Jamianan
+            Limit Nilai Jaminan
           </label>
 
           <div className="flex items-center space-x-4">
@@ -86,7 +86,7 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
             <InputCurrency
               id="minimum_bill"
               name="minimum_bill"
-              value={data.limit?.toString() ?? ""}
+              value={data.limit_inherit?.toString() ?? ""}
               onChange={(e) => setData({ ...data, limit_inherit: e })}
             />
           </div>

@@ -3,6 +3,7 @@ import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
+import { textCurrency } from "@/lib/text-currency";
 import { ProfileLimitsUtils } from "@/pages/admin/guarantor-management/profile-limit/profile-limits.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
@@ -18,6 +19,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
   guarantorProductSelected,
   guarantorProductTypes,
   guarantorProductTypeSelected,
+  limit,
   profiles,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
@@ -69,6 +71,22 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
 
   return (
     <main className="space-y-2.5">
+      <div className="flex items-center gap-x-2">
+        <span className="text-sm text-gray-400">Limit Pengajuan:</span>
+        {limit?.limit ? (
+          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
+        ) : (
+          <span className="text-sm text-gray-400">Belum Di setting</span>
+        )}
+      </div>
+      <div className="flex items-center gap-x-2">
+        <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
+        {limit?.limit_used ? (
+          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
+        ) : (
+          <span className="text-sm text-gray-400">Belum Ada</span>
+        )}
+      </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />

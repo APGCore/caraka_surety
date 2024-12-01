@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guarantor;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile;
@@ -29,6 +30,19 @@ class ProfileLimitController extends Controller
         $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
         $guarantorProductTypes = $guarantor->guarantorToProductTypes->where('product_id', $guarantorProductSelected)->values();
         $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
+        $limit = GuarantorProductTypeLimit::query()
+            ->where('guarantor_id', $guarantorSelected)
+            ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
+            ->first();
+
+        if ($limit) {
+            $limit_used = ProfileLimit::query()
+                ->where('guarantor_id', $guarantorSelected)
+                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
+                ->sum('limit');
+
+            $limit->setAttribute('limit_used', $limit_used);
+        }
 
         $profiles = Profile::search($request->get('search'))
             ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected) {
@@ -57,6 +71,7 @@ class ProfileLimitController extends Controller
             'guarantorProductSelected' => $guarantorProductSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
+            'limit' => $limit,
             'profiles' => fn () => $profileResource,
         ]);
     }

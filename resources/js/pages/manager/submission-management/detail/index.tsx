@@ -922,10 +922,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         </Show>
         <Show
           when={
-            submission.status === SubmissionStatus.PROCESS &&
-            !submission.beyond_the_limit &&
-            !submission.approved_at &&
-            !submission.rejected_at
+            submission.status === SubmissionStatus.PROCESS && submission.beyond_the_limit && !submission.checked_by
           }>
           <AlertDialog>
             <AlertDialogTrigger asChild>
