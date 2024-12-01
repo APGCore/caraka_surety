@@ -20,11 +20,7 @@ const SubmissionHistoryHeader: React.FC<SubmissionHistoryHeaderProps> = ({ title
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("scoring.index")}>Kelola Pengajuan</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>History Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>Kelola Histori Pengajuan</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

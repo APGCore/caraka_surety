@@ -1,11 +1,13 @@
 import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
+import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
+import useStepper from "@/hooks/general/use-stepper";
 import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
@@ -13,11 +15,48 @@ import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
 import templatePermohonan from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
 import { SubmissionStatus } from "@/types/submission-status";
-import { Head, Link } from "@inertiajs/react";
-import React, { useEffect } from "react";
+import React, { Fragment, useEffect } from "react";
+import SubmissionDetailHeader from "./_partials/create-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
+export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
+type TFormDetailStepperIndicator = {
+  title: string;
+  name: TFormDetailStep;
+  isActive: boolean;
+};
+
+const initialSteps: Array<TFormDetailStepperIndicator> = [
+  {
+    title: "Profile",
+    name: "principal",
+    isActive: true,
+  },
+  {
+    title: "Dokumen",
+    name: "docs",
+    isActive: false,
+  },
+  {
+    title: "Kontrak",
+    name: "contract",
+    isActive: false,
+  },
+  {
+    title: "Skoring",
+    name: "skoring",
+    isActive: false,
+  },
+  {
+    title: "Luaran",
+    name: "luaran",
+    isActive: false,
+  },
+];
+
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const { currentStep, steps, gotoStep, resetSteps } = useStepper(initialSteps);
+
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios);
 
@@ -194,13 +233,63 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   return (
-    <main className="space-y-5">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>
-        <SecondaryButton>
-          <Link href={route("staff-submission-history.submission")}>Kembali</Link>
-        </SecondaryButton>
+    <main className="space-y-10 w-[800px]  mx-auto mt-[50px]">
+      {/* STEPPER SECTION */}
+      <div className="flex">
+        <RenderList
+          of={steps}
+          render={(step, index) => {
+            return (
+              <Fragment>
+                {/* STEPPER BULLET */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    gotoStep(step.name);
+                  }}
+                  className="flex items-center cursor-pointer flex-col justify-center">
+                  <div
+                    className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 bg-gray-300 text-gray-700",
+                      {
+                        "bg-black text-white": step.isActive,
+                      },
+                    )}>
+                    {index + 1}
+                  </div>
+
+                  {/* STEPPER LABEL */}
+                  <span
+                    className={cn("transition-all duration-300 text-gray-500", {
+                      "text-black font-semibold": step.isActive,
+                    })}>
+                    {step.title}
+                  </span>
+                </button>
+
+                {/* ARROW BETWEEN STEPPER */}
+                {index < steps.length - 1 && (
+                  <div
+                    className={cn("w-full mt-5 h-1 mx-5 transition-all duration-300 bg-gray-300", {
+                      "bg-black": steps[index + 1].isActive,
+                    })}
+                  />
+                )}
+              </Fragment>
+            );
+          }}
+        />
       </div>
+
+      {/* TITLE DETAIL SECTION */}
+      <Show when={currentStep === "principal"}>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold">Detail Perusahaan</h1>
+        </div>
+      </Show>
+
       <div className="border rounded-lg p-4 space-y-6 bg-white">
         {/* Status */}
         <div>
@@ -726,14 +815,7 @@ SubmissionDetailPage.layout = (page: any) => {
 
   return (
     <StaffLayoutPage user={pagePropsData?.auth?.user}>
-      <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.companyName ?? "Pengajuan"}`} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route("submission.index")}>Kelola Pengajuan</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <SubmissionDetailHeader title={"Detail Pengajuan"} />
       {page}
     </StaffLayoutPage>
   );

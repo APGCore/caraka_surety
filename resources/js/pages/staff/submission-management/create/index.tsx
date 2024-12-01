@@ -473,7 +473,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         min_point: 0,
       },
     });
-
+    setFormStep("principal");
+    setIsAddNewObligee(false);
     setPrincipalDocs([]);
     setPrincipalFiles([]);
     setSelectedBank(null);
