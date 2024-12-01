@@ -10,6 +10,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 interface PreviewFileProps {
   preview?: string;
@@ -18,34 +19,25 @@ interface PreviewFileProps {
 
 const PreviewFile: React.FC<PreviewFileProps> = ({ preview, files }) => {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button>Preview</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent
+      </DialogTrigger>
+      <DialogContent
         aria-describedby="test"
-        className="w-full h-[calc(90vh_-_30px)] py-4 rounded-[2px] overflow-hidden">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-black font-semibold text-xl">Preview {files?.name}</AlertDialogTitle>
-        </AlertDialogHeader>
-        {files?.type === "application/pdf" || preview?.includes(".pdf") ? (
-          <embed src={preview} className="w-full h-[500px]" type="application/pdf" />
-        ) : (
-          <img src={preview} alt="preview" className="w-full object-contain max-h-[500px] " />
-        )}
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            className={cn(
-              "text-white hover:text-white",
-              buttonVariants({
-                variant: "default",
-              }),
-            )}>
-            Tutup
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        className="w-full h-[calc(100vh_-_10%)] flex flex-col py-4 rounded-[2px] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="text-black font-semibold text-xl">Preview {files?.name}</DialogTitle>
+        </DialogHeader>
+        <div className="flex-1">
+          {files?.type === "application/pdf" || preview?.includes(".pdf") ? (
+            <embed src={preview} className="w-full h-full" type="application/pdf" />
+          ) : (
+            <img src={preview} alt="preview" className="w-full object-contain h-full" />
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
