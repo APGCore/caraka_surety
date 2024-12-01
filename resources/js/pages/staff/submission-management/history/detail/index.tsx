@@ -560,91 +560,249 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </span>
             </h2>
           </div>
-          <table className="table-fixed w-full border border-gray-300">
-            <thead>
-              <tr className="border-b bg-gray-300">
-                <th className="p-2 font-semibold text-left w-[150pt]">kategori Pertanyaan</th>
-                <th className="p-2 font-semibold text-left">Pertanyaan</th>
-                <th className="p-2 font-semibold text-left">Jawaban</th>
-                <th className="p-2 font-semibold text-center w-2/12">Point</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(
-                submission.scores.reduce((grouped: any, score: any) => {
-                  const { scoring_question_category_id, scoring_question_category, ...rest } = score;
-                  if (!grouped[scoring_question_category_id]) {
-                    grouped[scoring_question_category_id] = {
-                      ...scoring_question_category,
-                      items: [],
-                    };
-                  }
-                  grouped[scoring_question_category_id].items.push(rest);
-                  return grouped;
-                }, {}),
-              ).map(([id, scores]: [any, any]) => {
-                return (
-                  <React.Fragment key={id}>
+          <div>
+            <h2 className="text-lg font-semibold mb-4 mt-10">Analisis Rasio Keuangan Perusahaan</h2>
+            <div className="flex justify-between w-full">
+              <div className="w-full">
+                <table className="table-fixed border w-full border-gray-300">
+                  <thead>
                     <tr className="border-b bg-gray-100">
-                      <td colSpan={4} className="p-2 font-bold">
-                        {scores.name} ({scores.max_point})
-                      </td>
+                      <th className="p-2 font-semibold text-left w-1/2">Rasio</th>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <th className="p-2 font-semibold text-center w-1/2">{ratio.year}</th>;
+                        }}
+                      />
                     </tr>
-                    {scores.items.map((score: any) => (
-                      <tr key={score.id} className="border-b">
-                        <td className="p-2 text-left"></td>
-                        <td className="p-2 text-left">{score.question_name}</td>
-                        <td className="p-2 text-left">{score.option_name}</td>
-                        <td className="p-2 text-center">{score.point}</td>
-                      </tr>
-                    ))}
-                    <tr className="bg-gray-50">
-                      <td className="p-2" colSpan={3}>
-                        Sub Total:
-                      </td>
-                      <td className="p-2 text-center">
-                        {scores.items.reduce((total: number, score: any) => total + score.point, 0)}
-                      </td>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Aktiva Lancar</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_assets}</td>;
+                        }}
+                      />
                     </tr>
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_debt}</td>;
+                        }}
+                      />
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_debt}</td>;
+                        }}
+                      />
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_assets}</td>;
+                        }}
+                      />
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.revenue}</td>;
+                        }}
+                      />
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
+                      <RenderList
+                        of={submission.principal?.ratios}
+                        render={(ratio: any) => {
+                          return <td className="p-2 font-semibold text-center w-1/2">{ratio.net_income}</td>;
+                        }}
+                      />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-            <tfoot>
-              <tr className="border-b bg-gray-300">
-                <td className="p-2 font-semibold" colSpan={3}>
-                  Total:
-                </td>
-                <td className="p-2 text-center">{calculateTotalPoint(submission.scores)}</td>
-              </tr>
-              <tr>
-                <td
-                  colSpan={4}
-                  className={cn({
-                    "p-2 text-center": true,
-                    "bg-green-300": submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores),
-                    "bg-red-300": submission.scores?.[0].scoring.min_point >= calculateTotalPoint(submission.scores),
-                  })}>
-                  <span className="pr-1">Disarankan Untuk</span>
-                  {submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores) ? (
-                    <span className="text-green-800">
-                      Disetujui Karena Nilai {calculateTotalPoint(submission.scores)} Lebih Dari{" "}
-                      {submission.scores?.[0].scoring.min_point}
-                    </span>
-                  ) : (
-                    <span className="text-red-800">
-                      Ditolak Karena
-                      {" Nilai " +
-                        calculateTotalPoint(submission.scores) +
-                        " Kurang Dari " +
-                        submission.scores?.[0].scoring.min_point}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              <table className="table-fixed w-full border border-gray-300">
+                <thead>
+                  <tr className="border-b bg-gray-100">
+                    <th className="p-2 font-semibold text-left w-[200px]">Rasio</th>
+                    <RenderList
+                      of={submission.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <th className="p-2 font-semibold text-center w-1/5">{ratio.year}</th>;
+                      }}
+                    />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Likuiditas
+                      {comparisonRatios.liquidity_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.liquidity_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Profitabilitas
+                      {comparisonRatios.profitability_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.profitability_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Solvabilitas
+                      {comparisonRatios.solvency_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.solvency_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold mb-4 mt-10">Hasil Skoring</h2>
+            <table className="table-fixed w-full border border-gray-300">
+              <thead>
+                <tr className="border-b bg-gray-300">
+                  <th className="p-2 font-semibold text-left w-[150pt]">Kategori Pertanyaan</th>
+                  <th className="p-2 font-semibold text-left">Pertanyaan</th>
+                  <th className="p-2 font-semibold text-left">Jawaban</th>
+                  <th className="p-2 font-semibold text-center w-2/12">Point</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(
+                  submission.scores.reduce((grouped: any, score: any) => {
+                    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
+                    if (!grouped[scoring_question_category_id]) {
+                      grouped[scoring_question_category_id] = {
+                        ...scoring_question_category,
+                        items: [],
+                      };
+                    }
+                    grouped[scoring_question_category_id].items.push(rest);
+                    return grouped;
+                  }, {}),
+                ).map(([id, scores]: [any, any]) => {
+                  return (
+                    <React.Fragment key={id}>
+                      <tr className="border-b bg-gray-100">
+                        <td colSpan={4} className="p-2 font-bold">
+                          {scores.name} ({scores.max_point})
+                        </td>
+                      </tr>
+                      {scores.items.map((score: any) => (
+                        <tr key={score.id} className="border-b">
+                          <td className="p-2 text-left"></td>
+                          <td className="p-2 text-left">{score.question_name}</td>
+                          <td className="p-2 text-left">{score.option_name}</td>
+                          <td className="p-2 text-center">{score.point}</td>
+                        </tr>
+                      ))}
+                      <tr className="bg-gray-50">
+                        <td className="p-2" colSpan={3}>
+                          Sub Total:
+                        </td>
+                        <td className="p-2 text-center">
+                          {scores.items.reduce((total: number, score: any) => total + score.point, 0)}
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+
+              <tfoot>
+                <tr className="border-b bg-gray-300">
+                  <td className="p-2 font-semibold" colSpan={3}>
+                    Total:
+                  </td>
+                  <td className="p-2 text-center">{calculateTotalPoint(submission.scores)}</td>
+                </tr>
+                <tr>
+                  <td
+                    colSpan={4}
+                    className={cn({
+                      "p-2 text-center": true,
+                      "bg-green-300": submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores),
+                      "bg-red-300": submission.scores?.[0].scoring.min_point >= calculateTotalPoint(submission.scores),
+                    })}>
+                    <span className="pr-1">Disarankan Untuk</span>
+                    {submission.scores?.[0].scoring.min_point < calculateTotalPoint(submission.scores) ? (
+                      <span className="text-green-800">
+                        Disetujui Karena Nilai {calculateTotalPoint(submission.scores)} Lebih Dari{" "}
+                        {submission.scores?.[0].scoring.min_point}
+                      </span>
+                    ) : (
+                      <span className="text-red-800">
+                        Ditolak Karena
+                        {" Nilai " +
+                          calculateTotalPoint(submission.scores) +
+                          " Kurang Dari " +
+                          submission.scores?.[0].scoring.min_point}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </Show>
 
