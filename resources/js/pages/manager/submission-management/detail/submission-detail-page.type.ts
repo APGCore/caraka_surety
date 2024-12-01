@@ -97,12 +97,21 @@ interface SubmissionDetailProps {
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;
+    checked_by: number | null;
+    approved_by: number | null;
+    rejected_by: number | null;
+    checked_at: string | null;
+    approved_at: string | null;
+    rejected_at: string | null;
+    created_at: string;
+    updated_at: string;
 
     // limit
     employee_limit: number;
     product_limit: number;
     beyond_the_limit: boolean;
   };
+
   bank: {
     id: number;
     name: string;

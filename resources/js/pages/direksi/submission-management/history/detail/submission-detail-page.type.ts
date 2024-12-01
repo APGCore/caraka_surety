@@ -26,8 +26,18 @@ interface Score {
   score: any;
 }
 
+interface RequiredDoc {
+  id: number;
+  product_type_id: number;
+  name: string;
+  description: string;
+  url?: string;
+  created_at: string;
+}
+
 interface SubmissionDetailProps {
   submission: {
+    id?: number;
     documents: string;
     status: string;
     contract_value: number;
@@ -78,17 +88,8 @@ interface SubmissionDetailProps {
     source_of_fund: {
       name: string;
     };
-
     scores: Score[];
-
-    submission_docs: {
-      name: string;
-      id: number;
-      length: any;
-      map: any;
-      doc: string;
-    };
-
+    required_docs: RequiredDoc[];
     contract_doc_name: string;
     contract_doc_number: string;
     contract_doc_date: string; // Format: YYYY-MM-DD
@@ -96,7 +97,21 @@ interface SubmissionDetailProps {
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;
+    checked_by: number | null;
+    approved_by: number | null;
+    rejected_by: number | null;
+    checked_at: string | null;
+    approved_at: string | null;
+    rejected_at: string | null;
+    created_at: string;
+    updated_at: string;
+
+    // limit
+    employee_limit: number;
+    product_limit: number;
+    beyond_the_limit: boolean;
   };
+
   bank: {
     id: number;
     name: string;

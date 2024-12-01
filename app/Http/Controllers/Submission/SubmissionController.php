@@ -296,6 +296,20 @@ class SubmissionController extends Controller
             'scores.scoringOption',
         ])->findOrFail($id);
 
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
+        $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->contract_value;
+        $principalDocs = collect($submission->principal->documents);
+        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+            ->map(function ($doc) use ($principalDocs) {
+                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+                if ($principalDoc) {
+                    $doc->name = $principalDoc->name;
+                    $doc->url = Storage::url($principalDoc->url);
+                }
+
+                return $doc;
+            });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -443,19 +457,22 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
-        $staffs = User::query()
-            ->where('head_id', '=', auth()->user()->getAuthIdentifier())
-            ->pluck('id');
+        $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->whereIn('staff_id', $staffs)
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+            ->where('checked_by', '!=', null)
             ->get()
-            ->map(function ($submission) {
+            ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
+                $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
 
                 return [
                     ...$submission->toArray(),
+                    'direksi_limit' => $direksiLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
                     'created_at' => $date,
                 ];
             });
@@ -524,41 +541,49 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function approve(Submission $submission)
+    public function approve(Submission $submission): void
     {
         $updated = $submission->update([
-            'checked_by' => auth()->user()->getAuthIdentifier(),
-            'checked_at' => now(),
+            'approved_by' => auth()->user()->getAuthIdentifier(),
+            'approved_at' => now(),
             'status' => SubmissionStatus::APPROVED->value,
         ]);
 
         if (! $updated) {
             flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
-
-            return back();
+        } else {
+            flashMessage('success', 'Berhasil menyetujui pengajuan');
         }
-
-        flashMessage('success', 'Berhasil menyetujui pengajuan');
-
-        return back();
     }
 
-    public function reject(Submission $submission)
+    public function reject(Submission $submission): void
     {
         $updated = $submission->update([
-            'checked_by' => auth()->user()->getAuthIdentifier(),
-            'checked_at' => now(),
+            'rejected_by' => auth()->user()->getAuthIdentifier(),
+            'rejected_at' => now(),
             'status' => SubmissionStatus::REJECTED->value,
         ]);
 
         if (! $updated) {
             flashMessage('error', 'Gagal menolak pengajuan', 'error');
-
-            return back();
+        } else {
+            flashMessage('success', 'Berhasil menolak pengajuan');
         }
 
-        flashMessage('success', 'Berhasil menolak pengajuan');
+    }
 
-        return back();
+    // check status
+    public function check(Submission $submission): void
+    {
+        $updated = $submission->update([
+            'checked_by' => auth()->user()->getAuthIdentifier(),
+            'checked_at' => now(),
+        ]);
+
+        if (! $updated) {
+            flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
+        } else {
+            flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
+        }
     }
 }

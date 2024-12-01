@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
-import ManagerLayoutPage from "@/layouts/manager";
+import DireksiLayoutPage from "@/layouts/direksi";
 import { cn } from "@/lib/cn";
 import { textCurrency } from "@/lib/text-currency";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
@@ -196,23 +196,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       })
       .catch((error) => {
         console.log("error reject submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  // handle check status
-  const handleCheck = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("manager-submission-check", submissionId))
-      .then((response) => {
-        console.log("success check submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.log("error check submission", error);
       })
       .finally(() => {
         setIsLoading(false);
@@ -861,7 +844,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </div>
         </Show>
-
         <Show
           when={
             submission.status === SubmissionStatus.PROCESS &&
@@ -920,38 +902,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </AlertDialog>
           </div>
         </Show>
-        <Show
-          when={
-            submission.status === SubmissionStatus.PROCESS &&
-            !submission.beyond_the_limit &&
-            !submission.approved_at &&
-            !submission.rejected_at
-          }>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="default"
-                disabled={isLoading}
-                className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                Kirim Ke Direksi
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke direksi?</AlertDialogTitle>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-yellow-600 hover:bg-yellow-200"
-                  onClick={() => submission.id && handleCheck(submission.id)}>
-                  Kirim
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </Show>
       </main>
     </>
   );
@@ -963,7 +913,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <ManagerLayoutPage user={pagePropsData?.auth?.user}>
+    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
       <div
         className={cn({
           "mt-[7%]": pagePropsData?.submission?.beyond_the_limit,
@@ -971,6 +921,6 @@ SubmissionDetailPage.layout = (page: any) => {
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}
       </div>
-    </ManagerLayoutPage>
+    </DireksiLayoutPage>
   );
 };

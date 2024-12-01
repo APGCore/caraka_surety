@@ -1590,12 +1590,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
                                   const profitability = calculateRatios(value, ratio.net_income);
+                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
                                       return {
                                         ...r,
                                         revenue: value,
-                                        profitability_ratios: profitability,
+                                        profitability_ratios: profit.toString(),
                                       };
                                     }
                                     return r;
@@ -1616,12 +1617,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 onChange={(e) => {
                                   const value = e.target.value.replace(/[^0-9.]/g, "");
                                   const profitability = calculateRatios(ratio.revenue, value);
+                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
                                       return {
                                         ...r,
                                         net_income: value,
-                                        profitability_ratios: profitability,
+                                        profitability_ratios: profit.toString(),
                                       };
                                     }
                                     return r;
@@ -1635,7 +1637,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               />
                             </div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
-                            <div className="pt-2 h-[30px] w-full text-black">{ratio.profitability_ratios ?? "??"}</div>
+                            <div className="pt-2 h-[30px] w-full text-black">
+                              {ratio.profitability_ratios !== undefined
+                                ? ratio.profitability_ratios.toString() + "%"
+                                : "??"}{" "}
+                            </div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
                           </div>
                         );

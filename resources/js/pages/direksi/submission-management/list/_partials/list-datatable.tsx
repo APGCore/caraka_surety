@@ -40,12 +40,12 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             render={(submission: any, index: number) => (
               <TableRow
                 key={submission.id}
-                className={submission.manager_limit < submission.contract_value ? "bg-amber-300" : ""}>
+                className={submission.direksi_limit < submission.contract_value ? "bg-amber-300" : ""}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission?.contract_value)} limit {formatRupiah(submission?.manager_limit)}
+                  {formatRupiah(submission?.contract_value)} limit {formatRupiah(submission?.direksi_limit)}
                 </TableCell>
                 <TableCell>
                   <span
@@ -66,7 +66,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                     className="bg-white text-black shadow-sm hover:bg-white px-2 py-1.5 text-sm w-full rounded-sm text-start"
                     onClick={(e) => {
                       e.preventDefault();
-                      router.visit(route("manager-submission-detail.submission", submission.id));
+                      router.visit(route("direksi-submission-detail.submission", submission.id));
                     }}>
                     Detail
                   </Button>

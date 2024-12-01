@@ -9,22 +9,24 @@ import {
 import { Head } from "@inertiajs/react";
 import React from "react";
 
-interface SubmissionCreateHeaderProps {
+interface SubmissionDetailHeaderProps {
   title: string;
 }
 
-const SubmissionCreateHeader: React.FC<SubmissionCreateHeaderProps> = ({ title }) => {
+const SubmissionDetailHeader: React.FC<SubmissionDetailHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "Buat Pengajuan"} />
+      <Head title={title ?? "Detail Pengajuan"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("scoring.index")}>Kelola Pengajuan</BreadcrumbLink>
+            <BreadcrumbLink href={route("staff-submission-history.submission")}>
+              Kelola Histori Pengajuan
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Buat Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>Detail Pengajuan</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -35,4 +37,4 @@ const SubmissionCreateHeader: React.FC<SubmissionCreateHeaderProps> = ({ title }
   );
 };
 
-export default SubmissionCreateHeader;
+export default SubmissionDetailHeader;

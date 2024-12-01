@@ -1,11 +1,8 @@
 import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
-import SecondaryButton from "@/components/common/secondary-button";
 import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Badge } from "@/components/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
 import StaffLayoutPage from "@/layouts/staff";
@@ -55,72 +52,11 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
-  const { currentStep, steps, gotoStep, resetSteps } = useStepper(initialSteps);
+  const { currentStep, steps, gotoStep } = useStepper(initialSteps);
 
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios);
-
-    // const tinymceScript = document.createElement("script");
-    // tinymceScript.src = "/js/tinymce/tinymce.min.js";
-    // tinymceScript.async = true;
-    // tinymceScript.defer = true;
-
-    // const htmlDocxScript = document.createElement("script");
-    // htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
-    // htmlDocxScript.async = true;
-    // htmlDocxScript.defer = true;
-
-    // tinymceScript.onload = () => {
-    //   const setupEditor = (selector: string, editorId: string, template: string) => {
-    //     window.tinymce.init({
-    //       selector,
-    //       height: 500,
-    //       plugins: "link image code",
-    //       toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
-    //       promotion: false,
-    //       branding: false,
-    //       setup: (editor: any) => {
-    //         editor.ui.registry.addButton("exportToWordButton", {
-    //           text: "Export to Word",
-    //           onAction: () => exportToWord(editorId),
-    //         });
-
-    //         editor.on("init", () => {
-    //           editor.setContent(template);
-    //         });
-    //       },
-    //     });
-    //   };
-
-    //   setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
-    //   setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
-    //   setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
-    //   setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
-    //   document.body.appendChild(tinymceScript);
-    //   document.body.appendChild(htmlDocxScript);
-    // };
-
-    // return () => {
-    //   //   document.body.removeChild(tinymceScript);
-    //   //   document.body.removeChild(htmlDocxScript);
-    // };
   }, []);
-
-  const viewDocument = (url: string) => {
-    window.open(url, "_blank");
-  };
-
-  const exportToWord = (editorId: string) => {
-    const editorContent = window.tinymce.get(editorId).getContent();
-    const converted = window.htmlDocx.asBlob(editorContent);
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(converted);
-    link.download = `${editorId}-document.docx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   const currentDate = new Date();
   const options = { year: "numeric" as const, month: "long" as const, day: "numeric" as const };
@@ -132,8 +68,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       currency: "IDR",
     }).format(Number(value));
   };
-
-  console.log(submission);
 
   const replaceTemplatePlaceholders = (template: string, data: any) => {
     return template
@@ -178,19 +112,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data.job_name)
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
       .replace("[JANGKA_WAKTU]", data.time_period);
-  };
-
-  const replaceAnalystPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[TGL_PENGAJUAN]", data.created_at)
-      .replace("[NAMA_TERJAMIN]", data.principal.name)
-      .replace("[ALAMAT_TERJAMIN]", data.principal.address)
-      .replace("[NPWP]", data.principal.npwp)
-      .replace("[JENIS_JAMINAN]", data.guarantee_type)
-      .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value))
-      .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
-      .replace("[JANGKA_WAKTU]", data.time_period)
-      .replace("[LOKASI_PROYEK]", data.location);
   };
 
   const replaceDraftSuretyPlaceholders = (template: string, data: any) => {
@@ -686,7 +607,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <RenderList
                       of={submission.principal?.ratios}
                       render={(ratio: any) => {
-                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}</td>;
+                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
                       }}
                     />
                   </tr>
