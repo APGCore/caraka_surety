@@ -35,9 +35,89 @@ interface RequiredDoc {
   created_at: string;
 }
 
+interface Principal {
+  address: string;
+  commissioner: string;
+  created_at: string;
+  created_by: number;
+  deleted_at: string | null;
+  director_name: string;
+  director_phone: string;
+  director_position: string;
+  district_id: number;
+  fax: string;
+  head_name: string;
+  headquarter_id: number | null;
+  id: number;
+  is_approved: number;
+  last_deed: string;
+  name: string;
+  nib: string;
+  npwp: string;
+  pic: string;
+  picture: string | null;
+  province_id: number;
+  regency_id: number;
+  siup_siujk: string;
+  telephone: string;
+  updated_at: string;
+  village: string;
+  year_established: string;
+  documents: Document[];
+  ratios: Ratio[];
+}
+
+interface GuarantorToProductType {
+  name: string;
+  full_name: string;
+  job_group: string;
+}
+
+interface Obligee {
+  name: string;
+  address: string;
+}
+
+interface SourceOfFund {
+  name: string;
+}
+
+interface Bank {
+  id: number;
+  name: string;
+  address: string;
+  telephone: string;
+  fax: string;
+  pic: string;
+  created_at: string;
+  updated_at: string;
+  village: string;
+  district_id: number;
+  province_id: number;
+  regency_id: number;
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  role_id: number;
+  username: string;
+  profile_picture: string | null;
+  village: string;
+  district_id: number;
+  province_id: number;
+  regency_id: number;
+}
+
 interface SubmissionDetailProps {
   submission: {
-    id?: number;
+    id: number;
+    bank: Bank;
     documents: string;
     status: string;
     contract_value: number;
@@ -45,49 +125,11 @@ interface SubmissionDetailProps {
     job_location_village: string;
     start_date: string;
     end_date: string;
-    principal: {
-      address: string;
-      commissioner: string;
-      created_at: string;
-      created_by: number;
-      deleted_at: string | null;
-      director_name: string;
-      director_phone: string;
-      director_position: string;
-      district_id: number;
-      fax: string;
-      head_name: string;
-      headquarter_id: number | null;
-      id: number;
-      is_approved: number;
-      last_deed: string;
-      name: string;
-      nib: string;
-      npwp: string;
-      pic: string;
-      picture: string | null;
-      province_id: number;
-      regency_id: number;
-      siup_siujk: string;
-      telephone: string;
-      updated_at: string;
-      village: string;
-      year_established: string;
-      documents: Document[];
-      ratios: Ratio[];
-    };
-    guarantor_to_product_type: {
-      name: string;
-      full_name: string;
-      job_group: string;
-    };
-    obligee: {
-      name: string;
-      address: string;
-    };
-    source_of_fund: {
-      name: string;
-    };
+    created_at: string;
+    principal: Principal;
+    guarantor_to_product_type: GuarantorToProductType;
+    obligee: Obligee;
+    source_of_fund: SourceOfFund;
     scores: Score[];
     required_docs: RequiredDoc[];
     contract_doc_name: string;
@@ -97,141 +139,14 @@ interface SubmissionDetailProps {
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;
-    checked_by: number | null;
-    approved_by: number | null;
-    rejected_by: number | null;
-    checked_at: string | null;
-    approved_at: string | null;
-    rejected_at: string | null;
-    created_at: string;
-    updated_at: string;
-
-    // limit
-    employee_limit: number;
-    product_limit: number;
+    user_checked: User;
+    checked_at: string;
+    user_approved: User;
+    approved_at: string;
+    user_rejected: User;
+    rejected_at: string;
     beyond_the_limit: boolean;
   };
-
-  bank: {
-    id: number;
-    name: string;
-    address: string;
-    telephone: string;
-    fax: string;
-    pic: string;
-    created_at: string;
-    updated_at: string;
-    village: string;
-    district_id: number;
-    province_id: number;
-    regency_id: number;
-  };
-  contract_doc_date: string;
-  contract_doc_name: string;
-  contract_doc_number: string;
-  contract_value: number;
-  created_at: string | null;
-  deleted_at: string | null;
-  end_date: string;
-  guarantee_issue_date: string | null;
-  guarantee_value: number;
-  guarantor: {
-    id: number;
-    name: string;
-    address: string;
-    telephone: string;
-    fax: string;
-    email: string;
-    code: string;
-    pic: string;
-    created_at: string;
-    updated_at: string;
-    district_id: number;
-    province_id: number;
-    regency_id: number;
-    village: string;
-  };
-  guarantor_id: number;
-  guarantor_to_product_type: {
-    id: number;
-    guarantor_id: number;
-    product_id: number;
-    product_type_id: number;
-    name: string;
-    full_name: string;
-    job_group: string;
-    code: string;
-    created_at: string;
-    updated_at: string;
-  };
-  guarantor_to_product_type_id: number;
-  id: number;
-  job_location_district_id: number;
-  job_location_province_id: number;
-  job_location_regency_id: number;
-  job_location_village: string;
-  min_point_scoring: string;
-  note: string | null;
-  note_scoring: string | null;
-  obligee: {
-    id: number;
-    name: string;
-    address: string;
-    telephone: string;
-    fax: string;
-    pic: string;
-    village: string;
-    district_id: number;
-    province_id: number;
-    regency_id: number;
-    created_at: string;
-    updated_at: string;
-  };
-  obligee_id: number;
-  principal: {
-    address: string;
-    commissioner: string;
-    created_at: string;
-    created_by: number;
-    deleted_at: string | null;
-    director_name: string;
-    director_phone: string;
-    director_position: string;
-    district_id: number;
-    fax: string;
-    head_name: string;
-    headquarter_id: number | null;
-    id: number;
-    is_approved: number;
-    last_deed: string;
-    name: string;
-    nib: string;
-    npwp: string;
-    pic: string;
-    picture: string | null;
-    province_id: number;
-    regency_id: number;
-    siup_siujk: string;
-    telephone: string;
-    updated_at: string;
-    village: string;
-    year_established: string;
-  };
-  principal_id: number;
-  product_id: number;
-  source_of_fund: {
-    id: number;
-    name: string;
-    created_at: string;
-    updated_at: string;
-  };
-  source_of_fund_id: number;
-  start_date: string;
-  time_period: number;
-  scores: {
-    score: string;
-  };
-  updated_at: string;
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {

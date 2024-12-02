@@ -13,6 +13,7 @@ use App\Models\Product\Product;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -102,5 +103,20 @@ class Submission extends Model
     public function guarantorProductTypeLimit(): HasOne
     {
         return $this->hasOne(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id', 'guarantor_to_product_type_id');
+    }
+
+    public function userChecked(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'checked_by', 'id');
+    }
+
+    public function userApproved(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by', 'id');
+    }
+
+    public function userRejected(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by', 'id');
     }
 }

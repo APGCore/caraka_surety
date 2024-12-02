@@ -183,6 +183,9 @@ class SubmissionController extends Controller
             'scores.scoringQuestionCategory',
             'scores.scoringQuestion',
             'scores.scoringOption',
+            'userChecked',
+            'userApproved',
+            'userRejected',
         ])->findOrFail($id);
 
         $principalDocs = collect($submission->principal->documents);
@@ -238,6 +241,9 @@ class SubmissionController extends Controller
             'scores.scoringOption',
             'employeeLimit',
             'guarantorProductTypeLimit',
+            'userChecked',
+            'userApproved',
+            'userRejected',
         ])->findOrFail($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
@@ -294,6 +300,9 @@ class SubmissionController extends Controller
             'scores.scoringQuestionCategory',
             'scores.scoringQuestion',
             'scores.scoringOption',
+            'userChecked',
+            'userApproved',
+            'userRejected',
         ])->findOrFail($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
@@ -544,7 +553,9 @@ class SubmissionController extends Controller
     public function approve(Submission $submission): void
     {
         $updated = $submission->update([
+            'checked_by' => auth()->user()->getAuthIdentifier(),
             'approved_by' => auth()->user()->getAuthIdentifier(),
+            'checked_at' => now(),
             'approved_at' => now(),
             'status' => SubmissionStatus::APPROVED->value,
         ]);
@@ -559,7 +570,9 @@ class SubmissionController extends Controller
     public function reject(Submission $submission): void
     {
         $updated = $submission->update([
+            'checked_by' => auth()->user()->getAuthIdentifier(),
             'rejected_by' => auth()->user()->getAuthIdentifier(),
+            'checked_at' => now(),
             'rejected_at' => now(),
             'status' => SubmissionStatus::REJECTED->value,
         ]);

@@ -13,5 +13,9 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
             Route::get('/detail/{id}', 'showDetailSubmissionDireksi')->name('detail.submission');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionDireksi')->name('docs.submission');
+
+            Route::post('/approve/{submission}', 'approve')->name('approve');
+            Route::post('/reject/{submission}', 'reject')->name('reject');
+            Route::post('/check/{submission}', 'check')->name('check');
         });
 });

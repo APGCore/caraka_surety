@@ -20,7 +20,7 @@ const SubmissionDetailHeader: React.FC<SubmissionDetailHeaderProps> = ({ title }
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route("staff-submission-history.submission")}>
+            <BreadcrumbLink href={route("manager-submission-history.submission")}>
               Kelola Histori Pengajuan
             </BreadcrumbLink>
           </BreadcrumbItem>

@@ -2,11 +2,13 @@ import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
 import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
+import { formatCurrency } from "@/lib/format-currency";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
@@ -61,13 +63,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const currentDate = new Date();
   const options = { year: "numeric" as const, month: "long" as const, day: "numeric" as const };
   const formattedDate = currentDate.toLocaleDateString("id-ID", options).toUpperCase();
-
-  const formatCurrency = (value: number | string) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(Number(value));
-  };
+  const isProcess = submission.status == SubmissionStatus.PROCESS;
+  const isApproved = submission.status == SubmissionStatus.APPROVED;
+  const isRejected = submission.status == SubmissionStatus.REJECTED;
 
   const replaceTemplatePlaceholders = (template: string, data: any) => {
     return template
@@ -205,27 +203,28 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       </div>
 
       {/* TITLE DETAIL SECTION */}
-      <Show when={currentStep === "principal"}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Detail Perusahaan</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold">Detail Perusahaan</h1>
+      </div>
+      <div className="border rounded-sm p-4 space-y-6 bg-white">
+        {/* STATUS */}
+        <div>
+          <Alert variant={isProcess ? "warning" : isApproved ? "success" : isRejected ? "destructive" : "default"}>
+            <AlertTitle>Status</AlertTitle>
+            <AlertDescription>
+              <Show when={isProcess}>
+                <span>Pengajuan sedang diproses</span>
+              </Show>
+              <Show when={isApproved}>
+                <span>Pengajuan telah disetujui oleh {submission.user_approved?.name}</span>
+              </Show>
+              <Show when={isRejected}>
+                <span>Pengajuan ditolak oleh {submission.user_rejected?.name}</span>
+              </Show>
+            </AlertDescription>
+          </Alert>
         </div>
-        <div className="border rounded-sm p-4 space-y-6 bg-white">
-          {/* STATUS */}
-          <div>
-            <h2>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  submission.status === SubmissionStatus.APPROVED
-                    ? "bg-green-100 text-green-800"
-                    : submission.status === SubmissionStatus.REJECTED
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                } uppercase`}>
-                {submission.status}
-              </span>
-            </h2>
-          </div>
+        <Show when={currentStep === "principal"}>
           <div>
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
@@ -272,29 +271,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tbody>
             </table>
           </div>
-        </div>
-      </Show>
-
-      <Show when={currentStep === "docs"}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Detail Dokumen</h1>
-        </div>
-        <div className="border rounded-lg p-4 space-y-6 bg-white">
-          <div>
-            <h2>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  submission.status === SubmissionStatus.APPROVED
-                    ? "bg-green-100 text-green-800"
-                    : submission.status === SubmissionStatus.REJECTED
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                } uppercase`}>
-                {submission.status}
-              </span>
-            </h2>
-          </div>
+        </Show>
+        <Show when={currentStep === "docs"}>
           {submission.required_docs && submission.required_docs.length > 0 ? (
             <table className="table-fixed w-full border border-gray-300">
               <thead>
@@ -322,29 +300,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           ) : (
             <p className="text-gray-500">Tidak ada dokumen yang diunggah.</p>
           )}
-        </div>
-      </Show>
-
-      <Show when={currentStep === "contract"}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Detail Kontrak</h1>
-        </div>
-        <div className="border rounded-lg p-4 space-y-6 bg-white">
-          <div>
-            <h2>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  submission.status === SubmissionStatus.APPROVED
-                    ? "bg-green-100 text-green-800"
-                    : submission.status === SubmissionStatus.REJECTED
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                } uppercase`}>
-                {submission.status}
-              </span>
-            </h2>
-          </div>
+        </Show>
+        <Show when={currentStep === "contract"}>
           <table className="table-fixed w-full border border-gray-300">
             <tbody>
               <tr className="border-b">
@@ -458,29 +415,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
             </tbody>
           </table>
-        </div>
-      </Show>
-
-      <Show when={currentStep === "skoring"}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Detail Skoring</h1>
-        </div>
-        <div className="border rounded-lg p-4 space-y-6 bg-white">
-          <div>
-            <h2>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  submission.status === SubmissionStatus.APPROVED
-                    ? "bg-green-100 text-green-800"
-                    : submission.status === SubmissionStatus.REJECTED
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                } uppercase`}>
-                {submission.status}
-              </span>
-            </h2>
-          </div>
+        </Show>
+        <Show when={currentStep === "skoring"}>
           <div>
             <h2 className="text-lg font-semibold mb-4 mt-10">Analisis Rasio Keuangan Perusahaan</h2>
             <div className="flex justify-between w-full">
@@ -592,27 +528,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </tr>
                   <tr className="border-b bg-gray-100">
                     <td className="p-2 font-semibold text-left">
-                      Rasio Profitabilitas
-                      {comparisonRatios.profitability_ratios == true && (
-                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                          Naik
-                        </Badge>
-                      )}
-                      {comparisonRatios.profitability_ratios == false && (
-                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                          Turun
-                        </Badge>
-                      )}
-                    </td>
-                    <RenderList
-                      of={submission.principal?.ratios}
-                      render={(ratio: any) => {
-                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
-                      }}
-                    />
-                  </tr>
-                  <tr className="border-b bg-gray-100">
-                    <td className="p-2 font-semibold text-left">
                       Rasio Solvabilitas
                       {comparisonRatios.solvency_ratios == true && (
                         <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
@@ -629,6 +544,27 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       of={submission.principal?.ratios}
                       render={(ratio: any) => {
                         return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Profitabilitas
+                      {comparisonRatios.profitability_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.profitability_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
                       }}
                     />
                   </tr>
@@ -724,61 +660,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tfoot>
             </table>
           </div>
-        </div>
-      </Show>
-
-      <Show when={currentStep === "luaran"}>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">Detail Luaran</h1>
-        </div>
-        <div className="border rounded-lg p-4  bg-white">
+        </Show>
+        <Show when={currentStep === "luaran"}>
           <div>
-            <h2>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-2 py-1 text-xs font-semibold rounded ${
-                  submission.status === SubmissionStatus.APPROVED
-                    ? "bg-green-100 text-green-800"
-                    : submission.status === SubmissionStatus.REJECTED
-                      ? "bg-red-100 text-red-800"
-                      : "bg-yellow-100 text-yellow-800"
-                } uppercase`}>
-                {submission.status}
-              </span>
-            </h2>
-          </div>
-          <div>
-            <div className="pt-6">
-              <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
-              <div>
-                <TinyMCEEditor
-                  id="hasil-analisis"
-                  initialContent={replaceTemplatePlaceholders(templateAnalyst, data)}
-                />
-              </div>
+            <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
+            <div>
+              <TinyMCEEditor id="hasil-analisis" initialContent={replaceTemplatePlaceholders(templateAnalyst, data)} />
             </div>
-            <div className="pt-6">
-              <p className="text-xl font-semibold">Jaminan Pelaksanaan</p>
-              <TinyMCEEditor
-                id="surat-pelaksanaan"
-                initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
-              />
-              <br />
-              <p className="text-xl font-semibold">Surat Permohonan</p>
-              <TinyMCEEditor
-                id="surat-permohonan"
-                initialContent={replacePermohonanPlaceholders(templatePermohonan, data)}
-              />
-              <br />
-              <p className="text-xl font-semibold">Draft Surety Bond</p>
-              <TinyMCEEditor
-                id="draft-surety"
-                initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
-              />
-            </div>
+            <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
+            <TinyMCEEditor
+              id="surat-pelaksanaan"
+              initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+            />
+            <br />
+            <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
+            <TinyMCEEditor
+              id="surat-permohonan"
+              initialContent={replacePermohonanPlaceholders(templatePermohonan, data)}
+            />
+            <br />
+            <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
+            <TinyMCEEditor
+              id="draft-surety"
+              initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
+            />
           </div>
-        </div>
-      </Show>
+        </Show>
+      </div>
     </main>
   );
 };
