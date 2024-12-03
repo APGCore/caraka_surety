@@ -493,7 +493,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   };
 
   const handleSubmit = () => {
-    console.log(data);
     post(route("staff-submission-form.store"), {
       onError: (errors) => {
         console.log(errors);
@@ -662,7 +661,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Input
                         className="text-md"
                         placeholder="No Telepon Perusahaan"
-                        value={data.principal.telephone}
+                        value={Number(data.principal.telephone)}
                         min="0"
                         type="number"
                         onChange={(e) =>
@@ -678,7 +677,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Input
                         className="text-md"
                         placeholder="No NPWP"
-                        value={data.principal.npwp}
+                        value={Number(data.principal.npwp)}
                         min="0"
                         type="number"
                         onChange={(e) =>
@@ -696,7 +695,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         className="text-md"
                         placeholder="No NIB"
                         type="number"
-                        value={data.principal.nib}
+                        value={Number(data.principal.nib)}
                         min="0"
                         onChange={(e) =>
                           setData("principal", {
@@ -727,7 +726,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Input
                         className="text-md"
                         placeholder="Nomor telepon Jabatan"
-                        value={data.principal.director_phone}
+                        value={Number(data.principal.director_phone)}
                         min="0"
                         type="number"
                         onChange={(e) =>
@@ -772,10 +771,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Label className="text-sm">Perusahaan Berdiri Tahun</Label>
                       <Input
                         className="text-md"
-                        type="number"
                         placeholder="Tahun berdiri perusahaan"
                         value={data.principal.year_established}
                         min="0"
+                        type="number"
                         onChange={(e) =>
                           setData("principal", {
                             ...data.principal,
@@ -1084,11 +1083,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             <Input
                               className="text-sm"
                               placeholder="Masukan nomor telepon"
-                              value={data.obligee.telephone}
+                              value={Number(data.obligee.telephone)}
+                              min="0"
+                              type="number"
                               onChange={(e) =>
                                 setData("obligee", {
                                   ...data.obligee,
-                                  telephone: e.target.value,
+                                  telephone: String(getNumericValue(e)),
                                 })
                               }
                             />
