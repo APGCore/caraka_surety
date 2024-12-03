@@ -195,13 +195,10 @@ class PrincipalController extends Controller
         $request->validate([
             'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
         ]);
-        $principal = Principal::query()
-            ->where('id', $request->get('principal_id'))
-            ->first();
 
-        $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($principal) {
+        $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($request) {
             $query->where([
-                'principal_id' => $principal?->getAttribute('id'),
+                'principal_id' => $request->get('principal_id'),
                 'is_approved' => true,
             ]);
         }])->get();

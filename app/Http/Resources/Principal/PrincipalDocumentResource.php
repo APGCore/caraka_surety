@@ -17,13 +17,19 @@ class PrincipalDocumentResource extends JsonResource
     {
         $principalDocument = collect($this->resource->principalDocument);
 
-        return [
-            ...parent::toArray($request),
-            'principal_document' => $principalDocument->count() > 0 ? (object) [
-                ...$principalDocument,
+        if ($principalDocument) {
+            $principalDocument = [
+                ...$principalDocument->toArray(),
                 'path' => $principalDocument->get('url')
                     ? Storage::url($principalDocument->get('url')) : null,
-            ] : null,
+            ];
+        } else {
+            $principalDocument = null;
+        }
+
+        return [
+            ...parent::toArray($request),
+            'principal_document' => $principalDocument,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

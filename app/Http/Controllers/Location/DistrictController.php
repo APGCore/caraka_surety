@@ -163,6 +163,7 @@ class DistrictController extends Controller
             $responses = $this->syncApi('kecamatan', [
                 'id_kabupaten' => $request->get('code'),
             ]);
+            dd($responses);
 
             // Ambil hasil dari permintaan
             $regency = Regency::query()

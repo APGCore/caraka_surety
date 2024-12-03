@@ -978,8 +978,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Label className="text-md">Jenis Jaminan</Label>
                       <Combobox
                         datas={productTypes}
-                        labelKey="name"
-                        valueKey="name"
+                        labelKey="full_name"
+                        valueKey="full_name"
                         placeholder="Pilih Jenis Jaminan"
                         reset={isResetProductType}
                         defaultValueId={

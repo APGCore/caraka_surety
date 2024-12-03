@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductTipeResource;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\ProductType;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -196,7 +197,7 @@ class ProductTipeController extends Controller
 
     public function getByProductAndGuarantor($productId, $guarantorId)
     {
-        $productTypes = ProductType::query()
+        $productTypes = GuarantorToProductType::query()
             ->whereHas('product', function ($query) use ($productId) {
                 $query->where('product_id', $productId);
             })

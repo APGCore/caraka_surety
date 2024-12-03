@@ -124,6 +124,7 @@ class SubmissionController extends Controller
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
                 $document['name'] = $document['required_doc_name'];
+                $document['is_approved'] = true;
                 $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
                 $path = "principal/{$principal['id']}-{$principalName}/documents";
 
