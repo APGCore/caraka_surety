@@ -203,7 +203,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     <>
       <Show when={submission.beyond_the_limit}>
         <div className="fixed top-20 w-[81%] z-[100]">
-          <Alert variant="destructive" className="bg-red-100">
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
@@ -262,7 +262,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           />
         </div>
 
-        {/* TITLE DETAIL SECTION */}
         {/* TITLE DETAIL SECTION */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold">Detail Perusahaan</h1>
