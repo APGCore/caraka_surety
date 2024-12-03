@@ -219,8 +219,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[AKTA_PERUBAHAN]", data.deed_of_amendment || "-")
       .replace("[NPWP]", data.principal.npwp || "")
       .replace("[NIB]", data.principal.nib || "")
-      .replace("[NAMA_PENGURUS_1]", data.management_1_name || "")
-      .replace("[JABATAN_PENGURUS_1]", data.management_1_position || "")
+      .replace("[NAMA_PENGURUS_1]", data.principal.director_name || "")
+      .replace("[JABATAN_PENGURUS_1]", data.principal.director_position || "")
       .replace("[NAMA_PENGURUS_2]", data.management_2_name || "")
       .replace("[JABATAN_PENGURUS_2]", data.management_2_position || "")
       .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
@@ -440,7 +440,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   return (
-    <main className="space-y-5">
+    <main className="space-y-10 w-[800px]  mx-auto mt-[50px]">
       {/* STEPPER SECTION */}
       <div className="flex">
         <RenderList
@@ -958,20 +958,63 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
             />
           </div>
-          <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-          <TinyMCEEditor
-            id="surat-pelaksanaan"
-            initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
-          />
-          <br />
-          <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-          <TinyMCEEditor
-            id="surat-permohonan"
-            initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
-          />
-          <br />
-          <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-          <TinyMCEEditor id="draft-surety" initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)} />
+
+          {submission.guarantor_to_product_type.full_name.toLowerCase().includes("pelaksanaan") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
+              <TinyMCEEditor
+                id="surat-pelaksanaan"
+                initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+              />
+            </div>
+          )}
+
+          {submission.guarantor_to_product_type.full_name.toLowerCase().includes("bank") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
+              <TinyMCEEditor
+                id="surat-permohonan"
+                initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
+              />
+            </div>
+          )}
+
+          {submission.guarantor_to_product_type.full_name.toLowerCase().includes("surety bond") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
+              <TinyMCEEditor
+                id="draft-surety"
+                initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
+              />
+            </div>
+          )}
+
+          {submission.guarantor.name.toLowerCase().includes("bumida") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
+              <TinyMCEEditor
+                id="draft-surety-bumida"
+                initialContent={replaceBumidaPlaceholders(templateBumida, data)}
+              />
+            </div>
+          )}
+
+          {submission.guarantor.name.toLowerCase().includes("jastan") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Jastan</p>
+              <TinyMCEEditor
+                id="draft-surety-jastan"
+                initialContent={replaceJastanPlaceholders(templateJastan, data)}
+              />
+            </div>
+          )}
+
+          {submission.guarantor.name.toLowerCase().includes("videi") && (
+            <div>
+              <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
+              <TinyMCEEditor id="draft-surety-videi" initialContent={replaceVideiPlaceholders(templateVidei, data)} />
+            </div>
+          )}
         </div>
       </Show>
     </main>
