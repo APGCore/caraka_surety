@@ -17,8 +17,8 @@ const suratPermohonan = `
 
 <!-- DATA PEMOHON / PRINCIPAL -->
 <p style="font-family: Calibri;"><strong>A. DATA PEMOHON / PRINCIPAL</strong></p>
-<p style="font-family: Calibri;">1. Nama Perusahaan (Principal) : [NAMA_PERUSAHAAN]</p>
-<p style="font-family: Calibri;">2. Alamat Perusahaan : [ALAMAT_PERUSAHAAN]</p>
+<p style="font-family: Calibri;">1. Nama Perusahaan (Principal) : [NAMA_PRINCIPAL]</p>
+<p style="font-family: Calibri;">2. Alamat Perusahaan : [ALAMAT_PRINCIPAL]</p>
 <p style="font-family: Calibri;">3. Nama Direksi Perusahaan : [NAMA_DIREKSI]</p>
 <p style="font-family: Calibri;">4. Kontak Person Pengurus : [KONTAK_PERSON]</p>
 <p style="font-family: Calibri;">5. Bidang Usaha : [BIDANG_USAHA]</p>
@@ -28,7 +28,7 @@ const suratPermohonan = `
 <p style="font-family: Calibri;"><strong>B. JAMINAN YANG DIMOHON</strong></p>
 <p style="font-family: Calibri;">1. Jenis Jaminan : [JENIS_JAMINAN]</p>
 <p style="font-family: Calibri;">2. Nilai Penjaminan : [NILAI_PENJAMINAN]</p>
-<p style="font-family: Calibri;">3. Periode Jaminan : [PERIODE_JAMINAN]</p>
+<p style="font-family: Calibri;">3. Periode Jaminan : [PERIODE_JAMINAN] hari</p>
 <p style="font-family: Calibri;">4. Tanggal Penerbitan : [TANGGAL_PENERBITAN]</p>
 
 
@@ -57,7 +57,7 @@ const suratPermohonan = `
         <td style="text-align: left; vertical-align: top;">
             Jakarta, [TANGGAL_SURAT]
             <br><br><br><br>
-            Nama : <br>
+            Nama : [NAMA_DIREKTUR]<br>
             Jabatan : Direktur
         </td>
         <td style="text-align: right; vertical-align: top;">

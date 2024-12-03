@@ -73,9 +73,26 @@ interface GuarantorToProductType {
   job_group: string;
 }
 
+interface Guarantor {
+  name: string;
+  pic: string;
+  address: string;
+}
+
 interface Obligee {
   name: string;
   address: string;
+  pic: string;
+  district: {
+    name: string;
+  };
+
+  regency: {
+    name: string;
+  };
+  province: {
+    name: string;
+  };
 }
 
 interface SourceOfFund {
@@ -116,6 +133,7 @@ interface User {
 
 interface SubmissionDetailProps {
   submission: {
+    id: string;
     bank: Bank;
     documents: string;
     status: string;
@@ -127,6 +145,7 @@ interface SubmissionDetailProps {
     created_at: string;
     principal: Principal;
     guarantor_to_product_type: GuarantorToProductType;
+    guarantor: Guarantor;
     obligee: Obligee;
     source_of_fund: SourceOfFund;
     scores: Score[];
@@ -144,6 +163,16 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
+    district: {
+      name: string;
+    };
+
+    regency: {
+      name: string;
+    };
+    province: {
+      name: string;
+    };
   };
 }
 

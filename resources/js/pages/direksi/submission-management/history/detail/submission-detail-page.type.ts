@@ -76,6 +76,23 @@ interface GuarantorToProductType {
 interface Obligee {
   name: string;
   address: string;
+  pic: string;
+  district: {
+    name: string;
+  };
+
+  regency: {
+    name: string;
+  };
+  province: {
+    name: string;
+  };
+}
+
+interface Guarantor {
+  name: string;
+  pic: string;
+  address: string;
 }
 
 interface SourceOfFund {
@@ -146,6 +163,17 @@ interface SubmissionDetailProps {
     user_rejected: User;
     rejected_at: string;
     beyond_the_limit: boolean;
+    guarantor: Guarantor;
+    district: {
+      name: string;
+    };
+
+    regency: {
+      name: string;
+    };
+    province: {
+      name: string;
+    };
   };
 }
 

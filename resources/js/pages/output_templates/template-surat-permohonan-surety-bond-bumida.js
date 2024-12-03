@@ -4,18 +4,18 @@ const suratPermohonan = `
 <div style="font-family: Calibri, sans-serif;">
 
     <!-- Header Section -->
-    <p style="text-align: right;">Jakarta, :[TANGGAL_SURAT]</p>
+    <p style="text-align: right;">Jakarta, [TANGGAL_SURAT]</p>
     <table style="width: 100%; margin-bottom: 20px;">
         <tr>
             <td style="width: 70%; padding: 10px;">
-                <p> Nomor	: ………………. </p>
+                <p> Nomor	: [NOMOR_SURAT] </p>
                 <p> Lamp. 	: 1 (satu) Bundle </p>
                 <p> Perihal	: Permohonan Penjaminan </p>
             </td>
             <td style="width: 30%; text-align: left;">
                 <br>
                 <p> Kepada Yth, </p>
-                <p> PT. ASURANSI UMUM BUMIPUTERA MUDA 1967 </p>
+                <p> [NAMA_PENJAMIN] </p>
                 <p> di. Tempat </p>
             </td>
         </tr>
@@ -75,7 +75,7 @@ const suratPermohonan = `
                 <p>Jangka Waktu</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[JANGKA_WAKTU]</p>
+                <p>:[JANGKA_WAKTU] hari</p>
             </td>
         </tr>
         <tr>
@@ -123,7 +123,7 @@ const suratPermohonan = `
     <p style="text-align: left;">
         Hormat Kami,<br>
         <strong>PEMOHON</strong><br><br><br><br>
-        <strong><u>NAMA PJ</strong><br>
+        <strong><u>[NAMA_PENANGGUNG_JAWAB]</strong><br>
         <i>Direktur</i>
     </p>
 
