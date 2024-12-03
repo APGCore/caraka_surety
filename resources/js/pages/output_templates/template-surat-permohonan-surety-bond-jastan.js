@@ -68,7 +68,7 @@ const suratPermohonan = `
             <td style="padding: 10px;">
                 <p>1. Jenis Jaminan : [JENIS_JAMINAN]</p>
                 <p>2. Nilai Jaminan : [NILAI_JAMINAN]</p>
-                <p>3. Jangka Waktu Jaminan : [TGL_JAMINAN_AWAL] s/d [TGL_JAMINAN_AKHIR]</p>
+                <p>3. Jangka Waktu Jaminan : [START_DATE] s/d [END_DATE]</p>
                 <p>4. Nama Proyek / Pekerjaan : [NAMA_PROYEK]</p>
                 <p>5. Jenis Proyek / Pekerjaan : [JENIS_PROYEK]</p>
                 <p>6. Nilai Proyek / Kontrak : [NILAI_PROYEK]</p>
@@ -95,9 +95,9 @@ const suratPermohonan = `
                     kesepakatan/perjanjian/kontrak antara PRINCIPAL dengan pihak lainnya yang disebut sebagai <strong>OBLIGEE</strong>.
                 </p>
                 <p>
-                .......................................... , [TANGGAL_SURAT]<br>
+                [NAMA_KOTA], [TANGGAL_SURAT]<br>
                 <strong>PRINCIPAL / PEMOHON</strong><br><br><br><br>
-                ( ………………………………………… )
+                [NAMA_PRINCIPAL_TTD]
                 </p>
             </td>
         </tr>

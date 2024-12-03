@@ -175,8 +175,12 @@ class SubmissionController extends Controller
             'principal',
             'principal.documents',
             'principal.principalRatios',
+            'guarantor',
             'guarantorToProductType',
             'obligee',
+            'obligee.province',
+            'obligee.regency',
+            'obligee.district',
             'sourceOfFund',
             'submissionDocs',
             'scores.scoring',
@@ -186,6 +190,9 @@ class SubmissionController extends Controller
             'userChecked',
             'userApproved',
             'userRejected',
+            'district',
+            'province',
+            'regency',
         ])->findOrFail($id);
 
         $principalDocs = collect($submission->principal->documents);

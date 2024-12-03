@@ -7,27 +7,24 @@ const templateContent = `
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 30px; vertical-align: top;">1.</td>
-        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: PT. MOTI BATARA ALKESINDO [NAMA_PRINCIPAL],
-        Jl. Agave Raya Blok A1 No. 19A RT. 09 RW. 04 Kedoya Selatan, Kebon Jeruk, Jakarta Barat [ALAMAT_PRINCIPAL]
+        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: [NAMA_PRINCIPAL], [ALAMAT_PRINCIPAL]
         sebagai Penyedia, selanjutnya disebut TERJAMIN, dan PT. ASURANSI UMUM VIDEI,
         Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Asuransi,
         selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak
         Politeknik Kesehatan Jakarta III [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
-        sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah Rp. 32.077.650,-
-        (terbilang: Tiga Puluh Dua Juta Tujuh Puluh Tujuh Ribu Enam Ratus Lima Puluh Rupiah) [BESARAN_NILAI_JAMINAN].</td>
+        sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah [BESARAN_NILAI_JAMINAN].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">2.</td>
         <td style="text-align: justify;">Maka kami, TERJAMIN dan PENJAMIN dengan ini mengikatkan diri untuk melakukan pembayaran jumlah tersebut di atas
         dengan baik dan benar bilamana TERJAMIN tidak memenuhi kewajiban dalam melaksanakan pelelangan Pekerjaan
-        Pengadaan Alat Laboratorium Jurusan Keperawatan Poltekkes Kemenkes Jakarta III [NAMA_PEKERJAAN]
-        yang telah dipercayakan kepadanya atas dasar Surat Penunjukan Penyedia Barang/Jasa (SPPBJ) [NAMA_DOKUMEN]
-        Nomor: KN.01.01/V/6747/2019 [NOMOR_DOKUMEN] tanggal 30 September 2019 [TANGGAL_DOKUMEN].</td>
+        [NAMA_PEKERJAAN] yang telah dipercayakan kepadanya atas dasar  [NAMA_DOKUMEN]
+        Nomor: [NOMOR_DOKUMEN] tanggal [TANGGAL_DOKUMEN].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">3.</td>
-        <td style="text-align: justify;">Surat Jaminan ini berlaku selama 90 (Sembilan Puluh) hari kalender dan efektif mulai dari 01 Oktober 2019
-        sampai dengan tanggal 29 Desember 2019 [JANGKA_WAKTU].</td>
+        <td style="text-align: justify;">Surat Jaminan ini berlaku selama [JANGKA_WAKTU] hari kalender dan efektif mulai dari [START_DATE]
+        sampai dengan tanggal [END_DATE].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">4.</td>
@@ -67,7 +64,7 @@ const templateContent = `
         <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
     </tr>
     <tr>
-        <td style="text-align: left;">PT. ASURANSI UMUM VIDEI [NAMA_ASURANSI]</td>
+        <td style="text-align: left;">[NAMA_ASURANSI]</td>
         <td style="text-align: right;">[NAMA_PRINCIPAL_TTD]</td>
     </tr>
     <tr>
@@ -76,11 +73,11 @@ const templateContent = `
     </tr>
     <tr>
         <td style="text-align: left;">
-            Muhammad Ridzqan Hanafis [NAMA_PIC]<br>
+            [NAMA_DIREKTUR]<br>
             D i r e k t u r [JABATAN]
         </td>
         <td style="text-align: right;">
-            Marthen F Surentu<br>
+            [NAMA_KEPALA_CABANG_TTD]<br>
             Kepala Cabang
         </td>
     </tr>
