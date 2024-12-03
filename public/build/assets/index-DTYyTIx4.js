@@ -1,0 +1,1 @@
+import{j as s}from"./app-Djvbadb0.js";import{u as t,T as r}from"./use-flash-message-BtfHp5Po.js";const m=({children:e})=>(t(),s.jsxs("div",{className:"flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0",children:[s.jsx("div",{children:e}),s.jsx(r,{})]}));export{m as G};
