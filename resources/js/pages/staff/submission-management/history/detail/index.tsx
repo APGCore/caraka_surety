@@ -217,6 +217,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal.director_position || "")
       .replace("[AKTA_PENDIRIAN]", data.deed_of_establishment || "-")
       .replace("[AKTA_PERUBAHAN]", data.deed_of_amendment || "-")
+      .replace("[NAMA_PRINCIPAL2]", data.principal.name || "")
       .replace("[NPWP]", data.principal.npwp || "")
       .replace("[NIB]", data.principal.nib || "")
       .replace("[NAMA_PENGURUS_1]", data.principal.director_name || "")
