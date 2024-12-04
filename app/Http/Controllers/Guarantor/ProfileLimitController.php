@@ -99,6 +99,22 @@ class ProfileLimitController extends Controller
         try {
             DB::beginTransaction();
 
+            $guarantorProductLimit = GuarantorProductTypeLimit::query()
+                ->where('guarantor_id', $requestValid['guarantor_id'])
+                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
+                ->first();
+
+            $limitUsed = ProfileLimit::query()
+                ->where('guarantor_id', $requestValid['guarantor_id'])
+                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
+                ->sum('limit');
+
+            $limit = (int) str_replace('.', '', $requestValid['limit']);
+
+            if (($limitUsed + $limit) > $guarantorProductLimit->getAttribute('limit')) {
+                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+            }
+
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             ProfileLimit::query()->create(
                 [
@@ -131,6 +147,23 @@ class ProfileLimitController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $guarantorProductLimit = GuarantorProductTypeLimit::query()
+                ->where('guarantor_id', $requestValid['guarantor_id'])
+                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
+                ->first();
+
+            $limitUsed = ProfileLimit::query()
+                ->where('guarantor_id', $requestValid['guarantor_id'])
+                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
+                ->whereNot('profile_id', $profileLimit->getAttribute('profile_id'))
+                ->sum('limit');
+
+            $limit = (int) str_replace('.', '', $requestValid['limit']);
+
+            if (($limitUsed + $limit) > $guarantorProductLimit->getAttribute('limit')) {
+                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+            }
 
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             $updated = $profileLimit->update(
