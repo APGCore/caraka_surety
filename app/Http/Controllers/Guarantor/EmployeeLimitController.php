@@ -34,11 +34,13 @@ class EmployeeLimitController extends Controller
         $profileSelected = (int) ($request->get('profile_id') ?? $profiles->first()?->id);
         $limit = ProfileLimit::query()
             ->where('guarantor_id', $guarantorSelected)
+            ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
             ->where('profile_id', $profileSelected)
             ->first();
         if ($limit) {
             $limit_used = EmployeeLimit::query()
                 ->where('guarantor_id', $guarantorSelected)
+                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
                 ->where('profile_id', $profileSelected)
                 ->sum('limit');
 

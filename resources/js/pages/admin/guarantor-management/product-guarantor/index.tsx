@@ -30,10 +30,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ProductGuarantorPageProps } from "./product-guarantor-page.type";
 
 type GuarantorProductType = {
-  id: number;
+  id: number | null;
   no: number;
   product_id: number;
-  product_type_id: number;
+  product_type_id: number | null;
   code_product: string;
   code: string;
   name: string;
@@ -49,7 +49,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   const [guarantorSelected, setGuarantorSelected] = useState<number | null>(null);
   const [productSelected, setProductSelected] = useState<number | null>(null);
   const guarantorProductTypeDefault = {
-    id: 0,
+    id: null,
     no: 0,
     product_id: 0,
     product_type_id: 0,
@@ -191,6 +191,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                 code: selectedItem.code,
                 name: selectedItem.name,
                 job_group: selectedItem.job_group,
+                job_type: selectedItem.job_type,
               }
             : type,
         );
@@ -224,6 +225,81 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
       newState[index] = !newState[index];
       return newState;
     });
+  };
+
+  const changeProductCode = (event: any) => {
+    productsGuarantor.find((product: any) => product.id === productActive).code = event.target.value;
+    setValues((prev) => {
+      const newValues = [...prev];
+
+      newValues.forEach((value) => {
+        value.code_product = productsGuarantor.find((product: any) => product.id === productActive)?.code;
+      });
+
+      return newValues;
+    });
+  };
+
+  const changeProductTypeNo = (value: any, id: number, val: any) => {
+    const newValue = values[id].no === parseInt(value.target.value) ? 0 : parseInt(value.target.value);
+    setValues((prev) => {
+      const newValues = [...prev];
+
+      newValues[id] = {
+        id: val.id,
+        product_id: productActive || 0,
+        product_type_id: values[id].product_type_id,
+        no: newValue,
+        code_product: productsGuarantor.find((product: any) => product.id === productActive)?.code,
+        code: values[id].code,
+        name: values[id].name,
+        job_group: values[id].job_group,
+        job_type: values[id].job_type,
+      };
+      return newValues;
+    });
+  };
+
+  const changeProductTypeCode = (value: any, id: number, val: any) => {
+    const newValue = values[id].code === value.target.value ? "" : value.target.value;
+    setValues((prev) => {
+      const newValues = [...prev];
+
+      newValues[id] = {
+        id: val.id,
+        no: values[id].no,
+        product_id: productActive || 0,
+        product_type_id: values[id].product_type_id,
+        code_product: productsGuarantor.find((product: any) => product.id === productActive)?.code,
+        code: newValue,
+        name: values[id].name,
+        job_group: values[id].job_group,
+        job_type: values[id].job_type,
+      };
+      return newValues;
+    });
+  };
+
+  const changeProductType = (framework: any, id: number, val: any) => {
+    const newValue = values[id].name === framework.name ? "" : framework.name;
+    const dataSet = {
+      id: val.id,
+      no: values[id].no,
+      product_id: productActive || 0,
+      product_type_id: framework.id,
+      code_product: productsGuarantor.find((product: any) => product.id === productActive)?.code,
+      code: values[id].code,
+      name: newValue,
+      job_group: values[id].job_group,
+      job_type: values[id].job_type,
+    };
+    setValues((prev) => {
+      const newValues = [...prev];
+      newValues[id] = dataSet;
+      return newValues;
+    });
+    handleComboboxSelect(dataSet, id);
+    togglePopover(id);
   };
 
   const changeJobGroup = (value: any, id: number, val: any) => {
@@ -264,19 +340,6 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
     });
   };
 
-  const changeProductCode = (event: any) => {
-    productsGuarantor.find((product: any) => product.id === productActive).code = event.target.value;
-    setValues((prev) => {
-      const newValues = [...prev];
-
-      newValues.forEach((value) => {
-        value.code_product = productsGuarantor.find((product: any) => product.id === productActive)?.code;
-      });
-
-      return newValues;
-    });
-  };
-
   const clear = () => {
     setShowSelectProduct(true);
     setProductTypeOwnedProduct([]);
@@ -293,7 +356,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
         route("product-guarantor.store"),
         {
           guarantor_id: guarantorSelected,
-          data: productTypeOwnedProduct.sort((a, b) => a.id - b.id),
+          data: productTypeOwnedProduct.sort((a, b) => a.no - b.no),
         },
         {
           headers: {
@@ -429,166 +492,112 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
               <div className="p-4 pt-6 w-[70%]">
                 <div className="grid gap-2 ">
                   <Label htmlFor="name">Jenis Produk</Label>
-                  {choosedProductTypes.map((val, id) => (
-                    <div key={id} className="space-y-2 flex items-center gap-x-2">
-                      <Input
-                        id="no"
-                        type="number"
-                        placeholder="No"
-                        value={values[id]?.no}
-                        className="mt-2 h-[40px] w-[15%]"
-                        min={1}
-                        onChange={(value) => {
-                          const newValue =
-                            values[id].no === parseInt(value.target.value) ? 0 : parseInt(value.target.value);
-                          setValues((prev) => {
-                            const newValues = [...prev];
+                  <RenderList
+                    of={choosedProductTypes}
+                    render={(val, id) => (
+                      <div key={id} className="space-y-2 flex items-center gap-x-2">
+                        <Input
+                          id="no"
+                          type="number"
+                          placeholder="No"
+                          value={values[id]?.no}
+                          className="mt-2 h-[40px] w-[15%]"
+                          min={1}
+                          onChange={(value) => changeProductTypeNo(value, id, val)}
+                        />
+                        <Input
+                          id="code"
+                          type="text"
+                          placeholder="Kode"
+                          value={values[id]?.code}
+                          className="mt-2 h-[40px] w-[30%]"
+                          onChange={(value) => changeProductTypeCode(value, id, val)}
+                        />
+                        <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openStates[id]}
+                              className="w-full justify-between">
+                              {values[id]?.name || "Pilih Jenis Produk..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                            <Command>
+                              <CommandInput placeholder="Search framework..." />
+                              <CommandList>
+                                <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
+                                <CommandGroup>
+                                  <RenderList
+                                    of={productTypes}
+                                    render={(framework) => (
+                                      <CommandItem
+                                        key={framework.id}
+                                        onSelect={() => changeProductType(framework, id, val)}>
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
+                                          )}
+                                        />
+                                        {framework.name}
+                                      </CommandItem>
+                                    )}
+                                  />
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
 
-                            newValues[id] = {
-                              id: val.id,
-                              product_id: productActive || 0,
-                              product_type_id: values[id].product_type_id,
-                              no: newValue,
-                              code_product: productsGuarantor.find((product: any) => product.id === productActive)
-                                ?.code,
-                              code: values[id].code,
-                              name: values[id].name,
-                              job_group: values[id].job_group,
-                              job_type: values[id].job_type,
-                            };
-                            return newValues;
-                          });
-                        }}
-                      />
-                      <Input
-                        id="code"
-                        type="text"
-                        placeholder="Kode"
-                        value={values[id]?.code}
-                        className="mt-2 h-[40px] w-[30%]"
-                        onChange={(value) => {
-                          const newValue = values[id].code === value.target.value ? "" : value.target.value;
-                          setValues((prev) => {
-                            const newValues = [...prev];
+                        <Select
+                          onValueChange={(value) => changeJobGroup(value, id, val)}
+                          defaultValue={values[id]?.job_group}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value={"-"}>-</SelectItem>
+                              <RenderList
+                                of={jobGroups}
+                                render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                              />
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
 
-                            newValues[id] = {
-                              id: val.id,
-                              no: values[id].no,
-                              product_id: productActive || 0,
-                              product_type_id: values[id].product_type_id,
-                              code_product: productsGuarantor.find((product: any) => product.id === productActive)
-                                ?.code,
-                              code: newValue,
-                              name: values[id].name,
-                              job_group: values[id].job_group,
-                              job_type: values[id].job_type,
-                            };
-                            return newValues;
-                          });
-                        }}
-                      />
-                      <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
-                        <PopoverTrigger asChild>
+                        <Select
+                          onValueChange={(value) => changeJobType(value, id, val)}
+                          defaultValue={values[id]?.job_type}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Tipe Pekarjaan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value={"-"}>-</SelectItem>
+                              <RenderList
+                                of={jobTypes}
+                                render={(groupType: string) => <SelectItem value={groupType}>{groupType}</SelectItem>}
+                              />
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+
+                        {/* Delete Combobox Button */}
+                        {choosedProductTypes.length > 1 && (
                           <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openStates[id]}
-                            className="w-full justify-between">
-                            {values[id]?.name || "Pilih Jenis Produk..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            type="button"
+                            className="bg-destructive hover:bg-destructive/80"
+                            onClick={() => removeCombobox(id)}>
+                            Hapus
                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                          <Command>
-                            <CommandInput placeholder="Search framework..." />
-                            <CommandList>
-                              <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
-                              <CommandGroup>
-                                {productTypes.map((framework) => (
-                                  <CommandItem
-                                    key={framework.id}
-                                    onSelect={() => {
-                                      const newValue = values[id].name === framework.name ? "" : framework.name;
-                                      setValues((prev) => {
-                                        const newValues = [...prev];
-                                        newValues[id] = {
-                                          id: val.id,
-                                          no: values[id].no,
-                                          product_id: productActive || 0,
-                                          product_type_id: framework.id,
-                                          code_product: productsGuarantor.find(
-                                            (product: any) => product.id === productActive,
-                                          )?.code,
-                                          code: values[id].code,
-                                          name: newValue,
-                                          job_group: values[id].job_group,
-                                          job_type: values[id].job_type,
-                                        };
-                                        return newValues;
-                                      });
-                                      handleComboboxSelect(framework, id);
-                                      togglePopover(id);
-                                    }}>
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
-                                      )}
-                                    />
-                                    {framework.name}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-
-                      <Select
-                        onValueChange={(value) => changeJobGroup(value, id, val)}
-                        defaultValue={values[id]?.job_group}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value={"-"}>-</SelectItem>
-                            <RenderList
-                              of={jobGroups}
-                              render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-                            />
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      <Select
-                        onValueChange={(value) => changeJobType(value, id, val)}
-                        defaultValue={values[id]?.job_type}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih Tipe Pekarjaan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value={"-"}>-</SelectItem>
-                            <RenderList
-                              of={jobTypes}
-                              render={(groupType: string) => <SelectItem value={groupType}>{groupType}</SelectItem>}
-                            />
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-
-                      {/* Delete Combobox Button */}
-                      {choosedProductTypes.length > 1 && (
-                        <Button
-                          type="button"
-                          className="bg-destructive hover:bg-destructive/80"
-                          onClick={() => removeCombobox(id)}>
-                          Hapus
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    )}
+                  />
                 </div>
 
                 <Button type="button" className="w-full mt-4" onClick={addCombobox}>

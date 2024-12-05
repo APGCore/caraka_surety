@@ -167,35 +167,82 @@ class SubmissionController extends Controller
         }
     }
 
+    private function getSubmission($id)
+    {
+        return Submission::with([
+            'principal' => function ($query) {
+                $query->withTrashed();
+            },
+            'principal.documents' => function ($query) {
+                $query->withTrashed();
+            },
+            'principal.principalRatios' => function ($query) {
+                $query->withTrashed();
+            },
+            'guarantor' => function ($query) {
+                $query->withTrashed();
+            },
+            'guarantorToProductType' => function ($query) {
+                $query->withTrashed();
+            },
+            'obligee' => function ($query) {
+                $query->withTrashed();
+            },
+            'obligee.province' => function ($query) {
+                $query->withTrashed();
+            },
+            'obligee.regency' => function ($query) {
+                $query->withTrashed();
+            },
+            'obligee.district' => function ($query) {
+                $query->withTrashed();
+            },
+            'district' => function ($query) {
+                $query->withTrashed();
+            },
+            'province' => function ($query) {
+                $query->withTrashed();
+            },
+            'regency' => function ($query) {
+                $query->withTrashed();
+            },
+            'sourceOfFund' => function ($query) {
+                $query->withTrashed();
+            },
+            'submissionDocs' => function ($query) {
+                $query->withTrashed();
+            },
+            'scores.scoring' => function ($query) {
+                $query->withTrashed();
+            },
+            'scores.scoringQuestionCategory' => function ($query) {
+                $query->withTrashed();
+            },
+            'scores.scoringQuestion' => function ($query) {
+                $query->withTrashed();
+            },
+            'scores.scoringOption' => function ($query) {
+                $query->withTrashed();
+            },
+            'userChecked' => function ($query) {
+                $query->withTrashed();
+            },
+            'userApproved' => function ($query) {
+                $query->withTrashed();
+            },
+            'userRejected' => function ($query) {
+                $query->withTrashed();
+            },
+
+        ])->findOrFail($id);
+    }
+
     /**
      * Display the specified resource.
      */
     public function showDetailSubmission($id)
     {
-        $submission = Submission::with([
-            'principal',
-            'principal.documents',
-            'principal.principalRatios',
-            'guarantor',
-            'guarantorToProductType',
-            'obligee',
-            'obligee.province',
-            'obligee.regency',
-            'obligee.district',
-            'district',
-            'province',
-            'regency',
-            'sourceOfFund',
-            'submissionDocs',
-            'scores.scoring',
-            'scores.scoringQuestionCategory',
-            'scores.scoringQuestion',
-            'scores.scoringOption',
-            'userChecked',
-            'userApproved',
-            'userRejected',
-
-        ])->findOrFail($id);
+        $submission = $this->getSubmission($id);
 
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
@@ -236,31 +283,7 @@ class SubmissionController extends Controller
 
     public function showDetailSubmissionManager($id)
     {
-        $submission = Submission::with([
-            'principal',
-            'principal.documents',
-            'principal.principalRatios',
-            'guarantorToProductType',
-            'guarantor',
-            'obligee',
-            'obligee.province',
-            'obligee.regency',
-            'obligee.district',
-            'district',
-            'province',
-            'regency',
-            'sourceOfFund',
-            'submissionDocs',
-            'scores.scoring',
-            'scores.scoringQuestionCategory',
-            'scores.scoringQuestion',
-            'scores.scoringOption',
-            'employeeLimit',
-            'guarantorProductTypeLimit',
-            'userChecked',
-            'userApproved',
-            'userRejected',
-        ])->findOrFail($id);
+        $submission = $this->getSubmission($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -304,29 +327,7 @@ class SubmissionController extends Controller
 
     public function showDetailSubmissionDireksi($id)
     {
-        $submission = Submission::with([
-            'principal',
-            'principal.documents',
-            'principal.principalRatios',
-            'guarantorToProductType',
-            'guarantor',
-            'obligee',
-            'obligee.province',
-            'obligee.regency',
-            'obligee.district',
-            'district',
-            'province',
-            'regency',
-            'sourceOfFund',
-            'submissionDocs',
-            'scores.scoring',
-            'scores.scoringQuestionCategory',
-            'scores.scoringQuestion',
-            'scores.scoringOption',
-            'userChecked',
-            'userApproved',
-            'userRejected',
-        ])->findOrFail($id);
+        $submission = $this->getSubmission($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
