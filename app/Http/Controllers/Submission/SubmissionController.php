@@ -188,24 +188,12 @@ class SubmissionController extends Controller
             'obligee' => function ($query) {
                 $query->withTrashed();
             },
-            'obligee.province' => function ($query) {
-                $query->withTrashed();
-            },
-            'obligee.regency' => function ($query) {
-                $query->withTrashed();
-            },
-            'obligee.district' => function ($query) {
-                $query->withTrashed();
-            },
-            'district' => function ($query) {
-                $query->withTrashed();
-            },
-            'province' => function ($query) {
-                $query->withTrashed();
-            },
-            'regency' => function ($query) {
-                $query->withTrashed();
-            },
+            'obligee.province',
+            'obligee.regency',
+            'obligee.district',
+            'district',
+            'province',
+            'regency',
             'sourceOfFund' => function ($query) {
                 $query->withTrashed();
             },
