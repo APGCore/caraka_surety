@@ -184,12 +184,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return template
       .replace("[NOMOR_SURETY_BOND]", data.surety_bond_number || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
-      .replace("[NAMA_PENJAMIN]", data.guarantor.name || "")
-      .replace("[ALAMAT_PENJAMIN]", data.guarantor.address || "")
-      .replace("[ALAMAT_PRINCIPAL]", data.guarantor.address || "")
-      .replace("[NAMA_PRINCIPAL2]", data.principal.name || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.address || "")
+      .replace("[NAMA_PENJAMIN]", data.guarantor?.name || "")
+      .replace("[ALAMAT_PENJAMIN]", data.guarantor?.address || "")
+      .replace("[ALAMAT_PRINCIPAL]", data.guarantor?.address || "")
+      .replace("[NAMA_PRINCIPAL2]", data.principal?.name || "")
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.address || "")
       .replace("[BESARAN_NILAI_JAMINAN]", formatCurrency(data.guarantee_value))
       .replace("[NAMA_PEKERJAAN]", data.job_name || "")
       .replace("[NOMOR_KONTRAK]", data.contract_doc_number || "")
@@ -198,36 +198,36 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[END_DATE]", data.end_date || "")
       .replace("[TIME_PERIOD]", data.time_period || "")
       .replace("[TANGGAL_PENERBITAN]", data.guarantee_issue_date || "")
-      .replace("[NAMA_PENJAMIN_TTD]", data.guarantor.signer_name || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data.guarantor.name || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data.guarantor.pic || "")
-      .replace("[JABATAN_PENJAMIN]", data.guarantor.position || "")
+      .replace("[NAMA_PENJAMIN_TTD]", data.guarantor?.signer_name || "")
+      .replace("[NAMA_PRINCIPAL_TTD]", data.guarantor?.name || "")
+      .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data.guarantor?.pic || "")
+      .replace("[JABATAN_PENJAMIN]", data.guarantor?.position || "")
       .replace("[NAMA_KEPALA_CABANG]", data.branch_manager || "");
   };
 
   const replaceHasilAnalisaPlaceholders = (template: string, data: any) => {
     return template
       .replace("[NAMA_JAMINAN]", data.guarantee_type || "")
-      .replace("[NAMA_PRINCIPAL]", data.principal.name || "")
+      .replace("[NAMA_PRINCIPAL]", data.principal?.name || "")
       .replace("[NOMOR_SURAT]", data.no + nomorSurat || "")
       .replace("[TGL_PENGAJUAN]", formattedDate || "")
-      .replace("[NAMA_TERJAMIN]", data.principal.name || "")
-      .replace("[ALAMAT_TERJAMIN]", data.principal.address || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal.director_position || "")
+      .replace("[NAMA_TERJAMIN]", data.principal?.name || "")
+      .replace("[ALAMAT_TERJAMIN]", data.principal?.address || "")
+      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal?.director_name || "")
+      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal?.director_position || "")
       .replace("[AKTA_PENDIRIAN]", data.deed_of_establishment || "-")
       .replace("[AKTA_PERUBAHAN]", data.deed_of_amendment || "-")
-      .replace("[NAMA_PRINCIPAL2]", data.principal.name || "")
-      .replace("[NPWP]", data.principal.npwp || "")
-      .replace("[NIB]", data.principal.nib || "")
-      .replace("[NAMA_PENGURUS_1]", data.principal.director_name || "")
-      .replace("[JABATAN_PENGURUS_1]", data.principal.director_position || "")
+      .replace("[NAMA_PRINCIPAL2]", data.principal?.name || "")
+      .replace("[NPWP]", data.principal?.npwp || "")
+      .replace("[NIB]", data.principal?.nib || "")
+      .replace("[NAMA_PENGURUS_1]", data.principal?.director_name || "")
+      .replace("[JABATAN_PENGURUS_1]", data.principal?.director_position || "")
       .replace("[NAMA_PENGURUS_2]", data.management_2_name || "")
       .replace("[JABATAN_PENGURUS_2]", data.management_2_position || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[NAMA_PPK]", data.obligee.ppk_name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.address || "")
-      .replace("[SUMBER_DANA]", data.obligee.source_of_fund || "")
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[NAMA_PPK]", data.obligee?.ppk_name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.address || "")
+      .replace("[SUMBER_DANA]", data.obligee?.source_of_fund || "")
       .replace("[NILAI_KONTRAK]", formatCurrency(data.contract_value || 0))
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value || 0))
       .replace("[JENIS_JAMINAN]", data.guarantee_type || "")
@@ -252,10 +252,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const replacePelaksanaanPlaceholders = (template: string, data: any) => {
     return template
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value || 0))
-      .replace("[NAMA_PRINCIPAL]", data.principal.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data.principal.address || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.address || "")
+      .replace("[NAMA_PRINCIPAL]", data.principal?.name || "")
+      .replace("[ALAMAT_PRINCIPAL]", data.principal?.address || "")
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.address || "")
       .replace("[BESARAN_NILAI_JAMINAN]", formatCurrency(data.guarantee_value || 0))
       .replace("[NAMA_PEKERJAAN]", data.job_name || "")
       .replace("[NAMA_DOKUMEN]", data.contract_doc_name || "")
@@ -265,22 +265,22 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[START_DATE]", data.start_date || "")
       .replace("[END_DATE]", data.end_date || "")
       .replace("[TANGGAL_PENERBITAN]", data.guarantee_issue_date || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data.principal.signer_name || "")
+      .replace("[NAMA_PRINCIPAL_TTD]", data.principal?.signer_name || "")
       .replace("[NAMA_PIC]", data.pic_name || "")
       .replace("[JABATAN]", data.pic_position || "")
-      .replace("[NAMA_ASURANSI]", data.guarantor.name || "")
-      .replace("[NAMA_DIREKTUR]", data.guarantor.pic || "");
+      .replace("[NAMA_ASURANSI]", data.guarantor?.name || "")
+      .replace("[NAMA_DIREKTUR]", data.guarantor?.pic || "");
   };
 
   const replacePermohonanBankGaransiPlaceholders = (template: string, data: any) => {
     return template
       .replace("[TANGGAL_PENERBITAN_PERMOHONAN]", formattedDate || "")
       .replace("[NAMA_BANK]", data.bank_name || "")
-      .replace("[NAMA_PRINCIPAL]", data.principal.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data.principal.address || "")
-      .replace("[NPWP]", data.principal.npwp || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal.director_position || "")
+      .replace("[NAMA_PRINCIPAL]", data.principal?.name || "")
+      .replace("[ALAMAT_PRINCIPAL]", data.principal?.address || "")
+      .replace("[NPWP]", data.principal?.npwp || "")
+      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal?.director_name || "")
+      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal?.director_position || "")
       .replace("[JENIS_JAMINAN]", data.guarantee_type || "")
       .replace("[PENERBIT_BANK_GARANSI]", data.bank_guarantee_issuer || "")
       .replace("[PROYEK]", data.project_name || "")
@@ -291,37 +291,37 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[START_DATE]", data.start_date || "")
       .replace("[END_DATE]", data.end_date || "")
       .replace("[DASAR_DOKUMEN]", data.contract_doc_name + " " + data.contract_doc_number || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data.principal.name || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data.principal.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal.director_position || "");
+      .replace("[NAMA_PRINCIPAL_TTD]", data.principal?.name || "")
+      .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data.principal?.director_name || "")
+      .replace("[JABATAN_PENANGGUNG_JAWAB]", data.principal?.director_position || "");
   };
 
   const replaceBumidaPlaceholders = (template: string, data: any) => {
     return template
       .replace("[TANGGAL_SURAT]", formattedDate || "")
       .replace("[NOMOR_SURAT]", data.letter_number || "")
-      .replace("[NAMA_PENJAMIN]", data.guarantor.name || "")
-      .replace("[NAMA_PERUSAHAAN]", data.principal.name || "")
-      .replace("[ALAMAT_PERUSAHAAN]", data.principal.address || "")
-      .replace("[PIC]", data.principal.pic || "")
+      .replace("[NAMA_PENJAMIN]", data.guarantor?.name || "")
+      .replace("[NAMA_PERUSAHAAN]", data.principal?.name || "")
+      .replace("[ALAMAT_PERUSAHAAN]", data.principal?.address || "")
+      .replace("[PIC]", data.principal?.pic || "")
       .replace("[NAMA_JAMINAN]", data.guarantee_type || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value || 0))
       .replace("[JANGKA_WAKTU]", data.time_period || "")
       .replace("[NAMA_PROYEK]", data.job_name || "")
       .replace("[DASAR_JAMINAN]", data.contract_doc_name || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.address || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal.director_name || "");
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.address || "")
+      .replace("[NAMA_PENANGGUNG_JAWAB]", data.principal?.director_name || "");
   };
 
   const replaceJastanPlaceholders = (template: string, data: any) => {
     return template
-      .replace("[PERUSAHAAN/BADAN_HUKUM]", data.principal.name || "")
-      .replace("[ALAMAT_LENGKAP]", data.principal.address || "")
-      .replace("[NOMOR_TELEPON_FAX]", data.principal.telephone || "")
-      .replace("[PEJABAT_YANG_BERURUSAN]", data.principal.director_name || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.address || "")
+      .replace("[PERUSAHAAN/BADAN_HUKUM]", data.principal?.name || "")
+      .replace("[ALAMAT_LENGKAP]", data.principal?.address || "")
+      .replace("[NOMOR_TELEPON_FAX]", data.principal?.telephone || "")
+      .replace("[PEJABAT_YANG_BERURUSAN]", data.principal?.director_name || "")
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.address || "")
       .replace("[JENIS_JAMINAN]", data.guarantee_type || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data.guarantee_value || 0))
       .replace("[START_DATE]", data.start_date || "")
@@ -329,33 +329,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PROYEK]", data.job_name || "")
       .replace("[JENIS_PROYEK]", data.job_group || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data.contract_value || 0))
-      .replace("[LOKASI_PROYEK]", data.obligee.location || "")
+      .replace("[LOKASI_PROYEK]", data.obligee?.location || "")
       .replace("[SUMBER_DANA]", data.source_of_fund.name || "")
       .replace("[DOKUMEN_PENDUKUNG]", data.contract_doc_name || "")
-      .replace("[NAMA_KOTA]", data.obligee.city || "")
+      .replace("[NAMA_KOTA]", data.obligee?.city || "")
       .replace("[TANGGAL_SURAT]", formattedDate || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data.principal.name || "");
+      .replace("[NAMA_PRINCIPAL_TTD]", data.principal?.name || "");
   };
 
   const replaceVideiPlaceholders = (template: string, data: any) => {
     return template
-      .replace("[NAMA_PRINCIPAL]", data.principal.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data.principal.address || "")
-      .replace("[NAMA_DIREKSI]", data.principal.director_name || "")
-      .replace("[KONTAK_PERSON]", data.principal.director_phone || "")
-      .replace("[BIDANG_USAHA]", data.principal.business_field || "")
+      .replace("[NAMA_PRINCIPAL]", data.principal?.name || "")
+      .replace("[ALAMAT_PRINCIPAL]", data.principal?.address || "")
+      .replace("[NAMA_DIREKSI]", data.principal?.director_name || "")
+      .replace("[KONTAK_PERSON]", data.principal?.director_phone || "")
+      .replace("[BIDANG_USAHA]", data.principal?.business_field || "")
       .replace("[JENIS_JAMINAN]", data.guarantee_type || "")
       .replace("[NILAI_PENJAMINAN]", formatCurrency(data.guarantee_value || 0))
       .replace("[PERIODE_JAMINAN]", data.time_period || "")
       .replace("[TANGGAL_PENERBITAN]", data.contract_doc_date || "")
-      .replace("[NAMA_OBLIGEE]", data.obligee.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data.obligee.location || "")
+      .replace("[NAMA_OBLIGEE]", data.obligee?.name || "")
+      .replace("[ALAMAT_OBLIGEE]", data.obligee?.location || "")
       .replace("[NAMA_PROYEK]", data.job_name || "")
       .replace("[LOKASI_PROYEK]", data.job_location || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data.contract_value || 0))
       .replace("[DOKUMEN_SURAT]", data.letter_document || "")
       .replace("[TANGGAL_SURAT]", formattedDate || "")
-      .replace("[NAMA_DIREKTUR]", data.principal.director_name || "");
+      .replace("[NAMA_DIREKTUR]", data.principal?.director_name || "");
   };
 
   const data = {
@@ -376,23 +376,23 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       address: submission.obligee?.address || "",
       source_of_fund: submission.source_of_fund?.name || "",
       ppk_name: submission.obligee?.pic || "",
-      city: submission.obligee.district?.name,
+      city: submission.obligee?.district?.name,
       location:
-        submission.obligee.address +
+        submission.obligee?.address +
         ", " +
-        submission.obligee.district?.name +
+        submission.obligee?.district?.name +
         ", " +
-        submission.obligee.regency?.name +
+        submission.obligee?.regency?.name +
         ", " +
-        submission.obligee.province?.name,
+        submission.obligee?.province?.name,
     },
     guarantor: {
       name: submission.guarantor?.name || "",
       address: submission.guarantor?.address || "",
-      pic: submission.guarantor.pic || "",
+      pic: submission.guarantor?.pic || "",
     },
     source_of_fund: {
-      name: submission.source_of_fund.name,
+      name: submission.source_of_fund?.name,
     },
     contract_value: submission.contract_value || 0,
     guarantee_value: submission.guarantee_value || 0,
@@ -420,8 +420,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     // description: submission.description || "",
     date: submission.created_at || "",
     // analyst_name: submission.analyst_name || "",
-    manager_name: submission.principal.commissioner || "",
-    branch_manager: submission.principal.director_name || "",
+    manager_name: submission.principal?.commissioner || "",
+    branch_manager: submission.principal?.director_name || "",
     job_location:
       submission.job_location_village +
       ", " +
@@ -430,7 +430,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       submission.regency?.name +
       ", " +
       submission.province?.name,
-    job_group: submission.guarantor_to_product_type.job_group,
+    job_group: submission.guarantor_to_product_type?.job_group,
     no: submission.id,
   };
 
@@ -604,11 +604,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nama Obligee</td>
-                <td className="p-2">: {submission.obligee.name}</td>
+                <td className="p-2">: {submission.obligee?.name}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Alamat Obligee</td>
-                <td className="p-2">: {submission.obligee.address}</td>
+                <td className="p-2">: {submission.obligee?.address}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Jenis Dokumen</td>
