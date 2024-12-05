@@ -596,11 +596,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <tbody>
               <tr className="border-b">
                 <td className="p-2 font-semibold w-1/2">Produk</td>
-                <td className="p-2 ">: {submission.guarantor_to_product_type.name}</td>
+                <td className="p-2 ">: {submission.guarantor_to_product_type?.name}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Jenis Jaminan</td>
-                <td className="p-2">: {submission.guarantor_to_product_type.full_name}</td>
+                <td className="p-2">: {submission.guarantor_to_product_type?.full_name}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nama Obligee</td>
