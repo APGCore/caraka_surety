@@ -563,7 +563,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </div>
         </Show>
         <Show when={currentStep === "docs"}>
-          {submission.required_docs && submission.required_docs.length > 0 ? (
+          {submission.required_docs && submission.required_docs?.length > 0 ? (
             <table className="table-fixed w-full border border-gray-300">
               <thead>
                 <tr className="border-b bg-gray-100">
@@ -675,11 +675,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Sumber Dana</td>
-                <td className="p-2">: {submission.source_of_fund.name}</td>
+                <td className="p-2">: {submission.source_of_fund?.name}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Kelompok Pekerjaan</td>
-                <td className="p-2">: {submission.guarantor_to_product_type.job_group}</td>
+                <td className="p-2">: {submission.guarantor_to_product_type?.job_group}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Mulai Tanggal</td>
