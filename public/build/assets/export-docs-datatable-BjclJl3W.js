@@ -1,1 +1,0 @@
-import{j as r}from"./app-BOUrbrh9.js";import{c as s}from"./cn-CcFn7B-c.js";import{B as a}from"./button-zQHMJqfz.js";const c=({className:t,onClick:o})=>r.jsx(a,{className:s(t),onClick:o,children:"Export"});export{c as E};

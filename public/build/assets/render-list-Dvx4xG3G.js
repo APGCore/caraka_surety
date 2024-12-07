@@ -1,0 +1,1 @@
+import{j as t,r as a}from"./app-Bjb1e5XO.js";const x=({of:r,render:n,renderFallback:e})=>(r==null?void 0:r.length)===0?e?t.jsx(t.Fragment,{children:e()}):null:t.jsx(t.Fragment,{children:a.Children.toArray(r==null?void 0:r.map((s,i)=>n(s,i)))});export{x as R};
