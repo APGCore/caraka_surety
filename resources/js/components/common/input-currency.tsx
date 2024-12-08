@@ -1,33 +1,23 @@
-import { textCurrency } from "@/lib/text-currency";
+import CurrencyInput from "react-currency-input-field";
 
 type InputCurrencyProps = {
-  value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string | undefined) => void;
+  defaultValue?: string;
+  value?: string;
   placeholder?: string;
-  className?: string;
-  type?: string;
-  id?: string;
-  name?: string;
-  disabled?: boolean;
-  required?: boolean;
 };
 
 const InputCurrency = (props: InputCurrencyProps) => {
-  const { value, onChange, ...rest } = props;
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    const formattedValue = textCurrency(value);
-    onChange(formattedValue);
-  };
-
   return (
-    <input
-      {...rest}
-      type={props.type ?? "text"}
-      value={textCurrency(value)}
-      onChange={handleChange}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400 focus:border-blue-400"
+    <CurrencyInput
+      intlConfig={{ locale: "id-ID", currency: "IDR" }}
+      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+      defaultValue={props?.defaultValue}
+      value={props?.value}
+      placeholder={props?.placeholder}
+      onValueChange={(val) => {
+        props?.onChange?.(val);
+      }}
     />
   );
 };

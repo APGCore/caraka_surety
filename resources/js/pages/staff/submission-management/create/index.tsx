@@ -1,5 +1,6 @@
 import { CalendarPicker } from "@/components/common/calendar";
 import { Combobox } from "@/components/common/combobox";
+import InputCurrency from "@/components/common/input-currency";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
@@ -40,7 +41,6 @@ import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
-import CurrencyInput from "react-currency-input-field";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { ISelectedPrincipalDistrict, Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
 
@@ -92,9 +92,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       village: "",
       name: "",
       address: "",
-      telephone: "",
+      telephone: undefined,
       fax: "",
-      npwp: "",
+      npwp: undefined,
       nib: undefined,
       siup_siujk: "",
       head_name: "",
@@ -140,6 +140,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       job_location_regency_id: "",
       job_location_district_id: "",
       job_location_village: "",
+      job_location_address: "",
       source_of_fund_id: "",
       note: "",
     },
@@ -463,6 +464,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         job_location_regency_id: "",
         job_location_district_id: "",
         job_location_village: "",
+        job_location_address: "",
         source_of_fund_id: "",
         note: "",
       },
@@ -1210,30 +1212,26 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Nilai Kontrak</Label>
-                      <CurrencyInput
-                        intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                      <InputCurrency
                         defaultValue={data.submission.contract_value}
                         placeholder="Nilai Kontrak"
-                        onValueChange={(val) => {
+                        onChange={(value) => {
                           setData("submission", {
                             ...data.submission,
-                            contract_value: val,
+                            contract_value: value,
                           });
                         }}
                       />
                     </div>
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Nilai Jaminan</Label>
-                      <CurrencyInput
-                        intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                      <InputCurrency
                         defaultValue={data.submission.guarantee_value}
                         placeholder="Nilai Jaminan"
-                        onValueChange={(val) => {
+                        onChange={(value) => {
                           setData("submission", {
                             ...data.submission,
-                            guarantee_value: val,
+                            guarantee_value: value,
                           });
                         }}
                       />
@@ -1386,7 +1384,17 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         </div>
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Alamat Lengkap</Label>
-                          <Textarea className="text-md" placeholder="Masukan Jalan/RT/RW dsb." />
+                          <Textarea
+                            className="text-md"
+                            placeholder="Masukan Jalan/RT/RW dsb."
+                            value={data?.submission?.job_location_address}
+                            onChange={(e) => {
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_address: e.target.value,
+                              });
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1488,12 +1496,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               </Select>
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio?.current_assets ?? ""}
                                 placeholder="Aktiva Lancar"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const liquidity = calculateRatios(value ?? "", ratio.current_debt ?? "");
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
@@ -1512,38 +1518,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Aktiva Lancar"
-                                value={ratio.current_assets ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const liquidity = calculateRatios(value, ratio.current_debt);
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        current_assets: value,
-                                        liquidity_ratios: liquidity,
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio.current_debt ?? ""}
                                 placeholder="Utang Lancar"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const liquidity = calculateRatios(ratio.current_assets ?? "", value ?? "");
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
@@ -1562,38 +1542,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Utang Lancar"
-                                value={ratio.current_debt ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const liquidity = calculateRatios(ratio.current_assets ?? "", value ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        current_debt: value,
-                                        liquidity_ratios: liquidity,
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio.total_debt ?? ""}
                                 placeholder="Total Utang"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const solvency = calculateRatios(ratio.total_assets ?? "", value ?? "");
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
@@ -1612,38 +1566,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Total Utang"
-                                value={ratio.total_debt ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const solvency = calculateRatios(ratio.total_assets ?? "", value ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        total_debt: value,
-                                        solvency_ratios: solvency,
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio.total_assets ?? ""}
                                 placeholder="Total Aktiva"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const solvency = calculateRatios(value ?? "", ratio.total_debt ?? "");
                                   const ratios = data.principal.ratios.map((r, i) => {
                                     if (i === index) {
@@ -1662,38 +1590,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Total Aktiva"
-                                value={ratio.total_assets ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const solvency = calculateRatios(value ?? "", ratio.total_debt ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        total_assets: value,
-                                        solvency_ratios: solvency,
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio.revenue ?? ""}
                                 placeholder="Pendapatan"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const profitability = calculateRatios(value ?? "", ratio.net_income ?? "");
                                   const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                                   const ratios = data.principal.ratios.map((r, i) => {
@@ -1713,39 +1615,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Pendapatan"
-                                value={ratio.revenue ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const profitability = calculateRatios(value ?? "", ratio.net_income ?? "");
-                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        revenue: value,
-                                        profitability_ratios: profit.toString(),
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="grid gap-1 h-[30px] w-full">
-                              <CurrencyInput
-                                intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 placeholder:text-sm"
+                              <InputCurrency
                                 value={ratio.net_income ?? ""}
                                 placeholder="Laba Bersih"
-                                onValueChange={(value) => {
+                                onChange={(value) => {
                                   const profitability = calculateRatios(ratio.revenue ?? "", value ?? "");
                                   const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                                   const ratios = data.principal.ratios.map((r, i) => {
@@ -1765,31 +1640,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                   handleComparisonRatios(ratios);
                                 }}
                               />
-                              {/* <Input
-                                className="text-md"
-                                placeholder="Laba Bersih"
-                                value={ratio.net_income ?? ""}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/[^0-9.]/g, "");
-                                  const profitability = calculateRatios(ratio.revenue ?? "", value ?? "");
-                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        net_income: value,
-                                        profitability_ratios: profit.toString(),
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              /> */}
                             </div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
