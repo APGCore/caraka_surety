@@ -30,6 +30,7 @@ import useGetProductTypesByProductAndGuarantor from "@/hooks/api/product/useGetP
 import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
+import { toast } from "@/hooks/general/use-toast";
 import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
 import { getNumericValue } from "@/lib/get-numeric-value";
@@ -58,7 +59,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       name: string;
       principal_document: {
         path: string;
-      };
+      } | null;
       doc: string;
       file: File;
     }>
@@ -494,8 +495,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   const handleSubmit = () => {
     post(route("staff-submission-form.store"), {
+      preserveState: true,
+      preserveScroll: true,
+
       onError: (errors) => {
         console.log(errors);
+        toast({
+          title: "Gagal",
+          description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
+          variant: "destructive",
+        });
       },
       onSuccess: () => {
         console.log("success");
@@ -904,8 +913,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           <Label className="text-md">{doc.name}</Label>
                           <FileInput
                             onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                            previewValue={findFiles?.file ? findFiles?.file : doc?.principal_document?.path}
-                            //required={doc.product_type_id == null || selectedProductType?.id === doc.product_type_id}
+                            previewValue={findFiles?.file ? findFiles?.file : doc.principal_document?.path}
                           />
                         </div>
                       );

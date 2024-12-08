@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\Document\RequiredDoc;
+use App\Models\Guarantor\Blank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
@@ -76,6 +77,30 @@ class SubmissionController extends Controller
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
 
+            // get user staff
+            $staff = auth()->user();
+
+            // get blanks
+            $blank = Blank::query()
+                ->where([
+                    'guarantor_id' => $submission['guarantor_id'],
+                    'profile_id' => $staff->profile_id,
+                    'is_used' => false,
+                    'is_broken' => false,
+                ])
+                ->orderBy('created_at')
+                ->first();
+
+            // error when $blanks is empty
+            if (! $blank) {
+                throw new \Exception('Blangko belum tersedia');
+            }
+
+            // update blank
+            $blank->update([
+                'is_used' => true,
+            ]);
+
             $createPrincipal = Principal::query()
                 ->with(['documents', 'principalRatios'])
                 ->updateOrCreate([
@@ -90,43 +115,13 @@ class SubmissionController extends Controller
                     ], $principalRatio);
             }
 
-            // create or update obligiee
-            $obligiee = Obligee::query()
-                ->updateOrCreate([
-                    'id' => $obligiee['id'] ?? null,
-                ], $obligiee);
-
-            $dataSubmission = collect($submission)->toArray();
-            $dataSubmission['principal_id'] = $createPrincipal->id;
-            $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
-            $dataSubmission['obligee_id'] = $obligiee->id;
-            $dataSubmission['note_scoring'] = $scoring['note'];
-            $modelScoring = Scoring::query()->find($scoring['id']);
-            $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
-            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
-            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
-            $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
-
-            $submission = Submission::query()
-                ->create($dataSubmission);
-
-            $scores = $scoring['scores'];
-
-            foreach ($scores as &$score) {
-                $score['scoring_id'] = $scoring['id'];
-            }
-
-            $submission->scores()->createMany($scores);
-
             // create principal document
             foreach ($principalDocuments as $principalDocument) {
                 $document = collect($principalDocument)->toArray();
                 $document['name'] = $document['required_doc_name'];
                 $document['is_approved'] = true;
                 $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
-                $path = "principal/{$principal['id']}-{$principalName}/documents";
+                $path = "principal/{$createPrincipal->id}-{$principalName}/documents";
 
                 $existingDocument = $createPrincipal->documents()
                     ->where('required_doc_id', $principalDocument['required_doc_id'])
@@ -148,11 +143,43 @@ class SubmissionController extends Controller
                     ], $document);
             }
 
+            // create or update obligiee
+            $obligiee = Obligee::query()
+                ->updateOrCreate([
+                    'id' => $obligiee['id'] ?? null,
+                ], $obligiee);
+
+            // prepare create submission
+            $dataSubmission = collect($submission)->toArray();
+            $dataSubmission['principal_id'] = $createPrincipal->id;
+            $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
+            $dataSubmission['obligee_id'] = $obligiee->id;
+            $dataSubmission['blank_id'] = $blank->id;
+            $dataSubmission['note_scoring'] = $scoring['note'];
+            $modelScoring = Scoring::query()->find($scoring['id']);
+            $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
+            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
+            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
+            $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
+            $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
+
+            $submission = Submission::query()
+                ->create($dataSubmission);
+
+            $scores = $scoring['scores'];
+
+            foreach ($scores as &$score) {
+                $score['scoring_id'] = $scoring['id'];
+            }
+
+            $submission->scores()->createMany($scores);
+
             DB::commit();
 
             flashMessage('success', 'Berhasil membuat pengajuan');
 
-            return back();
+            return redirect()->back()->with('success', 'Berhasil membuat pengajuan');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('SubmissionController@store: ', [
@@ -161,9 +188,16 @@ class SubmissionController extends Controller
                 'file' => $e->getFile(),
             ]);
 
-            flashMessage('error', 'Gagal membuat pengajuan', 'error');
+            if (str_contains($e->getMessage(), 'Blangko')) {
+                flashMessage('Blangko Kosong', $e->getMessage(), 'error');
 
-            return back();
+                return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            } else {
+                flashMessage('Error', 'Gagal membuat pengajuan', 'error');
+
+                return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
+            }
+
         }
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\SubmissionStatus;
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
@@ -32,6 +33,7 @@ return new class extends Migration
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Blank::class, 'blank_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignId('checked_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('approved_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('rejected_by')->nullable()->references('id')->on('users')->noActionOnDelete();
@@ -50,6 +52,7 @@ return new class extends Migration
             $table->foreignId('job_location_regency_id')->references('id')->on($regency->getTable())->noActionOnDelete();
             $table->foreignId('job_location_district_id')->references('id')->on($district->getTable())->noActionOnDelete();
             $table->string('job_location_village');
+            $table->string('job_location_address');
             $table->foreignId('source_of_fund_id')->references('id')->on('source_of_funds')->noActionOnDelete();
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
             $table->text('note')->nullable();
