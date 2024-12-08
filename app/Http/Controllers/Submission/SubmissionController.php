@@ -7,9 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
+use App\Models\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
+use App\Models\Sequence;
 use App\Models\Submission\Submission;
 use App\Models\User;
 use Carbon\Carbon;
@@ -79,12 +82,14 @@ class SubmissionController extends Controller
 
             // get user staff
             $staff = auth()->user();
+            $profile = Profile::query()
+                ->find($staff->profile_id);
 
             // get blanks
             $blank = Blank::query()
                 ->where([
                     'guarantor_id' => $submission['guarantor_id'],
-                    'profile_id' => $staff->profile_id,
+                    'profile_id' => $profile->id,
                     'is_used' => false,
                     'is_broken' => false,
                 ])
@@ -149,12 +154,41 @@ class SubmissionController extends Controller
                     'id' => $obligiee['id'] ?? null,
                 ], $obligiee);
 
+            // generate no guarantee
+            $guarantor = Guarantor::query()
+                ->with('pattern')
+                ->find($submission['guarantor_id']);
+            $guarantorToProductType = $guarantor->guarantorToProductTypes()
+                ->find($submission['guarantor_to_product_type_id']);
+
+            $ka = $guarantor->code;
+            $kp = $guarantorToProductType->code;
+            $kb = $blank->number;
+            $noa = $profile->code;
+
+            $guarantorPattern = $guarantor->pattern;
+            $pattern = $guarantorPattern?->prefix + $guarantorPattern?->content + $guarantorPattern?->suffix;
+            $sequence = Sequence::query()->where('guarantor_id', $submission['guarantor_id'])->orderByDesc('current')->get();
+            $seqNodLast = $sequence->where('name', 'NOD')->first();
+            $seqNomLast = $sequence->where('name', 'NOM')->first();
+            $seqNoyLast = $sequence->where('name', 'NOY')->first();
+            $nod = (string) $seqNodLast ? $seqNodLast->current + 1 : 1;
+            $nom = (string) $seqNomLast ? $seqNomLast->current + 1 : 1;
+            $noy = (string) $seqNoyLast ? $seqNoyLast->current + 1 : 1;
+            $noGuarantee = convertPattern($pattern, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
+
+            // create sequence
+            $this->createSequence('NOD', $nod, $pattern, $submission['guarantor_id']);
+            $this->createSequence('NOM', $nom, $pattern, $submission['guarantor_id']);
+            $this->createSequence('NOY', $noy, $pattern, $submission['guarantor_id']);
+
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
             $dataSubmission['obligee_id'] = $obligiee->id;
             $dataSubmission['blank_id'] = $blank->id;
+            $dataSubmission['no_guarantee'] = $noGuarantee;
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
             $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
@@ -198,6 +232,18 @@ class SubmissionController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
             }
 
+        }
+    }
+
+    private function createSequence($name, $current, $pattern, $guarantorId): void
+    {
+        if (str_contains($pattern, $name)) {
+            Sequence::query()->updateOrCreate([
+                'name' => $name,
+                'guarantor_id' => $guarantorId,
+            ], [
+                'current' => $current,
+            ]);
         }
     }
 

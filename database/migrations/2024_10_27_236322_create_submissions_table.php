@@ -38,6 +38,7 @@ return new class extends Migration
             $table->foreignId('approved_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('rejected_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('staff_id')->nullable()->references('id')->on('users')->noActionOnDelete();
+            $table->string('no_guarantee');
             $table->string('contract_doc_name');
             $table->string('contract_doc_number');
             $table->string('contract_doc_date');

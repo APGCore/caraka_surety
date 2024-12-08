@@ -1,4 +1,15 @@
-import { Archive, BookOpenCheck, Boxes, Building, ChartColumn, Home, Infinity, MapPinHouse, User } from "lucide-react";
+import {
+  Archive,
+  BookOpenCheck,
+  Boxes,
+  Building,
+  ChartColumn,
+  Home,
+  Infinity,
+  LibraryBig,
+  MapPinHouse,
+  User,
+} from "lucide-react";
 
 export const adminRoute = {
   user: {
@@ -214,6 +225,19 @@ export const adminRoute = {
           title: "Format Dokumen",
           route_name: "document-format",
           href: route("document-format.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Laporan",
+      url: "#",
+      icon: LibraryBig,
+      items: [
+        {
+          title: "Invoice",
+          route_name: "report.invoice",
+          href: route("report.invoice.index"),
           url: "#",
         },
       ],

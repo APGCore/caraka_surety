@@ -2,6 +2,7 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\EmployeeLimit;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorProductTypeLimit;
@@ -118,5 +119,10 @@ class Submission extends Model
     public function userRejected(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by', 'id');
+    }
+
+    public function blank(): BelongsTo
+    {
+        return $this->belongsTo(Blank::class, 'blank_id', 'id');
     }
 }
