@@ -99,8 +99,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const created_at = submission?.created_at;
   const nomorSurat = generateNomorSurat(created_at);
 
-  console.log(created_at);
-
   function formatToIndonesianDate(dateString: string): string {
     const months = [
       "Januari",

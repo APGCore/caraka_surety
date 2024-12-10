@@ -525,8 +525,14 @@ class SubmissionController extends Controller
             ->where('head_id', '=', $authId)
             ->pluck('id');
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor',
+                'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->whereIn('staff_id', $staffs)
+            ->where([
+                'checked_by' => null,
+                'approved_by' => null,
+                'rejected_by' => null,
+            ])
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -539,7 +545,7 @@ class SubmissionController extends Controller
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
+                    'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
@@ -552,6 +558,45 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function displayHistoryByManager()
+    {
+        $component = 'manager/submission-management/history/index';
+
+        Carbon::setLocale('id');
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $submissions = Submission::query()
+            ->where(function ($query) use ($authId) {
+                $query->where('checked_by', '=', $authId)
+                    ->orWhere('approved_by', '=', $authId)
+                    ->orWhere('rejected_by', '=', $authId);
+            })
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) use ($authId) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
+
+                return [
+                    ...$submission->toArray(),
+                    'manager_limit' => $managerLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Riwayat Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
     public function displaySubmissionByDireksi()
     {
         $component = 'direksi/submission-management/list/index';
@@ -559,10 +604,10 @@ class SubmissionController extends Controller
         Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
-
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->where('checked_by', '!=', null)
+            ->where('status', '=', SubmissionStatus::PROCESS->value)
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -575,7 +620,7 @@ class SubmissionController extends Controller
                     'direksi_limit' => $direksiLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
+                    'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
@@ -594,46 +639,27 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
+        $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
-            ->where('checked_by', '=', auth()->user()->getAuthIdentifier())
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where(function ($query) use ($authId) {
+                $query->where('checked_by', '=', $authId)
+                    ->orWhere('approved_by', '=', $authId)
+                    ->orWhere('rejected_by', '=', $authId);
+            })
+            ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->get()
-            ->map(function ($submission) {
+            ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
+                $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
 
                 return [
                     ...$submission->toArray(),
-                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ];
-            });
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Riwayat Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
-
-    public function displayHistoryByManager()
-    {
-        $component = 'manager/submission-management/history/index';
-
-        Carbon::setLocale('id');
-
-        $submissions = Submission::query()
-            ->where('checked_by', '=', auth()->user()->getAuthIdentifier())
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-
-                return [
-                    ...$submission->toArray(),
-                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
+                    'direksi_limit' => $direksiLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
@@ -648,13 +674,6 @@ class SubmissionController extends Controller
 
     public function approve(Submission $submission): void
     {
-        $beyondTheLimit = ($submission->employee_limit?->limit ?? 0) < $submission->getAttribute('guarantee_value');
-        if ($beyondTheLimit) {
-            flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
-
-            return;
-        }
-
         $updated = $submission->update([
             'checked_by' => auth()->user()->getAuthIdentifier(),
             'approved_by' => auth()->user()->getAuthIdentifier(),
