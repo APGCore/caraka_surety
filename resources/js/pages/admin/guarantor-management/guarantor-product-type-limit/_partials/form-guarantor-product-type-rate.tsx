@@ -20,8 +20,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
     id?: number;
     guarantor_id: number;
     guarantor_to_product_type_id: number;
-    limit: string;
-    limit_inherit: string;
+    limit: string | number | undefined;
+    limit_inherit: string | number | undefined;
   }>({
     id: guarantorProductType.limit?.id,
     guarantor_id: guarantorProductType.guarantor_id,
@@ -50,6 +50,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
     }
   };
 
+
+
   return (
     <form
       onSubmit={(e) => {
@@ -66,7 +68,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
 
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
-            <InputCurrency
+                      <InputCurrency
+                          placeholder="Limit Nilai Jaminan"
               value={data.limit?.toString() ?? ""}
               onChange={(e) => setData({ ...data, limit: e || "" })}
             />
@@ -82,7 +85,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              value={data.limit_inherit?.toString() ?? ""}
+                          value={ data.limit_inherit ?   data.limit_inherit?.toString() : ""}
+                          placeholder="Limit Nilai Jaminan Turunan"
               onChange={(e) => setData({ ...data, limit_inherit: e || "" })}
             />
           </div>

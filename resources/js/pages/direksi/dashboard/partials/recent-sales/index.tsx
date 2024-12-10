@@ -17,7 +17,7 @@ const RecentSales: RecentSalesPageProps = ({ submissions }) => {
                   <p className="text-sm text-muted-foreground">{e.product.name}</p>
                 </div>
                 <div className="ml-auto">
-                  <p className="text-sm font-medium leading-none">Rp. {textCurrency(e.contract_value)}</p>
+                  <p className="text-sm font-medium leading-none">Rp. {textCurrency(e.guarantee_value)}</p>
                 </div>
               </div>
             );

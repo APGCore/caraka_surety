@@ -817,6 +817,27 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
                       }}
                     />
+                                  </tr>
+                                     <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Profitabilitas
+                      {comparisonRatios.profitability_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.profitability_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
+                      }}
+                    />
                   </tr>
                   <tr className="border-b bg-gray-100">
                     <td className="p-2 font-semibold text-left">
@@ -839,27 +860,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       }}
                     />
                   </tr>
-                  <tr className="border-b bg-gray-100">
-                    <td className="p-2 font-semibold text-left">
-                      Rasio Profitabilitas
-                      {comparisonRatios.profitability_ratios == true && (
-                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                          Naik
-                        </Badge>
-                      )}
-                      {comparisonRatios.profitability_ratios == false && (
-                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                          Turun
-                        </Badge>
-                      )}
-                    </td>
-                    <RenderList
-                      of={submission?.principal?.ratios}
-                      render={(ratio: any) => {
-                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
-                      }}
-                    />
-                  </tr>
+
                 </tbody>
               </table>
             </div>
