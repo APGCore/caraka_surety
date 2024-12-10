@@ -25,10 +25,10 @@ class ProfileLimitController extends Controller
         $guarantors = Guarantor::query()->select('id', 'name')
             ->get();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
-        $guarantor = $guarantors->find($guarantorSelected)->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
-        $guarantorProducts = $guarantor->guarantorToProductTypes->pluck('product')->unique()->values();
+        $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
+        $guarantorProducts = $guarantor?->guarantorToProductTypes?->pluck('product')->unique()->values();
         $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
-        $guarantorProductTypes = $guarantor->guarantorToProductTypes->where('product_id', $guarantorProductSelected)->values();
+        $guarantorProductTypes = $guarantor?->guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->values();
         $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
         $limit = GuarantorProductTypeLimit::query()
             ->where('guarantor_id', $guarantorSelected)
