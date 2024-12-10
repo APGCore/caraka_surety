@@ -354,7 +354,7 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->contract_value;
+        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
@@ -398,7 +398,7 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->contract_value;
+        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
@@ -465,7 +465,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -493,10 +493,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -507,10 +507,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -539,15 +539,16 @@ class SubmissionController extends Controller
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -574,15 +575,16 @@ class SubmissionController extends Controller
                     'direksi_limit' => $direksiLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -602,15 +604,16 @@ class SubmissionController extends Controller
 
                 return [
                     ...$submission->toArray(),
+                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -630,20 +633,28 @@ class SubmissionController extends Controller
 
                 return [
                     ...$submission->toArray(),
+                    'beyond_the_limit' => ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
                 ];
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
     public function approve(Submission $submission): void
     {
+        $beyondTheLimit = ($submission->employee_limit?->limit ?? 0) < $submission->getAttribute('guarantee_value');
+        if ($beyondTheLimit) {
+            flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
+
+            return;
+        }
+
         $updated = $submission->update([
             'checked_by' => auth()->user()->getAuthIdentifier(),
             'approved_by' => auth()->user()->getAuthIdentifier(),
