@@ -73,8 +73,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="minimum_bill"
-              name="minimum_bill"
               value={data.minimum_bill?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_bill: e })}
             />
@@ -90,8 +88,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="minimum_payment"
-              name="minimum_payment"
               value={data.minimum_payment?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_payment: e })}
             />
@@ -144,8 +140,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="sales_administration"
-              name="sales_administration"
               value={data.sales_administration?.toString() ?? ""}
               onChange={(e) => setData({ ...data, sales_administration: e })}
             />
@@ -160,8 +154,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="payment_administration"
-              name="payment_administration"
               value={data.payment_administration?.toString() ?? ""}
               onChange={(e) => setData({ ...data, payment_administration: e })}
             />
@@ -195,8 +187,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="minimum_management_fee"
-              name="minimum_management_fee"
               value={data.minimum_management_fee?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_management_fee: e })}
             />
@@ -211,8 +201,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="stamp_duty"
-              name="stamp_duty"
               value={data.stamp_duty?.toString() ?? ""}
               onChange={(e) => setData({ ...data, stamp_duty: e })}
             />
@@ -227,8 +215,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="broken_rate"
-              name="broken_rate"
               value={data.broken_rate?.toString() ?? ""}
               onChange={(e) => setData({ ...data, broken_rate: e })}
             />
@@ -243,8 +229,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="revised_rate"
-              name="revised_rate"
               value={data.revised_rate?.toString() ?? ""}
               onChange={(e) => setData({ ...data, revised_rate: e })}
             />

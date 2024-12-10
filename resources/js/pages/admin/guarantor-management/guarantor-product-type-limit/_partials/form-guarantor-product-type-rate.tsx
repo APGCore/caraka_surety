@@ -67,10 +67,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="minimum_bill"
-              name="minimum_bill"
               value={data.limit?.toString() ?? ""}
-              onChange={(e) => setData({ ...data, limit: e })}
+              onChange={(e) => setData({ ...data, limit: e || "" })}
             />
           </div>
 
@@ -84,10 +82,8 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
           <div className="flex items-center space-x-4">
             <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
-              id="minimum_bill"
-              name="minimum_bill"
               value={data.limit_inherit?.toString() ?? ""}
-              onChange={(e) => setData({ ...data, limit_inherit: e })}
+              onChange={(e) => setData({ ...data, limit_inherit: e || "" })}
             />
           </div>
           <InputError message={errors?.limit_inherit} />

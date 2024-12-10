@@ -159,9 +159,6 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
           <div className="grid gap-[5px]">
             <Label htmlFor="limit">Limit Pengajuan</Label>
             <InputCurrency
-              id="limit"
-              type="string"
-              required
               value={dataForm.limit ?? ""}
               placeholder="Masukan limit pengajuan"
               onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
