@@ -1,5 +1,5 @@
 const templateContent = `
-<h2 style="text-align: center;">JAMINAN PELAKSANAAN (DUMMY)</h2>
+<h2 style="text-align: center;">JAMINAN PELAKSANAAN</h2>
 
 <p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  40.91.02.AAAAAAA.11.22</p>
 <p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [NILAI_JAMINAN]</p>
@@ -64,8 +64,8 @@ const templateContent = `
         <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
     </tr>
     <tr>
-        <td style="text-align: left;">[NAMA_ASURANSI]</td>
-        <td style="text-align: right;">[NAMA_PRINCIPAL_TTD]</td>
+        <td style="text-align: left;">[NAMA_PRINCIPAL_TTD]</td>
+        <td style="text-align: right;">[NAMA_ASURANSI]</td>
     </tr>
     <tr>
         <td style="text-align: left;"><br></td>

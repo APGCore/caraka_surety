@@ -279,7 +279,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[START_DATE]", data?.start_date || "")
       .replace("[END_DATE]", data?.end_date || "")
       .replace("[TANGGAL_PENERBITAN]", data?.guarantee_issue_date || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.signer_name || "")
+      .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
       .replace("[NAMA_ASURANSI]", data?.guarantor?.name || "")
@@ -1079,15 +1079,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </div>
               )}
 
-              {submission?.guarantor?.name.toLowerCase().includes("jastan") && (
+              {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+              submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
                 <div>
-                  <p className="text-xl font-semibold mb-4 mt-5">Jastan</p>
+                  <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
                   <TinyMCEEditor
                     id="draft-surety-jastan"
                     initialContent={replaceJastanPlaceholders(templateJastan, data)}
                   />
                 </div>
-              )}
+              ) : null}
 
               {submission?.guarantor?.name.toLowerCase().includes("videi") && (
                 <div>
