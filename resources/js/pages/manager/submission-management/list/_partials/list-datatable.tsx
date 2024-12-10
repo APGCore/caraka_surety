@@ -28,7 +28,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             <TableHead className="w-0">#</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
-            <TableHead>Nilai Kontrak</TableHead>
+            <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
@@ -40,13 +40,13 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             render={(submission: any, index: number) => (
               <TableRow
                 key={submission.id}
-                className={submission.manager_limit < submission.contract_value ? "bg-amber-300" : ""}>
+                className={submission?.beyond_the_limit ? "bg-amber-300" : ""}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission?.contract_value)} limit {formatRupiah(submission?.manager_limit)}
-                </TableCell>
+                  {formatRupiah(submission?.guarantee_value)} limit {formatRupiah(submission?.manager_limit)}
+                    </TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${

@@ -231,7 +231,6 @@ class SubmissionController extends Controller
 
                 return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
             }
-
         }
     }
 
@@ -466,7 +465,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -494,10 +493,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -508,10 +507,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -545,10 +544,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -559,6 +558,7 @@ class SubmissionController extends Controller
         Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
+
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->where('checked_by', '!=', null)
@@ -579,10 +579,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -607,10 +607,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -635,10 +635,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -674,7 +674,6 @@ class SubmissionController extends Controller
         } else {
             flashMessage('success', 'Berhasil menolak pengajuan');
         }
-
     }
 
     // check status

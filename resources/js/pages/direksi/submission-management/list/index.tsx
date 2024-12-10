@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ManagerLayoutPage from "@/layouts/manager";
 import { useState } from "react";
 import SubmissionListDatatable from "./_partials/list-datatable";
 import SubmissionListHeader from "./_partials/list-page-header";
 import { SubmissionListPageProps } from "./list-page.type";
+import DireksiLayoutPage from "@/layouts/direksi";
 
 const SubmissionListPage: SubmissionListPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");
@@ -58,9 +58,9 @@ SubmissionListPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <ManagerLayoutPage user={pagePropsData?.auth?.user}>
+    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
       <SubmissionListHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </ManagerLayoutPage>
+    </DireksiLayoutPage>
   );
 };

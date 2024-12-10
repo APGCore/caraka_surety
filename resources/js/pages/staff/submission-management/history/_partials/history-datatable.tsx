@@ -31,7 +31,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             <TableHead className="w-0">#</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
-            <TableHead>Nilai Kontrak</TableHead>
+            <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -45,7 +45,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
-                <TableCell>{formatRupiah(submission?.contract_value)}</TableCell>
+                <TableCell>{formatRupiah(submission?.guarantee_value)}</TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
