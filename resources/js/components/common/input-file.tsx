@@ -44,9 +44,11 @@ const FileInput: React.FC<InputFileProps> = ({
   }, [reset]);
 
   useEffect(() => {
-    if (previewValue) {
-      setFiles(previewValue as File);
-      setPreview(URL.createObjectURL(previewValue as File));
+    if (previewValue instanceof File) {
+      setFiles(previewValue);
+      setPreview(URL.createObjectURL(previewValue));
+    } else if (typeof previewValue === "string") {
+      setPreview(previewValue);
     }
   }, [previewValue]);
 

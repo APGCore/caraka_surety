@@ -1,6 +1,10 @@
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import AdminLayout from "@/layouts/admin";
+import DireksiLayoutPage from "@/layouts/direksi";
+import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
+import ManagerLayoutPage from "@/layouts/manager";
+import StaffLayoutPage from "@/layouts/staff";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
@@ -59,11 +63,47 @@ export default AdminScoringsPage;
 
 AdminScoringsPage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const user = pagePropsData?.auth?.user;
 
-  return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
-      <ScoringHeader title={pagePropsData?.page_settings?.title} />
-      {page}
-    </AdminLayout>
-  );
+  return <ShowLayout user={user} page={page} title={pagePropsData?.page_settings?.title} />;
+};
+
+const ShowLayout = ({ user, page, title }: { user: any; page: any; title: any }) => {
+  switch (user?.role_id) {
+    case 1:
+      return (
+        <AdminLayout user={user}>
+          <ScoringHeader title={title} />
+          {page}
+        </AdminLayout>
+      );
+    case 2:
+      return (
+        <DireksiLayoutPage user={user}>
+          <ScoringHeader title={title} />
+          {page}
+        </DireksiLayoutPage>
+      );
+    case 3:
+      return (
+        <KepalaCabangLayoutPage user={user}>
+          <ScoringHeader title={title} />
+          {page}
+        </KepalaCabangLayoutPage>
+      );
+    case 4:
+      return (
+        <ManagerLayoutPage user={user}>
+          <ScoringHeader title={title} />
+          {page}
+        </ManagerLayoutPage>
+      );
+    default:
+      return (
+        <StaffLayoutPage user={user}>
+          <ScoringHeader title={title} />
+          {page}
+        </StaffLayoutPage>
+      );
+  }
 };

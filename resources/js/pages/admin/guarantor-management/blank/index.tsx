@@ -1,6 +1,7 @@
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
@@ -13,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -246,7 +248,12 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                     <Input
                       id="number"
                       value={dataCreateMulti.number_start}
-                      onChange={(e) => setDataCreateMulti({ ...dataCreateMulti, number_start: e.target.value })}
+                      onChange={(e) =>
+                        setDataCreateMulti({
+                          ...dataCreateMulti,
+                          number_start: e.target.value,
+                        })
+                      }
                       type="text"
                       className="mt-1 block w-full"
                     />
@@ -264,7 +271,12 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                     <Input
                       id="number"
                       value={dataCreateMulti.number_end}
-                      onChange={(e) => setDataCreateMulti({ ...dataCreateMulti, number_end: e.target.value })}
+                      onChange={(e) =>
+                        setDataCreateMulti({
+                          ...dataCreateMulti,
+                          number_end: e.target.value,
+                        })
+                      }
                       type="text"
                       className="mt-1 block w-full"
                     />
@@ -331,6 +343,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nomor Blangko</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
@@ -341,6 +354,20 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                 <TableRow key={blank.id}>
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{blank.number}</TableCell>
+                  <TableCell>
+                    <Show when={blank.is_used === 1}>
+                      <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
+                    </Show>
+                    <Show when={blank.is_used === 0}>
+                      <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
+                    </Show>
+                    <Show when={blank.is_broken === 0}>
+                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
+                    </Show>
+                    <Show when={blank.is_broken === 1}>
+                      <Badge className="text-white bg-red-400 ml-2">Rusak</Badge>
+                    </Show>
+                  </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -374,7 +401,12 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                                   <Input
                                     id="number"
                                     value={dataForm.number}
-                                    onChange={(e) => setdataForm({ ...dataForm, number: e.target.value })}
+                                    onChange={(e) =>
+                                      setdataForm({
+                                        ...dataForm,
+                                        number: e.target.value,
+                                      })
+                                    }
                                     type="text"
                                     className="mt-1 block w-full"
                                   />

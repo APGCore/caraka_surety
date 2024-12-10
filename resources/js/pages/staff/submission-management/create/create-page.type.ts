@@ -57,6 +57,7 @@ type Submission = {
   job_location_regency_id: string;
   job_location_district_id: string;
   job_location_village: string;
+  job_location_address: string;
   source_of_fund_id: string;
   note: string;
 };

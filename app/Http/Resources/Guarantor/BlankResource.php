@@ -16,8 +16,8 @@ class BlankResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'is_used' => $this->resource->is_used ? 'Sudah digunakan' : 'Belum digunakan',
-            'is_broken' => $this->resource->is_broken ? 'Rusak' : 'Baik',
+            'is_used' => $this->resource->is_used,
+            'is_broken' => $this->resource->is_broken,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

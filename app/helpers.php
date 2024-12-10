@@ -9,7 +9,7 @@ if (! function_exists('flashMessage')) {
         session()->flash('type', $type);
     }
 
-    function convertPattern(string $pattern, string $ka, string $noa, string $kp, string $kb,
+    function convertPattern(string $pattern, string $ka = '', string $noa = '', string $kp = '', string $kb = '',
         string $nod = '1', string $nom = '1', string $noy = '1')
     {
         preg_match('/{NOKB:(\d+)}/', $pattern, $matchesNokb);

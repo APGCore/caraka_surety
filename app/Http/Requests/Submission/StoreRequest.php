@@ -108,6 +108,7 @@ class StoreRequest extends FormRequest
             'submission.job_location_regency_id' => ['required', 'exists:'.Regency::class.',id'], // id kabupaten/kota lokasi pekerjaan
             'submission.job_location_district_id' => ['required', 'exists:'.District::class.',id'], // id kecamatan lokasi pekerjaan
             'submission.job_location_village' => ['required', 'string', 'max:255'], // desa lokasi pekerjaan
+            'submission.job_location_address' => ['required', 'string'], // address lokasi pekerjaan
             'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
 
