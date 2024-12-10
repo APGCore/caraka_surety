@@ -57,7 +57,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
-                  <Link href={route("manager-submission-detail.submission", { id: submission.id })}>
+                  <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
                     <Button variant="outline" size="sm">
                       Detail
                     </Button>

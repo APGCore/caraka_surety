@@ -1,17 +1,15 @@
 const templateContent = `
 <h2 style="text-align: center;">JAMINAN PELAKSANAAN</h2>
 
-<p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  40.91.02.AAAAAAA.11.22</p>
+<p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  </p>
 <p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [NILAI_JAMINAN]</p>
 
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 30px; vertical-align: top;">1.</td>
         <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: [NAMA_PRINCIPAL], [ALAMAT_PRINCIPAL]
-        sebagai Penyedia, selanjutnya disebut TERJAMIN, dan PT. ASURANSI UMUM VIDEI,
-        Graha Mustika Ratu, Lantai 1, Jl. Jend. Gatot Subroto Kav. 74-75, Jakarta 12870 sebagai Asuransi,
-        selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak
-        Politeknik Kesehatan Jakarta III [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
+        sebagai Penyedia, selanjutnya disebut TERJAMIN, dan [NAMA_ASURANSI_ATAS],
+        [ALAMAT_ASURANSI_ATAS] sebagai Asuransi selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
         sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah [BESARAN_NILAI_JAMINAN].</td>
     </tr>
     <tr>
@@ -60,7 +58,7 @@ const templateContent = `
 
 <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
     <tr>
-        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal 01 Oktober 2019 [TANGGAL_PENERBITAN]</td>
+        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal [TANGGAL_PENERBITAN]</td>
         <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
     </tr>
     <tr>

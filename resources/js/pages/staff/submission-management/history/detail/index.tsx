@@ -269,6 +269,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
       .replace("[NAMA_ASURANSI]", data?.guarantor?.name || "")
+      .replace("[NAMA_ASURANSI_ATAS]", data?.guarantor?.name || "")
+      .replace("[ALAMAT_ASURANSI_ATAS]", data?.guarantor?.address || "")
       .replace("[NAMA_DIREKTUR]", data?.guarantor?.pic || "");
   };
 
