@@ -332,7 +332,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PROYEK]", data?.job_name || "")
       .replace("[JENIS_PROYEK]", data?.job_group || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
-      .replace("[LOKASI_PROYEK]", data?.obligee?.location || "")
+      .replace("[LOKASI_PROYEK]", data?.job_location || "")
       .replace("[SUMBER_DANA]", data?.source_of_fund.name || "")
       .replace("[DOKUMEN_PENDUKUNG]", data?.contract_doc_name || "")
       .replace("[NAMA_KOTA]", data?.city || "")
@@ -373,6 +373,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       director_phone: submission?.principal?.director_phone || "",
       pic: submission?.principal?.pic || "",
       director_position: submission?.principal?.director_position || "",
+      location:
+        submission?.obligee?.address +
+        ", " +
+        submission?.obligee?.district?.name +
+        ", " +
+        submission?.obligee?.regency?.name +
+        ", " +
+        submission?.obligee?.province?.name,
     },
     obligee: {
       name: submission?.obligee?.name || "",

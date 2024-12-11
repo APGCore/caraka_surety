@@ -65,6 +65,16 @@ interface Principal {
   year_established: string;
   documents: Document[];
   ratios: Ratio[];
+  district: {
+    name: string;
+  };
+
+  regency: {
+    name: string;
+  };
+  province: {
+    name: string;
+  };
 }
 
 interface GuarantorToProductType {
