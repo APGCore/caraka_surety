@@ -351,7 +351,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[LOKASI_PROYEK]", data?.obligee?.location || "")
       .replace("[SUMBER_DANA]", data?.source_of_fund.name || "")
       .replace("[DOKUMEN_PENDUKUNG]", data?.contract_doc_name || "")
-      .replace("[NAMA_KOTA]", data?.obligee?.city || "")
+      .replace("[NAMA_KOTA]", data?.city || "")
       .replace("[TANGGAL_SURAT]", formattedDate || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "");
   };
@@ -459,6 +459,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       submission?.province?.name,
     job_group: submission?.guarantor_to_product_type?.job_group,
     no: submission?.id,
+    city: submission?.regency?.name,
   };
 
   const calculateTotalPoint = (scores: any) => {
