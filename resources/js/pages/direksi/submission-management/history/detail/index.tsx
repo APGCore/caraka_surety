@@ -1034,14 +1034,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
               </div>
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-                <TinyMCEEditor
-                  id="draft-surety"
-                  initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
-                />
-              </div>
-              {/*
+
               {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
                 <div>
                   <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
@@ -1101,7 +1094,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     initialContent={replaceVideiPlaceholders(templateVidei, data)}
                   />
                 </div>
-              )} */}
+              )}
             </div>
           </Show>
           <Show
