@@ -16,14 +16,14 @@ class DocumentFormatController extends Controller
     {
         $guarantors = Guarantor::query()->select('id', 'name')->get();
         $guarantorSelected = $request->get('guarantor_id');
-        $guarantorSelected = $guarantorSelected ? (int)$guarantorSelected : null;
+        $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : null;
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $products = $guarantor?->guarantorToProductTypes->pluck('product')->unique()->values();
         $productSelected = $request->get('guarantor_product_id');
-        $productSelected = $productSelected ? (int)$productSelected : null;
+        $productSelected = $productSelected ? (int) $productSelected : null;
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes->where('product_id', $productSelected)->values();
         $guarantorProductTypeSelected = $request->get('guarantor_to_product_type_id');
-        $guarantorProductTypeSelected = $guarantorProductTypeSelected ? (int)$guarantorProductTypeSelected : null;
+        $guarantorProductTypeSelected = $guarantorProductTypeSelected ? (int) $guarantorProductTypeSelected : null;
 
         $documentFormats = DocumentFormat::search($request->get('search'))
             ->query(function ($query) use ($guarantorSelected, $productSelected, $guarantorProductTypeSelected) {
@@ -45,7 +45,7 @@ class DocumentFormatController extends Controller
             'productSelected' => $productSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
-            'documentFormats' => fn() => $resourceDocumentFormats,
+            'documentFormats' => fn () => $resourceDocumentFormats,
         ];
     }
 
@@ -56,7 +56,7 @@ class DocumentFormatController extends Controller
     {
         $data = $this->getGuarantorData($request);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -73,7 +73,7 @@ class DocumentFormatController extends Controller
     {
         $data = $this->getGuarantorData($request);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -109,6 +109,7 @@ class DocumentFormatController extends Controller
                 ]);
 
             DB::commit();
+
             return redirect()->back()->with('success', 'Berhasil menyimpan data');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -119,13 +120,12 @@ class DocumentFormatController extends Controller
         }
     }
 
-
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(DocumentFormat $documentFormat)
     {
-        $component = str_replace(('/' . $documentFormat->getAttribute('id')), '', request()->path()) . '/index';
+        $component = str_replace(('/'.$documentFormat->getAttribute('id')), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -154,6 +154,7 @@ class DocumentFormatController extends Controller
             ]);
 
             DB::commit();
+
             return redirect()->back()->with('success', 'Berhasil menyimpan data');
         } catch (\Exception $e) {
             DB::rollBack();
