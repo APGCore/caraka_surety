@@ -374,6 +374,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[TANGGAL_SURAT]", formattedDate || "")
       .replace("[NAMA_DIREKTUR]", data?.principal?.director_name || "");
   };
+  console.log("Address:", submission?.principal?.address);
+  console.log("District Name:", submission?.principal?.district?.name);
+  console.log("Regency Name:", submission?.principal?.regency?.name);
+  console.log("Province Name:", submission?.principal?.province?.name);
 
   const data = {
     principal: {

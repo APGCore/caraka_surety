@@ -146,7 +146,7 @@ const templateAnalyst = `
   </tr>
   <tr>
     <td>Jangka Waktu</td>
-    <td colspan="2">: [JANGKA_WAKTU]</td>
+    <td colspan="2">: [JANGKA_WAKTU] hari</td>
   </tr>
   <tr>
     <td>Nama Pekerjaan</td>
