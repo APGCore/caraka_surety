@@ -210,10 +210,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NOMOR_KONTRAK]", data?.contract_doc_number || "")
       .replace("[TANGGAL_KONTRAK]", data?.contract_doc_date || "")
-      .replace("[START_DATE]", data?.start_date || "")
-      .replace("[END_DATE]", data?.end_date || "")
+      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
+      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[TANGGAL_PENERBITAN]", data?.guarantee_issue_date || "")
+      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
       .replace("[NAMA_PENJAMIN_TTD]", data?.guarantor.signer_name || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.guarantor.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data?.guarantor?.pic || "")
@@ -278,9 +278,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NOMOR_DOKUMEN]", data?.contract_doc_number || "")
       .replace("[TANGGAL_DOKUMEN]", data?.contract_doc_date || "")
       .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[START_DATE]", data?.start_date || "")
-      .replace("[END_DATE]", data?.end_date || "")
-      .replace("[TANGGAL_PENERBITAN]", data?.guarantee_issue_date || "")
+      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
+      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
@@ -288,7 +288,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_ASURANSI_ATAS]", data?.guarantor?.name || "")
       .replace("[ALAMAT_ASURANSI_ATAS]", data?.guarantor?.address || "")
       .replace("[NAMA_KEPALA_CABANG_TTD]", data?.guarantor?.pic || "")
-      .replace("[NAMA_PIC_PRINCIPAL_TTD]", data?.principal?.name || "");
+      .replace("[NAMA_PIC_PRINCIPAL_TTD]", data?.principal?.director_name || "");
   };
 
   const replacePermohonanBankGaransiPlaceholders = (template: string, data: any) => {
@@ -307,8 +307,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[START_DATE]", data?.start_date || "")
-      .replace("[END_DATE]", data?.end_date || "")
+      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
+      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
       .replace("[DASAR_DOKUMEN]", data?.contract_doc_name + " " + data?.contract_doc_number || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data?.principal.director_name || "")
@@ -343,8 +343,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[ALAMAT_OBLIGEE]", data?.obligee?.address || "")
       .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[START_DATE]", data?.start_date || "")
-      .replace("[END_DATE]", data?.end_date || "")
+      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
+      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
       .replace("[NAMA_PROYEK]", data?.job_name || "")
       .replace("[JENIS_PROYEK]", data?.job_group || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
@@ -409,6 +409,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       name: submission?.guarantor?.name || "",
       address: submission?.guarantor?.address || "",
       pic: submission?.guarantor?.pic || "",
+      location:
+        submission?.guarantor?.address +
+        ", " +
+        submission?.guarantor?.district?.name +
+        ", " +
+        submission?.guarantor?.regency?.name +
+        ", " +
+        submission?.guarantor?.province?.name,
     },
     source_of_fund: {
       name: submission?.source_of_fund.name,
@@ -1026,7 +1034,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
               </div>
-
+              <div>
+                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
+                <TinyMCEEditor
+                  id="draft-surety"
+                  initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
+                />
+              </div>
+              {/*
               {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
                 <div>
                   <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
@@ -1086,7 +1101,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     initialContent={replaceVideiPlaceholders(templateVidei, data)}
                   />
                 </div>
-              )}
+              )} */}
             </div>
           </Show>
           <Show

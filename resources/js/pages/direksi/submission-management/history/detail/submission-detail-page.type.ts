@@ -93,6 +93,16 @@ interface Guarantor {
   name: string;
   pic: string;
   address: string;
+  district: {
+    name: string;
+  };
+
+  regency: {
+    name: string;
+  };
+  province: {
+    name: string;
+  };
 }
 
 interface SourceOfFund {

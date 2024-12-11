@@ -7,11 +7,11 @@ const templateDraftSurety = `
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 30px; vertical-align: top;">1.</td>
-        <td style="text-align: justify;">Kami yang bertanda tangan di bawah ini: [NAMA_PENJAMIN], berkantor di [ALAMAT_PENJAMIN], selanjutnya disebut sebagai PENJAMIN, menyatakan dengan ini menjamin kewajiban [NAMA_PRINCIPAL2], berkantor di Jl. Agave Raya Blok A1 No. 19A, Jakarta Barat [ALAMAT_PRINCIPAL], selanjutnya disebut sebagai PRINCIPAL, terhadap [NAMA_OBLIGEE], berkantor di [ALAMAT_OBLIGEE], yang selanjutnya disebut sebagai OBLIGEE.</td>
+        <td style="text-align: justify;">Kami yang bertanda tangan di bawah ini: [NAMA_PENJAMIN], berkantor di [ALAMAT_PENJAMIN], selanjutnya disebut sebagai PENJAMIN, menyatakan dengan ini menjamin kewajiban [NAMA_PRINCIPAL2], berkantor di [ALAMAT_PRINCIPAL], selanjutnya disebut sebagai PRINCIPAL, terhadap [NAMA_OBLIGEE], berkantor di [ALAMAT_OBLIGEE], yang selanjutnya disebut sebagai OBLIGEE.</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">2.</td>
-        <td style="text-align: justify;">PENJAMIN bertanggung jawab untuk membayar kepada OBLIGEE sejumlah [BESARAN_NILAI_JAMINAN] dalam hal PRINCIPAL gagal memenuhi kewajibannya dalam menyelesaikan Pekerjaan Pengadaan Alat Laboratorium Politeknik Kesehatan Jakarta III [NAMA_PEKERJAAN] sesuai dengan ketentuan dalam kontrak Nomor KN.01.01/V/6747/2019 [NOMOR_KONTRAK] tanggal 30 September 2019 [TANGGAL_KONTRAK].</td>
+        <td style="text-align: justify;">PENJAMIN bertanggung jawab untuk membayar kepada OBLIGEE sejumlah [BESARAN_NILAI_JAMINAN] dalam hal PRINCIPAL gagal memenuhi kewajibannya dalam menyelesaikan pekerjaan [NAMA_PEKERJAAN] sesuai dengan ketentuan dalam kontrak Nomor [NOMOR_KONTRAK] tanggal [TANGGAL_KONTRAK].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">3.</td>
