@@ -66,7 +66,7 @@ class DashboardController extends Controller
     private function getSubmissionThisMonth(): object
     {
         return Submission::query()
-            ->select('id', 'principal_id', 'product_id', 'contract_value', 'status')
+            ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
             ->with(['principal:id,name', 'product:id,name'])
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
