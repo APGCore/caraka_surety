@@ -62,7 +62,8 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
             valueKey={"name"}
             defaultValue={guarantorSelected}
             placeholder={"Pilih Asuransi"}
-            className={"w-[210px]"}
+            className={"min-w-[200px]"}
+            isWidthSameWithInput={false}
             shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
@@ -72,7 +73,8 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
             valueKey={"name"}
             defaultValue={productSelected}
             placeholder={"Pilih Produk"}
-            className={"w-[210px]"}
+            className={"min-w-[200px]"}
+            isWidthSameWithInput={false}
             shortValue={true}
             onSelect={(value) => handleSelectProduct(value.id)}
           />

@@ -113,9 +113,10 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             datas={guarantors}
             labelKey={"name"}
             valueKey={"name"}
-            defaultValue={guarantorSelected}
+            defaultValueId={guarantorSelected}
             placeholder={"Pilih Penjamin"}
-            className={"w-[210px]"}
+            className={"min-w-[140px]"}
+            isWidthSameWithInput={false}
             shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
@@ -123,9 +124,10 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             datas={profiles}
             labelKey={"name"}
             valueKey={"name"}
-            defaultValue={profileSelected}
+            defaultValueId={profileSelected}
             placeholder={"Pilih Kantor"}
-            className={"w-[210px]"}
+            className={"min-w-[140px]"}
+            isWidthSameWithInput={false}
             shortValue={true}
             onSelect={(value) => handleSelectProfile(value.id)}
           />
@@ -133,18 +135,22 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             datas={guarantorProducts}
             labelKey={"name"}
             valueKey={"name"}
-            defaultValue={guarantorProductSelected}
+            defaultValueId={guarantorProductSelected}
             placeholder={"Pilih Produk"}
-            className={"w-min-[210px]"}
+            className={"min-w-[140px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProduct(value.id)}
           />
           <Combobox
             datas={guarantorProductTypes}
             labelKey={"full_name"}
             valueKey={"full_name"}
-            defaultValue={guarantorProductTypeSelected}
+            defaultValueId={guarantorProductTypeSelected}
             placeholder={"Pilih Jenis Jaminan"}
-            className={"w-min-[210px]"}
+            className={"min-w-[160px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
         </div>

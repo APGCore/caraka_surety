@@ -167,7 +167,7 @@ class SubmissionController extends Controller
             $noa = $profile->code;
 
             $guarantorPattern = $guarantor->pattern;
-            $pattern = $guarantorPattern?->prefix . $guarantorPattern?->content . $guarantorPattern?->suffix;
+            $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
             $sequence = Sequence::query()->where('guarantor_id', $submission['guarantor_id'])->orderByDesc('current')->get();
             $seqNodLast = $sequence->where('name', 'NOD')->first();
             $seqNomLast = $sequence->where('name', 'NOM')->first();

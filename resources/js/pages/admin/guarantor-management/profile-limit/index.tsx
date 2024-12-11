@@ -96,7 +96,9 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
             valueKey={"name"}
             defaultValue={guarantorSelected}
             placeholder={"Pilih Penjamin"}
-            className={"w-[210px]"}
+            className={"min-w-[200px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
           <Combobox
@@ -105,7 +107,9 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
             valueKey={"name"}
             defaultValue={guarantorProductSelected}
             placeholder={"Pilih Produk"}
-            className={"w-min-[210px]"}
+            className={"min-w-[200px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProduct(value.id)}
           />
           <Combobox
@@ -114,7 +118,9 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
             valueKey={"full_name"}
             defaultValue={guarantorProductTypeSelected}
             placeholder={"Pilih Jenis Jaminan"}
-            className={"w-min-[210px]"}
+            className={"min-w-[200px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
         </div>

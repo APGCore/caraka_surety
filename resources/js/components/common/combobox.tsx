@@ -22,6 +22,7 @@ export interface ComboboxProps<T> {
   disabledValue?: boolean;
   reset?: boolean;
   shortValue?: boolean;
+  isWidthSameWithInput?: boolean;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -32,6 +33,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   defaultValueId,
   reset = false,
   shortValue = false,
+  isWidthSameWithInput = true,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -88,7 +90,9 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
       </PopoverTrigger>
       <PopoverContent
         avoidCollisions={false}
-        className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+        className={cn("p-0", {
+          "w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height]": isWidthSameWithInput,
+        })}>
         <Command>
           <CommandInput placeholder={props?.placeholder ?? "Search item..."} className="m-1" />
           <CommandList>
