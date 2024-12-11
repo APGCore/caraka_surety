@@ -273,6 +273,10 @@ class SubmissionController extends Controller
             'principal.province',
             'principal.regency',
             'principal.district',
+            'guarantor.province',
+            'guarantor.regency',
+            'guarantor.district',
+
             'district',
             'province',
             'regency',

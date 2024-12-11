@@ -374,13 +374,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       pic: submission?.principal?.pic || "",
       director_position: submission?.principal?.director_position || "",
       location:
-        submission?.obligee?.address +
+        submission?.principal?.address +
         ", " +
-        submission?.obligee?.district?.name +
+        submission?.principal?.district?.name +
         ", " +
-        submission?.obligee?.regency?.name +
+        submission?.principal?.regency?.name +
         ", " +
-        submission?.obligee?.province?.name,
+        submission?.principal?.province?.name,
     },
     obligee: {
       name: submission?.obligee?.name || "",
