@@ -285,7 +285,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_ASURANSI]", data?.guarantor?.name || "")
       .replace("[NAMA_ASURANSI_ATAS]", data?.guarantor?.name || "")
       .replace("[ALAMAT_ASURANSI_ATAS]", data?.guarantor?.address || "")
-      .replace("[NAMA_DIREKTUR]", data?.guarantor?.pic || "");
+      .replace("[NAMA_KEPALA_CABANG_TTD]", data?.guarantor?.pic || "")
+      .replace("[NAMA_PIC_PRINCIPAL_TTD]", data?.principal?.name || "");
   };
 
   const replacePermohonanBankGaransiPlaceholders = (template: string, data: any) => {
@@ -893,8 +894,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
                         }}
                       />
-                                      </tr>
-                                        <tr className="border-b bg-gray-100">
+                    </tr>
+                    <tr className="border-b bg-gray-100">
                       <td className="p-2 font-semibold text-left">
                         Rasio Profitabilitas
                         {comparisonRatios.profitability_ratios == true && (
@@ -936,7 +937,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         }}
                       />
                     </tr>
-
                   </tbody>
                 </table>
               </div>
