@@ -71,7 +71,7 @@ const templateContent = `
     </tr>
     <tr>
         <td style="text-align: left;">
-            [NAMA_DIREKTUR]<br>
+            [NAMA_PIC_PRINCIPAL_TTD]<br>
             D i r e k t u r [JABATAN]
         </td>
         <td style="text-align: right;">
