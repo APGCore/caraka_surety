@@ -270,8 +270,11 @@ class SubmissionController extends Controller
             'obligee.province',
             'obligee.regency',
             'obligee.district',
+            'principal.province',
+            'principal.regency',
+            'principal.district',
             'district',
-            'province',
+            'province', 
             'regency',
             'sourceOfFund' => function ($query) {
                 $query->withTrashed();

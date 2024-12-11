@@ -389,6 +389,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       director_phone: submission?.principal?.director_phone || "",
       pic: submission?.principal?.pic || "",
       director_position: submission?.principal?.director_position || "",
+      location:
+        submission?.principal?.address +
+        ", " +
+        submission?.principal?.district?.name +
+        ", " +
+        submission?.principal?.regency?.name +
+        ", " +
+        submission?.principal?.province?.name,
     },
     obligee: {
       name: submission?.obligee?.name || "",
