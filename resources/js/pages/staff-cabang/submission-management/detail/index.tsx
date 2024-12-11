@@ -2,7 +2,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/co
 import { Button } from "@/components/ui/button";
 import AdminLayout from "@/layouts/admin";
 import { Head, Link } from "@inertiajs/react";
-import { useEffect } from "react";
 // import templateDraftSurety from "../template-draft-surety";
 // import templateAnalyst from "../template-hasil-analisa";
 // import templateContent from "../template-surat-pelaksanaan";
@@ -10,62 +9,6 @@ import { useEffect } from "react";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, status }) => {
-  useEffect(() => {
-    const tinymceScript = document.createElement("script");
-    tinymceScript.src = "/js/tinymce/tinymce.min.js";
-
-    const htmlDocxScript = document.createElement("script");
-    htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js";
-
-    tinymceScript.onload = () => {
-      const setupEditor = (selector: string, editorId: string, template: string) => {
-        window.tinymce.init({
-          selector,
-          height: 500,
-          plugins: "link image code",
-          toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWordButton",
-          promotion: false,
-          branding: false,
-          setup: (editor: any) => {
-            editor.ui.registry.addButton("exportToWordButton", {
-              text: "Export to Word",
-              onAction: () => exportToWord(editorId),
-            });
-
-            editor.on("init", () => {
-              editor.setContent(template);
-            });
-          },
-        });
-      };
-
-      // setupEditor("#surat-pelaksanaan", "surat-pelaksanaan", templateContent);
-      // setupEditor("#surat-permohonan", "surat-permohonan", secondTemplateContent);
-      // setupEditor("#hasil-analisa", "hasil-analisa", templateAnalyst);
-      // setupEditor("#draft-surety", "draft-surety", templateDraftSurety);
-    };
-
-    document.body.appendChild(tinymceScript);
-    document.body.appendChild(htmlDocxScript);
-
-    return () => {
-      document.body.removeChild(tinymceScript);
-      document.body.removeChild(htmlDocxScript);
-    };
-  }, []);
-
-  const exportToWord = (editorId: string) => {
-    const editorContent = window.tinymce.get(editorId).getContent();
-    const converted = window.htmlDocx.asBlob(editorContent);
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(converted);
-    link.download = `${editorId}-document.docx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <main className="space-y-5">
       <h1 className="text-2xl font-semibold">Detail Pengajuan</h1>

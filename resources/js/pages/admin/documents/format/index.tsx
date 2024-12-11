@@ -60,13 +60,9 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
         search,
         guarantor_id: guarantorId,
         guarantor_product_id: guarantorProductId,
-        guarantor_product_type_id: guarantorProductTypeId,
+        guarantor_to_product_type_id: guarantorProductTypeId,
       }),
     );
-  };
-
-  const deleteFormatLimit = (profileLimit: any) => {
-    router.delete(route(DocumentFormatUtils.link.destroy, profileLimit.id));
   };
 
   return (
@@ -81,6 +77,7 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
             defaultValue={guarantorSelected}
             placeholder={"Pilih Penjamin"}
             className={"w-[210px]"}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
           <Combobox
@@ -90,6 +87,7 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
             defaultValue={productSelected}
             placeholder={"Pilih Produk"}
             className={"w-min-[210px]"}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProduct(value.id)}
           />
           <Combobox
@@ -99,6 +97,7 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
             defaultValue={guarantorProductTypeSelected}
             placeholder={"Pilih Jenis Jaminan"}
             className={"w-min-[210px]"}
+            shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
         </div>
@@ -114,7 +113,6 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
         guarantorSelectedId={guarantorSelected}
         productSelectedId={productSelected}
         guarantorProductTypeId={guarantorProductTypeSelected}
-        onDelete={deleteFormatLimit}
       />
     </main>
   );

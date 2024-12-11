@@ -7,19 +7,24 @@ use App\Models\Submission\Submission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class DocumentFormat extends Model
 {
-    use HasFactory, Searchable, SoftDeletes;
+    use HasFactory, Searchable;
 
     protected $guarded = [
         'id',
         'created_at',
         'updated_at',
-        'deleted_at',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->name,
+        ];
+    }
 
     public function submission(): BelongsTo
     {

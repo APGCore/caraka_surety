@@ -31,7 +31,7 @@ class GuarantorRateController extends Controller
                 $query->where('guarantor_id', $guarantorSelected)
                     ->where('product_id', $productSelected);
             })
-            ->orderBy('name')
+            ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());

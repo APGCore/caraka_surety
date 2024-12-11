@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Document;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Product\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DocumentFormatController extends Controller
 {
@@ -14,13 +16,27 @@ class DocumentFormatController extends Controller
     {
         $guarantors = Guarantor::query()->select('id', 'name')->get();
         $guarantorSelected = $request->get('guarantor_id');
-        $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : 0;
+        $guarantorSelected = $guarantorSelected ? (int)$guarantorSelected : null;
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
-        $products = Product::all();
-        $productSelected = $request->get('product_id');
-        $productSelected = $productSelected ? (int) $productSelected : 0;
+        $products = $guarantor?->guarantorToProductTypes->pluck('product')->unique()->values();
+        $productSelected = $request->get('guarantor_product_id');
+        $productSelected = $productSelected ? (int)$productSelected : null;
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes->where('product_id', $productSelected)->values();
-        $guarantorProductTypeSelected = $request->get('guarantor_product_type_id');
+        $guarantorProductTypeSelected = $request->get('guarantor_to_product_type_id');
+        $guarantorProductTypeSelected = $guarantorProductTypeSelected ? (int)$guarantorProductTypeSelected : null;
+
+        $documentFormats = DocumentFormat::search($request->get('search'))
+            ->query(function ($query) use ($guarantorSelected, $productSelected, $guarantorProductTypeSelected) {
+                $query->where('guarantor_id', $guarantorSelected)
+                    ->where('product_id', $productSelected)
+                    ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $resourceDocumentFormats = DocumentFormatResource::collection($documentFormats);
 
         return [
             'guarantors' => $guarantors,
@@ -29,6 +45,7 @@ class DocumentFormatController extends Controller
             'productSelected' => $productSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
+            'documentFormats' => fn() => $resourceDocumentFormats,
         ];
     }
 
@@ -39,7 +56,7 @@ class DocumentFormatController extends Controller
     {
         $data = $this->getGuarantorData($request);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -56,7 +73,7 @@ class DocumentFormatController extends Controller
     {
         $data = $this->getGuarantorData($request);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -71,38 +88,96 @@ class DocumentFormatController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'guarantor_id' => 'nullable|integer',
+            'guarantor_product_id' => 'nullable|integer',
+            'guarantor_product_type_id' => 'nullable|integer',
+            'name' => 'required|string',
+            'format_document' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            DocumentFormat::query()
+                ->create([
+                    'guarantor_id' => $request->get('guarantor_id'),
+                    'guarantor_product_id' => $request->get('guarantor_product_id'),
+                    'guarantor_product_type_id' => $request->get('guarantor_product_type_id'),
+                    'name' => $request->get('name'),
+                    'format_document' => $request->get('format_document'),
+                ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Berhasil menyimpan data');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal', 'Gagal menyimpan data', 'error');
+            Log::error('Error store format document', ['error' => $e->getMessage()]);
+
+            return redirect()->back()->withErrors('Gagal menyimpan data');
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(DocumentFormat $principalDocumentFormating)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DocumentFormat $principalDocumentFormating)
+    public function edit(DocumentFormat $documentFormat)
     {
-        //
+        $component = str_replace(('/' . $documentFormat->getAttribute('id')), '', request()->path()) . '/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Edit Format Dokumen',
+            ],
+            'documentFormat' => $documentFormat,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DocumentFormat $principalDocumentFormating)
+    public function update(Request $request, DocumentFormat $documentFormat)
     {
-        //
+        $request->validate([
+            'name' => 'required|string',
+            'format_document' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $documentFormat->update([
+                'name' => $request->get('name'),
+                'format_document' => $request->get('format_document'),
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Berhasil menyimpan data');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal', 'Gagal menyimpan data', 'error');
+            Log::error('Error update format document', ['error' => $e->getMessage()]);
+
+            return redirect()->back()->withErrors('Gagal menyimpan data');
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DocumentFormat $principalDocumentFormating)
+    public function destroy(DocumentFormat $documentFormat)
     {
-        //
+        try {
+            $documentFormat->delete();
+
+            return redirect()->back()->with('success', 'Berhasil menghapus data');
+        } catch (\Exception $e) {
+            flashMessage('Gagal', 'Gagal menghapus data', 'error');
+            Log::error('Error delete format document', ['error' => $e->getMessage()]);
+
+            return redirect()->back()->withErrors('Gagal menghapus data');
+        }
     }
 }

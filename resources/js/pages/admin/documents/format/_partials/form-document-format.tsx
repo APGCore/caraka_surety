@@ -2,14 +2,18 @@ import Checkbox from "@/components/common/checkbox";
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
-import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import Show from "@/components/common/show";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/general/use-toast";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { router, useForm } from "@inertiajs/react";
+import { Editor } from "@tinymce/tinymce-react";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import { LoaderCircle } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { FormDocumentFormatUtils } from "./form-document-format.utils";
 
 interface FormProfileLimitsProps {
   isEdit?: boolean;
@@ -32,21 +36,21 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   guarantorProductTypeSelected,
   documentFormat,
 }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [byGuarantor, setByGuarantor] = useState<boolean>(() => !!guarantorSelected);
   const [byProduct, setByProduct] = useState<boolean>(() => !!productSelected);
   const [byProductType, setByProductType] = useState<boolean>(() => !!guarantorProductTypeSelected);
+  const editorRef = useRef<any>(null);
 
-  const { data, setData, post, errors, processing } = useForm<{
-    guarantor_id: number;
-    product_id: number;
-    guarantor_to_product_type_id: number;
+  const { data, setData, post, put, errors, processing } = useForm<{
+    guarantor_id: number | null;
+    product_id: number | null;
+    guarantor_to_product_type_id: number | null;
     name: string;
     format_document: string;
   }>({
-    guarantor_id: guarantorSelected || 0,
-    product_id: productSelected || 0,
-    guarantor_to_product_type_id: guarantorProductTypeSelected || 0,
+    guarantor_id: guarantorSelected || null,
+    product_id: productSelected || null,
+    guarantor_to_product_type_id: guarantorProductTypeSelected || null,
     name: documentFormat?.name || "",
     format_document: documentFormat?.format_document || "",
   });
@@ -58,7 +62,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     }
     if (!checked && guarantorSelected) {
       getData();
-      setData((previousData) => ({ ...previousData, guarantor_id: 0, guarantor_to_product_type_id: 0 }));
+      setData((previousData) => ({ ...previousData, guarantor_id: null, guarantor_to_product_type_id: null }));
     }
   };
 
@@ -66,7 +70,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     setByProduct(checked);
     if (!checked && productSelected) {
       getData(guarantorSelected);
-      setData("product_id", 0);
+      setData("product_id", null);
     }
   };
 
@@ -76,7 +80,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     setByProductType(checked);
     if (!checked && guarantorProductTypeSelected) {
       getData(guarantorSelected, productSelected);
-      setData("guarantor_to_product_type_id", 0);
+      setData("guarantor_to_product_type_id", null);
     }
   };
 
@@ -100,7 +104,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
       pickBy({
         guarantor_id: guarantorId,
         product_id: guarantorProductId,
-        guarantor_product_type_id: guarantorProductTypeId,
+        guarantor_to_product_type_id: guarantorProductTypeId,
       }),
     );
   };
@@ -110,67 +114,41 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   };
 
   const submit = () => {
-    //   setIsLoading(true);
-    //
-    //   if (isEdit) {
-    //     axios
-    //       .put(route(FormDocumentFormatUtils.edit.route, profile?.profile_limit?.id), { ...dataForm })
-    //       .then(() => {
-    //         toast({
-    //           ...FormDocumentFormatUtils.edit.toast_success,
-    //         });
-    //         setErrors(defaultErrors);
-    //         setIsOpenForm(false);
-    //         router.get(
-    //           route(FormDocumentFormatUtils.redirect, {
-    //             guarantor_id: guarantorSelectedId,
-    //             guarantor_product_id: guarantorProductId,
-    //             guarantor_product_type_id: guarantorProductTypeId,
-    //           }),
-    //         );
-    //       })
-    //       .catch((error) => {
-    //         setErrors(error.response.data.errors);
-    //         toast({
-    //           ...FormDocumentFormatUtils.edit.toast_failed,
-    //           variant: "destructive",
-    //         });
-    //       })
-    //       .finally(() => {
-    //         setIsLoading(false);
-    //       });
-    //   } else {
-    //     axios
-    //       .post(route(FormDocumentFormatUtils.create.route), { ...dataForm })
-    //       .then(() => {
-    //         toast({
-    //           ...FormDocumentFormatUtils.create.toast_success,
-    //         });
-    //         setErrors(defaultErrors);
-    //         setIsOpenForm(false);
-    //         router.get(
-    //           route(FormDocumentFormatUtils.redirect, {
-    //             guarantor_id: guarantorSelectedId,
-    //             guarantor_product_id: guarantorProductId,
-    //             guarantor_product_type_id: guarantorProductTypeId,
-    //           }),
-    //         );
-    //       })
-    //       .catch((error) => {
-    //         setErrors(error.response.data.errors);
-    //         toast({
-    //           ...FormDocumentFormatUtils.create.toast_failed,
-    //           variant: "destructive",
-    //         });
-    //       })
-    //       .finally(() => {
-    //         setIsLoading(false);
-    //       });
-    //   }
+    if (isEdit) {
+      put(route(FormDocumentFormatUtils.edit.route, documentFormat.id), {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          toast(FormDocumentFormatUtils.edit.toast_success);
+          router.get(route(FormDocumentFormatUtils.redirect));
+        },
+        onError: () => {
+          toast({
+            ...FormDocumentFormatUtils.edit.toast_failed,
+            variant: "destructive",
+          });
+        },
+      });
+    } else {
+      post(route(FormDocumentFormatUtils.create.route), {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          toast(FormDocumentFormatUtils.create.toast_success);
+          router.get(route(FormDocumentFormatUtils.redirect));
+        },
+        onError: () => {
+          toast({
+            ...FormDocumentFormatUtils.create.toast_failed,
+            variant: "destructive",
+          });
+        },
+      });
+    }
   };
 
   return (
-    <form onSubmit={submit} className="mt-6 space-y-6">
+    <div className="mt-6 space-y-6">
       <div className="flex items-center justify-around gap-2">
         <div className="flex items-center space-x-2">
           <Checkbox id="byGuarantors" checked={byGuarantor} onChange={(e) => checkByGuarantor(e.target.checked)} />
@@ -251,12 +229,79 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         <Input className={"w-full"} id="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
         <InputError className="mt-2" message={errors.name} />
       </div>
+      <div className="space-y-2">
+        <InputLabel htmlFor="format_document" value="Format Dokumen" />
+        <Editor
+          apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+          onInit={(evt, editor) => (editorRef.current = editor)}
+          init={{
+            plugins: [
+              // Core editing features
+              "anchor",
+              "autolink",
+              "charmap",
+              "codesample",
+              "emoticons",
+              "image",
+              "link",
+              "lists",
+              "media",
+              "searchreplace",
+              "table",
+              "visualblocks",
+              "wordcount",
+              // Your account includes a free trial of TinyMCE premium features
+              // Try the most popular premium features until Dec 25, 2024:
+              "checklist",
+              "mediaembed",
+              "casechange",
+              "export",
+              "formatpainter",
+              "pageembed",
+              "a11ychecker",
+              "tinymcespellchecker",
+              "permanentpen",
+              "powerpaste",
+              "advtable",
+              "advcode",
+              "editimage",
+              "advtemplate",
+              "mentions",
+              "tinycomments",
+              "tableofcontents",
+              "footnotes",
+              "mergetags",
+              "autocorrect",
+              "typography",
+              "inlinecss",
+              "markdown",
+              "importword",
+              "exportword",
+              "exportpdf",
+            ],
+            toolbar:
+              "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+            tinycomments_mode: "embedded",
+            tinycomments_author: "Author name",
+            mergetags_list: [
+              { value: "First.Name", title: "First Name" },
+              { value: "Email", title: "Email" },
+            ],
+          }}
+          initialValue={data.format_document}
+          onChange={(content: any) => setData("format_document", content.target.getContent())}
+        />
+        <InputError className="mt-2" message={errors.format_document} />
+      </div>
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 
-        <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
+        <Button onClick={submit} disabled={processing}>
+          {processing && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
+          Simpan
+        </Button>
       </div>
-    </form>
+    </div>
   );
 };
 

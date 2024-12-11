@@ -22,8 +22,8 @@ Route::prefix('documents')->group(function () {
             Route::get('/show', 'show')->name('show');
             Route::get('/create', 'create')->name('create');
             Route::post('/store', 'store')->name('store');
-            Route::get('/edit/{format}', 'edit')->name('edit');
-            Route::put('/{format}', 'update')->name('update');
-            Route::delete('/{format}', 'destroy')->name('destroy');
+            Route::get('/edit/{documentFormat}', 'edit')->name('edit');
+            Route::put('/{documentFormat}', 'update')->name('update');
+            Route::delete('/{documentFormat}', 'destroy')->name('destroy');
         });
 });

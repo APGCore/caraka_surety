@@ -5,31 +5,31 @@ export const FormDocumentFormatUtils = {
   create: {
     route: DocumentFormatUtils.link.store,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan mengatur data Limit Pengajuan Kantor",
-    btn_label: "Setting Limit Pengajuan Kantor",
+    sub_title: "Tindakan ini akan membuat format dokumen",
+    btn_label: "Membuat Format Dokumen",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Limit Pengajuan Kantor berhasil di setting",
+      description: "Format Dokumen berhasil dibuat",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Limit Pengajuan Kantor gagal di setting",
+      description: "Format Dokumen gagal dibuat",
     },
   },
   edit: {
     route: DocumentFormatUtils.link.update,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan mengedit data Limit Pengajuan Kantor",
-    btn_label: "Setting Limit Pengajuan Kantor",
+    sub_title: "Tindakan ini akan mengubah format dokumen",
+    btn_label: "Mengubah Format Dokumen",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Limit Pengajuan Kantor berhasil diubah",
+      description: "Format Dokumen berhasil diubah",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Limit Pengajuan Kantor gagal diubah",
+      description: "Format Dokumen gagal diubah",
     },
   },
 };
