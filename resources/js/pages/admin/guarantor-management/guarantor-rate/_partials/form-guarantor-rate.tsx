@@ -71,7 +71,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           </label>
 
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.minimum_bill?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_bill: e })}
@@ -86,7 +85,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
           </label>
 
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.minimum_payment?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_payment: e })}
@@ -138,7 +136,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Administrasi Penjualan
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.sales_administration?.toString() ?? ""}
               onChange={(e) => setData({ ...data, sales_administration: e })}
@@ -152,7 +149,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Administrasi Bayar
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.payment_administration?.toString() ?? ""}
               onChange={(e) => setData({ ...data, payment_administration: e })}
@@ -185,7 +181,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Minimum Management Fee
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.minimum_management_fee?.toString() ?? ""}
               onChange={(e) => setData({ ...data, minimum_management_fee: e })}
@@ -199,7 +194,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Biaya Materai
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.stamp_duty?.toString() ?? ""}
               onChange={(e) => setData({ ...data, stamp_duty: e })}
@@ -213,7 +207,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Tarif Blangko Rusak
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.broken_rate?.toString() ?? ""}
               onChange={(e) => setData({ ...data, broken_rate: e })}
@@ -227,7 +220,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ rate }) => {
             Tarif blangko Revisi
           </label>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-900 text-sm">Rp. </span>
             <InputCurrency
               value={data.revised_rate?.toString() ?? ""}
               onChange={(e) => setData({ ...data, revised_rate: e })}
