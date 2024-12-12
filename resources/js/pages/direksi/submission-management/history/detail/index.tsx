@@ -280,7 +280,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[JANGKA_WAKTU]", data?.time_period || "")
       .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
       .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
+      .replace("[TANGGAL_PENERBITAN]", data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : ""
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
