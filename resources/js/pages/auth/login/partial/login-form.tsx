@@ -8,7 +8,7 @@ import { FormEventHandler } from "react";
 
 const LoginForm = () => {
   const { data, setData, post, processing, errors, reset } = useForm({
-    email: "",
+    username: "",
     password: "",
     remember: false,
   });
@@ -18,7 +18,7 @@ const LoginForm = () => {
 
     post(route("login"), {
       onSuccess: () => {
-        reset("email");
+        reset("username");
         reset("password");
       },
     });
@@ -32,10 +32,10 @@ const LoginForm = () => {
           id="username"
           placeholder="Masukan Username"
           required
-          value={data.email}
-          onChange={(e) => setData("email", e.target.value)}
+          value={data.username}
+          onChange={(e) => setData("username", e.target.value)}
         />
-        <InputError message={errors.email} className="mt-1" />
+        <InputError message={errors.username} className="mt-1" />
       </div>
       <div className="space-y-1">
         <Label htmlFor="password">Password</Label>
