@@ -1,10 +1,9 @@
 import InputError from "@/components/common/input-error";
+import Loading from "@/components/common/loading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "@inertiajs/react";
-import { LoaderCircle, RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
 
 const LoginForm = () => {
@@ -26,46 +25,34 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-[400px]">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Masuk APG - Core System</CardTitle>
-        <CardDescription>Masukkan email dan password.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={submit} id="login-form" className="grid gap-4">
-          <div className="grid gap-[5px]">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Masukan email"
-              required
-              value={data.email}
-              onChange={(e) => setData("email", e.target.value)}
-            />
-            <InputError message={errors.email} className="mt-1" />
-          </div>
-          <div className="grid gap-[5px]">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput
-              id="password"
-              type="password"
-              required
-              value={data.password}
-              placeholder="Masukan password"
-              onChange={(e) => setData("password", e.target.value)}
-            />
-            <InputError message={errors.password} className="mt-1" />
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button form="login-form" className="w-full" disabled={processing}>
-          {processing && <LoaderCircle className="animate-spin mr-1" />}
-          Masuk
-        </Button>
-      </CardFooter>
-    </Card>
+    <form id="login-form" onSubmit={submit} className="mt-8 flex flex-col gap-6 ">
+      <div className="space-y-1">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          placeholder="Masukan Username"
+          required
+          value={data.email}
+          onChange={(e) => setData("email", e.target.value)}
+        />
+        <InputError message={errors.email} className="mt-1" />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="password">Password</Label>
+        <PasswordInput
+          id="password"
+          type="password"
+          required
+          value={data.password}
+          placeholder="Masukan password"
+          onChange={(e) => setData("password", e.target.value)}
+        />
+        <InputError message={errors.password} className="mt-1" />
+      </div>
+      <Button form="login-form" className="w-full" disabled={processing}>
+        <Loading isLoading={processing} className="mr-1" /> Masuk
+      </Button>
+    </form>
   );
 };
 
