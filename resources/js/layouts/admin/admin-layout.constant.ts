@@ -29,70 +29,6 @@ export const adminRoute = {
       items: [],
     },
     {
-      title: "Kelola Perusahaan",
-      url: "#",
-      icon: User,
-      isActive: true,
-      items: [
-        {
-          title: "Daftar Cabang",
-          route_name: "branch",
-          href: route("branch.index"),
-          url: "#",
-        },
-        {
-          title: "Karyawan",
-          route_name: "employee",
-          href: route("employee.index"),
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Kelola Wilayah",
-      url: "#",
-      icon: MapPinHouse,
-      items: [
-        {
-          title: "Provinsi",
-          route_name: "province",
-          href: route("province.index"),
-          url: "#",
-        },
-        {
-          title: "Kabupaten",
-          route_name: "regency",
-          href: route("regency.index"),
-          url: "#",
-        },
-        {
-          title: "Kecamatan",
-          route_name: "district",
-          href: route("district.index"),
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Kelola Produk",
-      url: "#",
-      icon: Boxes,
-      items: [
-        {
-          title: "Jenis Produk",
-          route_name: "product-types",
-          href: route("product-types.index"),
-          url: "#",
-        },
-        {
-          title: "Produk",
-          route_name: "products",
-          href: route("products.index"),
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Kelola Asuransi",
       url: "#",
       icon: BookOpenCheck,
@@ -130,6 +66,71 @@ export const adminRoute = {
       ],
     },
     {
+      title: "Unit Bisnis",
+      url: "#",
+      icon: User,
+      isActive: true,
+      items: [
+        {
+          title: "Daftar Cabang",
+          route_name: "branch",
+          href: route("branch.index"),
+          url: "#",
+        },
+        {
+          title: "Pengguna",
+          route_name: "employee",
+          href: route("employee.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Wilayah",
+      url: "#",
+      icon: MapPinHouse,
+      items: [
+        {
+          title: "Provinsi",
+          route_name: "province",
+          href: route("province.index"),
+          url: "#",
+        },
+        {
+          title: "Kabupaten",
+          route_name: "regency",
+          href: route("regency.index"),
+          url: "#",
+        },
+        {
+          title: "Kecamatan",
+          route_name: "district",
+          href: route("district.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Produk",
+      url: "#",
+      icon: Boxes,
+      items: [
+        {
+          title: "Produk",
+          route_name: "products",
+          href: route("products.index"),
+          url: "#",
+        },
+        {
+          title: "Jenis Produk",
+          route_name: "product-types",
+          href: route("product-types.index"),
+          url: "#",
+        },
+      ],
+    },
+
+    {
       title: "Kelola Limit Pengajuan",
       url: "#",
       icon: Infinity,
@@ -141,13 +142,13 @@ export const adminRoute = {
           url: "#",
         },
         {
-          title: "Kantor",
+          title: "Unit Kantor",
           route_name: "profile-limit",
           href: route("profile-limit.index"),
           url: "#",
         },
         {
-          title: "Karyawan",
+          title: "Pengguna",
           route_name: "employee-limit",
           href: route("employee-limit.index"),
           url: "#",

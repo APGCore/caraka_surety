@@ -10,9 +10,9 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, head
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
         <div className="bg-white shadow sm:rounded-lg sm:p-8 max-w-3xl w-full">
           <header>
-            <h2 className="text-lg font-medium text-gray-900">Ubah Karyawan</h2>
+            <h2 className="text-lg font-medium text-gray-900">Ubah Pengguna</h2>
 
-            <p className="mt-1 text-sm text-gray-600">Untuk mengubah data karyawan</p>
+            <p className="mt-1 text-sm text-gray-600">Untuk mengubah data pengguna</p>
           </header>
 
           <Form roles={roles} headers={headers} employee={employee} officeSelected={officeSelected} />
