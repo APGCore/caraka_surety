@@ -36,15 +36,15 @@ class EmployeeController extends Controller
             ->appends($request->all());
         $employeeResource = EmployeeResource::collection($employees);
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Karyawan',
+                'title' => 'Pengguna',
             ],
             'offices' => $offices,
             'officeSelected' => $officeSelected,
-            'employees' => fn () => $employeeResource,
+            'employees' => fn() => $employeeResource,
         ]);
     }
 
@@ -71,7 +71,7 @@ class EmployeeController extends Controller
             })
             ->get();
 
-        $component = $request->path().'/index';
+        $component = $request->path() . '/index';
 
         return inertia($component, compact('officeSelected', 'roles', 'headers'));
     }
@@ -83,7 +83,7 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:'.User::class.',email',
+            'email' => 'required|email|unique:' . User::class . ',email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|same:password',
             'phone' => 'nullable|string',
@@ -108,7 +108,6 @@ class EmployeeController extends Controller
 
             return back()->withErrors(['errors' => 'Gagal menambahkan data karyawan']);
         }
-
     }
 
     /**
@@ -143,7 +142,7 @@ class EmployeeController extends Controller
             ->get();
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')).'/index';
+        $component = substr($component, 0, strrpos($component, '/')) . '/index';
 
         return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers'));
     }
@@ -155,7 +154,7 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:'.User::class.',email,'.$employee->getAttribute('id'),
+            'email' => 'required|email|unique:' . User::class . ',email,' . $employee->getAttribute('id'),
             'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'head_id' => 'nullable|exists:users,id',
@@ -198,8 +197,8 @@ class EmployeeController extends Controller
 
             if ($employee->exists) {
                 $employee->update([
-                    'email' => $employee->getAttribute('email').'_deleted_'.now()->timestamp,
-                    'password' => Hash::make($employee->getAttribute('email')).'_deleted_'.now()->timestamp,
+                    'email' => $employee->getAttribute('email') . '_deleted_' . now()->timestamp,
+                    'password' => Hash::make($employee->getAttribute('email')) . '_deleted_' . now()->timestamp,
                 ]);
                 $employee->delete();
             } else {

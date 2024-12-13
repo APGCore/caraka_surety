@@ -80,7 +80,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Karyawan</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Pengguna</h1>
         <div className="flex gap-x-3">
           <Link
             className={cn(
@@ -89,7 +89,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
               }),
             )}
             href={route("employee.create") + "?office_id=" + officeSelected}>
-            Tambah Karyawan
+            Tambah Pengguna
           </Link>
         </div>
       </div>
