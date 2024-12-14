@@ -1,2 +1,2 @@
-composer pint
+lint-staged
 npm run build
