@@ -36,7 +36,7 @@ class EmployeeController extends Controller
             ->appends($request->all());
         $employeeResource = EmployeeResource::collection($employees);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -44,7 +44,7 @@ class EmployeeController extends Controller
             ],
             'offices' => $offices,
             'officeSelected' => $officeSelected,
-            'employees' => fn() => $employeeResource,
+            'employees' => fn () => $employeeResource,
         ]);
     }
 
@@ -71,7 +71,7 @@ class EmployeeController extends Controller
             })
             ->get();
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, compact('officeSelected', 'roles', 'headers'));
     }
@@ -83,8 +83,8 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:' . User::class . ',username',
-            'email' => 'nullable|email|unique:' . User::class . ',email',
+            'username' => 'required|string|unique:'.User::class.',username',
+            'email' => 'nullable|email|unique:'.User::class.',email',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|same:password',
             'phone' => 'nullable|string',
@@ -103,12 +103,14 @@ class EmployeeController extends Controller
             DB::commit();
 
             flashMessage('Berhasil', 'Data karyawan berhasil ditambahkan');
+
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@store: {$e->getMessage()}");
 
             flashMessage('Gagal', 'Penambahan data karyawan gagal', 'error');
+
             return back()->withErrors(['errors' => 'Gagal menambahkan data karyawan']);
         }
     }
@@ -145,7 +147,7 @@ class EmployeeController extends Controller
             ->get();
 
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers'));
     }
@@ -157,8 +159,8 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:' . User::class . ',username,' . $employee->getAttribute('id'),
-            'email' => 'nullable|email|unique:' . User::class . ',email,' . $employee->getAttribute('id'),
+            'username' => 'required|string|unique:'.User::class.',username,'.$employee->getAttribute('id'),
+            'email' => 'nullable|email|unique:'.User::class.',email,'.$employee->getAttribute('id'),
             'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'head_id' => 'nullable|exists:users,id',
@@ -169,8 +171,8 @@ class EmployeeController extends Controller
         ]);
 
         // get $requestValid value not null
-        $requestValid = array_filter($requestValid, fn($value) => $value !== null);
-        
+        $requestValid = array_filter($requestValid, fn ($value) => $value !== null);
+
         try {
             DB::beginTransaction();
 
@@ -180,12 +182,14 @@ class EmployeeController extends Controller
             DB::commit();
 
             flashMessage('Berhasil', 'Perubahan data karyawan berhasil');
+
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@update: {$e->getMessage()}");
 
             flashMessage('Gagal', 'Perubahan data karyawan gagal', 'error');
+
             return back()->withErrors(['errors' => 'Gagal mengubah data karyawan']);
         }
     }
@@ -206,9 +210,9 @@ class EmployeeController extends Controller
 
             if ($employee->exists) {
                 $employee->update([
-                    'username' => $employee->getAttribute('username') . '_deleted_' . now()->timestamp,
-                    'email' => $employee->getAttribute('email') . '_deleted_' . now()->timestamp,
-                    'password' => Hash::make($employee->getAttribute('email')) . '_deleted_' . now()->timestamp,
+                    'username' => $employee->getAttribute('username').'_deleted_'.now()->timestamp,
+                    'email' => $employee->getAttribute('email').'_deleted_'.now()->timestamp,
+                    'password' => Hash::make($employee->getAttribute('email')).'_deleted_'.now()->timestamp,
                 ]);
                 $employee->delete();
             } else {
