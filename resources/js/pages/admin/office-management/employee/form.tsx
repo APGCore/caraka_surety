@@ -2,6 +2,7 @@ import InputError from "@/components/common/input-error";
 import PrimaryButton from "@/components/common/primary-button";
 import RenderList from "@/components/common/render-list";
 import SecondaryButton from "@/components/common/secondary-button";
+import Show from "@/components/common/show";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { router, useForm } from "@inertiajs/react";
@@ -18,6 +19,7 @@ interface Props {
 const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => {
   const { data, setData, post, patch, errors, processing } = useForm<{
     name: string;
+    username: string;
     email: string;
     phone: string;
     head_id: number | null;
@@ -27,6 +29,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
     password_confirmation: string;
   }>({
     name: employee?.name || "",
+    username: employee?.username || "",
     email: employee?.email || "",
     phone: employee?.phone || "",
     head_id: employee?.head_id || null,
@@ -72,6 +75,20 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
             className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
           />
           <InputError message={errors.name} className="mt-2" />
+        </div>
+        <div className="sm:col-span-3">
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            Username
+          </label>
+          <Input
+            type="text"
+            name="username"
+            id="username"
+            value={data.username}
+            onChange={(e) => setData("username", e.target.value)}
+            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          />
+          <InputError message={errors.username} className="mt-2" />
         </div>
         <div className="sm:col-span-3">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -128,38 +145,35 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
 
           <InputError message={errors.role_id} className="mt-2" />
         </div>
-        <div className="sm:col-span-3">
-          {data.role_id == 5 && (
-            <>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Atasan
-              </label>
-              <Select
-                value={data?.head_id?.toString() || ""}
-                onValueChange={(value) => {
-                  setData("head_id", parseInt(value));
-                }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Atasan" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <RenderList
-                      of={headers}
-                      render={(manager: any) => (
-                        <SelectItem key={manager.id} value={manager.id.toString()}>
-                          {manager.name}
-                        </SelectItem>
-                      )}
-                    />
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-
-              <InputError message={errors.head_id} className="mt-2" />
-            </>
-          )}
-        </div>
+        <Show when={data.role_id === 5}>
+          <div className="sm:col-span-3">
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+              Atasan
+            </label>
+            <Select
+              value={data?.head_id?.toString() || ""}
+              onValueChange={(value) => {
+                setData("head_id", parseInt(value));
+              }}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih Atasan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <RenderList
+                    of={headers}
+                    render={(manager: any) => (
+                      <SelectItem key={manager.id} value={manager.id.toString()}>
+                        {manager.name}
+                      </SelectItem>
+                    )}
+                  />
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <InputError message={errors.head_id} className="mt-2" />
+          </div>
+        </Show>
         <div className="sm:col-span-3">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password

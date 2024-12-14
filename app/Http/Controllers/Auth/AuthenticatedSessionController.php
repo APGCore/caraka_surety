@@ -75,27 +75,27 @@ class AuthenticatedSessionController extends Controller
         $userRole = $userLogin->role_id;
 
         if ($userRole == 1) {
-            flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.', type: 'success');
+            flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.');
 
             return redirect()->intended(route('admin.index', absolute: false));
         } elseif ($userRole == 2) {
-            flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.', type: 'success');
+            flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.');
 
             return redirect()->intended(route('direksi.index', absolute: false));
         } elseif ($userRole == 3) {
-            flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.', type: 'success');
+            flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.');
 
             return redirect()->intended(route('kepala-cabang.index', absolute: false));
         } elseif ($userRole == 4) {
-            flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.', type: 'success');
+            flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.');
 
             return redirect()->intended(route('manager.index', absolute: false));
         } elseif ($userRole == 5) {
-            flashMessage('Berhasil Login sebagai Staff!', 'Anda berhasil login sebagai Staff.', type: 'success');
+            flashMessage('Berhasil Login sebagai Staff!', 'Anda berhasil login sebagai Staff.');
 
             return redirect()->intended(route('staff.index', absolute: false));
         } elseif ($userRole == 6) {
-            flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.', type: 'success');
+            flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.');
 
             return redirect()->intended(route('staff.index', absolute: false));
         }

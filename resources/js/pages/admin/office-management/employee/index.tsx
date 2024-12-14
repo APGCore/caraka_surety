@@ -131,6 +131,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama</TableHead>
+              <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Jabatan</TableHead>
               <TableHead>Dibuat</TableHead>
@@ -143,6 +144,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                 <TableRow key={employee.id}>
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{employee.name}</TableCell>
+                  <TableCell>{employee.username}</TableCell>
                   <TableCell>{employee.email}</TableCell>
                   <TableCell>{employee.position}</TableCell>
                   <TableCell>{employee.created_at}</TableCell>
@@ -165,6 +167,14 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                                 <DialogTitle>{employee?.name}</DialogTitle>
                               </DialogHeader>
                               <div className="mt-4 grid gap-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-normal">Nama</span>
+                                  <span>{employee?.name}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="font-normal">Username</span>
+                                  <span>{employee?.username}</span>
+                                </div>
                                 <div className="flex items-center justify-between">
                                   <span className="font-normal">Email</span>
                                   <span>{employee?.email ?? "Email Belum Dimasukan"}</span>

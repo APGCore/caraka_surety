@@ -19,7 +19,7 @@ export default function UpdateProfileInformation({
 
   const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
     name: user?.name,
-    email: user?.email,
+    username: user?.username,
   });
 
   const submit: FormEventHandler = (e) => {
@@ -33,7 +33,7 @@ export default function UpdateProfileInformation({
       <header>
         <h2 className="text-lg font-medium text-gray-900">Profile Information</h2>
 
-        <p className="mt-1 text-sm text-gray-600">Update your account's profile information and email address.</p>
+        <p className="mt-1 text-sm text-gray-600">Update akun.</p>
       </header>
 
       <form onSubmit={submit} className="mt-6 space-y-6">
@@ -54,19 +54,18 @@ export default function UpdateProfileInformation({
         </div>
 
         <div>
-          <InputLabel htmlFor="email" value="Email" />
+          <InputLabel htmlFor="username" value="Username" />
 
           <TextInput
-            id="email"
-            type="email"
+            id="username"
             className="mt-1 block w-full"
-            value={data.email}
-            onChange={(e) => setData("email", e.target.value)}
+            value={data.username}
+            onChange={(e) => setData("username", e.target.value)}
             required
             autoComplete="username"
           />
 
-          <InputError className="mt-2" message={errors.email} />
+          <InputError className="mt-2" message={errors.username} />
         </div>
 
         {mustVerifyEmail && user?.email_verified_at === null && (
