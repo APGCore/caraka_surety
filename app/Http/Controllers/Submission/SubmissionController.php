@@ -197,11 +197,15 @@ class SubmissionController extends Controller
             $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
             $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
             $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
+            $scores = $scoring['scores'];
+            if(collect($scores)->sum('point') > $dataSubmission['min_point_scoring']) {
+                $dataSubmission['checked_by'] = auth()->user()->head_id;
+                $dataSubmission['checked_at'] = now();
+            }
 
             $submission = Submission::query()
                 ->create($dataSubmission);
 
-            $scores = $scoring['scores'];
 
             foreach ($scores as &$score) {
                 $score['scoring_id'] = $scoring['id'];

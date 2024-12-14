@@ -92,6 +92,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       village: "",
       name: "",
       address: "",
+      postal_code: "",
       telephone: undefined,
       fax: "",
       npwp: undefined,
@@ -104,6 +105,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       commissioner: "",
       year_established: undefined,
       last_deed: "",
+      business_fields: "",
       documents: [],
       ratios: [
         defaultPrincipalRatios,
@@ -141,6 +143,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       job_location_district_id: "",
       job_location_village: "",
       job_location_address: "",
+      job_location_postal_code: "",
       source_of_fund_id: "",
       note: "",
     },
@@ -422,6 +425,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         village: "",
         name: "",
         address: "",
+        postal_code: "",
         telephone: undefined,
         fax: "",
         npwp: "",
@@ -434,6 +438,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         commissioner: "",
         year_established: undefined,
         last_deed: "",
+        business_fields: "",
         documents: [],
         ratios: [],
       },
@@ -465,6 +470,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         job_location_district_id: "",
         job_location_village: "",
         job_location_address: "",
+
+        job_location_postal_code: "",
         source_of_fund_id: "",
         note: "",
       },
@@ -763,19 +770,35 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                   </div>
-                  <div className="grid w-full gap-1">
-                    <Label className="text-sm">Nama Komisaris</Label>
-                    <Input
-                      className="text-md"
-                      placeholder="Nama Komisaris"
-                      value={data.principal.commissioner}
-                      onChange={(e) =>
-                        setData("principal", {
-                          ...data.principal,
-                          commissioner: e.target.value,
-                        })
-                      }
-                    />
+                  <div className="flex gap-2">
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">Nama Komisaris</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Nama Komisaris"
+                        value={data.principal.commissioner}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            commissioner: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid w-full gap-1">
+                      <Label className="text-sm">Bidang Usaha</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Bidang Usaha"
+                        value={data.principal.business_fields}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            business_fields: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                   <div className="flex gap-5">
                     <div className="grid w-full  gap-1">
@@ -890,6 +913,21 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               setData("principal", {
                                 ...data.principal,
                                 address: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        {/* postal code */}
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kode Pos</Label>
+                          <Input
+                            className="text-md"
+                            placeholder="Kode Pos"
+                            value={data.principal.postal_code}
+                            onChange={(e) =>
+                              setData("principal", {
+                                ...data.principal,
+                                postal_code: e.target.value,
                               })
                             }
                           />
@@ -1394,6 +1432,20 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 job_location_address: e.target.value,
                               });
                             }}
+                          />
+                        </div>
+                        <div className="grid gap-1 w-full">
+                          <Label className="text-sm">Kode Pos</Label>
+                          <Input
+                            className="text-md"
+                            placeholder="Masukan nama Desa"
+                            value={data.submission.job_location_postal_code}
+                            onChange={(e) =>
+                              setData("submission", {
+                                ...data.submission,
+                                job_location_postal_code: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>

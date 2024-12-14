@@ -62,6 +62,7 @@ class StoreRequest extends FormRequest
             'principal.commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
             'principal.year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
             'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
+            'principal.business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
             // principal documents
             'principal.documents' => ['required', 'array'],
             'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
@@ -109,6 +110,7 @@ class StoreRequest extends FormRequest
             'submission.job_location_district_id' => ['required', 'exists:'.District::class.',id'], // id kecamatan lokasi pekerjaan
             'submission.job_location_village' => ['required', 'string', 'max:255'], // desa lokasi pekerjaan
             'submission.job_location_address' => ['required', 'string'], // address lokasi pekerjaan
+            'submission.job_location_postal_code' => ['required', 'string'], // kode pos lokasi pekerjaan
             'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
 

@@ -22,6 +22,7 @@ type Principal = {
   village: string;
   name: string;
   address: string;
+  postal_code: string;
   telephone: number | string | undefined;
   fax: string;
   npwp: number | string | undefined;
@@ -34,6 +35,7 @@ type Principal = {
   commissioner: string;
   year_established?: number | string | undefined;
   last_deed: string;
+  business_fields: string;
   documents: Document[]; // Adjust `any` to a more specific type if needed
   ratios: Ratio[]; // Adjust `any` to a more specific type if needed
 };
@@ -58,6 +60,7 @@ type Submission = {
   job_location_district_id: string;
   job_location_village: string;
   job_location_address: string;
+  job_location_postal_code: string;
   source_of_fund_id: string;
   note: string;
 };

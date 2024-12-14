@@ -26,6 +26,7 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
     regency_id: number | null;
     district_id: number | null;
     village: string;
+    postal_code: string;
     fax: string;
     pic: string;
     picture: string;
@@ -39,6 +40,7 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
     regency_id: bank?.regency_id,
     district_id: bank?.district_id,
     village: bank?.village,
+    postal_code: bank?.postal_code,
     fax: bank?.fax,
     pic: bank?.pic,
     picture: bank?.picture,
@@ -200,7 +202,24 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
         <InputError className="mt-2" message={errors.address} />
       </div>
 
-      {/* 8. Fax */}
+      {/* 8. Kode Post */}
+      <div>
+        <InputLabel htmlFor="postal_code" value="Kode Pos" />
+        <TextInput
+          id="postal_code"
+          type="number"
+          className="mt-1 block w-full"
+          placeholder="Masukkan Kode Pos..."
+          value={data.postal_code || ""}
+          onChange={(e) => setData("postal_code", e.target.value)}
+          required
+          autoComplete="postal_code"
+          min="0"
+        />
+        <InputError className="mt-2" message={errors.postal_code} />
+      </div>
+
+      {/* 9. Fax */}
       <div>
         <InputLabel htmlFor="fax" value="Fax" />
         <TextInput

@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('address');
+            $table->string('postal_code');
             $table->string('telephone');
             $table->string('fax')->nullable();
             $table->string('pic');

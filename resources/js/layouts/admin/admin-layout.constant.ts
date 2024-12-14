@@ -131,7 +131,7 @@ export const adminRoute = {
     },
 
     {
-      title: "Kelola Limit Pengajuan",
+      title: "Kelola Batas Nilai Jaminan",
       url: "#",
       icon: Infinity,
       items: [

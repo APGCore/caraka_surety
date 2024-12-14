@@ -136,7 +136,7 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
           id="profile-limit-form"
           className="grid gap-6">
           <div className="grid gap-[5px]">
-            <Label htmlFor="limit">Limit Pengajuan</Label>
+            <Label htmlFor="limit">Batas Kewenangan Nilai Jaminan</Label>
             <InputCurrency
               value={dataForm.limit ?? ""}
               placeholder="Masukan limit pengajuan"

@@ -32,6 +32,7 @@ class StoreRequest extends FormRequest
             'regency_id' => ['required', 'exists:'.Regency::class.',id'],
             'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:255'],
             'fax' => ['nullable', 'string', 'max:255'],
             'pic' => ['required', 'string', 'max:255'],
         ];

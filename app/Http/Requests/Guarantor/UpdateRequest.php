@@ -35,6 +35,7 @@ class UpdateRequest extends FormRequest
             'regency_id' => ['required', 'exists:regencies,id'],
             'district_id' => ['required', 'exists:districts,id'],
             'village' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:255'],
 
             // pattern
             'prefix' => ['nullable', 'string', 'max:255'],

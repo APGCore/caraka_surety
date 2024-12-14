@@ -519,7 +519,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Pengajuan Melebihi Batas Limit Pengajuan Rp. {textCurrency(submission?.guarantee_value)}
+              Pengajuan Melebihi Batas Kewenangan Nilai Jaminan Rp. {textCurrency(submission?.guarantee_value)}
             </AlertDescription>
           </Alert>
         </div>

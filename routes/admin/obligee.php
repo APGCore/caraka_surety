@@ -10,9 +10,8 @@ Route::prefix('obligee-management')->group(function () {
             Route::get('/show/{obligee}', 'show')->name('show');
             Route::get('/create', 'create')->name('create');
             Route::post('/store', 'store')->name('store');
-            Route::delete('/{obligee}', 'destroy')->name('destroy');
             Route::get('/edit/{obligee}', 'edit')->name('edit');
-            Route::patch('/{obligee}', 'update')->name('update');
-
+            Route::put('/{obligee}', 'update')->name('update');
+            Route::delete('/{obligee}', 'destroy')->name('destroy');
         });
 });

@@ -53,7 +53,8 @@ return new class extends Migration
             $table->foreignId('job_location_regency_id')->references('id')->on($regency->getTable())->noActionOnDelete();
             $table->foreignId('job_location_district_id')->references('id')->on($district->getTable())->noActionOnDelete();
             $table->string('job_location_village');
-            $table->string('job_location_address');
+            $table->text('job_location_address');
+            $table->string('job_location_postal_code', 10);
             $table->foreignId('source_of_fund_id')->references('id')->on('source_of_funds')->noActionOnDelete();
             $table->enum('status', SubmissionStatus::getValues())->default(SubmissionStatus::PROCESS->value); // status
             $table->text('note')->nullable();

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->string('address')->nullable();
             $table->foreignIdFor(Province::class)->constrained()
                 ->restrictOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Regency::class, 'regency_id')->constrained()
@@ -28,6 +27,7 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->constrained()
                 ->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
+            $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
             $table->boolean('is_central')->default(false);
             $table->timestamps();

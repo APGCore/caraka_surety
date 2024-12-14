@@ -10,16 +10,18 @@ interface ProfileLimitsHeaderProps {
 const ProfileLimitsHeader: React.FC<ProfileLimitsHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "Limit Pengajuan Kantor"} />
+      <Head title={title ?? "Batas Kewenangan Nilai Jaminan Kantor"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(ProfileLimitsUtils.link.index)}>Kelola Limit Pengajuan Kantor</BreadcrumbLink>
+            <BreadcrumbLink href={route(ProfileLimitsUtils.link.index)}>
+              Kelola Batas Kewenangan Nilai Jaminan Kantor
+            </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Limit Pengajuan Kantor"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Batas Kewenangan Nilai Jaminan Kantor"}</h1>
       </div>
     </>
   );

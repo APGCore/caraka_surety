@@ -91,7 +91,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
   return (
     <main className="space-y-2.5">
       <div className="flex items-center gap-x-2">
-        <span className="text-sm text-gray-400">Limit Pengajuan:</span>
+        <span className="text-sm text-gray-400">Batas Kewenangan Nilai Jaminan:</span>
         {limit?.limit ? (
           <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
         ) : (
@@ -99,7 +99,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
         )}
       </div>
       <div className="flex items-center gap-x-2">
-        <span className="text-sm text-gray-400">Limit yang sudah dibagikan:</span>
+        <span className="text-sm text-gray-400">Yang Sudah Dibagikan:</span>
         {limit?.limit_used ? (
           <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
         ) : (

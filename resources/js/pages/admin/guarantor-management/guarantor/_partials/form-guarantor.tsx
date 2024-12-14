@@ -33,6 +33,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     regency_id: number | null;
     district_id: number | null;
     village: string;
+    postal_code: string;
     fax: string;
     pic: string;
     picture: string | null;
@@ -51,6 +52,7 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     regency_id: guarantor?.regency_id ?? null,
     district_id: guarantor?.district_id ?? null,
     village: guarantor?.village ?? "",
+    postal_code: guarantor?.postal_code ?? "",
     fax: guarantor?.fax ?? "",
     pic: guarantor?.pic ?? "",
     picture: guarantor?.picture ?? null,
@@ -290,8 +292,20 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
         <InputError className="mt-2" message={errors.address} />
       </div>
       <div className="space-y-2">
+        <InputLabel htmlFor="postal_code" value="Kode Pos" />
+        <TextInput
+          id="postal_code"
+          className="mt-1 block w-full"
+          value={data.postal_code}
+          onChange={(e) => setData("postal_code", e.target.value)}
+          autoComplete="postal_code"
+          min="0"
+          required
+        />
+        <InputError className="mt-2" message={errors.postal_code} />
+      </div>
+      <div className="space-y-2">
         <InputLabel htmlFor="fax" value="Fax" />
-
         <TextInput
           id="fax"
           className="mt-1 block w-full"
@@ -299,7 +313,6 @@ const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
           onChange={(e) => setData("fax", e.target.value)}
           autoComplete="fax"
         />
-
         <InputError className="mt-2" message={errors.fax} />
       </div>
 

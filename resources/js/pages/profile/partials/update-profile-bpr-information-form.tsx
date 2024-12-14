@@ -178,6 +178,7 @@ export default function UpdateProfileBprInformation({
             onChange={(e) => setData("postal_code", e.target.value)}
             required
             autoComplete="postal_code"
+            min="0"
           />
 
           <InputError className="mt-2" message={errors.postal_code} />
