@@ -1,7 +1,7 @@
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { textCurrency } from "@/lib/text-currency";
-import { RecentSalesPageProps } from "@/pages/staff/dashboard/partials/recent-sales/recent-sales.type";
+import { RecentSalesPageProps } from "./recent-sales.type";
 
 const RecentSales: RecentSalesPageProps = ({ submissions }) => {
   return (
