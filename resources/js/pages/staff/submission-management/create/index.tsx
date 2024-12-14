@@ -336,7 +336,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       isActive: false,
     },
     {
-      title: "Skoring",
+      title: "Output",
       name: "skoring",
       isActive: false,
     },
@@ -718,10 +718,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     </div>
                   </div>
                   <div className="grid w-full gap-1">
-                    <Label className="text-sm">Nama Direksi</Label>
+                    <Label className="text-sm">Nama Penanggung Jawab</Label>
                     <Input
                       className="text-md"
-                      placeholder="Nama Direksi Perusahaan"
+                      placeholder="Nama penanggung jawab"
                       value={data.principal.director_name}
                       onChange={(e) =>
                         setData("principal", {
@@ -733,10 +733,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
                   <div className="flex gap-5">
                     <div className="grid w-full gap-1">
-                      <Label className="text-sm">No. Telephone Direksi</Label>
+                      <Label className="text-sm">No. HP Penanggung Jawab</Label>
                       <Input
                         className="text-md"
-                        placeholder="Nomor telepon Jabatan"
+                        placeholder="Nomor HP penanggung jawab"
                         value={Number(data.principal.director_phone)}
                         min="0"
                         type="number"
@@ -779,10 +779,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   </div>
                   <div className="flex gap-5">
                     <div className="grid w-full  gap-1">
-                      <Label className="text-sm">Perusahaan Berdiri Tahun</Label>
+                      <Label className="text-sm">Tahun Perusahaan Berdiri</Label>
                       <Input
                         className="text-md"
-                        placeholder="Tahun berdiri perusahaan"
+                        placeholder="Tahun perusahaan berdiri"
                         value={data.principal.year_established}
                         min="0"
                         type="number"
@@ -1170,10 +1170,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
-                      <Label className="text-md">Nama Dokumen Kontrak</Label>
+                      <Label className="text-md">Nama Dasar Dokumen</Label>
                       <Input
                         className="text-md"
-                        placeholder="Nama Dokumen Kontrak"
+                        placeholder="Nama dasar dokumen"
                         value={data.submission.contract_doc_name}
                         onChange={(e) =>
                           setData("submission", {
@@ -1184,10 +1184,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                     <div className="grid gap-1 w-full">
-                      <Label className="text-md">Nomor Dokumen Kontrak</Label>
+                      <Label className="text-md">Nomor Dasar Dokumen</Label>
                       <Input
                         className="text-md"
-                        placeholder="Nomor Dokumen Kontrak"
+                        placeholder="Nomor dasar dokumen"
                         value={data.submission.contract_doc_number}
                         onChange={(e) =>
                           setData("submission", {
@@ -1198,7 +1198,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                     <div className="grid gap-1 w-full">
-                      <Label className="text-md">Tanggal Dokumen Kontrak</Label>
+                      <Label className="text-md">Tanggal Dasar Dokumen</Label>
                       <CalendarPicker
                         onPickDate={(d) => {
                           setData("submission", {
@@ -1255,7 +1255,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                     <div className="grid gap-1 w-full">
-                      <Label className="text-md">Tanggal Mulai Kontrak</Label>
+                      <Label className="text-md">Tanggal Awal Jaminan</Label>
                       <CalendarPicker
                         disabled={{
                           before: subDays(new Date(), 90),
@@ -1271,7 +1271,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                     <div className="grid gap-1 w-full">
-                      <Label className="text-md">Tanggal Selesai Kontrak </Label>
+                      <Label className="text-md">Tanggal Akhir Jaminan</Label>
                       <CalendarPicker
                         initialDate={
                           data?.submission?.end_date ??
