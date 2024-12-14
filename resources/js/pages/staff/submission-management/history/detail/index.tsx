@@ -264,7 +264,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[JANGKA_WAKTU]", data?.time_period || "")
       .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
       .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace("[TANGGAL_PENERBITAN]", data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "") 
+      .replace(
+        "[TANGGAL_PENERBITAN]",
+        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
+      )
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
@@ -475,7 +478,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    gotoStep(step.name);
+                    gotoStep(step);
                   }}
                   className="flex items-center cursor-pointer flex-col justify-center">
                   <div
@@ -534,7 +537,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </AlertDescription>
           </Alert>
         </div>
-        <Show when={currentStep === "principal"}>
+        <Show when={currentStep.name === "principal"}>
           <div>
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
@@ -582,7 +585,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </table>
           </div>
         </Show>
-        <Show when={currentStep === "docs"}>
+        <Show when={currentStep.name === "docs"}>
           {submission?.required_docs && submission?.required_docs.length > 0 ? (
             <table className="table-fixed w-full border border-gray-300">
               <thead>
@@ -611,7 +614,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <p className="text-gray-500">Tidak ada dokumen yang diunggah.</p>
           )}
         </Show>
-        <Show when={currentStep === "contract"}>
+        <Show when={currentStep.name === "contract"}>
           <table className="table-fixed w-full border border-gray-300">
             <tbody>
               <tr className="border-b">
@@ -726,7 +729,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </tbody>
           </table>
         </Show>
-        <Show when={currentStep === "skoring"}>
+        <Show when={currentStep.name === "skoring"}>
           <div>
             <h2 className="text-lg font-semibold mb-4 mt-10">Analisis Rasio Keuangan Perusahaan</h2>
             <div className="flex justify-between w-full">
@@ -973,7 +976,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </table>
           </div>
         </Show>
-        <Show when={currentStep === "luaran"}>
+        <Show when={currentStep.name === "luaran"}>
           <div>
             <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
             <div>
