@@ -2,11 +2,11 @@ import RenderList from "@/components/common/render-list";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StaffLayoutPage from "@/layouts/staff";
-import { DashboardUtils } from "@/pages/staff/dashboard/dashboard.utils";
+import { DashboardUtils } from "@/pages/staff/dashboard/staff-dashboard-page.utils";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import { Overview } from "./partials/overview";
-import { RecentSales } from "./partials/recent-sales";
+import { Overview } from "./_partials/overview";
+import { RecentSales } from "./_partials/recent-sales";
 import { StaffDashboardPageProps } from "./staff-dashboard-page.type";
 
 const StaffDashboardPage: StaffDashboardPageProps = ({

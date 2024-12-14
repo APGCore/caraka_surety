@@ -2,7 +2,7 @@ import React from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { OverviewProps } from "./overview.type";
 
-const Overview: React.FC<OverviewProps> = ({ data }) => {
+const Overviews: React.FC<OverviewProps> = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
@@ -20,4 +20,4 @@ const Overview: React.FC<OverviewProps> = ({ data }) => {
   );
 };
 
-export { Overview };
+export { Overviews };

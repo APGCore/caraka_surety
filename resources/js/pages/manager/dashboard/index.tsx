@@ -4,10 +4,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ManagerLayoutPage from "@/layouts/manager";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import { DashboardUtils } from "./dashboard.utils";
+import { Overview } from "./_partials/overview";
+import { RecentSales } from "./_partials/recent-sales";
 import { ManagerDashboardPageProps } from "./manager-dashboard-page.type";
-import { Overview } from "./partials/overview";
-import { RecentSales } from "./partials/recent-sales";
+import { DashboardUtils } from "./manager-dashboard-page.utils";
 
 const ManagerDashboardPage: ManagerDashboardPageProps = ({
   total_submission,
