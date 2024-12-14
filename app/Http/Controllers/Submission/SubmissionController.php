@@ -167,7 +167,7 @@ class SubmissionController extends Controller
             $noa = $profile->code;
 
             $guarantorPattern = $guarantor->pattern;
-            $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
+            $pattern = $guarantorPattern?->prefix . $guarantorPattern?->content . $guarantorPattern?->suffix;
             $sequence = Sequence::query()->where('guarantor_id', $submission['guarantor_id'])->orderByDesc('current')->get();
             $seqNodLast = $sequence->where('name', 'NOD')->first();
             $seqNomLast = $sequence->where('name', 'NOM')->first();
@@ -472,7 +472,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -500,10 +500,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -514,10 +514,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -532,8 +532,17 @@ class SubmissionController extends Controller
             ->where('head_id', '=', $authId)
             ->pluck('id');
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor',
-                'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'employeeLimit',
+                'guarantorProductTypeLimit'
+            ])
             ->whereIn('staff_id', $staffs)
             ->where([
                 'checked_by' => null,
@@ -558,10 +567,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan',
+            'page_settings' => fn() => [
+                'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -597,10 +606,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Riwayat Pengajuan',
+            'page_settings' => fn() => [
+                'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -633,10 +642,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -672,10 +681,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 

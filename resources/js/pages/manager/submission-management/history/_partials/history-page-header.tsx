@@ -24,7 +24,7 @@ const SubmissionHistoryHeader: React.FC<SubmissionHistoryHeaderProps> = ({ title
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Riwayat Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>List Hasil Pengajuan</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

@@ -7,15 +7,15 @@ interface IStepIndicator<TStep extends string> {
 }
 
 interface IUseStepper<TStep extends string> {
-  currentStep: TStep;
+  currentStep: IStepIndicator<TStep>;
   steps: Array<IStepIndicator<TStep>>;
-  gotoStep: (stepName: TStep) => void;
+  gotoStep: (step: IStepIndicator<TStep>) => void;
   resetSteps: () => void;
 }
 
 const useStepper = <TStep extends string>(initialSteps: Array<IStepIndicator<TStep>>): IUseStepper<TStep> => {
   const [steps, setSteps] = useState<Array<IStepIndicator<TStep>>>(() => initialSteps);
-  const [currentStep, setCurrentStep] = useState<TStep>(() => initialSteps[0].name);
+  const [currentStep, setCurrentStep] = useState<IStepIndicator<TStep>>(() => initialSteps[0]);
 
   // Update active steps based on the current step
   const updateActiveSteps = useCallback((stepName: TStep) => {
@@ -35,14 +35,14 @@ const useStepper = <TStep extends string>(initialSteps: Array<IStepIndicator<TSt
 
   // Go to a specific step
   const gotoStep = useCallback(
-    (stepName: TStep) => {
+    (step: IStepIndicator<TStep>) => {
       /**
        * 1. Set the current step to the stepName
        * 2. Update the active steps based on the current step
        * 3. Scroll to the top of the page
        */
-      setCurrentStep(stepName);
-      updateActiveSteps(stepName);
+      setCurrentStep(step);
+      updateActiveSteps(step.name);
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
@@ -56,7 +56,7 @@ const useStepper = <TStep extends string>(initialSteps: Array<IStepIndicator<TSt
      * 2. Set the current step to the first step
      */
     setSteps(initialSteps);
-    setCurrentStep(initialSteps[0].name);
+    setCurrentStep(initialSteps[0]);
   }, [initialSteps]);
 
   return { currentStep, steps, gotoStep, resetSteps };

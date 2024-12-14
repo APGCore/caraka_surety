@@ -24,7 +24,7 @@ const SubmissionListHeader: React.FC<SubmissionListHeaderProps> = ({ title }) =>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>List Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>List Pengajuan Masuk</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

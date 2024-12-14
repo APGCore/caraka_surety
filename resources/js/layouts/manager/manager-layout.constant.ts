@@ -18,13 +18,13 @@ export const managerRoute = {
       icon: Archive,
       items: [
         {
-          title: "List Pengajuan",
+          title: "List Pengajuan Masuk",
           route_name: "manager-submission-list",
           href: route("manager-submission-list.submission"),
           url: "#",
         },
         {
-          title: "Riwayat Pengajuan",
+          title: "List Hasil Pengajuan",
           route_name: "manager-submission-history",
           href: route("manager-submission-history.submission"),
           url: "#",
