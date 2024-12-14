@@ -67,8 +67,7 @@
     "uuid": "^10.0.0"
   },
   "lint-staged": {
-    "resources/js/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "eslint --fix",
+    "resources/js/**/*.{js,jsx,ts,tsx,json}": [
       "prettier --write"
     ]
   }
