@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Rate\StoreRequest;
 use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
@@ -25,11 +27,21 @@ class GuarantorRateController extends Controller
 
         $guarantorSelected = $guarantor->id ?? null;
         $productSelected = $product->id ?? null;
+        $jobGroups = JobGroup::getValues();
+        $jobGroupSelected = $request->get('job_group') ?? $jobGroups[0];
+        $jobTypes = JobType::getValues();
+        $jobTypeSelected = $request->get('job_type') ?? $jobTypes[1];
 
         $guarantorProductTypes = GuarantorToProductType::search($request->get('search'))
-            ->query(function ($query) use ($guarantorSelected, $productSelected) {
+            ->query(function ($query) use ($guarantorSelected, $productSelected, $jobGroupSelected, $jobTypeSelected) {
                 $query->where('guarantor_id', $guarantorSelected)
-                    ->where('product_id', $productSelected);
+                    ->where('product_id', $productSelected)
+                    ->when($jobGroupSelected, function ($query, $jobGroup) {
+                        $query->where('job_group', $jobGroup);
+                    })
+                    ->when($jobTypeSelected, function ($query, $jobType) {
+                        $query->where('job_type', $jobType);
+                    });
             })
             ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
@@ -48,6 +60,10 @@ class GuarantorRateController extends Controller
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
             'productSelected' => $productSelected,
+            'jobGroups' => $jobGroups,
+            'jobGroupSelected' => $jobGroupSelected,
+            'jobTypes' => $jobTypes,
+            'jobTypeSelected' => $jobTypeSelected,
             'guarantorProductTypes' => fn () => $resource,
         ]);
     }

@@ -68,6 +68,18 @@ class GuarantorToProductTypeController extends Controller
                     ], $item);
             });
 
+            if ($data->isNotEmpty()) {
+                $dataIds = $data->pluck('id')->unique()->filter();
+                $productId = $data->pluck('product_id')->unique()->first();
+                GuarantorToProductType::query()
+                    ->where([
+                        'guarantor_id' => $requestValid['guarantor_id'],
+                        'product_id' => $productId,
+                    ])
+                    ->whereNotIn('id', $dataIds)
+                    ->delete();
+            }
+
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {
             Log::error('Error store guarantor to product type', [

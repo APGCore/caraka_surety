@@ -5,6 +5,10 @@ interface GuarantorRateProps {
   guarantorSelected: any;
   products: any;
   productSelected: any;
+  jobGroups: any;
+  jobGroupSelected: any;
+  jobTypes: any;
+  jobTypeSelected: any;
   guarantorProductTypes: any;
 }
 
