@@ -42,11 +42,11 @@ class DashboardAdminController extends Controller
         $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique();
 
         return inertia('admin/dashboard/index', [
-            'totalPremi' => fn() =>  $totalPremi,
-            'totalUsedBlank' => fn() =>  $usedBlanks,
-            'totalSubmission' => fn() =>  $totalSubmission,
-            'branches' => fn() =>  $userBranch,
-            'userApprovedSubmission' => fn() =>  $userApprovedSubmission,
+            'totalPremi' => fn () => $totalPremi,
+            'totalUsedBlank' => fn () => $usedBlanks,
+            'totalSubmission' => fn () => $totalSubmission,
+            'branches' => fn () => $userBranch,
+            'userApprovedSubmission' => fn () => $userApprovedSubmission,
         ]);
     }
 }

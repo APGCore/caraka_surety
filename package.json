@@ -68,7 +68,8 @@
   },
   "lint-staged": {
     "resources/js/**/*.{js,jsx,ts,tsx,json}": [
-      "prettier --write"
+      "prettier --write",
+      "composer pint"
     ]
   }
 }
