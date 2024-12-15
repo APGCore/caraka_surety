@@ -16,6 +16,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>No Urut</TableHead>
             <TableHead>Kode</TableHead>
             <TableHead>Jenis Jaminan</TableHead>
             <TableHead className="text-right" />
@@ -26,6 +27,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
             of={guarantorProductTypes?.data}
             render={(guarantorProductType: any) => (
               <TableRow key={guarantorProductType.id}>
+                <TableCell>{guarantorProductType.no}</TableCell>
                 <TableCell>{guarantorProductType.code}</TableCell>
                 <TableCell>{guarantorProductType.full_name}</TableCell>
                 <TableCell className="text-right">

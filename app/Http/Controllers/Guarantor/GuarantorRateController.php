@@ -20,7 +20,7 @@ class GuarantorRateController extends Controller
         $guarantors = Guarantor::with(['product', 'productType'])->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
 
-        $products = $guarantor?->product?->unique();
+        $products = $guarantor->product?->unique();
         $product = $products?->find($request->get('product_id')) ?? $products?->first();
 
         $guarantorSelected = $guarantor->id ?? null;
@@ -38,7 +38,7 @@ class GuarantorRateController extends Controller
 
         $resource = GuarantorToProductTypeResource::collection($guarantorProductTypes);
 
-        $component = request()->path().'/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
