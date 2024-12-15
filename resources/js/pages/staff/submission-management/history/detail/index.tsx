@@ -30,35 +30,33 @@ type TFormDetailStepperIndicator = {
 
 const initialSteps: Array<TFormDetailStepperIndicator> = [
   {
-    title: "Profile",
+    title: "Profile Perusahaan",
     name: "principal",
     isActive: true,
   },
   {
-    title: "Dokumen",
+    title: "Review Dokumen Perusahaan",
     name: "docs",
     isActive: false,
   },
   {
-    title: "Kontrak",
+    title: "Detail Kontrak dan Dasar Pengajuan",
     name: "contract",
     isActive: false,
   },
   {
-    title: "Skoring",
+    title: "Review Hasil Resume dan Skoring",
     name: "skoring",
     isActive: false,
   },
   {
-    title: "Luaran",
+    title: "Persetujuan Pengajuan",
     name: "luaran",
     isActive: false,
   },
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
-  const { currentStep, steps, gotoStep } = useStepper(initialSteps);
-
   useEffect(() => {
     handleComparisonRatios(submission?.principal?.ratios);
   }, []);
@@ -69,6 +67,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isProcess = submission?.status == SubmissionStatus.PROCESS;
   const isApproved = submission?.status == SubmissionStatus.APPROVED;
   const isRejected = submission?.status == SubmissionStatus.REJECTED;
+
+  const filteredSubmission = isApproved ? initialSteps : initialSteps?.slice(0, 4);
+
+  const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
 
   const generateNomorSurat = (createdAt: string): string => {
     const date = new Date(createdAt);
@@ -466,7 +468,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
       {/* STEPPER SECTION */}
-      <div className="flex">
+      <div className="flex items-start">
         <RenderList
           of={steps}
           render={(step, index) => {
@@ -493,7 +495,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                   {/* STEPPER LABEL */}
                   <span
-                    className={cn("transition-all duration-300 text-gray-500", {
+                    className={cn("transition-all duration-300 text-gray-500 mt-2 text-sm min-w-[100px]", {
                       "text-black font-semibold": step.isActive,
                     })}>
                     {step.title}
@@ -516,7 +518,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
       {/* TITLE DETAIL SECTION */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Detail Perusahaan</h1>
+        <h1 className="text-2xl font-semibold">{currentStep.title}</h1>
       </div>
 
       <div className="border rounded-sm p-4 space-y-6 bg-white">

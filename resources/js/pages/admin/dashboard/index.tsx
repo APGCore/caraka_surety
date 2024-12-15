@@ -6,7 +6,7 @@ import Overview from "./_partials/overview";
 import Reports from "./_partials/reports";
 import { AdminDashboardPageProps } from "./admin-dashboard-page.type";
 
-const AdminDashboardPage: AdminDashboardPageProps = () => {
+const AdminDashboardPage: AdminDashboardPageProps = (props) => {
   return (
     <div className="flex-1 space-y-4  pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -15,11 +15,11 @@ const AdminDashboardPage: AdminDashboardPageProps = () => {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analisa</TabsTrigger>
-          <TabsTrigger value="reports">Laporan</TabsTrigger>
+          {/* <TabsTrigger value="analytics">Analisa</TabsTrigger> */}
+          {/* <TabsTrigger value="reports">Laporan</TabsTrigger> */}
         </TabsList>
         <TabsContent value="overview">
-          <Overview />
+          <Overview {...props} />
         </TabsContent>
         <TabsContent value="analytics">
           <Analytics />

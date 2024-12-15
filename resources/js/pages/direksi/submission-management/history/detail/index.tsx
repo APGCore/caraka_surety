@@ -45,27 +45,27 @@ type TFormDetailStepperIndicator = {
 
 const initialSteps: Array<TFormDetailStepperIndicator> = [
   {
-    title: "Profile",
+    title: "Profile Perusahaan",
     name: "principal",
     isActive: true,
   },
   {
-    title: "Dokumen",
+    title: "Review Dokumen Perusahaan",
     name: "docs",
     isActive: false,
   },
   {
-    title: "Kontrak",
+    title: "Detail Kontrak dan Dasar Pengajuan",
     name: "contract",
     isActive: false,
   },
   {
-    title: "Skoring",
+    title: "Review Hasil Resume dan Skoring",
     name: "skoring",
     isActive: false,
   },
   {
-    title: "Luaran",
+    title: "Persetujuan Pengajuan",
     name: "luaran",
     isActive: false,
   },
@@ -526,7 +526,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       </Show>
       <main className={"space-y-10 w-[800px] mx-auto mt-[50px]"}>
         {/* STEPPER SECTION */}
-        <div className="flex">
+        <div className="flex items-start">
           <RenderList
             of={steps}
             render={(step, index) => {
@@ -553,7 +553,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                     {/* STEPPER LABEL */}
                     <span
-                      className={cn("transition-all duration-300 text-gray-500", {
+                      className={cn("transition-all duration-300 text-gray-500 mt-2 text-sm min-w-[100px]", {
                         "text-black font-semibold": step.isActive,
                       })}>
                       {step.title}
