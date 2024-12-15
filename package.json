@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prepare": "husky"
+    "prepare": "husky && chmod ug+x .husky/*"
   },
   "devDependencies": {
     "@headlessui/react": "^2.0.0",
@@ -68,8 +68,11 @@
   },
   "lint-staged": {
     "resources/js/**/*.{js,jsx,ts,tsx,json}": [
-      "prettier --write",
+      "prettier --write"
+    ],
+    "**/*.{php}": [
       "composer pint"
-    ]
+    ],
+    "!vendor/**/*": []
   }
 }
