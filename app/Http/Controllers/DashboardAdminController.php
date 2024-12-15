@@ -47,7 +47,6 @@ class DashboardAdminController extends Controller
             'totalSubmission' => fn () => $totalSubmission,
             'branches' => fn () => $userBranch,
             'userApprovedSubmission' => fn () => $userApprovedSubmission,
-            'test' => fn () => [],
         ]);
     }
 }

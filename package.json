@@ -70,7 +70,7 @@
     "resources/js/**/*.{js,jsx,ts,tsx,json}": [
       "prettier --write"
     ],
-    "**/*.{php}": [
+    "**/*.php": [
       "composer pint"
     ],
     "!vendor/**/*": []
