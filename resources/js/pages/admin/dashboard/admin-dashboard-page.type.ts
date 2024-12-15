@@ -17,6 +17,8 @@ export interface AdminDashboardProps {
   totalUsedBlank?: number;
   branches?: Branch[];
   userApprovedSubmission?: User[];
+  graph_data?: any;
+  submissions?: any;
 }
 
 export type AdminDashboardPageProps = React.FC<AdminDashboardProps> & {

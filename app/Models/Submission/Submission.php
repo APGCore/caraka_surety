@@ -125,4 +125,9 @@ class Submission extends Model
     {
         return $this->belongsTo(Blank::class, 'blank_id', 'id');
     }
+
+    public function staff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'staff_id', 'id');
+    }
 }

@@ -324,22 +324,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [formStep, setFormStep] = useState<"principal" | "docs" | "contract" | "skoring">("principal");
   const [steps, setSteps] = useState([
     {
-      title: "Profile",
+      title: "Profile Perusahaan",
       name: "principal",
       isActive: true,
     },
     {
-      title: "Dokumen",
+      title: "Dokumen Perusahaan",
       name: "docs",
       isActive: false,
     },
     {
-      title: "Kontrak",
+      title: "Detail Kontrak dan Dasar Pengajuan",
       name: "contract",
       isActive: false,
     },
     {
-      title: "Output",
+      title: "Resume dan Skoring",
       name: "skoring",
       isActive: false,
     },
@@ -593,7 +593,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         <Show when={formSearchPrincipalState === "search" || formSearchPrincipalState === "not-search"}>
           <>
             {/* STEPPER INDICATOR */}
-            <div className="flex">
+            <div className="flex items-start">
               <RenderList
                 of={steps}
                 render={(step, index) => {
@@ -620,7 +620,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
                         {/* STEPPER LABEL */}
                         <span
-                          className={cn("transition-all duration-300 text-gray-500", {
+                          className={cn("transition-all duration-300 text-gray-500 mt-2 text-sm min-w-[100px]", {
                             "text-black font-semibold": step.isActive,
                           })}>
                           {step.title}
@@ -646,7 +646,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <div className="flex justify-between">
                   <h2 className="text-2xl font-bold mb-8">
-                    {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Perusahaan
+                    {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Profile Perusahaan
                   </h2>
                   <Button
                     type="button"
@@ -966,7 +966,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             {/* CONTRACT SECTION */}
             <Show when={formStep === "contract"}>
               <div>
-                <h2 className="text-2xl font-bold mb-8">Kontrak</h2>
+                <h2 className="text-2xl font-bold mb-8">Detail Kontrak dan Dasar Pengajuan</h2>
                 <div className="grid gap-5">
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
@@ -1458,7 +1458,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             {/* SKORING SECTION */}
             <Show when={formStep === "skoring"}>
               <div>
-                <h1 className="text-2xl font-bold mb-8">Skoring</h1>
+                <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                 <h2 className="text-xl font-semibold mb-8">Laporan Keuangan Perusahaan</h2>
                 <div className="grid gap-16">
                   <div className="flex gap-8">

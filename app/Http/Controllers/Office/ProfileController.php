@@ -8,6 +8,7 @@ use App\Http\Requests\Office\UpdateRequest;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\Profile;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -120,5 +121,12 @@ class ProfileController extends Controller
         } finally {
             return redirect()->back();
         }
+    }
+
+    public function all(): JsonResponse
+    {
+        $profile = Profile::all();
+
+        return $this->responseSuccess('Berhasil mengambil data profiles', $profile);
     }
 }

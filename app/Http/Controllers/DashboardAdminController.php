@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Blank;
 use App\Models\Profile;
 use App\Models\Submission\Submission;
@@ -41,12 +42,86 @@ class DashboardAdminController extends Controller
         // Total User Who Aprrove Subs
         $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique();
 
+        $profileId = $request->get('profile_id');
+
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($profileId);
+        $submissionThisMonth = $this->getSubmissionThisMonth();
+
         return inertia('admin/dashboard/index', [
             'totalPremi' => fn () => $totalPremi,
             'totalUsedBlank' => fn () => $usedBlanks,
             'totalSubmission' => fn () => $totalSubmission,
             'branches' => fn () => $userBranch,
             'userApprovedSubmission' => fn () => $userApprovedSubmission,
+            'graph_data' => $chartSubmissionThisYear,
+            'submissions' => $submissionThisMonth,
         ]);
+    }
+
+    private function getCountOfSubmission(): array
+    {
+        $submissions = Submission::query()->get();
+        $totalSubmission = $submissions->count();
+        $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
+        $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
+        $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED->value)->count();
+
+        return [
+            'total' => $totalSubmission,
+            'process' => $totalSubmissionProcess,
+            'approved' => $totalSubmissionApproved,
+            'rejected' => $totalSubmissionRejected,
+        ];
+    }
+
+    private function getChartSubmissionThisYear($profileId = null): array
+    {
+        // get month names in Indonesian
+        $monthNames = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agus',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des',
+        ];
+
+        $submissions = Submission::query()
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', now()->year)
+            ->when($profileId, function ($query, $profileId) {
+                return $query->whereHas('staff', function ($query) use ($profileId) {
+                    $query->where('profile_id', $profileId);
+                });
+            })
+            ->groupBy('month')
+            ->get();
+
+        $chartData = [];
+        foreach ($monthNames as $key => $monthName) {
+            $chartData[] = [
+                'month' => $monthName,
+                'total' => $submissions->firstWhere('month', $key + 1)?->total ?? 0,
+            ];
+        }
+
+        return $chartData;
+    }
+
+    private function getSubmissionThisMonth(): object
+    {
+        return Submission::query()
+            ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
+            ->with(['principal:id,name', 'product:id,name'])
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->orderByDesc('created_at')
+            ->get();
     }
 }

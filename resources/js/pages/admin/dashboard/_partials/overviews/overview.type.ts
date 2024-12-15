@@ -1,5 +1,5 @@
 export interface Overview {
-  name: string;
+  month: string;
   total: number;
 }
 

@@ -1,5 +1,10 @@
+import RenderList from "@/components/common/render-list";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import useGetAllProfile from "@/hooks/api/profile/useGetAllProfile";
 import { formatCurrency, formatStringWithDots } from "@/lib/format-currency";
+import { router } from "@inertiajs/react";
+import { pickBy } from "lodash";
 import React from "react";
 import { AdminDashboardProps } from "../../admin-dashboard-page.type";
 import { data } from "../../admin-dashboard-page.utils";
@@ -7,6 +12,18 @@ import { Overviews } from "../overviews";
 import { RecentSales } from "../recent-sales";
 
 const Overview: React.FC<AdminDashboardProps> = (props) => {
+  const { profiles } = useGetAllProfile();
+
+  const changeProfile = (profileId: any) => {
+    router.get(
+      route("admin.index"),
+      pickBy({
+        profile_id: profileId,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -93,21 +110,34 @@ const Overview: React.FC<AdminDashboardProps> = (props) => {
         </Card>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
+        <Card className="lg:col-span-4 space-y-10">
+          <div className="flex items-center justify-between w-full p-5 ">
+            <CardTitle className=" w-max">Grafik Total Pengajuan</CardTitle>
+            <Select onValueChange={changeProfile}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Pusat" />
+              </SelectTrigger>
+              <SelectContent>
+                <RenderList
+                  of={profiles}
+                  render={(profile: any) => {
+                    return <SelectItem value={profile.id}>{profile.name}</SelectItem>;
+                  }}
+                />
+              </SelectContent>
+            </Select>
+          </div>
           <CardContent className="pl-2">
-            <Overviews data={data} />
+            <Overviews data={props?.graph_data} />
           </CardContent>
         </Card>
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Pengajuan Terakhir</CardTitle>
-            <CardDescription>Terdapat 200 pengajuan baru bulan ini.</CardDescription>
+            <CardDescription>Terdapat {props?.submissions.length} pengajuan baru bulan ini.</CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentSales />
+            <RecentSales submissions={props?.submissions} />
           </CardContent>
         </Card>
       </div>
