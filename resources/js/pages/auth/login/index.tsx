@@ -1,14 +1,14 @@
 import GuestLayoutPage from "@/layouts/guest";
 import { Head } from "@inertiajs/react";
 import { LoginPageProps } from "./login-page.type";
-import LoginForm from "./partial/login-form";
+import { NewLoginForm } from "./partial/new-login-form";
 
 const LoginPage: LoginPageProps = ({ status }) => {
   return (
     <>
       {status && <div className="mb-4 text-sm font-medium text-green-600">{status}</div>}
 
-      <section className=" w-screen h-screen">
+      {/* <section className=" w-screen h-screen">
         <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
           <aside className="relative block h-16   lg:col-span-5 lg:h-full xl:col-span-6">
             <img
@@ -25,7 +25,12 @@ const LoginPage: LoginPageProps = ({ status }) => {
             </div>
           </main>
         </div>
-      </section>
+      </section> */}
+      <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+        <div className="w-full max-w-sm md:max-w-3xl">
+          <NewLoginForm />
+        </div>
+      </div>
     </>
   );
 };
