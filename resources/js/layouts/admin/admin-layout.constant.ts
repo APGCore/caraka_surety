@@ -8,6 +8,7 @@ import {
   Infinity,
   LibraryBig,
   MapPinHouse,
+  Stamp,
   User,
 } from "lucide-react";
 
@@ -46,21 +47,9 @@ export const adminRoute = {
           url: "#",
         },
         {
-          title: "Tarif Penjamin",
+          title: "Tarif Asuransi",
           route_name: "guarantor-rate",
           href: route("guarantor-rate.index"),
-          url: "#",
-        },
-        {
-          title: "Blangko",
-          route_name: "blank",
-          href: route("blank.index"),
-          url: "#",
-        },
-        {
-          title: "Pembagian Blangko",
-          route_name: "distribution-of-blank",
-          href: route("distribution-of-blank.index"),
           url: "#",
         },
       ],
@@ -69,7 +58,6 @@ export const adminRoute = {
       title: "Unit Bisnis",
       url: "#",
       icon: User,
-      isActive: true,
       items: [
         {
           title: "Daftar Cabang",
@@ -81,6 +69,25 @@ export const adminRoute = {
           title: "Pengguna",
           route_name: "employee",
           href: route("employee.index"),
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Kelola Blangko",
+      url: "#",
+      icon: Stamp,
+      items: [
+        {
+          title: "Penerimaan Blangko",
+          route_name: "blank",
+          href: route("blank.index"),
+          url: "#",
+        },
+        {
+          title: "Pembagian Blangko",
+          route_name: "distribution-of-blank",
+          href: route("distribution-of-blank.index"),
           url: "#",
         },
       ],

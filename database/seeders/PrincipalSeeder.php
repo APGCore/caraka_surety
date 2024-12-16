@@ -26,6 +26,7 @@ class PrincipalSeeder extends Seeder
                 'regency_id' => $regency->id,
                 'district_id' => $district->id,
                 'village' => 'Dummy Village '.$i,
+                'postal_code' => '12345'.$i,
                 'name' => 'Dummy Principal '.$i,
                 'address' => '123 Dummy Street '.$i,
                 'telephone' => '12345678'.$i,

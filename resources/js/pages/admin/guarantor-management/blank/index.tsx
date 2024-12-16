@@ -199,7 +199,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Blangko</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Penerimaan Blangko</h1>
         <div className="flex gap-x-3">
           <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
             <AlertDialogTrigger asChild>

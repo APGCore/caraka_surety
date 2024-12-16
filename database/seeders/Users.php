@@ -14,6 +14,7 @@ class Users extends Seeder
     {
         User::create([
             'name' => 'Admin',
+            'username' => 'admin',
             'email' => 'adminbpr@gmail.com',
             'password' => bcrypt('password'),
             'profile_id' => 1,
@@ -22,6 +23,7 @@ class Users extends Seeder
 
         User::create([
             'name' => 'Direksi',
+            'username' => 'direksi',
             'email' => 'direksibpr@gmail.com',
             'password' => bcrypt('password'),
             'profile_id' => 1,
@@ -30,6 +32,7 @@ class Users extends Seeder
 
         User::create([
             'name' => 'Kepala Cabang',
+            'username' => 'kepala-cabang',
             'email' => 'branchmanagerbpr@gmail.com',
             'password' => bcrypt('password'),
             'profile_id' => 2,
@@ -38,6 +41,7 @@ class Users extends Seeder
 
         User::create([
             'name' => 'Manager',
+            'username' => 'manager',
             'email' => 'managerbpr@gmail.com',
             'password' => bcrypt('password'),
             'profile_id' => 1,
@@ -46,6 +50,7 @@ class Users extends Seeder
 
         User::create([
             'name' => 'Staff',
+            'username' => 'staff',
             'email' => 'staffbpr@gmail.com',
             'password' => bcrypt('password'),
             'head_id' => 4, // Manager
@@ -55,6 +60,7 @@ class Users extends Seeder
 
         User::create([
             'name' => 'Staff Cabang',
+            'username' => 'staff-cabang',
             'email' => 'staffbprcabang1@gmail.com',
             'password' => bcrypt('password'),
             'head_id' => 3, // Kepala Cabang

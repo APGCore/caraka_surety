@@ -36,7 +36,7 @@ class BlankController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Blangko',
+                'title' => 'Penerimaan Blangko',
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,

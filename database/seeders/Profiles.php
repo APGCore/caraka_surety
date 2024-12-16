@@ -30,7 +30,7 @@ class Profiles extends Seeder
         Profile::create([
             'id' => 2,
             'code' => '15',
-            'name' => 'Cabang 1',
+            'name' => 'Lampung',
             'province_id' => $province->id,
             'regency_id' => $regency->id,
             'district_id' => $district->id,
