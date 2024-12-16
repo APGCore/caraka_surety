@@ -270,6 +270,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         "[TANGGAL_PENERBITAN]",
         data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
       )
+      .replace(
+        "[TANGGAL_PENERBITAN]",
+        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
+      )
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
       .replace("[JABATAN]", data?.pic_position || "")
@@ -980,7 +984,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         </Show>
         <Show when={currentStep.name === "luaran"}>
           <div>
-            <h2 className="text-lg font-semibold mb-4 mt-5">Surat Hasil Analisis</h2>
+            <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
             <div>
               <TinyMCEEditor
                 id="hasil-analisis"
