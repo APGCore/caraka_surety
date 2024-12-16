@@ -56,6 +56,10 @@ class BlankController extends Controller
                 ->create($requestValidated);
 
             DB::commit();
+            activity()
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan blangko baru');
 
             return $this->responseSuccess('Blangko berhasil ditambahkan');
         } catch (\Exception $e) {
@@ -90,6 +94,10 @@ class BlankController extends Controller
             Blank::query()->insert($data);
 
             DB::commit();
+            activity()
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan blangko baru');
 
             return $this->responseSuccess('Blangko berhasil ditambahkan', 'Blangko berhasil ditambahkan');
         } catch (\Exception $e) {
@@ -110,6 +118,10 @@ class BlankController extends Controller
         try {
             $blank->update($requestValidated);
 
+            activity()
+                ->performedOn($blank)
+                ->causedBy(auth()->user())
+                ->log('Mengubah blangko');
             DB::commit();
 
             return $this->responseSuccess('Blangko berhasil diubah');
@@ -130,8 +142,12 @@ class BlankController extends Controller
         try {
             $blank->delete();
 
-            DB::commit();
+            activity()
+                ->performedOn($blank)
+                ->causedBy(auth()->user())
+                ->log('Menghapus blangko dengan nomor '.$blank->getAttribute('number'));
             flashMessage('Berhasil', 'Blangko berhasil dihapus');
+            DB::commit();
         } catch (\Exception $e) {
             Log::error('Error destroy blank', [$e->getMessage()]);
             DB::rollBack();

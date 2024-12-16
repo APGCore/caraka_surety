@@ -80,8 +80,13 @@ class GuarantorProductTypeLimitController extends Controller
                 'limit' => $limit,
                 'limit_inherit' => $limitInherit,
             ]);
-            DB::commit();
+
+            activity()
+                ->performedOn(new GuarantorToProductType)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan limit produk asuransi');
             flashMessage('success', 'Limit berhasil disimpan');
+            DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
                 'guarantor_id' => $request->get('guarantor_id'),
@@ -119,8 +124,12 @@ class GuarantorProductTypeLimitController extends Controller
                 'limit' => $limit,
                 'limit_inherit' => $limitInherit,
             ]);
-            DB::commit();
+            activity()
+                ->performedOn($guarantorProductTypeLimit)
+                ->causedBy(auth()->user())
+                ->log('Mengubah limit produk asuransi');
             flashMessage('success', 'Limit berhasil diubah');
+            DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
                 'guarantor_id' => $request->get('guarantor_id'),

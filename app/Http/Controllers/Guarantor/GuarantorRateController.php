@@ -10,6 +10,7 @@ use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GuarantorRateController extends Controller
@@ -91,7 +92,7 @@ class GuarantorRateController extends Controller
         $requestValid = $request->validated();
 
         try {
-
+            DB::beginTransaction();
             $data = [
                 ...$requestValid,
                 'minimum_bill' => $this->currencyConvert($requestValid['minimum_bill']),
@@ -105,14 +106,19 @@ class GuarantorRateController extends Controller
             ];
 
             $guarantorToProductType->update($data);
-
+            activity()
+                ->performedOn($guarantorToProductType)
+                ->causedBy(auth()->user())
+                ->log('Setting Limit Asuransi');
             flashMessage('Berhasil', 'Data berhasil disimpan');
+            DB::commit();
 
             return redirect()->route('guarantor-rate.index', [
                 'guarantor_id' => $guarantorToProductType->getAttribute('guarantor_id'),
                 'product_id' => $guarantorToProductType->getAttribute('product_id'),
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
             Log::error('Error store guarantor rate', ['error' => $e->getMessage()]);
 

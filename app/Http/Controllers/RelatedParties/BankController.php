@@ -69,7 +69,10 @@ class BankController extends Controller
 
             Bank::query()
                 ->create($requestValid);
-
+            activity()
+                ->performedOn(new Bank)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data bank baru');
             flashMessage('Berhasil', 'Penambahan data bank berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -129,7 +132,10 @@ class BankController extends Controller
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'banks', $fileName);
             }
             $bank->update($requestValid);
-
+            activity()
+                ->performedOn($bank)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data bank');
             flashMessage('Berhasil', 'Perubahan data bank berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -156,7 +162,10 @@ class BankController extends Controller
             } else {
                 throw new ThrottleRequestsException('Data bank tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($bank)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data bank');
             flashMessage('Data bank Dihapus', 'Data bank dihapus');
             DB::commit();
         } catch (\Throwable $th) {

@@ -285,7 +285,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data karyawan {blank.name}?
+                                  Tindakan ini akan menghapus data pengguna {blank.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

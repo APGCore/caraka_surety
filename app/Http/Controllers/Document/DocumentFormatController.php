@@ -110,6 +110,11 @@ class DocumentFormatController extends Controller
 
             DB::commit();
 
+            activity()
+                ->performedOn(new DocumentFormat)
+                ->causedBy(auth()->user())
+                ->log('menambahkan format dokumen');
+
             return redirect()->back()->with('success', 'Berhasil menyimpan data');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -155,6 +160,11 @@ class DocumentFormatController extends Controller
 
             DB::commit();
 
+            activity()
+                ->performedOn($documentFormat)
+                ->causedBy(auth()->user())
+                ->log('mengubah format dokumen');
+
             return redirect()->back()->with('success', 'Berhasil menyimpan data');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -172,6 +182,11 @@ class DocumentFormatController extends Controller
     {
         try {
             $documentFormat->delete();
+
+            activity()
+                ->performedOn($documentFormat)
+                ->causedBy(auth()->user())
+                ->log('menghapus format dokumen');
 
             return redirect()->back()->with('success', 'Berhasil menghapus data');
         } catch (\Exception $e) {

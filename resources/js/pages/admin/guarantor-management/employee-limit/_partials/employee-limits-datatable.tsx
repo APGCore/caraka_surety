@@ -50,7 +50,7 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
-            <TableHead>Karyawan</TableHead>
+            <TableHead>Pengguna</TableHead>
             <TableHead>Limit</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />

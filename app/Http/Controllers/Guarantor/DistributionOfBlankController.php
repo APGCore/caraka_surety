@@ -75,8 +75,12 @@ class DistributionOfBlankController extends Controller
                     'profile_id' => $requestValid['office_id'],
                 ]);
 
-            DB::commit();
+            activity()
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log('Pembagian blangko');
             flashMessage('Berhasil', 'Data berhasil disimpan');
+            DB::commit();
 
             return redirect()->route('distribution-of-blank.index');
         } catch (\Exception $e) {

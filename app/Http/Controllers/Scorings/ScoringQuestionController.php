@@ -108,7 +108,10 @@ class ScoringQuestionController extends Controller
             // Create Scoring Question Category
             ScoringQuestion::query()
                 ->create($request->only('name', 'scoring_question_category_id'));
-
+            activity()
+                ->performedOn(new ScoringQuestion)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Pertanyaan Skoring');
             DB::commit();
 
             return $this->responseSuccess('Pertanyaan Skoring berhasil ditambah!');
@@ -183,7 +186,10 @@ class ScoringQuestionController extends Controller
 
             if ($scoringQuestion->exists) {
                 $scoringQuestion->update($request->only('name', 'scoring_question_category_id'));
-
+                activity()
+                    ->performedOn($scoringQuestion)
+                    ->causedBy(auth()->user())
+                    ->log('Mengubah Pertanyaan Skoring');
                 DB::commit();
 
                 return $this->responseSuccess('Pertanyaan Skoring berhasil diedit!');
@@ -211,8 +217,12 @@ class ScoringQuestionController extends Controller
 
             if ($scoringQuestion->exists) {
                 $scoringQuestion->delete();
-                DB::commit();
+                activity()
+                    ->performedOn($scoringQuestion)
+                    ->causedBy(auth()->user())
+                    ->log('Menghapus Pertanyaan Skoring');
                 flashMessage('Pertanyaan Skoring Dihapus', 'Pertanyaan Skoring berhasil dihapus');
+                DB::commit();
             } else {
                 throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan');
             }
@@ -279,9 +289,12 @@ class ScoringQuestionController extends Controller
 
             if ($scoringOption->exists) {
                 $scoringOption->update($request->only('name', 'point'));
-
-                DB::commit();
+                activity()
+                    ->performedOn($scoringOption)
+                    ->causedBy(auth()->user())
+                    ->log('Mengubah Pilihan Pertanyaan');
                 flashMessage('Pilihan Pertanyaan Diperbarui', 'Pilihan Pertanyaan berhasil diperbarui');
+                DB::commit();
 
                 return redirect()->route('scoring-question.edit-options', [
                     'scoringQuestion' => $scoringQuestion->id,
@@ -318,9 +331,11 @@ class ScoringQuestionController extends Controller
             // Create Scoring Question Category
             ScoringOption::query()
                 ->create($request->only('name', 'point', 'scoring_question_id'));
-
+            activity()
+                ->performedOn(new ScoringOption)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Pilihan Pertanyaan');
             flashMessage('Pilihan Pertanyaan Ditambahkan', 'Pilihan Pertanyaan berhasil ditambahkan');
-
             DB::commit();
 
             return redirect()->route('scoring-question.edit-options', [

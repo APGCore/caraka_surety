@@ -158,7 +158,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
           value={search}
           onChange={setSearch}
           onSubmit={handleSearchProfileLimit}
-          placeholder="Cari Karyawan"
+          placeholder="Cari Pengguna"
         />
       </div>
       <EmployeeLimitsDatatable

@@ -5,31 +5,31 @@ export const FormEmployeeLimitsUtils = {
   create: {
     route: EmployeeLimitsUtils.link.store,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan mengatur data Batas Kewenangan Nilai Jaminan Karyawan",
-    btn_label: "Setting Batas Kewenangan Nilai Jaminan Karyawan",
+    sub_title: "Tindakan ini akan mengatur data Batas Kewenangan Nilai Jaminan Pengguna",
+    btn_label: "Setting Batas Kewenangan Nilai Jaminan Pengguna",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Batas Kewenangan Nilai Jaminan Karyawan berhasil di setting",
+      description: "Batas Kewenangan Nilai Jaminan Pengguna berhasil di setting",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Batas Kewenangan Nilai Jaminan Karyawan gagal di setting",
+      description: "Batas Kewenangan Nilai Jaminan Pengguna gagal di setting",
     },
   },
   edit: {
     route: EmployeeLimitsUtils.link.update,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan mengedit data Batas Kewenangan Nilai Jaminan Karyawan",
-    btn_label: "Setting Batas Kewenangan Nilai Jaminan Karyawan",
+    sub_title: "Tindakan ini akan mengedit data Batas Kewenangan Nilai Jaminan Pengguna",
+    btn_label: "Setting Batas Kewenangan Nilai Jaminan Pengguna",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Batas Kewenangan Nilai Jaminan Karyawan berhasil diubah",
+      description: "Batas Kewenangan Nilai Jaminan Pengguna berhasil diubah",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Batas Kewenangan Nilai Jaminan Karyawan gagal diubah",
+      description: "Batas Kewenangan Nilai Jaminan Pengguna gagal diubah",
     },
   },
 };

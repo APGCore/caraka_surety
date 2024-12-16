@@ -100,18 +100,21 @@ class EmployeeController extends Controller
             $requestValid['password'] = Hash::make($requestValid['password']);
             $user = User::query()
                 ->create($requestValid);
+            activity()
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data pengguna');
+            flashMessage('Berhasil', 'Data pengguna berhasil ditambahkan');
             DB::commit();
-
-            flashMessage('Berhasil', 'Data karyawan berhasil ditambahkan');
 
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@store: {$e->getMessage()}");
 
-            flashMessage('Gagal', 'Penambahan data karyawan gagal', 'error');
+            flashMessage('Gagal', 'Penambahan data pengguna gagal', 'error');
 
-            return back()->withErrors(['errors' => 'Gagal menambahkan data karyawan']);
+            return back()->withErrors(['errors' => 'Gagal menambahkan data pengguna']);
         }
     }
 
@@ -178,19 +181,21 @@ class EmployeeController extends Controller
 
             $user = User::query()->find($employee->getAttribute('id'));
             $user->update($requestValid);
-
+            activity()
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data pengguna');
+            flashMessage('Berhasil', 'Perubahan data pengguna berhasil');
             DB::commit();
-
-            flashMessage('Berhasil', 'Perubahan data karyawan berhasil');
 
             return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@update: {$e->getMessage()}");
 
-            flashMessage('Gagal', 'Perubahan data karyawan gagal', 'error');
+            flashMessage('Gagal', 'Perubahan data pengguna gagal', 'error');
 
-            return back()->withErrors(['errors' => 'Gagal mengubah data karyawan']);
+            return back()->withErrors(['errors' => 'Gagal mengubah data pengguna']);
         }
     }
 
@@ -203,9 +208,9 @@ class EmployeeController extends Controller
             DB::beginTransaction();
 
             if ($employee->getAttribute('role_id') === 1) {
-                flashMessage('Gagal Menghapus Karyawan', 'Karyawan tidak dapat dihapus', 'error');
+                flashMessage('Gagal Menghapus Pengguna', 'Pengguna tidak dapat dihapus', 'error');
 
-                return redirect()->back()->withErrors(['errors' => 'Karyawan tidak dapat dihapus']);
+                return redirect()->back()->withErrors(['errors' => 'Pengguna tidak dapat dihapus']);
             }
 
             if ($employee->exists) {
@@ -216,18 +221,22 @@ class EmployeeController extends Controller
                 ]);
                 $employee->delete();
             } else {
-                throw new ThrottleRequestsException('Karyawan tidak ditemukan');
+                throw new ThrottleRequestsException('Pengguna tidak ditemukan');
             }
-            flashMessage('Karyawan Dihapus', 'Karyawan berhasil dihapus');
+            activity()
+                ->performedOn($employee)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data pengguna');
+            flashMessage('Pengguna Dihapus', 'Pengguna berhasil dihapus');
             DB::commit();
 
             return redirect()->back();
         } catch (\Exception $e) {
-            flashMessage('Gagal Menghapus Karyawan', 'Terjadi kesalahan saat menghapus karyawan', 'error');
+            flashMessage('Gagal Menghapus Pengguna', 'Terjadi kesalahan saat menghapus pengguna', 'error');
             Log::error("Error on EmployeeController@destroy: {$e->getMessage()}");
             DB::rollBack();
 
-            return back()->withErrors(['errors' => 'Gagal menghapus data karyawan']);
+            return back()->withErrors(['errors' => 'Gagal menghapus data pengguna']);
         }
     }
 }

@@ -70,7 +70,10 @@ class ObligeeController extends Controller
 
             Obligee::query()
                 ->create($requestValid);
-
+            activity()
+                ->performedOn(new Obligee)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data obligee');
             flashMessage('Berhasil', 'Penambahan data obligee berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -130,7 +133,10 @@ class ObligeeController extends Controller
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'obligees', $fileName);
             }
             $obligee->update($requestValid);
-
+            activity()
+                ->performedOn($obligee)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data obligee');
             flashMessage('Berhasil', 'Perubahan data obligee berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -157,7 +163,10 @@ class ObligeeController extends Controller
             } else {
                 throw new ThrottleRequestsException('Data Obligee tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($obligee)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data obligee');
             flashMessage('Data Obligee Dihapus', 'Data Obligee dihapus');
             DB::commit();
         } catch (\Throwable $th) {

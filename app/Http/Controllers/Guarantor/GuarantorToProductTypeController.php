@@ -9,6 +9,7 @@ use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GuarantorToProductTypeController extends Controller
@@ -59,6 +60,7 @@ class GuarantorToProductTypeController extends Controller
         $requestValid = $request->validated();
         $data = collect($requestValid['data']);
         try {
+            DB::beginTransaction();
             $data->each(function ($item) use ($requestValid) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
                 $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
@@ -79,6 +81,10 @@ class GuarantorToProductTypeController extends Controller
                     ->whereNotIn('id', $dataIds)
                     ->delete();
             }
+            activity()
+                ->performedOn(new Guarantor)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data produk asuransi');
 
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {

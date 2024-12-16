@@ -71,8 +71,12 @@ class ScoringOptionController extends Controller
 
             if ($scoringOption->exists) {
                 $scoringOption->delete();
-                DB::commit();
+                activity()
+                    ->performedOn($scoringOption)
+                    ->causedBy(auth()->user())
+                    ->log('Menghapus Pilihan Pertanyaan Skoring');
                 flashMessage('Pilihan Pertanyaan Skoring Dihapus', 'Pilihan Pertanyaan Skoring berhasil dihapus');
+                DB::commit();
             } else {
                 throw new ThrottleRequestsException('Pilihan Pertanyaan Skoring tidak ditemukan');
             }

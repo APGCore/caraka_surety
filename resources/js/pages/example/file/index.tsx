@@ -1,25 +1,9 @@
 import { FileInput } from "@/components/common/input-file";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import ExampleLayoutPage from "@/layouts/example";
-import { cn } from "@/lib/cn";
-import { Head, Link } from "@inertiajs/react";
-import { FileIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { Head } from "@inertiajs/react";
+import { useState } from "react";
 import { ExampleKaryawanPageProps } from "./example-karyawan.type";
 
 const ExampleKaryawanPage: ExampleKaryawanPageProps = ({ users }) => {
@@ -49,7 +33,7 @@ ExampleKaryawanPage.layout = (page: any) => {
 
   return (
     <ExampleLayoutPage user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Karyawan"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Pengguna"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

@@ -144,7 +144,10 @@ class PrincipalController extends Controller
             DB::beginTransaction();
 
             $principal->update($request->validated());
-
+            activity()
+                ->performedOn($principal)
+                ->causedBy(auth()->user())
+                ->log('update data principal');
             flashMessage('Berhasil', 'Perubahan data principal berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -169,7 +172,10 @@ class PrincipalController extends Controller
             } else {
                 throw new ThrottleRequestsException('Data Obligee tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($principal)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data obligee');
             flashMessage('Data Obligee Dihapus', 'Data Obligee dihapus');
             DB::commit();
         } catch (\Throwable $th) {

@@ -73,6 +73,10 @@ class ScoringController extends Controller
             Scoring::query()
                 ->create($request->only('name', 'min_point'));
 
+            activity()
+                ->performedOn(new Scoring)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Skoring');
             DB::commit();
 
             return $this->responseSuccess('Skoring berhasil ditambahkan');
@@ -133,6 +137,10 @@ class ScoringController extends Controller
             if ($scoring->exists) {
                 $scoring->update($request->only('name', 'min_point'));
 
+                activity()
+                    ->performedOn($scoring)
+                    ->causedBy(auth()->user())
+                    ->log('Mengubah Skoring');
                 DB::commit();
 
                 return $this->responseSuccess('Skoring berhasil diedit!');
@@ -160,6 +168,10 @@ class ScoringController extends Controller
 
             if ($scoring->exists) {
                 $scoring->delete();
+                activity()
+                    ->performedOn($scoring)
+                    ->causedBy(auth()->user())
+                    ->log('Menghapus Skoring');
                 DB::commit();
                 flashMessage('Skoring Dihapus', 'Skoring berhasil dihapus');
             } else {

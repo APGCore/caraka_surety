@@ -211,10 +211,12 @@ class SubmissionController extends Controller
             }
 
             $submission->scores()->createMany($scores);
-
-            DB::commit();
-
+            activity()
+                ->performedOn($submission)
+                ->causedBy(auth()->user())
+                ->log('Membuat pengajuan');
             flashMessage('success', 'Berhasil membuat pengajuan');
+            DB::commit();
 
             return redirect()->back()->with('success', 'Berhasil membuat pengajuan');
         } catch (\Exception $e) {

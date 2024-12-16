@@ -80,7 +80,7 @@ const ExampleKaryawanPage: ExampleKaryawanPageProps = ({ users }) => {
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Karyawan"
+              placeholder="Cari Pengguna"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -202,18 +202,18 @@ ExampleKaryawanPage.layout = (page: any) => {
 
   return (
     <ExampleLayoutPage user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Karyawan"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Pengguna"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Karyawan</BreadcrumbPage>
+            <BreadcrumbPage>Pengguna</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
         <Button asChild>
-          <Link href="/">Tambah Karyawan</Link>
+          <Link href="/">Tambah Pengguna</Link>
         </Button>
       </div>
       {page}

@@ -56,6 +56,10 @@ class ProvinceController extends Controller
             DB::beginTransaction();
             Province::query()
                 ->create($request->only('code', 'name'));
+            activity()
+                ->performedOn(new Province)
+                ->causedBy(auth()->user())
+                ->log('menambahkan data provinsi');
             flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
             DB::commit();
         } catch (\Throwable $th) {
@@ -88,7 +92,10 @@ class ProvinceController extends Controller
             DB::beginTransaction();
 
             $province->update($request->only('code', 'name'));
-
+            activity()
+                ->performedOn($province)
+                ->causedBy(auth()->user())
+                ->log('memperbarui data provinsi');
             flashMessage('Provinsi Diperbarui', 'Provinsi berhasil diperbarui');
             DB::commit();
         } catch (\Throwable $th) {
@@ -125,7 +132,10 @@ class ProvinceController extends Controller
             } else {
                 throw new ThrottleRequestsException('Provinsi tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($province)
+                ->causedBy(auth()->user())
+                ->log('menghapus data provinsi');
             flashMessage('Provinsi Dihapus', 'Provinsi berhasil dihapus');
             DB::commit();
         } catch (\Throwable $th) {

@@ -75,26 +75,32 @@ class AuthenticatedSessionController extends Controller
         $userRole = $userLogin->role_id;
 
         if ($userRole == 1) {
+            $this->activityLogin('Login sebagai Admin');
             flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.');
 
             return redirect()->intended(route('admin.index', absolute: false));
         } elseif ($userRole == 2) {
+            $this->activityLogin('Login sebagai Direksi');
             flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.');
 
             return redirect()->intended(route('direksi.index', absolute: false));
         } elseif ($userRole == 3) {
+            $this->activityLogin('Login sebagai Kepala Cabang');
             flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.');
 
             return redirect()->intended(route('kepala-cabang.index', absolute: false));
         } elseif ($userRole == 4) {
+            $this->activityLogin('Login sebagai Manager');
             flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.');
 
             return redirect()->intended(route('manager.index', absolute: false));
         } elseif ($userRole == 5) {
+            $this->activityLogin('Login sebagai Staff');
             flashMessage('Berhasil Login sebagai Staff!', 'Anda berhasil login sebagai Staff.');
 
             return redirect()->intended(route('staff.index', absolute: false));
         } elseif ($userRole == 6) {
+            $this->activityLogin('Login sebagai Staff Cabang');
             flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.');
 
             return redirect()->intended(route('staff.index', absolute: false));
@@ -115,5 +121,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Activity Login.
+     */
+    private function activityLogin($description): void
+    {
+        activity()
+            ->performedOn(new User)
+            ->causedBy(auth()->user())
+            ->log($description);
     }
 }

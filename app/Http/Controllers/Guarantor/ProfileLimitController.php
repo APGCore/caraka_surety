@@ -124,7 +124,11 @@ class ProfileLimitController extends Controller
                     'limit' => $limit,
                 ]
             );
-
+            activity()
+                ->performedOn(new ProfileLimit)
+                ->causedBy($request->user())
+                ->withProperties($requestValid)
+                ->log('Menambahkan limit kantor');
             DB::commit();
 
             return $this->responseSuccess('Berhasil menambahkan limit kantor');
@@ -174,7 +178,11 @@ class ProfileLimitController extends Controller
             if (! $updated) {
                 throw new \Exception('Gagal mengubah limit kantor');
             }
-
+            activity()
+                ->performedOn($profileLimit)
+                ->causedBy($request->user())
+                ->withProperties($requestValid)
+                ->log('Mengubah limit kantor');
             DB::commit();
 
             return $this->responseSuccess('Berhasil mengubah limit kantor');
@@ -198,7 +206,10 @@ class ProfileLimitController extends Controller
             if (! $deleted) {
                 throw new \Exception('Gagal menghapus limit kantor');
             }
-
+            activity()
+                ->performedOn($profileLimit)
+                ->causedBy(auth()->user())
+                ->log('Menghapus limit kantor');
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

@@ -91,9 +91,11 @@ class ProductController extends Controller
                     'product_type_id' => $productType['id'],
                 ]);
             }
-
+            activity()
+                ->performedOn(new Product)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data produk');
             flashMessage('Produk Ditambahkan', 'Produk berhasil ditambahkan');
-
             DB::commit();
 
             return redirect()->route('products.index');
@@ -178,9 +180,12 @@ class ProductController extends Controller
             } else {
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
-
-            DB::commit();
+            activity()
+                ->performedOn(new Product)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data produk');
             flashMessage('Produk Diperbarui', 'Produk berhasil diperbarui');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
@@ -204,9 +209,12 @@ class ProductController extends Controller
             } else {
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
-
-            DB::commit();
+            activity()
+                ->performedOn(new Product)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data produk');
             flashMessage('Produk Dihapus', 'Produk berhasil dihapus');
+            DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');

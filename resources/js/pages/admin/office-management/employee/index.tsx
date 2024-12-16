@@ -120,7 +120,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Karyawan" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Pengguna" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -209,7 +209,7 @@ const EmployeePage: EmployeePageProps = ({ offices, officeSelected, ...props }) 
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data karyawan {employee.name}?
+                                  Tindakan ini akan menghapus data pengguna {employee.name}?
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

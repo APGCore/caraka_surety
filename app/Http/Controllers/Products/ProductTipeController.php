@@ -77,7 +77,10 @@ class ProductTipeController extends Controller
             DB::beginTransaction();
             ProductType::query()
                 ->create($request->only('no', 'name', 'description'));
-
+            activity()
+                ->performedOn(new ProductType)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Jenis Produk');
             flashMessage('Jenis Produk Ditambahkan', 'Jenis Produk berhasil ditambahkan');
             DB::commit();
         } catch (\Throwable $th) {
@@ -139,6 +142,10 @@ class ProductTipeController extends Controller
             } else {
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
+            activity()
+                ->performedOn($productTipe)
+                ->causedBy(auth()->user())
+                ->log('Mengubah Jenis Produk');
             flashMessage('Jenis Produk Diperbarui', 'Jenis Produk berhasil diperbarui');
             DB::commit();
         } catch (\Throwable $th) {
@@ -165,7 +172,10 @@ class ProductTipeController extends Controller
             } else {
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($productTipe)
+                ->causedBy(auth()->user())
+                ->log('Menghapus Jenis Produk');
             flashMessage('Jenis Produk Dihapus', 'Jenis Produk berhasil dihapus');
             DB::commit();
         } catch (\Throwable $th) {

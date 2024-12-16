@@ -82,7 +82,10 @@ class DistrictController extends Controller
 
                 return redirect()->back()->withErrors($validatedData->errors());
             }
-
+            activity()
+                ->performedOn($regency)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Kecamatan');
             flashMessage('Kecamatan Ditambahkan', 'Kecamatan berhasil ditambahkan');
             DB::commit();
         } catch (\Throwable $th) {

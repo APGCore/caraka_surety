@@ -54,6 +54,10 @@ class DocumentRequiredController extends Controller
         ]);
 
         flashMessage('Data Required Dokumen', 'Produk berhasil ditambahkan !');
+        activity()
+            ->performedOn(new RequiredDoc)
+            ->causedBy(auth()->user())
+            ->log('Menambahkan data required dokumen');
 
         return redirect()->route('document.index');
     }
@@ -103,6 +107,10 @@ class DocumentRequiredController extends Controller
         ]);
 
         flashMessage('Data Required Dokumen', 'Produk berhasil diperbarui !');
+        activity()
+            ->performedOn($requiredDoc)
+            ->causedBy(auth()->user())
+            ->log('Mengubah data required dokumen');
 
         return redirect()->route('document.index');
     }
@@ -118,12 +126,14 @@ class DocumentRequiredController extends Controller
 
             DB::commit();
             flashMessage('Required Dokumen', 'Required Dokumen berhasil dihapus');
-            Log::info('Produk Delete: '.json_encode($requiredDoc, JSON_PRETTY_PRINT));
+            activity()
+                ->performedOn($requiredDoc)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data required dokumen');
             Log::info('Produk Delete: '.json_encode($requiredDoc, JSON_PRETTY_PRINT));
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Required Document', 'Terjadi kesalahan saat menghapus document required', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();

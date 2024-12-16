@@ -28,7 +28,7 @@ class ExampleController extends Controller
 
         return inertia('example/karyawan/index', [
             'page_settings' => [
-                'title' => 'Karyawan',
+                'title' => 'Pengguna',
             ],
             'users' => fn () => $users,
         ]);

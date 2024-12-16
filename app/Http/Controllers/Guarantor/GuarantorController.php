@@ -84,6 +84,10 @@ class GuarantorController extends Controller
                 'suffix' => $requestValid['suffix'],
             ]);
 
+            activity()
+                ->performedOn($guarantor)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data asuransi');
             flashMessage('Berhasil', 'Penambahan data asuransi berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -147,6 +151,10 @@ class GuarantorController extends Controller
                 $guarantor->pattern->update($patternData);
             }
 
+            activity()
+                ->performedOn($guarantor)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data asuransi');
             flashMessage('Berhasil', 'Perubahan data asuransi berhasil');
             DB::commit();
         } catch (\Exception $e) {
@@ -167,6 +175,10 @@ class GuarantorController extends Controller
             $this->deleteFile($picture);
             $guarantor->delete();
 
+            activity()
+                ->performedOn($guarantor)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data asuransi');
             flashMessage('Berhasil', 'Data asuransi berhasil dihapus');
             DB::commit();
 

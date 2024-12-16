@@ -75,6 +75,10 @@ class RegencyController extends Controller
                     'name' => $request->get('name'),
                 ]);
 
+            activity()
+                ->performedOn($regency)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Kabupaten');
             flashMessage('Kabupaten Ditambahkan', 'Kabupaten berhasil ditambahkan');
             DB::commit();
         } catch (\Throwable $th) {

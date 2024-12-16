@@ -80,7 +80,7 @@ const data = {
           url: "#",
         },
         {
-          title: "Karyawan",
+          title: "Pengguna",
           url: "#",
         },
       ],

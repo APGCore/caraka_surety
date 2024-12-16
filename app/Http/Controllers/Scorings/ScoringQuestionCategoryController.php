@@ -85,7 +85,10 @@ class ScoringQuestionCategoryController extends Controller
             // Create Scoring Question Category
             ScoringQuestionCategory::query()
                 ->create($request->only('name', 'max_point', 'scoring_id'));
-
+            activity()
+                ->performedOn(new ScoringQuestionCategory)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Kategori Pertanyaan Skoring');
             DB::commit();
 
             return $this->responseSuccess('Kategori Pertanyaan Skoring berhasil ditambahkan!');
@@ -145,7 +148,10 @@ class ScoringQuestionCategoryController extends Controller
 
             if ($scoringQuestionCategory->exists) {
                 $scoringQuestionCategory->update($request->only('name', 'max_point', 'scoring_id'));
-
+                activity()
+                    ->performedOn($scoringQuestionCategory)
+                    ->causedBy(auth()->user())
+                    ->log('Mengubah Kategori Pertanyaan Skoring');
                 DB::commit();
 
                 return $this->responseSuccess('Kategori Pertanyaan Skoring berhasil ditambahkan!');
@@ -173,8 +179,12 @@ class ScoringQuestionCategoryController extends Controller
 
             if ($scoringQuestionCategory->exists) {
                 $scoringQuestionCategory->delete();
-                DB::commit();
+                activity()
+                    ->performedOn($scoringQuestionCategory)
+                    ->causedBy(auth()->user())
+                    ->log('Menghapus Kategori Pertanyaan Skoring');
                 flashMessage('Kategori Pertanyaan Skoring Dihapus', 'Kategori Pertanyaan Skoring berhasil dihapus');
+                DB::commit();
             } else {
                 throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
             }

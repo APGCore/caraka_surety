@@ -40,7 +40,10 @@ class SourceOfFundController extends Controller
         try {
             DB::beginTransaction();
             SourceOfFund::create($request->all());
-
+            activity()
+                ->performedOn(new SourceOfFund)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan sumber dana baru');
             DB::commit();
 
             return $this->responseSuccess('Sumber Dana berhasil ditambahkan');
@@ -65,7 +68,10 @@ class SourceOfFundController extends Controller
         try {
             DB::beginTransaction();
             $sourceOfFund->update($request->all());
-
+            activity()
+                ->performedOn($sourceOfFund)
+                ->causedBy(auth()->user())
+                ->log('Mengubah sumber dana');
             DB::commit();
 
             return $this->responseSuccess('Sumber Dana berhasil diubah');
@@ -86,7 +92,10 @@ class SourceOfFundController extends Controller
         try {
             DB::beginTransaction();
             $sourceOfFund->delete();
-
+            activity()
+                ->performedOn($sourceOfFund)
+                ->causedBy(auth()->user())
+                ->log('Menghapus sumber dana');
             flashMessage('Success', 'Sumber Dana berhasil dihapus');
             DB::commit();
         } catch (\Exception $e) {

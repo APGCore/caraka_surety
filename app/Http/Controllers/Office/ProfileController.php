@@ -55,6 +55,10 @@ class ProfileController extends Controller
             Profile::query()
                 ->create($requestValidated);
 
+            activity()
+                ->performedOn(new Profile)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Kantor Cabang');
             flashMessage('Kantor Cabang Ditambahkan', 'Kantor Cabang berhasil ditambahkan');
             DB::commit();
 
@@ -87,7 +91,10 @@ class ProfileController extends Controller
             DB::beginTransaction();
             $requestValidated = $request->validated();
             $profile->update($requestValidated);
-
+            activity()
+                ->performedOn($profile)
+                ->causedBy(auth()->user())
+                ->log('Mengubah Kantor Cabang');
             flashMessage('Kantor Cabang Diperbarui', 'Kantor Cabang berhasil diperbarui');
             DB::commit();
 
@@ -111,7 +118,10 @@ class ProfileController extends Controller
             } else {
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
-
+            activity()
+                ->performedOn($profile)
+                ->causedBy(auth()->user())
+                ->log('Menghapus Kantor Cabang');
             flashMessage('Kantor Cabang Dihapus', 'Kantor Cabang berhasil dihapus');
             DB::commit();
         } catch (\Throwable $th) {

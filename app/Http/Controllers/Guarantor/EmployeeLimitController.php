@@ -71,7 +71,7 @@ class EmployeeLimitController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Pembagian Limit per Karyawan',
+                'title' => 'Pembagian Limit per Pengguna',
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
@@ -103,7 +103,7 @@ class EmployeeLimitController extends Controller
                 'guarantor_id.required' => 'Kantor belum dipilih',
                 'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
                 'profile_id.required' => 'Profil belum dipilih',
-                'employee_id.required' => 'Karyawan belum dipilih',
+                'employee_id.required' => 'Pengguna belum dipilih',
                 'limit.required' => 'Limit wajib diisi',
             ]
         );
@@ -134,14 +134,18 @@ class EmployeeLimitController extends Controller
                 ]
             );
 
+            activity()
+                ->performedOn(new EmployeeLimit)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan limit pengguna baru');
             DB::commit();
 
-            return $this->responseSuccess('Berhasil menambahkan limit karyawan');
+            return $this->responseSuccess('Berhasil menambahkan limit pengguna');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error store profile limit', ['error' => $e->getMessage()]);
 
-            return $this->responseError('Gagal menambahkan limit karyawan', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal menambahkan limit pengguna', ['message' => $e->getMessage()]);
         }
     }
 
@@ -180,17 +184,17 @@ class EmployeeLimitController extends Controller
                 ]
             );
             if (! $updated) {
-                throw new \Exception('Gagal mengubah limit karyawan');
+                throw new \Exception('Gagal mengubah limit pengguna');
             }
 
             DB::commit();
 
-            return $this->responseSuccess('Berhasil mengubah limit karyawan');
+            return $this->responseSuccess('Berhasil mengubah limit pengguna');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error update profile limit', ['error' => $e->getMessage()]);
 
-            return $this->responseError('Gagal mengubah limit karyawan', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal mengubah limit pengguna', ['message' => $e->getMessage()]);
         }
     }
 
@@ -204,7 +208,7 @@ class EmployeeLimitController extends Controller
 
             $deleted = $employeeLimit->delete();
             if (! $deleted) {
-                throw new \Exception('Gagal menghapus limit karyawan');
+                throw new \Exception('Gagal menghapus limit pengguna');
             }
 
             DB::commit();
