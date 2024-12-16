@@ -19,15 +19,17 @@ class BranchGuarantorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, Guarantor $guarantor)
     {
         $guarantors = Guarantor::search($request->get('search'))
-            ->query(function ($query) {
-                return $query->with([
-                    'province',
-                    'regency',
-                    'district',
-                ]);
+            ->query(function ($query) use ($guarantor) {
+                return $query
+                    ->where('headquarter_id', $guarantor->getAttribute('id'))
+                    ->with([
+                        'province',
+                        'regency',
+                        'district',
+                    ]);
             })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
@@ -35,11 +37,11 @@ class BranchGuarantorController extends Controller
             ->appends($request->all());
 
         $resource = GuarantorResource::collection($guarantors);
-        $component = $request->path().'/index';
+        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Data Asuransi',
+                'title' => 'Data Cabang Asuransi',
             ],
             'guarantors' => fn () => $resource,
         ]);

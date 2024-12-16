@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Guarantor\BlankController;
+use App\Http\Controllers\Guarantor\BranchGuarantorController;
 use App\Http\Controllers\Guarantor\DistributionOfBlankController;
 use App\Http\Controllers\Guarantor\EmployeeLimitController;
 use App\Http\Controllers\Guarantor\GuarantorController;
@@ -20,6 +21,14 @@ Route::prefix('guarantor-management')->group(function () {
         Route::delete('destroy/{guarantor}', 'destroy')->name('destroy');
     });
 
+    Route::controller(BranchGuarantorController::class)->prefix('branch-guarantor')->name('branch-guarantor.')->group(function () {
+        Route::get('/{guarantor}', 'index')->name('index');
+        Route::get('create', 'create')->name('create');
+        Route::post('store', 'store')->name('store');
+        Route::get('edit/{branchGuarantor}', 'edit')->name('edit');
+        Route::post('update/{branchGuarantor}', 'update')->name('update');
+        Route::delete('destroy/{branchGuarantor}', 'destroy')->name('destroy');
+    });
     Route::prefix('product-guarantor')->name('product-guarantor.')->group(function () {
         Route::get('/', [GuarantorToProductTypeController::class, 'index'])->name('index');
         Route::get('get-by-guarantor/{guarantorId}', [GuarantorToProductTypeController::class, 'getByGuarantor'])->name('get-by-guarantor');
