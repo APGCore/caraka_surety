@@ -64,31 +64,31 @@ class GuarantorToProductTypeController extends Controller
             $data->each(function ($item) use ($requestValid) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
                 $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
-                $guarantorToProductType = GuarantorToProductType::query()
+                GuarantorToProductType::query()
                     ->updateOrCreate([
                         'id' => $item['id'] ?? null,
                     ], $item);
-                $item['id'] = $guarantorToProductType->id ?? null;
             });
 
-            if ($data->isNotEmpty()) {
-                $dataIds = $data->pluck('id')->unique()->filter();
-                $productId = $data->pluck('product_id')->unique()->first();
-                GuarantorToProductType::query()
-                    ->where([
-                        'guarantor_id' => $requestValid['guarantor_id'],
-                        'product_id' => $productId,
-                    ])
-                    ->whereNotIn('id', $dataIds)
-                    ->delete();
+            $guaratorProduct = GuarantorToProductType::query()
+                ->where([
+                    'guarantor_id' => $requestValid['guarantor_id'],
+                    'product_id' => $data->pluck('product_id')->first(),
+                ]);
+            if ($guaratorProduct->get()->isNotEmpty()) {
+                $dataIds = $guaratorProduct->get()->pluck('id')->unique()->filter();
+                $guaratorProduct->whereNotIn('id', $dataIds)->delete();
             }
             activity()
                 ->performedOn(new Guarantor)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data produk asuransi');
 
+            DB::commit();
+
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error store guarantor to product type', [
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
