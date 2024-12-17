@@ -64,10 +64,11 @@ class GuarantorToProductTypeController extends Controller
             $data->each(function ($item) use ($requestValid) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
                 $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
-                GuarantorToProductType::query()
+                $guarantorToProductType = GuarantorToProductType::query()
                     ->updateOrCreate([
                         'id' => $item['id'] ?? null,
                     ], $item);
+                $item['id'] = $guarantorToProductType->id ?? null;
             });
 
             if ($data->isNotEmpty()) {
