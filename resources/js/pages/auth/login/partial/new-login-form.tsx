@@ -53,7 +53,7 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  placeholder="Masukan Username"
+                  placeholder="Enter Username"
                   required
                   value={data.username}
                   onChange={(e) => setData("username", e.target.value)}
@@ -69,7 +69,7 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
                   type="password"
                   required
                   value={data.password}
-                  placeholder="Masukan Password"
+                  placeholder="Enter Password"
                   onChange={(e) => setData("password", e.target.value)}
                 />
                 <InputError message={errors.password} className="mt-1" />
