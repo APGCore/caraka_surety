@@ -13,10 +13,10 @@ trait RegionTrait
      */
     public function syncApi($route, $query = []): array
     {
-        $url = env('BINDER_BYTE_API_URL').'/'.$route;
+        $url = config('app.binder_byte_api_url').'/'.$route;
         $response = Http::pool(function (Pool $pool) use ($url, $query) {
             $pool->get($url, [
-                'api_key' => env('BINDER_BYTE_API_KEY'),
+                'api_key' => config('app.binder_byte_api_key'),
                 ...$query,
             ]);
         });

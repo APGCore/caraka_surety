@@ -166,7 +166,6 @@ class DistrictController extends Controller
             $responses = $this->syncApi('kecamatan', [
                 'id_kabupaten' => $request->get('code'),
             ]);
-            dd($responses);
 
             // Ambil hasil dari permintaan
             $regency = Regency::query()
@@ -199,7 +198,7 @@ class DistrictController extends Controller
         $districts = District::query()
             ->where('regency_id', $regencyId)
             ->get();
-        if ($districts->isEmpty()) {
+        if ($districts->isEmpty() && $regency) {
             $this->synchronize(new Request(['code' => $regency->code]));
             $districts = District::query()
                 ->where('regency_id', $regencyId)

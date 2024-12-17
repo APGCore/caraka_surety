@@ -1,28 +1,28 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
 import { Head } from "@inertiajs/react";
 import React from "react";
 
 interface GuarantorHeaderProps {
   title: string;
+  route: string;
 }
 
-const GuarantorHeader: React.FC<GuarantorHeaderProps> = ({ title }) => {
+const BranchGuarantorHeader: React.FC<GuarantorHeaderProps> = ({ title, route }) => {
   return (
     <>
-      <Head title={title ?? "Asuransi"} />
+      <Head title={title ?? "Cabang Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(GuarantorUtils.link.index)}>Kelola {title ?? "Asuransi"}</BreadcrumbLink>
+            <BreadcrumbLink href={route}>Kelola {title ?? "Cabang Asuransi"}</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Asuransi"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Cabang Asuransi"}</h1>
       </div>
     </>
   );
 };
 
-export default GuarantorHeader;
+export default BranchGuarantorHeader;

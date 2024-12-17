@@ -68,7 +68,7 @@ class StoreRequest extends FormRequest
             'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
             'principal.documents.*.required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
             'principal.documents.*.required_doc_name' => ['required', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
-            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
+            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:1024'], // file dokumen wajib
 
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],

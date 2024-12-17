@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
-import FormGuarantor from "@/pages/admin/guarantor-management/guarantor/_partials/form-guarantor";
+import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
 import GuarantorHeader from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-header";
 import { GuarantorCreatePageProps } from "@/pages/admin/guarantor-management/guarantor/create/guarantor-create-page.type";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
@@ -10,10 +10,10 @@ const GuarantorCreatePage: GuarantorCreatePageProps = () => {
     <Card className="w-[800px] mx-auto">
       <CardHeader>
         <CardTitle>Membuat Data Asuransi</CardTitle>
-        <CardDescription>Untuk membuat data asuransi (Principal) baru</CardDescription>
+        <CardDescription>Untuk membuat data asuransi baru</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormGuarantor routeSubmit={route(GuarantorUtils.link.store)} routeBack={route(GuarantorUtils.link.index)} />
+        <GuarantorForm routeSubmit={route(GuarantorUtils.link.store)} routeBack={route(GuarantorUtils.link.index)} />
       </CardContent>
     </Card>
   );

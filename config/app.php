@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'binder_byte_api_url' => env('BINDER_BYTE_API_URL', 'https://api.binderbyte.com/wilayah'),
+    'binder_byte_api_key' => env('BINDER_BYTE_API_KEY', ''),
 ];

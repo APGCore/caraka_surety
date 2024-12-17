@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Guarantor;
+namespace App\Http\Requests\Guarantor\Branch;
 
+use App\Models\Guarantor\Guarantor;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -22,6 +23,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'headquarter_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
             'code' => ['required', 'string', 'max:32'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],

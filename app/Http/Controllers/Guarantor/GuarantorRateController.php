@@ -20,7 +20,7 @@ class GuarantorRateController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
-        $guarantors = Guarantor::with(['product', 'productType'])->get();
+        $guarantors = Guarantor::with(['head', 'product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
 
         $products = $guarantor->product?->unique();

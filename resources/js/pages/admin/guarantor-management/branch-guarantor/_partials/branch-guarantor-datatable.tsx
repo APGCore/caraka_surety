@@ -27,11 +27,11 @@ import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
-interface GuarantorDatatableProps {
-  guarantors: any;
+interface BranchGuarantorDatatableProps {
+  branchGuarantors: any;
 }
 
-const GuarantorDatatable: React.FC<GuarantorDatatableProps> = ({ guarantors }) => {
+const BranchGuarantorDatatable: React.FC<BranchGuarantorDatatableProps> = ({ branchGuarantors }) => {
   const deleteProduct = (product: any) => {
     router.delete(route(GuarantorUtils.link.destroy, product.id));
   };
@@ -50,10 +50,10 @@ const GuarantorDatatable: React.FC<GuarantorDatatableProps> = ({ guarantors }) =
           </TableRow>
         </TableHeader>
         <TableBody>
-          {guarantors?.data?.length > 0 ? (
-            guarantors?.data?.map((guarantor: any, index: number) => (
+          {branchGuarantors?.data?.length > 0 ? (
+            branchGuarantors?.data?.map((guarantor: any, index: number) => (
               <TableRow key={guarantor.id}>
-                <TableCell>{guarantors?.meta?.from + index}</TableCell>
+                <TableCell>{branchGuarantors?.meta?.from + index}</TableCell>
                 <TableCell>{guarantor.pic}</TableCell>
                 <TableCell>{guarantor.code}</TableCell>
                 <TableCell>{guarantor.name}</TableCell>
@@ -151,10 +151,9 @@ const GuarantorDatatable: React.FC<GuarantorDatatableProps> = ({ guarantors }) =
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your product and remove your
-                                data from our servers.
+                                Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus data.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -184,10 +183,10 @@ const GuarantorDatatable: React.FC<GuarantorDatatableProps> = ({ guarantors }) =
           )}
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={guarantors?.meta} />
-      <PaginationDatatable meta={guarantors?.meta} only={["guarantors"]} />
+      <ShowingCountDatatable meta={branchGuarantors?.meta} />
+      <PaginationDatatable meta={branchGuarantors?.meta} only={["guarantors"]} />
     </>
   );
 };
 
-export default GuarantorDatatable;
+export default BranchGuarantorDatatable;

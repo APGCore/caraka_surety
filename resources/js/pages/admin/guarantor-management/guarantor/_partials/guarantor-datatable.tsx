@@ -151,10 +151,9 @@ const GuarantorDatatable: React.FC<GuarantorDatatableProps> = ({ guarantors }) =
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogTitle>Apakah anda yakin?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your product and remove your
-                                data from our servers.
+                                Tindakan ini tidak dapat dibatalkan. Tindakan ini akan menghapus data.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

@@ -85,7 +85,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
             valueKey={"name"}
             defaultValue={guarantorSelected}
             placeholder={"Pilih Penjamin"}
-            className={"w-[210px]"}
+            className={"min-w-[160px]"}
             shortValue={true}
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
@@ -95,7 +95,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
             valueKey={"name"}
             defaultValue={productSelected}
             placeholder={"Pilih Produk"}
-            className={"w-[210px]"}
+            className={"min-w-[160px]"}
             shortValue={true}
             onSelect={(value) => handleSelectProduct(value.id)}
           />

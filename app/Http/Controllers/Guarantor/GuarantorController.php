@@ -23,11 +23,14 @@ class GuarantorController extends Controller
     {
         $guarantors = Guarantor::search($request->get('search'))
             ->query(function ($query) {
-                return $query->with([
-                    'province',
-                    'regency',
-                    'district',
-                ]);
+                return $query
+                    ->whereNull('headquarter_id')
+                    ->with([
+                        'head',
+                        'province',
+                        'regency',
+                        'district',
+                    ]);
             })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
@@ -195,6 +198,7 @@ class GuarantorController extends Controller
     public function getAll()
     {
         $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')
             ->orderBy('name')
             ->get();
 

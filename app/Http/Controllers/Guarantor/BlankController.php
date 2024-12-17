@@ -7,6 +7,7 @@ use App\Http\Requests\Guarantor\Blank\StoreMultiRequest;
 use App\Http\Requests\Guarantor\Blank\StoreRequest;
 use App\Http\Requests\Guarantor\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
+use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use Illuminate\Http\JsonResponse;
@@ -21,8 +22,10 @@ class BlankController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
-        $guarantors = Guarantor::all();
+        $guarantors = Guarantor::with(['head', 'province', 'regency', 'district'])
+            ->get();
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
+        $guarantors = GuarantorResource::collection($guarantors);
 
         $blanks = Blank::search($request->get('search'))
             ->where('guarantor_id', $guarantorSelected)
@@ -38,7 +41,7 @@ class BlankController extends Controller
             'page_settings' => [
                 'title' => 'Penerimaan Blangko',
             ],
-            'guarantors' => $guarantors,
+            'guarantors' => $guarantors->toArray($request),
             'guarantorSelected' => $guarantorSelected,
             'blanks' => fn () => $blankResource,
         ]);

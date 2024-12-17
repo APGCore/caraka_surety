@@ -12,23 +12,26 @@ use App\Http\Controllers\Guarantor\ProfileLimitController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('guarantor-management')->group(function () {
-    Route::controller(GuarantorController::class)->prefix('guarantor')->name('guarantor.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('create', 'create')->name('create');
-        Route::post('store', 'store')->name('store');
-        Route::get('edit/{guarantor}', 'edit')->name('edit');
-        Route::post('update/{guarantor}', 'update')->name('update');
-        Route::delete('destroy/{guarantor}', 'destroy')->name('destroy');
-    });
+    Route::controller(GuarantorController::class)->prefix('guarantor')->name('guarantor.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
+            Route::get('edit/{guarantor}', 'edit')->name('edit');
+            Route::post('update/{guarantor}', 'update')->name('update');
+            Route::delete('destroy/{guarantor}', 'destroy')->name('destroy');
 
-    Route::controller(BranchGuarantorController::class)->prefix('branch-guarantor')->name('branch-guarantor.')->group(function () {
-        Route::get('/{guarantor}', 'index')->name('index');
-        Route::get('create', 'create')->name('create');
-        Route::post('store', 'store')->name('store');
-        Route::get('edit/{branchGuarantor}', 'edit')->name('edit');
-        Route::post('update/{branchGuarantor}', 'update')->name('update');
-        Route::delete('destroy/{branchGuarantor}', 'destroy')->name('destroy');
-    });
+            Route::controller(BranchGuarantorController::class)->prefix('branch')->name('branch.')
+                ->group(function () {
+                    Route::get('/{guarantor}', 'index')->name('index');
+                    Route::get('create/{guarantor}', 'create')->name('create');
+                    Route::post('store', 'store')->name('store');
+                    Route::get('edit/{branchGuarantor}', 'edit')->name('edit');
+                    Route::post('update/{branchGuarantor}', 'update')->name('update');
+                    Route::delete('destroy/{branchGuarantor}', 'destroy')->name('destroy');
+                });
+        });
+
     Route::prefix('product-guarantor')->name('product-guarantor.')->group(function () {
         Route::get('/', [GuarantorToProductTypeController::class, 'index'])->name('index');
         Route::get('get-by-guarantor/{guarantorId}', [GuarantorToProductTypeController::class, 'getByGuarantor'])->name('get-by-guarantor');

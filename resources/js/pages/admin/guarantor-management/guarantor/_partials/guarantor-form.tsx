@@ -21,7 +21,7 @@ interface Props {
   routeBack: string;
 }
 
-const FormGuarantor: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
+const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) => {
   const { data, setData, post, errors, processing } = useForm<{
     id: number | null;
     code: string;
@@ -484,4 +484,4 @@ const PopoverCustom = ({
   );
 };
 
-export default FormGuarantor;
+export default GuarantorForm;

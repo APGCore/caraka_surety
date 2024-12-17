@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prepare": "husky && chmod ug+x .husky/*"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@headlessui/react": "^2.0.0",

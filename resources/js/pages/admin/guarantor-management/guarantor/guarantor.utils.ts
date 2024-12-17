@@ -6,6 +6,6 @@ export const GuarantorUtils = {
     edit: "guarantor.edit",
     update: "guarantor.update",
     destroy: "guarantor.destroy",
-    branch: "branch-guarantor.index",
+    branch: "guarantor.branch.index",
   },
 };

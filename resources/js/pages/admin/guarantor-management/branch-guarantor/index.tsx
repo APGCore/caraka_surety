@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import GuarantorDatatable from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-datatable";
-import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";
+import BranchGuarantorDatatable from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-datatable";
+import { BranchGuarantorPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor-page.type";
+import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
 import { Head, Link, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
+const BranchGuarantorsPage: BranchGuarantorPageProps = ({ guarantor, branchGuarantors }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -27,7 +28,7 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
 
   const getData = (per_page: string, search: string) => {
     return router.get(
-      route(GuarantorUtils.link.index),
+      route(BranchGuarantorUtils.link.index),
       pickBy({
         per_page,
         search,
@@ -38,15 +39,18 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
 
   return (
     <main className="space-y-2.5">
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-center">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+        </div>
+        <div className="flex gap-x-3">
+          <h3 className="h-3">{guarantor.name}</h3>
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Asuransi"
+              placeholder="Cari Cabang Asuransi"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -54,31 +58,39 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
           </form>
         </div>
       </div>
-      <GuarantorDatatable guarantors={guarantors} />
+      <BranchGuarantorDatatable branchGuarantors={branchGuarantors} />
     </main>
   );
 };
 
-export default AdminProductsPage;
+export default BranchGuarantorsPage;
 
-AdminProductsPage.layout = (page: any) => {
+BranchGuarantorsPage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const params = { guarantor: pagePropsData.guarantor.id };
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Asuransi"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Cabang Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(GuarantorUtils.link.index)}>Kelola Asuransi</BreadcrumbLink>
+            <BreadcrumbLink href={route(BranchGuarantorUtils.link.index, params)}>
+              {pagePropsData?.page_settings?.title}
+            </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>
-          <Link href={route(GuarantorUtils.link.create)}>Tambah Asuransi</Link>
-        </Button>
+        <div>
+          <Button asChild className="mr-2" variant="outline">
+            <Link href={route(GuarantorUtils.link.index)}>Kembali</Link>
+          </Button>
+          <Button asChild>
+            <Link href={route(BranchGuarantorUtils.link.create, params)}>Tambah Cabang Asuransi</Link>
+          </Button>
+        </div>
       </div>
       {page}
     </AdminLayout>

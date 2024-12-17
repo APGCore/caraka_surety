@@ -38,6 +38,11 @@ class Guarantor extends Model
         ];
     }
 
+    public function head(): BelongsTo
+    {
+        return $this->belongsTo(Guarantor::class, 'headquarter_id');
+    }
+
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);

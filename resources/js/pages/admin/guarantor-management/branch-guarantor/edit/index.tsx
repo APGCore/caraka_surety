@@ -1,44 +1,41 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
-import FormGuarantor from "@/pages/admin/guarantor-management/guarantor/_partials/form-guarantor";
-import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-create-page.type";
-import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
-import { Head } from "@inertiajs/react";
+import BranchGuarantorForm from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-form";
+import BranchGuarantorHeader from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-header";
+import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
+import { BranchGuarantorEditPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/edit/branch-guarantor-edit-page.type";
 
-const GuarantorCreatePage: GuarantorEditPageProps = ({ guarantor }) => {
+const BranchGuarantorCreatePage: BranchGuarantorEditPageProps = ({ guarantor, branchGuarantor }) => {
   return (
     <Card className="w-[800px] mx-auto">
       <CardHeader>
-        <CardTitle>Mengubah Data Asuransi</CardTitle>
-        <CardDescription>Untuk mengubah data asuransi (Principal)</CardDescription>
+        <CardTitle>Mengubah Data Cabang Asuransi</CardTitle>
+        <CardDescription>Untuk mengubah data cabang asuransi</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormGuarantor
+        <BranchGuarantorForm
           guarantor={guarantor}
-          routeSubmit={route(GuarantorUtils.link.update, guarantor.id)}
-          routeBack={route(GuarantorUtils.link.index)}
+          branchGuarantor={branchGuarantor}
+          routeSubmit={route(BranchGuarantorUtils.link.update, branchGuarantor.id)}
+          routeBack={route(BranchGuarantorUtils.link.index)}
         />
       </CardContent>
     </Card>
   );
 };
 
-export default GuarantorCreatePage;
+export default BranchGuarantorCreatePage;
 
-GuarantorCreatePage.layout = (page: any) => {
+BranchGuarantorCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const params = { guarantor: pagePropsData.guarantor.id };
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <BranchGuarantorHeader
+        title={pagePropsData?.page_settings?.title}
+        route={route(BranchGuarantorUtils.link.index, params)}
+      />
       {page}
     </AdminLayout>
   );

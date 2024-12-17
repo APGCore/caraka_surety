@@ -19,7 +19,7 @@ class GuarantorToProductTypeController extends Controller
      */
     public function index()
     {
-        $guarantors = Guarantor::all();
+        $guarantors = Guarantor::query()->whereNull('headquarter_id')->get();
         $products = Product::all();
         $jobGroups = JobGroup::getValues();
         $jobTypes = JobType::getValues();
@@ -40,6 +40,7 @@ class GuarantorToProductTypeController extends Controller
     public function getByGuarantor($guarantorId)
     {
         $guarantor = Guarantor::query()
+            ->whereNull('headquarter_id')
             ->with(['guarantorToProductTypes', 'guarantorToProductTypes.product', 'guarantorToProductTypes.productType'])
             ->find($guarantorId);
         $productTypes = collect($guarantor->guarantorToProductTypes);
