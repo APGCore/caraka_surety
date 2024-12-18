@@ -80,14 +80,14 @@ export const adminRoute = {
       items: [
         {
           title: "Penerimaan Blangko",
-          route_name: "blank",
-          href: route("blank.index"),
+          route_name: "blank-management.blank",
+          href: route("blank-management.blank.index"),
           url: "#",
         },
         {
           title: "Pembagian Blangko",
-          route_name: "distribution-of-blank",
-          href: route("distribution-of-blank.index"),
+          route_name: "blank-management.distribution-of-blank",
+          href: route("blank-management.distribution-of-blank.index"),
           url: "#",
         },
       ],

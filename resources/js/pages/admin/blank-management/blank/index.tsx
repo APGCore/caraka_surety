@@ -31,7 +31,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BlankPageProps } from "@/pages/admin/guarantor-management/blank/blank-page.type";
+import { BlankPageProps } from "@/pages/admin/blank-management/blank/blank-page.type";
+import { BlankUtils } from "@/pages/admin/blank-management/blank/blank.utils";
 import { Head, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
@@ -90,7 +91,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
   const getData = (perPage: string, search: string, officeSelected: number) => {
     return router.get(
-      route("blank.index"),
+      route(BlankUtils.link.index),
       pickBy({
         per_page: perPage,
         search,
@@ -102,7 +103,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
 
   const setOffice = (office: any) => {
     return router.get(
-      route("blank.index"),
+      route(BlankUtils.link.index),
       pickBy({
         guarantor_id: office.id,
       }),
@@ -111,14 +112,14 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
   };
 
   const deleteData = (blank: any) => {
-    router.delete(route("blank.destroy", blank.id));
+    router.delete(route(BlankUtils.link.destroy, blank.id));
   };
 
   const createBlangko: FormEventHandler<HTMLFormElement> = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     axios
-      .post(route("blank.store"), { ...dataForm, guarantor_id: guarantorSelected })
+      .post(route(BlankUtils.link.store), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
         setOpenCreate(false);
         setdataForm(defaultDataForm);
@@ -143,7 +144,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     e.preventDefault();
     setIsLoading(true);
     axios
-      .post(route("blank.store.multi"), { ...dataCreateMulti, guarantor_id: guarantorSelected })
+      .post(route(BlankUtils.link.store_multi), { ...dataCreateMulti, guarantor_id: guarantorSelected })
       .then(() => {
         setOpenCreateMulti(false);
         setDataCreateMulti(defaultDataCreateMulti);
@@ -168,7 +169,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     e.preventDefault();
     setIsLoading(true);
     axios
-      .put(route("blank.update", dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
+      .put(route(BlankUtils.link.update, dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
         setOpenEdit(false);
         setdataForm(defaultDataForm);

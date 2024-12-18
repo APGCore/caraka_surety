@@ -15,6 +15,7 @@ Route::middleware(['auth', HandleRoleUsers::class.':'.RoleEnum::Admin->value])->
     require_once __DIR__.'/scoring.php';
     require_once __DIR__.'/obligee.php';
     require_once __DIR__.'/bank.php';
+    require_once __DIR__.'/blank.php';
     require_once __DIR__.'/principal.php';
     require_once __DIR__.'/report.php';
 });

@@ -83,7 +83,7 @@ class DistributionOfBlankController extends Controller
             flashMessage('Berhasil', 'Data berhasil disimpan');
             DB::commit();
 
-            return redirect()->route('distribution-of-blank.index', $requestValid);
+            return redirect()->route('blank-management.distribution-of-blank.index', $requestValid);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
@@ -113,7 +113,7 @@ class DistributionOfBlankController extends Controller
             flashMessage('Berhasil', 'Data berhasil dihapus');
             DB::commit();
 
-            return redirect()->route('distribution-of-blank.index', [
+            return redirect()->route('blank-management.distribution-of-blank.index', [
                 'guarantor_id' => $blank->getAttribute('guarantor_id'),
                 'office_id' => $blank->getAttribute('profile_id'),
             ]);

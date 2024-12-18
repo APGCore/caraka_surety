@@ -30,7 +30,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { DistributionBlankPageProps } from "@/pages/admin/guarantor-management/distribution-of-blank/distribution-of-blank-page.type";
+import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
+import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
@@ -83,7 +84,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
       });
     }
     router.post(
-      route("distribution-of-blank.store"),
+      route(DistributionOfBlankUtils.link.store),
       {
         blanks: selectedBlanks,
         office_id: officeSelected,
@@ -106,7 +107,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
     isAddBlankSelect: boolean = isAddBlank,
   ) => {
     return router.get(
-      route("distribution-of-blank.index"),
+      route(DistributionOfBlankUtils.link.index),
       pickBy({
         per_page: perPage,
         guarantor_id: guarantorSelected,
@@ -120,7 +121,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const setGuarantor = (guarantor: any) => {
     return router.get(
-      route("distribution-of-blank.index"),
+      route(DistributionOfBlankUtils.link.index),
       pickBy({
         guarantor_id: guarantor.id,
         office_id: officeSelected,
@@ -134,7 +135,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const setOffice = (office: any) => {
     return router.get(
-      route("distribution-of-blank.index"),
+      route(DistributionOfBlankUtils.link.index),
       pickBy({
         guarantor_id: guarantorSelected,
         office_id: office.id,
@@ -147,7 +148,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
   };
 
   const deleteData = (distributionOfBlank: any) => {
-    router.delete(route("distribution-of-blank.destroy", distributionOfBlank.id));
+    router.delete(route(DistributionOfBlankUtils.link.destroy, distributionOfBlank.id));
   };
 
   return (

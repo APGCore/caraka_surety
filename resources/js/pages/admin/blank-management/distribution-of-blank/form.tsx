@@ -2,6 +2,7 @@ import InputError from "@/components/common/input-error";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import { Input, PasswordInput } from "@/components/ui/input";
+import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { router } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
@@ -115,7 +116,7 @@ const Form: React.FC<Props> = ({ officeSelected, submitForm, data, setData, erro
         <SecondaryButton
           type="button"
           className="mr-3"
-          onClick={() => router.get(route("employee.index") + "?office_id=" + officeSelected)}>
+          onClick={() => router.get(route(DistributionOfBlankUtils.link.index) + "?office_id=" + officeSelected)}>
           Batal
         </SecondaryButton>
         <PrimaryButton type="submit">

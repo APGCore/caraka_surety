@@ -1,32 +1,32 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import AdminLayout from "@/layouts/admin";
-import Form from "@/pages/admin/guarantor-management/distribution-of-blank/form";
-import { EmployeePageEditProps } from "@/pages/admin/office-management/employee/edit/employee-edit-page.type";
+import Form from "@/pages/admin/blank-management/distribution-of-blank/form";
+import { EmployeePageCreateProps } from "@/pages/admin/office-management/employee/create/employee-create-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
-const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, employee }) => {
-  const { data, setData, patch, errors, processing } = useForm<{
+const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles }) => {
+  const { data, setData, post, errors, processing } = useForm<{
     name: string;
     email: string;
     phone: string;
-    role_id: number;
+    role_id: number | null;
     profile_id: number;
     password: string;
     password_confirmation: string;
   }>({
-    name: employee.name,
-    email: employee.email,
-    phone: employee.phone,
-    role_id: employee.role_id,
-    profile_id: employee.profile_id || officeSelected,
-    password: employee.password,
-    password_confirmation: employee.password,
+    name: "",
+    email: "",
+    phone: "",
+    role_id: null,
+    profile_id: officeSelected,
+    password: "",
+    password_confirmation: "",
   });
 
   const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
     event.preventDefault();
-    patch(route("employee.update", employee.id), {
+    post(route("employee.store"), {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
@@ -39,9 +39,9 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, empl
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
         <div className="bg-white shadow sm:rounded-lg sm:p-8 max-w-3xl w-full">
           <header>
-            <h2 className="text-lg font-medium text-gray-900">Ubah Pengguna</h2>
+            <h2 className="text-lg font-medium text-gray-900">Input Pengguna Baru</h2>
 
-            <p className="mt-1 text-sm text-gray-600">Untuk mengubah data pengguna</p>
+            <p className="mt-1 text-sm text-gray-600">Untuk membuat data pengguna baru</p>
           </header>
 
           <Form
