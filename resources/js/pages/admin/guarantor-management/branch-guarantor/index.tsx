@@ -12,7 +12,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const BranchGuarantorsPage: BranchGuarantorPageProps = ({ guarantor, branchGuarantors }) => {
+const BranchGuarantorsPage: BranchGuarantorPageProps = ({ branchGuarantors }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -42,9 +42,6 @@ const BranchGuarantorsPage: BranchGuarantorPageProps = ({ guarantor, branchGuara
       <div className="flex justify-between items-center">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
-        </div>
-        <div className="flex gap-x-3">
-          <h3 className="h-3">{guarantor.name}</h3>
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">

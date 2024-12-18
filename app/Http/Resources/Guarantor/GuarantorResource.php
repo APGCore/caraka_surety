@@ -17,7 +17,6 @@ class GuarantorResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
-            'name' => $this->resource->head ? $this->resource->head->name.' - '.$this->resource->name : $this->resource->name,
             'picture' => $this->resource->picture ? Storage::url($this->resource->picture) : null,
             'province' => $this->resource->province?->name,
             'regency' => $this->resource->regency?->name,

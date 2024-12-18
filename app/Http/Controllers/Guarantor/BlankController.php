@@ -7,7 +7,6 @@ use App\Http\Requests\Guarantor\Blank\StoreMultiRequest;
 use App\Http\Requests\Guarantor\Blank\StoreRequest;
 use App\Http\Requests\Guarantor\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
-use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use Illuminate\Http\JsonResponse;
@@ -22,10 +21,9 @@ class BlankController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
-        $guarantors = Guarantor::with(['head', 'province', 'regency', 'district'])
-            ->get();
-        $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
-        $guarantors = GuarantorResource::collection($guarantors);
+        $guarantors = Guarantor::with('head')
+            ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
+        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->id);
 
         $blanks = Blank::search($request->get('search'))
             ->where('guarantor_id', $guarantorSelected)
@@ -41,7 +39,7 @@ class BlankController extends Controller
             'page_settings' => [
                 'title' => 'Penerimaan Blangko',
             ],
-            'guarantors' => $guarantors->toArray($request),
+            'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
             'blanks' => fn () => $blankResource,
         ]);
@@ -119,6 +117,9 @@ class BlankController extends Controller
         $requestValidated = $request->validated();
         DB::beginTransaction();
         try {
+            if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
+                throw new \Exception('Blangko sudah digunakan', 400);
+            }
             $blank->update($requestValidated);
 
             activity()
@@ -132,7 +133,11 @@ class BlankController extends Controller
             Log::error('Error update blank', [$e->getMessage()]);
             DB::rollBack();
 
-            return $this->responseError('Blangko gagal diubah', [$e->getMessage()]);
+            if ($e->getCode() === 400) {
+                return $this->responseError($e->getMessage(), ['errors' => $e->getMessage()]);
+            } else {
+                return $this->responseError('Blangko gagal diubah', ['errors' => $e->getMessage()]);
+            }
         }
     }
 
@@ -143,6 +148,9 @@ class BlankController extends Controller
     {
         DB::beginTransaction();
         try {
+            if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
+                throw new \Exception('Blangko sudah digunakan', 400);
+            }
             $blank->delete();
 
             activity()
@@ -152,9 +160,13 @@ class BlankController extends Controller
             flashMessage('Berhasil', 'Blangko berhasil dihapus');
             DB::commit();
         } catch (\Exception $e) {
-            Log::error('Error destroy blank', [$e->getMessage()]);
             DB::rollBack();
-            flashMessage('Gagal', 'Blangko gagal dihapus', 'error');
+            Log::error('Error destroy blank', [$e->getMessage()]);
+            if ($e->getCode() === 400) {
+                flashMessage('Gagal', $e->getMessage(), 'error');
+            } else {
+                flashMessage('Gagal', 'Blangko gagal dihapus', 'error');
+            }
         }
     }
 }

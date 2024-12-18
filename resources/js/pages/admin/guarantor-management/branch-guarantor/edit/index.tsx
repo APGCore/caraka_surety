@@ -5,7 +5,7 @@ import BranchGuarantorHeader from "@/pages/admin/guarantor-management/branch-gua
 import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
 import { BranchGuarantorEditPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/edit/branch-guarantor-edit-page.type";
 
-const BranchGuarantorCreatePage: BranchGuarantorEditPageProps = ({ guarantor, branchGuarantor }) => {
+const BranchGuarantorEditPage: BranchGuarantorEditPageProps = ({ branchGuarantor }) => {
   return (
     <Card className="w-[800px] mx-auto">
       <CardHeader>
@@ -14,21 +14,21 @@ const BranchGuarantorCreatePage: BranchGuarantorEditPageProps = ({ guarantor, br
       </CardHeader>
       <CardContent>
         <BranchGuarantorForm
-          guarantor={guarantor}
+          guarantor={branchGuarantor.head}
           branchGuarantor={branchGuarantor}
           routeSubmit={route(BranchGuarantorUtils.link.update, branchGuarantor.id)}
-          routeBack={route(BranchGuarantorUtils.link.index)}
+          routeBack={route(BranchGuarantorUtils.link.index, { guarantor: branchGuarantor.headquarter_id })}
         />
       </CardContent>
     </Card>
   );
 };
 
-export default BranchGuarantorCreatePage;
+export default BranchGuarantorEditPage;
 
-BranchGuarantorCreatePage.layout = (page: any) => {
+BranchGuarantorEditPage.layout = (page: any) => {
   const pagePropsData = page.props;
-  const params = { guarantor: pagePropsData.guarantor.id };
+  const params = { guarantor: pagePropsData.branchGuarantor.headquarter_id };
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>

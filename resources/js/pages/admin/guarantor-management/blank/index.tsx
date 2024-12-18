@@ -182,7 +182,11 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
       .catch((error) => {
         setOpenEdit(true);
         setErrors(error.response.data.errors);
-        console.log(error.response);
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
       })
       .finally(() => {
         setIsLoading(false);
@@ -221,8 +225,8 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                     className="mt-1 block w-full"
                   />
 
-                  {(errors.number?.length ?? 0) > 0 &&
-                    errors.number?.map((error: string, index: number) => <InputError key={index} message={error} />)}
+                  {(errors?.number?.length ?? 0) > 0 &&
+                    errors?.number?.map((error: string, index: number) => <InputError key={index} message={error} />)}
                 </div>
 
                 <div className="flex justify-end gap-x-3">
@@ -355,106 +359,110 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{blank.number}</TableCell>
                   <TableCell>
-                    <Show when={blank.is_used === 1}>
+                    <Show when={blank.is_used}>
                       <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
                     </Show>
-                    <Show when={blank.is_used === 0}>
+                    <Show when={!blank.is_used}>
                       <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
                     </Show>
-                    <Show when={blank.is_broken === 0}>
-                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
-                    </Show>
-                    <Show when={blank.is_broken === 1}>
+                    <Show when={blank.is_broken}>
                       <Badge className="text-white bg-red-400 ml-2">Rusak</Badge>
+                    </Show>
+                    <Show when={!blank.is_broken}>
+                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                          <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
-                            <AlertDialogTrigger
-                              className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                              onClick={() =>
-                                setdataForm({
-                                  id: blank.id,
-                                  number: blank.number,
-                                })
-                              }>
-                              Ubah Blangko
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Edit Blangko</AlertDialogTitle>
-                                <AlertDialogDescription>Tindakan ini akan mengubah data Blangko</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <form onSubmit={(e) => updateBlangko(e)} className="mt-6 space-y-6">
-                                <div>
-                                  <Label htmlFor="number">Nomor Blangko</Label>
-                                  <Input
-                                    id="number"
-                                    value={dataForm.number}
-                                    onChange={(e) =>
-                                      setdataForm({
-                                        ...dataForm,
-                                        number: e.target.value,
-                                      })
-                                    }
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                  />
+                    <Show when={blank.is_used || blank.profile_id == null}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
+                            <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-36 mr-8 mt-1">
+                          <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                            <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
+                              <AlertDialogTrigger
+                                className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                                onClick={() =>
+                                  setdataForm({
+                                    id: blank.id,
+                                    number: blank.number,
+                                  })
+                                }>
+                                Ubah Blangko
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Edit Blangko</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tindakan ini akan mengubah data Blangko
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <form onSubmit={(e) => updateBlangko(e)} className="mt-6 space-y-6">
+                                  <div>
+                                    <Label htmlFor="number">Nomor Blangko</Label>
+                                    <Input
+                                      id="number"
+                                      value={dataForm.number}
+                                      onChange={(e) =>
+                                        setdataForm({
+                                          ...dataForm,
+                                          number: e.target.value,
+                                        })
+                                      }
+                                      type="text"
+                                      className="mt-1 block w-full"
+                                    />
 
-                                  {(errors.number?.length ?? 0) > 0 &&
-                                    errors.number?.map((error: string, index: number) => (
-                                      <InputError key={index} message={error} />
-                                    ))}
-                                </div>
+                                    {(errors?.number?.length ?? 0) > 0 &&
+                                      errors?.number?.map((error: string, index: number) => (
+                                        <InputError key={index} message={error} />
+                                      ))}
+                                  </div>
 
-                                <div className="flex justify-end gap-x-3">
-                                  <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
-                                  <Button type={"submit"} disabled={isLoading}>
-                                    Simpan
-                                  </Button>
-                                </div>
-                              </form>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog>
-                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                              Delete
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data blangko?
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => {
-                                    deleteData(blank);
-                                  }}
-                                  className={buttonVariants({ variant: "destructive" })}>
-                                  Lanjutkan Hapus
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                                  <div className="flex justify-end gap-x-3">
+                                    <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
+                                    <Button type={"submit"} disabled={isLoading}>
+                                      Simpan
+                                    </Button>
+                                  </div>
+                                </form>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                            <AlertDialog>
+                              <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                Delete
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tindakan ini akan menghapus data blangko?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => {
+                                      deleteData(blank);
+                                    }}
+                                    className={buttonVariants({ variant: "destructive" })}>
+                                    Lanjutkan Hapus
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </Show>
                   </TableCell>
                 </TableRow>
               ))

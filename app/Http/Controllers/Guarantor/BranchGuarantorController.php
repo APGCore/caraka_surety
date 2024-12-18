@@ -46,7 +46,7 @@ class BranchGuarantorController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Data Cabang Asuransi',
+                'title' => 'Data Cabang '.$guarantor->getAttribute('name'),
             ],
             'guarantor' => fn () => $guarantor,
             'branchGuarantors' => fn () => $resource,
@@ -102,12 +102,12 @@ class BranchGuarantorController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Guarantor $guarantor)
+    public function edit(Guarantor $branchGuarantor): \Inertia\Response
     {
-        $picture = $guarantor->getAttribute('picture') ?
-            Storage::url($guarantor->getAttribute('picture')) : '';
-        $guarantor->setAttribute('picture', $picture);
-        $guarantor->load('pattern');
+        $picture = $branchGuarantor->getAttribute('picture') ?
+            Storage::url($branchGuarantor->getAttribute('picture')) : '';
+        $branchGuarantor->setAttribute('picture', $picture);
+        $branchGuarantor->load(['pattern', 'head']);
 
         $component = $this->component.'edit/index';
 
@@ -115,21 +115,21 @@ class BranchGuarantorController extends Controller
             'page_settings' => [
                 'title' => 'Edit Cabang Asuransi',
             ],
-            'guarantor' => fn () => $guarantor,
+            'branchGuarantor' => fn () => $branchGuarantor,
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreRequest $request, Guarantor $guarantor): void
+    public function update(StoreRequest $request, Guarantor $branchGuarantor): void
     {
         try {
             DB::beginTransaction();
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $picture = $guarantor->getAttribute('picture') ?? null;
+                $picture = $branchGuarantor->getAttribute('picture') ?? null;
                 if ($picture) {
                     $this->deleteFile($picture);
                 }
@@ -138,10 +138,10 @@ class BranchGuarantorController extends Controller
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
-            $guarantor->update($requestValid);
+            $branchGuarantor->update($requestValid);
 
             activity()
-                ->performedOn($guarantor)
+                ->performedOn($branchGuarantor)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data cabang asuransi');
             flashMessage('Berhasil', 'Perubahan data cabang asuransi berhasil');
@@ -156,16 +156,16 @@ class BranchGuarantorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Guarantor $guarantor)
+    public function destroy(Guarantor $branchGuarantor)
     {
         try {
             DB::beginTransaction();
-            $picture = $guarantor->getAttribute('picture') ?? '';
+            $picture = $branchGuarantor->getAttribute('picture') ?? '';
             $this->deleteFile($picture);
-            $guarantor->delete();
+            $branchGuarantor->delete();
 
             activity()
-                ->performedOn($guarantor)
+                ->performedOn($branchGuarantor)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data cabang asuransi');
             flashMessage('Berhasil', 'Data cabang asuransi berhasil dihapus');

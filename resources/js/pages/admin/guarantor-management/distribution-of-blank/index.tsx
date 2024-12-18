@@ -1,5 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -13,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -234,6 +236,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
               )}
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nomor Blangko</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
@@ -258,51 +261,59 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   )}
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{blank.number}</TableCell>
+                  <TableCell>
+                    <Show when={blank.is_used}>
+                      <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
+                    </Show>
+                    <Show when={!blank.is_used}>
+                      <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
+                    </Show>
+                    <Show when={blank.is_broken}>
+                      <Badge className="text-white bg-red-400 ml-2">Rusak</Badge>
+                    </Show>
+                    <Show when={!blank.is_broken}>
+                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
+                    </Show>
+                  </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                          <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        {/*<DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>*/}
-                        {/*  <Link*/}
-                        {/*    href={route("distribution-of-blank.edit", blank.id) + "?office_id=" + officeSelected}*/}
-                        {/*    className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">*/}
-                        {/*    Edit*/}
-                        {/*  </Link>*/}
-                        {/*</DropdownMenuItem>*/}
-                        {/*<DropdownMenuSeparator />*/}
-                        <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog>
-                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                              Delete
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tindakan ini akan menghapus data pengguna {blank.name}?
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => {
-                                    deleteData(blank);
-                                  }}
-                                  className={buttonVariants({ variant: "destructive" })}>
-                                  Lanjutkan Hapus
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Show when={!blank.is_used || blank.is_approved}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
+                            <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-36 mr-8 mt-1">
+                          <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
+                            <AlertDialog>
+                              <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                Delete
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tindakan ini akan menghapus data pengguna {blank.name}?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => {
+                                      deleteData(blank);
+                                    }}
+                                    className={buttonVariants({ variant: "destructive" })}>
+                                    Lanjutkan Hapus
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </Show>
                   </TableCell>
                 </TableRow>
               ))

@@ -43,6 +43,11 @@ class Guarantor extends Model
         return $this->belongsTo(Guarantor::class, 'headquarter_id');
     }
 
+    public function branch(): HasMany
+    {
+        return $this->hasMany(Guarantor::class, 'headquarter_id');
+    }
+
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
@@ -61,16 +66,6 @@ class Guarantor extends Model
     public function guarantorToProductTypes(): HasMany
     {
         return $this->hasMany(GuarantorToProductType::class, 'guarantor_id')->orderBy('id');
-    }
-
-    public function headquarter(): BelongsTo
-    {
-        return $this->belongsTo(Guarantor::class, 'headquarter_id');
-    }
-
-    public function branchGuarantors(): HasMany
-    {
-        return $this->hasMany(Guarantor::class, 'headquarter_id');
     }
 
     public function profileLimit(): BelongsToMany

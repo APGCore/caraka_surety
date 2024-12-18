@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
+import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
@@ -33,7 +33,7 @@ interface BranchGuarantorDatatableProps {
 
 const BranchGuarantorDatatable: React.FC<BranchGuarantorDatatableProps> = ({ branchGuarantors }) => {
   const deleteProduct = (product: any) => {
-    router.delete(route(GuarantorUtils.link.destroy, product.id));
+    router.delete(route(BranchGuarantorUtils.link.destroy, product.id));
   };
 
   return (
@@ -130,16 +130,8 @@ const BranchGuarantorDatatable: React.FC<BranchGuarantorDatatableProps> = ({ bra
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link
-                          className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                          href={route(GuarantorUtils.link.branch, guarantor.id)}>
-                          Daftar Cabang
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link
                           className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-ember-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                          href={route(GuarantorUtils.link.edit, guarantor.id)}>
+                          href={route(BranchGuarantorUtils.link.edit, guarantor.id)}>
                           Edit
                         </Link>
                       </DropdownMenuItem>
@@ -163,7 +155,7 @@ const BranchGuarantorDatatable: React.FC<BranchGuarantorDatatableProps> = ({ bra
                                   deleteProduct(guarantor);
                                 }}
                                 className={buttonVariants({ variant: "destructive" })}>
-                                Continue Delete Asuransi
+                                Lanjut Hapus Cabang Asuransi
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -184,7 +176,7 @@ const BranchGuarantorDatatable: React.FC<BranchGuarantorDatatableProps> = ({ bra
         </TableBody>
       </Table>
       <ShowingCountDatatable meta={branchGuarantors?.meta} />
-      <PaginationDatatable meta={branchGuarantors?.meta} only={["guarantors"]} />
+      <PaginationDatatable meta={branchGuarantors?.meta} only={["branchGuarantors"]} />
     </>
   );
 };

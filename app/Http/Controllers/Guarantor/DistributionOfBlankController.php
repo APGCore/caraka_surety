@@ -18,7 +18,8 @@ class DistributionOfBlankController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::all();
+        $guarantors = Guarantor::with('head')
+            ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
         $offices = Profile::all();
         $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
@@ -82,7 +83,7 @@ class DistributionOfBlankController extends Controller
             flashMessage('Berhasil', 'Data berhasil disimpan');
             DB::commit();
 
-            return redirect()->route('distribution-of-blank.index');
+            return redirect()->route('distribution-of-blank.index', $requestValid);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
@@ -100,16 +101,22 @@ class DistributionOfBlankController extends Controller
     {
         try {
             DB::beginTransaction();
-            Blank::query()
-                ->find($blank->getAttribute('id'))
-                ->update([
-                    'profile_id' => null,
-                ]);
+            if ($blank->getAttribute('is_used')) {
+                flashMessage('Gagal', 'Blangko sudah digunakan', 'error');
+
+                return back()->withErrors(['errors' => 'Blangko sudah digunakan']);
+            }
+            $blank->update([
+                'profile_id' => null,
+            ]);
 
             flashMessage('Berhasil', 'Data berhasil dihapus');
             DB::commit();
 
-            return redirect()->route('distribution-of-blank.index');
+            return redirect()->route('distribution-of-blank.index', [
+                'guarantor_id' => $blank->getAttribute('guarantor_id'),
+                'office_id' => $blank->getAttribute('profile_id'),
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@destroy: {$e->getMessage()}");
