@@ -83,6 +83,7 @@ class DistrictController extends Controller
                 return redirect()->back()->withErrors($validatedData->errors());
             }
             activity()
+                ->useLog('district')
                 ->performedOn($regency)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Kecamatan');

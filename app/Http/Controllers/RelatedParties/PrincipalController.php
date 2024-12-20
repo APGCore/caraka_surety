@@ -145,6 +145,7 @@ class PrincipalController extends Controller
 
             $principal->update($request->validated());
             activity()
+                ->useLog('principal')
                 ->performedOn($principal)
                 ->causedBy(auth()->user())
                 ->log('update data principal');
@@ -173,6 +174,7 @@ class PrincipalController extends Controller
                 throw new ThrottleRequestsException('Data Obligee tidak ditemukan');
             }
             activity()
+                ->useLog('principal')
                 ->performedOn($principal)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data obligee');

@@ -129,6 +129,7 @@ class AuthenticatedSessionController extends Controller
     private function activityLogin($description): void
     {
         activity()
+            ->useLog('authentication')
             ->performedOn(new User)
             ->causedBy(auth()->user())
             ->log($description);

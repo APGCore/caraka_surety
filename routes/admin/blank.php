@@ -17,5 +17,8 @@ Route::prefix('blank-management')->name('blank-management.')->group(function () 
         Route::get('/', [DistributionOfBlankController::class, 'index'])->name('index');
         Route::post('store', [DistributionOfBlankController::class, 'store'])->name('store');
         Route::delete('destroy/{blank}', [DistributionOfBlankController::class, 'destroy'])->name('destroy');
+        Route::get('/get-blank-distributed', [DistributionOfBlankController::class, 'getBlankDistributed'])->name('get-blank-distributed');
+        Route::get('/get-blank-range', [DistributionOfBlankController::class, 'getBlankRange'])->name('get-blank-range');
+        Route::post('/store-transfer', [DistributionOfBlankController::class, 'storeTransfer'])->name('store-transfer');
     });
 });

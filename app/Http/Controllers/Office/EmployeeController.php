@@ -101,6 +101,7 @@ class EmployeeController extends Controller
             $user = User::query()
                 ->create($requestValid);
             activity()
+                ->useLog('employee')
                 ->performedOn($user)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data pengguna');
@@ -182,6 +183,7 @@ class EmployeeController extends Controller
             $user = User::query()->find($employee->getAttribute('id'));
             $user->update($requestValid);
             activity()
+                ->useLog('employee')
                 ->performedOn($user)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data pengguna');
@@ -224,6 +226,7 @@ class EmployeeController extends Controller
                 throw new ThrottleRequestsException('Pengguna tidak ditemukan');
             }
             activity()
+                ->useLog('employee')
                 ->performedOn($employee)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data pengguna');

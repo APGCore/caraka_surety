@@ -135,6 +135,7 @@ class EmployeeLimitController extends Controller
             );
 
             activity()
+                ->useLog('employee-limit')
                 ->performedOn(new EmployeeLimit)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan limit pengguna baru');

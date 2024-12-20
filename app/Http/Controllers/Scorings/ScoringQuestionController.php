@@ -109,6 +109,7 @@ class ScoringQuestionController extends Controller
             ScoringQuestion::query()
                 ->create($request->only('name', 'scoring_question_category_id'));
             activity()
+                ->useLog('scoring-question')
                 ->performedOn(new ScoringQuestion)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Pertanyaan Skoring');
@@ -187,6 +188,7 @@ class ScoringQuestionController extends Controller
             if ($scoringQuestion->exists) {
                 $scoringQuestion->update($request->only('name', 'scoring_question_category_id'));
                 activity()
+                    ->useLog('scoring-question')
                     ->performedOn($scoringQuestion)
                     ->causedBy(auth()->user())
                     ->log('Mengubah Pertanyaan Skoring');
@@ -218,6 +220,7 @@ class ScoringQuestionController extends Controller
             if ($scoringQuestion->exists) {
                 $scoringQuestion->delete();
                 activity()
+                    ->useLog('scoring-question')
                     ->performedOn($scoringQuestion)
                     ->causedBy(auth()->user())
                     ->log('Menghapus Pertanyaan Skoring');
@@ -290,6 +293,7 @@ class ScoringQuestionController extends Controller
             if ($scoringOption->exists) {
                 $scoringOption->update($request->only('name', 'point'));
                 activity()
+                    ->useLog('scoring-question')
                     ->performedOn($scoringOption)
                     ->causedBy(auth()->user())
                     ->log('Mengubah Pilihan Pertanyaan');
@@ -332,6 +336,7 @@ class ScoringQuestionController extends Controller
             ScoringOption::query()
                 ->create($request->only('name', 'point', 'scoring_question_id'));
             activity()
+                ->useLog('scoring-question')
                 ->performedOn(new ScoringOption)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Pilihan Pertanyaan');

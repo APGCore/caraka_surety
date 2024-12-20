@@ -78,6 +78,7 @@ class ProductTipeController extends Controller
             ProductType::query()
                 ->create($request->only('no', 'name', 'description'));
             activity()
+                ->useLog('product-type')
                 ->performedOn(new ProductType)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Jenis Produk');
@@ -143,6 +144,7 @@ class ProductTipeController extends Controller
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
             activity()
+                ->useLog('product-type')
                 ->performedOn($productTipe)
                 ->causedBy(auth()->user())
                 ->log('Mengubah Jenis Produk');
@@ -173,6 +175,7 @@ class ProductTipeController extends Controller
                 throw new ThrottleRequestsException('Jenis Cabang tidak ditemukan');
             }
             activity()
+                ->useLog('product-type')
                 ->performedOn($productTipe)
                 ->causedBy(auth()->user())
                 ->log('Menghapus Jenis Produk');

@@ -58,6 +58,7 @@ class BlankController extends Controller
 
             DB::commit();
             activity()
+                ->useLog('blank')
                 ->performedOn(new Blank)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan blangko baru');
@@ -96,6 +97,7 @@ class BlankController extends Controller
 
             DB::commit();
             activity()
+                ->useLog('blank')
                 ->performedOn(new Blank)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan blangko baru');
@@ -123,6 +125,7 @@ class BlankController extends Controller
             $blank->update($requestValidated);
 
             activity()
+                ->useLog('blank')
                 ->performedOn($blank)
                 ->causedBy(auth()->user())
                 ->log('Mengubah blangko');
@@ -154,6 +157,7 @@ class BlankController extends Controller
             $blank->delete();
 
             activity()
+                ->useLog('blank')
                 ->performedOn($blank)
                 ->causedBy(auth()->user())
                 ->log('Menghapus blangko dengan nomor '.$blank->getAttribute('number'));

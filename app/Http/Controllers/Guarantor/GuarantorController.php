@@ -88,6 +88,7 @@ class GuarantorController extends Controller
             ]);
 
             activity()
+                ->useLog('guarantor')
                 ->performedOn($guarantor)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data asuransi');
@@ -155,6 +156,7 @@ class GuarantorController extends Controller
             }
 
             activity()
+                ->useLog('guarantor')
                 ->performedOn($guarantor)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data asuransi');
@@ -179,6 +181,7 @@ class GuarantorController extends Controller
             $guarantor->delete();
 
             activity()
+                ->useLog('guarantor')
                 ->performedOn($guarantor)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data asuransi');

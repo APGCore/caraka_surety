@@ -41,6 +41,7 @@ class SourceOfFundController extends Controller
             DB::beginTransaction();
             SourceOfFund::create($request->all());
             activity()
+                ->useLog('source-of-found')
                 ->performedOn(new SourceOfFund)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan sumber dana baru');
@@ -69,6 +70,7 @@ class SourceOfFundController extends Controller
             DB::beginTransaction();
             $sourceOfFund->update($request->all());
             activity()
+                ->useLog('source-of-found')
                 ->performedOn($sourceOfFund)
                 ->causedBy(auth()->user())
                 ->log('Mengubah sumber dana');
@@ -93,6 +95,7 @@ class SourceOfFundController extends Controller
             DB::beginTransaction();
             $sourceOfFund->delete();
             activity()
+                ->useLog('source-of-found')
                 ->performedOn($sourceOfFund)
                 ->causedBy(auth()->user())
                 ->log('Menghapus sumber dana');

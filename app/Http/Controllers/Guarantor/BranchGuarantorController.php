@@ -87,6 +87,7 @@ class BranchGuarantorController extends Controller
                 ->create($requestValid);
 
             activity()
+                ->useLog('branch-guarantor')
                 ->performedOn($guarantor)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data cabang asuransi');
@@ -141,6 +142,7 @@ class BranchGuarantorController extends Controller
             $branchGuarantor->update($requestValid);
 
             activity()
+                ->useLog('branch-guarantor')
                 ->performedOn($branchGuarantor)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data cabang asuransi');
@@ -165,6 +167,7 @@ class BranchGuarantorController extends Controller
             $branchGuarantor->delete();
 
             activity()
+                ->useLog('branch-guarantor')
                 ->performedOn($branchGuarantor)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data cabang asuransi');

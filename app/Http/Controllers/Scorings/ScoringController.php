@@ -74,6 +74,7 @@ class ScoringController extends Controller
                 ->create($request->only('name', 'min_point'));
 
             activity()
+                ->useLog('scoring')
                 ->performedOn(new Scoring)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Skoring');
@@ -138,6 +139,7 @@ class ScoringController extends Controller
                 $scoring->update($request->only('name', 'min_point'));
 
                 activity()
+                    ->useLog('scoring')
                     ->performedOn($scoring)
                     ->causedBy(auth()->user())
                     ->log('Mengubah Skoring');
@@ -169,6 +171,7 @@ class ScoringController extends Controller
             if ($scoring->exists) {
                 $scoring->delete();
                 activity()
+                    ->useLog('scoring')
                     ->performedOn($scoring)
                     ->causedBy(auth()->user())
                     ->log('Menghapus Skoring');

@@ -81,6 +81,7 @@ class GuarantorToProductTypeController extends Controller
                 $guaratorProduct->whereNotIn('id', $dataIds)->delete();
             }
             activity()
+                ->useLog('guarantor-to-product-type')
                 ->performedOn(new Guarantor)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data produk asuransi');

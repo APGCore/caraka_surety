@@ -55,6 +55,7 @@ class DocumentRequiredController extends Controller
 
         flashMessage('Data Required Dokumen', 'Produk berhasil ditambahkan !');
         activity()
+            ->useLog('dokumen-required')
             ->performedOn(new RequiredDoc)
             ->causedBy(auth()->user())
             ->log('Menambahkan data required dokumen');
@@ -108,6 +109,7 @@ class DocumentRequiredController extends Controller
 
         flashMessage('Data Required Dokumen', 'Produk berhasil diperbarui !');
         activity()
+            ->useLog('dokumen-required')
             ->performedOn($requiredDoc)
             ->causedBy(auth()->user())
             ->log('Mengubah data required dokumen');
@@ -127,6 +129,7 @@ class DocumentRequiredController extends Controller
             DB::commit();
             flashMessage('Required Dokumen', 'Required Dokumen berhasil dihapus');
             activity()
+                ->useLog('dokumen-required')
                 ->performedOn($requiredDoc)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data required dokumen');

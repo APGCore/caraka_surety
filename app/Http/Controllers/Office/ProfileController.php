@@ -56,6 +56,7 @@ class ProfileController extends Controller
                 ->create($requestValidated);
 
             activity()
+                ->useLog('profile')
                 ->performedOn(new Profile)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Kantor Cabang');
@@ -92,6 +93,7 @@ class ProfileController extends Controller
             $requestValidated = $request->validated();
             $profile->update($requestValidated);
             activity()
+                ->useLog('profile')
                 ->performedOn($profile)
                 ->causedBy(auth()->user())
                 ->log('Mengubah Kantor Cabang');
@@ -119,6 +121,7 @@ class ProfileController extends Controller
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
             activity()
+                ->useLog('profile')
                 ->performedOn($profile)
                 ->causedBy(auth()->user())
                 ->log('Menghapus Kantor Cabang');

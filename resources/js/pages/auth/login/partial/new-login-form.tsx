@@ -14,6 +14,16 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
     password: "",
     remember: false,
   });
+  const date = new Date();
+  const hour = date.getHours();
+  let subtitle = "";
+  if (hour >= 0 && hour < 12) {
+    subtitle = "Selamat Pagi";
+  } else if (hour >= 12 && hour < 18) {
+    subtitle = "Selamat Siang";
+  } else {
+    subtitle = "Selamat Malam";
+  }
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
@@ -38,17 +48,17 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
             />
             <div className="flex flex-col items-center gap-2 z-20">
               <h1 className="text-5xl font-bold">Welcome</h1>
-              <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[60px] w-[120px]" />
+              <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[80px] w-[180px]" />
             </div>
             <h1 className="absolute bottom-2 font-bold">A Member Of APG</h1>
           </div>
           <form id="login-form" onSubmit={submit} className="px-12 flex flex-col items-center justify-center">
             <div className="flex min-w-[260px] flex-col gap-6 ">
               <div className=" text-start">
-                <h1 className="text-2xl font-bold">Hello! </h1>
-                <p className="  text-muted-foreground">Good Morning</p>
+                <h1 className="text-2xl font-bold">Hello!</h1>
+                <p className="  text-muted-foreground">{subtitle}</p>
               </div>
-              <h1 className="text-xl text-center font-bold">Login Your Account </h1>
+              <h1 className="text-l text-center font-bold">Silakan masuk menggunakan Username dan Password</h1>
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
                 <Input

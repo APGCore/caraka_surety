@@ -27,7 +27,9 @@ class DistributionOfBlankController extends Controller
 
         $blanks = Blank::search($request->get('search'))
             ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
-                $query->where('guarantor_id', $guarantorSelected)
+                $query
+                    ->with('fromProfile')
+                    ->where('guarantor_id', $guarantorSelected)
                     ->when($isAddBlank, function ($query) {
                         $query->whereNull('profile_id')
                             ->where('is_used', false);
@@ -46,7 +48,7 @@ class DistributionOfBlankController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Pembagian Blangko',
+                'title' => 'Daftar Blangko',
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
@@ -62,28 +64,28 @@ class DistributionOfBlankController extends Controller
     public function store(Request $request)
     {
         $requestValid = $request->validate([
-            'blanks.*.id' => 'required|integer|exists:'.Blank::class.',id',
+            'blank_ids.*' => 'required|integer|exists:'.Blank::class.',id',
             'office_id' => 'required|exists:'.Profile::class.',id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $blankIds = collect($requestValid['blanks'])->pluck('id');
             Blank::query()
-                ->whereIn('id', $blankIds)
+                ->whereIn('id', $requestValid['blank_ids'])
                 ->update([
                     'profile_id' => $requestValid['office_id'],
                 ]);
 
             activity()
+                ->useLog('distribution-of-blank')
                 ->performedOn(new Blank)
                 ->causedBy(auth()->user())
-                ->log('Pembagian blangko');
+                ->log('Daftar blangko');
             flashMessage('Berhasil', 'Data berhasil disimpan');
             DB::commit();
 
-            return redirect()->route('blank-management.distribution-of-blank.index', $requestValid);
+            return redirect()->route('blank-management.distribution-of-blank.index', ['office_id', $requestValid['office_id']]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
@@ -101,6 +103,8 @@ class DistributionOfBlankController extends Controller
     {
         try {
             DB::beginTransaction();
+            $guarantorId = $blank->getAttribute('guarantor_id');
+            $profileId = $blank->getAttribute('profile_id');
             if ($blank->getAttribute('is_used')) {
                 flashMessage('Gagal', 'Blangko sudah digunakan', 'error');
 
@@ -114,8 +118,8 @@ class DistributionOfBlankController extends Controller
             DB::commit();
 
             return redirect()->route('blank-management.distribution-of-blank.index', [
-                'guarantor_id' => $blank->getAttribute('guarantor_id'),
-                'office_id' => $blank->getAttribute('profile_id'),
+                'guarantor_id' => $guarantorId,
+                'office_id' => $profileId,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -123,6 +127,65 @@ class DistributionOfBlankController extends Controller
             flashMessage('Gagal', 'Gagal menghapus data', 'error');
 
             return back()->withErrors(['errors' => 'Gagal menghapus data']);
+        }
+    }
+
+    public function getBlankDistributed(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $blanks = Blank::query()
+            ->where('profile_id', $request->get('profile_id'))
+            ->where('is_used', false)
+            ->orderBy('number')
+            ->get();
+
+        return $this->responseSuccess('Data berhasil diambil', $blanks);
+    }
+
+    public function getBlankRange(): \Illuminate\Http\JsonResponse
+    {
+        $blanks = Blank::query()
+            ->whereNull('profile_id')
+            ->where('is_used', false)
+            ->orderBy('number')
+            ->get();
+
+        return $this->responseSuccess('Data berhasil diambil', $blanks);
+    }
+
+    public function storeTransfer(Request $request)
+    {
+        $requestValid = $request->validate([
+            'blank_ids.*' => 'required|integer|exists:'.Blank::class.',id',
+            'office_id' => 'required|exists:'.Profile::class.',id',
+            'from_office_id' => 'required|exists:'.Profile::class.',id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            Blank::query()
+                ->whereIn('id', $requestValid['blank_ids'])
+                ->update([
+                    'profile_id' => $requestValid['office_id'],
+                    'from_profile_id' => $requestValid['from_office_id'],
+                    'is_approved' => false,
+                ]);
+
+            activity()
+                ->useLog('transfer-blank')
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log('Transfer blangko');
+            flashMessage('Berhasil', 'Data berhasil di transfer');
+            DB::commit();
+
+            return $this->responseSuccess('Data berhasil di transfer');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on DistributionOfBlankController@storeTransfer: {$e->getMessage()}");
+            flashMessage('Gagal', 'Gagal transfer data', 'error');
+
+            return $this->responseError('Gagal transfer data', ['errors' => 'Gagal transfer data']);
         }
     }
 }

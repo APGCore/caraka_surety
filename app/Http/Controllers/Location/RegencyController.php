@@ -76,6 +76,7 @@ class RegencyController extends Controller
                 ]);
 
             activity()
+                ->useLog('regency')
                 ->performedOn($regency)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Kabupaten');

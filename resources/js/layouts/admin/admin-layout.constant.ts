@@ -85,7 +85,7 @@ export const adminRoute = {
           url: "#",
         },
         {
-          title: "Pembagian Blangko",
+          title: "Daftar Blangko",
           route_name: "blank-management.distribution-of-blank",
           href: route("blank-management.distribution-of-blank.index"),
           url: "#",

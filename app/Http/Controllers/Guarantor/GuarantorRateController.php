@@ -107,6 +107,7 @@ class GuarantorRateController extends Controller
 
             $guarantorToProductType->update($data);
             activity()
+                ->useLog('guarantor-rate')
                 ->performedOn($guarantorToProductType)
                 ->causedBy(auth()->user())
                 ->log('Setting Limit Asuransi');

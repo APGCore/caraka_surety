@@ -70,6 +70,7 @@ class BankController extends Controller
             Bank::query()
                 ->create($requestValid);
             activity()
+                ->useLog('bank')
                 ->performedOn(new Bank)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data bank baru');
@@ -133,6 +134,7 @@ class BankController extends Controller
             }
             $bank->update($requestValid);
             activity()
+                ->useLog('bank')
                 ->performedOn($bank)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data bank');
@@ -163,6 +165,7 @@ class BankController extends Controller
                 throw new ThrottleRequestsException('Data bank tidak ditemukan');
             }
             activity()
+                ->useLog('bank')
                 ->performedOn($bank)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data bank');

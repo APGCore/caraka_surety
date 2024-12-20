@@ -125,6 +125,7 @@ class ProfileLimitController extends Controller
                 ]
             );
             activity()
+                ->useLog('profile')
                 ->performedOn(new ProfileLimit)
                 ->causedBy($request->user())
                 ->withProperties($requestValid)
@@ -179,6 +180,7 @@ class ProfileLimitController extends Controller
                 throw new \Exception('Gagal mengubah limit kantor');
             }
             activity()
+                ->useLog('profile')
                 ->performedOn($profileLimit)
                 ->causedBy($request->user())
                 ->withProperties($requestValid)
@@ -207,6 +209,7 @@ class ProfileLimitController extends Controller
                 throw new \Exception('Gagal menghapus limit kantor');
             }
             activity()
+                ->useLog('profile')
                 ->performedOn($profileLimit)
                 ->causedBy(auth()->user())
                 ->log('Menghapus limit kantor');

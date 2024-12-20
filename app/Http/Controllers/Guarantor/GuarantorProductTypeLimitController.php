@@ -82,6 +82,7 @@ class GuarantorProductTypeLimitController extends Controller
             ]);
 
             activity()
+                ->useLog('guarantor-product-type-limit')
                 ->performedOn(new GuarantorToProductType)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan limit produk asuransi');
@@ -125,6 +126,7 @@ class GuarantorProductTypeLimitController extends Controller
                 'limit_inherit' => $limitInherit,
             ]);
             activity()
+                ->useLog('guarantor-product-type-limit')
                 ->performedOn($guarantorProductTypeLimit)
                 ->causedBy(auth()->user())
                 ->log('Mengubah limit produk asuransi');

@@ -72,6 +72,7 @@ class ScoringOptionController extends Controller
             if ($scoringOption->exists) {
                 $scoringOption->delete();
                 activity()
+                    ->useLog('scoring-option')
                     ->performedOn($scoringOption)
                     ->causedBy(auth()->user())
                     ->log('Menghapus Pilihan Pertanyaan Skoring');

@@ -92,6 +92,7 @@ class SubmissionController extends Controller
                     'profile_id' => $profile->id,
                     'is_used' => false,
                     'is_broken' => false,
+                    'is_approved' => true,
                 ])
                 ->orderBy('created_at')
                 ->first();
@@ -212,6 +213,7 @@ class SubmissionController extends Controller
 
             $submission->scores()->createMany($scores);
             activity()
+                ->useLog('submission')
                 ->performedOn($submission)
                 ->causedBy(auth()->user())
                 ->log('Membuat pengajuan');

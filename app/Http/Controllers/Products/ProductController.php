@@ -92,6 +92,7 @@ class ProductController extends Controller
                 ]);
             }
             activity()
+                ->useLog('product')
                 ->performedOn(new Product)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data produk');
@@ -181,6 +182,7 @@ class ProductController extends Controller
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
             activity()
+                ->useLog('product')
                 ->performedOn(new Product)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data produk');
@@ -210,6 +212,7 @@ class ProductController extends Controller
                 throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
             }
             activity()
+                ->useLog('product')
                 ->performedOn(new Product)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data produk');

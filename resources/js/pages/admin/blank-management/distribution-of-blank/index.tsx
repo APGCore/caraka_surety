@@ -18,13 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/general/use-toast";
@@ -33,9 +28,15 @@ import { getQueryParameter } from "@/lib/get-query-parameter";
 import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
 import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { pickBy } from "lodash";
+import { ArrowRight } from "lucide-react";
 import React, { useState } from "react";
+
+interface blank {
+  id: number;
+  number: string;
+}
 
 const DistributionBlank: DistributionBlankPageProps = ({
   guarantors,
@@ -51,12 +52,13 @@ const DistributionBlank: DistributionBlankPageProps = ({
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
   const [isAddBlank, setIsAddBlank] = useState<boolean>(false);
-  const [selectedBlanks, setSelectedBlanks] = useState<
-    Array<{
-      id: number;
-      number: string;
-    }>
-  >([]);
+  const [blankNotUsed, setBlankNotUsed] = useState<Array<blank>>([]);
+  const [selectedBlanks, setSelectedBlanks] = useState<Array<blank>>([]);
+  const [selectedFirstBlank, setSelectedFirstBlank] = useState<blank | null>(null);
+  const [qtyBlank, setQtyBlank] = useState<number>(0);
+  const [selectedLastBlank, setSelectedLastBlank] = useState<blank | null>(null);
+  const [fromOffice, setFromOffice] = useState<any | null>(null);
+  const [toOffice, setToOffice] = useState<any | null>(null);
 
   const handleSelect = (e: string) => {
     setSelect(Number(e));
@@ -73,9 +75,46 @@ const DistributionBlank: DistributionBlankPageProps = ({
     getData(String(select), search, officeSelected, isAddBlankSelect);
   };
 
-  const addBlank = () => {
-    console.log(selectedBlanks);
+  const fetchBlankDistributed = async (office: any) => {
+    const data = await axios.get(route(DistributionOfBlankUtils.link.getBlankDistributed), {
+      params: { profile_id: office.id },
+    });
+    return data.data;
+  };
 
+  const fetchBlankRange = async () => {
+    const data = await axios.get(route(DistributionOfBlankUtils.link.getBlankRange));
+    return data.data;
+  };
+
+  const handleAddBlankCustom = async () => {
+    const blankNotUsed = await fetchBlankRange();
+    setBlankNotUsed(blankNotUsed.data);
+    setSelectedFirstBlank(blankNotUsed.data[0] ?? null);
+  };
+
+  const handleChangeRange = (range: number) => {
+    if (range === 0) {
+      setSelectedLastBlank(null);
+      return;
+    }
+    if (range > blankNotUsed.length) {
+      return;
+    }
+    // get last blankNotUsed
+    let lastBlanks = blankNotUsed[range - 1];
+    setSelectedLastBlank(lastBlanks);
+    setSelectedBlanks(blankNotUsed.slice(0, range));
+  };
+
+  const changeFromOffice = async (office: any) => {
+    setFromOffice(office);
+    const blankNotUsed = await fetchBlankDistributed(office);
+    setBlankNotUsed(blankNotUsed.data);
+    setSelectedFirstBlank(blankNotUsed.data[0] ?? null);
+  };
+
+  const addBlank = () => {
     if (selectedBlanks.length === 0) {
       return toast({
         title: "Gagal",
@@ -83,23 +122,68 @@ const DistributionBlank: DistributionBlankPageProps = ({
         variant: "destructive",
       });
     }
+    const blankSend = selectedBlanks.map((blank) => {
+      return blank.id;
+    });
     router.post(
       route(DistributionOfBlankUtils.link.store),
       {
-        blanks: selectedBlanks,
+        blank_ids: blankSend,
         office_id: officeSelected,
       },
       {
         preserveState: true,
         preserveScroll: true,
         onSuccess: () => {
-          setSelectedBlanks([]);
           handleAddBlank(false);
+          setSelectedBlanks([]);
+          setBlankNotUsed([]);
+          setQtyBlank(0);
+          setSelectedFirstBlank(null);
+          setSelectedLastBlank(null);
         },
       },
     );
   };
 
+  const transferBlank = () => {
+    if (fromOffice === null || toOffice === null) {
+      return toast({
+        title: "Gagal",
+        description: "Pilih kantor asal dan tujuan terlebih dahulu",
+        variant: "destructive",
+      });
+    }
+    if (selectedBlanks.length === 0) {
+      return toast({
+        title: "Gagal",
+        description: "Pilih blangko terlebih dahulu",
+        variant: "destructive",
+      });
+    }
+    const blankSend = selectedBlanks.map((blank) => {
+      return blank.id;
+    });
+    const data = {
+      blank_ids: blankSend,
+      office_id: toOffice.id,
+      from_office_id: fromOffice.id,
+    };
+    router.post(route(DistributionOfBlankUtils.link.storeTransfer), data, {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        handleAddBlank(false);
+        setSelectedBlanks([]);
+        setBlankNotUsed([]);
+        setQtyBlank(0);
+        setSelectedFirstBlank(null);
+        setSelectedLastBlank(null);
+        setFromOffice(null);
+        setToOffice(null);
+      },
+    });
+  };
   const getData = (
     perPage: string,
     search: string | null,
@@ -154,9 +238,189 @@ const DistributionBlank: DistributionBlankPageProps = ({
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Pembagian Blangko</h1>
-        <div className="flex gap-x-3">
-          {!isAddBlank && <Button onClick={() => handleAddBlank(true)}>Tambah Pembagian Blangko</Button>}
+        <h1 className="text-lg font-semibold md:text-3xl">Daftar Blangko</h1>
+        <div className="flex w-[45%] gap-x-3 justify-end">
+          {!isAddBlank && (
+            <>
+              <Button size="sm" className="bg-green-600 hover:bg-green-500" onClick={() => handleAddBlank(true)}>
+                Bagikan Blangko
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger
+                  className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
+                px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                  onClick={handleAddBlankCustom}
+                  asChild>
+                  <Button size="sm" className="bg-green-800 hover:bg-green-700">
+                    Bagikan Blangko Custom
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className={"w-max"}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Pembagian Blangko</AlertDialogTitle>
+                    <AlertDialogDescription>Silakan masukan jumlah blangko yang akan di bagikan</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
+                  <div className="flex items-end justify-around mt-6 space-x-2">
+                    <div>
+                      <Label htmlFor="number">Nomor Blangko Pertama</Label>
+                      <Input
+                        id="number"
+                        value={selectedFirstBlank?.number}
+                        type="text"
+                        className="mt-1 block w-full"
+                        disabled
+                      />
+                    </div>
+                    <ArrowRight className="mb-2" />
+                    <div>
+                      <Label htmlFor="qty_blangko">jumlah</Label>
+                      <Input
+                        id="qty_blangko"
+                        value={qtyBlank}
+                        onChange={async (e: any) => {
+                          const qty = Number(e.target.value);
+                          setQtyBlank(qty);
+                          handleChangeRange(qty);
+                        }}
+                        type="number"
+                        min="0"
+                        max={blankNotUsed.length}
+                        className="mt-1 block w-full"
+                      />
+                    </div>
+                    <ArrowRight className="mb-2" />
+                    <div>
+                      <Label htmlFor="number">Nomor Blangko Terakhir</Label>
+                      <Input
+                        id="number"
+                        value={selectedLastBlank?.number}
+                        type="text"
+                        className="mt-1 block w-full"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      onClick={() => {
+                        setQtyBlank(0);
+                        setSelectedFirstBlank(null);
+                        setSelectedLastBlank(null);
+                      }}>
+                      Batal
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={addBlank}>Bagikan</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <AlertDialog>
+                <AlertDialogTrigger
+                  className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
+                px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                  onClick={() => {
+                    setQtyBlank(0);
+                    setSelectedFirstBlank(null);
+                    setSelectedLastBlank(null);
+                  }}
+                  asChild>
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-500">
+                    Transfer Blangko
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className={"w-max"}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Transfer Blangko</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Silakan masukan jumlah blangko yang akan di transfer
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
+                    <div className="flex items-end justify-around mt-6 space-x-2">
+                      <Combobox
+                        datas={offices}
+                        labelKey={"name"}
+                        valueKey={"name"}
+                        defaultValueId={fromOffice?.id}
+                        placeholder={"Pilih Kantor Asal"}
+                        className={"w-[210px]"}
+                        onSelect={(value) => changeFromOffice(value)}
+                      />
+                      <ArrowRight className="mb-2" />
+                      <Combobox
+                        datas={offices.filter((office: any) => office.id !== fromOffice?.id)}
+                        labelKey={"name"}
+                        valueKey={"name"}
+                        defaultValueId={toOffice?.id}
+                        placeholder={"Pilih Kantor Tujuan"}
+                        className={"w-[210px]"}
+                        onSelect={(value) => setToOffice(value)}
+                      />
+                    </div>
+                    <div className="flex items-end justify-around mt-6 space-x-2">
+                      <div>
+                        <Label htmlFor="number">Nomor Blangko Pertama</Label>
+                        <Input
+                          id="number"
+                          value={selectedFirstBlank?.number}
+                          type="text"
+                          className="mt-1 block w-full"
+                          disabled
+                        />
+                      </div>
+                      <ArrowRight className="mb-2" />
+                      <div>
+                        <Label htmlFor="qty_blangko">jumlah</Label>
+                        <Input
+                          id="qty_blangko"
+                          value={qtyBlank}
+                          onChange={(e: any) => {
+                            const qty = Number(e.target.value);
+                            setQtyBlank(qty);
+                            setSelectedBlanks(blankNotUsed.slice(0, qty));
+                            if (qty === 0) {
+                              setSelectedLastBlank(null);
+                            } else {
+                              setSelectedLastBlank(blankNotUsed[qty - 1]);
+                            }
+                          }}
+                          type="number"
+                          min="0"
+                          max={blankNotUsed.length}
+                          className="mt-1 block w-full"
+                        />
+                      </div>
+                      <ArrowRight className="mb-2" />
+                      <div>
+                        <Label htmlFor="number">Nomor Blangko Terakhir</Label>
+                        <Input
+                          id="number"
+                          value={selectedLastBlank?.number}
+                          type="text"
+                          className="mt-1 block w-full"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      onClick={() => {
+                        setQtyBlank(0);
+                        setFromOffice(null);
+                        setToOffice(null);
+                        setSelectedFirstBlank(null);
+                        setSelectedLastBlank(null);
+                      }}>
+                      Batal
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={transferBlank}>Transfer</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
           {isAddBlank && (
             <>
               <Button onClick={() => handleAddBlank(false)} variant="destructive">
@@ -262,7 +526,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   )}
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{blank.number}</TableCell>
-                  <TableCell>
+                  <TableCell className="space-x-1">
                     <Show when={blank.is_used}>
                       <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
                     </Show>
@@ -270,51 +534,31 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
                     </Show>
                     <Show when={blank.is_broken}>
-                      <Badge className="text-white bg-red-400 ml-2">Rusak</Badge>
+                      <Badge className="text-white bg-red-400">Rusak</Badge>
                     </Show>
                     <Show when={!blank.is_broken}>
-                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
+                      <Badge className="text-white bg-green-400">Baik</Badge>
+                    </Show>
+                    <Show when={blank.is_approved}>
+                      <Badge className="text-white bg-green-400">Sudah Diterima Direksi</Badge>
+                    </Show>
+                    <Show when={!blank.is_approved}>
+                      <Badge className="text-white bg-yellow-400">Belum Diterima Direksi</Badge>
+                    </Show>
+                    <Show when={blank.from_profile_id}>
+                      <Badge className="text-white bg-blue-400">Di Transfer Dari {blank.from_profile?.name}</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
-                    <Show when={!blank.is_used || blank.is_approved}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                            <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-36 mr-8 mt-1">
-                          <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                            <AlertDialog>
-                              <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                                Delete
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tindakan ini akan menghapus data pengguna {blank.name}?
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Batal</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => {
-                                      deleteData(blank);
-                                    }}
-                                    className={buttonVariants({ variant: "destructive" })}>
-                                    Lanjutkan Hapus
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </Show>
+                    <Button
+                      disabled={blank.is_used && blank.is_approved}
+                      onClick={() => {
+                        deleteData(blank);
+                      }}
+                      className={buttonVariants({ variant: "destructive" })}>
+                      Hapus
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

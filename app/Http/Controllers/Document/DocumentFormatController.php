@@ -111,6 +111,7 @@ class DocumentFormatController extends Controller
             DB::commit();
 
             activity()
+                ->useLog('dokumen-format')
                 ->performedOn(new DocumentFormat)
                 ->causedBy(auth()->user())
                 ->log('menambahkan format dokumen');
@@ -161,6 +162,7 @@ class DocumentFormatController extends Controller
             DB::commit();
 
             activity()
+                ->useLog('dokumen-format')
                 ->performedOn($documentFormat)
                 ->causedBy(auth()->user())
                 ->log('mengubah format dokumen');
@@ -184,6 +186,7 @@ class DocumentFormatController extends Controller
             $documentFormat->delete();
 
             activity()
+                ->useLog('dokumen-format')
                 ->performedOn($documentFormat)
                 ->causedBy(auth()->user())
                 ->log('menghapus format dokumen');

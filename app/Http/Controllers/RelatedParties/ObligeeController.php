@@ -71,6 +71,7 @@ class ObligeeController extends Controller
             Obligee::query()
                 ->create($requestValid);
             activity()
+                ->useLog('obligee')
                 ->performedOn(new Obligee)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan data obligee');
@@ -134,6 +135,7 @@ class ObligeeController extends Controller
             }
             $obligee->update($requestValid);
             activity()
+                ->useLog('obligee')
                 ->performedOn($obligee)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data obligee');
@@ -164,6 +166,7 @@ class ObligeeController extends Controller
                 throw new ThrottleRequestsException('Data Obligee tidak ditemukan');
             }
             activity()
+                ->useLog('obligee')
                 ->performedOn($obligee)
                 ->causedBy(auth()->user())
                 ->log('Menghapus data obligee');

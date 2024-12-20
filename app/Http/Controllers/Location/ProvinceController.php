@@ -57,6 +57,7 @@ class ProvinceController extends Controller
             Province::query()
                 ->create($request->only('code', 'name'));
             activity()
+                ->useLog('province')
                 ->performedOn(new Province)
                 ->causedBy(auth()->user())
                 ->log('menambahkan data provinsi');
@@ -93,6 +94,7 @@ class ProvinceController extends Controller
 
             $province->update($request->only('code', 'name'));
             activity()
+                ->useLog('province')
                 ->performedOn($province)
                 ->causedBy(auth()->user())
                 ->log('memperbarui data provinsi');
@@ -133,6 +135,7 @@ class ProvinceController extends Controller
                 throw new ThrottleRequestsException('Provinsi tidak ditemukan');
             }
             activity()
+                ->useLog('province')
                 ->performedOn($province)
                 ->causedBy(auth()->user())
                 ->log('menghapus data provinsi');

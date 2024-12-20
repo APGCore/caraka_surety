@@ -6,5 +6,8 @@ export const DistributionOfBlankUtils = {
     edit: "blank-management.distribution-of-blank.edit",
     update: "blank-management.distribution-of-blank.update",
     destroy: "blank-management.distribution-of-blank.destroy",
+    getBlankDistributed: "blank-management.distribution-of-blank.get-blank-distributed",
+    getBlankRange: "blank-management.distribution-of-blank.get-blank-range",
+    storeTransfer: "blank-management.distribution-of-blank.store-transfer",
   },
 };

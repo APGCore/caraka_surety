@@ -86,6 +86,7 @@ class ScoringQuestionCategoryController extends Controller
             ScoringQuestionCategory::query()
                 ->create($request->only('name', 'max_point', 'scoring_id'));
             activity()
+                ->useLog('scoring-question-category')
                 ->performedOn(new ScoringQuestionCategory)
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Kategori Pertanyaan Skoring');
@@ -149,6 +150,7 @@ class ScoringQuestionCategoryController extends Controller
             if ($scoringQuestionCategory->exists) {
                 $scoringQuestionCategory->update($request->only('name', 'max_point', 'scoring_id'));
                 activity()
+                    ->useLog('scoring-question-category')
                     ->performedOn($scoringQuestionCategory)
                     ->causedBy(auth()->user())
                     ->log('Mengubah Kategori Pertanyaan Skoring');
@@ -180,6 +182,7 @@ class ScoringQuestionCategoryController extends Controller
             if ($scoringQuestionCategory->exists) {
                 $scoringQuestionCategory->delete();
                 activity()
+                    ->useLog('scoring-question-category')
                     ->performedOn($scoringQuestionCategory)
                     ->causedBy(auth()->user())
                     ->log('Menghapus Kategori Pertanyaan Skoring');
