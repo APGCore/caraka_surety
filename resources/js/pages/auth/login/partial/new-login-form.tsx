@@ -16,14 +16,7 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
   });
   const date = new Date();
   const hour = date.getHours();
-  let subtitle = "";
-  if (hour >= 0 && hour < 12) {
-    subtitle = "Selamat Pagi";
-  } else if (hour >= 12 && hour < 18) {
-    subtitle = "Selamat Siang";
-  } else {
-    subtitle = "Selamat Malam";
-  }
+  const subtitle = hour < 12 ? "Selamat Pagi" : hour < 18 ? "Selamat Siang" : "Selamat Malam";
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
