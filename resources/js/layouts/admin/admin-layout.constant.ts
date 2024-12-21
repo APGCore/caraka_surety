@@ -60,9 +60,21 @@ export const adminRoute = {
       icon: User,
       items: [
         {
-          title: "Daftar Cabang",
+          title: "Cabang",
           route_name: "branch",
           href: route("branch.index"),
+          url: "#",
+        },
+        {
+          title: "Mitra Pemasaran",
+          route_name: "branch-mitra-pemasaran",
+          href: route("branch-mitra-pemasaran.index"),
+          url: "#",
+        },
+        {
+          title: "Mitra Agen",
+          route_name: "branch-mitra-agen",
+          href: route("branch-mitra-agen.index"),
           url: "#",
         },
         {

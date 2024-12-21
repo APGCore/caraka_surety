@@ -33,8 +33,14 @@ class ProfileController extends Controller
         $component = $request->path().'/index';
 
         return inertia($component, [
-            'page_settings' => [
-                'title' => 'Profile Cabang',
+            'page_settings' => fn () => [
+                'title' => 'Cabang',
+                'breadcrumb' => [
+                    [
+                        'title' => 'Unit Cabang',
+                        'link' => '#',
+                    ],
+                ],
             ],
             'profiles' => fn () => $profileResource,
         ]);
@@ -45,7 +51,21 @@ class ProfileController extends Controller
     {
         $component = $request->path().'/index';
 
-        return inertia($component);
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Mitra Agen',
+                'breadcrumb' => [
+                    [
+                        'title' => 'Cabang',
+                        'link' => '#',
+                    ],
+                    [
+                        'title' => 'Tambah Cabang',
+                        'link' => '#',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function store(StoreRequest $request)
@@ -142,5 +162,59 @@ class ProfileController extends Controller
         $profile = Profile::all();
 
         return $this->responseSuccess('Berhasil mengambil data profiles', $profile);
+    }
+
+    public function displayMitraPemasaran(Request $request): Response
+    {
+        $component = 'admin/office-management/branch-office/index';
+
+        $profiles = Profile::search($request->get('search'))
+            ->where('office_type', OfficeType::MARKETING_PARTNER->value)
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $profileResource = ProfileResource::collection($profiles);
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Mitra Pemasaran',
+                'breadcrumb' => [
+                    [
+                        'title' => 'Unit Bisnis Mitra Pemasaran',
+                        'link' => '#',
+                    ],
+                ],
+            ],
+            'profiles' => fn () => $profileResource,
+        ]);
+    }
+
+    public function displayMitraAgen(Request $request): Response
+    {
+        $component = 'admin/office-management/branch-office/index';
+
+        $profiles = Profile::search($request->get('search'))
+            ->where('office_type', OfficeType::AGENT_PARTNER->value)
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $profileResource = ProfileResource::collection($profiles);
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Mitra Agen',
+                'breadcrumb' => [
+                    [
+                        'title' => 'Unit Bisnis Mitra Agen',
+                        'link' => '#',
+                    ],
+                ],
+            ],
+            'profiles' => fn () => $profileResource,
+        ]);
     }
 }

@@ -20,6 +20,10 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
   auth?: {
     user: User;
   };
+  page_settings: {
+    title: string;
+    breadcrumb: { title: string }[];
+  };
   ziggy?: Config & { location: string };
   flash_message?: FlashMessageProps;
 };

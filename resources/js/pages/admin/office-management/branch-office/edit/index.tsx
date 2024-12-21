@@ -1,8 +1,7 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import HeaderPage from "@/components/common/header-page";
 import AdminLayout from "@/layouts/admin";
 import { BranchOfficeEditPageProps } from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
 import Form from "@/pages/admin/office-management/branch-office/form";
-import { Head } from "@inertiajs/react";
 
 const BranchOfficeEditPage: React.FC<BranchOfficeEditPageProps> & { layout?: any } = ({ profile }) => {
   return (
@@ -31,14 +30,7 @@ BranchOfficeEditPage.layout = (page: any) => {
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <Head title={pagePropsData?.page_settings?.title} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <HeaderPage {...pagePropsData} />
       {page}
     </AdminLayout>
   );

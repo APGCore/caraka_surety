@@ -1,6 +1,7 @@
+import { PageProps } from "@/types";
 import React from "react";
 
-interface BranchOfficeProps {
+interface BranchOfficeProps extends PageProps {
   profiles: any;
 }
 
