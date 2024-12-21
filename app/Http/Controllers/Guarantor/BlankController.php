@@ -23,11 +23,17 @@ class BlankController extends Controller
     {
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
-        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->id);
+        $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
+        $guarantorBranches = $guarantors->whereNotNull('headquarter_id')->values();
+        $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->id ?? null);
+        $guarantorBranchSelected = $request->get('guarantor_branch_id');
 
         $blanks = Blank::search($request->get('search'))
-            ->where('guarantor_id', $guarantorSelected)
-            ->orderBy('created_at', 'desc')
+            ->query(function ($query) use ($guarantorBranchSelected, $guarantorSelected) {
+                return $query->with('profile')
+                    ->where('guarantor_id', ($guarantorBranchSelected ?? $guarantorSelected));
+            })
+            ->orderBy('number')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
@@ -39,8 +45,10 @@ class BlankController extends Controller
             'page_settings' => [
                 'title' => 'Penerimaan Blangko',
             ],
-            'guarantors' => $guarantors,
-            'guarantorSelected' => $guarantorSelected,
+            'guarantors' => $guarantorHead,
+            'guarantorBranches' => $guarantorBranches,
+            'guarantorSelected' => (int) $guarantorSelected,
+            'guarantorBranchSelected' => (int) $guarantorBranchSelected,
             'blanks' => fn () => $blankResource,
         ]);
     }

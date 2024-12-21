@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
@@ -20,28 +21,41 @@ class DistributionOfBlankController extends Controller
     {
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
-        $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
-        $offices = Profile::all();
+        $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
+        $guarantorBranches = $guarantors->whereNotNull('headquarter_id')->values();
+        $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->id);
+        $guarantorBranchSelected = $request->get('guarantor_branch_id');
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+        $offices = Profile::query()->where('office_type', $officeType)->get();
         $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
         $isAddBlank = $request->get('is_add_blank') === 'true';
 
-        $blanks = Blank::search($request->get('search'))
-            ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
-                $query
-                    ->with('fromProfile')
-                    ->where('guarantor_id', $guarantorSelected)
-                    ->when($isAddBlank, function ($query) {
-                        $query->whereNull('profile_id')
-                            ->where('is_used', false);
-                    })
-                    ->when(! $isAddBlank, function ($query) use ($officeSelected) {
-                        $query->where('profile_id', $officeSelected);
-                    });
-            })
-            ->orderBy('id')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
+        $blanks = $offices->isNotEmpty()
+            ? Blank::search($request->get('search'))
+                ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
+                    $query
+                        ->with('fromProfile')
+                        ->where('guarantor_id', $guarantorSelected)
+                        ->when($isAddBlank, function ($query) {
+                            $query->whereNull('profile_id')
+                                ->where('is_used', false);
+                        })
+                        ->when(! $isAddBlank, function ($query) use ($officeSelected) {
+                            $query->where('profile_id', $officeSelected);
+                        });
+                })
+                ->orderBy('id')
+                ->paginate($request->get('per_page') ?? 10)
+                ->appends('query', null)
+                ->appends($request->all())
+            : collect();
         $blankResource = BlankResource::collection($blanks);
 
         $component = $request->path().'/index';
@@ -50,10 +64,14 @@ class DistributionOfBlankController extends Controller
             'page_settings' => [
                 'title' => 'Daftar Blangko',
             ],
-            'guarantors' => $guarantors,
-            'guarantorSelected' => $guarantorSelected,
+            'guarantors' => $guarantorHead,
+            'guarantorBranches' => $guarantorBranches,
+            'guarantorSelected' => (int) $guarantorSelected,
+            'guarantorBranchSelected' => (int) $guarantorBranchSelected,
             'offices' => $offices,
+            'officeTypes' => $officeTypes,
             'officeSelected' => $officeSelected,
+            'officeTypeSelected' => $officeTypeSelected,
             'blanks' => fn () => $blankResource,
         ]);
     }

@@ -2,7 +2,9 @@ import React from "react";
 
 interface BlankProps {
   guarantors: any;
+  guarantorBranches: any;
   guarantorSelected: number;
+  guarantorBranchSelected: number;
   blanks: any;
 }
 

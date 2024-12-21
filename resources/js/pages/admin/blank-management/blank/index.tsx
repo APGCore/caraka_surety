@@ -40,7 +40,13 @@ import { pickBy } from "lodash";
 import { ArrowRight } from "lucide-react";
 import React, { FormEventHandler, useState } from "react";
 
-const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) => {
+const BlankPage: BlankPageProps = ({
+  guarantors,
+  guarantorBranches,
+  guarantorSelected,
+  guarantorBranchSelected,
+  ...props
+}) => {
   const { data: blanks, meta } = props.blanks;
 
   const [select, setSelect] = useState(() =>
@@ -101,11 +107,12 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
     );
   };
 
-  const setOffice = (office: any) => {
+  const setGuarantor = (office: any, branch: any = null) => {
     return router.get(
       route(BlankUtils.link.index),
       pickBy({
         guarantor_id: office.id,
+        guarantor_branch_id: branch?.id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -206,7 +213,7 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">Penerimaan Blangko</h1>
         <div className="flex gap-x-3">
-          <AlertDialog open={openCreate} onOpenChange={setOpenCreate}>
+          <AlertDialog open={openCreateMulti} onOpenChange={setOpenCreateMulti}>
             <AlertDialogTrigger asChild>
               <Button>Tambah Blangko</Button>
             </AlertDialogTrigger>
@@ -214,37 +221,6 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
               <AlertDialogHeader>
                 <AlertDialogTitle>Tambah Blangko</AlertDialogTitle>
                 <AlertDialogDescription>Tindakan ini akan menambah data Blangko</AlertDialogDescription>
-              </AlertDialogHeader>
-              <form onSubmit={(e) => createBlangko(e)} className="mt-6 space-y-6">
-                <div>
-                  <Label htmlFor="number">Nomor Blangko</Label>
-                  <Input
-                    id="number"
-                    value={dataForm.number}
-                    onChange={(e) => setdataForm({ ...dataForm, number: e.target.value })}
-                    type="text"
-                    className="mt-1 block w-full"
-                  />
-
-                  {(errors?.number?.length ?? 0) > 0 &&
-                    errors?.number?.map((error: string, index: number) => <InputError key={index} message={error} />)}
-                </div>
-
-                <div className="flex justify-end gap-x-3">
-                  <AlertDialogCancel onClick={() => setOpenCreate(false)}>Batal</AlertDialogCancel>
-                  <Button type={"submit"}>Simpan</Button>
-                </div>
-              </form>
-            </AlertDialogContent>
-          </AlertDialog>
-          <AlertDialog open={openCreateMulti} onOpenChange={setOpenCreateMulti}>
-            <AlertDialogTrigger asChild>
-              <Button>Tambah Banyak Blangko</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Tambah Banyak Blangko</AlertDialogTitle>
-                <AlertDialogDescription>Tindakan ini akan menambah banyak data Blangko</AlertDialogDescription>
               </AlertDialogHeader>
               <form onSubmit={(e) => createBlangkoMulti(e)} className="mt-6 space-y-6">
                 <div className="flex items-center justify-around">
@@ -330,9 +306,18 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
             labelKey={"name"}
             valueKey={"name"}
             defaultValue={guarantorSelected}
-            placeholder={"Pilih Kantor"}
+            placeholder={"Pilih Asuransi"}
             className={"w-[210px]"}
-            onSelect={(value) => setOffice(value)}
+            onSelect={(value) => setGuarantor(value)}
+          />
+          <Combobox
+            datas={guarantorBranches}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorBranchSelected}
+            placeholder={"Pilih Cabang Asuransi"}
+            className={"w-[210px]"}
+            onSelect={(value) => setGuarantor(guarantorSelected, value)}
           />
         </div>
         <div className="flex gap-x-3">
@@ -371,6 +356,9 @@ const BlankPage: BlankPageProps = ({ guarantors, guarantorSelected, ...props }) 
                     </Show>
                     <Show when={!blank.is_broken}>
                       <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
+                    </Show>
+                    <Show when={blank.profile_id}>
+                      <Badge className="text-white bg-blue-500 ml-2">Di {blank.profile?.name}</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>

@@ -1,5 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,7 +21,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
@@ -40,9 +41,13 @@ interface blank {
 
 const DistributionBlank: DistributionBlankPageProps = ({
   guarantors,
+  guarantorBranches,
   guarantorSelected,
+  guarantorBranchSelected,
   offices,
+  officeTypes,
   officeSelected,
+  officeTypeSelected,
   ...props
 }) => {
   const { data: blanks, meta } = props.blanks;
@@ -62,17 +67,19 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const handleSelect = (e: string) => {
     setSelect(Number(e));
-    getData(e, search, officeSelected);
+    refresh({
+      perPage: e,
+    });
   };
 
   const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(String(select), search, officeSelected);
+    refresh();
   };
 
   const handleAddBlank = (isAddBlankSelect: boolean) => {
     setIsAddBlank(isAddBlankSelect);
-    getData(String(select), search, officeSelected, isAddBlankSelect);
+    refresh({ isAddBlankSelect });
   };
 
   const fetchBlankDistributed = async (office: any) => {
@@ -184,48 +191,27 @@ const DistributionBlank: DistributionBlankPageProps = ({
       },
     });
   };
-  const getData = (
-    perPage: string,
-    search: string | null,
-    officeSelected: number,
-    isAddBlankSelect: boolean = isAddBlank,
-  ) => {
-    return router.get(
-      route(DistributionOfBlankUtils.link.index),
-      pickBy({
-        per_page: perPage,
-        guarantor_id: guarantorSelected,
-        office_id: officeSelected,
-        search: search,
-        is_add_blank: isAddBlankSelect,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
 
-  const setGuarantor = (guarantor: any) => {
+  const refresh = (data?: {
+    perPage?: string;
+    search?: string;
+    guarantorId?: number | null;
+    guarantorBranchId?: number | null;
+    officeType?: string | null;
+    officeId?: number | null;
+    isAddBlankSelect?: boolean | null;
+  }) => {
     return router.get(
       route(DistributionOfBlankUtils.link.index),
       pickBy({
-        guarantor_id: guarantor.id,
-        office_id: officeSelected,
-        per_page: select,
-        search: search,
-        is_add_blank: isAddBlank,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
-
-  const setOffice = (office: any) => {
-    return router.get(
-      route(DistributionOfBlankUtils.link.index),
-      pickBy({
-        guarantor_id: guarantorSelected,
-        office_id: office.id,
-        per_page: select,
-        search: search,
-        is_add_blank: isAddBlank,
+        per_page: data?.perPage === null ? null : (data?.perPage ?? String(select)),
+        search: data?.search === null ? null : (data?.search ?? String(search)),
+        guarantor_id: data?.guarantorId === null ? null : (data?.guarantorId ?? guarantorSelected),
+        guarantor_branch_id:
+          data?.guarantorBranchId === null ? null : (data?.guarantorBranchId ?? guarantorBranchSelected),
+        office_type: data?.officeType === null ? null : (data?.officeType ?? officeTypeSelected),
+        office_id: data?.officeId === null ? null : (data?.officeId ?? officeSelected),
+        is_add_blank: data?.isAddBlankSelect === null ? null : (data?.isAddBlankSelect ?? isAddBlank),
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -448,24 +434,6 @@ const DistributionBlank: DistributionBlankPageProps = ({
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Asuransi"}
-            className={"w-[210px]"}
-            onSelect={(value) => setGuarantor(value)}
-          />
-          <Combobox
-            datas={offices}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={officeSelected}
-            placeholder={"Pilih Kantor"}
-            className={"w-[210px]"}
-            onSelect={(value) => setOffice(value)}
-          />
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
@@ -473,6 +441,53 @@ const DistributionBlank: DistributionBlankPageProps = ({
             <Button type="submit">Cari</Button>
           </form>
         </div>
+      </div>
+
+      <div className="flex gap-x-3">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorSelected}
+          placeholder={"Pilih Asuransi"}
+          className={"w-[210px]"}
+          onSelect={(value) => refresh({ guarantorId: value.id, guarantorBranchId: null, officeId: null })}
+        />
+        <Combobox
+          datas={guarantorBranches}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorBranchSelected}
+          placeholder={"Pilih Cabang Asuransi"}
+          className={"w-[210px]"}
+          onSelect={(value) => refresh({ guarantorBranchId: value.id, officeId: null })}
+        />
+        <Select
+          onValueChange={(value) => refresh({ officeType: value, officeId: null })}
+          defaultValue={String(officeTypeSelected)}>
+          <SelectTrigger className="w-[15%]">
+            <SelectValue placeholder="Pilih " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={officeTypes}
+                render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <Show when={officeTypeSelected !== officeTypes[0]}>
+          <Combobox
+            datas={offices}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={officeSelected}
+            placeholder={"Pilih Kantor"}
+            className={"w-[210px]"}
+            onSelect={(value) => refresh({ officeId: value.id })}
+          />
+        </Show>
       </div>
 
       {isAddBlank && (
