@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Office;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\StoreRequest;
 use App\Http\Requests\Office\UpdateRequest;
@@ -22,7 +23,7 @@ class ProfileController extends Controller
     public function index(Request $request): Response
     {
         $profiles = Profile::search($request->get('search'))
-            ->where('is_central', false)
+            ->where('office_type', OfficeType::BRANCH->value)
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)

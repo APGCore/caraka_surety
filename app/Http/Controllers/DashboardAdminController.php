@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Blank;
 use App\Models\Profile;
 use App\Models\Submission\Submission;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class DashboardAdminController extends Controller
@@ -22,7 +22,7 @@ class DashboardAdminController extends Controller
         $usedBlanks = Blank::where('is_used', true)->count();
 
         // All Branch
-        $userBranch = Profile::where('is_central', '!=', true)->get();
+        $userBranch = Profile::where('office_type', OfficeType::BRANCH->value)->get();
 
         // initiate the model
         $submission = Submission::all();

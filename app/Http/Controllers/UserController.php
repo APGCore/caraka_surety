@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Requests\Auth\ProfileUpdateRequest;
 use App\Models\Profile;
@@ -18,7 +19,7 @@ class UserController extends Controller
     public function edit(Request $request): \Inertia\Response
     {
         $profile = Profile::query()
-            ->where('is_central', true)
+            ->where('office_type', OfficeType::HEADQUARTER->value)
             ->first();
 
         $component = $request->path();
@@ -54,7 +55,7 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
             $profile = Profile::query()
-                ->where('is_central', true)
+                ->where('office_type', OfficeType::HEADQUARTER->value)
                 ->first();
             $profile->update($requestValidated);
 
