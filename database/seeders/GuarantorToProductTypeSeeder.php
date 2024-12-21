@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Database\Seeder;
 
@@ -23,7 +24,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '90.01',
                 'name' => 'Jaminan Penawaran',
                 'job_group' => JobGroup::KONTRUKSI,
-
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Penawaran Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -46,6 +47,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '90.02',
                 'name' => 'Jaminan Penawaran',
                 'job_group' => JobGroup::NONKONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Penawaran Non Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -68,6 +70,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '91.01',
                 'name' => 'Jaminan Pelaksanaan',
                 'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Pelaksanaan Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -91,6 +94,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '91.02',
                 'name' => 'Jaminan Pelaksanaan',
                 'job_group' => JobGroup::NONKONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Pelaksanaan Non Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -114,6 +118,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '90.01',
                 'name' => 'Jaminan Penawaran',
                 'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Penawaran Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -136,6 +141,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '90.02',
                 'name' => 'Jaminan Penawaran',
                 'job_group' => JobGroup::NONKONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Penawaran Non Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -158,6 +164,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '91.01',
                 'name' => 'Jaminan Pelaksanaan',
                 'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Pelaksanaan Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,
@@ -180,6 +187,7 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'code' => '91.02',
                 'name' => 'Jaminan Pelaksanaan',
                 'job_group' => JobGroup::NONKONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Pelaksanaan Non Konstruksi',
                 'minimum_bill' => 0,
                 'minimum_payment' => 0,

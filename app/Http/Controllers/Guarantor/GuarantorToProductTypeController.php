@@ -100,4 +100,32 @@ class GuarantorToProductTypeController extends Controller
             return $this->responseError('Data produk asuransi gagal disimpan', $e->getMessage());
         }
     }
+
+    public function destroyProduct($productId)
+    {
+        try {
+            DB::beginTransaction();
+            GuarantorToProductType::query()
+                ->where('product_id', $productId)
+                ->delete();
+            activity()
+                ->useLog('guarantor-to-product-type')
+                ->performedOn(new Guarantor)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data produk asuransi');
+
+            DB::commit();
+
+            return $this->responseSuccess('Data produk asuransi berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error destroy guarantor to product type', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+
+            return $this->responseError('Data produk asuransi gagal dihapus', $e->getMessage());
+        }
+    }
 }

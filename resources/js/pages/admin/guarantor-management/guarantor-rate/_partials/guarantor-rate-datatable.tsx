@@ -29,7 +29,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
               <TableRow key={guarantorProductType.id}>
                 <TableCell>{guarantorProductType.no}</TableCell>
                 <TableCell>{guarantorProductType.code}</TableCell>
-                <TableCell>{guarantorProductType.full_name}</TableCell>
+                <TableCell>{guarantorProductType.name}</TableCell>
                 <TableCell className="text-right">
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"

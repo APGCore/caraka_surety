@@ -17,11 +17,11 @@ return new class extends Migration
         Schema::create('guarantors', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('headquarter_id')->nullable();
-            $table->foreignIdFor(Province::class, 'province_id')->nullable()
+            $table->foreignIdFor(Province::class, 'province_id')
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignIdFor(Regency::class, 'regency_id')->nullable()
+            $table->foreignIdFor(Regency::class, 'regency_id')
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
-            $table->foreignIdFor(District::class, 'district_id')->nullable()
+            $table->foreignIdFor(District::class, 'district_id')
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
             $table->string('code', 32);

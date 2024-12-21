@@ -41,6 +41,20 @@ class GuarantorSeeder extends Seeder
                 'fax' => '0211234567',
                 'pic' => 'Andre',
             ],
+            [
+                'province_id' => 11,
+                'regency_id' => 97,
+                'district_id' => 53,
+                'village' => 'Cempaka Mas',
+                'postal_code' => '10120',
+                'code' => '42',
+                'name' => 'PT. Asuransi Jasa Tania Tbk.',
+                'email' => 'cempaka@jastan.co.id',
+                'address' => 'Jl. Letjen Suprapto Kav. 1',
+                'telephone' => '08123456789',
+                'fax' => '0211234567',
+                'pic' => 'Frenkky F Karuniadi',
+            ],
         ];
 
         foreach ($datas as $data) {

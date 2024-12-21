@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\OfficeType;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->string('village')->nullable();
             $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
-            $table->boolean('is_central')->default(false);
+            $table->enum('office_type', OfficeType::getValues());
             $table->timestamps();
             $table->softDeletes();
         });

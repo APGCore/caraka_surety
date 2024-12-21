@@ -551,14 +551,29 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      disabled={blank.is_used && blank.is_approved}
-                      onClick={() => {
-                        deleteData(blank);
-                      }}
-                      className={buttonVariants({ variant: "destructive" })}>
-                      Hapus
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                        Delete
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tindakan ini akan menghapus data blangko dari {blank?.profile?.name}?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Batal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              deleteData(blank);
+                            }}
+                            className={buttonVariants({ variant: "destructive" })}>
+                            Lanjutkan Hapus
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))

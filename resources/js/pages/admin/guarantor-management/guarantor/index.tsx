@@ -11,7 +11,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
+const GuarantorPage: GuarantorPageProps = ({ guarantors }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -59,9 +59,9 @@ const AdminProductsPage: GuarantorPageProps = ({ guarantors }) => {
   );
 };
 
-export default AdminProductsPage;
+export default GuarantorPage;
 
-AdminProductsPage.layout = (page: any) => {
+GuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

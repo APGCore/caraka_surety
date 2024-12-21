@@ -13,13 +13,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/general/use-toast";
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
@@ -146,18 +145,31 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
     setChoosedProductTypes(productTypes || [guarantorProductTypeDefault]);
   };
 
-  const removeProduct = (product: any) => {
-    if (productActive === product.id) {
-      setValues([]);
-      setChoosedProductTypes([]);
-      setProductActive(undefined);
+  const removeProduct = async (product: any) => {
+    try {
+      await axios.delete(route("product-guarantor.destroy-product", product.id));
+      if (productActive === product.id) {
+        setValues([]);
+        setChoosedProductTypes([]);
+        setProductActive(undefined);
+      }
+
+      const newProducts = productsGuarantor?.filter((data: any) => data.id !== product.id);
+      setProductsGuarantor(newProducts);
+
+      const newProductTypeOwnedProduct = productTypeOwnedProduct.filter((data: any) => data.product_id !== product.id);
+      setProductTypeOwnedProduct(newProductTypeOwnedProduct);
+      toast({
+        title: "Berhasil",
+        description: "Produk berhasil dihapus",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Gagal",
+        description: "Produk gagal dihapus",
+        variant: "destructive",
+      });
     }
-
-    const newProducts = productsGuarantor?.filter((data: any) => data.id !== product.id);
-    setProductsGuarantor(newProducts);
-
-    const newProductTypeOwnedProduct = productTypeOwnedProduct.filter((data: any) => data.product_id !== product.id);
-    setProductTypeOwnedProduct(newProductTypeOwnedProduct);
   };
 
   const productFiltered = useMemo(() => {
@@ -453,152 +465,203 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
           {productsGuarantor?.length > 0 && (
             <div className="flex w-full">
               <div className="p-4 w-[30%]">
-                <h2 className="mb-4 text-lg font-medium leading-none">Produk Guarantor</h2>
-                <RenderList
-                  of={productsGuarantor}
-                  render={(product) => {
-                    return (
-                      <>
-                        <div className="flex align-center space-x-2">
-                          <Input
-                            id="code"
-                            type="text"
-                            placeholder="Kode"
-                            value={product.code}
-                            className="w-[40%]"
-                            onChange={(value) => changeProductCode(value)}
-                          />
-                          <Button
-                            className={cn(
-                              `w-full`,
-                              productActive == product.id ? "bg-green-700 hover:bg-green-500" : "hover:bg-gray-400",
-                            )}
-                            onClick={() => selectProduct(product)}>
-                            {product.name}
-                          </Button>
-                          <Button
-                            type="button"
-                            className="bg-destructive hover:bg-destructive/80"
-                            onClick={() => removeProduct(product)}>
-                            Hapus
-                          </Button>
-                        </div>
-                        <Separator className="my-2" />
-                      </>
-                    );
-                  }}
-                />
+                <h2 className="mb-4 text-lg font-medium leading-none">Produk</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kode</TableHead>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <RenderList
+                      of={productsGuarantor}
+                      render={(product) => (
+                        <TableRow key={product.id}>
+                          <TableCell className="py-1 px-1 w-1">
+                            <Input
+                              id="code"
+                              type="text"
+                              placeholder="Kode"
+                              value={product.code}
+                              className="w-full"
+                              onChange={(value) => changeProductCode(value)}
+                            />
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <Button
+                              className={cn(
+                                `w-full`,
+                                productActive == product.id ? "bg-green-700 hover:bg-green-500" : "hover:bg-gray-400",
+                              )}
+                              onClick={() => selectProduct(product)}>
+                              {product.name}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button type="button" className="bg-destructive hover:bg-destructive/80">
+                                  Hapus
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tindakan ini akan menghapus data produk {product.name}?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => removeProduct(product)}
+                                    className={buttonVariants({ variant: "destructive" })}>
+                                    Lanjutkan Hapus
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    />
+                  </TableBody>
+                </Table>
               </div>
               <div className="p-4 pt-6 w-[70%]">
-                <div className="grid gap-2 ">
-                  <Label htmlFor="name">Jenis Produk</Label>
-                  <RenderList
-                    of={choosedProductTypes}
-                    render={(val, id) => (
-                      <div key={id} className="space-y-2 flex items-center gap-x-2">
-                        <Input
-                          id="no"
-                          type="number"
-                          placeholder="No"
-                          value={values[id]?.no}
-                          className="mt-2 h-[40px] w-[15%]"
-                          min={1}
-                          onChange={(value) => changeProductTypeNo(value, id, val)}
-                        />
-                        <Input
-                          id="code"
-                          type="text"
-                          placeholder="Kode"
-                          value={values[id]?.code}
-                          className="mt-2 h-[40px] w-[30%]"
-                          onChange={(value) => changeProductTypeCode(value, id, val)}
-                        />
-                        <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              aria-expanded={openStates[id]}
-                              className="w-full justify-between">
-                              {values[id]?.name || "Pilih Jenis Produk..."}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search framework..." />
-                              <CommandList>
-                                <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
-                                <CommandGroup>
+                <h2 className="mb-4 text-lg font-medium leading-none">Jenis Produk</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1">No Urut</TableHead>
+                      <TableHead className="w-2">Kode</TableHead>
+                      <TableHead>Jenis Produk</TableHead>
+                      <TableHead>Kelompok Pekerjaan</TableHead>
+                      <TableHead>Tipe Pekerjaan</TableHead>
+                      <TableHead className="text-right" />
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <RenderList
+                      of={choosedProductTypes}
+                      render={(val, id) => (
+                        <TableRow key={id}>
+                          <TableCell className="py-1 px-1">
+                            <Input
+                              id="no"
+                              type="number"
+                              placeholder="No"
+                              value={values[id]?.no}
+                              className="w-full"
+                              min={1}
+                              onChange={(value) => changeProductTypeNo(value, id, val)}
+                            />
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <Input
+                              id="code"
+                              type="text"
+                              placeholder="Kode"
+                              value={values[id]?.code}
+                              className="w-full"
+                              onChange={(value) => changeProductTypeCode(value, id, val)}
+                            />
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <Popover open={openStates[id]} onOpenChange={() => togglePopover(id)}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={openStates[id]}
+                                  className="w-full justify-between">
+                                  {values[id]?.name || "Pilih Jenis Produk..."}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                                <Command>
+                                  <CommandInput placeholder="Search framework..." />
+                                  <CommandList>
+                                    <CommandEmpty>Jenis Produk tidak ditemukan.</CommandEmpty>
+                                    <CommandGroup>
+                                      <RenderList
+                                        of={productTypes}
+                                        render={(framework) => (
+                                          <CommandItem
+                                            key={framework.id}
+                                            onSelect={() => changeProductType(framework, id, val)}>
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
+                                              )}
+                                            />
+                                            {framework.name}
+                                          </CommandItem>
+                                        )}
+                                      />
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <Select
+                              onValueChange={(value) => changeJobGroup(value, id, val)}
+                              defaultValue={values[id]?.job_group}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectItem value={"-"}>-</SelectItem>
                                   <RenderList
-                                    of={productTypes}
-                                    render={(framework) => (
-                                      <CommandItem
-                                        key={framework.id}
-                                        onSelect={() => changeProductType(framework, id, val)}>
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            values[id]?.name === framework.name ? "opacity-100" : "opacity-0",
-                                          )}
-                                        />
-                                        {framework.name}
-                                      </CommandItem>
+                                    of={jobGroups}
+                                    render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                                  />
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="py-1 px-1">
+                            <Select
+                              onValueChange={(value) => changeJobType(value, id, val)}
+                              defaultValue={values[id]?.job_type}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Pilih Tipe Pekarjaan" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectItem value={"-"}>-</SelectItem>
+                                  <RenderList
+                                    of={jobTypes}
+                                    render={(groupType: string) => (
+                                      <SelectItem value={groupType}>{groupType}</SelectItem>
                                     )}
                                   />
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-
-                        <Select
-                          onValueChange={(value) => changeJobGroup(value, id, val)}
-                          defaultValue={values[id]?.job_group}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value={"-"}>-</SelectItem>
-                              <RenderList
-                                of={jobGroups}
-                                render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-                              />
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-
-                        <Select
-                          onValueChange={(value) => changeJobType(value, id, val)}
-                          defaultValue={values[id]?.job_type}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih Tipe Pekarjaan" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value={"-"}>-</SelectItem>
-                              <RenderList
-                                of={jobTypes}
-                                render={(groupType: string) => <SelectItem value={groupType}>{groupType}</SelectItem>}
-                              />
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-
-                        {/* Delete Combobox Button */}
-                        {choosedProductTypes.length > 1 && (
-                          <Button
-                            type="button"
-                            className="bg-destructive hover:bg-destructive/80"
-                            onClick={() => removeCombobox(id)}>
-                            Hapus
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  />
-                </div>
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="py-1 px-1 text-right">
+                            {choosedProductTypes.length > 1 && (
+                              <Button
+                                type="button"
+                                className="bg-destructive hover:bg-destructive/80"
+                                onClick={() => removeCombobox(id)}>
+                                Hapus
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    />
+                  </TableBody>
+                </Table>
 
                 <Button type="button" className="w-full mt-4" onClick={addCombobox}>
                   Tambah Jenis Produk

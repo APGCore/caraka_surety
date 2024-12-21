@@ -2,11 +2,11 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
 import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
-import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-create-page.type";
+import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-edit-page.type";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
 import { Head } from "@inertiajs/react";
 
-const GuarantorCreatePage: GuarantorEditPageProps = ({ guarantor }) => {
+const GuarantorEditPage: GuarantorEditPageProps = ({ guarantor }) => {
   return (
     <Card className="w-[800px] mx-auto">
       <CardHeader>
@@ -24,9 +24,9 @@ const GuarantorCreatePage: GuarantorEditPageProps = ({ guarantor }) => {
   );
 };
 
-export default GuarantorCreatePage;
+export default GuarantorEditPage;
 
-GuarantorCreatePage.layout = (page: any) => {
+GuarantorEditPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
