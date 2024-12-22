@@ -116,7 +116,8 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
         .catch((error) => {
           setErrors(error.response.data.errors);
           toast({
-            ...FormProfileLimitsUtils.create.toast_failed,
+            title: "Gagal",
+            description: error.response.data.data.message,
             variant: "destructive",
           });
         })
@@ -140,7 +141,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
           {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="w-[400px] space-y-3">
+      <AlertDialogContent className="w-[25%] space-y-3">
         <AlertDialogHeader className="space-y-1">
           <AlertDialogTitle>
             {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title} {dataForm.name}

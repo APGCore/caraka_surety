@@ -79,14 +79,6 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
           <span className="text-sm text-gray-400">Belum Di setting</span>
         )}
       </div>
-      <div className="flex items-center gap-x-2">
-        <span className="text-sm text-gray-400">Yang Sudah Dibagikan:</span>
-        {limit?.limit_used ? (
-          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_used)}</span>
-        ) : (
-          <span className="text-sm text-gray-400">Belum Ada</span>
-        )}
-      </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />

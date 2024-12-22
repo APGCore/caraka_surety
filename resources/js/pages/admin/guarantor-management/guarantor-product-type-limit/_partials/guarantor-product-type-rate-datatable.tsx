@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,6 +26,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { textCurrency } from "@/lib/text-currency";
 import FormGuarantorProductTypeRate from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/form-guarantor-product-type-rate";
 import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
+import { JobTypeEnum } from "@/types/job-type-enum";
 import { router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React, { useState } from "react";
@@ -49,6 +51,7 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
             <TableHead>Kode</TableHead>
             <TableHead>Limit</TableHead>
             <TableHead>Jenis Jaminan</TableHead>
+            <TableHead>Kelompok Pekerjaan</TableHead>
             <TableHead className="text-right" />
           </TableRow>
         </TableHeader>
@@ -63,7 +66,13 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
                     ? "Rp. " + textCurrency(guarantorProductType.limit?.limit)
                     : "Belum di setting"}
                 </TableCell>
-                <TableCell>{guarantorProductType.full_name}</TableCell>
+                <TableCell>{guarantorProductType.name}</TableCell>
+                <TableCell>
+                  {guarantorProductType.job_group}
+                  <Show when={guarantorProductType.job_type == JobTypeEnum.CONDITIONAL}>
+                    <Badge className="ml-2 bg-blue-400">{guarantorProductType.job_type}</Badge>
+                  </Show>
+                </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -80,7 +89,7 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Setting Limit {guarantorProductType?.full_name}</AlertDialogTitle>
+                              <AlertDialogTitle>Setting Limit {guarantorProductType?.name}</AlertDialogTitle>
                               <AlertDialogDescription>Tindakan ini akan setting limit pengajuan</AlertDialogDescription>
                             </AlertDialogHeader>
                             <FormGuarantorProductTypeRate

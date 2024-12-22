@@ -64,7 +64,8 @@ class GuarantorToProductTypeController extends Controller
             DB::beginTransaction();
             $data->each(function ($item) use ($requestValid) {
                 $item['guarantor_id'] = $requestValid['guarantor_id'];
-                $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$item['job_type'];
+                $jobType = JobType::UNCONDITIONAL->value === $item['job_type'] ? '' : JobType::CONDITIONAL;
+                $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$jobType;
                 GuarantorToProductType::query()
                     ->updateOrCreate([
                         'id' => $item['id'] ?? null,

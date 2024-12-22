@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
@@ -18,7 +20,7 @@ class GuarantorProductTypeLimitController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::with(['product', 'productType'])->get();
+        $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
 
         $products = $guarantor?->product?->unique();
@@ -27,16 +29,25 @@ class GuarantorProductTypeLimitController extends Controller
         $guarantorSelected = $guarantor->id ?? null;
         $productSelected = $product->id ?? null;
 
+        $jobGroups = JobGroup::getValues();
+        $jobGroupSelected = $request->get('job_group', count($jobGroups) > 0 ? $jobGroups[0] : null);
+        $jobTypes = JobType::getValues();
+        $jobTypeSelected = $request->get('job_type', count($jobTypes) > 1 ? $jobTypes[1] : null);
+
         $guarantorProductTypes = GuarantorToProductType::search($request->get('search'))
-            ->query(function ($query) use ($guarantorSelected, $productSelected) {
-                $query->where('guarantor_id', $guarantorSelected)
+            ->query(function ($query) use ($guarantorSelected, $productSelected, $jobGroupSelected) {
+                $query->with('limit')
+                    ->where('guarantor_id', $guarantorSelected)
                     ->where('product_id', $productSelected)
-                    ->with(['limit' => function ($query) use ($guarantorSelected) {
-                        $query->where('guarantor_id', $guarantorSelected);
-                    }])
-                    ->select('id', 'guarantor_id', 'code', 'full_name', 'created_at', 'updated_at');
+                    ->when($jobGroupSelected, function ($query) use ($jobGroupSelected) {
+                        $query->where('job_group', $jobGroupSelected);
+                    })
+//                    ->when($jobTypeSelected, function ($query) use ($jobTypeSelected) {
+//                        $query->where('job_type', $jobTypeSelected);
+//                    })
+                    ->select('id', 'guarantor_id', 'no', 'code', 'full_name', 'name', 'job_group', 'job_type', 'created_at', 'updated_at');
             })
-            ->orderBy('name')
+            ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
@@ -53,6 +64,10 @@ class GuarantorProductTypeLimitController extends Controller
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
             'productSelected' => $productSelected,
+            'jobGroups' => $jobGroups,
+            'jobGroupSelected' => $jobGroupSelected,
+            'jobTypes' => $jobTypes,
+            'jobTypeSelected' => $jobTypeSelected,
             'guarantorProductTypes' => fn () => $resource,
         ]);
     }

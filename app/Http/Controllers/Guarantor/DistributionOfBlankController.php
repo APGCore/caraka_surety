@@ -159,11 +159,14 @@ class DistributionOfBlankController extends Controller
         return $this->responseSuccess('Data berhasil diambil', $blanks);
     }
 
-    public function getBlankRange(): \Illuminate\Http\JsonResponse
+    public function getBlankRange(Request $request): \Illuminate\Http\JsonResponse
     {
         $blanks = Blank::query()
             ->whereNull('profile_id')
             ->where('is_used', false)
+            ->when($request->get('guarantor_id'), function ($query) use ($request) {
+                $query->where('guarantor_id', $request->get('guarantor_id'));
+            })
             ->orderBy('number')
             ->get();
 

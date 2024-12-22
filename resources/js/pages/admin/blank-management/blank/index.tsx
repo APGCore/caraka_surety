@@ -38,7 +38,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { pickBy } from "lodash";
 import { ArrowRight } from "lucide-react";
-import React, { FormEventHandler, useState } from "react";
+import React, { useState } from "react";
 
 const BlankPage: BlankPageProps = ({
   guarantors,
@@ -53,7 +53,6 @@ const BlankPage: BlankPageProps = ({
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-  const [openCreate, setOpenCreate] = useState<boolean>(false);
   const [openCreateMulti, setOpenCreateMulti] = useState<boolean>(false);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,7 +63,7 @@ const BlankPage: BlankPageProps = ({
   const defaultDataForm: DataForm = {
     number: "",
   };
-  const [dataForm, setdataForm] = useState<DataForm>(defaultDataForm);
+  const [dataForm, setDataForm] = useState<DataForm>(defaultDataForm);
   const [errors, setErrors] = useState<{ number: Array<string> | null }>({
     number: null,
   });
@@ -122,31 +121,6 @@ const BlankPage: BlankPageProps = ({
     router.delete(route(BlankUtils.link.destroy, blank.id));
   };
 
-  const createBlangko: FormEventHandler<HTMLFormElement> = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    axios
-      .post(route(BlankUtils.link.store), { ...dataForm, guarantor_id: guarantorSelected })
-      .then(() => {
-        setOpenCreate(false);
-        setdataForm(defaultDataForm);
-        getData(String(select), search, guarantorSelected);
-        toast({
-          title: "Berhasil",
-          description: "Data Blangko berhasil ditambahkan",
-        });
-        clear();
-      })
-      .catch((error) => {
-        setErrors(error.response.data.errors);
-        setOpenCreate(true);
-        console.log(error.response);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   const createBlangkoMulti = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -179,7 +153,7 @@ const BlankPage: BlankPageProps = ({
       .put(route(BlankUtils.link.update, dataForm.id), { ...dataForm, guarantor_id: guarantorSelected })
       .then(() => {
         setOpenEdit(false);
-        setdataForm(defaultDataForm);
+        setDataForm(defaultDataForm);
         getData(String(select), search, guarantorSelected);
         toast({
           title: "Berhasil",
@@ -202,7 +176,7 @@ const BlankPage: BlankPageProps = ({
   };
 
   const clear = () => {
-    setdataForm(defaultDataForm);
+    setDataForm(defaultDataForm);
     setDataCreateMulti(defaultDataCreateMulti);
     setErrors({ number: null });
     setErrorsMulti({ number_start: null, number_end: null });
@@ -310,15 +284,15 @@ const BlankPage: BlankPageProps = ({
             className={"w-[210px]"}
             onSelect={(value) => setGuarantor(value)}
           />
-          <Combobox
-            datas={guarantorBranches}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorBranchSelected}
-            placeholder={"Pilih Cabang Asuransi"}
-            className={"w-[210px]"}
-            onSelect={(value) => setGuarantor(guarantorSelected, value)}
-          />
+          {/*<Combobox*/}
+          {/*  datas={guarantorBranches}*/}
+          {/*  labelKey={"name"}*/}
+          {/*  valueKey={"name"}*/}
+          {/*  defaultValue={guarantorBranchSelected}*/}
+          {/*  placeholder={"Pilih Cabang Asuransi"}*/}
+          {/*  className={"w-[210px]"}*/}
+          {/*  onSelect={(value) => setGuarantor(guarantorSelected, value)}*/}
+          {/*/>*/}
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
@@ -377,7 +351,7 @@ const BlankPage: BlankPageProps = ({
                               <AlertDialogTrigger
                                 className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                                 onClick={() =>
-                                  setdataForm({
+                                  setDataForm({
                                     id: blank.id,
                                     number: blank.number,
                                   })
@@ -398,7 +372,7 @@ const BlankPage: BlankPageProps = ({
                                       id="number"
                                       value={dataForm.number}
                                       onChange={(e) =>
-                                        setdataForm({
+                                        setDataForm({
                                           ...dataForm,
                                           number: e.target.value,
                                         })

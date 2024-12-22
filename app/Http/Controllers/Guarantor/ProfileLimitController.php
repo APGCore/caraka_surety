@@ -22,8 +22,7 @@ class ProfileLimitController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::query()->select('id', 'name')
-            ->get();
+        $guarantors = Guarantor::query()->whereNull('headquarter_id')->get(['id', 'name']);
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $guarantorProducts = $guarantor?->guarantorToProductTypes?->pluck('product')->unique()->values();
@@ -34,15 +33,6 @@ class ProfileLimitController extends Controller
             ->where('guarantor_id', $guarantorSelected)
             ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
             ->first();
-
-        if ($limit) {
-            $limit_used = ProfileLimit::query()
-                ->where('guarantor_id', $guarantorSelected)
-                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
-                ->sum('limit');
-
-            $limit->setAttribute('limit_used', $limit_used);
-        }
 
         $profiles = Profile::search($request->get('search'))
             ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected) {
@@ -104,14 +94,9 @@ class ProfileLimitController extends Controller
                 ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
                 ->first();
 
-            $limitUsed = ProfileLimit::query()
-                ->where('guarantor_id', $requestValid['guarantor_id'])
-                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
-                ->sum('limit');
-
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
-            if (($limitUsed + $limit) > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
@@ -158,15 +143,9 @@ class ProfileLimitController extends Controller
                 ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
                 ->first();
 
-            $limitUsed = ProfileLimit::query()
-                ->where('guarantor_id', $requestValid['guarantor_id'])
-                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
-                ->whereNot('profile_id', $profileLimit->getAttribute('profile_id'))
-                ->sum('limit');
-
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
-            if (($limitUsed + $limit) > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 

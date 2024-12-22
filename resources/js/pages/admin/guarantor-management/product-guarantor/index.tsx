@@ -49,7 +49,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   const [productSelected, setProductSelected] = useState<number | null>(null);
   const guarantorProductTypeDefault = {
     id: null,
-    no: 0,
+    no: 1,
     product_id: 0,
     product_type_id: 0,
     code_product: "",
@@ -212,8 +212,8 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   };
 
   const addCombobox = () => {
-    setChoosedProductTypes((prev: any) => [...prev, { ...guarantorProductTypeDefault, no: prev.length }]);
-    setValues((prev) => [...prev, { ...guarantorProductTypeDefault, no: prev.length }]);
+    setChoosedProductTypes((prev: any) => [...prev, { ...guarantorProductTypeDefault, no: prev.length + 1 }]);
+    setValues((prev) => [...prev, { ...guarantorProductTypeDefault, no: prev.length + 1 }]);
     setOpenStates((prev) => [...prev, false]);
   };
 
@@ -253,7 +253,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   };
 
   const changeProductTypeNo = (value: any, id: number, val: any) => {
-    const newValue = values[id].no === parseInt(value.target.value) ? 0 : parseInt(value.target.value);
+    const newValue = values[id].no === parseInt(value.target.value) ? 1 : parseInt(value.target.value);
     setValues((prev) => {
       const newValues = [...prev];
 

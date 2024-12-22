@@ -37,15 +37,6 @@ class EmployeeLimitController extends Controller
             ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
             ->where('profile_id', $profileSelected)
             ->first();
-        if ($limit) {
-            $limit_used = EmployeeLimit::query()
-                ->where('guarantor_id', $guarantorSelected)
-                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
-                ->where('profile_id', $profileSelected)
-                ->sum('limit');
-
-            $limit->setAttribute('limit_used', $limit_used);
-        }
 
         $employees = User::search($request->get('search'))
             ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
@@ -110,20 +101,13 @@ class EmployeeLimitController extends Controller
 
         try {
             DB::beginTransaction();
-
             $profileLimit = ProfileLimit::query()
                 ->where('guarantor_id', $requestValid['guarantor_id'])
                 ->where('profile_id', $requestValid['profile_id'])
                 ->first();
-
-            $limitUsed = EmployeeLimit::query()
-                ->where('guarantor_id', $requestValid['guarantor_id'])
-                ->where('profile_id', $requestValid['profile_id'])
-                ->sum('limit');
-
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
-            if (($limitUsed + $limit) > $profileLimit->getAttribute('limit')) {
+            if ($limit > $profileLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
@@ -167,15 +151,9 @@ class EmployeeLimitController extends Controller
                 ->where('profile_id', $employeeLimit->getAttribute('profile_id'))
                 ->first();
 
-            $limitUsed = EmployeeLimit::query()
-                ->where('guarantor_id', $employeeLimit->getAttribute('guarantor_id'))
-                ->where('profile_id', $employeeLimit->getAttribute('profile_id'))
-                ->whereNot('employee_id', $employeeLimit->getAttribute('employee_id'))
-                ->sum('limit');
-
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
-            if (($limitUsed + $limit) > $profileLimit->getAttribute('limit')) {
+            if ($limit > $profileLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 

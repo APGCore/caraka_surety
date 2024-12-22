@@ -62,6 +62,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
   const [selectedFirstBlank, setSelectedFirstBlank] = useState<blank | null>(null);
   const [qtyBlank, setQtyBlank] = useState<number>(0);
   const [selectedLastBlank, setSelectedLastBlank] = useState<blank | null>(null);
+  const [officeForTransfer, setOfficeForTransfer] = useState<Array<any>>([]);
   const [fromOffice, setFromOffice] = useState<any | null>(null);
   const [toOffice, setToOffice] = useState<any | null>(null);
 
@@ -90,7 +91,11 @@ const DistributionBlank: DistributionBlankPageProps = ({
   };
 
   const fetchBlankRange = async () => {
-    const data = await axios.get(route(DistributionOfBlankUtils.link.getBlankRange));
+    const data = await axios.get(
+      route(DistributionOfBlankUtils.link.getBlankRange, {
+        guarantor_id: guarantorSelected,
+      }),
+    );
     return data.data;
   };
 
@@ -151,6 +156,11 @@ const DistributionBlank: DistributionBlankPageProps = ({
         },
       },
     );
+  };
+
+  const handleTransfer = async () => {
+    const response = await axios.get(route(DistributionOfBlankUtils.link.getOffice));
+    setOfficeForTransfer(response.data.data);
   };
 
   const transferBlank = () => {
@@ -310,7 +320,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     setSelectedLastBlank(null);
                   }}
                   asChild>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-500">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-500" onClick={handleTransfer}>
                     Transfer Blangko
                   </Button>
                 </AlertDialogTrigger>
@@ -325,7 +335,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <Combobox
-                        datas={offices}
+                        datas={officeForTransfer}
                         labelKey={"name"}
                         valueKey={"name"}
                         defaultValueId={fromOffice?.id}
@@ -335,7 +345,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       />
                       <ArrowRight className="mb-2" />
                       <Combobox
-                        datas={offices.filter((office: any) => office.id !== fromOffice?.id)}
+                        datas={officeForTransfer.filter((office: any) => office.id !== fromOffice?.id)}
                         labelKey={"name"}
                         valueKey={"name"}
                         defaultValueId={toOffice?.id}
@@ -453,15 +463,15 @@ const DistributionBlank: DistributionBlankPageProps = ({
           className={"w-[210px]"}
           onSelect={(value) => refresh({ guarantorId: value.id, guarantorBranchId: null, officeId: null })}
         />
-        <Combobox
-          datas={guarantorBranches}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValue={guarantorBranchSelected}
-          placeholder={"Pilih Cabang Asuransi"}
-          className={"w-[210px]"}
-          onSelect={(value) => refresh({ guarantorBranchId: value.id, officeId: null })}
-        />
+        {/*<Combobox*/}
+        {/*  datas={guarantorBranches}*/}
+        {/*  labelKey={"name"}*/}
+        {/*  valueKey={"name"}*/}
+        {/*  defaultValue={guarantorBranchSelected}*/}
+        {/*  placeholder={"Pilih Cabang Asuransi"}*/}
+        {/*  className={"w-[210px]"}*/}
+        {/*  onSelect={(value) => refresh({ guarantorBranchId: value.id, officeId: null })}*/}
+        {/*/>*/}
         <Select
           onValueChange={(value) => refresh({ officeType: value, officeId: null })}
           defaultValue={String(officeTypeSelected)}>
@@ -567,7 +577,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
                     <AlertDialog>
-                      <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm rounded-sm text-start">
                         Delete
                       </AlertDialogTrigger>
                       <AlertDialogContent>
