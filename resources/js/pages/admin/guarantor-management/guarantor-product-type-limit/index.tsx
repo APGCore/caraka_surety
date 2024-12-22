@@ -77,64 +77,63 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={guarantorSelected}
-            placeholder={"Pilih Asuransi"}
-            className={"min-w-[200px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
-          <Combobox
-            datas={products}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={productSelected}
-            placeholder={"Pilih Produk"}
-            className={"min-w-[200px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectProduct(value.id)}
-          />
-          <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={jobGroups}
-                  render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {/*<Select onValueChange={(value) => handleSelectJobType(value)} defaultValue={jobTypeSelected}>*/}
-          {/*  <SelectTrigger>*/}
-          {/*    <SelectValue placeholder="Pilih Jenis Pekerjaan" />*/}
-          {/*  </SelectTrigger>*/}
-          {/*  <SelectContent>*/}
-          {/*    <SelectGroup>*/}
-          {/*      <RenderList*/}
-          {/*        of={jobTypes}*/}
-          {/*        render={(jobType: string) => <SelectItem value={jobType}>{jobType}</SelectItem>}*/}
-          {/*      />*/}
-          {/*    </SelectGroup>*/}
-          {/*  </SelectContent>*/}
-          {/*</Select>*/}
-        </div>
-
+        <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
         <SearchDatatable
           value={search}
           onChange={setSearch}
           onSubmit={handleSearchProduct}
           placeholder="Cari Jenis Produk"
         />
+      </div>
+      <div className="flex gap-x-3 items-center max-w-[50%]">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorSelected}
+          placeholder={"Pilih Asuransi"}
+          className={"min-w-[200px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <Combobox
+          datas={products}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={productSelected}
+          placeholder={"Pilih Produk"}
+          className={"min-w-[200px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectProduct(value.id)}
+        />
+        <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={jobGroups}
+                render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        {/*<Select onValueChange={(value) => handleSelectJobType(value)} defaultValue={jobTypeSelected}>*/}
+        {/*  <SelectTrigger>*/}
+        {/*    <SelectValue placeholder="Pilih Jenis Pekerjaan" />*/}
+        {/*  </SelectTrigger>*/}
+        {/*  <SelectContent>*/}
+        {/*    <SelectGroup>*/}
+        {/*      <RenderList*/}
+        {/*        of={jobTypes}*/}
+        {/*        render={(jobType: string) => <SelectItem value={jobType}>{jobType}</SelectItem>}*/}
+        {/*      />*/}
+        {/*    </SelectGroup>*/}
+        {/*  </SelectContent>*/}
+        {/*</Select>*/}
       </div>
       <GuarantorProductTypeRateDatatable guarantorProductTypes={guarantorProductTypes} />
     </main>

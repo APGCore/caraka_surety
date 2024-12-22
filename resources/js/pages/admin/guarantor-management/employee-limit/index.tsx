@@ -119,65 +119,6 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
-            className={"min-w-[140px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
-          <Combobox
-            datas={guarantorProducts}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={guarantorProductSelected}
-            placeholder={"Pilih Produk"}
-            className={"min-w-[140px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantorProduct(value.id)}
-          />
-          <Combobox
-            datas={guarantorProductTypes}
-            labelKey={"full_name"}
-            valueKey={"full_name"}
-            defaultValueId={guarantorProductTypeSelected}
-            placeholder={"Pilih Jenis Jaminan"}
-            className={"min-w-[160px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantorProductType(value.id)}
-          />
-          <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih " />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={officeTypes}
-                  render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Show when={officeTypeSelected !== officeTypes[0]}>
-            <Combobox
-              datas={profiles}
-              labelKey={"name"}
-              valueKey={"name"}
-              defaultValueId={profileSelected}
-              placeholder={"Pilih Kantor"}
-              className={"min-w-[140px]"}
-              isWidthSameWithInput={false}
-              shortValue={true}
-              onSelect={(value) => handleSelectProfile(value.id)}
-            />
-          </Show>
         </div>
         <SearchDatatable
           value={search}
@@ -185,6 +126,67 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
           onSubmit={handleSearchProfileLimit}
           placeholder="Cari Pengguna"
         />
+      </div>
+      <div className="flex gap-x-3 items-center max-w-[80%]">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorSelected}
+          placeholder={"Pilih Penjamin"}
+          className={"min-w-[140px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <Combobox
+          datas={guarantorProducts}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorProductSelected}
+          placeholder={"Pilih Produk"}
+          className={"min-w-[140px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantorProduct(value.id)}
+        />
+        <Combobox
+          datas={guarantorProductTypes}
+          labelKey={"full_name"}
+          valueKey={"full_name"}
+          defaultValueId={guarantorProductTypeSelected}
+          placeholder={"Pilih Jenis Jaminan"}
+          className={"min-w-[160px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantorProductType(value.id)}
+        />
+        <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={officeTypes}
+                render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <Show when={officeTypeSelected !== officeTypes[0]}>
+          <Combobox
+            datas={profiles}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValueId={profileSelected}
+            placeholder={"Pilih Kantor"}
+            className={"min-w-[140px]"}
+            isWidthSameWithInput={false}
+            shortValue={true}
+            onSelect={(value) => handleSelectProfile(value.id)}
+          />
+        </Show>
       </div>
       <EmployeeLimitsDatatable
         employees={employees}

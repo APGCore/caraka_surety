@@ -90,61 +90,61 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         )}
       </div>
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
-            className={"min-w-[200px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
-          <Combobox
-            datas={guarantorProducts}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={guarantorProductSelected}
-            placeholder={"Pilih Produk"}
-            className={"min-w-[200px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantorProduct(value.id)}
-          />
-          <Combobox
-            datas={guarantorProductTypes}
-            labelKey={"full_name"}
-            valueKey={"full_name"}
-            defaultValueId={guarantorProductTypeSelected}
-            placeholder={"Pilih Jenis Jaminan"}
-            className={"min-w-[200px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantorProductType(value.id)}
-          />
-          <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih " />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={officeTypes}
-                  render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
         <SearchDatatable
           value={search}
           onChange={setSearch}
           onSubmit={handleSearchProfileLimit}
           placeholder="Cari Kantor"
         />
+      </div>
+      <div className="flex items-center gap-x-2 max-w-[70%]">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorSelected}
+          placeholder={"Pilih Penjamin"}
+          className={"min-w-[200px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <Combobox
+          datas={guarantorProducts}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorProductSelected}
+          placeholder={"Pilih Produk"}
+          className={"min-w-[200px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantorProduct(value.id)}
+        />
+        <Combobox
+          datas={guarantorProductTypes}
+          labelKey={"full_name"}
+          valueKey={"full_name"}
+          defaultValueId={guarantorProductTypeSelected}
+          placeholder={"Pilih Jenis Jaminan"}
+          className={"min-w-[200px]"}
+          isWidthSameWithInput={false}
+          shortValue={true}
+          onSelect={(value) => handleSelectGuarantorProductType(value.id)}
+        />
+        <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={officeTypes}
+                render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       <ProfileLimitsDatatable
         profiles={profiles}
