@@ -1,13 +1,16 @@
 import { Combobox } from "@/components/common/combobox";
+import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import Show from "@/components/common/show";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { textCurrency } from "@/lib/text-currency";
 import { EmployeeLimitsUtils } from "@/pages/admin/guarantor-management/employee-limit/employee-limits.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import React, { useState } from "react";
 import EmployeeLimitsDatatable from "./_partials/employee-limits-datatable";
 import EmployeeLimitsHeader from "./_partials/employee-limits-header";
 import { EmployeeLimitsPageProps } from "./employee-limits.type";
@@ -21,6 +24,8 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
   guarantorProductTypeSelected,
   profiles,
   profileSelected,
+  officeTypes,
+  officeTypeSelected,
   limit,
   employees,
 }) => {
@@ -61,6 +66,18 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
     getData(data);
   };
 
+  const handleSelectOfficeType = (officeType: string) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductSelected,
+      guarantor_product_type_id: guarantorProductTypeSelected,
+      office_type: officeType,
+    };
+    getData(data);
+  };
+
   const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
     const data = {
       per_page: select,
@@ -68,6 +85,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
       guarantor_id: guarantorSelected,
       guarantor_product_id: guarantorProductSelected,
       guarantor_product_type_id: guarantorProductTypeId,
+      office_type: officeTypeSelected,
       profile_id: profileSelected,
     };
     getData(data);
@@ -113,17 +131,6 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             onSelect={(value) => handleSelectGuarantor(value.id)}
           />
           <Combobox
-            datas={profiles}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValueId={profileSelected}
-            placeholder={"Pilih Kantor"}
-            className={"min-w-[140px]"}
-            isWidthSameWithInput={false}
-            shortValue={true}
-            onSelect={(value) => handleSelectProfile(value.id)}
-          />
-          <Combobox
             datas={guarantorProducts}
             labelKey={"name"}
             valueKey={"name"}
@@ -145,6 +152,32 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
+          <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih " />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <RenderList
+                  of={officeTypes}
+                  render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+                />
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Show when={officeTypeSelected !== officeTypes[0]}>
+            <Combobox
+              datas={profiles}
+              labelKey={"name"}
+              valueKey={"name"}
+              defaultValueId={profileSelected}
+              placeholder={"Pilih Kantor"}
+              className={"min-w-[140px]"}
+              isWidthSameWithInput={false}
+              shortValue={true}
+              onSelect={(value) => handleSelectProfile(value.id)}
+            />
+          </Show>
         </div>
         <SearchDatatable
           value={search}

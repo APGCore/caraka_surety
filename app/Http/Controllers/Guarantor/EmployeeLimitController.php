@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Guarantor\EmployeeLimit;
@@ -30,8 +31,17 @@ class EmployeeLimitController extends Controller
         $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->values();
         $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
-        $profiles = Profile::all();
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+        $profiles = Profile::where('office_type', $officeType)->get();
         $profileSelected = (int) ($request->get('profile_id') ?? $profiles->first()?->id);
+
         $limit = ProfileLimit::query()
             ->where('guarantor_id', $guarantorSelected)
             ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
@@ -72,6 +82,8 @@ class EmployeeLimitController extends Controller
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
             'profiles' => $profiles,
             'profileSelected' => $profileSelected,
+            'officeTypes' => $officeTypes,
+            'officeTypeSelected' => $officeTypeSelected,
             'limit' => $limit,
             'employees' => fn () => $employeeResource,
         ]);

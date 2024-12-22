@@ -7,6 +7,8 @@ interface ProfileLimitsProps {
   guarantorProductSelected: any;
   guarantorProductTypes: any;
   guarantorProductTypeSelected: any;
+  officeTypes: any;
+  officeTypeSelected: any;
   limit: any;
   profiles: any;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\Guarantor\Guarantor;
@@ -29,17 +30,27 @@ class ProfileLimitController extends Controller
         $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->values();
         $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
         $limit = GuarantorProductTypeLimit::query()
             ->where('guarantor_id', $guarantorSelected)
             ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
             ->first();
 
         $profiles = Profile::search($request->get('search'))
-            ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected) {
-                return $query->when($guarantorSelected, function ($query) use ($guarantorSelected, $guarantorProductTypeSelected) {
+            ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected, $officeType) {
+                return $query->when($guarantorSelected, function ($query) use ($guarantorSelected, $guarantorProductTypeSelected, $officeType) {
                     $query->with(['profileLimit' => function ($query) use ($guarantorSelected, $guarantorProductTypeSelected) {
                         $query->where('guarantor_id', $guarantorSelected)->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
-                    }]);
+                    }])->when($officeType, function ($query) use ($officeType) {
+                        $query->where('office_type', $officeType);
+                    });
                 });
             })
             ->orderBy('id')
@@ -61,6 +72,8 @@ class ProfileLimitController extends Controller
             'guarantorProductSelected' => $guarantorProductSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
+            'officeTypes' => $officeTypes,
+            'officeTypeSelected' => $officeTypeSelected,
             'limit' => $limit,
             'profiles' => fn () => $profileResource,
         ]);

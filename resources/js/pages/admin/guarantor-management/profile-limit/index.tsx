@@ -1,13 +1,15 @@
 import { Combobox } from "@/components/common/combobox";
+import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { textCurrency } from "@/lib/text-currency";
 import { ProfileLimitsUtils } from "@/pages/admin/guarantor-management/profile-limit/profile-limits.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import React, { useState } from "react";
 import ProfileLimitsDatatable from "./_partials/profile-limits-datatable";
 import ProfileLimitsHeader from "./_partials/profile-limits-header";
 import { ProfileLimitsPageProps } from "./profile-limits.type";
@@ -19,6 +21,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
   guarantorProductSelected,
   guarantorProductTypes,
   guarantorProductTypeSelected,
+  officeTypes,
+  officeTypeSelected,
   limit,
   profiles,
 }) => {
@@ -45,12 +49,17 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeId);
   };
 
+  const handleSelectOfficeType = (officeType: string) => {
+    getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeSelected, officeType);
+  };
+
   const getData = (
     per_page: string,
     search: string,
     guarantorId?: number,
     guarantorProductId?: number,
     guarantorProductTypeId?: number,
+    officeType?: string,
   ) => {
     router.get(
       route(ProfileLimitsUtils.link.index),
@@ -60,6 +69,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         guarantor_id: guarantorId,
         guarantor_product_id: guarantorProductId,
         guarantor_product_type_id: guarantorProductTypeId,
+        office_type: officeType,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -115,6 +125,19 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
+          <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih " />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <RenderList
+                  of={officeTypes}
+                  render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+                />
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <SearchDatatable
           value={search}

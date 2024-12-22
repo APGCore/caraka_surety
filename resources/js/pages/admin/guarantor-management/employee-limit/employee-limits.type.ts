@@ -9,6 +9,8 @@ interface EmployeeLimitsProps {
   guarantorProductTypeSelected: number;
   profiles: any;
   profileSelected: number;
+  officeTypes: any;
+  officeTypeSelected: any;
   limit: any;
   employees: any;
 }
