@@ -60,4 +60,9 @@ class Profile extends Model
     {
         return $this->hasMany(ProfileLimit::class, 'profile_id');
     }
+
+    public function guarantors(): BelongsToMany
+    {
+        return $this->belongsToMany(Guarantor::class, 'office_pairings', 'office_id', 'guarantor_id');
+    }
 }
