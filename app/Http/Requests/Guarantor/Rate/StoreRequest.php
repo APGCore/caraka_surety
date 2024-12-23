@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Guarantor\Rate;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -22,6 +23,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'guarantor_rate_id' => ['nullable', 'integer', Rule::exists('guarantor_rates')->whereNull('deleted_at')],
             'minimum_bill' => ['required', 'string'],
             'minimum_payment' => ['required', 'string'],
             'selling_rate' => ['required', 'numeric'],

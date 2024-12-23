@@ -2,6 +2,7 @@
 
 namespace App\Models\Guarantor;
 
+use App\Models\GuarantorRate;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -56,6 +57,11 @@ class GuarantorToProductType extends Model
     public function productType(): BelongsTo
     {
         return $this->belongsTo(ProductType::class);
+    }
+
+    public function guarantorRate(): HasOne
+    {
+        return $this->hasOne(GuarantorRate::class, 'guarantor_to_product_type_id');
     }
 
     public function limits(): HasMany

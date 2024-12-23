@@ -127,7 +127,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
           placeholder="Cari Pengguna"
         />
       </div>
-      <div className="flex gap-x-3 items-center max-w-[80%]">
+      <div className="flex gap-x-3 items-center w-full">
         <Combobox
           datas={guarantors}
           labelKey={"name"}

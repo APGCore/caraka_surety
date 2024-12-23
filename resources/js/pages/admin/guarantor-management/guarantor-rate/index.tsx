@@ -16,6 +16,8 @@ import { GuarantorRatePageProps } from "./guarantor-rate.type";
 const GuarantorRatePage: GuarantorRatePageProps = ({
   guarantors,
   guarantorSelected,
+  guarantorBranches,
+  guarantorBranchSelected,
   products,
   productSelected,
   jobGroups,
@@ -40,22 +42,23 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
     getData(select, search, guarantorId);
   };
 
+  const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
+    getData(select, search, guarantorSelected, guarantorBranchId);
+  };
+
   const handleSelectProduct = (productId: number) => {
-    getData(select, search, guarantorSelected, productId);
+    getData(select, search, guarantorSelected, guarantorBranchSelected, productId);
   };
 
   const handleSelectJobGroup = (jobGroup: string) => {
-    getData(select, search, guarantorSelected, productSelected, jobGroup);
-  };
-
-  const handleSelectJobType = (jobType: string) => {
-    getData(select, search, guarantorSelected, productSelected, jobGroupSelected, jobType);
+    getData(select, search, guarantorSelected, guarantorBranchSelected, productSelected, jobGroup);
   };
 
   const getData = (
     per_page: string,
     search: string,
     guarantorId?: number,
+    guarantorBranchId?: number,
     productId?: number,
     jobGroup?: string,
     jobType?: string,
@@ -66,6 +69,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
         per_page,
         search,
         guarantor_id: guarantorId,
+        guarantor_branch_id: guarantorBranchId,
         product_id: productId,
         job_group: jobGroup,
         job_type: jobType,
@@ -77,62 +81,56 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
-            className={"min-w-[160px]"}
-            shortValue={true}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
-          <Combobox
-            datas={products}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={productSelected}
-            placeholder={"Pilih Produk"}
-            className={"min-w-[160px]"}
-            shortValue={true}
-            onSelect={(value) => handleSelectProduct(value.id)}
-          />
-          <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={jobGroups}
-                  render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          <Select onValueChange={(value) => handleSelectJobType(value)} defaultValue={jobTypeSelected}>
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Tipe Pekarjaan" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={jobTypes}
-                  render={(groupType: string) => <SelectItem value={groupType}>{groupType}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />
         <SearchDatatable
           value={search}
           onChange={setSearch}
           onSubmit={handleSearchProduct}
           placeholder="Cari Jenis Produk"
         />
+      </div>
+      <div className="flex gap-x-3">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorSelected}
+          placeholder={"Pilih Asuransi"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <Combobox
+          datas={guarantorBranches}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorBranchSelected}
+          placeholder={"Pilih Cabang Asuransi"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectGuarantorBranch(value.id)}
+        />
+        <Combobox
+          datas={products}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={productSelected}
+          placeholder={"Pilih Produk"}
+          className={"min-w-[160px]"}
+          shortValue={true}
+          onSelect={(value) => handleSelectProduct(value.id)}
+        />
+        <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={jobGroups}
+                render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       <GuarantorRateDatatable guarantorProductTypes={guarantorProductTypes} />
     </main>

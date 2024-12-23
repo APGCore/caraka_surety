@@ -9,6 +9,7 @@ use App\Http\Requests\Guarantor\Rate\StoreRequest;
 use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\GuarantorRate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,9 +21,10 @@ class GuarantorRateController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
-        $guarantors = Guarantor::with(['head', 'product', 'productType'])->whereNull('headquarter_id')->get();
+        $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
-
+        $guarantorBranches = Guarantor::with(['product', 'productType'])->where('headquarter_id', $guarantor->getAttribute('id'))->get();
+        $guarantorBranchSelected = $request->get('guarantor_branch_id');
         $products = $guarantor->product?->unique();
         $product = $products?->find($request->get('product_id')) ?? $products?->first();
 
@@ -42,7 +44,8 @@ class GuarantorRateController extends Controller
                     })
                     ->when($jobTypeSelected, function ($query, $jobType) {
                         $query->where('job_type', $jobType);
-                    });
+                    })
+                    ->with('guarantorRate');
             })
             ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
@@ -59,6 +62,8 @@ class GuarantorRateController extends Controller
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
+            'guarantorBranches' => $guarantorBranches,
+            'guarantorBranchSelected' => $guarantorBranchSelected,
             'products' => $products,
             'productSelected' => $productSelected,
             'jobGroups' => $jobGroups,
@@ -72,29 +77,43 @@ class GuarantorRateController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, GuarantorToProductType $guarantorToProductType): \Inertia\Response
+    public function create(Request $request): \Inertia\Response
     {
-        $component = str_replace('/'.$guarantorToProductType->getAttribute('id'), '', $request->path()).'/index';
+        $request->validate([
+            'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
+            'guarantor_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
+        ]);
+        $guarantorId = $request->get('guarantor_id');
+        $guarantorProductTypeId = $request->get('guarantor_product_type_id');
+        $guarantor = Guarantor::query()->find($guarantorId);
+        $guarantorToProductType = GuarantorToProductType::query()->find($guarantorProductTypeId);
+        $guarantorRate = GuarantorRate::query()
+            ->where([
+                'guarantor_id' => $guarantorId,
+                'guarantor_to_product_type_id' => $guarantorProductTypeId,
+            ])->first();
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Tarif Asuransi',
             ],
+            'guarantor' => $guarantor,
             'guarantorToProductType' => $guarantorToProductType,
+            'guarantorRate' => $guarantorRate,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request, GuarantorToProductType $guarantorToProductType)
+    public function store(StoreRequest $request)
     {
         $requestValid = $request->validated();
 
         try {
             DB::beginTransaction();
             $data = [
-                ...$requestValid,
                 'minimum_bill' => $this->currencyConvert($requestValid['minimum_bill']),
                 'minimum_payment' => $this->currencyConvert($requestValid['minimum_payment']),
                 'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
@@ -105,18 +124,24 @@ class GuarantorRateController extends Controller
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
             ];
 
-            $guarantorToProductType->update($data);
+            $guarantorRate = GuarantorRate::query()
+                ->updateOrCreate(
+                    [
+                        'id' => $requestValid['guarantor_rate_id'],
+                    ],
+                    $data
+                );
             activity()
                 ->useLog('guarantor-rate')
-                ->performedOn($guarantorToProductType)
+                ->performedOn($guarantorRate)
                 ->causedBy(auth()->user())
                 ->log('Setting Limit Asuransi');
             flashMessage('Berhasil', 'Data berhasil disimpan');
             DB::commit();
 
             return redirect()->route('guarantor-rate.index', [
-                'guarantor_id' => $guarantorToProductType->getAttribute('guarantor_id'),
-                'product_id' => $guarantorToProductType->getAttribute('product_id'),
+                'guarantor_id' => $guarantorRate->getAttribute('guarantor_id'),
+                'product_id' => $guarantorRate->getAttribute('product_id'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

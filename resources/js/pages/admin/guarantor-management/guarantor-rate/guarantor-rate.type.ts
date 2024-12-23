@@ -3,6 +3,8 @@ import React from "react";
 interface GuarantorRateProps {
   guarantors: any;
   guarantorSelected: any;
+  guarantorBranches: any;
+  guarantorBranchSelected: any;
   products: any;
   productSelected: any;
   jobGroups: any;

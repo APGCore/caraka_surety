@@ -24,7 +24,9 @@ class EmployeeLimitController extends Controller
      */
     public function index(Request $request)
     {
-        $guarantors = Guarantor::all();
+        $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')
+            ->get(['id', 'name']);
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $guarantorProducts = $guarantor?->guarantorToProductTypes?->pluck('product')->unique()->values();

@@ -55,8 +55,8 @@ Route::prefix('guarantor-management')->group(function () {
     Route::controller(GuarantorRateController::class)->prefix('guarantor-rate')
         ->name('guarantor-rate.')->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('create/{guarantorToProductType}', 'create')->name('create');
-            Route::post('store/{guarantorToProductType}', 'store')->name('store');
+            Route::get('create', 'create')->name('create');
+            Route::post('store', 'store')->name('store');
         });
 
     Route::controller(GuarantorProductTypeLimitController::class)->prefix('guarantor-product-type-limit')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Office;
 
+use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
@@ -21,8 +22,16 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        $offices = Profile::all();
-        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+        $offices = Profile::where('office_type', $officeType)->get();
+        $officeSelected = (int) ($request->get('profile_id') ?? $offices->first()?->id);
 
         $employees = User::search($request->get('search'))
             ->query(function ($query) use ($officeSelected) {
@@ -42,6 +51,8 @@ class EmployeeController extends Controller
             'page_settings' => [
                 'title' => 'Pengguna',
             ],
+            'officeTypes' => $officeTypes,
+            'officeTypeSelected' => $officeTypeSelected,
             'offices' => $offices,
             'officeSelected' => $officeSelected,
             'employees' => fn () => $employeeResource,

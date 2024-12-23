@@ -1,8 +1,11 @@
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { JobTypeEnum } from "@/types/job-type-enum";
 import { Link } from "@inertiajs/react";
 import React from "react";
 
@@ -19,6 +22,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
             <TableHead>No Urut</TableHead>
             <TableHead>Kode</TableHead>
             <TableHead>Jenis Jaminan</TableHead>
+            <TableHead>Kelompok Pekerjaan</TableHead>
             <TableHead className="text-right" />
           </TableRow>
         </TableHeader>
@@ -30,10 +34,19 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
                 <TableCell>{guarantorProductType.no}</TableCell>
                 <TableCell>{guarantorProductType.code}</TableCell>
                 <TableCell>{guarantorProductType.name}</TableCell>
+                <TableCell>
+                  {guarantorProductType.job_group}
+                  <Show when={guarantorProductType.job_type == JobTypeEnum.CONDITIONAL}>
+                    <Badge className="ml-2 bg-blue-400">{guarantorProductType.job_type}</Badge>
+                  </Show>
+                </TableCell>
                 <TableCell className="text-right">
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                    href={route(GuarantorRateUtils.link.create, guarantorProductType.id)}>
+                    href={route(GuarantorRateUtils.link.create, {
+                      guarantor_id: guarantorProductType.guarantor_id,
+                      guarantor_product_type_id: guarantorProductType.id,
+                    })}>
                     Setting Tarif
                   </Link>
                 </TableCell>
