@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->prefix('references')->name('references.')->group(function () {
     Route::controller(GuarantorController::class)->prefix('guarantor')->name('guarantor.')->group(function () {
         Route::get('all', 'getAll')->name('all');
+        Route::get('branch/{headquarterId}', 'getByHeadquarteId')->name('branch-by-headquarter');
+        Route::get('branch', 'getAllBranch')->name('all-branch');
         Route::get('{guarantor}/product/', 'product')->name('product');
         Route::get('{guarantor}/product/{product}', 'productType')->name('product-type');
     });

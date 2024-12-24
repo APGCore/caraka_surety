@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\StoreRequest;
 use App\Http\Requests\Office\UpdateRequest;
 use App\Http\Resources\Office\ProfileResource;
+use App\Models\OfficePairing;
 use App\Models\Profile;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
@@ -72,9 +73,38 @@ class ProfileController extends Controller
     {
         try {
             DB::beginTransaction();
+
             $requestValidated = $request->validated();
-            Profile::query()
-                ->create($requestValidated);
+
+            $data = [
+                'code' => $requestValidated['code'],
+                'name' => $requestValidated['name'],
+                'email' => $requestValidated['email'],
+                'phone' => $requestValidated['phone'],
+                'address' => $requestValidated['address'],
+                'postal_code' => $requestValidated['postal_code'],
+                'province_id' => $requestValidated['province_id'],
+                'regency_id' => $requestValidated['regency_id'],
+                'district_id' => $requestValidated['district_id'],
+                'village' => $requestValidated['village'],
+                'office_type' => OfficeType::BRANCH->value,
+            ];
+
+            $profile = Profile::query()
+                ->create($data);
+
+            foreach ($requestValidated['pairingGuarantor'] as $guarantor) {
+                if (! isset($guarantor['branches'])) {
+                    throw new ThrottleRequestsException('Cabang tidak ditemukan');
+                }
+                foreach ($guarantor['branches'] as $branch) {
+
+                    OfficePairing::create([
+                        'office_id' => $profile->id, // Reference to the office
+                        'guarantor_id' => $branch['id'], // Reference to the guarantor branch
+                    ]);
+                }
+            }
 
             activity()
                 ->useLog('profile')

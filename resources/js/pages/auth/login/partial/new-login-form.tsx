@@ -16,7 +16,7 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
   });
   const date = new Date();
   const hour = date.getHours();
-  const subtitle = hour < 12 ? "Selamat Pagi" : hour < 18 ? "Selamat Siang" : "Selamat Malam";
+  const subtitle = hour < 12 ? "Good Morning!" : hour < 18 ? "Good Afternoon!" : "Good Night!";
 
   const submit: FormEventHandler = (e) => {
     e.preventDefault();
@@ -37,11 +37,11 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
             <img
               src="/mesh.png"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute flex-shrink-0 inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
-            <div className="flex flex-col items-center gap-2 z-20">
+            <div className="flex flex-col items-center gap-10 z-20">
               <h1 className="text-5xl font-bold">Welcome</h1>
-              <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[80px] w-[180px]" />
+              <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[88px] w-[180px]" />
             </div>
             <h1 className="absolute bottom-2 font-bold">A Member Of APG</h1>
           </div>
@@ -51,7 +51,10 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
                 <h1 className="text-2xl font-bold">Hello!</h1>
                 <p className="  text-muted-foreground">{subtitle}</p>
               </div>
-              <h1 className="text-l text-center font-bold">Silakan masuk menggunakan Username dan Password</h1>
+              <div>
+                <h1 className="text-l text-start font-bold">Please enter your Credentials</h1>
+                <h1 className="text-xs text-start text-black/60">with your username and password.</h1>
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
                 <Input

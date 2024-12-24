@@ -23,6 +23,7 @@ export interface ComboboxProps<T> {
   reset?: boolean;
   shortValue?: boolean;
   isWidthSameWithInput?: boolean;
+  checkedWithCondition?: boolean;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -39,6 +40,8 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string | number>("");
   const labelButtonPlaceholder = props?.placeholder ?? "Select item...";
+
+  console.log(value);
 
   useEffect(() => {
     if (defaultValue && datas) {
@@ -109,7 +112,12 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
                       setValue(currentValue === value ? "" : currentValue);
                       setOpen(false);
                     }}>
-                    <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
+                    {props?.checkedWithCondition && item.isChoosed ? (
+                      <Check className={cn("mr-2 h-4 w-4 opacity-100")} />
+                    ) : (
+                      <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
+                    )}
+                    {/* <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} /> */}
                     {item[labelKey]}
                   </CommandItem>
                 ))}

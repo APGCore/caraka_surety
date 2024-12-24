@@ -36,6 +36,7 @@ class StoreRequest extends FormRequest
             'regency_id' => ['required', 'exists:'.Regency::class.',id'],
             'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
+            'pairingGuarantor' => ['required'],
         ];
     }
 }

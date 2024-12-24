@@ -161,6 +161,7 @@ const InputLocation: React.FC<Props> = ({
           value={village}
           onChange={(e) => setVillage(e.target.value)}
           autoComplete="village"
+          placeholder="Masukan Desa/Kelurahan"
         />
 
         <InputError className="mt-2" message={error_village} />

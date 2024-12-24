@@ -1,7 +1,7 @@
 import HeaderPage from "@/components/common/header-page";
 import AdminLayout from "@/layouts/admin";
 import { BranchOfficeCreatePageProps } from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
-import Form from "@/pages/admin/office-management/branch-office/form";
+import Form from "../_partials/form";
 
 const BranchOfficeCreatePage: BranchOfficeCreatePageProps = (props) => {
   return (

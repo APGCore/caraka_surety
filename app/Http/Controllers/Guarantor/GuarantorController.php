@@ -208,6 +208,26 @@ class GuarantorController extends Controller
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
 
+    public function getAllBranch()
+    {
+        $guarantors = Guarantor::query()
+            ->whereNotNull('headquarter_id')
+            ->orderBy('name')
+            ->get();
+
+        return $this->responseSuccess('Berhasil mengambil data semua cabang', $guarantors);
+    }
+
+    public function getByHeadquarteId($headquarterId)
+    {
+        $guarantors = Guarantor::query()
+            ->where('headquarter_id', $headquarterId)
+            ->orderBy('name')
+            ->get();
+
+        return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantors);
+    }
+
     public function product(Guarantor $guarantor)
     {
         $guarantor->load('product:id,name');
