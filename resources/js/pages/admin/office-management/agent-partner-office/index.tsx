@@ -30,13 +30,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
+import { AgentPartnerOfficePageProps } from "./agent-partner-office-page.type";
 
-const BranchOfficePage: BranchOfficePageProps = (props) => {
+const AgentPartnerOfficePage: AgentPartnerOfficePageProps = (props) => {
   const { data: profiles, meta } = props.profiles;
 
   const [select, setSelect] = useState(() =>
@@ -79,8 +79,8 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch.create")}>
-            Tambah Cabang BPR
+            href={route("branch-mitra-agen.create")}>
+            Tambah Mitra Agen
           </Link>
         </div>
       </div>
@@ -112,7 +112,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
-              <TableHead>Nama Cabang BPR</TableHead>
+              <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
@@ -236,9 +236,9 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
   );
 };
 
-export default BranchOfficePage;
+export default AgentPartnerOfficePage;
 
-BranchOfficePage.layout = (page: any) => {
+AgentPartnerOfficePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

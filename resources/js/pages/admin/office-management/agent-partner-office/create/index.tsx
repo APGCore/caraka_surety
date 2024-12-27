@@ -1,14 +1,14 @@
 import HeaderPage from "@/components/common/header-page";
 import { Card, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
-import { BranchOfficeCreatePageProps } from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
 import Form from "../_partials/form";
+import { AgentPartnerOfficeCreatePageProps } from "./agent-partner-office-create-page.type";
 
-const BranchOfficeCreatePage: BranchOfficeCreatePageProps = (props) => {
+const AgentPartnerOfficeCreatePage: AgentPartnerOfficeCreatePageProps = (props) => {
   return (
     <main className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Tambah Kantor Cabang BPR</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Tambah Kantor Mitra Agent</h1>
       </div>
       <Card className="w-[800px] mx-auto">
         <CardContent>
@@ -19,9 +19,9 @@ const BranchOfficeCreatePage: BranchOfficeCreatePageProps = (props) => {
   );
 };
 
-export default BranchOfficeCreatePage;
+export default AgentPartnerOfficeCreatePage;
 
-BranchOfficeCreatePage.layout = (page: any) => {
+AgentPartnerOfficeCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (

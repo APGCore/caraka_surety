@@ -30,10 +30,12 @@ Route::prefix('office-management')->group(function () {
     Route::controller(ProfileController::class)->prefix('branch-mitra-pemasaran')
         ->name('branch-mitra-pemasaran.')->group(function () {
             Route::get('/', 'displayMitraPemasaran')->name('index');
+            Route::get('create', 'create')->name('create');
         });
 
     Route::controller(ProfileController::class)->prefix('branch-mitra-agen')
         ->name('branch-mitra-agen.')->group(function () {
             Route::get('/', 'displayMitraAgen')->name('index');
+            Route::get('create', 'create')->name('create');
         });
 });

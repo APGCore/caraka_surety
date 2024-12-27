@@ -35,10 +35,10 @@ class ProfileController extends Controller
 
         return inertia($component, [
             'page_settings' => fn () => [
-                'title' => 'Cabang',
+                'title' => 'Cabang BPR',
                 'breadcrumb' => [
                     [
-                        'title' => 'Unit Cabang',
+                        'title' => 'Unit Bisnis Cabang BPR',
                         'link' => '#',
                     ],
                 ],
@@ -196,7 +196,7 @@ class ProfileController extends Controller
 
     public function displayMitraPemasaran(Request $request): Response
     {
-        $component = 'admin/office-management/branch-office/index';
+        $component = 'admin/office-management/marketing-partner-office/index';
 
         $profiles = Profile::search($request->get('search'))
             ->where('office_type', OfficeType::MARKETING_PARTNER->value)
@@ -223,7 +223,7 @@ class ProfileController extends Controller
 
     public function displayMitraAgen(Request $request): Response
     {
-        $component = 'admin/office-management/branch-office/index';
+        $component = 'admin/office-management/agent-partner-office/index';
 
         $profiles = Profile::search($request->get('search'))
             ->where('office_type', OfficeType::AGENT_PARTNER->value)
