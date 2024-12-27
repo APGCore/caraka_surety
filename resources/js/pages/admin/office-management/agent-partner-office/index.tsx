@@ -79,7 +79,9 @@ const AgentPartnerOfficePage: AgentPartnerOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch-mitra-agen.create")}>
+            href={route("branch-mitra-agen.create", {
+              type: "agent-partner",
+            })}>
             Tambah Mitra Agen
           </Link>
         </div>

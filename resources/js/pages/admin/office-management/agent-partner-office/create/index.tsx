@@ -8,7 +8,7 @@ const AgentPartnerOfficeCreatePage: AgentPartnerOfficeCreatePageProps = (props) 
   return (
     <main className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Tambah Kantor Mitra Agent</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Tambah Mitra Agen</h1>
       </div>
       <Card className="w-[800px] mx-auto">
         <CardContent>

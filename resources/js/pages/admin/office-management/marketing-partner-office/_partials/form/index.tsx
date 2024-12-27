@@ -219,7 +219,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
   return (
     <form onSubmit={submit} className="mt-6 space-y-10">
       <div className="grid gap-1 ">
-        <p className="text-xl font-bold">Data Kantor Cabang</p>
+        <p className="text-xl font-bold">Data Mitra Pemasaran</p>
         <div className="grid gap-5 mt-2">
           <div className="flex gap-5">
             <div className="w-1/2 space-y-1">

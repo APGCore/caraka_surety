@@ -50,22 +50,64 @@ class ProfileController extends Controller
     // create
     public function create(Request $request): Response
     {
-        $component = $request->path().'/index';
+        $component = '';
+        $page_settings = [];
+
+        $type = $request->get('type');
+
+        switch ($type) {
+            case 'marketing-partner':
+                $component = 'admin/office-management/marketing-partner-office/create/index';
+                $page_settings = [
+                    'title' => 'Mitra Pemasaran',
+                    'breadcrumb' => [
+                        [
+                            'title' => 'Unit Bisnis Mitra Pemasaran',
+                            'link' => '#',
+                        ],
+                        [
+                            'title' => 'Tambah Mitra Pemasaran',
+                            'link' => '#',
+                        ],
+                    ],
+                ];
+                break;
+            case 'agent-partner':
+                $component = 'admin/office-management/agent-partner-office/create/index';
+                $page_settings = [
+                    'title' => 'Mitra Agen',
+                    'breadcrumb' => [
+                        [
+                            'title' => 'Unit Bisnis Mitra Agen',
+                            'link' => '#',
+                        ],
+                        [
+                            'title' => 'Tambah Mitra Agen',
+                            'link' => '#',
+                        ],
+                    ],
+                ];
+                break;
+            default:
+                $component = 'admin/office-management/branch-office/create/index';
+                $page_settings = [
+                    'title' => 'Cabang BPR',
+                    'breadcrumb' => [
+                        [
+                            'title' => 'Cabang',
+                            'link' => '#',
+                        ],
+                        [
+                            'title' => 'Tambah Cabang',
+                            'link' => '#',
+                        ],
+                    ],
+                ];
+                break;
+        }
 
         return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Mitra Agen',
-                'breadcrumb' => [
-                    [
-                        'title' => 'Cabang',
-                        'link' => '#',
-                    ],
-                    [
-                        'title' => 'Tambah Cabang',
-                        'link' => '#',
-                    ],
-                ],
-            ],
+            'page_settings' => fn () => $page_settings,
         ]);
     }
 

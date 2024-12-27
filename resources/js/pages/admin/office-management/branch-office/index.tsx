@@ -79,7 +79,9 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch.create")}>
+            href={route("branch.create", {
+              type: "branch",
+            })}>
             Tambah Cabang BPR
           </Link>
         </div>

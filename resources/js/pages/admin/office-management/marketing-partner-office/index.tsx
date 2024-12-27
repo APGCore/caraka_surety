@@ -79,7 +79,9 @@ const MarketingPartnerOfficePage: MarketingPartnerOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch-mitra-pemasaran.create")}>
+            href={route("branch-mitra-pemasaran.create", {
+              type: "marketing-partner",
+            })}>
             Tambah Mitra Pemasaran
           </Link>
         </div>
