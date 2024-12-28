@@ -114,9 +114,19 @@ class ProfileController extends Controller
     public function store(StoreRequest $request)
     {
         try {
+
             DB::beginTransaction();
 
             $requestValidated = $request->validated();
+
+            $officeType = $requestValidated['office_type'];
+
+            $redirectRoute = match ($officeType) {
+                OfficeType::BRANCH->value => 'branch.index',
+                OfficeType::MARKETING_PARTNER->value => 'branch.mitra-pemasaran',
+                OfficeType::AGENT_PARTNER->value => 'branch.mitra-agen',
+                default => 'branch.index',
+            };
 
             $data = [
                 'code' => $requestValidated['code'],
@@ -129,7 +139,7 @@ class ProfileController extends Controller
                 'regency_id' => $requestValidated['regency_id'],
                 'district_id' => $requestValidated['district_id'],
                 'village' => $requestValidated['village'],
-                'office_type' => OfficeType::BRANCH->value,
+                'office_type' => $officeType,
             ];
 
             $profile = Profile::query()
@@ -148,21 +158,24 @@ class ProfileController extends Controller
                 }
             }
 
-            activity()
-                ->useLog('profile')
-                ->performedOn(new Profile)
-                ->causedBy(auth()->user())
-                ->log('Menambahkan Kantor Cabang');
+            // activity()
+            //     ->useLog('profile')
+            //     ->performedOn(new Profile)
+            //     ->causedBy(auth()->user())
+            //     ->log('Menambahkan Kantor Cabang');
+
             flashMessage('Kantor Cabang Ditambahkan', 'Kantor Cabang berhasil ditambahkan');
             DB::commit();
 
-            return redirect()->route('branch.index');
+            return redirect()->route($redirectRoute);
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Kantor Cabang', 'Terjadi kesalahan saat menambahkan kantor cabang', 'error');
+
+            dd($th);
             Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
 
-            return redirect()->back();
+            // return redirect()->back();
         }
     }
 

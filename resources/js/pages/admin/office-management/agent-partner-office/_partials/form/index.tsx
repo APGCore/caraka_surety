@@ -46,6 +46,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
     address: branchOffice?.address ?? "",
     postal_code: branchOffice?.postal_code ?? "",
     pairingGuarantor: branchOffice?.pairingGuarantor ?? [],
+    office_type: "agent_partner",
   });
 
   const { provinces: jobLocationProvinces } = useGetAllProvince();

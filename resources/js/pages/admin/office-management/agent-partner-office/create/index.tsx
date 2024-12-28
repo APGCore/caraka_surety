@@ -12,7 +12,7 @@ const AgentPartnerOfficeCreatePage: AgentPartnerOfficeCreatePageProps = (props) 
       </div>
       <Card className="w-[800px] mx-auto">
         <CardContent>
-          <Form routeSubmit={route("branch.store")} routeBack={route("branch.index")} />
+          <Form routeSubmit={route("branch-mitra-agen.store")} routeBack={route("branch.index")} />
         </CardContent>
       </Card>
     </main>

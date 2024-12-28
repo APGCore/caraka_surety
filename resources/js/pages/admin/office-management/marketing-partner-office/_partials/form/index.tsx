@@ -1,7 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import Label from "@/components/common/input-label";
-import InputLocation from "@/components/common/input-location";
 import RenderList from "@/components/common/render-list";
 import Input from "@/components/common/text-input";
 import { Button } from "@/components/ui/button";
@@ -46,6 +45,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
     address: branchOffice?.address ?? "",
     postal_code: branchOffice?.postal_code ?? "",
     pairingGuarantor: branchOffice?.pairingGuarantor ?? [],
+    office_type: "marketing_partner",
   });
 
   const { provinces: jobLocationProvinces } = useGetAllProvince();

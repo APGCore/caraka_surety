@@ -17,6 +17,20 @@ Route::prefix('office-management')->group(function () {
             Route::delete('{profile}', 'destroy')->name('destroy');
         });
 
+    Route::controller(ProfileController::class)->prefix('branch-mitra-pemasaran')
+        ->name('branch-mitra-pemasaran.')->group(function () {
+            Route::get('/', 'displayMitraPemasaran')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+        });
+
+    Route::controller(ProfileController::class)->prefix('branch-mitra-agen')
+        ->name('branch-mitra-agen.')->group(function () {
+            Route::get('/', 'displayMitraAgen')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+        });
+
     Route::controller(EmployeeController::class)->prefix('employee')
         ->name('employee.')->group(function () {
             Route::get('/', 'index')->name('index');
@@ -25,17 +39,5 @@ Route::prefix('office-management')->group(function () {
             Route::get('edit/{employee}', 'edit')->name('edit');
             Route::patch('{employee}', 'update')->name('update');
             Route::delete('{employee}', 'destroy')->name('destroy');
-        });
-
-    Route::controller(ProfileController::class)->prefix('branch-mitra-pemasaran')
-        ->name('branch-mitra-pemasaran.')->group(function () {
-            Route::get('/', 'displayMitraPemasaran')->name('index');
-            Route::get('create', 'create')->name('create');
-        });
-
-    Route::controller(ProfileController::class)->prefix('branch-mitra-agen')
-        ->name('branch-mitra-agen.')->group(function () {
-            Route::get('/', 'displayMitraAgen')->name('index');
-            Route::get('create', 'create')->name('create');
         });
 });

@@ -37,6 +37,7 @@ class StoreRequest extends FormRequest
             'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
             'pairingGuarantor' => ['required'],
+            'office_type' => ['required'],
         ];
     }
 }
