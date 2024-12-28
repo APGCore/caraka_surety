@@ -114,7 +114,7 @@ const AgentPartnerOfficePage: AgentPartnerOfficePageProps = (props) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
-              <TableHead>Nama</TableHead>
+              <TableHead>Nama Mitra Agen</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />

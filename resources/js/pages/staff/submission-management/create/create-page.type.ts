@@ -63,6 +63,10 @@ type Submission = {
   job_location_postal_code: string;
   source_of_fund_id: string;
   note: string;
+
+  // NEW DATA
+  branch_guarantor_id?: number | string | undefined;
+  job_group?: string;
 };
 
 type Scoring = {

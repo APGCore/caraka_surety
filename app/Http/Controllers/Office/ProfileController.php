@@ -158,11 +158,11 @@ class ProfileController extends Controller
                 }
             }
 
-            // activity()
-            //     ->useLog('profile')
-            //     ->performedOn(new Profile)
-            //     ->causedBy(auth()->user())
-            //     ->log('Menambahkan Kantor Cabang');
+            activity()
+                ->useLog('profile')
+                ->performedOn(new Profile)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan Kantor Cabang');
 
             flashMessage('Kantor Cabang Ditambahkan', 'Kantor Cabang berhasil ditambahkan');
             DB::commit();
@@ -175,7 +175,7 @@ class ProfileController extends Controller
             Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
 
-            // return redirect()->back();
+            return redirect()->back();
         }
     }
 

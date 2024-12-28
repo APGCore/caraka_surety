@@ -246,6 +246,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedGuarantor, setSelectedGuarantor] = useState(null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
+  // Branch Guarantor
+  const [branchGuarantors, setBranchGuarantors] = useState([]);
+  const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
+  const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
+
   // Product Type
   const { productTypes } = useGetProductTypesByProductAndGuarantor({
     selectedProductId: selectedProducts,
@@ -982,6 +987,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             ...data.submission,
                           };
                           if (val.id !== selectedProducts) {
+                            setSelectedBranchGuarantor(null);
                             setSelectedGuarantor(null);
                             setSelectedProductType(null);
                             setIsResetGuarantor(true);
@@ -1011,6 +1017,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         placeholder="Pilih Asuransi/Penjamin"
                         onSelect={(val: any) => {
                           if (val.id !== selectedGuarantor) {
+                            setSelectedBranchGuarantor(null);
                             setSelectedProductType(null);
                             setIsResetProductType(true);
                           }
@@ -1022,6 +1029,33 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Cabang Asuransi</Label>
+                      <Combobox
+                        datas={branchGuarantors}
+                        labelKey="name"
+                        valueKey="name"
+                        reset={isResetBranchGuarantor}
+                        defaultValueId={data?.submission?.branch_guarantor_id || selectedBranchGuarantor}
+                        onReset={(resetVal) => setIsResetBranchGuarantor(resetVal)}
+                        placeholder="Pilih Cabang Asuransi/Penjamin"
+                        onSelect={(val: any) => {
+                          if (val.id !== selectedGuarantor) {
+                            setSelectedProductType(null);
+                            setIsResetProductType(true);
+                          }
+
+                          setData("submission", {
+                            ...data.submission,
+                            branch_guarantor_id: val?.id,
+                          });
+
+                          setSelectedBranchGuarantor(val.id);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Jenis Jaminan</Label>
                       <Combobox
@@ -1043,6 +1077,26 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           setSelectedProductType(val.id);
                         }}
                       />
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Jenis Pekerjaan</Label>
+                      <Select
+                        defaultValue="Konstruksi"
+                        onValueChange={(val) => {
+                          console.log(val);
+                          setData("submission", {
+                            ...data.submission,
+                            job_group: val,
+                          });
+                        }}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Jenis Pekerjaan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Konstruksi">Konstruksi</SelectItem>
+                          <SelectItem value="Non Konstruksi">Non Konstruksi</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="flex gap-5 items-end">
