@@ -254,9 +254,11 @@ class GuarantorController extends Controller
             ->where('product_id', $product->id)
             ->get(['guarantor_id']);
 
-        $guaratorIds = $guarantors->pluck('guarantor_id')->unique();
+        $guarantorIds = $guarantors->pluck('guarantor_id')->unique();
 
-        $guarantors = Guarantor::whereIn('id', $guaratorIds)->get();
+        $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')
+            ->whereIn('id', $guarantorIds)->get();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
