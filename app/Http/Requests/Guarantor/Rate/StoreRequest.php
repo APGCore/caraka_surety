@@ -24,6 +24,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'guarantor_rate_id' => ['nullable', 'integer', Rule::exists('guarantor_rates')->whereNull('deleted_at')],
+            'guarantor_id' => ['required', 'integer', Rule::exists('guarantors', 'id')->whereNull('deleted_at')],
+            'guarantor_to_product_type_id' => ['required', 'integer', Rule::exists('guarantor_to_product_types', 'id')->whereNull('deleted_at')],
             'minimum_bill' => ['required', 'string'],
             'minimum_payment' => ['required', 'string'],
             'selling_rate' => ['required', 'numeric'],

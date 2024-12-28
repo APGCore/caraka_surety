@@ -4,7 +4,7 @@ import FormGuarantorRate from "@/pages/admin/guarantor-management/guarantor-rate
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
 import { GuarantorRateCreatePageProps } from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
 
-const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantorToProductType, guarantorRate }) => {
+const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantor, guarantorToProductType, guarantorRate }) => {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -12,7 +12,7 @@ const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantorToProductT
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormGuarantorRate rate={guarantorRate} />
+        <FormGuarantorRate guarantor={guarantor} guarantorToProductType={guarantorToProductType} rate={guarantorRate} />
       </CardContent>
     </Card>
   );
