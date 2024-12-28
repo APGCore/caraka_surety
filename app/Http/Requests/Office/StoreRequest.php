@@ -5,7 +5,6 @@ namespace App\Http\Requests\Office;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Models\Profile;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -28,7 +27,7 @@ class StoreRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Profile::class.',email,NULL,id,deleted_at,NULL'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:255'],

@@ -113,8 +113,8 @@ class ProfileController extends Controller
 
     public function store(StoreRequest $request)
     {
-        try {
 
+        try {
             DB::beginTransaction();
 
             $requestValidated = $request->validated();
