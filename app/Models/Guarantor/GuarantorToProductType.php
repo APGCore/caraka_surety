@@ -44,9 +44,14 @@ class GuarantorToProductType extends Model
         ];
     }
 
-    public function guarantor(): BelongsTo
+    public function guarantorHead(): BelongsTo
     {
-        return $this->belongsTo(Guarantor::class);
+        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNull('headquarter_id');
+    }
+
+    public function guarantorBranch(): BelongsTo
+    {
+        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNotNull('headquarter_id');
     }
 
     public function product(): BelongsTo

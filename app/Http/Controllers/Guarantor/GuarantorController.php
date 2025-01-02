@@ -8,7 +8,9 @@ use App\Http\Requests\Guarantor\UpdateRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\OfficePairing;
 use App\Models\Product\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -252,14 +254,27 @@ class GuarantorController extends Controller
     {
         $guarantors = GuarantorToProductType::query()
             ->where('product_id', $product->id)
+            ->with('guarantorHead:id,headquarter_id,name')
             ->get(['guarantor_id']);
 
-        $guarantorIds = $guarantors->pluck('guarantor_id')->unique();
-
-        $guarantors = Guarantor::query()
-            ->whereNull('headquarter_id')
-            ->whereIn('id', $guarantorIds)->get();
+        $guarantors = $guarantors->pluck('guarantorHead')->unique();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
+    }
+
+    public function getGuarantorBranchByHeadIsPairing(Guarantor $guarantor)
+    {
+        $season = auth()->user();
+        $staff = User::query()->firstWhere('id', $season->getAuthIdentifier());
+        $guarantorBranchIds = $guarantor->pluck('branch')->unique('id')->pluck('id');
+        $guarantorOffice = OfficePairing::query()
+            ->where('office_id', $staff->getAttribute('office_id'))
+            ->whereIn('guarantor_id', $guarantorBranchIds)
+            ->with('office:id,name', 'guarantor:id,name')
+            ->get(['office_id', 'guarantor_id']);
+
+        $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique();
+
+        return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranchIds);
     }
 }
