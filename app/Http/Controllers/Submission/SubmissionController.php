@@ -156,11 +156,13 @@ class SubmissionController extends Controller
                 ], $obligee);
 
             // generate no guarantee
-            $guarantor = Guarantor::query()
-                ->with('pattern')
+            $guarantorHead = Guarantor::query()
+                ->with(['pattern', 'branch'])
                 ->find($submission['guarantor_id']);
 
-            $guarantorToProductType = $guarantor->guarantorToProductTypes()
+            $guarantor = $guarantorHead->branch->firstWhere('id', $submission['guarantor_branch_id']);
+
+            $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
                 ->where('product_id', $submission['product_id'])
                 ->where('product_type_id', $submission['product_type_id'])
                 ->where('job_group', $submission['job_group'])
@@ -174,7 +176,7 @@ class SubmissionController extends Controller
 
             $guarantorPattern = $guarantor->pattern;
             $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
-            $sequence = Sequence::query()->where('guarantor_id', $submission['guarantor_id'])->orderByDesc('current')->get();
+            $sequence = Sequence::query()->where('guarantor_id', $guarantor->id)->orderByDesc('current')->get();
             $seqNodLast = $sequence->where('name', 'NOD')->first();
             $seqNomLast = $sequence->where('name', 'NOM')->first();
             $seqNoyLast = $sequence->where('name', 'NOY')->first();
@@ -184,9 +186,9 @@ class SubmissionController extends Controller
             $noGuarantee = convertPattern($pattern, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
 
             // create sequence
-            $this->createSequence('NOD', $nod, $pattern, $submission['guarantor_id']);
-            $this->createSequence('NOM', $nom, $pattern, $submission['guarantor_id']);
-            $this->createSequence('NOY', $noy, $pattern, $submission['guarantor_id']);
+            $this->createSequence('NOD', $nod, $pattern, $guarantor->id);
+            $this->createSequence('NOM', $nom, $pattern, $guarantor->id);
+            $this->createSequence('NOY', $noy, $pattern, $guarantor->id);
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
