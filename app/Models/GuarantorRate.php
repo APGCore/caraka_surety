@@ -14,6 +14,13 @@ class GuarantorRate extends Model
     use HasFactory;
     use Searchable;
 
+    protected $guarded = [
+        'id',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
     public function guarantor(): HasOne
     {
         return $this->hasOne(Guarantor::class);

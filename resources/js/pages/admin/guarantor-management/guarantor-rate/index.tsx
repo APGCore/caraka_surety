@@ -22,8 +22,6 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
   productSelected,
   jobGroups,
   jobGroupSelected,
-  jobTypes,
-  jobTypeSelected,
   guarantorProductTypes,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
@@ -104,7 +102,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           labelKey={"name"}
           valueKey={"name"}
           defaultValue={guarantorBranchSelected}
-          placeholder={"Pilih Cabang Asuransi"}
+          placeholder={"Pusat"}
           className={"min-w-[160px]"}
           onSelect={(value) => handleSelectGuarantorBranch(value.id)}
         />
@@ -132,7 +130,10 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           </SelectContent>
         </Select>
       </div>
-      <GuarantorRateDatatable guarantorProductTypes={guarantorProductTypes} />
+      <GuarantorRateDatatable
+        guarantorId={guarantorBranchSelected || guarantorSelected}
+        guarantorProductTypes={guarantorProductTypes}
+      />
     </main>
   );
 };

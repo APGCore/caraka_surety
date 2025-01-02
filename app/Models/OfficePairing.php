@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\Guarantor\Guarantor;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OfficePairing extends Model
 {
-    protected $table = 'office_pairings';
+    use HasFactory;
 
     protected $fillable = [
         'office_id',

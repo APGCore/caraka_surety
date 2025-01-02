@@ -10,10 +10,11 @@ import { Link } from "@inertiajs/react";
 import React from "react";
 
 interface GuarantorRateDatatableProps {
+  guarantorId: any;
   guarantorProductTypes: any;
 }
 
-const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarantorProductTypes }) => {
+const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarantorId, guarantorProductTypes }) => {
   return (
     <>
       <Table>
@@ -44,7 +45,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
                     href={route(GuarantorRateUtils.link.create, {
-                      guarantor_id: guarantorProductType.guarantor_id,
+                      guarantor_id: guarantorId,
                       guarantor_product_type_id: guarantorProductType.id,
                     })}>
                     Setting Tarif

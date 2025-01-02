@@ -535,7 +535,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
           handleSubmit();
         }}
         className="space-y-16">
-        {/* FORMSTATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
+        {/* FORM STATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
         <Show when={formSearchPrincipalState === "idle"}>
           <div>
             <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>

@@ -127,7 +127,8 @@ class GuarantorRateController extends Controller
             $guarantorRate = GuarantorRate::query()
                 ->updateOrCreate(
                     [
-                        'id' => $requestValid['guarantor_rate_id'],
+                        'guarantor_id' => $requestValid['guarantor_id'],
+                        'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
                     ],
                     $data
                 );
@@ -141,7 +142,9 @@ class GuarantorRateController extends Controller
 
             return redirect()->route('guarantor-rate.index', [
                 'guarantor_id' => $guarantorRate->getAttribute('guarantor_id'),
+                'branch_guarantor_id' => $guarantorRate->getAttribute('branch_guarantor_id'),
                 'product_id' => $guarantorRate->getAttribute('product_id'),
+                'job_group' => $guarantorRate->getAttribute('job_group'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
