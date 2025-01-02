@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Submission;
 
+use App\Enums\JobGroup;
+use App\Enums\JobType;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
@@ -22,6 +24,7 @@ use App\Models\Submission\SourceOfFund;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionScore;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -93,8 +96,11 @@ class StoreRequest extends FormRequest
             'submission' => ['required'],
             'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
+            'submission.guarantor_branch_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin cabang
             'submission.product_id' => ['required', 'exists:'.Product::class.',id,deleted_at,NULL'], // id produk
-            'submission.guarantor_to_product_type_id' => ['required', 'exists:'.GuarantorToProductType::class.',id,deleted_at,NULL'], // id penjamin ke tipe produk
+            'submission.product_type_id' => ['required', 'exists:'.ProductType::class.',id,deleted_at,NULL'], // id penjamin ke tipe produk
+            'submission.job_group' => ['required', 'string', Rule::in(JobGroup::getValues())], // kelompok pekerjaan
+            'submission.job_type' => ['required', 'string', Rule::in(JobType::getValues())], // jenis pekerjaan
             'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
             'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
             'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak

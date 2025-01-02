@@ -76,7 +76,7 @@ class SubmissionController extends Controller
             $principal = $validated['principal'];
             $principalDocuments = $validated['principal']['documents'];
             $principalRatios = $validated['principal']['ratios'];
-            $obligiee = $validated['obligee'];
+            $obligee = $validated['obligee'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
 
@@ -149,18 +149,23 @@ class SubmissionController extends Controller
                     ], $document);
             }
 
-            // create or update obligiee
-            $obligiee = Obligee::query()
+            // create or update obligee
+            $obligee = Obligee::query()
                 ->updateOrCreate([
-                    'id' => $obligiee['id'] ?? null,
-                ], $obligiee);
+                    'id' => $obligee['id'] ?? null,
+                ], $obligee);
 
             // generate no guarantee
             $guarantor = Guarantor::query()
                 ->with('pattern')
                 ->find($submission['guarantor_id']);
+
             $guarantorToProductType = $guarantor->guarantorToProductTypes()
-                ->find($submission['guarantor_to_product_type_id']);
+                ->where('product_id', $submission['product_id'])
+                ->where('product_type_id', $submission['product_type_id'])
+                ->where('job_group', $submission['job_group'])
+                ->where('job_type', $submission['job_type'])
+                ->first();
 
             $ka = $guarantor->code;
             $kp = $guarantorToProductType->code;
@@ -187,7 +192,7 @@ class SubmissionController extends Controller
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
-            $dataSubmission['obligee_id'] = $obligiee->id;
+            $dataSubmission['obligee_id'] = $obligee->id;
             $dataSubmission['blank_id'] = $blank->id;
             $dataSubmission['no_guarantee'] = $noGuarantee;
             $dataSubmission['note_scoring'] = $scoring['note'];
