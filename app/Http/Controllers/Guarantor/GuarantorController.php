@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\StoreRequest;
 use App\Http\Requests\Guarantor\UpdateRequest;
@@ -265,7 +266,16 @@ class GuarantorController extends Controller
     public function getGuarantorBranchByHeadIsPairing(Guarantor $guarantor)
     {
         $season = auth()->user();
-        $staff = User::query()->firstWhere('id', $season->getAuthIdentifier());
+        $staff = User::query()->with('office')->firstWhere('id', $season->getAuthIdentifier());
+        if ($staff->office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
+            $guarantorBranch = Guarantor::query()
+                ->where('headquarter_id', $guarantor->getAttribute('id'))
+                ->orderBy('name')
+                ->get();
+
+            return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
+        }
+
         $guarantorBranchIds = $guarantor->pluck('branch')->unique('id')->pluck('id');
         $guarantorOffice = OfficePairing::query()
             ->where('office_id', $staff->getAttribute('office_id'))
@@ -275,6 +285,6 @@ class GuarantorController extends Controller
 
         $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique();
 
-        return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranchIds);
+        return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }
 }
