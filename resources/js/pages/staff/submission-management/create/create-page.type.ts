@@ -42,8 +42,11 @@ type Principal = {
 
 type Submission = {
   guarantor_id: string;
+  guarantor_branch_id?: number | string | undefined;
   product_id?: number | string | undefined;
-  guarantor_to_product_type_id: string;
+  product_type_id: string;
+  job_group: string;
+  job_type: string;
   obligee_id: string;
   bank_id: string;
   contract_doc_name: string;
@@ -63,10 +66,6 @@ type Submission = {
   job_location_postal_code: string;
   source_of_fund_id: string;
   note: string;
-
-  // NEW DATA
-  guarantor_branch_id?: number | string | undefined;
-  job_group?: string;
 };
 
 type Scoring = {

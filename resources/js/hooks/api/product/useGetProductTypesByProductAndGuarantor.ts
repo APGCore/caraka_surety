@@ -11,6 +11,8 @@ const useGetProductTypesByProductAndGuarantor = ({
   selectedGuarantorId,
 }: IUseGetProductTypesByProductAndGuarantor) => {
   const [productTypes, setProductTypes] = useState([]);
+  const [jobGroups, setJobGroups] = useState([]);
+  const [jobTypes, setJobTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -27,7 +29,9 @@ const useGetProductTypesByProductAndGuarantor = ({
         )
         .then((response) => {
           if (!ignore) {
-            setProductTypes(response.data.data);
+            setProductTypes(response.data.data.product_types);
+            setJobGroups(response.data.data.job_groups);
+            setJobTypes(response.data.data.job_types);
           }
         })
         .catch((error) => {
@@ -44,7 +48,7 @@ const useGetProductTypesByProductAndGuarantor = ({
     };
   }, [selectedProductId, selectedGuarantorId]);
 
-  return { productTypes, loading, error };
+  return { productTypes, jobGroups, jobTypes, loading, error };
 };
 
 export default useGetProductTypesByProductAndGuarantor;

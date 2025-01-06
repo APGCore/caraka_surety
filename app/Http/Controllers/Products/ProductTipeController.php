@@ -210,7 +210,7 @@ class ProductTipeController extends Controller
 
     public function getByProductAndGuarantor($productId, $guarantorId)
     {
-        $productTypes = GuarantorToProductType::query()
+        $guarantorToProductTypes = GuarantorToProductType::query()
             ->whereHas('product', function ($query) use ($productId) {
                 $query->where('product_id', $productId);
             })
@@ -219,12 +219,19 @@ class ProductTipeController extends Controller
             })
             ->get();
 
-        $productTypeIds = $productTypes->pluck('product_type_id')->toArray();
-
+        $productTypeIds = $guarantorToProductTypes->pluck('product_type_id')->toArray();
         $productTypes = ProductType::query()
             ->whereIn('id', $productTypeIds)
             ->get();
+        $jobGroups = $guarantorToProductTypes->pluck('job_group')->unique();
+        $jobTypes = $guarantorToProductTypes->pluck('job_type')->unique();
 
-        return $this->responseSuccess('Berhasil mengambil data jenis produk', $productTypes);
+        $data = [
+            'product_types' => $productTypes,
+            'job_groups' => $jobGroups,
+            'job_types' => $jobTypes,
+        ];
+
+        return $this->responseSuccess('Berhasil mengambil data produk asuransi', $data);
     }
 }

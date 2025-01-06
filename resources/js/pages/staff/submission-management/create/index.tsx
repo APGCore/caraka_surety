@@ -126,8 +126,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     },
     submission: {
       guarantor_id: "",
+      guarantor_branch_id: "",
       product_id: "",
-      guarantor_to_product_type_id: "",
+      product_type_id: "",
+      job_group: "",
+      job_type: "",
       obligee_id: "",
       bank_id: "",
       contract_doc_name: "",
@@ -256,7 +259,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
   // Product Type
-  const { productTypes } = useGetProductTypesByProductAndGuarantor({
+  const { productTypes, jobGroups, jobTypes } = useGetProductTypesByProductAndGuarantor({
     selectedProductId: selectedProducts,
     selectedGuarantorId: selectedGuarantor,
   });
@@ -461,8 +464,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       },
       submission: {
         guarantor_id: "",
+        guarantor_branch_id: "",
         product_id: undefined,
-        guarantor_to_product_type_id: "",
+        product_type_id: "",
+        job_group: "",
+        job_type: "",
         obligee_id: "",
         bank_id: "",
         contract_doc_name: "",
@@ -479,7 +485,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         job_location_district_id: "",
         job_location_village: "",
         job_location_address: "",
-
         job_location_postal_code: "",
         source_of_fund_id: "",
         note: "",
@@ -997,7 +1002,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             setIsResetGuarantor(true);
                             setIsResetProductType(true);
                             changedSubmission["guarantor_id"] = "";
-                            changedSubmission["guarantor_to_product_type_id"] = "";
+                            changedSubmission["product_type_id"] = "";
                             if (data?.submission?.bank_id) {
                               changedSubmission["bank_id"] = "";
                               setSelectedBank(null);
@@ -1069,14 +1074,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         placeholder="Pilih Jenis Jaminan"
                         reset={isResetProductType}
                         defaultValueId={
-                          data?.submission?.guarantor_to_product_type_id ||
+                          data?.submission?.product_type_id ||
                           (selectedProductType as string | number | null | undefined)
                         }
                         onReset={(resetVal) => setIsResetProductType(resetVal)}
                         onSelect={(val: any) => {
                           setData("submission", {
                             ...data.submission,
-                            guarantor_to_product_type_id: val?.id,
+                            product_type_id: val?.id,
                           });
                           setSelectedProductType(val.id);
                         }}
@@ -1097,8 +1102,31 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           <SelectValue placeholder="Jenis Pekerjaan" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Konstruksi">Konstruksi</SelectItem>
-                          <SelectItem value="Non Konstruksi">Non Konstruksi</SelectItem>
+                          <RenderList
+                            of={jobGroups}
+                            render={(jobGroup) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                          />
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-md">Tipe Pekerjaan</Label>
+                      <Select
+                        defaultValue="Baru"
+                        onValueChange={(val) => {
+                          setData("submission", {
+                            ...data.submission,
+                            job_type: val,
+                          });
+                        }}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Tipe Pekerjaan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <RenderList
+                            of={jobTypes}
+                            render={(jobType) => <SelectItem value={jobType}>{jobType}</SelectItem>}
+                          />
                         </SelectContent>
                       </Select>
                     </div>
