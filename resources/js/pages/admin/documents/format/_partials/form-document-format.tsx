@@ -14,7 +14,6 @@ import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import { debounce, pickBy } from "lodash";
 import { LoaderCircle } from "lucide-react";
-import mammoth from "mammoth";
 import React, { useEffect, useRef, useState } from "react";
 import { FormDocumentFormatUtils } from "./form-document-format.utils";
 
@@ -112,31 +111,31 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     );
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  //   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //     const file = event.target.files?.[0];
+  //     if (!file) return;
 
-    if (file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      toast({
-        title: "File tidak valid",
-        description: "Hanya file Word (.docx) yang didukung.",
-        variant: "destructive",
-      });
-      return;
-    }
+  //     if (file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+  //       toast({
+  //         title: "File tidak valid",
+  //         description: "Hanya file Word (.docx) yang didukung.",
+  //         variant: "destructive",
+  //       });
+  //       return;
+  //     }
 
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.convertToHtml({ arrayBuffer });
-      setData((prev) => ({ ...prev, format_document: result.value }));
-    } catch (error) {
-      toast({
-        title: "Gagal memproses file",
-        description: "Terjadi kesalahan saat mengonversi file Word.",
-        variant: "destructive",
-      });
-    }
-  };
+  //     try {
+  //       const arrayBuffer = await file.arrayBuffer();
+  //       const result = await mammoth.convertToHtml({ arrayBuffer });
+  //       setData((prev) => ({ ...prev, format_document: result.value }));
+  //     } catch (error) {
+  //       toast({
+  //         title: "Gagal memproses file",
+  //         description: "Terjadi kesalahan saat mengonversi file Word.",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   };
 
   const cancel = () => {
     router.get(route(DocumentFormatUtils.link.index));

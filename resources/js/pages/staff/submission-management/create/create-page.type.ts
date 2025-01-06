@@ -65,7 +65,7 @@ type Submission = {
   note: string;
 
   // NEW DATA
-  branch_guarantor_id?: number | string | undefined;
+  guarantor_branch_id?: number | string | undefined;
   job_group?: string;
 };
 

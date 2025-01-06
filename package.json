@@ -59,7 +59,6 @@
     "framer-motion": "^11.11.9",
     "lodash": "^4.17.21",
     "lucide-react": "^0.446.0",
-    "mammoth": "^1.8.0",
     "react-currency-input-field": "^3.8.0",
     "react-day-picker": "^8.10.1",
     "react-dropzone": "^14.3.5",

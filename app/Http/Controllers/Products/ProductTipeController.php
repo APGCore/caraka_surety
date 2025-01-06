@@ -214,9 +214,15 @@ class ProductTipeController extends Controller
             ->whereHas('product', function ($query) use ($productId) {
                 $query->where('product_id', $productId);
             })
-            ->whereHas('guarantor', function ($query) use ($guarantorId) {
+            ->whereHas('guarantorHead', function ($query) use ($guarantorId) {
                 $query->where('guarantor_id', $guarantorId);
             })
+            ->get();
+
+        $productTypeIds = $productTypes->pluck('product_type_id')->toArray();
+
+        $productTypes = ProductType::query()
+            ->whereIn('id', $productTypeIds)
             ->get();
 
         return $this->responseSuccess('Berhasil mengambil data jenis produk', $productTypes);

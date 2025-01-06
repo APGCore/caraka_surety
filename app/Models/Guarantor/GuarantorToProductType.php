@@ -78,9 +78,4 @@ class GuarantorToProductType extends Model
     {
         return $this->hasOne(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id');
     }
-
-    public function guarator()
-    {
-        return $this->belongsTo(Guarantor::class, 'guarantor_id');
-    }
 }

@@ -267,6 +267,7 @@ class GuarantorController extends Controller
     {
         $season = auth()->user();
         $staff = User::query()->with('office')->firstWhere('id', $season->getAuthIdentifier());
+
         if ($staff->office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
             $guarantorBranch = Guarantor::query()
                 ->where('headquarter_id', $guarantor->getAttribute('id'))
@@ -280,10 +281,10 @@ class GuarantorController extends Controller
         $guarantorOffice = OfficePairing::query()
             ->where('office_id', $staff->getAttribute('office_id'))
             ->whereIn('guarantor_id', $guarantorBranchIds)
-            ->with('office:id,name', 'guarantor:id,name')
+            ->with('office:id,name', 'guarantorBranch:id,name')
             ->get(['office_id', 'guarantor_id']);
 
-        $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique();
+        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique();
 
         return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }

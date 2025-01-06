@@ -252,13 +252,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     selectedGuarantorId: selectedGuarantor,
   });
 
-  console.log({
-    guarantors,
-    selectedGuarantor,
-    branchGuarantor,
-  });
-
-  const [branchGuarantors, setBranchGuarantors] = useState([]);
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
@@ -1043,11 +1036,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Cabang Asuransi</Label>
                       <Combobox
-                        datas={branchGuarantors}
+                        datas={branchGuarantor}
                         labelKey="name"
                         valueKey="name"
                         reset={isResetBranchGuarantor}
-                        defaultValueId={data?.submission?.branch_guarantor_id || selectedBranchGuarantor}
+                        defaultValueId={data?.submission?.guarantor_branch_id || selectedBranchGuarantor}
                         onReset={(resetVal) => setIsResetBranchGuarantor(resetVal)}
                         placeholder="Pilih Cabang Asuransi/Penjamin"
                         onSelect={(val: any) => {
@@ -1058,7 +1051,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
                           setData("submission", {
                             ...data.submission,
-                            branch_guarantor_id: val?.id,
+                            guarantor_branch_id: val?.id,
                           });
 
                           setSelectedBranchGuarantor(val.id);
@@ -1071,8 +1064,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Label className="text-md">Jenis Jaminan</Label>
                       <Combobox
                         datas={productTypes}
-                        labelKey="full_name"
-                        valueKey="full_name"
+                        labelKey="name"
+                        valueKey="name"
                         placeholder="Pilih Jenis Jaminan"
                         reset={isResetProductType}
                         defaultValueId={
