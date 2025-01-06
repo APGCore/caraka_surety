@@ -1,4 +1,4 @@
-const spkmgrVideiTemplate = `
+const templateSpkmgrVidei = `
   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
     <h3 style="text-align: center; text-decoration: underline;">
       PERSETUJUAN GANTI RUGI KEPADA SURETY
@@ -33,22 +33,22 @@ const spkmgrVideiTemplate = `
     <p style="text-align: justify;">
       Sebagai bukti persetujuan terhadap Persetujuan Ganti Rugi kepada SURETY ini, maka PRINCIPAL dan/atau INDEMNITOR
       dengan ini membubuhkan tandatangannya dan cap mereka pada Persetujuan Ganti Rugi kepada SURETY ini, di
-      <strong>Depok</strong> ......................................................... pada hari <strong>Rabu, 16 Oktober 2024</strong>.
+      [CITY] pada hari <strong>[DATE]</strong>.
     </p>
     <div style="margin-top: 50px; text-align: center;">
-      ............................................................<br />
+      [PRINCIPAL_NAME]<br />
       PRINCIPAL dan/atau INDEMNITOR
     </div>
   </div>
 
   <div style="margin-bottom: 30px;">
         <h3>PRINCIPAL (Sebagai Badan Hukum)</h3>
-        <p>Nama Perusahaan: .........................................................</p>
-        <p>Alamat: ...........................................................................</p>
-        <p>Nama & Jabatan: ......................................................</p>
+        <p>Nama Perusahaan: [PRINCIPAL_NAME]<p>
+        <p>Alamat: [PRINCIPAL_NAME]</p>
+        <p>Nama & Jabatan: [DIRECTOR_NAME] & [DIRECTOR_POSITION]</p>
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div style="border: 1px solid black; width: 200px; height: 100px; text-align: center; line-height: 100px; font-weight: bold;">Materai 6000</div>
-            <p>(...............................................................)</p>
+            <p>[DIRECTOR_NAME]</p>
         </div>
     </div>
 
@@ -61,8 +61,8 @@ const spkmgrVideiTemplate = `
 
     <div style="margin-bottom: 30px;">
         <h3>PRINCIPAL (Sebagai Perorangan)</h3>
-        <p>Nama & Jabatan: ....................................................</p>
-        <p>Alamat: ........................................................................</p>
+        <p>Nama & Jabatan: [DIRECTOR_NAME] & [DIRECTOR_POSITION]</p>
+        <p>Alamat: [PRINCIPAL_ADDRESS]</p>
         <p>Tanda Tangan: .......................................................</p>
     </div>
 
@@ -84,4 +84,4 @@ const spkmgrVideiTemplate = `
     <p style="font-size: 0.9em; color: gray;">Catatan: Persetujuan ini menjadi sah sesudah isi persetujuan dan tanda tangan dilegalisasi oleh Notaris untuk memiliki kekuatan hukum.</p>
 `;
 
-export default spkmgrVideiTemplate;
+export default templateSpkmgrVidei;

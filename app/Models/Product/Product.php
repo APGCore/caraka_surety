@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Document\DocumentFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -38,4 +39,10 @@ class Product extends Model
     {
         return $this->hasMany(ProductTypeToProduct::class);
     }
+
+    // public function productDocFormat(): HasOne
+    // {
+    //     return $this->hasOne(DocumentFormat::class);
+    // }
+
 }

@@ -37,6 +37,7 @@ interface RequiredDoc {
 
 interface Principal {
   address: string;
+  business_fields: string;
   commissioner: string;
   created_at: string;
   created_by: number;

@@ -143,7 +143,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const submit = async () => {
     // Ambil konten dari TinyMCE
-    const editor = editorRefs.current["format-document"]; // Sesuaikan dengan ID yang digunakan
+    const editor = editorRefs.current["format-document"];
     if (!editor) {
       console.error("Editor tidak ditemukan.");
       alert("Editor tidak ditemukan. Silakan coba lagi.");
@@ -154,7 +154,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
     console.log("Content:", content);
 
-    // Set data ke format_document di state
     setData("format_document", content);
 
     // Validasi konten
@@ -174,13 +173,12 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
       format_document: content,
     };
 
-    // Tentukan ID yang digunakan (guarantor_id, product_id, atau guarantor_to_product_type_id)
     if (byGuarantor && guarantorSelected) {
-      requestData.guarantor_id = guarantorSelected; // Jika memilih berdasarkan Guarantor
+      requestData.guarantor_id = guarantorSelected;
     } else if (byProduct && productSelected) {
-      requestData.product_id = productSelected; // Jika memilih berdasarkan Product
+      requestData.product_id = productSelected;
     } else if (byProductType && guarantorProductTypeSelected) {
-      requestData.guarantor_to_product_type_id = guarantorProductTypeSelected; // Jika memilih berdasarkan Product Type
+      requestData.guarantor_to_product_type_id = guarantorProductTypeSelected;
     }
 
     // Validasi tambahan untuk ID

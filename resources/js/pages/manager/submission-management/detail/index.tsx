@@ -361,7 +361,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "");
   };
 
-  console.log("doc format :", submission?.document_format?.format_document);
+  //   console.log("doc format :", submission?.document_format_guara?.format_document);
 
   const replaceVideiPlaceholders = (template: string, data: any) => {
     // Pastikan template adalah string
@@ -1442,7 +1442,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
                   <TinyMCEEditor
                     id="draft-surety-videi"
-                    initialContent={replaceVideiPlaceholders(submission.document_format.format_document, data)}
+                    initialContent={replacePlaceholders(
+                      submission.document_format_guarantor.format_document,
+                      dataTemplate,
+                    )}
                   />
                 </div>
               )}

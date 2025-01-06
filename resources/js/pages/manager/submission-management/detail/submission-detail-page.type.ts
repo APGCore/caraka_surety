@@ -183,7 +183,15 @@ interface SubmissionDetailProps {
     user_rejected: User;
     rejected_at: string;
     beyond_the_limit: boolean;
-    document_format: {
+    document_format_guarantor: {
+      format_document: string;
+      name: string;
+    };
+    document_format_product: {
+      format_document: string;
+      name: string;
+    };
+    document_format_type_guarantee: {
       format_document: string;
       name: string;
     };

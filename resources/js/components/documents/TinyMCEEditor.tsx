@@ -1,3 +1,5 @@
+// Add jsPDF import
+import { jsPDF } from "jspdf";
 import React, { useEffect } from "react";
 
 interface TinyMCEEditorProps {
@@ -22,9 +24,10 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         height: 500,
         plugins: "link image code",
-        toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord",
+        toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord exportToPDF",
         branding: false,
         promotion: false,
+        noneditable_class: "mceNonEditable",
         setup: (editor: any) => {
           // Set initial content and trigger onInit
           editor.on("init", (evt: any) => {
@@ -46,6 +49,12 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
             text: "Export to Word",
             onAction: () => exportToWord(editor),
           });
+
+          // Add custom button for exporting to PDF
+          //   editor.ui.registry.addButton("exportToPDF", {
+          //     text: "Export to PDF",
+          //     onAction: () => exportToPDF(editor),
+          //   });
         },
       });
     };
@@ -91,6 +100,26 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
       console.error("Export to Word failed:", error);
     }
   };
+
+  //   const exportToPDF = (editor: any) => {
+  //     try {
+  //       const editorContent = editor.getContent();
+
+  //       // Create a new jsPDF instance
+  //       const doc = new jsPDF();
+
+  //       // Convert the HTML content to a PDF (You can adjust this to suit your needs)
+  //       doc.html(editorContent, {
+  //         callback: function (doc: any) {
+  //           doc.save(`${id}-document.pdf`);
+  //         },
+  //         x: 10,
+  //         y: 10,
+  //       });
+  //     } catch (error) {
+  //       console.error("Export to PDF failed:", error);
+  //     }
+  //   };
 
   return <textarea id={id}></textarea>;
 };
