@@ -55,6 +55,7 @@ class StoreRequest extends FormRequest
             'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
             'principal.telephone' => ['required', 'string', 'max:255'], // telepon perusahaan
             'principal.fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
+            'principal.postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
             'principal.npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
             'principal.nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
             'principal.siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan

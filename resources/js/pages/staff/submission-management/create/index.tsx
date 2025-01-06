@@ -1087,7 +1087,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    {jobGroups.length > 0 && (
+                    {jobGroups.length > 0 && selectedBranchGuarantor && (
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Jenis Pekerjaan</Label>
                         <Select
@@ -1110,7 +1110,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         </Select>
                       </div>
                     )}
-                    {jobTypes.length > 0 && (
+                    {jobTypes.length > 0 && selectedBranchGuarantor && (
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Tipe Pekerjaan</Label>
                         <Select

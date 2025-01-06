@@ -193,6 +193,7 @@ class SubmissionController extends Controller
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
+            $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
             $dataSubmission['obligee_id'] = $obligee->id;
