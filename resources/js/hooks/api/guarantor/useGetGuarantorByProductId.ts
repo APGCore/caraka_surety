@@ -18,6 +18,7 @@ const useGetGuarantorByProductId = ({ selectedProductId }: IUseGetGuarantorByPro
         .get(route("staff-guarantor-get.byProduct", { product: selectedProductId }))
         .then((response) => {
           if (!ignore) {
+            console.log("RESPONSE GET GUARANTOR BY PRODUCT ID: ", response.data);
             setGuarantors(response.data.data);
           }
         })

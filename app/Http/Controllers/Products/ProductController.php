@@ -17,7 +17,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        //
+
+        $component = 'admin/product-management/products/index';
 
         $products = Product::search($request->get('search'))
             ->orderBy('created_at', 'desc')
@@ -26,8 +27,6 @@ class ProductController extends Controller
             ->appends($request->all());
 
         $productResource = ProductResource::collection($products);
-
-        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [

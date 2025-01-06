@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import useGetAllBank from "@/hooks/api/bank/useGetAllBank";
+import useGetGuarantorBranch from "@/hooks/api/guarantor/useGetGuarantorBranch";
 import useGetGuarantorByProductId from "@/hooks/api/guarantor/useGetGuarantorByProductId";
 import useGetAllProvince from "@/hooks/api/locations/useGetAllProvince";
 import useGetDistrictByRegencyId from "@/hooks/api/locations/useGetDistrictByRegencyId";
@@ -247,6 +248,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
+  const { branchGuarantor } = useGetGuarantorBranch({
+    selectedGuarantorId: selectedGuarantor,
+  });
+
+  console.log({
+    guarantors,
+    selectedGuarantor,
+    branchGuarantor,
+  });
+
   const [branchGuarantors, setBranchGuarantors] = useState([]);
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);

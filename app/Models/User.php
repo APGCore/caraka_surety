@@ -79,4 +79,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(EmployeeLimit::class, 'employee_id');
     }
+
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Profile::class, 'office_id');
+    }
 }

@@ -13,6 +13,5 @@ Route::prefix('bank-management')->group(function () {
             Route::delete('/{bank}', 'destroy')->name('destroy');
             Route::get('/edit/{bank}', 'edit')->name('edit');
             Route::patch('/{bank}', 'update')->name('update');
-
         });
 });
