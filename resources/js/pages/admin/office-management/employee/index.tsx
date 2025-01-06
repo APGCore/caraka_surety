@@ -1,7 +1,4 @@
-import { Combobox } from "@/components/common/combobox";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
@@ -25,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
@@ -36,7 +33,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const EmployeePage: EmployeePageProps = ({ officeTypes, officeTypeSelected, offices, officeSelected, ...props }) => {
+const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
   const { data: employees, meta } = props.employees;
 
   const [select, setSelect] = useState(() =>
@@ -65,26 +62,25 @@ const EmployeePage: EmployeePageProps = ({ officeTypes, officeTypeSelected, offi
     );
   };
 
-  const handleSelectOfficeType = (officeType: string) => {
-    return router.get(
-      route("employee.index"),
-      pickBy({
-        office_type: officeType,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
-
-  const setOffice = (office: any) => {
-    return router.get(
-      route("employee.index"),
-      pickBy({
-        office_type: officeTypeSelected,
-        office_id: office.id,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
+  // const handleSelectOfficeType = (officeType: string) => {
+  //   return router.get(
+  //     route("employee.index"),
+  //     pickBy({
+  //       office_type: officeType,
+  //     }),
+  //     { preserveState: true, preserveScroll: true },
+  //   );
+  // };
+  //
+  // const setOffice = (office: any) => {
+  //   return router.get(
+  //     route("employee.index"),
+  //     pickBy({
+  //       office_id: office.id,
+  //     }),
+  //     { preserveState: true, preserveScroll: true },
+  //   );
+  // };
 
   const deleteData = (employee: any) => {
     router.delete(route("employee.destroy", employee.id));
@@ -121,30 +117,30 @@ const EmployeePage: EmployeePageProps = ({ officeTypes, officeTypeSelected, offi
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
-            <SelectTrigger className="min-w-[50%] max-w-[52%]">
-              <SelectValue placeholder="Pilih " />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <RenderList
-                  of={officeTypes}
-                  render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
-                />
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Show when={officeTypeSelected !== officeTypes[0]}>
-            <Combobox
-              datas={offices}
-              labelKey={"name"}
-              valueKey={"name"}
-              defaultValue={officeSelected}
-              placeholder={"Pilih Kantor"}
-              className={"w-[100%]"}
-              onSelect={(value) => setOffice(value)}
-            />
-          </Show>
+          {/*<Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>*/}
+          {/*  <SelectTrigger className="min-w-[50%] max-w-[52%]">*/}
+          {/*    <SelectValue placeholder="Pilih " />*/}
+          {/*  </SelectTrigger>*/}
+          {/*  <SelectContent>*/}
+          {/*    <SelectGroup>*/}
+          {/*      <RenderList*/}
+          {/*        of={officeTypes}*/}
+          {/*        render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}*/}
+          {/*      />*/}
+          {/*    </SelectGroup>*/}
+          {/*  </SelectContent>*/}
+          {/*</Select>*/}
+          {/*<Show when={officeTypeSelected !== officeTypes[0]}>*/}
+          {/*  <Combobox*/}
+          {/*    datas={offices}*/}
+          {/*    labelKey={"name"}*/}
+          {/*    valueKey={"name"}*/}
+          {/*    defaultValue={officeSelected}*/}
+          {/*    placeholder={"Pilih Kantor"}*/}
+          {/*    className={"w-[100%]"}*/}
+          {/*    onSelect={(value) => setOffice(value)}*/}
+          {/*  />*/}
+          {/*</Show>*/}
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">

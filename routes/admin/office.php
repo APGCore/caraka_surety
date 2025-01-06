@@ -12,6 +12,7 @@ Route::prefix('office-management')->group(function () {
             Route::get('/mitra-agen', 'displayMitraAgen')->name('mitra-agen');
             Route::post('/', 'store')->name('store');
             Route::get('create', 'create')->name('create');
+            Route::get('employee/{profile}', 'employee')->name('employee');
             Route::get('edit/{profile}', 'edit')->name('edit');
             Route::patch('{profile}', 'update')->name('update');
             Route::delete('{profile}', 'destroy')->name('destroy');
@@ -21,6 +22,7 @@ Route::prefix('office-management')->group(function () {
         ->name('branch-mitra-pemasaran.')->group(function () {
             Route::get('/', 'displayMitraPemasaran')->name('index');
             Route::get('create', 'create')->name('create');
+            Route::get('employee/{profile}', 'employee')->name('employee');
             Route::post('/', 'store')->name('store');
         });
 
@@ -28,6 +30,7 @@ Route::prefix('office-management')->group(function () {
         ->name('branch-mitra-agen.')->group(function () {
             Route::get('/', 'displayMitraAgen')->name('index');
             Route::get('create', 'create')->name('create');
+            Route::get('employee/{profile}', 'employee')->name('employee');
             Route::post('/', 'store')->name('store');
         });
 

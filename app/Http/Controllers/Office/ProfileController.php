@@ -6,9 +6,11 @@ use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\StoreRequest;
 use App\Http\Requests\Office\UpdateRequest;
+use App\Http\Resources\Office\EmployeeResource;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\OfficePairing;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -300,6 +302,32 @@ class ProfileController extends Controller
                 ],
             ],
             'profiles' => fn () => $profileResource,
+        ]);
+    }
+
+    public function employee(Request $request, Profile $profile)
+    {
+        $officeSelected = $profile->getAttribute('id');
+        $employees = User::search($request->get('search'))
+            ->query(function ($query) use ($officeSelected) {
+                $query->with('role')
+                    ->where('role_id', '!=', 1)
+                    ->where('profile_id', $officeSelected);
+            })
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $employeeResource = EmployeeResource::collection($employees);
+
+        $component = 'admin/office-management/employee/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Pengguna Cabang '.$profile->getAttribute('name'),
+            ],
+            'officeSelected' => $officeSelected,
+            'employees' => fn () => $employeeResource,
         ]);
     }
 }

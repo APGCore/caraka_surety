@@ -22,16 +22,16 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
-        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
-        $officeType = match ($officeTypeSelected) {
-            'Kantor Cabang' => OfficeType::BRANCH->value,
-            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
-            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
-            default => OfficeType::HEADQUARTER->value,
-        };
-        $offices = Profile::where('office_type', $officeType)->get();
-        $officeSelected = (int) ($request->get('profile_id') ?? $offices->first()?->id);
+        //        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        //        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
+        //        $officeType = match ($officeTypeSelected) {
+        //            'Kantor Cabang' => OfficeType::BRANCH->value,
+        //            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+        //            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+        //            default => OfficeType::HEADQUARTER->value,
+        //        };
+        $offices = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
+        $officeSelected = (int) ($request->get('profile_id') ?? $offices->getAttribute('id'));
 
         $employees = User::search($request->get('search'))
             ->query(function ($query) use ($officeSelected) {
@@ -51,9 +51,9 @@ class EmployeeController extends Controller
             'page_settings' => [
                 'title' => 'Pengguna',
             ],
-            'officeTypes' => $officeTypes,
-            'officeTypeSelected' => $officeTypeSelected,
-            'offices' => $offices,
+            //            'officeTypes' => $officeTypes,
+            //            'officeTypeSelected' => $officeTypeSelected,
+            //            'offices' => $offices,
             'officeSelected' => $officeSelected,
             'employees' => fn () => $employeeResource,
         ]);

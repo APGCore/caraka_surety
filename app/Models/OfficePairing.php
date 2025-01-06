@@ -17,11 +17,11 @@ class OfficePairing extends Model
 
     public function office()
     {
-        return $this->belongsTo(Profile::class, 'office_id');
+        return $this->belongsTo(Profile::class, 'office_id')->orderBy('name');
     }
 
     public function guarantor()
     {
-        return $this->belongsTo(Guarantor::class, 'guarantor_id');
+        return $this->belongsTo(Guarantor::class, 'guarantor_id')->orderBy('name');
     }
 }
