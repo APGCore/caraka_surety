@@ -1087,49 +1087,51 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Jenis Pekerjaan</Label>
-                      <Select
-                        defaultValue="Konstruksi"
-                        onValueChange={(val) => {
-                          console.log(val);
-                          setData("submission", {
-                            ...data.submission,
-                            job_group: val,
-                          });
-                        }}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Jenis Pekerjaan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <RenderList
-                            of={jobGroups}
-                            render={(jobGroup) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-                          />
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Tipe Pekerjaan</Label>
-                      <Select
-                        defaultValue="Baru"
-                        onValueChange={(val) => {
-                          setData("submission", {
-                            ...data.submission,
-                            job_type: val,
-                          });
-                        }}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Tipe Pekerjaan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <RenderList
-                            of={jobTypes}
-                            render={(jobType) => <SelectItem value={jobType}>{jobType}</SelectItem>}
-                          />
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {jobGroups.length > 0 && (
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-md">Jenis Pekerjaan</Label>
+                        <Select
+                          onValueChange={(val) => {
+                            console.log(val);
+                            setData("submission", {
+                              ...data.submission,
+                              job_group: val,
+                            });
+                          }}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Jenis Pekerjaan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <RenderList
+                              of={jobGroups}
+                              render={(jobGroup) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                            />
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    {jobTypes.length > 0 && (
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-md">Tipe Pekerjaan</Label>
+                        <Select
+                          onValueChange={(val) => {
+                            setData("submission", {
+                              ...data.submission,
+                              job_type: val,
+                            });
+                          }}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Tipe Pekerjaan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <RenderList
+                              of={jobTypes}
+                              render={(jobType) => <SelectItem value={jobType}>{jobType}</SelectItem>}
+                            />
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-5 items-end">
                     {/* SHOW WHILE NOT CREATED NEW OBLIGEE */}
