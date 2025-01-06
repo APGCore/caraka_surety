@@ -14,6 +14,7 @@ use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
 use App\Models\Sequence;
 use App\Models\Submission\Submission;
+use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -375,6 +376,9 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->document_format_guarantor = $submission->guarantor->guarantorDocFormats;
+        $submission->document_format_product = $submission->guarantor->guarantorDocFormats;
+        $submission->document_format_type_guarantee = $submission->guarantor->guarantorDocFormats;
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
@@ -387,6 +391,11 @@ class SubmissionController extends Controller
 
                 return $doc;
             });
+        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
+            $docSig->url = Storage::url($docSig->url);
+
+            return $docSig;
+        });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -749,5 +758,86 @@ class SubmissionController extends Controller
         } else {
             flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
         }
+    }
+
+    // save content tinymce
+    public function saveDocument(Request $request)
+    {
+        $validated = $request->validate([
+            'submission_id' => 'required|integer|exists:submissions,id',
+            'document_format_id' => 'nullable|integer|exists:document_formats,id',
+            'name' => 'nullable|string|max:255',
+            'format_document' => 'required|string',
+        ]);
+
+        try {
+            $submissionDoc = SubmissionDoc::updateOrCreate(
+                [
+                    'submission_id' => $validated['submission_id'],
+                    'name' => $validated['name'],
+                ],
+                [
+                    'document_format_id' => $validated['document_format_id'] ?? null,
+                    'format_document' => $validated['format_document'], // Data yang diperbarui
+                ]
+            );
+
+            return response()->json([
+                'message' => $submissionDoc->wasRecentlyCreated
+                    ? 'Dokumen berhasil dibuat.'
+                    : 'Dokumen berhasil diperbarui.',
+                'data' => $submissionDoc,
+            ], 201);
+        } catch (\Exception $e) {
+            // Error handling
+            return response()->json([
+                'message' => 'Gagal menyimpan dokumen.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function saveDocSignatured(Request $request)
+    {
+        $validated = $request->validate([
+            'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'submission_id' => 'required|exists:submissions,id',
+        ]);
+
+        $documents = [];
+
+        if ($request->hasFile('spkmgr_file')) {
+            $spkmgrFile = $request->file('spkmgr_file');
+            $spkmgrPath = $spkmgrFile->store('documents/spkmgr', 'public');
+            $documents[] = [
+                'submission_id' => $request->input('submission_id'),
+                'document_format_id' => null,
+                'name' => $spkmgrFile->getClientOriginalName(),
+                'format_document' => null,
+                'url' => $spkmgrPath,
+            ];
+        }
+
+        if ($request->hasFile('permohonan_file')) {
+            $permohonanFile = $request->file('permohonan_file');
+            $permohonanPath = $permohonanFile->store('documents/permohonan', 'public');
+            $documents[] = [
+                'submission_id' => $request->input('submission_id'),
+                'document_format_id' => null,
+                'name' => $permohonanFile->getClientOriginalName(),
+                'format_document' => null,
+                'url' => $permohonanPath,
+            ];
+        }
+
+        foreach ($documents as $document) {
+            SubmissionDoc::updateOrCreate($document);
+        }
+
+        return response()->json([
+            'message' => 'File berhasil diunggah dan disimpan.',
+            'data' => $documents,
+        ]);
     }
 }

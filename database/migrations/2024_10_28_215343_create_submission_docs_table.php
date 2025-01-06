@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreignIdFor(Submission::class, 'submission_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(DocumentFormat::class, 'document_format_id')->nullable()->constrained()->noActionOnDelete();
             $table->string('name');
-            $table->text('format_document');
+            $table->text('format_document')->nullable();
+            $table->text('url')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

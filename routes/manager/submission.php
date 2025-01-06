@@ -17,5 +17,7 @@ Route::prefix('submission-management')->group(function () {
 
             Route::get('/detail/{id}', 'showDetailSubmissionManager')->name('detail.submission');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionManager')->name('docs.submission');
+
+            Route::post('/save-doc', 'saveDocSignatured')->name('save-permohonan-doc.submission');
         });
 });

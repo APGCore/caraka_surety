@@ -3,8 +3,8 @@ import React from "react";
 
 interface Document {
   name: string;
-  number: string;
   url: string;
+  id: number;
 }
 
 interface Score {
@@ -183,6 +183,10 @@ interface SubmissionDetailProps {
     user_rejected: User;
     rejected_at: string;
     beyond_the_limit: boolean;
+    document_format: {
+      format_document: string;
+      name: string;
+    };
     district: {
       name: string;
     };
@@ -193,6 +197,8 @@ interface SubmissionDetailProps {
     province: {
       name: string;
     };
+
+    submission_docs: Document[];
   };
 }
 

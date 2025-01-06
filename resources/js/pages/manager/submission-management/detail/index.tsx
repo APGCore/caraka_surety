@@ -1,3 +1,4 @@
+import { FileInput } from "@/components/common/input-file";
 import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
@@ -17,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
+import { toast } from "@/hooks/general/use-toast";
 import ManagerLayoutPage from "@/layouts/manager";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format-currency";
@@ -194,6 +196,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     scoring_result: scoringResultTotal,
   };
 
+  //   upload file
+
   const replaceDraftSuretyPlaceholders = (template: string, data: any) => {
     return template
       .replace("[NOMOR_SURETY_BOND]", data?.surety_bond_number || "")
@@ -357,11 +361,26 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "");
   };
 
+  console.log("doc format :", submission?.document_format?.format_document);
+
   const replaceVideiPlaceholders = (template: string, data: any) => {
+    // Pastikan template adalah string
+    if (typeof template !== "string") {
+      console.error("Template is not a valid string");
+      return "";
+    }
+
+    // Pastikan data tidak null atau undefined
+    if (!data) {
+      console.error("Data is undefined or null");
+      return template;
+    }
+
+    // Lakukan replace pada template
     return template
       .replace("[NAMA_PRINCIPAL]", data?.principal?.name || "")
       .replace("[ALAMAT_PRINCIPAL]", data?.principal?.location || "")
-      .replace("[NAMA_DIREKSI]", data?.principal?.director_name || "")
+      .replace("[DIRECTOR_NAME]", data?.principal?.director_name || "")
       .replace("[KONTAK_PERSON]", data?.principal?.director_phone || "")
       .replace("[BIDANG_USAHA]", data?.principal?.business_field || "")
       .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
@@ -377,10 +396,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[TANGGAL_SURAT]", formattedDate || "")
       .replace("[NAMA_DIREKTUR]", data?.principal?.director_name || "");
   };
+
   console.log("Address:", submission?.principal?.address);
   console.log("District Name:", submission?.principal?.district?.name);
   console.log("Regency Name:", submission?.principal?.regency?.name);
   console.log("Province Name:", submission?.principal?.province?.name);
+
+  console.log(submission);
 
   const data = {
     principal: {
@@ -481,20 +503,218 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
-  const handleApprove = (submissionId: number) => {
+  //   const handleApprove = (submissionId: number) => {
+  //     setIsLoading(true);
+  //     axios
+  //       .post(route("manager-submission-approve", submissionId))
+  //       .then((response) => {
+  //         console.log("success approve submission", response);
+  //         router.reload();
+  //       })
+  //       .catch((error) => {
+  //         console.log("error approve submission", error);
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false);
+  //       });
+  //   };
+
+  interface SubmissionData {
+    principal_name: string;
+    principal_address: string;
+    npwp: string;
+    nib: string;
+    telephone: string;
+    director_name: string;
+    director_phone: string;
+    pic: string;
+    director_position: string;
+    location: string;
+
+    obligee_name: string;
+    obligee_address: string;
+    source_of_fund: string;
+    ppk_name: string;
+    obligee_city: string;
+    obligee_location: string;
+
+    guarantor_name: string;
+    guarantor_address: string;
+    guarantor_pic: string;
+    guarantor_location: string;
+
+    source_of_fund_name: string;
+    contract_value: number;
+    guarantee_value: number;
+    guarantee_type: string;
+    time_period: string | number;
+    job_name: string;
+    job_location_village: string;
+    contract_doc_name: string;
+    contract_doc_number: string;
+    contract_doc_date: string;
+    start_date: string;
+    end_date: string;
+    guarantee_issue_date: string;
+    submission_date: string;
+    analysis: {
+      character: string | number;
+      capacity: string | number;
+      capital: string | number;
+      condition: string | number;
+      collateral: string | number;
+    };
+    scoring_result: {
+      id: number;
+      scoring_id: number;
+      scoring: any;
+      scoring_question_category_id: number;
+      scoring_question_category: any;
+      scoring_question_id: number;
+      scoring_question: any;
+      scoring_option_id: number;
+      scoring_option: any;
+      point: number;
+      category_name: string;
+      question_name: string;
+      option_name: string;
+      reduce: any;
+      grouped: string;
+      score: any;
+    };
+    date: string;
+    manager_name: string;
+    branch_manager: string;
+    job_location: string;
+    job_group: string;
+    no: string | number;
+    city: string;
+
+    [key: string]: any;
+  }
+
+  // Fungsi untuk mengganti placeholder dalam template
+  const replacePlaceholders = (template: string, data: SubmissionData): string => {
+    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
+      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
+      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
+    });
+  };
+
+  // Mapping data ke struktur `SubmissionData`
+  const dataTemplate: SubmissionData = {
+    principal_name: submission.principal?.name || "",
+    principal_address: submission.principal?.address || "",
+    npwp: submission.principal?.npwp || "",
+    nib: submission.principal?.nib || "",
+    telephone: submission.principal?.telephone || "",
+    director_name: submission.principal?.director_name || "",
+    director_phone: submission.principal?.director_phone || "",
+    pic: submission.principal?.pic || "",
+    director_position: submission.principal?.director_position || "",
+    location: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+
+    obligee_name: submission.obligee?.name || "",
+    obligee_address: submission.obligee?.address || "",
+    source_of_fund: submission.source_of_fund?.name || "",
+    ppk_name: submission.obligee?.pic || "",
+    obligee_city: submission.obligee?.district?.name || "",
+    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
+
+    guarantor_name: submission.guarantor?.name || "",
+    guarantor_address: submission.guarantor?.address || "",
+    guarantor_pic: submission.guarantor?.pic || "",
+    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
+
+    source_of_fund_name: submission.source_of_fund?.name || "",
+    contract_value: submission.contract_value || 0,
+    guarantee_value: submission.guarantee_value || 0,
+    guarantee_type: submission.guarantor_to_product_type?.name || "",
+    time_period: submission.time_period || "",
+    job_name: submission.job_name || "",
+    job_location_village: submission.job_location_village || "",
+    contract_doc_name: submission.contract_doc_name || "",
+    contract_doc_number: submission.contract_doc_number || "",
+    contract_doc_date: submission.contract_doc_date || "",
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.created_at || "",
+
+    analysis: {
+      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
+      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
+      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
+      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
+      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
+    },
+
+    scoring_result: calculateTotalPoint(submission.scores) || "",
+    date: submission.created_at || "",
+    manager_name: submission.principal?.commissioner || "",
+    branch_manager: submission.principal?.director_name || "",
+    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
+    job_group: submission.guarantor_to_product_type?.job_group || "",
+    no: submission.id || "",
+    city: submission.regency?.name || "",
+  };
+
+  const handleUploadFile = async (uploadedFile: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+
+    try {
+      const response = await axios.post<{ filePath: string }>(route("file-upload-endpoint"), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("File uploaded successfully", response);
+      return response.data.filePath;
+    } catch (error) {
+      console.error("Error uploading file", error);
+      throw error;
+    }
+  };
+
+  const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
+
     axios
-      .post(route("manager-submission-approve", submissionId))
+      .post(route("manager-submission-approve", { id: submissionId }))
       .then((response) => {
-        console.log("success approve submission", response);
+        console.log("Success approve submission", response);
         router.reload();
       })
       .catch((error) => {
-        console.log("error approve submission", error);
+        console.error("Error approving submission", error);
       })
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  const handleApproveClick = async (): Promise<void> => {
+    if (!uploadedFile) {
+      console.error("No file uploaded");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const filePath = await handleUploadFile(uploadedFile);
+
+      console.log("File uploaded at path:", filePath);
+
+      if (submission?.id) {
+        handleApprove(submission.id);
+      }
+    } catch (error) {
+      console.error("Error in file upload or submission approval process", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReject = (submissionId: number) => {
@@ -528,6 +748,68 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
+  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
+
+  const handleSubmitDoc = () => {
+    if (!spkmgrFile && !permohonanFile) {
+      alert("Harap pilih setidaknya satu file untuk diunggah.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const formData = new FormData();
+    if (spkmgrFile) formData.append("spkmgr_file", spkmgrFile);
+    if (permohonanFile) formData.append("permohonan_file", permohonanFile);
+    if (submission?.id) formData.append("submission_id", String(submission.id));
+
+    axios
+      .post(route("manager-submission-save-permohonan-doc.submission"), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
+      .then((response) => {
+        console.log("Success submit submission", response);
+        toast({
+          title: "Dokumen berhasil diunggah!",
+          description: "Dokumen berhasil diunggah.",
+          variant: "default",
+        });
+
+        setSpkmgrFile(null);
+        setPermohonanFile(null);
+
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error submit submission", error.response?.data || error.message);
+
+        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah dokumen.";
+        toast({
+          title: "Dokumen gagal diunggah!",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isFileUploaded, setIsFileUploaded] = useState<boolean>(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      setIsFileUploaded(true);
+    }
   };
 
   return (
@@ -1055,6 +1337,46 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmitDoc();
+              }}
+              className="space-y-16">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
+                <FileInput onFileChange={(file) => setSpkmgrFile(file)} />
+                {/* {spkmgrFile && <p className="text-green-500 text-sm mt-2">File: {spkmgrFile.name}</p>}
+                {!spkmgrFile && <p className="text-red-500 text-sm mt-2">File SPKMgr belum diunggah.</p>} */}
+              </div>
+
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
+                <FileInput onFileChange={(file) => setPermohonanFile(file)} />
+                {/* {permohonanFile && <p className="text-green-500 text-sm mt-2">File: {permohonanFile.name}</p>}
+                {!permohonanFile && <p className="text-red-500 text-sm mt-2">File Permohonan belum diunggah.</p>} */}
+              </div>
+
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Mengunggah..." : "Submit"}
+              </Button>
+            </form>
+            <br />
+
+            <RenderList
+              of={submission?.submission_docs}
+              render={(docSig) => {
+                return (
+                  <tr key={docSig.id} className="border-b">
+                    <td className="p-2">{docSig.name}</td>
+                    <td className="p-2">
+                      {docSig?.url ? <PreviewFile preview={docSig.url} /> : "File Belum Diunggah"}
+                    </td>
+                  </tr>
+                );
+              }}
+            />
+
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
               <div>
@@ -1120,14 +1442,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
                   <TinyMCEEditor
                     id="draft-surety-videi"
-                    initialContent={replaceVideiPlaceholders(templateVidei, data)}
+                    initialContent={replaceVideiPlaceholders(submission.document_format.format_document, data)}
                   />
                 </div>
               )}
             </div>
           </Show>
 
-          <Show
+          {/* <Show
             when={
               submission?.status === SubmissionStatus.PROCESS &&
               !submission?.beyond_the_limit &&
@@ -1178,6 +1500,77 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <AlertDialogAction
                       className="bg-green-600 hover:bg-green-400"
                       onClick={() => submission?.id && handleApprove(submission?.id)}>
+                      Setujui
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </Show> */}
+          <Show
+            when={
+              submission?.status === SubmissionStatus.PROCESS &&
+              !submission?.beyond_the_limit &&
+              !submission?.approved_at &&
+              !submission?.rejected_at
+            }>
+            <div className="flex gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    disabled={isLoading}
+                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                    Reject
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-400"
+                      onClick={() => submission?.id && handleReject(submission?.id)}>
+                      Tolak
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    disabled={isLoading}
+                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                    Approve
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700">Upload Dokumen Pendukung</label>
+                      <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      {!isFileUploaded && (
+                        <p className="text-red-500 text-sm mt-2">File wajib diunggah sebelum menyetujui.</p>
+                      )}
+                    </div>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction
+                      className={`bg-green-600 hover:bg-green-400 ${!isFileUploaded ? "opacity-50 cursor-not-allowed" : ""}`}
+                      onClick={handleApproveClick}
+                      disabled={!isFileUploaded}>
                       Setujui
                     </AlertDialogAction>
                   </AlertDialogFooter>

@@ -4,6 +4,7 @@ import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
 import StaffLayoutPage from "@/layouts/staff";
@@ -17,7 +18,9 @@ import templateBumida from "@/pages/output_templates/template-surat-permohonan-s
 import templateJastan from "@/pages/output_templates/template-surat-permohonan-surety-bond-jastan";
 import templateVidei from "@/pages/output_templates/template-surat-permohonan-surety-bond-videi";
 import { SubmissionStatus } from "@/types/submission-status";
-import React, { Fragment, useEffect } from "react";
+import axios from "axios";
+import debounce from "lodash/debounce";
+import React, { Fragment, useEffect, useRef } from "react";
 import SubmissionDetailHeader from "./_partials/create-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -68,7 +71,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isApproved = submission?.status == SubmissionStatus.APPROVED;
   const isRejected = submission?.status == SubmissionStatus.REJECTED;
 
-  const filteredSubmission = isApproved ? initialSteps : initialSteps?.slice(0, 4);
+  const filteredSubmission = isApproved ? initialSteps : initialSteps?.slice(0, 5);
 
   const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
 
@@ -468,6 +471,67 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
+
+  const editorRefs = useRef<{ [key: string]: any }>({});
+
+  const handleSave = async (editorId: any, submissionId: any) => {
+    const editor = editorRefs.current[editorId];
+    if (editor) {
+      const content = editor.getContent();
+
+      try {
+        const response = await axios.post("/staff/submission-management/save-content", {
+          submission_id: submissionId,
+          name: editorId,
+          format_document: content,
+        });
+
+        alert(`Data dari editor "${editorId}" untuk submission ${submissionId} berhasil disimpan!`);
+        console.log("Response Data:", response.data);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          // Error berasal dari Axios
+          if (error.response) {
+            console.error("Error Response:", error.response.data);
+            alert("Gagal menyimpan data. Silakan coba lagi.");
+          } else if (error.request) {
+            console.error("No Response:", error.request);
+            alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
+          } else {
+            console.error("Axios Error:", error.message);
+          }
+        } else {
+          // Error lainnya (bukan dari Axios)
+          console.error("Unexpected Error:", error);
+          alert("Terjadi kesalahan tak terduga. Silakan coba lagi.");
+        }
+      }
+    } else {
+      console.error(`Editor dengan ID "${editorId}" tidak ditemukan.`);
+    }
+  };
+
+  type AutoSaveParams = {
+    editorId: string;
+    submissionId: number;
+    content: string;
+  };
+
+  const handleAutoSave = debounce(
+    async ({ editorId, submissionId, content }: AutoSaveParams) => {
+      try {
+        const response = await axios.post("/staff/submission-management/save-content", {
+          submission_id: submissionId,
+          editorId,
+          format_document: content,
+        });
+        console.log(`Auto-saved for editor "${editorId}" (submission ID: ${submissionId}). Response:`, response.data);
+      } catch (error) {
+        console.error("Error saving content:", error);
+      }
+    },
+    500, // Delay in milliseconds
+  );
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
@@ -988,8 +1052,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <div>
               <TinyMCEEditor
                 id="hasil-analisis"
+                onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
                 initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
               />
+              {/* <Button
+                onClick={() => handleSave("hasil-analisis", submission.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                Simpan Hasil Analisis
+              </Button> */}
             </div>
 
             {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
@@ -997,8 +1067,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
                 <TinyMCEEditor
                   id="surat-pelaksanaan"
+                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
                 />
+                {/* <Button
+                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Jaminan Pelaksanaan
+                </Button> */}
               </div>
             )}
 
@@ -1007,8 +1083,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
                 <TinyMCEEditor
                   id="surat-permohonan"
+                  onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
                   initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
                 />
+                {/* <Button
+                  onClick={() => handleSave("surat-permohonan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Surat Permohonan
+                </Button> */}
               </div>
             )}
 
@@ -1017,8 +1099,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
                 <TinyMCEEditor
                   id="draft-surety"
+                  onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
                   initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
                 />
+                {/* <Button
+                  onClick={() => handleSave("draft-surety", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Draft Surety Bond
+                </Button> */}
               </div>
             )}
 
@@ -1027,8 +1115,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
                 <TinyMCEEditor
                   id="draft-surety-bumida"
+                  onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
                   initialContent={replaceBumidaPlaceholders(templateBumida, data)}
                 />
+                {/* <Button
+                  onClick={() => handleSave("draft-surety-bumida", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Bumida
+                </Button> */}
               </div>
             )}
 
@@ -1038,15 +1132,30 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
                 <TinyMCEEditor
                   id="draft-surety-jastan"
+                  onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
                   initialContent={replaceJastanPlaceholders(templateJastan, data)}
                 />
+                {/* <Button
+                  onClick={() => handleSave("draft-surety-jastan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Jastan atau Jasa Tania
+                </Button> */}
               </div>
             ) : null}
 
             {submission?.guarantor?.name.toLowerCase().includes("videi") && (
               <div>
                 <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-                <TinyMCEEditor id="draft-surety-videi" initialContent={replaceVideiPlaceholders(templateVidei, data)} />
+                <TinyMCEEditor
+                  id="draft-surety-videi"
+                  onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
+                  initialContent={replaceVideiPlaceholders(templateVidei, data)}
+                />
+                {/* <Button
+                  onClick={() => handleSave("draft-surety-videi", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Videi
+                </Button> */}
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models\Guarantor;
 
+use App\Models\Document\DocumentFormat;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
@@ -97,5 +98,10 @@ class Guarantor extends Model
     public function pattern(): HasOne
     {
         return $this->hasOne(Pattern::class);
+    }
+
+    public function guarantorDocFormats(): HasOne
+    {
+        return $this->hasOne(DocumentFormat::class);
     }
 }

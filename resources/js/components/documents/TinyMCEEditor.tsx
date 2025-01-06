@@ -4,63 +4,73 @@ interface TinyMCEEditorProps {
   id: string;
   initialContent: string;
   onContentChange?: (content: string) => void;
+  onInit?: (evt: any, editor: any) => void;
 }
 
-const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onContentChange }) => {
+const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onContentChange, onInit }) => {
   useEffect(() => {
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    tinymceScript.async = true;
 
     const htmlDocxScript = document.createElement("script");
     htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js";
+    htmlDocxScript.async = true;
 
-    tinymceScript.onload = () => {
-      htmlDocxScript.onload = () => {
-        window.tinymce.init({
-          selector: `#${id}`,
-          height: 500,
-          plugins: "link image code",
-          toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord",
-          branding: false,
-          promotion: false,
-          setup: (editor: any) => {
-            // Set initial content
-            editor.on("init", () => {
-              editor.setContent(initialContent);
-            });
-
-            // Handle content change if provided
-            if (onContentChange) {
-              editor.on("change", () => {
-                onContentChange(editor.getContent());
-              });
+    const initializeEditor = () => {
+      window.tinymce.init({
+        selector: `#${id}`,
+        height: 500,
+        plugins: "link image code",
+        toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord",
+        branding: false,
+        promotion: false,
+        setup: (editor: any) => {
+          // Set initial content and trigger onInit
+          editor.on("init", (evt: any) => {
+            editor.setContent(initialContent);
+            if (onInit) {
+              onInit(evt, editor);
             }
+          });
 
-            // Menambahkan tombol kustom ke toolbar
-            editor.ui.registry.addButton("exportToWord", {
-              text: "Export to Word",
-              onAction: () => {
-                exportToWord(editor);
-              },
+          // Handle content change
+          if (onContentChange) {
+            editor.on("change", () => {
+              onContentChange(editor.getContent());
             });
-          },
-        });
-      };
+          }
+
+          // Add custom button for exporting to Word
+          editor.ui.registry.addButton("exportToWord", {
+            text: "Export to Word",
+            onAction: () => exportToWord(editor),
+          });
+        },
+      });
+    };
+
+    // Load TinyMCE and initialize
+    tinymceScript.onload = () => {
       document.body.appendChild(htmlDocxScript);
+      htmlDocxScript.onload = initializeEditor;
     };
 
     document.body.appendChild(tinymceScript);
 
     return () => {
+      // Cleanup TinyMCE instance and scripts
       if (window.tinymce?.get(id)) {
         window.tinymce.remove(`#${id}`);
       }
-      document.body.removeChild(tinymceScript);
-      if (htmlDocxScript.parentElement) {
+      if (document.body.contains(tinymceScript)) {
+        document.body.removeChild(tinymceScript);
+      }
+      if (document.body.contains(htmlDocxScript)) {
         document.body.removeChild(htmlDocxScript);
       }
     };
-  }, [id, initialContent, onContentChange]);
+  }, [id, initialContent, onContentChange, onInit]);
 
   const exportToWord = (editor: any) => {
     try {

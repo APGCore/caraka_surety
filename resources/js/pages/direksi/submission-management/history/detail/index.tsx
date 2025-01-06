@@ -33,6 +33,7 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useState } from "react";
+import tinymce from "tinymce";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -478,6 +479,44 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
+
+  const saveContent = async (editorId: string, submissionId: number | undefined): Promise<void> => {
+    const content = tinymce.get(editorId)?.getContent();
+    if (content && submissionId) {
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+        if (!csrfToken) {
+          throw new Error("CSRF token tidak ditemukan.");
+        }
+
+        const response = await fetch("/your-laravel-route", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken,
+          },
+          body: JSON.stringify({
+            submission_id: submissionId,
+            content,
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          alert(`Konten berhasil disimpan: ${result.message}`);
+        } else {
+          const error = await response.json();
+          console.error("Error:", error);
+          alert(`Terjadi kesalahan: ${error.message || "Gagal menyimpan data"}`);
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        alert("Terjadi kesalahan jaringan saat mencoba menyimpan data.");
+      }
+    } else {
+      alert("Tidak ada konten yang disimpan atau submission ID tidak tersedia.");
+    }
+  };
 
   const handleApprove = (submissionId: number) => {
     setIsLoading(true);
@@ -1045,6 +1084,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   id="hasil-analisis"
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
+                <button
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => saveContent("hasil-analisis", submission?.id)}>
+                  Simpan Hasil Analisa
+                </button>
               </div>
 
               {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
@@ -1054,6 +1098,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     id="surat-pelaksanaan"
                     initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("surat-pelaksanaan", submission?.id)}>
+                    Simpan Surat Pelaksanaan
+                  </button>
                 </div>
               )}
 
@@ -1064,6 +1113,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     id="surat-permohonan"
                     initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("surat-permohonan", submission?.id)}>
+                    Simpan Surat Permohonan
+                  </button>
                 </div>
               )}
 
@@ -1074,6 +1128,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     id="draft-surety"
                     initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("draft-surety", submission?.id)}>
+                    Simpan Draft Surety Bond
+                  </button>
                 </div>
               )}
 
@@ -1084,19 +1143,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     id="draft-surety-bumida"
                     initialContent={replaceBumidaPlaceholders(templateBumida, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("draft-surety-bumida", submission?.id)}>
+                    Simpan Draft Bumida
+                  </button>
                 </div>
               )}
 
-              {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
-              submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
+              {(submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+                submission?.guarantor?.name.toLowerCase().includes("jasa tania")) && (
                 <div>
                   <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
                   <TinyMCEEditor
                     id="draft-surety-jastan"
                     initialContent={replaceJastanPlaceholders(templateJastan, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("draft-surety-jastan", submission?.id)}>
+                    Simpan Draft Jastan
+                  </button>
                 </div>
-              ) : null}
+              )}
 
               {submission?.guarantor?.name.toLowerCase().includes("videi") && (
                 <div>
@@ -1105,6 +1174,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     id="draft-surety-videi"
                     initialContent={replaceVideiPlaceholders(templateVidei, data)}
                   />
+                  <button
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => saveContent("draft-surety-videi", submission?.id)}>
+                    Simpan Draft Videi
+                  </button>
                 </div>
               )}
             </div>

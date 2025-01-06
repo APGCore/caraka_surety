@@ -88,25 +88,28 @@ class DocumentFormatController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
             'guarantor_id' => 'nullable|integer',
             'guarantor_product_id' => 'nullable|integer',
             'guarantor_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
-            'format_document' => 'required|string',
+            'format_document' => 'nullable|string',
         ]);
 
         try {
             DB::beginTransaction();
+            $guarantor_id = $request->get('guarantor_id') ?? null;
+            $product_id = $request->get('guarantor_product_id') ?? null;
+            $guarantor_product_type_id = $request->get('guarantor_product_type_id') ?? null;
 
-            DocumentFormat::query()
-                ->create([
-                    'guarantor_id' => $request->get('guarantor_id'),
-                    'guarantor_product_id' => $request->get('guarantor_product_id'),
-                    'guarantor_product_type_id' => $request->get('guarantor_product_type_id'),
-                    'name' => $request->get('name'),
-                    'format_document' => $request->get('format_document'),
-                ]);
+            DocumentFormat::create([
+                'guarantor_id' => $guarantor_id,
+                'guarantor_product_id' => $product_id,
+                'guarantor_product_type_id' => $guarantor_product_type_id,
+                'name' => $request->get('name'),
+                'format_document' => $request->get('format_document'),
+            ]);
 
             DB::commit();
 
