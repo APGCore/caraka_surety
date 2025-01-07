@@ -1,5 +1,4 @@
 // Add jsPDF import
-import { jsPDF } from "jspdf";
 import React, { useEffect } from "react";
 
 interface TinyMCEEditorProps {
