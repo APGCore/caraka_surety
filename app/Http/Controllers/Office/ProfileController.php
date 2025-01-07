@@ -171,7 +171,7 @@ class ProfileController extends Controller
                 ->causedBy(auth()->user())
                 ->log('Menambahkan Kantor Cabang');
 
-            flashMessage('Kantor Cabang Ditambahkan', 'Kantor Cabang berhasil ditambahkan');
+            flashMessage('Berhasil', 'Berhasil ditambahkan');
             DB::commit();
 
             return redirect()->route($redirectRoute);
@@ -217,6 +217,7 @@ class ProfileController extends Controller
         try {
             DB::beginTransaction();
             $requestValidated = $request->validated();
+            $redirectRoute = $this->routeRedirect($requestValidated);
             $data = $this->prepareData($requestValidated);
 
             $profileUpdated = $profile->update($data);
@@ -231,10 +232,10 @@ class ProfileController extends Controller
                 ->performedOn($profile)
                 ->causedBy(auth()->user())
                 ->log('Mengubah Kantor Cabang');
-            flashMessage('Kantor Cabang Diperbarui', 'Kantor Cabang berhasil diperbarui');
+            flashMessage('Berhasil', 'Berhasil diperbarui');
             DB::commit();
 
-            return redirect()->route('branch.index');
+            return redirect()->route($redirectRoute);
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
