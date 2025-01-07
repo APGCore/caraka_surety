@@ -176,7 +176,7 @@ class ProfileController extends Controller
 
             return redirect()->route($redirectRoute);
         } catch (\Throwable $th) {
-            flashMessage('Gagal Menambahkan Kantor Cabang', 'Terjadi kesalahan saat menambahkan kantor cabang', 'error');
+            flashMessage('Gagal Menambahkan', 'Terjadi kesalahan saat menambahkan', 'error');
             Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
 
@@ -238,7 +238,7 @@ class ProfileController extends Controller
             return redirect()->route($redirectRoute);
         } catch (\Throwable $th) {
             DB::rollBack();
-            flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
+            flashMessage('Gagal Diperbarui', 'Terjadi kesalahan saat memperbarui', 'error');
             Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
             return redirect()->back()->withErrors($th->getMessage());
