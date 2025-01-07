@@ -25,6 +25,9 @@ import { formatCurrency } from "@/lib/format-currency";
 import { textCurrency } from "@/lib/text-currency";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
+import templateSpkmgrBumida from "@/pages/output_templates/template-spkmgr-bumida";
+import templateSpkmgrJastan from "@/pages/output_templates/template-spkmgr-jastan";
+import templateSpkmgrVidei from "@/pages/output_templates/template-spkmgr-videi";
 import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
 import templateBankGaransi from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
 import templateBumida from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
@@ -34,7 +37,7 @@ import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { AlertCircle, LoaderCircle } from "lucide-react";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -592,6 +595,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
     [key: string]: any;
   }
+  const editorRefs = useRef<{ [key: string]: any }>({});
 
   // Fungsi untuk mengganti placeholder dalam template
   const replacePlaceholders = (template: string, data: SubmissionData): string => {
@@ -1363,36 +1367,131 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </form>
             <br />
 
-            <RenderList
-              of={submission?.submission_docs}
-              render={(docSig) => {
-                return (
-                  <tr key={docSig.id} className="border-b">
-                    <td className="p-2">{docSig.name}</td>
-                    <td className="p-2">
-                      {docSig?.url ? <PreviewFile preview={docSig.url} /> : "File Belum Diunggah"}
-                    </td>
-                  </tr>
-                );
-              }}
-            />
+            <table className="table-auto w-full border-collapse">
+              <thead>
+                <tr className="border-b bg-gray-200">
+                  <th className="p-2 text-left">Nama Dokumen</th>
+                  <th className="p-2 text-left">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <RenderList
+                  of={submission?.submission_docs}
+                  render={(docSig) => {
+                    return (
+                      <tr key={docSig.id} className="border-b">
+                        <td className="p-2" title={docSig.name}>
+                          {docSig.name.length > 30 ? `${docSig.name.slice(0, 30)}...` : docSig.name}
+                        </td>
+                        <td className="p-2">
+                          {docSig?.url ? <PreviewFile preview={docSig.url} /> : "File Belum Diunggah"}
+                        </td>
+                      </tr>
+                    );
+                  }}
+                />
+              </tbody>
+            </table>
 
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
               <div>
                 <TinyMCEEditor
                   id="hasil-analisis"
+                  onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
+                {/* <Button
+                onClick={() => handleSave("hasil-analisis", submission.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                Simpan Hasil Analisis
+                </Button> */}
               </div>
+
+              {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
+                <div>
+                  <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
+                  <div>
+                    <TinyMCEEditor
+                      id="spkmgr-bumida"
+                      onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
+                      initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
+                    />
+                    {/* <Button
+                onClick={() => handleSave("hasil-analisis", submission.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                Simpan Hasil Analisis
+                </Button> */}
+                  </div>
+                </div>
+              )}
+
+              {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+              submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
+                <div>
+                  <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
+                  <div>
+                    <TinyMCEEditor
+                      id="spkmgr-jastan"
+                      onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
+                      initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
+                    />
+                    {/* <Button
+                onClick={() => handleSave("hasil-analisis", submission.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                Simpan Hasil Analisis
+                </Button> */}
+                  </div>
+                </div>
+              ) : null}
+
+              {submission?.guarantor?.name.toLowerCase().includes("videi") && (
+                <div>
+                  <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
+                  <div>
+                    <TinyMCEEditor
+                      id="spkmgr-videi"
+                      onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
+                      initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
+                    />
+                    {/* <Button
+                onClick={() => handleSave("hasil-analisis", submission.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                Simpan Hasil Analisis
+              </Button> */}
+                  </div>
+                </div>
+              )}
 
               {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
                 <div>
                   <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
                   <TinyMCEEditor
                     id="surat-pelaksanaan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                     initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Jaminan Pelaksanaan
+                </Button> */}
+                </div>
+              )}
+
+              {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
+                  <TinyMCEEditor
+                    id="surat-pelaksanaan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
+                    initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
+                  />
+                  {/* <Button
+                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Jaminan Pelaksanaan
+                </Button> */}
                 </div>
               )}
 
@@ -1401,8 +1500,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
                   <TinyMCEEditor
                     id="surat-permohonan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
                     initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("surat-permohonan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Surat Permohonan
+                </Button> */}
                 </div>
               )}
 
@@ -1411,8 +1516,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
                   <TinyMCEEditor
                     id="draft-surety"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
                     initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("draft-surety", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Draft Surety Bond
+                </Button> */}
                 </div>
               )}
 
@@ -1421,8 +1532,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
                   <TinyMCEEditor
                     id="draft-surety-bumida"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
                     initialContent={replaceBumidaPlaceholders(templateBumida, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("draft-surety-bumida", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Bumida
+                </Button> */}
                 </div>
               )}
 
@@ -1432,8 +1549,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
                   <TinyMCEEditor
                     id="draft-surety-jastan"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
                     initialContent={replaceJastanPlaceholders(templateJastan, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("draft-surety-jastan", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Jastan atau Jasa Tania
+                </Button> */}
                 </div>
               ) : null}
 
@@ -1442,11 +1565,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
                   <TinyMCEEditor
                     id="draft-surety-videi"
-                    initialContent={replacePlaceholders(
-                      submission.document_format_guarantor.format_document,
-                      dataTemplate,
-                    )}
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
+                    initialContent={replaceVideiPlaceholders(templateVidei, data)}
                   />
+                  {/* <Button
+                  onClick={() => handleSave("draft-surety-videi", submission.id)}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
+                  Simpan Videi
+                </Button> */}
                 </div>
               )}
             </div>

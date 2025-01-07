@@ -63,6 +63,7 @@ interface Principal {
   updated_at: string;
   village: string;
   year_established: string;
+  business_fields: string;
   documents: Document[];
   ratios: Ratio[];
   district: {
@@ -184,6 +185,7 @@ interface SubmissionDetailProps {
     rejected_at: string;
     beyond_the_limit: boolean;
     guarantor: Guarantor;
+    business_fields: string;
     district: {
       name: string;
     };
