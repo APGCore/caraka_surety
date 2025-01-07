@@ -253,18 +253,18 @@ class ProfileController extends Controller
             if ($profile->exists) {
                 $profile->delete();
             } else {
-                throw new ThrottleRequestsException('Kantor Cabang tidak ditemukan');
+                throw new ThrottleRequestsException('Data tidak ditemukan');
             }
             activity()
                 ->useLog('profile')
                 ->performedOn($profile)
                 ->causedBy(auth()->user())
                 ->log('Menghapus Kantor Cabang');
-            flashMessage('Kantor Cabang Dihapus', 'Kantor Cabang berhasil dihapus');
+            flashMessage('Hapus', 'Berhasil dihapus');
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
-            flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
+            flashMessage('Gagal Menghapus', 'Terjadi kesalahan saat menghapus', 'error');
             Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
