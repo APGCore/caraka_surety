@@ -113,6 +113,41 @@ class ProfileController extends Controller
         ]);
     }
 
+    private function routeRedirect(array $requestValidated): string
+    {
+        $officeType = $requestValidated['office_type'];
+
+        return match ($officeType) {
+            OfficeType::BRANCH->value => 'branch.index',
+            OfficeType::MARKETING_PARTNER->value => 'branch.mitra-pemasaran',
+            OfficeType::AGENT_PARTNER->value => 'branch.mitra-agen',
+            default => 'branch.index',
+        };
+    }
+
+    private function prepareData(array $requestValidated): array
+    {
+        return array_intersect_key($requestValidated, array_flip([
+            'code', 'name', 'email', 'phone', 'address', 'postal_code',
+            'province_id', 'regency_id', 'district_id', 'village', 'office_type',
+        ]));
+    }
+
+    private function createPairing($requestValidated, $profile): void
+    {
+        foreach ($requestValidated['pairing_guarantor'] as $guarantor) {
+            if (! isset($guarantor['branches'])) {
+                throw new ThrottleRequestsException('Cabang tidak ditemukan');
+            }
+            foreach ($guarantor['branches'] as $branch) {
+                OfficePairing::query()->create([
+                    'office_id' => $profile->id, // Reference to the office
+                    'guarantor_id' => $branch['id'], // Reference to the guarantor branch
+                ]);
+            }
+        }
+    }
+
     public function store(StoreRequest $request)
     {
 
@@ -121,44 +156,14 @@ class ProfileController extends Controller
 
             $requestValidated = $request->validated();
 
-            $officeType = $requestValidated['office_type'];
+            $redirectRoute = $this->routeRedirect($requestValidated);
 
-            $redirectRoute = match ($officeType) {
-                OfficeType::BRANCH->value => 'branch.index',
-                OfficeType::MARKETING_PARTNER->value => 'branch.mitra-pemasaran',
-                OfficeType::AGENT_PARTNER->value => 'branch.mitra-agen',
-                default => 'branch.index',
-            };
-
-            $data = [
-                'code' => $requestValidated['code'],
-                'name' => $requestValidated['name'],
-                'email' => $requestValidated['email'],
-                'phone' => $requestValidated['phone'],
-                'address' => $requestValidated['address'],
-                'postal_code' => $requestValidated['postal_code'],
-                'province_id' => $requestValidated['province_id'],
-                'regency_id' => $requestValidated['regency_id'],
-                'district_id' => $requestValidated['district_id'],
-                'village' => $requestValidated['village'],
-                'office_type' => $officeType,
-            ];
+            $data = $this->prepareData($requestValidated);
 
             $profile = Profile::query()
                 ->create($data);
 
-            foreach ($requestValidated['pairingGuarantor'] as $guarantor) {
-                if (! isset($guarantor['branches'])) {
-                    throw new ThrottleRequestsException('Cabang tidak ditemukan');
-                }
-                foreach ($guarantor['branches'] as $branch) {
-
-                    OfficePairing::create([
-                        'office_id' => $profile->id, // Reference to the office
-                        'guarantor_id' => $branch['id'], // Reference to the guarantor branch
-                    ]);
-                }
-            }
+            $this->createPairing($requestValidated, $profile);
 
             activity()
                 ->useLog('profile')
@@ -172,8 +177,6 @@ class ProfileController extends Controller
             return redirect()->route($redirectRoute);
         } catch (\Throwable $th) {
             flashMessage('Gagal Menambahkan Kantor Cabang', 'Terjadi kesalahan saat menambahkan kantor cabang', 'error');
-
-            dd($th);
             Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
             DB::rollBack();
 
@@ -187,6 +190,21 @@ class ProfileController extends Controller
     public function edit(Request $request, Profile $profile): Response
     {
         $component = $request->path();
+        $profile->load(['guarantors:id,headquarter_id,name', 'guarantors.head:id,headquarter_id,name', 'guarantors.head.branch:id,headquarter_id,name']);
+        $headGuarantors = $profile->guarantors->pluck('head')->unique();
+        $pairingGuarantor = $headGuarantors->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'branches' => $item->branch->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                    ];
+                }),
+            ];
+        });
+        $profile->setAttribute('pairing_guarantor', $pairingGuarantor);
         $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
@@ -199,7 +217,15 @@ class ProfileController extends Controller
         try {
             DB::beginTransaction();
             $requestValidated = $request->validated();
-            $profile->update($requestValidated);
+            $data = $this->prepareData($requestValidated);
+
+            $profileUpdated = $profile->update($data);
+
+            if ($profileUpdated) {
+                OfficePairing::query()->where('office_id', $profile->id)->delete();
+                $this->createPairing($requestValidated, $profile);
+            }
+
             activity()
                 ->useLog('profile')
                 ->performedOn($profile)
@@ -214,7 +240,7 @@ class ProfileController extends Controller
             flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
             Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
 
-            return redirect()->back();
+            return redirect()->back()->withErrors($th->getMessage());
         }
     }
 

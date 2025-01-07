@@ -63,6 +63,6 @@ class Profile extends Model
 
     public function guarantors(): BelongsToMany
     {
-        return $this->belongsToMany(Guarantor::class, 'office_pairings', 'office_id', 'guarantor_id');
+        return $this->belongsToMany(Guarantor::class, OfficePairing::class, 'office_id', 'guarantor_id');
     }
 }

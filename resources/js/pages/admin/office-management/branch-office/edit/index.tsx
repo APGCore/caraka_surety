@@ -1,24 +1,24 @@
 import HeaderPage from "@/components/common/header-page";
+import { Card, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
 import { BranchOfficeEditPageProps } from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
-import Form from "@/pages/admin/office-management/branch-office/form";
+import Form from "../_partials/form";
 
 const BranchOfficeEditPage: React.FC<BranchOfficeEditPageProps> & { layout?: any } = ({ profile }) => {
   return (
-    <main className="space-y-2.5 flex items-center justify-center">
-      <div className="max-w-xl w-full">
-        <header>
-          <h2 className="text-lg font-medium text-gray-900">Mengubah Kantor Cabang</h2>
-
-          <p className="mt-1 text-sm text-gray-600">Untuk mengubah data BPR kantor cabang baru</p>
-        </header>
-
-        <Form
-          branchOffice={profile}
-          routeSubmit={route("branch.update", profile.id)}
-          routeBack={route("branch.index")}
-        />
+    <main className="space-y-10">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">Ubah Cabang BPR</h1>
       </div>
+      <Card className="w-[800px] mx-auto">
+        <CardContent>
+          <Form
+            branchOffice={profile}
+            routeSubmit={route("branch.update", profile.id)}
+            routeBack={route("branch.index")}
+          />
+        </CardContent>
+      </Card>
     </main>
   );
 };

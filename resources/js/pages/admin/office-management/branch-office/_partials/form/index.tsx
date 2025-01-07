@@ -1,7 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import Label from "@/components/common/input-label";
-import InputLocation from "@/components/common/input-location";
 import RenderList from "@/components/common/render-list";
 import Input from "@/components/common/text-input";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
     village: branchOffice?.village ?? "",
     address: branchOffice?.address ?? "",
     postal_code: branchOffice?.postal_code ?? "",
-    pairingGuarantor: branchOffice?.pairingGuarantor ?? [],
+    pairing_guarantor: branchOffice?.pairing_guarantor ?? [],
     office_type: "branch",
   });
 
@@ -59,13 +58,10 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
 
   const { guarantors, loading: loadingGetGuarantor } = useGetAllGuarantor();
   const { branchGuarantors, loading: loadingGetBranchGuarantor } = useGetAllBranchGuarantor();
-  const [pairingGuarantor, setPairingGuarantor] = useState<IPairingGuarantor[] | null>([
-    {
-      id: null,
-      name: null,
-      branches: [],
-    },
-  ]);
+  const defaultPairingGuarantor = [{ id: null, name: null, branches: [] }];
+  const [pairingGuarantor, setPairingGuarantor] = useState<IPairingGuarantor[] | null>(
+    data.pairing_guarantor ?? defaultPairingGuarantor,
+  );
 
   const availableGuarantors = useMemo(() => {
     if (!loadingGetGuarantor) {
@@ -129,7 +125,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
           : gr,
       ) || [];
 
-    setData("pairingGuarantor", updatedGuarantorData);
+    setData("pairing_guarantor", updatedGuarantorData);
     setPairingGuarantor(updatedGuarantorData);
   };
 
@@ -137,7 +133,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
   const deleteGuarantor = (index: number) => {
     const updatedData = pairingGuarantor?.filter((_, idx) => idx !== index) || [];
 
-    setData("pairingGuarantor", updatedData);
+    setData("pairing_guarantor", updatedData);
     setPairingGuarantor(updatedData);
   };
 
@@ -167,7 +163,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
           : gr,
       ) || [];
 
-    setData("pairingGuarantor", updatedBranch);
+    setData("pairing_guarantor", updatedBranch);
     setPairingGuarantor(updatedBranch);
   };
 
@@ -183,7 +179,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
           : gr,
       ) || [];
 
-    setData("pairingGuarantor", updatedBranch);
+    setData("pairing_guarantor", updatedBranch);
     setPairingGuarantor(updatedBranch);
   };
 
@@ -198,7 +194,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
       patch(routeSubmit, {
         preserveScroll: true,
         preserveState: true,
-        onFinish: () => {
+        onSuccess: () => {
           router.get(routeBack);
         },
       });
@@ -206,7 +202,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
       post(routeSubmit, {
         preserveScroll: true,
         preserveState: true,
-        onFinish: () => {
+        onSuccess: () => {
           router.get(routeBack);
         },
       });
