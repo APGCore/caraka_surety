@@ -100,6 +100,16 @@ class AuthenticatedSessionController extends Controller
 
             return redirect()->intended(route('staff.index', absolute: false));
         } elseif ($userRole == 6) {
+            $this->activityLogin('Login sebagai Staff Teknik');
+            flashMessage('Berhasil Login sebagai Staff Teknik!', 'Anda berhasil login sebagai Staff Teknik.');
+
+            return redirect()->intended(route('staff-teknik.index', absolute: false));
+        } elseif ($userRole == 7) {
+            $this->activityLogin('Login sebagai Staff Operasional');
+            flashMessage('Berhasil Login sebagai Staff Teknik!', 'Anda berhasil login sebagai Staff Operasional.');
+
+            return redirect()->intended(route('staff-operasional.index', absolute: false));
+        } elseif ($userRole == 8) {
             $this->activityLogin('Login sebagai Staff Cabang');
             flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.');
 

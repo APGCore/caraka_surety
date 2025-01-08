@@ -1,9 +1,8 @@
 <?php
 
-require_once __DIR__.'/common/index.php';
-require_once __DIR__.'/admin/index.php';
-require_once __DIR__.'/staff/index.php';
-require_once __DIR__.'/kepala-cabang/index.php';
-require_once __DIR__.'/manager/index.php';
-require_once __DIR__.'/direksi/index.php';
-require_once __DIR__.'/example/index.php';
+foreach (glob(__DIR__.'/*', GLOB_ONLYDIR) as $dir) {
+    $filePath = $dir.'/index.php';
+    if (file_exists($filePath)) {
+        require_once $filePath;
+    }
+}

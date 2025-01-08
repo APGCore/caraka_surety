@@ -104,6 +104,52 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
+    public function dashboardStaffOperasional(Request $request)
+    {
+        $component = 'staff-operasional/dashboard/index';
+
+        $productId = $request->get('product_id');
+        $countOfSubmission = $this->getCountOfSubmission();
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
+        $submissionThisMonth = $this->getSubmissionThisMonth();
+        $products = Product::query()->get();
+
+        $props = [
+            'total_submission' => $countOfSubmission['total'],
+            'total_submission_process' => $countOfSubmission['process'],
+            'total_submission_approved' => $countOfSubmission['approved'],
+            'total_submission_rejected' => $countOfSubmission['rejected'],
+            'products' => $products,
+            'graph_data' => $chartSubmissionThisYear,
+            'submissions' => $submissionThisMonth,
+        ];
+
+        return inertia($component, $props);
+    }
+
+    public function dashboardStaffTeknik(Request $request)
+    {
+        $component = 'staff-teknik/dashboard/index';
+
+        $productId = $request->get('product_id');
+        $countOfSubmission = $this->getCountOfSubmission();
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
+        $submissionThisMonth = $this->getSubmissionThisMonth();
+        $products = Product::query()->get();
+
+        $props = [
+            'total_submission' => $countOfSubmission['total'],
+            'total_submission_process' => $countOfSubmission['process'],
+            'total_submission_approved' => $countOfSubmission['approved'],
+            'total_submission_rejected' => $countOfSubmission['rejected'],
+            'products' => $products,
+            'graph_data' => $chartSubmissionThisYear,
+            'submissions' => $submissionThisMonth,
+        ];
+
+        return inertia($component, $props);
+    }
+
     public function dashboardManager(Request $request)
     {
         $component = 'manager/dashboard/index';

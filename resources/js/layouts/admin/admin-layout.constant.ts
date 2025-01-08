@@ -85,25 +85,25 @@ export const adminRoute = {
         },
       ],
     },
-    {
-      title: "Kelola Blangko",
-      url: "#",
-      icon: Stamp,
-      items: [
-        {
-          title: "Penerimaan Blangko",
-          route_name: "blank-management.blank",
-          href: route("blank-management.blank.index"),
-          url: "#",
-        },
-        {
-          title: "Daftar Blangko",
-          route_name: "blank-management.distribution-of-blank",
-          href: route("blank-management.distribution-of-blank.index"),
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Kelola Blangko",
+    //   url: "#",
+    //   icon: Stamp,
+    //   items: [
+    //     {
+    //       title: "Penerimaan Blangko",
+    //       route_name: "blank-management.blank",
+    //       href: route("blank-management.blank.index"),
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Daftar Blangko",
+    //       route_name: "blank-management.distribution-of-blank",
+    //       href: route("blank-management.distribution-of-blank.index"),
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "Kelola Wilayah",
       url: "#",
