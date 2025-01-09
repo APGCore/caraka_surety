@@ -13,12 +13,11 @@ class Roles extends Seeder
      */
     public function run(): void
     {
-        $roles = RoleEnum::getRoute();
+        $roles = RoleEnum::getValues();
 
-        foreach ($roles as $name => $route) {
+        foreach ($roles as $role) {
             Role::create([
-                'name' => $name,
-                'route_name' => $route,
+                'name' => $role,
             ]);
         }
     }

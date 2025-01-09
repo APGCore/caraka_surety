@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\RoleEnum;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -17,7 +18,8 @@ class HandleRoleUsers
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (! auth()->user()->hasRoles($roles)) {
-            $route = User::query()->find(auth()->id())?->role?->route_name;
+            $role = User::query()->find(auth()->id())?->role;
+            $route = RoleEnum::getRoute()[$role];
 
             return redirect()->route($route);
         }
