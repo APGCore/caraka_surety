@@ -223,8 +223,8 @@ class ProductTipeController extends Controller
         $productTypes = ProductType::query()
             ->whereIn('id', $productTypeIds)
             ->get();
-        $jobGroups = $guarantorToProductTypes->pluck('job_group')->unique();
-        $jobTypes = $guarantorToProductTypes->pluck('job_type')->unique();
+        $jobGroups = $guarantorToProductTypes->pluck('job_group')->unique()->values();
+        $jobTypes = $guarantorToProductTypes->pluck('job_type')->unique()->values();
 
         $data = [
             'product_types' => $productTypes,
