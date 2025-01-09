@@ -25,9 +25,9 @@ import { SidebarMenuCustom } from "@/layouts/_partials/sidebarMenuCustom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";
 import { staffOperasionalRoute } from "./staff-operasional-layout.constant";
-import { StaffLayoutPageProps } from "./staff-operasional-layout.type";
+import { StaffOperasionalLayoutPageProps } from "./staff-operasional-layout.type";
 
-export const StaffOperasionalLayoutPage: StaffLayoutPageProps = ({ children, user }) => {
+export const StaffOperasionalLayoutPage: StaffOperasionalLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();
 
   return (

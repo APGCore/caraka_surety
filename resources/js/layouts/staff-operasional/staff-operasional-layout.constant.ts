@@ -1,37 +1,31 @@
-import { Archive, Home } from "lucide-react";
+import { Home, Stamp } from "lucide-react";
 
 export const staffOperasionalRoute = {
   navMain: [
     {
       title: "Dashboard",
       url: "#",
-      route_name: "staff-operasional",
-      href: route("staff-operasional.index"),
+      route_name: "staff-operasional.dashboard",
+      href: route("staff-operasional.dashboard.index"),
       icon: Home,
       isActive: true,
       items: [],
     },
     {
-      title: "Kelola Pengajuan",
+      title: "Kelola Blangko",
       url: "#",
-      icon: Archive,
+      icon: Stamp,
       items: [
         {
-          title: "Penerimaan Blanko",
-          route_name: "staff-submission-create",
-          href: route("staff-submission-create.submission"),
+          title: "Penerimaan Blangko",
+          route_name: "staff-operasional.blank-management.blank",
+          href: route("staff-operasional.blank-management.blank.index"),
           url: "#",
         },
         {
-          title: "Daftar Blanko",
-          route_name: "staff-submission-history",
-          href: route("staff-submission-history.submission"),
-          url: "#",
-        },
-        {
-          title: "Transfer Blanko",
-          route_name: "staff-submission-history",
-          href: route("staff-submission-history.submission"),
+          title: "Daftar Blangko",
+          route_name: "staff-operasional.blank-management.distribution-of-blank",
+          href: route("staff-operasional.blank-management.distribution-of-blank.index"),
           url: "#",
         },
       ],

@@ -1,8 +1,8 @@
 import { User } from "@/types";
 import React from "react";
 
-export interface StaffLayoutProps extends React.PropsWithChildren {
+export interface StaffOperasionalLayoutProps extends React.PropsWithChildren {
   user: User;
 }
 
-export type StaffLayoutPageProps = React.FC<StaffLayoutProps>;
+export type StaffOperasionalLayoutPageProps = React.FC<StaffOperasionalLayoutProps>;

@@ -21,6 +21,9 @@ class BlankController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
+
+        $component = 'staff-operasional/blank-management/blank/index';
+
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
         $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
@@ -38,8 +41,6 @@ class BlankController extends Controller
             ->appends('query', null)
             ->appends($request->all());
         $blankResource = BlankResource::collection($blanks);
-
-        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [

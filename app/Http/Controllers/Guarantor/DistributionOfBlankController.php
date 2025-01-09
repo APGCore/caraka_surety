@@ -19,6 +19,9 @@ class DistributionOfBlankController extends Controller
      */
     public function index(Request $request)
     {
+
+        $component = 'staff-operasional/blank-management/distribution-of-blank/index';
+
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
         $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
@@ -57,8 +60,6 @@ class DistributionOfBlankController extends Controller
                 ->appends($request->all())
             : collect();
         $blankResource = BlankResource::collection($blanks);
-
-        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -111,7 +112,6 @@ class DistributionOfBlankController extends Controller
 
             return back()->withErrors(['errors' => 'Gagal menyimpan data']);
         }
-
     }
 
     /**
