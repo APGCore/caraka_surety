@@ -12,6 +12,13 @@ enum RoleEnum: string
     case KepalaCabangRoute = 'kepala-cabang.index';
     case Manager = 'Manager';
     case ManagerRoute = 'manager.index';
+
+    case AgentPartner = 'Mitra Agen';
+    case AgentPartnerRoute = 'agent-partner.index';
+
+    case MarketingPartner = 'Mitra Pemasaran';
+    case MarketingPartnerRoute = 'marketing-partner.index';
+
     case Staff = 'Staff';
     case StaffRoute = 'staff.index';
     case StaffTeknik = 'Staff Teknik';
@@ -29,6 +36,8 @@ enum RoleEnum: string
             self::Staff->value,
             self::StaffTeknik->value,
             self::StaffOperasional->value,
+            self::AgentPartner->value,
+            self::MarketingPartner->value,
         ];
     }
 
@@ -42,6 +51,9 @@ enum RoleEnum: string
             self::Staff->value => self::StaffRoute->value,
             self::StaffTeknik->value => self::StaffTeknikRoute->value,
             self::StaffOperasional->value => self::StaffOperasionalRoute->value,
+            self::AgentPartner->value => self::AgentPartnerRoute->value,
+            self::MarketingPartner->value => self::MarketingPartnerRoute->value,
+
         ];
     }
 }
