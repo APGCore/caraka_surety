@@ -25,7 +25,7 @@ class GuarantorRateController extends Controller
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
         $guarantorBranches = Guarantor::with(['product', 'productType'])->where('headquarter_id', $guarantor->getAttribute('id'))->get();
         $guarantorBranchSelected = $request->get('guarantor_branch_id');
-        $products = $guarantor->product?->unique();
+        $products = $guarantor->product?->unique()->values();
         $product = $products?->find($request->get('product_id')) ?? $products?->first();
 
         $guarantorSelected = $guarantor->id ?? null;

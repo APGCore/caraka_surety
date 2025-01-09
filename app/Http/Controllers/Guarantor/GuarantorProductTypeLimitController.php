@@ -23,7 +23,7 @@ class GuarantorProductTypeLimitController extends Controller
         $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
 
-        $products = $guarantor?->product?->unique();
+        $products = $guarantor?->product?->unique()->values();
         $product = $products?->find($request->get('product_id')) ?? $products?->first();
 
         $guarantorSelected = $guarantor->id ?? null;

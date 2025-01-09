@@ -191,7 +191,7 @@ class ProfileController extends Controller
     {
         $component = $request->path();
         $profile->load(['guarantors:id,headquarter_id,name', 'guarantors.head:id,headquarter_id,name', 'guarantors.head.branch:id,headquarter_id,name']);
-        $headGuarantors = $profile->guarantors->pluck('head')->unique();
+        $headGuarantors = $profile->guarantors->pluck('head')->unique()->values();
         $pairingGuarantor = $headGuarantors->map(function ($item) {
             return [
                 'id' => $item->id,

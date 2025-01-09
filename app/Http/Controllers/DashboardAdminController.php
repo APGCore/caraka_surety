@@ -40,7 +40,7 @@ class DashboardAdminController extends Controller
         $totalPremi = $approvedSubmission->sum('guarantee_value');
 
         // Total User Who Aprrove Subs
-        $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique();
+        $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique()->values();
 
         $profileId = $request->get('profile_id');
 
