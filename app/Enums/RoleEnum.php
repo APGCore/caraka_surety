@@ -17,7 +17,7 @@ enum RoleEnum: string
     case StaffTeknik = 'Staff Teknik';
     case StaffTeknikRoute = 'staff-teknik.index';
     case StaffOperasional = 'Staff Operasional';
-    case StaffOperasionalRoute = 'staff-operasional.index';
+    case StaffOperasionalRoute = 'staff-operasional.dashboard.index';
 
     public static function getValues(): array
     {
