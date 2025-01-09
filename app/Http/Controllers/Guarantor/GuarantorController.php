@@ -236,7 +236,7 @@ class GuarantorController extends Controller
         $guarantor->load('product:id,name');
 
         // unique product
-        $product = $guarantor->product->unique('id');
+        $product = $guarantor->product->unique('id')->values();
 
         return $this->responseSuccess('Berhasil mengambil data produk', $product);
     }
@@ -258,7 +258,7 @@ class GuarantorController extends Controller
             ->with('guarantorHead:id,headquarter_id,name')
             ->get(['guarantor_id']);
 
-        $guarantors = $guarantors->pluck('guarantorHead')->unique();
+        $guarantors = $guarantors->pluck('guarantorHead')->unique()->values();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
@@ -284,7 +284,7 @@ class GuarantorController extends Controller
             ->with('office:id,name', 'guarantorBranch:id,name')
             ->get(['office_id', 'guarantor_id']);
 
-        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique();
+        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique()->values();
 
         return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }
