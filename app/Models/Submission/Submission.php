@@ -18,6 +18,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,6 +48,18 @@ class Submission extends Model
     public function bank(): BelongsTo
     {
         return $this->belongsTo(Bank::class, 'bank_id', 'id');
+    }
+
+    public function blank(): BelongsToMany
+    {
+        return self::blanks()->whereHas('blank', function ($query) {
+            $query->where('is_broken', false);
+        })->first();
+    }
+
+    public function blanks(): BelongsToMany
+    {
+        return $this->belongsToMany(Blank::class, 'submission_blanks', 'bank_id', 'submission_id')->orderBy('id');
     }
 
     public function obligee(): BelongsTo
@@ -119,11 +132,6 @@ class Submission extends Model
     public function userRejected(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by', 'id');
-    }
-
-    public function blank(): BelongsTo
-    {
-        return $this->belongsTo(Blank::class, 'blank_id', 'id');
     }
 
     public function staff(): BelongsTo

@@ -186,6 +186,7 @@ class SubmissionController extends Controller
             $noy = (string) $seqNoyLast ? $seqNoyLast->current + 1 : 1;
             $noGuarantee = convertPattern($pattern, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
 
+            dd($noGuarantee);
             // create sequence
             $this->createSequence('NOD', $nod, $pattern, $guarantor->id);
             $this->createSequence('NOM', $nom, $pattern, $guarantor->id);
@@ -197,7 +198,6 @@ class SubmissionController extends Controller
             $dataSubmission['principal_id'] = $createPrincipal->id;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
             $dataSubmission['obligee_id'] = $obligee->id;
-            $dataSubmission['blank_id'] = $blank->id;
             $dataSubmission['no_guarantee'] = $noGuarantee;
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
@@ -216,6 +216,10 @@ class SubmissionController extends Controller
             $submission = Submission::query()
                 ->create($dataSubmission);
 
+            // create submission blangko
+            $submission->blanks()->create(['blank_id' => $blank->id]);
+
+            // create submission scoring
             foreach ($scores as &$score) {
                 $score['scoring_id'] = $scoring['id'];
             }

@@ -24,11 +24,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/general/use-toast";
-import AdminLayout from "@/layouts/admin";
 import StaffOperasionalLayoutPage from "@/layouts/staff-operasional";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
-import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
+import { DistributionBlankPageProps } from "@/pages/staff-operasional/blank-management/distribution-of-blank/distribution-of-blank-page.type";
+import { DistributionOfBlankUtils } from "@/pages/staff-operasional/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import { pickBy } from "lodash";
@@ -566,10 +565,10 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       <Badge className="text-white bg-green-400">Baik</Badge>
                     </Show>
                     <Show when={blank.is_approved}>
-                      <Badge className="text-white bg-green-400">Sudah Diterima Direksi</Badge>
+                      <Badge className="text-white bg-green-400">Sudah Diterima</Badge>
                     </Show>
                     <Show when={!blank.is_approved}>
-                      <Badge className="text-white bg-yellow-400">Belum Diterima Direksi</Badge>
+                      <Badge className="text-white bg-yellow-400">Belum Diterima</Badge>
                     </Show>
                     <Show when={blank.from_profile_id}>
                       <Badge className="text-white bg-blue-400">Di Transfer Dari {blank.from_profile?.name}</Badge>

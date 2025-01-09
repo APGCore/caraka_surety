@@ -1,11 +1,12 @@
+const prefix: string = "staff-operasional.blank-management.blank";
 export const BlankUtils = {
   link: {
-    index: "blank-management.blank.index",
-    create: "blank-management.blank.create",
-    store: "blank-management.blank.store",
-    store_multi: "blank-management.blank.store.multi",
-    edit: "blank-management.blank.edit",
-    update: "blank-management.blank.update",
-    destroy: "blank-management.blank.destroy",
+    index: prefix + ".index",
+    create: prefix + ".create",
+    store: prefix + ".store",
+    store_multi: prefix + ".multi",
+    edit: prefix + ".edit",
+    update: prefix + ".update",
+    destroy: prefix + ".destroy",
   },
 };

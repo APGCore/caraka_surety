@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Blank\StoreMultiRequest;
 use App\Http\Requests\Guarantor\Blank\StoreRequest;
@@ -21,8 +22,11 @@ class BlankController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
-
-        $component = 'staff-operasional/blank-management/blank/index';
+        if ($request->user()->hasRole(RoleEnum::StaffOperasional->value)) {
+            $component = 'staff-operasional/blank-management/blank/index';
+        } else {
+            $component = 'admin/blank-management/blank/index';
+        }
 
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
@@ -91,13 +95,15 @@ class BlankController extends Controller
         try {
             DB::beginTransaction();
             $start = $requestValidated['number_start'];
+            $startLength = strlen($start);
             $end = $requestValidated['number_end'];
+            $endLength = strlen($end);
 
             $diff = (int) $end - (int) $start;
 
             $data = array_map(fn ($i) => [
                 'guarantor_id' => $requestValidated['guarantor_id'],
-                'number' => ($start ?? 0) + $i,
+                'number' => str_pad($start + $i, max($startLength, $endLength), '0', STR_PAD_LEFT),
                 'created_at' => now(),
                 'updated_at' => now(),
             ], range(0, max($diff, 0)));

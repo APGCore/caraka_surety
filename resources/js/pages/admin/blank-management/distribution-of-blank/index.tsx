@@ -565,10 +565,10 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       <Badge className="text-white bg-green-400">Baik</Badge>
                     </Show>
                     <Show when={blank.is_approved}>
-                      <Badge className="text-white bg-green-400">Sudah Diterima Direksi</Badge>
+                      <Badge className="text-white bg-green-400">Sudah Diterima</Badge>
                     </Show>
                     <Show when={!blank.is_approved}>
-                      <Badge className="text-white bg-yellow-400">Belum Diterima Direksi</Badge>
+                      <Badge className="text-white bg-yellow-400">Belum Diterima</Badge>
                     </Show>
                     <Show when={blank.from_profile_id}>
                       <Badge className="text-white bg-blue-400">Di Transfer Dari {blank.from_profile?.name}</Badge>

@@ -1,8 +1,9 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'dashboardStaffOperasional'])->name('staff-operasional.dashboard.index');
+    Route::get('/', [DashboardController::class, 'dashboardStaffOperasional'])->name(RoleEnum::StaffOperasionalRoute->value);
 });

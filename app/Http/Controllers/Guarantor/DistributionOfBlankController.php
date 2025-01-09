@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Guarantor;
 
 use App\Enums\OfficeType;
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
@@ -19,8 +20,11 @@ class DistributionOfBlankController extends Controller
      */
     public function index(Request $request)
     {
-
-        $component = 'staff-operasional/blank-management/distribution-of-blank/index';
+        if ($request->user()->hasRole(RoleEnum::StaffOperasional->value)) {
+            $component = 'staff-operasional/blank-management/distribution-of-blank/index';
+        } else {
+            $component = 'admin/blank-management/distribution-of-blank/index';
+        }
 
         $guarantors = Guarantor::with('head')
             ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);

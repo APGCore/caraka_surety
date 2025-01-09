@@ -53,7 +53,6 @@ enum RoleEnum: string
             self::StaffOperasional->value => self::StaffOperasionalRoute->value,
             self::AgentPartner->value => self::AgentPartnerRoute->value,
             self::MarketingPartner->value => self::MarketingPartnerRoute->value,
-
         ];
     }
 }

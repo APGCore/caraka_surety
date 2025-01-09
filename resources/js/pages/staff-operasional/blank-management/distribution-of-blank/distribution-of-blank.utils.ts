@@ -1,14 +1,15 @@
+const prefix: string = "staff-operasional.blank-management.distribution-of-blank";
 export const DistributionOfBlankUtils = {
   link: {
-    index: "blank-management.distribution-of-blank.index",
-    create: "blank-management.distribution-of-blank.create",
-    store: "blank-management.distribution-of-blank.store",
-    edit: "blank-management.distribution-of-blank.edit",
-    update: "blank-management.distribution-of-blank.update",
-    destroy: "blank-management.distribution-of-blank.destroy",
-    getBlankDistributed: "blank-management.distribution-of-blank.get-blank-distributed",
-    getBlankRange: "blank-management.distribution-of-blank.get-blank-range",
+    index: prefix + ".index",
+    create: prefix + ".create",
+    store: prefix + ".store",
+    edit: prefix + ".edit",
+    update: prefix + ".update",
+    destroy: prefix + ".destroy",
+    getBlankDistributed: prefix + ".get-blank-distributed",
+    getBlankRange: prefix + ".get-blank-range",
     getOffice: "references.profile.all",
-    storeTransfer: "blank-management.distribution-of-blank.store-transfer",
+    storeTransfer: prefix + ".store-transfer",
   },
 };
