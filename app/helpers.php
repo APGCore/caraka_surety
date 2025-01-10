@@ -9,7 +9,7 @@ if (! function_exists('flashMessage')) {
         session()->flash('type', $type);
     }
 
-    function convertPattern(string $pattern, string $ka = '', string $noa = '', string $kp = '', string $kb = '',
+    function convertPattern(string $pattern, string $ka = '', string $kc = '', string $noa = '', string $kp = '', string $kb = '',
         string $nod = '1', string $nom = '1', string $noy = '1')
     {
         preg_match('/{NOKB:(\d+)}/', $pattern, $matchesNokb);
@@ -22,6 +22,7 @@ if (! function_exists('flashMessage')) {
         $noyKey = $matchesNoy[0] ?? '{NOY:5}';
         $contentTemplate = [
             '{KA}' => $ka,
+            '{KC}' => $kc,
             '{KP}' => $kp,
             '{KB}' => $kb,
             '{NOA}' => $noa,
@@ -34,11 +35,15 @@ if (! function_exists('flashMessage')) {
             $nomKey => str_pad($nom, $matchesNom[1] ?? 5, '0', STR_PAD_LEFT),
             $noyKey => str_pad($noy, $matchesNoy[1] ?? 5, '0', STR_PAD_LEFT),
         ];
+        $lengthNOKB = $matchesNokb[1] ?? 0;
+        $lengthNOD = $matchesNod[1] ?? 0;
+        $lengthNOM = $matchesNom[1] ?? 0;
+        $lengthNOY = $matchesNoy[1] ?? 0;
         $value = $pattern;
         foreach ($contentTemplate as $key => $val) {
             $value = str_replace($key, $val, $value);
         }
 
-        return $value;
+        return compact('value', 'lengthNOKB', 'lengthNOD', 'lengthNOM', 'lengthNOY');
     }
 }

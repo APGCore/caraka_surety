@@ -1784,12 +1784,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               />
                             </div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
-                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
                             <div className="pt-2 h-[30px] w-full text-black">
                               {ratio.profitability_ratios !== undefined
                                 ? ratio.profitability_ratios.toString() + "%"
                                 : "??"}{" "}
                             </div>
+                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
                           </div>
                         );
                       }}

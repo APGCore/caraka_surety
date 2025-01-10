@@ -14,6 +14,7 @@ use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
 use App\Models\Sequence;
 use App\Models\Submission\Submission;
+use App\Models\Submission\SubmissionBlank;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use Carbon\Carbon;
@@ -161,8 +162,6 @@ class SubmissionController extends Controller
                 ->with(['pattern', 'branch'])
                 ->find($submission['guarantor_id']);
 
-            $guarantor = $guarantorHead->branch->firstWhere('id', $submission['guarantor_branch_id']);
-
             $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
                 ->where('product_id', $submission['product_id'])
                 ->where('product_type_id', $submission['product_type_id'])
@@ -170,34 +169,45 @@ class SubmissionController extends Controller
                 ->where('job_type', $submission['job_type'])
                 ->first();
 
-            $ka = $guarantor->code;
+            $guarantorHeadId = $guarantorHead->getAttribute('id');
+            $ka = $guarantorHead->code;
+            $kc = $guarantorHead->branch->where('id', $submission['guarantor_branch_id'])->first()->code;
             $kp = $guarantorToProductType->code;
             $kb = $blank->number;
             $noa = $profile->code;
 
-            $guarantorPattern = $guarantor->pattern;
+            $guarantorPattern = $guarantorHead->pattern;
             $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
-            $sequence = Sequence::query()->where('guarantor_id', $guarantor->id)->orderByDesc('current')->get();
+            $sequence = Sequence::query()->where('guarantor_id', $guarantorHeadId)->orderByDesc('current')->get();
             $seqNodLast = $sequence->where('name', 'NOD')->first();
             $seqNomLast = $sequence->where('name', 'NOM')->first();
             $seqNoyLast = $sequence->where('name', 'NOY')->first();
             $nod = (string) $seqNodLast ? $seqNodLast->current + 1 : 1;
             $nom = (string) $seqNomLast ? $seqNomLast->current + 1 : 1;
             $noy = (string) $seqNoyLast ? $seqNoyLast->current + 1 : 1;
-            $noGuarantee = convertPattern($pattern, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
+            $convertNoGuarantee = convertPattern($pattern, $kc, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
+            $noGuarantee = $convertNoGuarantee['value'];
+            $lengthNOD = $convertNoGuarantee['lengthNOD'];
+            $lengthNOM = $convertNoGuarantee['lengthNOM'];
+            $lengthNOY = $convertNoGuarantee['lengthNOY'];
 
-            //            dd($noGuarantee);
             // create sequence
-            $this->createSequence('NOD', $nod, $pattern, $guarantor->id);
-            $this->createSequence('NOM', $nom, $pattern, $guarantor->id);
-            $this->createSequence('NOY', $noy, $pattern, $guarantor->id);
+            if (str_contains($pattern, 'NOD')) {
+                $this->createSequence('NOD', $nod, $pattern, $guarantorHeadId, $lengthNOD);
+            }
+            if (str_contains($pattern, 'NOM')) {
+                $this->createSequence('NOM', $nom, $pattern, $guarantorHeadId, $lengthNOM);
+            }
+            if (str_contains($pattern, 'NOY')) {
+                $this->createSequence('NOY', $noy, $pattern, $guarantorHeadId, $lengthNOY);
+            }
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
-            $dataSubmission['principal_id'] = $createPrincipal->id;
+            $dataSubmission['principal_id'] = $createPrincipal->getAttribute('id');
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
-            $dataSubmission['obligee_id'] = $obligee->id;
+            $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['no_guarantee'] = $noGuarantee;
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
@@ -213,11 +223,13 @@ class SubmissionController extends Controller
                 $dataSubmission['checked_at'] = now();
             }
 
-            $submission = Submission::query()
-                ->create($dataSubmission);
+            $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
 
             // create submission blangko
-            $submission->blanks()->create(['blank_id' => $blank->id]);
+            SubmissionBlank::query()->create([
+                'submission_id' => $submission->getAttribute('id'),
+                'blank_id' => $blank->id,
+            ]);
 
             // create submission scoring
             foreach ($scores as &$score) {
@@ -254,7 +266,7 @@ class SubmissionController extends Controller
         }
     }
 
-    private function createSequence($name, $current, $pattern, $guarantorId): void
+    private function createSequence($name, $current, $pattern, $guarantorId, $length): void
     {
         if (str_contains($pattern, $name)) {
             Sequence::query()->updateOrCreate([
@@ -262,6 +274,7 @@ class SubmissionController extends Controller
                 'guarantor_id' => $guarantorId,
             ], [
                 'current' => $current,
+                'length' => $length,
             ]);
         }
     }

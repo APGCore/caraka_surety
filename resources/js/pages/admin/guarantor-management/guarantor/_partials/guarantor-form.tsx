@@ -80,12 +80,12 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
 
   const changeContent = (value: string) => {
     setData("content", value);
-    convertPattern(value);
+    convertPattern(data.prefix + value + data.suffix);
   };
 
   const changeSuffix = (value: string) => {
     setData("suffix", value);
-    setPreviewPattern(data.prefix + contentConverted + value);
+    convertPattern(data.prefix + data.content + value);
   };
 
   const convertPattern = (value: string) => {
@@ -102,7 +102,7 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
       .then((r) => {
         const responseData = r.data;
         setContentConverted(responseData.data);
-        setPreviewPattern(data.prefix + responseData.data + data.suffix);
+        setPreviewPattern(responseData.data);
       });
   };
 
@@ -371,7 +371,10 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
             <Label />
             <div className="grid grid-cols-2 gap-2">
               <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{KA}")}>
-                Kode Cabang/Kantor Asuransi (KA)
+                Kode Kantor Asuransi (KA)
+              </Button>
+              <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{KC}")}>
+                Kode Cabang Asuransi (KC)
               </Button>
               <Button type="button" className="w-full" variant="outline" onClick={() => addContent("{KP}")}>
                 Kode Produk (KP)

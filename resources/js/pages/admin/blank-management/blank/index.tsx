@@ -1,5 +1,6 @@
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
+import Loading from "@/components/common/loading";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
@@ -252,7 +253,7 @@ const BlankPage: BlankPageProps = ({
                     Batal
                   </AlertDialogCancel>
                   <Button type={"submit"} disabled={isLoading}>
-                    Simpan
+                    Simpan <Loading isLoading={isLoading} />
                   </Button>
                 </div>
               </form>
@@ -390,7 +391,7 @@ const BlankPage: BlankPageProps = ({
                                   <div className="flex justify-end gap-x-3">
                                     <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
                                     <Button type={"submit"} disabled={isLoading}>
-                                      Simpan
+                                      Simpan <Loading isLoading={isLoading} />
                                     </Button>
                                   </div>
                                 </form>
