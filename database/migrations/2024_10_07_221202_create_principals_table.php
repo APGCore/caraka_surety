@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('nib')->nullable();
             $table->string('siup_siujk')->nullable();
             $table->string('head_name')->nullable();
+            $table->string('business_fields')->nullable();
             $table->string('director_name');
             $table->string('director_position')->nullable();
             $table->string('director_phone')->nullable();

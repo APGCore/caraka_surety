@@ -68,7 +68,7 @@ class StoreRequest extends FormRequest
             'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
             'principal.business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
             // principal documents
-            'principal.documents' => ['required', 'array'],
+            'principal.documents' => ['nullable', 'array'],
             'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
             'principal.documents.*.required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
             'principal.documents.*.required_doc_name' => ['required', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib

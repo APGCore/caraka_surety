@@ -186,7 +186,7 @@ class SubmissionController extends Controller
             $noy = (string) $seqNoyLast ? $seqNoyLast->current + 1 : 1;
             $noGuarantee = convertPattern($pattern, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
 
-            dd($noGuarantee);
+            //            dd($noGuarantee);
             // create sequence
             $this->createSequence('NOD', $nod, $pattern, $guarantor->id);
             $this->createSequence('NOM', $nom, $pattern, $guarantor->id);

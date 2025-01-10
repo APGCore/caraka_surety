@@ -64,6 +64,13 @@ class GuarantorToProductTypeController extends Controller
         try {
             DB::beginTransaction();
             $guarantorId = $requestValid['guarantor_id'];
+            $dataIds = $data->pluck('id')->filter()->toArray();
+            GuarantorToProductType::query()
+                ->where([
+                    'guarantor_id' => $guarantorId,
+                    'product_id' => $data->pluck('product_id')->first(),
+                ])->whereNotIn('id', $dataIds)->delete();
+
             $data->each(function ($item) use ($guarantorId) {
                 $item['guarantor_id'] = $guarantorId;
                 $jobType = JobType::UNCONDITIONAL->value === $item['job_type'] ? '' : JobType::CONDITIONAL->value;
@@ -72,19 +79,8 @@ class GuarantorToProductTypeController extends Controller
                     ->updateOrCreate([
                         'id' => $item['id'] ?? null,
                     ], $item);
-
             });
 
-            $guaratorProduct = GuarantorToProductType::query()
-                ->where([
-                    'guarantor_id' => $guarantorId,
-                    'product_id' => $data->pluck('product_id')->first(),
-                ]);
-            $guaratorProductGet = $guaratorProduct->get();
-            if ($guaratorProductGet->isNotEmpty()) {
-                $dataIds = $data->pluck('id')->unique()->filter();
-                $guaratorProduct->whereNotIn('id', $dataIds)->delete();
-            }
             activity()
                 ->useLog('guarantor-to-product-type')
                 ->performedOn(new Guarantor)
