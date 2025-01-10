@@ -116,8 +116,7 @@ const MarketingPartnerOfficePage: MarketingPartnerOfficePageProps = (props) => {
               <TableHead>Kode</TableHead>
               <TableHead>Nama Mitra Marketing</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Dibuat</TableHead>
-              <TableHead className="text-right" />
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,7 +130,6 @@ const MarketingPartnerOfficePage: MarketingPartnerOfficePageProps = (props) => {
                       <TableCell>{profile?.code}</TableCell>
                       <TableCell>{profile?.name}</TableCell>
                       <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
-                      <TableCell>{profile?.created_at}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

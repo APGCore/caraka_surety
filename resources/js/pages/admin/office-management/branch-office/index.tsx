@@ -116,8 +116,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
               <TableHead>Kode</TableHead>
               <TableHead>Nama Cabang BPR</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Dibuat</TableHead>
-              <TableHead className="text-right" />
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,7 +130,6 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                       <TableCell>{profile?.code}</TableCell>
                       <TableCell>{profile?.name}</TableCell>
                       <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
-                      <TableCell>{profile?.created_at}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

@@ -218,32 +218,32 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
 
   return (
     <form onSubmit={submit} className="mt-6 space-y-10">
-      <div className="grid gap-1 ">
+      <div className="grid gap-3 ">
         <p className="text-xl font-bold">Data Mitra Pemasaran</p>
-        <div className="grid gap-5 mt-2">
+        <div className="grid gap-8 mt-2">
           <div className="flex gap-5">
             <div className="w-1/2 space-y-1">
-              <Label htmlFor="code" value="Kode Cabang" />
+              <Label htmlFor="code" value="Kode Mitra Pemasaran" />
               <Input
                 id="code"
                 value={data.code}
                 onChange={(e) => setData("code", e.target.value)}
                 required
                 autoComplete="code"
-                placeholder="Masukan Kode Cabang"
+                placeholder="Masukan Kode Mitra Pemasaran"
               />
               <InputError className="mt-2" message={errors.code} />
             </div>
 
             <div className="w-1/2 space-y-1">
-              <Label htmlFor="name" value="Nama" />
+              <Label htmlFor="name" value="Nama Mitra Pemasaran" />
               <Input
                 id="name"
                 value={data.name}
                 onChange={(e) => setData("name", e.target.value)}
                 required
                 autoComplete="name"
-                placeholder="Masukan Nama Cabang"
+                placeholder="Masukan Nama Mitra Pemasaran"
               />
               <InputError className="mt-2" message={errors.name} />
             </div>
@@ -256,21 +256,21 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
                 value={data.email}
                 onChange={(e) => setData("email", e.target.value)}
                 autoComplete="email"
-                placeholder="Masukan Email Cabang"
+                placeholder="Masukan Email Mitra Pemasaran"
               />
 
               <InputError className="mt-2" message={errors.email} />
             </div>
 
             <div className="w-1/2 space-y-1">
-              <Label htmlFor="phone" value="Telepon" />
+              <Label htmlFor="phone" value="Nomor Telepon" />
               <Input
                 id="phone"
                 value={data.phone}
                 onChange={(e) => setData("phone", e.target.value)}
                 required
                 autoComplete="phone"
-                placeholder="Masukan Nomor Telepon Cabang"
+                placeholder="Masukan Nomor Telepon Mitra Pemasaran"
               />
               <InputError className="mt-2" message={errors.phone} />
             </div>
@@ -278,9 +278,9 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
         </div>
       </div>
 
-      <div className="grid gap-1 ">
-        <p className="text-xl font-bold">Lokasi Kantor Cabang</p>
-        <div className="grid gap-5 mt-2">
+      <div className="grid gap-3">
+        <p className="text-xl font-bold">Lokasi Mitra Pemasaran</p>
+        <div className="grid gap-8 mt-2">
           <div className="flex gap-5">
             <div className="grid gap-1 w-full">
               <Label className="text-sm">Provinsi</Label>
@@ -335,6 +335,19 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
               />
             </div>
             <div className="grid gap-1 w-full">
+              <Label className="text-sm">Kode Pos</Label>
+              <Input
+                className="text-md"
+                placeholder="Masukan Kode Pos"
+                value={data.postal_code}
+                onChange={(e) => {
+                  setData("postal_code", e.currentTarget.value);
+                }}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="grid gap-1 w-full">
               <Label className="text-sm">Alamat Lengkap</Label>
               <Textarea
                 className="text-md"
@@ -345,22 +358,11 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
                 }}
               />
             </div>
-            <div className="grid gap-1 w-full">
-              <Label className="text-sm">Kode Pos</Label>
-              <Input
-                className="text-md"
-                placeholder="Masukan nama Desa"
-                value={data.postal_code}
-                onChange={(e) => {
-                  setData("postal_code", e.currentTarget.value);
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
 
-      <div className=" space-y-8 ">
+      <div className=" space-y-5 ">
         <h1 className="text-xl font-bold">Pairing Asuransi</h1>
         <div className="space-y-10">
           <RenderList

@@ -25,15 +25,17 @@ class ProfileController extends Controller
      */
     public function index(Request $request): Response
     {
+
+        $component = 'admin/office-management/branch-office/index';
+
         $profiles = Profile::search($request->get('search'))
             ->where('office_type', OfficeType::BRANCH->value)
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
-        $profileResource = ProfileResource::collection($profiles);
 
-        $component = $request->path().'/index';
+        $profileResource = ProfileResource::collection($profiles);
 
         return inertia($component, [
             'page_settings' => fn () => [
@@ -128,8 +130,17 @@ class ProfileController extends Controller
     private function prepareData(array $requestValidated): array
     {
         return array_intersect_key($requestValidated, array_flip([
-            'code', 'name', 'email', 'phone', 'address', 'postal_code',
-            'province_id', 'regency_id', 'district_id', 'village', 'office_type',
+            'code',
+            'name',
+            'email',
+            'phone',
+            'address',
+            'postal_code',
+            'province_id',
+            'regency_id',
+            'district_id',
+            'village',
+            'office_type',
         ]));
     }
 
