@@ -22,9 +22,9 @@ interface FormProfileLimitsProps {
   guarantors: any;
   guarantorSelected?: number;
   products: any;
-  productSelected?: number;
+  productSelected?: any;
   guarantorProductTypes?: any;
-  guarantorProductTypeSelected?: number;
+  guarantorProductTypeSelected?: any;
   documentFormat?: any;
 }
 
@@ -70,17 +70,21 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const checkByProduct = (checked: boolean) => {
     setByProduct(checked);
-    if (!checked && productSelected) {
+    if (checked) {
+      setByGuarantor(true);
+      setByProductType(false);
+    } else if (productSelected) {
       getData(guarantorSelected);
       setData("product_id", null);
     }
   };
 
   const checkByProductType = (checked: boolean) => {
-    setByGuarantor(byGuarantor || checked);
-    setByProduct(byProduct || checked);
     setByProductType(checked);
-    if (!checked && guarantorProductTypeSelected) {
+    if (checked) {
+      setByGuarantor(true);
+      setByProduct(true);
+    } else if (guarantorProductTypeSelected) {
       getData(guarantorSelected, productSelected);
       setData("guarantor_to_product_type_id", null);
     }
@@ -108,34 +112,14 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         product_id: guarantorProductId,
         guarantor_to_product_type_id: guarantorProductTypeId,
       }),
+      {
+        preserveScroll: true,
+        preserveState: true,
+      },
     );
   };
 
-  //   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //     const file = event.target.files?.[0];
-  //     if (!file) return;
-
-  //     if (file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-  //       toast({
-  //         title: "File tidak valid",
-  //         description: "Hanya file Word (.docx) yang didukung.",
-  //         variant: "destructive",
-  //       });
-  //       return;
-  //     }
-
-  //     try {
-  //       const arrayBuffer = await file.arrayBuffer();
-  //       const result = await mammoth.convertToHtml({ arrayBuffer });
-  //       setData((prev) => ({ ...prev, format_document: result.value }));
-  //     } catch (error) {
-  //       toast({
-  //         title: "Gagal memproses file",
-  //         description: "Terjadi kesalahan saat mengonversi file Word.",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   };
+  console.log("Data:", documentFormat);
 
   const cancel = () => {
     router.get(route(DocumentFormatUtils.link.index));
@@ -156,23 +140,15 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
     setData("format_document", content);
 
-    // Validasi konten
-    if (!content || content.trim() === "") {
-      alert("Format dokumen tidak boleh kosong.");
-      return;
-    }
-
-    if (!data.name || data.name.trim() === "") {
-      alert("Nama tidak boleh kosong.");
-      return;
-    }
-
-    // Tentukan data yang dikirim berdasarkan pemilihan
     let requestData: any = {
       name: data.name,
+      guarantor_id: data.guarantor_id,
+      product_id: data.product_id,
+      guarantor_to_product_type_id: data.guarantor_to_product_type_id,
       format_document: content,
     };
 
+    console.log("Request Data:", requestData);
     if (byGuarantor && guarantorSelected) {
       requestData.guarantor_id = guarantorSelected;
     } else if (byProduct && productSelected) {
@@ -192,7 +168,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
       put(route(FormDocumentFormatUtils.edit.route, documentFormat.id), {
         preserveState: true,
         preserveScroll: true,
-        data: requestData, // Kirim data beserta konten editor
+        data: requestData,
         onSuccess: () => {
           toast(FormDocumentFormatUtils.edit.toast_success);
           router.get(route(FormDocumentFormatUtils.redirect));
@@ -376,23 +352,27 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
         </div>
       </Show>
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <InputLabel htmlFor="name" value="Nama" />
         <Input className={"w-full"} id="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
         <InputError className="mt-2" message={errors.name} />
-      </div>
-      {/* <div>
-        <TinyMCEEditor
-          id="format-document"
-          initialContent={""}
-          onContentChange={(content: string) => {
-            setData("format_document", content);
-          }}
-          onInit={(evt, editor) => {
-            editorRefs.current["format-document"] = editor;
-          }}
-        />
       </div> */}
+      <div className="space-y-2">
+        <InputLabel htmlFor="name" value="Nama" />
+
+        <Combobox
+          datas={[{ name: "SPKMGR" }, { name: "ADMIN" }, { name: "USER" }]}
+          labelKey="name"
+          valueKey="name"
+          defaultValue={data.name}
+          placeholder="Pilih Nama"
+          className="w-full min-w-[210px]" // Menyesuaikan ukuran combobox
+          onSelect={(value) => setData("name", value.name)} // Mengupdate data saat memilih "spkmgr"
+        />
+
+        <InputError className="mt-2" message={errors.name} />
+      </div>
+
       <div>
         <TinyMCEEditor
           id="format-document"

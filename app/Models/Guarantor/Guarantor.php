@@ -100,8 +100,8 @@ class Guarantor extends Model
         return $this->hasOne(Pattern::class);
     }
 
-    public function guarantorDocFormats(): HasOne
+    public function documentFormats()
     {
-        return $this->hasOne(DocumentFormat::class);
+        return $this->hasMany(DocumentFormat::class);
     }
 }

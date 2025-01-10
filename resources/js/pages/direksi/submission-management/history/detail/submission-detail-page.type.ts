@@ -39,6 +39,7 @@ interface Principal {
   address: string;
   commissioner: string;
   created_at: string;
+  bussiness_field: string;
   created_by: number;
   deleted_at: string | null;
   director_name: string;
@@ -186,6 +187,11 @@ interface SubmissionDetailProps {
     beyond_the_limit: boolean;
     guarantor: Guarantor;
     business_fields: string;
+    document_format_guarantor: {
+      format_document: string;
+      name: string;
+      map: any;
+    };
     district: {
       name: string;
     };

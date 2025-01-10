@@ -42,10 +42,10 @@ const suratPermohonan = `
     <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 20px; font-family: Calibri, sans-serif;">
         <tr>
             <td style="padding: 10px;">
-                <p>1. Perusahaan/Badan Hukum : [PERUSAHAAN/BADAN_HUKUM]</p>
-                <p>2. Alamat Lengkap : [ALAMAT_LENGKAP]</p>
-                <p>3. Nomor Telepon & Fax : [NOMOR_TELEPON_FAX]</p>
-                <p>4. Pejabat yang berurusan : [PEJABAT_YANG_BERURUSAN]</p>
+                <p>1. Perusahaan/Badan Hukum : [PRINCIPAL_NAME]</p>
+                <p>2. Alamat Lengkap : [PRINCIPAL_ADDRESS]</p>
+                <p>3. Nomor Telepon & Fax : [TELEPHONE]</p>
+                <p>4. Pejabat yang berurusan : [DIRECTOR_NAME]</p>
             </td>
         </tr>
     </table>
@@ -55,8 +55,8 @@ const suratPermohonan = `
     <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 20px; font-family: Calibri, sans-serif;">
         <tr>
             <td style="padding: 10px;">
-                <p>1. Pemilik Proyek (Obligee) : [NAMA_OBLIGEE]</p>
-                <p>2. Alamat Lengkap : [ALAMAT_OBLIGEE]</p>
+                <p>1. Pemilik Proyek (Obligee) : [OBLIGEE_NAME]</p>
+                <p>2. Alamat Lengkap : [OBLIGEE_ADDRESS]</p>
             </td>
         </tr>
     </table>
@@ -66,15 +66,15 @@ const suratPermohonan = `
     <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 20px; font-family: Calibri, sans-serif;">
         <tr>
             <td style="padding: 10px;">
-                <p>1. Jenis Jaminan : [JENIS_JAMINAN]</p>
-                <p>2. Nilai Jaminan : [NILAI_JAMINAN]</p>
+                <p>1. Jenis Jaminan : [GUARANTEE_TYPE]</p>
+                <p>2. Nilai Jaminan : [GUARANTEE_VALUE]</p>
                 <p>3. Jangka Waktu Jaminan : [START_DATE] s/d [END_DATE]</p>
-                <p>4. Nama Proyek / Pekerjaan : [NAMA_PROYEK]</p>
-                <p>5. Jenis Proyek / Pekerjaan : [JENIS_PROYEK]</p>
-                <p>6. Nilai Proyek / Kontrak : [NILAI_PROYEK]</p>
-                <p>7. Lokasi Proyek : [LOKASI_PROYEK]</p>
-                <p>8. Sumber Dana : [SUMBER_DANA]</p>
-                <p>9. Dokumen Pendukung : [DOKUMEN_PENDUKUNG]</p>
+                <p>4. Nama Proyek / Pekerjaan : [JOB_NAME]</p>
+                <p>5. Jenis Proyek / Pekerjaan : [JOB_GROUP]</p>
+                <p>6. Nilai Proyek / Kontrak : [CONTRACT_VALUE]</p>
+                <p>7. Lokasi Proyek : [JOB_LOCATION]</p>
+                <p>8. Sumber Dana : [SOURCE_OF_FUND_NAME]</p>
+                <p>9. Dokumen Pendukung : [CONTRACT_DOC_NAME]</p>
             </td>
         </tr>
     </table>
@@ -95,9 +95,9 @@ const suratPermohonan = `
                     kesepakatan/perjanjian/kontrak antara PRINCIPAL dengan pihak lainnya yang disebut sebagai <strong>OBLIGEE</strong>.
                 </p>
                 <p>
-                [NAMA_KOTA], [TANGGAL_SURAT]<br>
+                [CITY], [DATE_MAIL]<br>
                 <strong>PRINCIPAL / PEMOHON</strong><br><br><br><br>
-                [NAMA_PRINCIPAL_TTD]
+                [PRINCIPAL_NAME]
                 </p>
             </td>
         </tr>

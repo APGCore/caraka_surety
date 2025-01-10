@@ -1,4 +1,4 @@
-// Add jsPDF import
+import { jsPDF } from "jspdf"; // Import jsPDF library
 import React, { useEffect } from "react";
 
 interface TinyMCEEditorProps {
@@ -23,7 +23,8 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         height: 500,
         plugins: "link image code",
-        toolbar: "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord exportToPDF",
+        toolbar:
+          "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord exportToPDF printDocument",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
@@ -49,11 +50,19 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
             onAction: () => exportToWord(editor),
           });
 
-          // Add custom button for exporting to PDF
+          //   // Add custom button for exporting to PDF
           //   editor.ui.registry.addButton("exportToPDF", {
           //     text: "Export to PDF",
           //     onAction: () => exportToPDF(editor),
           //   });
+
+          // Add custom button for printing document
+          editor.ui.registry.addButton("printDocument", {
+            text: "Print Document",
+            onAction: () => {
+              printDocument(editor);
+            },
+          });
         },
       });
     };
@@ -107,7 +116,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
   //       // Create a new jsPDF instance
   //       const doc = new jsPDF();
 
-  //       // Convert the HTML content to a PDF (You can adjust this to suit your needs)
+  //       // Convert the HTML content to a PDF
   //       doc.html(editorContent, {
   //         callback: function (doc: any) {
   //           doc.save(`${id}-document.pdf`);
@@ -119,6 +128,32 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
   //       console.error("Export to PDF failed:", error);
   //     }
   //   };
+
+  const printDocument = (editor: any) => {
+    try {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        throw new Error("Failed to open print window.");
+      }
+
+      const editorContent = editor.getContent();
+      printWindow.document.open();
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Document</title>
+          </head>
+          <body>
+            ${editorContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    } catch (error) {
+      console.error("Print document failed:", error);
+    }
+  };
 
   return <textarea id={id}></textarea>;
 };

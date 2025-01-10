@@ -3,6 +3,8 @@
 namespace App\Models\Document;
 
 use App\Models\Guarantor\GuarantorToProductType;
+use App\Models\Product\Product;
+use App\Models\Product\ProductType;
 use App\Models\Submission\Submission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,5 +36,15 @@ class DocumentFormat extends Model
     public function guarantorToProductType(): BelongsTo
     {
         return $this->belongsTo(GuarantorToProductType::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function productType(): BelongsTo
+    {
+        return $this->belongsTo(ProductType::class);
     }
 }
