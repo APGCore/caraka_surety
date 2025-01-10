@@ -1,4 +1,5 @@
 import { Combobox } from "@/components/common/combobox";
+import Loading from "@/components/common/loading";
 import PrimaryButton from "@/components/common/primary-button";
 import RenderList from "@/components/common/render-list";
 import {
@@ -47,6 +48,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   const [productsGuarantor, setProductsGuarantor] = useState<Array<any>>([]);
   const [guarantorSelected, setGuarantorSelected] = useState<number | null>(null);
   const [productSelected, setProductSelected] = useState<number | null>(null);
+  const [isLoadingSave, setIsLoadingSave] = useState<boolean>(false);
   const guarantorProductTypeDefault = {
     id: null,
     no: 1,
@@ -363,6 +365,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
   };
 
   const submit = () => {
+    setIsLoadingSave(true);
     axios
       .post(
         route("product-guarantor.store"),
@@ -389,6 +392,9 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
           description: error.response.data.message,
           variant: "destructive",
         });
+      })
+      .finally(() => {
+        setIsLoadingSave(false);
       });
   };
 
@@ -457,7 +463,7 @@ const ProductGuarantorPage: ProductGuarantorPageProps = ({ guarantors, products,
                 onClick={submit}
                 disabled={productsGuarantor?.length == 0}
                 className="w-full justify-center bg-green-700 hover:bg-green-500">
-                Simpan
+                Simpan <Loading isLoading={isLoadingSave} />
               </PrimaryButton>
             </div>
           </div>

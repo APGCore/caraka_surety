@@ -61,26 +61,28 @@ class GuarantorToProductTypeController extends Controller
         $requestValid = $request->validated();
         $data = collect($requestValid['data']);
 
-        dd(collect(JobType::cases())->pluck('value'));
         try {
             DB::beginTransaction();
-            $data->each(function ($item) use ($requestValid) {
-                $item['guarantor_id'] = $requestValid['guarantor_id'];
+            $guarantorId = $requestValid['guarantor_id'];
+            $data->each(function ($item) use ($guarantorId) {
+                $item['guarantor_id'] = $guarantorId;
                 $jobType = JobType::UNCONDITIONAL->value === $item['job_type'] ? '' : JobType::CONDITIONAL->value;
                 $item['full_name'] = $item['name'].' '.$item['job_group'].' '.$jobType;
                 GuarantorToProductType::query()
                     ->updateOrCreate([
                         'id' => $item['id'] ?? null,
                     ], $item);
+
             });
 
             $guaratorProduct = GuarantorToProductType::query()
                 ->where([
-                    'guarantor_id' => $requestValid['guarantor_id'],
+                    'guarantor_id' => $guarantorId,
                     'product_id' => $data->pluck('product_id')->first(),
                 ]);
-            if ($guaratorProduct->get()->isNotEmpty()) {
-                $dataIds = $guaratorProduct->get()->pluck('id')->unique()->filter();
+            $guaratorProductGet = $guaratorProduct->get();
+            if ($guaratorProductGet->isNotEmpty()) {
+                $dataIds = $data->pluck('id')->unique()->filter();
                 $guaratorProduct->whereNotIn('id', $dataIds)->delete();
             }
             activity()
