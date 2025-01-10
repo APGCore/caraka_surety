@@ -381,9 +381,10 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->document_format_guarantor = $submission->guarantor->guarantorDocFormats;
-        $submission->document_format_product = $submission->product->productDocFormat;
-        $submission->document_format_type_guarantee = $submission->guarantor->guarantorDocFormats;
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
+        $submission->document_format_product = $submission->product->documentFormats;
+        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
+        $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])

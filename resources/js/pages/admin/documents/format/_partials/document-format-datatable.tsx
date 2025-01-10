@@ -44,6 +44,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ docum
       },
     });
   };
+  console.log(documentFormats);
   return (
     <>
       <Table>
@@ -60,9 +61,9 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ docum
             of={documentFormats?.data}
             render={(documentFormat: any, index: number) => (
               <TableRow key={documentFormat.id}>
-                <TableCell>{documentFormats.meta?.from + index}</TableCell>
-                <TableCell>{documentFormat.name}</TableCell>
-                <TableCell>{documentFormat.created_at}</TableCell>
+                <TableCell>{documentFormats?.from + index}</TableCell>
+                <TableCell>{documentFormat?.name}</TableCell>
+                <TableCell>{documentFormat?.created_at}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

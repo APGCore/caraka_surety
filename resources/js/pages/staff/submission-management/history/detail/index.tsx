@@ -476,9 +476,153 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return scores.reduce((total: number, score: any) => total + score.point, 0);
   };
 
-  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
+  //   DOCUMENTS FORMAT
+  interface SubmissionData {
+    principal_name: string;
+    principal_address: string;
+    npwp: string;
+    nib: string;
+    telephone: string;
+    director_name: string;
+    director_phone: string;
+    pic: string;
+    director_position: string;
+    location: string;
 
+    bank_name: string;
+    obligee_name: string;
+    obligee_address: string;
+    source_of_fund: string;
+    ppk_name: string;
+    obligee_city: string;
+    obligee_location: string;
+
+    guarantor_name: string;
+    guarantor_address: string;
+    guarantor_pic: string;
+    guarantor_location: string;
+
+    source_of_fund_name: string;
+    contract_value: number;
+    guarantee_value: number;
+    guarantee_type: string;
+    time_period: string | number;
+    job_name: string;
+    job_location_village: string;
+    contract_doc_name: string;
+    contract_doc_number: string;
+    contract_doc_date: string;
+    start_date: string;
+    end_date: string;
+    guarantee_issue_date: string;
+    submission_date: string;
+    analysis: {
+      character: string | number;
+      capacity: string | number;
+      capital: string | number;
+      condition: string | number;
+      collateral: string | number;
+    };
+    scoring_result: {
+      id: number;
+      scoring_id: number;
+      scoring: any;
+      scoring_question_category_id: number;
+      scoring_question_category: any;
+      scoring_question_id: number;
+      scoring_question: any;
+      scoring_option_id: number;
+      scoring_option: any;
+      point: number;
+      category_name: string;
+      question_name: string;
+      option_name: string;
+      reduce: any;
+      grouped: string;
+      score: any;
+    };
+    date: string;
+    manager_name: string;
+    branch_manager: string;
+    job_location: string;
+    job_group: string;
+    no: string | number;
+    city: string;
+    date_mail: string;
+
+    [key: string]: any;
+  }
   const editorRefs = useRef<{ [key: string]: any }>({});
+
+  // Fungsi untuk mengganti placeholder dalam template
+  const replacePlaceholders = (template: string, data: SubmissionData): string => {
+    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
+      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
+      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
+    });
+  };
+
+  // Mapping data ke struktur `SubmissionData`
+  const dataTemplate: SubmissionData = {
+    principal_name: submission.principal?.name || "",
+    principal_address: submission.principal?.address || "",
+    npwp: submission.principal?.npwp || "",
+    nib: submission.principal?.nib || "",
+    telephone: submission.principal?.telephone || "",
+    director_name: submission.principal?.director_name || "",
+    director_phone: submission.principal?.director_phone || "",
+    bussiness_field: submission.principal?.bussiness_field || "",
+    pic: submission.principal?.pic || "",
+    director_position: submission.principal?.director_position || "",
+    location: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+
+    bank_name: submission?.bank_name || "",
+    obligee_name: submission.obligee?.name || "",
+    obligee_address: submission.obligee?.address || "",
+    source_of_fund: submission.source_of_fund?.name || "",
+    ppk_name: submission.obligee?.pic || "",
+    obligee_city: submission.obligee?.district?.name || "",
+    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
+
+    guarantor_name: submission.guarantor?.name || "",
+    guarantor_address: submission.guarantor?.address || "",
+    guarantor_pic: submission.guarantor?.pic || "",
+    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
+
+    source_of_fund_name: submission.source_of_fund?.name || "",
+    contract_value: submission.contract_value || 0,
+    guarantee_value: submission.guarantee_value || 0,
+    guarantee_type: submission.guarantor_to_product_type?.name || "",
+    time_period: submission.time_period || "",
+    job_name: submission.job_name || "",
+    job_location_village: submission.job_location_village || "",
+    contract_doc_name: submission.contract_doc_name || "",
+    contract_doc_number: submission.contract_doc_number || "",
+    contract_doc_date: submission.contract_doc_date || "",
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.created_at || "",
+
+    analysis: {
+      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
+      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
+      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
+      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
+      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
+    },
+
+    scoring_result: calculateTotalPoint(submission.scores) || "",
+    date: submission.created_at || "",
+    manager_name: submission.principal?.commissioner || "",
+    branch_manager: submission.principal?.director_name || "",
+    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
+    job_group: submission.guarantor_to_product_type?.job_group || "",
+    no: submission.id || "",
+    city: submission.regency?.name || "",
+    date_mail: formattedDate,
+  };
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const handleSave = async (editorId: any, submissionId: any) => {
     const editor = editorRefs.current[editorId];
@@ -539,88 +683,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     500, // Delay in milliseconds
   );
 
-  interface SubmissionData {
-    principal_name: string;
-    principal_address: string;
-    npwp: string;
-    nib: string;
-    telephone: string;
-    director_name: string;
-    director_phone: string;
-    pic: string;
-    director_position: string;
-
-    obligee_name: string;
-    obligee_address: string;
-    source_of_fund: string;
-    ppk_name: string;
-    obligee_city: string;
-    obligee_location: string;
-
-    guarantor_name: string;
-    guarantor_address: string;
-    guarantor_pic: string;
-    guarantor_location: string;
-
-    source_of_fund_name: string;
-    contract_value: number;
-    guarantee_value: number;
-    guarantee_type: string;
-    time_period: string | number;
-    job_name: string;
-    job_location_village: string;
-    contract_doc_name: string;
-    contract_doc_number: string;
-    contract_doc_date: string;
-    start_date: string;
-    end_date: string;
-    guarantee_issue_date: string;
-    submission_date: string;
-    analysis: {
-      character: string | number;
-      capacity: string | number;
-      capital: string | number;
-      condition: string | number;
-      collateral: string | number;
-    };
-    scoring_result: {
-      id: number;
-      scoring_id: number;
-      scoring: any;
-      scoring_question_category_id: number;
-      scoring_question_category: any;
-      scoring_question_id: number;
-      scoring_question: any;
-      scoring_option_id: number;
-      scoring_option: any;
-      point: number;
-      category_name: string;
-      question_name: string;
-      option_name: string;
-      reduce: any;
-      grouped: string;
-      score: any;
-    };
-    date: string;
-    day_name: string;
-    manager_name: string;
-    branch_manager: string;
-    job_location: string;
-    job_group: string;
-    no: string | number;
-    city: string;
-
-    [key: string]: any;
-  }
-
-  // Fungsi untuk mengganti placeholder dalam template
-  const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
-      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
-      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
-    });
-  };
-
   const getDayName = (dateString: any) => {
     const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
     const date = new Date(dateString);
@@ -644,67 +706,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   }
 
   console.log({ scoring_result, notes, recommendation });
-
-  // Mapping data ke struktur `SubmissionData`
-  const dataTemplate: SubmissionData = {
-    principal_name: submission.principal?.name || "",
-    // principal_address: submission.principal?.address || "",
-    npwp: submission.principal?.npwp || "",
-    nib: submission.principal?.nib || "",
-    telephone: submission.principal?.telephone || "",
-    director_name: submission.principal?.director_name || "",
-    director_phone: submission.principal?.director_phone || "",
-    pic: submission.principal?.pic || "",
-    director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
-
-    obligee_name: submission.obligee?.name || "",
-    obligee_address: submission.obligee?.address || "",
-    source_of_fund: submission.source_of_fund?.name || "",
-    ppk_name: submission.obligee?.pic || "",
-    obligee_city: submission.obligee?.district?.name || "",
-    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
-
-    guarantor_name: submission.guarantor?.name || "",
-    guarantor_address: submission.guarantor?.address || "",
-    guarantor_pic: submission.guarantor?.pic || "",
-    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
-
-    source_of_fund_name: submission.source_of_fund?.name || "",
-    contract_value: submission.contract_value || 0,
-    guarantee_value: submission.guarantee_value || 0,
-    guarantee_type: submission.guarantor_to_product_type?.name || "",
-    time_period: submission.time_period || "",
-    job_name: submission.job_name || "",
-    job_location_village: submission.job_location_village || "",
-    contract_doc_name: submission.contract_doc_name || "",
-    contract_doc_number: submission.contract_doc_number || "",
-    contract_doc_date: submission.contract_doc_date || "",
-    start_date: submission.start_date || "",
-    end_date: submission.end_date || "",
-    guarantee_issue_date: submission.guarantee_issue_date || "",
-    submission_date: submission.created_at || "",
-
-    analysis: {
-      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
-    business_fields: submission.principal?.business_fields || "",
-    scoring_result: calculateTotalPoint(submission.scores) || "",
-    notes: notes,
-    recommendation: recommendation,
-    date: formatToIndonesianDate(submission.created_at || ""),
-    day_name: getDayName(submission.created_at || ""),
-    manager_name: submission.principal?.commissioner || "",
-    branch_manager: submission.principal?.director_name || "",
-    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
-    job_group: submission.guarantor_to_product_type?.job_group || "",
-    no: submission.id || "",
-    city: submission.regency?.name || "",
-  };
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
@@ -1244,11 +1245,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
                   />
-                  {/* <Button
-                onClick={() => handleSave("hasil-analisis", submission.id)}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                Simpan Hasil Analisis
-                </Button> */}
                 </div>
               </div>
             )}
@@ -1263,16 +1259,24 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
                   />
-                  {/* <Button
-                onClick={() => handleSave("hasil-analisis", submission.id)}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                Simpan Hasil Analisis
-                </Button> */}
                 </div>
               </div>
             ) : null}
 
-            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
+            {/* DOCUMENT FORMAT  */}
+            <div>
+              {submission?.document_format_guarantor.map((doc: any) => (
+                <div key={doc.id} style={{ marginBottom: "20px" }}>
+                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                  <TinyMCEEditor
+                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                    initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                    onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                  />
+                </div>
+              ))}
+
+              {/* {submission?.guarantor?.name.toLowerCase().includes("videi") && (
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
                 <div>
@@ -1281,11 +1285,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
                   />
-                  {/* <Button
-                onClick={() => handleSave("hasil-analisis", submission.id)}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                Simpan Hasil Analisis
-              </Button> */}
                 </div>
               </div>
             )}
@@ -1298,11 +1297,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Jaminan Pelaksanaan
-                </Button> */}
               </div>
             )}
 
@@ -1314,11 +1308,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Jaminan Pelaksanaan
-                </Button> */}
               </div>
             )}
 
@@ -1330,11 +1319,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
                   initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("surat-permohonan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Surat Permohonan
-                </Button> */}
               </div>
             )}
 
@@ -1346,11 +1330,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
                   initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("draft-surety", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Draft Surety Bond
-                </Button> */}
               </div>
             )}
 
@@ -1362,11 +1341,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
                   initialContent={replaceBumidaPlaceholders(templateBumida, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("draft-surety-bumida", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Bumida
-                </Button> */}
               </div>
             )}
 
@@ -1379,11 +1353,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
                   initialContent={replaceJastanPlaceholders(templateJastan, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("draft-surety-jastan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Jastan atau Jasa Tania
-                </Button> */}
               </div>
             ) : null}
 
@@ -1395,13 +1364,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
                   initialContent={replaceVideiPlaceholders(templateVidei, data)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("draft-surety-videi", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Videi
-                </Button> */}
               </div>
-            )}
+            )} */}
+            </div>
           </div>
         </Show>
       </div>

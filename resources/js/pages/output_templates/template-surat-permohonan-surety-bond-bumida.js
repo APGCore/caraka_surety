@@ -4,18 +4,18 @@ const suratPermohonan = `
 <div style="font-family: Calibri, sans-serif;">
 
     <!-- Header Section -->
-    <p style="text-align: right;">Jakarta, [TANGGAL_SURAT]</p>
+    <p style="text-align: right;">Jakarta, [DATE_MAIL]</p>
     <table style="width: 100%; margin-bottom: 20px;">
         <tr>
             <td style="width: 70%; padding: 10px;">
-                <p> Nomor	: [NOMOR_SURAT] </p>
+                <p> Nomor	: [NUMBER_MAIL_BUMIDA] </p>
                 <p> Lamp. 	: 1 (satu) Bundle </p>
                 <p> Perihal	: Permohonan Penjaminan </p>
             </td>
             <td style="width: 30%; text-align: left;">
                 <br>
                 <p> Kepada Yth, </p>
-                <p> [NAMA_PENJAMIN] </p>
+                <p> [GUARANTOR_NAME] </p>
                 <p> di. Tempat </p>
             </td>
         </tr>
@@ -30,7 +30,7 @@ const suratPermohonan = `
                 <p>Nama Perusahaan/Prinsipal </p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[NAMA_PERUSAHAAN]</p>
+                <p>:[PRINCIPAL_NAME]</p>
             </td>
         </tr>
         <tr>
@@ -38,7 +38,7 @@ const suratPermohonan = `
                 <p>Alamat</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[ALAMAT_PERUSAHAAN]</p>
+                <p>:[PRINCIPAL_ADDRESS]</p>
             </td>
         </tr>
         <tr>
@@ -59,7 +59,7 @@ const suratPermohonan = `
                 <p>Nama Jaminan</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[NAMA_JAMINAN]</p>
+                <p>:[GUARANTEE_TYPE]</p>
             </td>
         </tr>
         <tr>
@@ -67,7 +67,7 @@ const suratPermohonan = `
                 <p>Nilai Jaminan</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[NILAI_JAMINAN]</p>
+                <p>:[GUARANTEE_VALUE]</p>
             </td>
         </tr>
         <tr>
@@ -75,7 +75,7 @@ const suratPermohonan = `
                 <p>Jangka Waktu</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[JANGKA_WAKTU] hari</p>
+                <p>:[TIME_PERIOD] hari</p>
             </td>
         </tr>
         <tr>
@@ -83,7 +83,7 @@ const suratPermohonan = `
                 <p>Nama Proyek/Pekerjaan</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[NAMA_PROYEK]</p>
+                <p>:[JOB_NAME]</p>
             </td>
         </tr>
         <tr>
@@ -91,7 +91,7 @@ const suratPermohonan = `
                 <p>Dasar Jaminan</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[DASAR_JAMINAN]</p>
+                <p>:[CONTRACT_DOC_NAME]</p>
             </td>
         </tr>
     </table>
@@ -104,7 +104,7 @@ const suratPermohonan = `
                 <p>Pemilik Proyek/Obligee</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[NAMA_OBLIGEE]</p>
+                <p>:[OBLIGEE_NAME]</p>
             </td>
         </tr>
         <tr>
@@ -112,7 +112,7 @@ const suratPermohonan = `
                 <p>Alamat Pemilik Proyek</p>
             </td>
             <td style="width: 70%; border: 1px solid black;">
-                <p>:[ALAMAT_OBLIGEE]</p>
+                <p>:[OBLIGEE_ADDRESS]</p>
             </td>
         </tr>
     </table>
@@ -123,7 +123,7 @@ const suratPermohonan = `
     <p style="text-align: left;">
         Hormat Kami,<br>
         <strong>PEMOHON</strong><br><br><br><br>
-        <strong><u>[NAMA_PENANGGUNG_JAWAB]</strong><br>
+        <strong><u>[DIRECTOR_NAME]</strong><br>
         <i>Direktur</i>
     </p>
 

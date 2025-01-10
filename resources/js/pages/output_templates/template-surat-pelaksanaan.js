@@ -2,26 +2,26 @@ const templateContent = `
 <h2 style="text-align: center;">JAMINAN PELAKSANAAN</h2>
 
 <p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  </p>
-<p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [NILAI_JAMINAN]</p>
+<p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [GUARANTEE_VALUE]</p>
 
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 30px; vertical-align: top;">1.</td>
-        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: [NAMA_PRINCIPAL], [ALAMAT_PRINCIPAL]
-        sebagai Penyedia, selanjutnya disebut TERJAMIN, dan [NAMA_ASURANSI_ATAS],
-        [ALAMAT_ASURANSI_ATAS] sebagai Asuransi selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
-        sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah [BESARAN_NILAI_JAMINAN].</td>
+        <td style="text-align: justify;">Dengan ini dinyatakan, bahwa kami: [PRINCIPAL_NAME], [PRINCIPAL_ADDRESS]
+        sebagai Penyedia, selanjutnya disebut TERJAMIN, dan [GUARANTOR_NAME],
+        [GUARANTOR_LOCATION] sebagai Asuransi selanjutnya disebut sebagai PENJAMIN, bertanggung jawab dan dengan tegas terikat pada Pejabat Penandatangan Kontrak [NAMA_OBLIGEE], [ALAMAT_OBLIGEE]
+        sebagai Pemilik Pekerjaan, selanjutnya disebut PENERIMA JAMINAN atas uang sejumlah [GUARANTEE_VALUE].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">2.</td>
         <td style="text-align: justify;">Maka kami, TERJAMIN dan PENJAMIN dengan ini mengikatkan diri untuk melakukan pembayaran jumlah tersebut di atas
         dengan baik dan benar bilamana TERJAMIN tidak memenuhi kewajiban dalam melaksanakan pelelangan Pekerjaan
-        [NAMA_PEKERJAAN] yang telah dipercayakan kepadanya atas dasar  [NAMA_DOKUMEN]
-        Nomor: [NOMOR_DOKUMEN] tanggal [TANGGAL_DOKUMEN].</td>
+        [NAMA_PEKERJAAN] yang telah dipercayakan kepadanya atas dasar  [CONTRACT_DOC_NAME]
+        Nomor: [CONTRACT_DOC_NUMBER] tanggal [CONTRACT_DOC_DATE].</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">3.</td>
-        <td style="text-align: justify;">Surat Jaminan ini berlaku selama [JANGKA_WAKTU] hari kalender dan efektif mulai dari [START_DATE]
+        <td style="text-align: justify;">Surat Jaminan ini berlaku selama [TIME_PERIOD] hari kalender dan efektif mulai dari [START_DATE]
         sampai dengan tanggal [END_DATE].</td>
     </tr>
     <tr>
@@ -58,12 +58,12 @@ const templateContent = `
 
 <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
     <tr>
-        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal [TANGGAL_PENERBITAN]</td>
+        <td style="text-align: left;">Dikeluarkan di Jakarta pada tanggal [GUARANTEE_ISSUE_DATE]</td>
         <td></td> <!-- Kolom kosong untuk menjaga keselarasan -->
     </tr>
     <tr>
-        <td style="text-align: left;">[NAMA_PRINCIPAL_TTD]</td>
-        <td style="text-align: right;">[NAMA_ASURANSI]</td>
+        <td style="text-align: left;">[PRINCIPAL_NAME]</td>
+        <td style="text-align: right;">[GUARANTOR_NAME]</td>
     </tr>
     <tr>
         <td style="text-align: left;"><br></td>
@@ -71,11 +71,11 @@ const templateContent = `
     </tr>
     <tr>
         <td style="text-align: left;">
-            [NAMA_PIC_PRINCIPAL_TTD]<br>
-            D i r e k t u r [JABATAN]
+            [DIRECTOR_NAME]<br>
+            [DIRECTOR_POSITION]
         </td>
         <td style="text-align: right;">
-            [NAMA_KEPALA_CABANG_TTD]<br>
+            [BRANCH_MANAGER]<br>
             Kepala Cabang
         </td>
     </tr>

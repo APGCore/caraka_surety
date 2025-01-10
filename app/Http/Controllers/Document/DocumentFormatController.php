@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -54,9 +55,16 @@ class DocumentFormatController extends Controller
      */
     public function index(Request $request)
     {
+
         $data = $this->getGuarantorData($request);
 
         $component = $request->path().'/index';
+        $documentFormats = DocumentFormat::query()
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends($request->all());
+
+        $data['documentFormats'] = $documentFormats;
 
         return inertia($component, [
             'page_settings' => [
@@ -136,6 +144,8 @@ class DocumentFormatController extends Controller
     {
         $component = str_replace(('/'.$documentFormat->getAttribute('id')), '', request()->path()).'/index';
 
+        // dd($documentFormat);
+
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Format Dokumen',
@@ -201,5 +211,10 @@ class DocumentFormatController extends Controller
 
             return redirect()->back()->withErrors('Gagal menghapus data');
         }
+    }
+
+    public function getFormattedCreatedAtAttribute()
+    {
+        return Carbon::parse($this->attributes['created_at'])->translatedFormat('d F Y');
     }
 }

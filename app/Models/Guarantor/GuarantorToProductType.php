@@ -2,6 +2,7 @@
 
 namespace App\Models\Guarantor;
 
+use App\Models\Document\DocumentFormat;
 use App\Models\GuarantorRate;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
@@ -77,5 +78,10 @@ class GuarantorToProductType extends Model
     public function limit(): HasOne
     {
         return $this->hasOne(GuarantorProductTypeLimit::class, 'guarantor_to_product_type_id');
+    }
+
+    public function documentFormats()
+    {
+        return $this->hasMany(DocumentFormat::class);
     }
 }

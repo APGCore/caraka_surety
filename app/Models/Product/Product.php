@@ -40,9 +40,8 @@ class Product extends Model
         return $this->hasMany(ProductTypeToProduct::class);
     }
 
-    // public function productDocFormat(): HasOne
-    // {
-    //     return $this->hasOne(DocumentFormat::class);
-    // }
-
+    public function documentFormats()
+    {
+        return $this->hasMany(DocumentFormat::class, 'product_id');
+    }
 }

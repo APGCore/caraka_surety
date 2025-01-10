@@ -6,8 +6,8 @@ const secondTemplateContent = `
         <p style="margin-bottom: 10px;">Perihal: Permohonan Jaminan</p>
     </div>
     <div style="float: right; width: 50%; text-align: right;">
-        <p style="margin-bottom: 10px;">Jakarta, [TANGGAL_PENERBITAN_PERMOHONAN]</p>
-        <p style="margin-bottom: 10px;">Kepada Yth.<br>PT. [NAMA_BANK]<br>di Tempat</p>
+        <p style="margin-bottom: 10px;">Jakarta, [DATE_MAIL]</p>
+        <p style="margin-bottom: 10px;">Kepada Yth.<br>PT. [BANK_NAME]<br>di Tempat</p>
     </div>
 </div>
 
@@ -15,11 +15,11 @@ const secondTemplateContent = `
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 200px; vertical-align: top;">Nama Perusahaan</td>
-        <td>: [NAMA_PRINCIPAL]</td>
+        <td>: [PRINCIPAL_NAME]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Alamat Kantor</td>
-        <td>: [ALAMAT_PRINCIPAL]</td>
+        <td>: [PRINCIPAL_ADDRESS]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">NPWP Perusahaan</td>
@@ -27,11 +27,11 @@ const secondTemplateContent = `
     </tr>
     <tr>
         <td style="vertical-align: top;">Nama Penanggung Jawab</td>
-        <td>: [NAMA_PENANGGUNG_JAWAB]</td>
+        <td>: [DIRECTOR_NAME]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Jabatan Penanggung Jawab</td>
-        <td>: [JABATAN_PENANGGUNG_JAWAB]</td>
+        <td>: [DIRECTOR_POSITION]</td>
     </tr>
 </table>
 
@@ -39,27 +39,27 @@ const secondTemplateContent = `
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
     <tr>
         <td style="width: 200px; vertical-align: top;">Jenis Jaminan</td>
-        <td>: [JENIS_JAMINAN]</td>
+        <td>: [GUARANTEE_TYPE]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Penerbit Bank Garansi</td>
-        <td>: [PENERBIT_BANK_GARANSI]</td>
+        <td>: [BANK_NAME]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Atas Kepentingan</td>
-        <td>: [PROYEK]</td>
+        <td>: [JOB_NAME]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Alamat Pemilik Proyek</td>
-        <td>: [ALAMAT_PEMILIK_PROYEK]</td>
+        <td>: [JOB_LOCATION]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Nama Proyek</td>
-        <td>: [NAMA_PEKERJAAN]</td>
+        <td>: [JOB_NAME]</td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Nilai Jaminan</td>
-        <td>: [NILAI_JAMINAN] </td>
+        <td>: [GUARANTEE_VALUE] </td>
     </tr>
     <tr>
         <td style="vertical-align: top;">Jangka Waktu</td>
@@ -67,7 +67,7 @@ const secondTemplateContent = `
     </tr>
     <tr>
         <td style="vertical-align: top;">Dasar Dokumen</td>
-        <td>: [DASAR_DOKUMEN]</td>
+        <td>: [CONTRACT_DOC_NAME]</td>
     </tr>
 </table>
 
@@ -79,10 +79,10 @@ const secondTemplateContent = `
             <td style="width: 50%;"></td>
 
             <td style="width: 50%; text-align: left;">
-                <p style="margin-bottom: 10px;">[NAMA_PRINCIPAL_TTD]</p>
+                <p style="margin-bottom: 10px;">[PRINCIPAL_NAME]</p>
                 <p style="margin-bottom: 50px;"></p> <!-- Space for signature -->
-                <p style="margin-bottom: 10px;">[NAMA_PENANGGUNG_JAWAB_TTD]</p>
-                <p style="margin-bottom: 10px;">[JABATAN_PENANGGUNG_JAWAB]</p>
+                <p style="margin-bottom: 10px;">[DIRECTOR_NAME]</p>
+                <p style="margin-bottom: 10px;">[DIRECTOR_POSTION]</p>
             </td>
         </tr>
     </table>

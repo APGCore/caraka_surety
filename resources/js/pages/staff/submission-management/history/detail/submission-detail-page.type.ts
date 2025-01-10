@@ -39,6 +39,7 @@ interface Principal {
   address: string;
   business_fields: string;
   commissioner: string;
+  bussiness_field: string;
   created_at: string;
   created_by: number;
   deleted_at: string | null;
@@ -154,8 +155,10 @@ interface User {
 
 interface SubmissionDetailProps {
   submission: {
-    id: string;
+    id: number;
     bank: Bank;
+    bank_name: string;
+    approved_by_direksi: boolean;
     documents: string;
     status: string;
     contract_value: number;
@@ -184,16 +187,30 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
+    beyond_the_limit: boolean;
+    document_format_guarantor: {
+      format_document: string;
+      name: string;
+      map: any;
+    };
+    document_format_product: {
+      format_document: string;
+      name: string;
+    };
+    document_format_type_guarantee: {
+      format_document: string;
+      name: string;
+    };
     district: {
       name: string;
     };
-
     regency: {
       name: string;
     };
     province: {
       name: string;
     };
+    submission_docs: Document[];
   };
 }
 

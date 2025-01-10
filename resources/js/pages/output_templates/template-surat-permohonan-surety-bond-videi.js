@@ -17,29 +17,29 @@ const suratPermohonan = `
 
 <!-- DATA PEMOHON / PRINCIPAL -->
 <p style="font-family: Calibri;"><strong>A. DATA PEMOHON / PRINCIPAL</strong></p>
-<p style="font-family: Calibri;">1. Nama Perusahaan (Principal) : [NAMA_PRINCIPAL]</p>
-<p style="font-family: Calibri;">2. Alamat Perusahaan : [ALAMAT_PRINCIPAL]</p>
-<p style="font-family: Calibri;">3. Nama Direksi Perusahaan : [NAMA_DIREKSI]</p>
-<p style="font-family: Calibri;">4. Kontak Person Pengurus : [KONTAK_PERSON]</p>
-<p style="font-family: Calibri;">5. Bidang Usaha : [BIDANG_USAHA]</p>
+<p style="font-family: Calibri;">1. Nama Perusahaan (Principal) : [PRINCIPAL_NAME]</p>
+<p style="font-family: Calibri;">2. Alamat Perusahaan : [PRINCIPAL_ADDRESS]</p>
+<p style="font-family: Calibri;">3. Nama Direksi Perusahaan : [DIRECTOR_NAME]</p>
+<p style="font-family: Calibri;">4. Kontak Person Pengurus : [TELEPHONE]</p>
+<p style="font-family: Calibri;">5. Bidang Usaha : [BUSSINESS_FIELD]</p>
 
 
 <!-- JAMINAN YANG DIMOHON -->
 <p style="font-family: Calibri;"><strong>B. JAMINAN YANG DIMOHON</strong></p>
-<p style="font-family: Calibri;">1. Jenis Jaminan : [JENIS_JAMINAN]</p>
-<p style="font-family: Calibri;">2. Nilai Penjaminan : [NILAI_PENJAMINAN]</p>
-<p style="font-family: Calibri;">3. Periode Jaminan : [PERIODE_JAMINAN] hari</p>
-<p style="font-family: Calibri;">4. Tanggal Penerbitan : [TANGGAL_PENERBITAN]</p>
+<p style="font-family: Calibri;">1. Jenis Jaminan : [GUARANTEE_TYPE]</p>
+<p style="font-family: Calibri;">2. Nilai Penjaminan : [GUARANTEE_VALUE]</p>
+<p style="font-family: Calibri;">3. Periode Jaminan : [TIME_PERIOD]</p>
+<p style="font-family: Calibri;">4. Tanggal Penerbitan : [GUARANTEE_ISSUE_DATE]</p>
 
 
 <!-- DATA PROYEK PEKERJAAN -->
 <p style="font-family: Calibri;"><strong>C. DATA PROYEK PEKERJAAN</strong></p>
-<p style="font-family: Calibri;">1. Nama Pemilik Proyek (Obligee) : [NAMA_OBLIGEE]</p>
-<p style="font-family: Calibri;">2. Alamat Pemilik Proyek (Obligee) : [ALAMAT_OBLIGEE]</p>
-<p style="font-family: Calibri;">3. Nama Proyek Pekerjaan : [NAMA_PROYEK]</p>
-<p style="font-family: Calibri;">4. Lokasi Proyek Pekerjaan : [LOKASI_PROYEK]</p>
-<p style="font-family: Calibri;">5. Nilai Proyek / Kontrak : [NILAI_PROYEK]</p>
-<p style="font-family: Calibri;">6. Sesuai dengan Dokumen/Surat : [DOKUMEN_SURAT]</p>
+<p style="font-family: Calibri;">1. Nama Pemilik Proyek (Obligee) : [OBLIGEE_NAME]</p>
+<p style="font-family: Calibri;">2. Alamat Pemilik Proyek (Obligee) : [OBLIGEE_ADDRESS]</p>
+<p style="font-family: Calibri;">3. Nama Proyek Pekerjaan : [PPK_NAME]</p>
+<p style="font-family: Calibri;">4. Lokasi Proyek Pekerjaan : [JOB_LOCATION]</p>
+<p style="font-family: Calibri;">5. Nilai Proyek / Kontrak : [CONTRACT_VALUE]</p>
+<p style="font-family: Calibri;">6. Sesuai dengan Dokumen/Surat : [CONTRACT_DOC_NUMBER]</p>
 
 
 <!-- PERNYATAAN -->
@@ -57,7 +57,7 @@ const suratPermohonan = `
         <td style="text-align: left; vertical-align: top;">
             Jakarta, [TANGGAL_SURAT]
             <br><br><br><br>
-            Nama : [NAMA_DIREKTUR]<br>
+            Nama : [DIRECTOR_NAME]<br>
             Jabatan : Direktur
         </td>
         <td style="text-align: right; vertical-align: top;">
