@@ -197,10 +197,6 @@ interface SubmissionDetailProps {
       format_document: string;
       name: string;
     };
-    document_format_type_guarantee: {
-      format_document: string;
-      name: string;
-    };
     district: {
       name: string;
     };

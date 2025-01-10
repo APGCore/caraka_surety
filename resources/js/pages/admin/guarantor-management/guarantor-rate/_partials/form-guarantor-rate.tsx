@@ -65,7 +65,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
       id="guarantor-rate-form">
       <div className="flex justify-center w-full mx-auto gap-16">
         <div className="p-0">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
               Minimum Tagihan
             </label>
@@ -78,11 +78,11 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
             </div>
 
             <InputError message={errors?.minimum_bill} />
-          </div>
+          </div> */}
           <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="minimum_payment" className="block text-sm font-medium text-gray-700">
-                Minimum Pembayaran
+                Minimum Charge
               </label>
 
               <div className="flex items-center space-x-4">
@@ -95,7 +95,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
               <InputError message={errors?.minimum_payment} />
             </div>
           </Show>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">
               Tarif Jual
             </label>
@@ -113,11 +113,11 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
             </div>
 
             <InputError message={errors?.selling_rate} />
-          </div>
+          </div> */}
           <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="pay_rate" className="block text-sm font-medium text-gray-700">
-                Tarif Bayar
+                Premi Bayar
               </label>
               <div className="flex items-center space-x-4">
                 <Input
@@ -135,7 +135,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
               <InputError message={errors?.pay_rate} />
             </div>
           </Show>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">
               Administrasi Penjualan
             </label>
@@ -147,11 +147,11 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
             </div>
 
             <InputError message={errors?.sales_administration} />
-          </div>
+          </div> */}
           <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="payment_administration" className="block text-sm font-medium text-gray-700">
-                Administrasi Bayar
+                Administrasi Asuransi
               </label>
               <div className="flex items-center space-x-4">
                 <InputCurrency
@@ -165,7 +165,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
           </Show>
         </div>
         <div className="p-0">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label htmlFor="management_fee" className="block text-sm font-medium text-gray-700">
               Management Fee
             </label>
@@ -183,8 +183,8 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
             </div>
 
             <InputError message={errors?.management_fee} />
-          </div>
-          <div className="space-y-2">
+          </div> */}
+          {/* <div className="space-y-2">
             <label htmlFor="minimum_management_fee" className="block text-sm font-medium text-gray-700">
               Minimum Management Fee
             </label>
@@ -196,7 +196,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
             </div>
 
             <InputError message={errors?.minimum_management_fee} />
-          </div>
+          </div> */}
           <div className="space-y-2">
             <label htmlFor="stamp_duty" className="block text-sm font-medium text-gray-700">
               Biaya Materai
