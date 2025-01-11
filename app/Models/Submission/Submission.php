@@ -59,7 +59,7 @@ class Submission extends Model
 
     public function blanks(): BelongsToMany
     {
-        return $this->belongsToMany(Blank::class, 'submission_blanks', 'bank_id', 'submission_id')->orderBy('id');
+        return $this->belongsToMany(Blank::class, 'submission_blanks', 'blank_id', 'submission_id')->orderBy('id');
     }
 
     public function obligee(): BelongsTo

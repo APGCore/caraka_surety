@@ -235,12 +235,12 @@ const DistributionBlank: DistributionBlankPageProps = ({
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">Daftar Blangko</h1>
-        <div className="flex w-[45%] gap-x-3 justify-end">
+        <div className="flex w-[30%] gap-x-3 justify-end">
           {!isAddBlank && (
             <>
-              <Button size="sm" className="bg-green-600 hover:bg-green-500" onClick={() => handleAddBlank(true)}>
-                Bagikan Blangko
-              </Button>
+              {/*<Button size="sm" className="bg-green-600 hover:bg-green-500" onClick={() => handleAddBlank(true)}>*/}
+              {/*  Bagikan Blangko*/}
+              {/*</Button>*/}
               <AlertDialog>
                 <AlertDialogTrigger
                   className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
@@ -248,7 +248,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   onClick={handleAddBlankCustom}
                   asChild>
                   <Button size="sm" className="bg-green-800 hover:bg-green-700">
-                    Bagikan Blangko Custom
+                    Bagikan Blangko
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className={"w-max"}>

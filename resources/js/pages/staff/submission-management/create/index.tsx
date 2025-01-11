@@ -570,11 +570,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       name: val.name,
                       address: val.address,
                       telephone: val.telephone,
+                      postal_code: val.postal_code,
                       fax: val.fax,
                       npwp: val.npwp,
                       nib: val.nib,
                       siup_siujk: val.siup_siujk,
                       head_name: val.head_name,
+                      business_fields: val.business_fields,
                       director_name: val.director_name,
                       director_position: val.director_position,
                       director_phone: val.director_phone,
@@ -1782,12 +1784,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               />
                             </div>
                             <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
-                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
                             <div className="pt-2 h-[30px] w-full text-black">
                               {ratio.profitability_ratios !== undefined
                                 ? ratio.profitability_ratios.toString() + "%"
                                 : "??"}{" "}
                             </div>
+                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
                           </div>
                         );
                       }}
