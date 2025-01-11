@@ -7,6 +7,11 @@ interface EmployeeLimitsProps {
   guarantorProductSelected: number;
   guarantorProductTypes: any;
   guarantorProductTypeSelected: number;
+  guarantorToProductTypeId: number;
+  jobGroups: any;
+  jobGroupSelected: string;
+  jobTypes: any;
+  jobTypeSelected: string;
   profiles: any;
   profileSelected: number;
   officeTypes: any;

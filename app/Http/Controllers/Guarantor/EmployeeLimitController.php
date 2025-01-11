@@ -28,11 +28,22 @@ class EmployeeLimitController extends Controller
             ->whereNull('headquarter_id')
             ->get(['id', 'name']);
         $guarantorSelected = (int) ($request->get('guarantor_id') ?? $guarantors->first()?->id);
-        $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
-        $guarantorProducts = $guarantor?->guarantorToProductTypes?->pluck('product')->unique()->values();
-        $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? collect($guarantorProducts)->first()?->id);
-        $guarantorProductTypes = $guarantor?->guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->values();
-        $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? collect($guarantorProductTypes)->first()?->id);
+        $guarantorToProductTypes = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes.product', 'guarantorToProductTypes.productType'])->guarantorToProductTypes;
+
+        $guarantorProducts = $guarantorToProductTypes?->pluck('product')->unique()->values();
+        $guarantorProductSelected = (int) ($request->get('guarantor_product_id') ?? $guarantorProducts->first()?->id);
+
+        $guarantorProductTypes = $guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->pluck('productType')->unique()->values();
+        $guarantorProductTypeSelected = (int) ($request->get('guarantor_product_type_id') ?? $guarantorProductTypes->first()?->id);
+
+        $jobGroups = $guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->where('product_type_id', $guarantorProductTypeSelected)->pluck('job_group')->unique()->values();
+        $jobGroupSelected = $request->get('job_group') ?? $jobGroups->first();
+
+        $jobTypes = $guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->where('product_type_id', $guarantorProductTypeSelected)->where('job_group', $jobGroupSelected)->pluck('job_type')->unique()->values();
+        $jobTypeSelected = $request->get('job_type') ?? $jobTypes->first();
+
+        $guarantorToProductTypeId = $guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->where('product_type_id', $guarantorProductTypeSelected)->where('job_group', $jobGroupSelected)->where('job_type', $jobTypeSelected)->value('id');
+
         $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = match ($officeTypeSelected) {
@@ -46,19 +57,19 @@ class EmployeeLimitController extends Controller
 
         $limit = ProfileLimit::query()
             ->where('guarantor_id', $guarantorSelected)
-            ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
+            ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
             ->where('profile_id', $profileSelected)
             ->first();
 
         $employees = User::search($request->get('search'))
-            ->query(function (Builder $query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
+            ->query(function (Builder $query) use ($guarantorSelected, $guarantorToProductTypeId, $profileSelected) {
                 return $query->whereIn('role_id', [2, 3, 4])
                     ->where('profile_id', $profileSelected)
                     ->with('role')
-                    ->when($guarantorSelected && $profileSelected, function ($query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
-                        $query->with(['employeeLimit' => function ($query) use ($guarantorSelected, $guarantorProductTypeSelected, $profileSelected) {
+                    ->when($guarantorSelected && $profileSelected, function ($query) use ($guarantorSelected, $guarantorToProductTypeId, $profileSelected) {
+                        $query->with(['employeeLimit' => function ($query) use ($guarantorSelected, $guarantorToProductTypeId, $profileSelected) {
                             $query->where('guarantor_id', $guarantorSelected)
-                                ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected)
+                                ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
                                 ->where('profile_id', $profileSelected);
                         }]);
                     });
@@ -82,6 +93,11 @@ class EmployeeLimitController extends Controller
             'guarantorProductSelected' => $guarantorProductSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
+            'guarantorToProductTypeId' => $guarantorToProductTypeId,
+            'jobGroups' => $jobGroups,
+            'jobGroupSelected' => $jobGroupSelected,
+            'jobTypes' => $jobTypes,
+            'jobTypeSelected' => $jobTypeSelected,
             'profiles' => $profiles,
             'profileSelected' => $profileSelected,
             'officeTypes' => $officeTypes,

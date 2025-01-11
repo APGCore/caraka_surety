@@ -32,6 +32,9 @@ interface EmployeeLimitsDatatableProps {
   guarantorSelectedId: number;
   guarantorProductSelectedId: number;
   guarantorProductTypeSelectedId: number;
+  guarantorToProductTypeId: number;
+  jobGroupSelected: string;
+  jobTypeSelected: string;
   profileSelectedId: number;
   onDelete: (limitProfile: any) => void;
 }
@@ -41,6 +44,9 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
   guarantorSelectedId,
   guarantorProductSelectedId,
   guarantorProductTypeSelectedId,
+  guarantorToProductTypeId,
+  jobGroupSelected,
+  jobTypeSelected,
   profileSelectedId,
   onDelete,
 }) => {
@@ -80,13 +86,16 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
+                      <DropdownMenuContent className="w-[40%] mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <FormEmployeeLimits
                             isEdit={employee.employee_limit?.limit}
                             guarantorSelectedId={guarantorSelectedId}
                             guarantorProductSelectedId={guarantorProductSelectedId}
                             guarantorProductTypeSelectedId={guarantorProductTypeSelectedId}
+                            guarantorToProductTypeId={guarantorToProductTypeId}
+                            jobGroupSelected={jobGroupSelected}
+                            jobTypeSelected={jobTypeSelected}
                             profileSelectedId={profileSelectedId}
                             employee={employee}
                           />

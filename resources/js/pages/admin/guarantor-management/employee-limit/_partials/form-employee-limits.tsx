@@ -25,6 +25,9 @@ interface FormEmployeeLimitsProps {
   guarantorSelectedId: number;
   guarantorProductSelectedId: number;
   guarantorProductTypeSelectedId: number;
+  guarantorToProductTypeId: number;
+  jobGroupSelected: string;
+  jobTypeSelected: string;
   profileSelectedId: number;
   employee?: any;
 }
@@ -34,6 +37,9 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
   guarantorSelectedId,
   guarantorProductSelectedId,
   guarantorProductTypeSelectedId,
+  guarantorToProductTypeId,
+  jobGroupSelected,
+  jobTypeSelected,
   profileSelectedId,
   employee,
 }) => {
@@ -65,12 +71,21 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
     limit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
-    guarantor_to_product_type_id: guarantorProductTypeSelectedId,
+    guarantor_to_product_type_id: guarantorToProductTypeId,
     profile_id: profileSelectedId ?? 0,
     employee_id: employee?.id ?? 0,
     name: employee?.name ?? "",
     limit: employee?.employee_limit?.limit ?? undefined,
   });
+
+  const params = {
+    guarantor_id: guarantorSelectedId,
+    guarantor_product_id: guarantorProductSelectedId,
+    guarantor_product_type_id: guarantorProductTypeSelectedId,
+    job_group: jobGroupSelected,
+    job_type: jobTypeSelected,
+    profile_id: profileSelectedId,
+  };
 
   const submit = () => {
     setIsLoading(true);
@@ -83,14 +98,7 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
         toast(isEdit ? FormEmployeeLimitsUtils.edit.toast_success : FormEmployeeLimitsUtils.create.toast_success);
         setErrors(defaultData);
         setIsOpenForm(false);
-        router.get(
-          route(FormEmployeeLimitsUtils.redirect, {
-            guarantor_id: guarantorSelectedId,
-            guarantor_product_id: guarantorProductSelectedId,
-            guarantor_product_type_id: guarantorProductTypeSelectedId,
-            profile_id: profileSelectedId,
-          }),
-        );
+        router.get(route(FormEmployeeLimitsUtils.redirect, params));
       })
       .catch((error) => {
         setErrors(error.response.data.errors);
@@ -116,7 +124,7 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
     <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
       <AlertDialogTrigger asChild>
         <Button className={cn(FormEmployeeLimitsUtils.create.class_name)}>
-          {isEdit ? FormEmployeeLimitsUtils.edit.title : FormEmployeeLimitsUtils.create.title} {dataForm?.name}
+          {isEdit ? FormEmployeeLimitsUtils.edit.title : FormEmployeeLimitsUtils.create.title}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-[400px] space-y-3">

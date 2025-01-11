@@ -6,7 +6,7 @@ export const FormEmployeeLimitsUtils = {
     route: EmployeeLimitsUtils.link.store,
     title: "Setting Limit",
     sub_title: "Tindakan ini akan mengatur data Batas Kewenangan Nilai Jaminan Pengguna",
-    btn_label: "Setting Batas Kewenangan Nilai Jaminan Pengguna",
+    btn_label: "Setting Batas",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
@@ -21,7 +21,7 @@ export const FormEmployeeLimitsUtils = {
     route: EmployeeLimitsUtils.link.update,
     title: "Setting Limit",
     sub_title: "Tindakan ini akan mengedit data Batas Kewenangan Nilai Jaminan Pengguna",
-    btn_label: "Setting Batas Kewenangan Nilai Jaminan Pengguna",
+    btn_label: "Setting Batas",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",

@@ -22,6 +22,11 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
   guarantorProductSelected,
   guarantorProductTypes,
   guarantorProductTypeSelected,
+  guarantorToProductTypeId,
+  jobGroups,
+  jobGroupSelected,
+  jobTypes,
+  jobTypeSelected,
   profiles,
   profileSelected,
   officeTypes,
@@ -43,16 +48,6 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
 
   const handleSelectGuarantor = (guarantorId: number) => {
     getData({ per_page: select, search, guarantor_id: guarantorId });
-  };
-
-  const handleSelectProfile = (profileId: number) => {
-    const data = {
-      per_page: select,
-      search,
-      guarantor_id: guarantorSelected,
-      profile_id: profileId,
-    };
-    getData(data);
   };
 
   const handleSelectGuarantorProduct = (guarantorProductId: number) => {
@@ -78,6 +73,19 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
     getData(data);
   };
 
+  const handleSelectProfile = (profileId: number) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductSelected,
+      guarantor_product_type_id: guarantorProductTypeSelected,
+      office_type: officeTypeSelected,
+      profile_id: profileId,
+    };
+    getData(data);
+  };
+
   const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
     const data = {
       per_page: select,
@@ -91,12 +99,43 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
     getData(data);
   };
 
+  const handleSelectJobGroup = (jobGroup: string) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductSelected,
+      guarantor_product_type_id: guarantorProductTypeSelected,
+      office_type: officeTypeSelected,
+      profile_id: profileSelected,
+      job_group: jobGroup,
+    };
+    getData(data);
+  };
+
+  const handleSelectJobType = (jobType: string) => {
+    const data = {
+      per_page: select,
+      search,
+      guarantor_id: guarantorSelected,
+      guarantor_product_id: guarantorProductSelected,
+      guarantor_product_type_id: guarantorProductTypeSelected,
+      office_type: officeTypeSelected,
+      profile_id: profileSelected,
+      job_group: jobGroupSelected,
+      job_type: jobType,
+    };
+    getData(data);
+  };
+
   const getData = (data: {
     per_page: string;
     search: string;
     guarantor_id?: number;
     guarantor_product_id?: number;
     guarantor_product_type_id?: number;
+    job_group?: string;
+    job_type?: string;
     profile_id?: number;
   }) => {
     router.get(route(EmployeeLimitsUtils.link.index), pickBy(data), { preserveState: true, preserveScroll: true });
@@ -152,15 +191,37 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
         />
         <Combobox
           datas={guarantorProductTypes}
-          labelKey={"full_name"}
-          valueKey={"full_name"}
+          labelKey={"name"}
+          valueKey={"name"}
           defaultValueId={guarantorProductTypeSelected}
           placeholder={"Pilih Jenis Jaminan"}
-          className={"min-w-[160px]"}
+          className={"min-w-[200px]"}
           isWidthSameWithInput={false}
           shortValue={true}
           onSelect={(value) => handleSelectGuarantorProductType(value.id)}
         />
+        <Select defaultValue={jobGroupSelected} onValueChange={(val) => handleSelectJobGroup(val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Jenis Pekerjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <RenderList
+              of={jobGroups}
+              render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+            />
+          </SelectContent>
+        </Select>
+        <Select defaultValue={jobTypeSelected} onValueChange={(val) => handleSelectJobType(val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Tipe Pekerjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <RenderList
+              of={jobTypes}
+              render={(jobType: string) => <SelectItem value={jobType}>{jobType}</SelectItem>}
+            />
+          </SelectContent>
+        </Select>
         <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
           <SelectTrigger>
             <SelectValue placeholder="Pilih " />
@@ -193,6 +254,9 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
         guarantorSelectedId={guarantorSelected}
         guarantorProductSelectedId={guarantorProductSelected}
         guarantorProductTypeSelectedId={guarantorProductTypeSelected}
+        guarantorToProductTypeId={guarantorToProductTypeId}
+        jobGroupSelected={jobGroupSelected}
+        jobTypeSelected={jobTypeSelected}
         profileSelectedId={profileSelected}
         onDelete={deleteProfileLimit}
       />
