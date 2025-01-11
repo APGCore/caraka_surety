@@ -38,15 +38,13 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
           <RenderList
             of={submissions}
             render={(submission: any, index: number) => (
-              <TableRow
-                key={submission.id}
-                className={submission?.beyond_the_limit ? "bg-amber-300" : ""}>
+              <TableRow key={submission.id} className={submission?.beyond_the_limit ? "bg-amber-300" : ""}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
                   {formatRupiah(submission?.guarantee_value)} limit {formatRupiah(submission?.direksi_limit)}
-                    </TableCell>
+                </TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${

@@ -4,11 +4,16 @@ interface ProfileLimitsProps {
   guarantors: any;
   guarantorSelected: number;
   guarantorProducts: any;
-  guarantorProductSelected: any;
+  guarantorProductSelected: number;
   guarantorProductTypes: any;
-  guarantorProductTypeSelected: any;
+  guarantorProductTypeSelected: number;
+  guarantorToProductTypeId: number;
+  jobGroups: any;
+  jobGroupSelected: string;
+  jobTypes: any;
+  jobTypeSelected: string;
   officeTypes: any;
-  officeTypeSelected: any;
+  officeTypeSelected: number;
   limit: any;
   profiles: any;
 }

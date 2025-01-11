@@ -21,6 +21,11 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
   guarantorProductSelected,
   guarantorProductTypes,
   guarantorProductTypeSelected,
+  guarantorToProductTypeId,
+  jobGroups,
+  jobGroupSelected,
+  jobTypes,
+  jobTypeSelected,
   officeTypes,
   officeTypeSelected,
   limit,
@@ -49,8 +54,33 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeId);
   };
 
+  const handleSelectJobGroup = (jobGroup: string) => {
+    getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeSelected, jobGroup);
+  };
+
+  const handleSelectJobType = (jobType: string) => {
+    getData(
+      select,
+      search,
+      guarantorSelected,
+      guarantorProductSelected,
+      guarantorProductTypeSelected,
+      jobGroupSelected,
+      jobType,
+    );
+  };
+
   const handleSelectOfficeType = (officeType: string) => {
-    getData(select, search, guarantorSelected, guarantorProductSelected, guarantorProductTypeSelected, officeType);
+    getData(
+      select,
+      search,
+      guarantorSelected,
+      guarantorProductSelected,
+      guarantorProductTypeSelected,
+      jobGroupSelected,
+      jobTypeSelected,
+      officeType,
+    );
   };
 
   const getData = (
@@ -59,6 +89,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     guarantorId?: number,
     guarantorProductId?: number,
     guarantorProductTypeId?: number,
+    jobGroup?: string,
+    jobType?: string,
     officeType?: string,
   ) => {
     router.get(
@@ -69,6 +101,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         guarantor_id: guarantorId,
         guarantor_product_id: guarantorProductId,
         guarantor_product_type_id: guarantorProductTypeId,
+        job_group: jobGroup,
+        job_type: jobType,
         office_type: officeType,
       }),
       { preserveState: true, preserveScroll: true },
@@ -98,7 +132,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
           placeholder="Cari Kantor"
         />
       </div>
-      <div className="flex items-center gap-x-2 max-w-[70%]">
+      <div className="flex items-center gap-x-2 w-full">
         <Combobox
           datas={guarantors}
           labelKey={"name"}
@@ -123,8 +157,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         />
         <Combobox
           datas={guarantorProductTypes}
-          labelKey={"full_name"}
-          valueKey={"full_name"}
+          labelKey={"name"}
+          valueKey={"name"}
           defaultValueId={guarantorProductTypeSelected}
           placeholder={"Pilih Jenis Jaminan"}
           className={"min-w-[200px]"}
@@ -132,6 +166,28 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
           shortValue={true}
           onSelect={(value) => handleSelectGuarantorProductType(value.id)}
         />
+        <Select defaultValue={jobGroupSelected} onValueChange={(val) => handleSelectJobGroup(val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Jenis Pekerjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <RenderList
+              of={jobGroups}
+              render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+            />
+          </SelectContent>
+        </Select>
+        <Select defaultValue={jobTypeSelected} onValueChange={(val) => handleSelectJobType(val)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Tipe Pekerjaan" />
+          </SelectTrigger>
+          <SelectContent>
+            <RenderList
+              of={jobTypes}
+              render={(jobType: string) => <SelectItem value={jobType}>{jobType}</SelectItem>}
+            />
+          </SelectContent>
+        </Select>
         <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
           <SelectTrigger>
             <SelectValue placeholder="Pilih " />
@@ -151,6 +207,9 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
         guarantorSelectedId={guarantorSelected}
         guarantorProductId={guarantorProductSelected}
         guarantorProductTypeId={guarantorProductTypeSelected}
+        guarantorToProductTypeId={guarantorToProductTypeId}
+        jobGroupSelected={jobGroupSelected}
+        jobTypeSelected={jobTypeSelected}
         onDelete={deleteProfileLimit}
       />
     </main>

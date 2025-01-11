@@ -25,6 +25,9 @@ interface FormProfileLimitsProps {
   guarantorSelectedId: number;
   guarantorProductId: number;
   guarantorProductTypeId: number;
+  guarantorToProductTypeId: number;
+  jobGroupSelected: string;
+  jobTypeSelected: string;
   profile?: any;
 }
 
@@ -33,6 +36,9 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
   guarantorSelectedId,
   guarantorProductId,
   guarantorProductTypeId,
+  guarantorToProductTypeId,
+  jobGroupSelected,
+  jobTypeSelected,
   profile,
 }) => {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
@@ -60,11 +66,19 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
     limit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
-    guarantor_to_product_type_id: guarantorProductTypeId,
+    guarantor_to_product_type_id: guarantorToProductTypeId,
     profile_id: profile?.id ?? 0,
     name: profile?.name ?? "",
     limit: profile?.profile_limit?.limit ?? undefined,
   });
+
+  const params = {
+    guarantor_id: guarantorSelectedId,
+    guarantor_product_id: guarantorProductId,
+    guarantor_product_type_id: guarantorProductTypeId,
+    job_group: jobGroupSelected,
+    job_type: jobTypeSelected,
+  };
 
   const submit = () => {
     setIsLoading(true);
@@ -78,13 +92,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
           });
           setErrors(defaultErrors);
           setIsOpenForm(false);
-          router.get(
-            route(FormProfileLimitsUtils.redirect, {
-              guarantor_id: guarantorSelectedId,
-              guarantor_product_id: guarantorProductId,
-              guarantor_product_type_id: guarantorProductTypeId,
-            }),
-          );
+          router.get(route(FormProfileLimitsUtils.redirect, params));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);
@@ -105,13 +113,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
           });
           setErrors(defaultErrors);
           setIsOpenForm(false);
-          router.get(
-            route(FormProfileLimitsUtils.redirect, {
-              guarantor_id: guarantorSelectedId,
-              guarantor_product_id: guarantorProductId,
-              guarantor_product_type_id: guarantorProductTypeId,
-            }),
-          );
+          router.get(route(FormProfileLimitsUtils.redirect, params));
         })
         .catch((error) => {
           setErrors(error.response.data.errors);

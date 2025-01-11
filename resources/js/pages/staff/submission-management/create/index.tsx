@@ -1094,7 +1094,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <Label className="text-md">Jenis Pekerjaan</Label>
                         <Select
                           onValueChange={(val) => {
-                            console.log(val);
                             setData("submission", {
                               ...data.submission,
                               job_group: val,

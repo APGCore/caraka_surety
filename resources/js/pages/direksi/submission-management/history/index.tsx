@@ -3,9 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DireksiLayoutPage from "@/layouts/direksi";
 import { useState } from "react";
+import SubmissionHistoryDatatable from "./_partials/history-datatable";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
 import { SubmissionHistoryPageProps } from "./history-page.type";
-import SubmissionHistoryDatatable from "./_partials/history-datatable";
 
 const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");

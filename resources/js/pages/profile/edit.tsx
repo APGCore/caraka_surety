@@ -30,10 +30,7 @@ export default function Edit({
           <TabsContent value="information">
             <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex items-center justify-center">
               <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 max-w-xl w-full">
-                <UpdateProfileBprInformationForm
-                  profile={profile}
-                  className="max-w-xl"
-                />
+                <UpdateProfileBprInformationForm profile={profile} className="max-w-xl" />
               </div>
             </div>
           </TabsContent>

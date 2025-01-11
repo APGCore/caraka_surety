@@ -5,9 +5,9 @@ interface Document {
 }
 
 interface ScoringQuestion {
-    name: string;
-    // Tambahkan properti lain jika ada
-  }
+  name: string;
+  // Tambahkan properti lain jika ada
+}
 
 interface SubmissionProps {
   submissions: any;

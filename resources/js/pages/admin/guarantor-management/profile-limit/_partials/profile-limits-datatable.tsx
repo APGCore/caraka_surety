@@ -32,6 +32,9 @@ interface ProfileLimitsDatatableProps {
   guarantorSelectedId: number;
   guarantorProductId: number;
   guarantorProductTypeId: number;
+  guarantorToProductTypeId: number;
+  jobGroupSelected: string;
+  jobTypeSelected: string;
   onDelete: (limitProfile: any) => void;
 }
 
@@ -40,6 +43,9 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
   guarantorSelectedId,
   guarantorProductId,
   guarantorProductTypeId,
+  guarantorToProductTypeId,
+  jobGroupSelected,
+  jobTypeSelected,
   onDelete,
 }) => {
   return (
@@ -83,6 +89,9 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
                             guarantorSelectedId={guarantorSelectedId}
                             guarantorProductId={guarantorProductId}
                             guarantorProductTypeId={guarantorProductTypeId}
+                            guarantorToProductTypeId={guarantorToProductTypeId}
+                            jobGroupSelected={jobGroupSelected}
+                            jobTypeSelected={jobTypeSelected}
                             profile={profile}
                           />
                         </DropdownMenuItem>
