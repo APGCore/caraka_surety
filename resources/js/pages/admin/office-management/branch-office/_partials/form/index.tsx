@@ -1,28 +1,14 @@
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import Label from "@/components/common/input-label";
+import Loading from "@/components/common/loading";
 import RenderList from "@/components/common/render-list";
 import Input from "@/components/common/text-input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import useGetAllBranchGuarantor from "@/hooks/api/guarantor/useGetAllBranchGuarantor";
-import useGetAllGuarantor from "@/hooks/api/guarantor/useGetAllGuarantor";
-import useGetAllProvince from "@/hooks/api/locations/useGetAllProvince";
-import useGetDistrictByRegencyId from "@/hooks/api/locations/useGetDistrictByRegencyId";
-import useGetRegencyByProvinceId from "@/hooks/api/locations/useGetRegencyByProvinceId";
-import { router, useForm } from "@inertiajs/react";
-import React, { FormEventHandler, useCallback, useMemo, useState } from "react";
-
-interface IBranchGuarantor {
-  id: number | null;
-  name: string | null;
-}
-
-interface IPairingGuarantor {
-  id: number | null;
-  name: string | null;
-  branches: IBranchGuarantor[];
-}
+import React, { useState } from "react";
+import ModalBranchOffice from "../modal";
+import useBranchOfficeForm from "./form.hook";
 
 interface Props {
   branchOffice?: any;
@@ -32,189 +18,38 @@ interface Props {
 }
 
 const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) => {
-  const { data, setData, post, patch, errors, processing } = useForm({
-    id: branchOffice?.id ?? null,
-    code: branchOffice?.code ?? "",
-    name: branchOffice?.name ?? "",
-    email: branchOffice?.email ?? "",
-    phone: branchOffice?.phone ?? "",
-    province_id: branchOffice?.province_id ?? null,
-    regency_id: branchOffice?.regency_id ?? null,
-    district_id: branchOffice?.district_id ?? null,
-    village: branchOffice?.village ?? "",
-    address: branchOffice?.address ?? "",
-    postal_code: branchOffice?.postal_code ?? "",
-    pairing_guarantor: branchOffice?.pairing_guarantor ?? [],
-    office_type: "branch",
-  });
-
-  const { provinces: jobLocationProvinces } = useGetAllProvince();
-  const { regencies: jobLocationRegencies } = useGetRegencyByProvinceId({
-    province_id: data?.province_id,
-  });
-  const { districts: jobLocationDistricts } = useGetDistrictByRegencyId({
-    regency_id: data?.regency_id,
-  });
-
-  const { guarantors, loading: loadingGetGuarantor } = useGetAllGuarantor();
-  const { branchGuarantors, loading: loadingGetBranchGuarantor } = useGetAllBranchGuarantor();
-  const defaultPairingGuarantor = [{ id: null, name: null, branches: [] }];
-  const [pairingGuarantor, setPairingGuarantor] = useState<IPairingGuarantor[] | null>(
-    data.pairing_guarantor ?? defaultPairingGuarantor,
-  );
-
-  const availableGuarantors = useMemo(() => {
-    if (!loadingGetGuarantor) {
-      return guarantors.map((guarantor: any) => ({
-        ...guarantor,
-        isChoosed: (pairingGuarantor ?? []).some((pairing) => pairing.id === guarantor.id),
-      }));
-    }
-
-    return [];
-  }, [pairingGuarantor, loadingGetGuarantor]);
-
-  const limitCreateGuarantor = pairingGuarantor?.length === availableGuarantors.length;
-
-  const handleAvailableBranchGuarantors = useCallback(
-    (guarantoId: any) => {
-      if (!loadingGetGuarantor && !loadingGetBranchGuarantor) {
-        const filteredBranchGuarantors = branchGuarantors.filter(
-          (branch: any) => branch?.headquarter_id === guarantoId,
-        );
-
-        return filteredBranchGuarantors.map((branch: any) => ({
-          ...branch,
-          isChoosed: (pairingGuarantor ?? []).some(
-            (pairing) => pairing.branches?.some((pairingBranch) => pairingBranch.id === branch.id) ?? false,
-          ),
-        }));
-      }
-
-      return [];
-    },
-    [loadingGetGuarantor, loadingGetBranchGuarantor, pairingGuarantor],
-  );
-
-  // Add a new guarantor
-  const addGuarantor = () => {
-    if (limitCreateGuarantor) {
-      return;
-    }
-    setPairingGuarantor((prev) => [
-      ...(prev || []),
-      {
-        id: null,
-        name: null,
-        branches: [], // Track branches per guarantor
-      },
-    ]);
-  };
-
-  // Update selected guarantor
-  const updateGuarantor = (index: number, selectedGuarantor: any) => {
-    const updatedGuarantorData =
-      pairingGuarantor?.map((gr, idx) =>
-        idx === index
-          ? {
-              ...gr,
-              id: selectedGuarantor.id,
-              name: selectedGuarantor.name,
-              branches: [], // Reset branches
-            }
-          : gr,
-      ) || [];
-
-    setData("pairing_guarantor", updatedGuarantorData);
-    setPairingGuarantor(updatedGuarantorData);
-  };
-
-  // Delete a guarantor
-  const deleteGuarantor = (index: number) => {
-    const updatedData = pairingGuarantor?.filter((_, idx) => idx !== index) || [];
-
-    setData("pairing_guarantor", updatedData);
-    setPairingGuarantor(updatedData);
-  };
-
-  const addBranch = (index: number) => {
-    const updatedBranch =
-      pairingGuarantor?.map((gr, idx) =>
-        idx === index
-          ? {
-              ...gr,
-              branches: [...(gr.branches || []), { id: null, name: null }],
-            }
-          : gr,
-      ) || [];
-    setPairingGuarantor(updatedBranch);
-  };
-
-  const updateBranch = (guarantorIndex: number, branchIndex: number, selectedBranch: any) => {
-    const updatedBranch =
-      pairingGuarantor?.map((gr, idx) =>
-        idx === guarantorIndex
-          ? {
-              ...gr,
-              branches: gr.branches.map((branch, bIdx) =>
-                bIdx === branchIndex ? { id: selectedBranch.id, name: selectedBranch.name } : branch,
-              ),
-            }
-          : gr,
-      ) || [];
-
-    setData("pairing_guarantor", updatedBranch);
-    setPairingGuarantor(updatedBranch);
-  };
-
-  // Delete a branch from a specific guarantor
-  const deleteBranch = (guarantorIndex: number, branchIndex: number) => {
-    const updatedBranch =
-      pairingGuarantor?.map((gr, idx) =>
-        idx === guarantorIndex
-          ? {
-              ...gr,
-              branches: gr.branches.filter((_, bIdx) => bIdx !== branchIndex),
-            }
-          : gr,
-      ) || [];
-
-    setData("pairing_guarantor", updatedBranch);
-    setPairingGuarantor(updatedBranch);
-  };
-
-  const cancel = () => {
-    router.get(routeBack);
-  };
-
-  const submit: FormEventHandler<HTMLFormElement> = (event: any) => {
-    event.preventDefault();
-
-    if (data.id) {
-      patch(routeSubmit, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-          router.get(routeBack);
-        },
-      });
-    } else {
-      post(routeSubmit, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-          router.get(routeBack);
-        },
-      });
-    }
-  };
-
-  console.log({
+  const {
+    limitCreateGuarantor,
     data,
+    setData,
+    errors,
+    processing,
+    jobLocationProvinces,
+    jobLocationRegencies,
+    jobLocationDistricts,
+    availableGuarantors,
+    availableBranchGuarantors,
+    pairingGuarantor,
+    selectedGuarantor,
+    setSelectedGuarantor,
+    addGuarantor,
+    deleteGuarantor,
+    addBranchGuarantor,
+    deleteBranchGuarantor,
+    cancel,
+    handleSubmitForm,
+  } = useBranchOfficeForm({
+    routeBack,
+    routeSubmit,
+    branchOffice,
+    type,
   });
+
+  const [isOpenModalAddGuarantor, setIsOpenModalAddGuarantor] = useState<boolean>(false);
+  const [isOpenModalAddBranchGuarantor, setIsOpenModalAddBranchGuarantor] = useState<boolean>(false);
 
   return (
-    <form onSubmit={submit} className="mt-6 space-y-10">
+    <form onSubmit={handleSubmitForm} className="mt-6 space-y-10">
       <div className="grid gap-1 ">
         <p className="text-xl font-bold">Data Kantor Cabang</p>
         <div className="grid gap-5 mt-2">
@@ -324,13 +159,27 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
               <Label className="text-sm">Desa</Label>
               <Input
                 className="text-md"
-                placeholder="Masukan nama Desa"
+                placeholder="Masukan nama desa"
                 value={data.village}
                 onChange={(e) => {
                   setData("village", e.currentTarget.value);
                 }}
               />
             </div>
+
+            <div className="grid gap-1 w-full">
+              <Label className="text-sm">Kode Pos</Label>
+              <Input
+                className="text-md"
+                placeholder="Masukan kode pos"
+                value={data.postal_code}
+                onChange={(e) => {
+                  setData("postal_code", e.currentTarget.value);
+                }}
+              />
+            </div>
+          </div>
+          <div>
             <div className="grid gap-1 w-full">
               <Label className="text-sm">Alamat Lengkap</Label>
               <Textarea
@@ -342,17 +191,6 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
                 }}
               />
             </div>
-            <div className="grid gap-1 w-full">
-              <Label className="text-sm">Kode Pos</Label>
-              <Input
-                className="text-md"
-                placeholder="Masukan nama Desa"
-                value={data.postal_code}
-                onChange={(e) => {
-                  setData("postal_code", e.currentTarget.value);
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -360,79 +198,6 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
       <div className=" space-y-8 ">
         <h1 className="text-xl font-bold">Pairing Asuransi</h1>
         <div className="space-y-10">
-          <RenderList
-            of={pairingGuarantor || []}
-            render={(guarantor, guarantorIndex) => {
-              const filteredBranchGuarantors = handleAvailableBranchGuarantors(guarantor.id);
-              const isCanAddBranch = (guarantor.branches ?? []).length < filteredBranchGuarantors.length;
-
-              return (
-                <div key={guarantorIndex + 1} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-5">
-                    <div>
-                      <Label>Asuransi</Label>
-                      <Combobox
-                        datas={availableGuarantors}
-                        labelKey="name"
-                        valueKey="name"
-                        placeholder="Pilih Asuransi"
-                        defaultValueId={guarantor.id}
-                        checkedWithCondition={true}
-                        notFoundText="Asuransi tidak ditemukan!"
-                        onSelect={(val) => updateGuarantor(guarantorIndex, val)}
-                      />
-                    </div>
-                    <div>
-                      <Label>Cabang Asuransi</Label>
-                      <div className="space-y-2">
-                        <RenderList
-                          of={guarantor.branches || []}
-                          render={(branch, branchIndex) => (
-                            <div key={branchIndex} className="flex items-center gap-2">
-                              <Combobox
-                                datas={filteredBranchGuarantors}
-                                labelKey="name"
-                                valueKey="name"
-                                placeholder="Pilih Cabang Asuransi"
-                                notFoundText="Cabang Asuransi tidak ditemukan!"
-                                checkedWithCondition={true}
-                                defaultValueId={branch.id}
-                                onSelect={(val) => updateBranch(guarantorIndex, branchIndex, val)}
-                              />
-                              <Button
-                                type="button"
-                                variant={"destructive"}
-                                onClick={() => deleteBranch(guarantorIndex, branchIndex)}>
-                                Hapus Cabang
-                              </Button>
-                            </div>
-                          )}
-                        />
-                      </div>
-                      <Button
-                        disabled={!isCanAddBranch}
-                        type="button"
-                        className="mt-2 w-full"
-                        onClick={() => addBranch(guarantorIndex)}>
-                        {filteredBranchGuarantors.length === 0
-                          ? "Cabang belum ada!"
-                          : isCanAddBranch
-                            ? "Tambah Cabang Asuransi"
-                            : "Mencapai Maksimum Cabang Asuransi tersedia!"}
-                      </Button>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant={"destructive"}
-                    className="w-full"
-                    onClick={() => deleteGuarantor(guarantorIndex)}>
-                    Hapus Asuransi
-                  </Button>
-                </div>
-              );
-            }}
-          />
           <Button
             disabled={limitCreateGuarantor}
             className="w-full"
@@ -440,19 +205,113 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addGuarantor();
+              setIsOpenModalAddGuarantor(true);
             }}>
             {limitCreateGuarantor ? "Mencapai Maksimum Asuransi yang Ada!" : "Tambah Asuransi"}
           </Button>
+          <RenderList
+            of={pairingGuarantor || []}
+            render={(guarantor, guarantorIndex) => {
+              return (
+                <div key={guarantorIndex + 1} className="space-y-3 flex flex-col items-end border rounded-md p-2">
+                  <div className="flex justify-between border p-2 items-center rounded-md w-[100%] ">
+                    <div className="flex gap-2">
+                      <span className="border border-black h-6 w-6 flex justify-center items-center rounded-full">
+                        {guarantorIndex + 1}.
+                      </span>
+                      <div className=" flex flex-col ">
+                        <span className="text-sm">Asuransi</span>
+                        <span className="text-lg font-semibold">{guarantor?.name}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        className="max-w-[130px]"
+                        onClick={() => {
+                          setIsOpenModalAddBranchGuarantor(true);
+                          setSelectedGuarantor(guarantor);
+                        }}>
+                        Tambah Cabang
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={"destructive"}
+                        className="max-w-[130px]"
+                        onClick={() => deleteGuarantor(guarantor?.id)}>
+                        Hapus
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="w-full">
+                    <RenderList
+                      of={guarantor?.branches}
+                      render={(branchGuarantor, branchGuarantorIndex) => (
+                        <div key={branchGuarantorIndex} className="flex">
+                          <span className=" text-3xl w-[10%] flex justify-center items-center">-</span>
+                          <div className="w-full flex justify-between border p-2 items-center rounded-md ">
+                            <div className=" flex flex-col ">
+                              <span className="text-sm">Cabang Asuransi</span>
+                              <span className="text-lg font-semibold">{branchGuarantor?.name}</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant={"destructive"}
+                              onClick={() => {
+                                deleteBranchGuarantor(guarantor?.id ?? 0, branchGuarantor?.id ?? 0);
+                              }}>
+                              Hapus Cabang
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    />
+                  </div>
+                </div>
+              );
+            }}
+          />
         </div>
       </div>
+
+      {/* Modal Pairing Guarantor */}
+      <ModalBranchOffice
+        type="add-pairing-guarantor"
+        isOpen={isOpenModalAddGuarantor}
+        guarantors={availableGuarantors}
+        handleOpen={(openState) => {
+          setIsOpenModalAddGuarantor(openState);
+        }}
+        handleSelectGuarantor={(guarantor) => {
+          addGuarantor(guarantor);
+          setIsOpenModalAddGuarantor(false);
+        }}
+      />
+
+      {/* Modal Pairing Branch Guarantor */}
+      <ModalBranchOffice
+        type="add-pairing-branch-guarantor"
+        isOpen={isOpenModalAddBranchGuarantor}
+        branchGuarantors={availableBranchGuarantors}
+        handleOpen={(openState) => {
+          setIsOpenModalAddBranchGuarantor(openState);
+        }}
+        handleSelectBranchGuarantor={(branchGuarantor) => {
+          if (selectedGuarantor?.id) {
+            addBranchGuarantor(selectedGuarantor?.id, branchGuarantor);
+          }
+          setIsOpenModalAddBranchGuarantor(false);
+        }}
+      />
 
       <div className="flex items-center gap-4 justify-end">
         <Button variant={"destructive"} onClick={cancel}>
           Batal
         </Button>
-
-        <Button disabled={processing}>Simpan</Button>
+        <Button disabled={processing}>
+          <Loading isLoading={processing} className="mr-1" /> Simpan
+        </Button>
       </div>
     </form>
   );
