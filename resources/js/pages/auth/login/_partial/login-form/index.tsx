@@ -5,29 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/cn";
-import { useForm } from "@inertiajs/react";
-import { FormEventHandler } from "react";
+import React from "react";
+import useLoginForm from "./login-form.hook";
+import { greetingBasedOnDate } from "./login-form.util";
 
-export function NewLoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const { data, setData, post, processing, errors, reset } = useForm({
-    username: "",
-    password: "",
-    remember: false,
-  });
-  const date = new Date();
-  const hour = date.getHours();
-  const subtitle = hour < 12 ? "Good Morning!" : hour < 18 ? "Good Afternoon!" : "Good Night!";
+interface LoginFormProps extends React.ComponentProps<"div"> {}
 
-  const submit: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    post(route("login"), {
-      onSuccess: () => {
-        reset("username");
-        reset("password");
-      },
-    });
-  };
+const LoginForm: React.FC<LoginFormProps> = ({ className, ...props }) => {
+  const { data, errors, handleLogin, processing, setData } = useLoginForm();
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -45,11 +30,11 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
             </div>
             <h1 className="absolute bottom-2 font-bold">A Member Of APG</h1>
           </div>
-          <form id="login-form" onSubmit={submit} className="px-12 flex flex-col items-center justify-center">
+          <form id="login-form" onSubmit={handleLogin} className="px-12 flex flex-col items-center justify-center">
             <div className="flex min-w-[260px] flex-col gap-6 ">
               <div className=" text-start">
                 <h1 className="text-2xl font-bold">Hello!</h1>
-                <p className="  text-muted-foreground">{subtitle}</p>
+                <p className="  text-muted-foreground">{greetingBasedOnDate()}</p>
               </div>
               <div>
                 <h1 className="text-l text-start font-bold">Please enter your Credentials</h1>
@@ -92,4 +77,6 @@ export function NewLoginForm({ className, ...props }: React.ComponentProps<"div"
       </div>
     </div>
   );
-}
+};
+
+export default LoginForm;
