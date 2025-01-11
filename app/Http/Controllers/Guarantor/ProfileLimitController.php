@@ -107,12 +107,14 @@ class ProfileLimitController extends Controller
                 'guarantor_to_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
                 'profile_id' => 'required|exists:'.Profile::class.',id,deleted_at,NULL',
                 'limit' => 'required',
+                'limit_inherit' => 'required',
             ],
             [
                 'guarantor_id.required' => 'Kantor belum dipilih',
                 'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
                 'profile_id.required' => 'Profil belum dipilih',
-                'limit.required' => 'Limit wajib diisi',
+                'limit.required' => 'Batas Kewenangan wajib diisi',
+                'limit_inherit.required' => 'Batas Kewenangan Turunan wajib diisi',
             ]
         );
 
@@ -125,18 +127,19 @@ class ProfileLimitController extends Controller
                 ->first();
 
             $limit = (int) str_replace('.', '', $requestValid['limit']);
+            $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
-            $limit = (int) str_replace('.', '', $requestValid['limit']);
             ProfileLimit::query()->create(
                 [
                     'guarantor_id' => $requestValid['guarantor_id'],
                     'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
                     'profile_id' => $requestValid['profile_id'],
                     'limit' => $limit,
+                    'limit_inherit' => $limitInherit,
                 ]
             );
             activity()
@@ -162,8 +165,18 @@ class ProfileLimitController extends Controller
     public function update(Request $request, ProfileLimit $profileLimit): JsonResponse
     {
         $requestValid = $request->validate(
-            ['limit' => 'required'],
-            ['limit.required' => 'Limit wajib diisi']);
+            [
+                'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
+                'guarantor_to_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
+                'limit' => 'required',
+                'limit_inherit' => 'required',
+            ],
+            [
+                'guarantor_id.required' => 'Kantor belum dipilih',
+                'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
+                'limit.required' => 'Batas Kewenangan wajib diisi',
+                'limit_inherit.required' => 'Batas Kewenangan Turunan wajib diisi',
+            ]);
 
         try {
             DB::beginTransaction();
@@ -174,15 +187,16 @@ class ProfileLimitController extends Controller
                 ->first();
 
             $limit = (int) str_replace('.', '', $requestValid['limit']);
+            $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
                 throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
-            $limit = (int) str_replace('.', '', $requestValid['limit']);
             $updated = $profileLimit->update(
                 [
                     'limit' => $limit,
+                    'limit_inherit' => $limitInherit,
                 ]
             );
             if (! $updated) {

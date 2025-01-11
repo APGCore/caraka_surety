@@ -49,6 +49,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
     profile_id: null,
     name: null,
     limit: null,
+    limit_inherit: null,
   };
   const [errors, setErrors] = useState<{
     guarantor_id: Array<number> | null;
@@ -56,6 +57,7 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
     profile_id: Array<number> | null;
     name: Array<string> | null;
     limit: Array<string> | null;
+    limit_inherit: Array<string> | null;
   }>(defaultErrors);
 
   const [dataForm, setDataForm] = useState<{
@@ -64,12 +66,14 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
     profile_id: number;
     name: string;
     limit: string | undefined;
+    limit_inherit: string | undefined;
   }>({
     guarantor_id: guarantorSelectedId,
     guarantor_to_product_type_id: guarantorToProductTypeId,
     profile_id: profile?.id ?? 0,
     name: profile?.name ?? "",
     limit: profile?.profile_limit?.limit ?? undefined,
+    limit_inherit: profile?.profile_limit?.limit_inherit ?? undefined,
   });
 
   const params = {
@@ -168,6 +172,18 @@ const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
             />
             <RenderList
               of={errors?.limit ?? []}
+              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+            />
+          </div>
+          <div className="grid gap-[5px]">
+            <Label htmlFor="limit_inherit">Batas Kewenangan Nilai Jaminan Turunan</Label>
+            <InputCurrency
+              value={dataForm.limit_inherit ?? ""}
+              placeholder="Masukan limit pengajuan turunan"
+              onChange={(limit_inherit) => setDataForm({ ...dataForm, limit_inherit: limit_inherit })}
+            />
+            <RenderList
+              of={errors?.limit_inherit ?? []}
               render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
             />
           </div>

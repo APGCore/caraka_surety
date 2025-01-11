@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { Head } from "@inertiajs/react";
 import React from "react";
 
@@ -11,19 +11,19 @@ interface GuarantorProductTypeRateHeaderProps {
 const GuarantorProductTypeRateHeader: React.FC<GuarantorProductTypeRateHeaderProps> = ({ title, guarantor }) => {
   return (
     <>
-      <Head title={title ?? "Tarif Asuransi"} />
+      <Head title={title ?? "Batas Kewenangan Nilai Jaminan Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(GuarantorRateUtils.link.index, guarantor?.id)}>
-              Kelola {title ?? "Tarif Asuransi"}
+            <BreadcrumbLink href={route(GuarantorProductTypeRateUtils.link.index, guarantor?.id)}>
+              Kelola Batas Kewenangan Nilai Jaminan Asuransi
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">
-          {title ?? "Tarif Asuransi"} {guarantor?.name}
+          {title ?? "Batas Kewenangan Nilai Jaminan Asuransi"} {guarantor?.name}
         </h1>
       </div>
     </>

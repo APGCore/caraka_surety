@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Profile::class, 'profile_id')->constrained()->cascadeOnDelete();
             $table->float('limit');
+            $table->float('limit_inherit');
             $table->timestamps();
         });
     }

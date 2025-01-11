@@ -89,8 +89,12 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Setting Limit {guarantorProductType?.name}</AlertDialogTitle>
-                              <AlertDialogDescription>Tindakan ini akan setting limit pengajuan</AlertDialogDescription>
+                              <AlertDialogTitle>
+                                Setting Batas Kewenangan Nilai {guarantorProductType?.name}
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tindakan ini akan setting batas kewenangan pengajuan
+                              </AlertDialogDescription>
                             </AlertDialogHeader>
                             <FormGuarantorProductTypeRate
                               guarantorProductType={guarantorProductType}
