@@ -19,7 +19,7 @@ class HandleRoleUsers
     {
         if (! auth()->user()->hasRoles($roles)) {
             $role = User::query()->find(auth()->id())?->role;
-            if ($role !== null && isset(RoleEnum::getRoute()[$role])) {
+            if ($role !== null && array_key_exists($role, RoleEnum::getRoute())) {
                 $route = RoleEnum::getRoute()[$role];
 
                 return redirect()->route($route);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
@@ -78,42 +79,42 @@ class AuthenticatedSessionController extends Controller
             $this->activityLogin('Login sebagai Admin');
             flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.');
 
-            return redirect()->intended(route('admin.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::AdminRoute->value, absolute: false));
         } elseif ($userRole == 2) {
             $this->activityLogin('Login sebagai Direksi');
             flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.');
 
-            return redirect()->intended(route('direksi.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::DireksiRoute->value, absolute: false));
         } elseif ($userRole == 3) {
             $this->activityLogin('Login sebagai Kepala Cabang');
             flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.');
 
-            return redirect()->intended(route('kepala-cabang.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::KepalaCabangRoute->value, absolute: false));
         } elseif ($userRole == 4) {
             $this->activityLogin('Login sebagai Manager');
             flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.');
 
-            return redirect()->intended(route('manager.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::ManagerRoute->value, absolute: false));
         } elseif ($userRole == 5) {
             $this->activityLogin('Login sebagai Staff Operasional');
             flashMessage('Berhasil Login sebagai Staff Operasional!', 'Anda berhasil login sebagai Staff Operasional.');
 
-            return redirect()->intended(route('staff.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::StaffOperasionalRoute->value, absolute: false));
         } elseif ($userRole == 6) {
             $this->activityLogin('Login sebagai Staff Teknik');
             flashMessage('Berhasil Login sebagai Staff Teknik!', 'Anda berhasil login sebagai Staff Teknik.');
 
-            return redirect()->intended(route('staff-teknik.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::StaffTeknikRoute->value, absolute: false));
         } elseif ($userRole == 7) {
             $this->activityLogin('Login sebagai Staff Operasional');
             flashMessage('Berhasil Login sebagai Staff Operasional!', 'Anda berhasil login sebagai Staff Operasional.');
 
-            return redirect()->intended(route('staff-operasional.dashboard.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::StaffOperasionalRoute->value, absolute: false));
         } elseif ($userRole == 8) {
             $this->activityLogin('Login sebagai Staff Cabang');
             flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.');
 
-            return redirect()->intended(route('staff.index', absolute: false));
+            return redirect()->intended(route(RoleEnum::StaffRoute->value, absolute: false));
         }
 
         return redirect()->intended(route('login', absolute: false));

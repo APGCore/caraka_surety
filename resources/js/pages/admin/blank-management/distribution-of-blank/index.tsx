@@ -527,6 +527,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nomor Blangko</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
           </TableHeader>

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Guarantor;
 
 use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Guarantor\Blank\StoreMultiRequest;
-use App\Http\Requests\Guarantor\Blank\StoreRequest;
-use App\Http\Requests\Guarantor\Blank\UpdateRequest;
+use App\Http\Requests\Blank\AccBlanksRequest;
+use App\Http\Requests\Blank\StoreMultiRequest;
+use App\Http\Requests\Blank\StoreRequest;
+use App\Http\Requests\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
@@ -17,6 +18,20 @@ use Illuminate\Support\Facades\Log;
 
 class BlankController extends Controller
 {
+    protected object $links;
+
+    public function __construct()
+    {
+        $this->links = collect([
+            'index' => 'blank-management.blank.index',
+            'store' => 'blank-management.blank.store',
+            'update' => 'blank-management.blank.update',
+            'destroy' => 'blank-management.blank.destroy',
+            'storeMulti' => 'blank-management.blank.store.multi',
+            'approve' => 'blank-management.blank.approve',
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -186,6 +201,69 @@ class BlankController extends Controller
             } else {
                 flashMessage('Gagal', 'Blangko gagal dihapus', 'error');
             }
+        }
+    }
+
+    public function getByOffice(Request $request)
+    {
+        $profileId = $request->user()->profile_id;
+        if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
+            $component = 'kepala-cabang/blank-management/blank/index';
+            $links = $this->links->map(fn ($link) => 'kepala-cabang.'.$link);
+        } else {
+            $component = 'direksi/blank-management/blank/index';
+            $links = $this->links->map(fn ($link) => 'direksi.'.$link);
+        }
+        $blanks = Blank::query()->where([
+            'profile_id' => $profileId,
+            'is_approved' => false,
+        ])->get();
+
+        $blankPage = Blank::search($request->get('search'))
+            ->query(function ($query) use ($profileId) {
+                return $query->with('profile')->where('profile_id', $profileId);
+            })
+            ->orderBy('number')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $blankResource = BlankResource::collection($blankPage);
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Kelola Blangko',
+            ],
+            'blanks' => fn () => $blankResource,
+            'blanks_un_approved' => $blanks,
+            'links' => $links ?? null,
+        ]);
+    }
+
+    public function approveBlanks(AccBlanksRequest $request)
+    {
+        $requestValidated = $request->validated();
+        $blanks = collect($requestValidated['blanks']);
+        $blanks = Blank::query()
+            ->whereIn('id', $blanks->pluck('id')->values())
+            ->get();
+        DB::beginTransaction();
+        try {
+            $blanks->each(fn ($blank) => $blank->update(['is_approved' => true]));
+
+            activity()
+                ->useLog('blank')
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log($request->user()->username.'Menerima blangko');
+
+            DB::commit();
+
+            return $this->responseSuccess('Blangko berhasil diterima');
+        } catch (\Exception $e) {
+            Log::error('Error acc blanks', [$e->getMessage()]);
+            DB::rollBack();
+
+            return $this->responseError('Blangko gagal diterima', [$e->getMessage()]);
         }
     }
 }
