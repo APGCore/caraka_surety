@@ -1,4 +1,4 @@
-import { Archive, Home } from "lucide-react";
+import { Archive, Home, Stamp } from "lucide-react";
 
 export const direksiRoute = {
   navMain: [
@@ -11,7 +11,19 @@ export const direksiRoute = {
       isActive: true,
       items: [],
     },
-
+    {
+      title: "Kelola Blangko",
+      url: "#",
+      icon: Stamp,
+      items: [
+        {
+          title: "Penerimaan Blangko",
+          route_name: "direksi.blank-management.blank",
+          href: route("direksi.blank-management.blank.index"),
+          url: "#",
+        },
+      ],
+    },
     {
       title: "Kelola Pengajuan",
       url: "#",

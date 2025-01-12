@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Guarantor\Blank;
+namespace App\Http\Requests\Blank;
 
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;

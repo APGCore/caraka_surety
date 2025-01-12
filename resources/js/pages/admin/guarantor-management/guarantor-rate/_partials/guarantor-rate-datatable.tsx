@@ -64,7 +64,7 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({ guarant
         </TableBody>
       </Table>
       <ShowingCountDatatable meta={guarantorProductTypes?.meta} />
-      <PaginationDatatable meta={guarantorProductTypes?.meta} only={["profiles"]} />
+      <PaginationDatatable meta={guarantorProductTypes?.meta} />
     </>
   );
 };
