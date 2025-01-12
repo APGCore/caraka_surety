@@ -30,13 +30,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
+import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import { PrimaryOfficePageProps } from "./primary-office-page.type";
 
-const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
+const BranchOfficePage: BranchOfficePageProps = (props) => {
   const { data: profiles, meta } = props.profiles;
 
   const [select, setSelect] = useState(() =>
@@ -79,10 +79,10 @@ const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
                 variant: "default",
               }),
             )}
-            href={route("branch-mitra-pemasaran.create", {
-              type: "marketing-partner",
+            href={route("branch.create", {
+              type: "branch",
             })}>
-            Tambah Mitra Pemasaran
+            Tambah Cabang BPR
           </Link>
         </div>
       </div>
@@ -114,10 +114,9 @@ const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
-              <TableHead>Nama Mitra Marketing</TableHead>
+              <TableHead>Nama Cabang BPR</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Dibuat</TableHead>
-              <TableHead className="text-right" />
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -131,7 +130,6 @@ const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
                       <TableCell>{profile?.code}</TableCell>
                       <TableCell>{profile?.name}</TableCell>
                       <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
-                      <TableCell>{profile?.created_at}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -190,6 +188,14 @@ const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
+                                href={route("branch.employee", profile.id)}
+                                className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                Pengguna
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                              <Link
                                 href={route("branch.edit", profile.id)}
                                 className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                                 Edit
@@ -238,9 +244,9 @@ const PrimaryOfficePage: PrimaryOfficePageProps = (props) => {
   );
 };
 
-export default PrimaryOfficePage;
+export default BranchOfficePage;
 
-PrimaryOfficePage.layout = (page: any) => {
+BranchOfficePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
