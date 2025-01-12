@@ -26,65 +26,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { EmployeePageProps } from "@/pages/admin/office-management/employee/employee-page.type";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { pickBy } from "lodash";
-import React, { useState } from "react";
+import React from "react";
+import useEmployee from "./_partials/employee.hook";
 
 const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
   const { data: employees, meta } = props.employees;
-
-  const [select, setSelect] = useState(() =>
-    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
-  );
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-  const handleSelect = (e: string) => {
-    setSelect(Number(e));
-    getData(e, search, officeSelected);
-  };
-
-  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    getData(String(select), search, officeSelected);
-  };
-
-  const getData = (perPage: string, search: string, officeSelected: number) => {
-    return router.get(
-      route("employee.index"),
-      pickBy({
-        per_page: perPage,
-        search,
-        office_id: officeSelected,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
-
-  // const handleSelectOfficeType = (officeType: string) => {
-  //   return router.get(
-  //     route("employee.index"),
-  //     pickBy({
-  //       office_type: officeType,
-  //     }),
-  //     { preserveState: true, preserveScroll: true },
-  //   );
-  // };
-  //
-  // const setOffice = (office: any) => {
-  //   return router.get(
-  //     route("employee.index"),
-  //     pickBy({
-  //       office_id: office.id,
-  //     }),
-  //     { preserveState: true, preserveScroll: true },
-  //   );
-  // };
-
-  const deleteData = (employee: any) => {
-    router.delete(route("employee.destroy", employee.id));
-  };
+  const { perpage, search, handlePerpage, handleSearchSubmit, deleteData, setSearch } = useEmployee({
+    office_id: officeSelected,
+  });
 
   return (
     <main className="space-y-2.5">
@@ -106,7 +58,7 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <Button>Export</Button>
-          <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
+          <Select onValueChange={(e) => handlePerpage(e)} defaultValue={perpage}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Theme" />
             </SelectTrigger>
@@ -117,33 +69,9 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          {/*<Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>*/}
-          {/*  <SelectTrigger className="min-w-[50%] max-w-[52%]">*/}
-          {/*    <SelectValue placeholder="Pilih " />*/}
-          {/*  </SelectTrigger>*/}
-          {/*  <SelectContent>*/}
-          {/*    <SelectGroup>*/}
-          {/*      <RenderList*/}
-          {/*        of={officeTypes}*/}
-          {/*        render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}*/}
-          {/*      />*/}
-          {/*    </SelectGroup>*/}
-          {/*  </SelectContent>*/}
-          {/*</Select>*/}
-          {/*<Show when={officeTypeSelected !== officeTypes[0]}>*/}
-          {/*  <Combobox*/}
-          {/*    datas={offices}*/}
-          {/*    labelKey={"name"}*/}
-          {/*    valueKey={"name"}*/}
-          {/*    defaultValue={officeSelected}*/}
-          {/*    placeholder={"Pilih Kantor"}*/}
-          {/*    className={"w-[100%]"}*/}
-          {/*    onSelect={(value) => setOffice(value)}*/}
-          {/*  />*/}
-          {/*</Show>*/}
         </div>
         <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
+          <form onSubmit={handleSearchSubmit} className="flex items-end gap-x-3">
             <Input placeholder="Cari Pengguna" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
@@ -158,8 +86,7 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
               <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Jabatan</TableHead>
-              <TableHead>Dibuat</TableHead>
-              <TableHead className="text-right" />
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -171,7 +98,6 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
                   <TableCell>{employee.username}</TableCell>
                   <TableCell>{employee.email}</TableCell>
                   <TableCell>{employee.position}</TableCell>
-                  <TableCell>{employee.created_at}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

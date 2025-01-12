@@ -1,27 +1,27 @@
 import HeaderPage from "@/components/common/header-page";
 import { Card, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
+import { BranchOfficeCreatePageProps } from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
 import Form from "../_partials/form";
-import { MarketingPartnerOfficeCreatePageProps } from "./marketing-partner-office-create-page.type";
 
-const MarketingPartnerOfficeCreatePage: MarketingPartnerOfficeCreatePageProps = (props) => {
+const BranchOfficeCreatePage: BranchOfficeCreatePageProps = (props) => {
   return (
     <main className="space-y-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Tambah Mitra Pemasaran</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Tambah Cabang BPR</h1>
       </div>
       <Card className="w-[800px] mx-auto">
         <CardContent>
-          <Form routeSubmit={route("branch-mitra-pemasaran.store")} routeBack={route("branch-mitra-pemasaran.index")} />
+          <Form routeSubmit={route("branch.store")} routeBack={route("branch.index")} />
         </CardContent>
       </Card>
     </main>
   );
 };
 
-export default MarketingPartnerOfficeCreatePage;
+export default BranchOfficeCreatePage;
 
-MarketingPartnerOfficeCreatePage.layout = (page: any) => {
+BranchOfficeCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
