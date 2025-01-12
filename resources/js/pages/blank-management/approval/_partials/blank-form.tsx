@@ -29,7 +29,6 @@ const BlankForm: React.FC<BlankFormProps> = ({ blanksUnApproved, links }) => {
     axios
       .post(route(links.approve), { blanks: blankApprove })
       .then((res) => {
-        console.log(res);
         setOpen(false);
         setQtyBlank(0);
         router.reload();

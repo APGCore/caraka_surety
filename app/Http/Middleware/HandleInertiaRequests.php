@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\RoleEnum;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -37,8 +38,9 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'auth' => fn () => [
-                'user' => $request->user(),
+                'user' => $request->user()?->load('role'),
             ],
+            'roles' => fn () => (object) RoleEnum::getKeyValue(),
             'location' => fn () => $request->url(),
             'flash_message' => fn () => [
                 'title' => $request->session()->get('title'),

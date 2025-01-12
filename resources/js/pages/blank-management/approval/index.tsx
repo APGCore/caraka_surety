@@ -1,12 +1,12 @@
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import DireksiLayoutPage from "@/layouts/direksi";
+import MainLayoutPage from "@/layouts/MainLayoutPage";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import BlankDatatable from "@/pages/direksi/blank-management/blank/_partials/blank-datatable";
-import BlankForm from "@/pages/direksi/blank-management/blank/_partials/blank-form";
-import BlankHeader from "@/pages/direksi/blank-management/blank/_partials/blank-header";
-import { BlankPageProps } from "@/pages/direksi/blank-management/blank/blank-page.type";
+import BlankDatatable from "@/pages/blank-management/approval/_partials/blank-datatable";
+import BlankForm from "@/pages/blank-management/approval/_partials/blank-form";
+import BlankHeader from "@/pages/blank-management/approval/_partials/blank-header";
+import { BlankPageProps } from "@/pages/blank-management/approval/blank-page.type";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
@@ -58,7 +58,7 @@ GuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
+    <MainLayoutPage user={pagePropsData?.auth?.user} roles={pagePropsData?.roles}>
       <BlankHeader title={pagePropsData?.page_settings?.title ?? "Blangko"} links={pagePropsData?.links} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -68,6 +68,6 @@ GuarantorPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </DireksiLayoutPage>
+    </MainLayoutPage>
   );
 };

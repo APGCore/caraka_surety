@@ -1,4 +1,4 @@
-import { Archive, Home } from "lucide-react";
+import { Archive, Home, Stamp } from "lucide-react";
 
 export const kepalaCabangRoute = {
   navMain: [
@@ -11,7 +11,19 @@ export const kepalaCabangRoute = {
       isActive: true,
       items: [],
     },
-
+    {
+      title: "Kelola Blangko",
+      url: "#",
+      icon: Stamp,
+      items: [
+        {
+          title: "Penerimaan Blangko",
+          route_name: "kepala-cabang.blank-management.blank",
+          href: route("kepala-cabang.blank-management.blank.index"),
+          url: "#",
+        },
+      ],
+    },
     {
       title: "Kelola Pengajuan",
       url: "#",

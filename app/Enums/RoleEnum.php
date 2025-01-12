@@ -55,4 +55,19 @@ enum RoleEnum: string
             self::MarketingPartner->value => self::MarketingPartnerRoute->value,
         ];
     }
+
+    public static function getKeyValue(): array
+    {
+        return [
+            self::Admin->name => self::Admin->value,
+            self::Direksi->name => self::Direksi->value,
+            self::KepalaCabang->name => self::KepalaCabang->value,
+            self::Manager->name => self::Manager->value,
+            self::Staff->name => self::Staff->value,
+            self::StaffTeknik->name => self::StaffTeknik->value,
+            self::StaffOperasional->name => self::StaffOperasional->value,
+            self::AgentPartner->name => self::AgentPartner->value,
+            self::MarketingPartner->name => self::MarketingPartner->value,
+        ];
+    }
 }

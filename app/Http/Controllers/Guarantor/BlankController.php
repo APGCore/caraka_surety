@@ -208,12 +208,12 @@ class BlankController extends Controller
     {
         $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
-            $component = 'kepala-cabang/blank-management/blank/index';
             $links = $this->links->map(fn ($link) => 'kepala-cabang.'.$link);
         } else {
-            $component = 'direksi/blank-management/blank/index';
             $links = $this->links->map(fn ($link) => 'direksi.'.$link);
         }
+        $component = 'blank-management/approval/index';
+
         $blanks = Blank::query()->where([
             'profile_id' => $profileId,
             'is_approved' => false,

@@ -18,9 +18,10 @@ class HandleRoleUsers
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (! auth()->user()->hasRoles($roles)) {
-            $role = User::query()->find(auth()->id())?->role;
-            if ($role !== null && array_key_exists($role, RoleEnum::getRoute())) {
-                $route = RoleEnum::getRoute()[$role];
+            $role = User::query()->find(auth()->id())?->role?->name;
+            $roleEnums = RoleEnum::getRoute() ?? [];
+            if ($role !== null && array_key_exists($role, $roleEnums)) {
+                $route = $roleEnums[$role];
 
                 return redirect()->route($route);
             }
