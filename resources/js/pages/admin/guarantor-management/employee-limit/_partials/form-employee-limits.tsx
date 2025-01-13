@@ -101,10 +101,10 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
         router.get(route(FormEmployeeLimitsUtils.redirect, params));
       })
       .catch((error) => {
-        setErrors(error.response.data.errors);
+        setErrors(error.response.data?.errors);
         toast({
           ...(isEdit ? FormEmployeeLimitsUtils.edit.toast_failed : FormEmployeeLimitsUtils.create.toast_failed),
-          description: error.response.data.message,
+          description: error.response.data?.data?.message,
           variant: "destructive",
         });
       })

@@ -133,6 +133,7 @@ class EmployeeLimitController extends Controller
             DB::beginTransaction();
             $profileLimit = ProfileLimit::query()
                 ->where('guarantor_id', $requestValid['guarantor_id'])
+                ->where('guarantor_to_product_type_id', $requestValid['guarantor_to_product_type_id'])
                 ->where('profile_id', $requestValid['profile_id'])
                 ->first();
             $limit = (int) str_replace('.', '', $requestValid['limit']);
