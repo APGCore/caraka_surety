@@ -39,6 +39,8 @@ import { useState } from "react";
 const BranchOfficePage: BranchOfficePageProps = (props) => {
   const { data: profiles, meta } = props.profiles;
 
+  console.log(profiles);
+
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
@@ -88,7 +90,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
       </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
+          {/* <Button>Export</Button> */}
           <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Theme" />
@@ -103,7 +105,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Cabang BPR" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
@@ -114,8 +116,9 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
-              <TableHead>Nama Cabang BPR</TableHead>
+              <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Jumlah Pengguna</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -129,7 +132,8 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                       <TableCell>{meta.from + index}</TableCell>
                       <TableCell>{profile?.code}</TableCell>
                       <TableCell>{profile?.name}</TableCell>
-                      <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
+                      <TableCell>{profile?.email ?? "-"}</TableCell>
+                      <TableCell>{profile?.users_count === 0 ? "-" : Number(profile?.users_count)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

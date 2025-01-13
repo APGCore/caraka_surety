@@ -36,6 +36,11 @@ class Profile extends Model
         ];
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);

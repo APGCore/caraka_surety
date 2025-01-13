@@ -35,6 +35,20 @@ class ProfileController extends Controller
             ->appends('query', null)
             ->appends($request->all());
 
+        // Get the profile IDs
+        $profileIds = collect($profiles->items())->pluck('id');
+
+        // Fetch all user counts in one query
+        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
+            ->whereIn('profile_id', $profileIds)
+            ->groupBy('profile_id')
+            ->pluck('users_count', 'profile_id');
+
+        // Assign user counts to profiles
+        collect($profiles->items())->each(function ($profile) use ($userCounts) {
+            $profile->users_count = $userCounts[$profile->id] ?? 0;
+        });
+
         $profileResource = ProfileResource::collection($profiles);
 
         return inertia($component, [
@@ -300,6 +314,20 @@ class ProfileController extends Controller
             ->appends('query', null)
             ->appends($request->all());
 
+        // Get the profile IDs
+        $profileIds = collect($profiles->items())->pluck('id');
+
+        // Fetch all user counts in one query
+        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
+            ->whereIn('profile_id', $profileIds)
+            ->groupBy('profile_id')
+            ->pluck('users_count', 'profile_id');
+
+        // Assign user counts to profiles
+        collect($profiles->items())->each(function ($profile) use ($userCounts) {
+            $profile->users_count = $userCounts[$profile->id] ?? 0;
+        });
+
         $profileResource = ProfileResource::collection($profiles);
 
         return inertia($component, [
@@ -326,6 +354,20 @@ class ProfileController extends Controller
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
+
+        // Get the profile IDs
+        $profileIds = collect($profiles->items())->pluck('id');
+
+        // Fetch all user counts in one query
+        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
+            ->whereIn('profile_id', $profileIds)
+            ->groupBy('profile_id')
+            ->pluck('users_count', 'profile_id');
+
+        // Assign user counts to profiles
+        collect($profiles->items())->each(function ($profile) use ($userCounts) {
+            $profile->users_count = $userCounts[$profile->id] ?? 0;
+        });
 
         $profileResource = ProfileResource::collection($profiles);
 
