@@ -65,6 +65,9 @@ const DistributionBlank: DistributionBlankPageProps = ({
   const [officeForTransfer, setOfficeForTransfer] = useState<Array<any>>([]);
   const [fromOffice, setFromOffice] = useState<any | null>(null);
   const [toOffice, setToOffice] = useState<any | null>(null);
+  const [guarantorIdTransfer, setGuarantorIdTransfer] = useState<number | undefined>(
+    () => guarantorBranchSelected || guarantorSelected,
+  );
 
   const handleSelect = (e: string) => {
     setSelect(Number(e));
@@ -85,7 +88,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const fetchBlankDistributed = async (office: any) => {
     const data = await axios.get(route(DistributionOfBlankUtils.link.getBlankDistributed), {
-      params: { profile_id: office.id },
+      params: { guarantor_id: guarantorIdTransfer, profile_id: office.id },
     });
     return data.data;
   };
@@ -100,30 +103,34 @@ const DistributionBlank: DistributionBlankPageProps = ({
   };
 
   const handleAddBlankCustom = async () => {
-    const blankNotUsed = await fetchBlankRange();
-    setBlankNotUsed(blankNotUsed.data);
-    setSelectedFirstBlank(blankNotUsed.data[0] ?? null);
+    const { data } = await fetchBlankRange();
+    const dataBlankNotUsed = data.reverse();
+    setBlankNotUsed(dataBlankNotUsed);
+    setSelectedLastBlank(dataBlankNotUsed[0] ?? null);
   };
 
   const handleChangeRange = (range: number) => {
     if (range === 0) {
-      setSelectedLastBlank(null);
+      setSelectedFirstBlank(null);
       return;
     }
     if (range > blankNotUsed.length) {
       return;
     }
-    // get last blankNotUsed
+    // get last
+
     let lastBlanks = blankNotUsed[range - 1];
-    setSelectedLastBlank(lastBlanks);
+    setSelectedFirstBlank(lastBlanks);
     setSelectedBlanks(blankNotUsed.slice(0, range));
   };
 
   const changeFromOffice = async (office: any) => {
     setFromOffice(office);
-    const blankNotUsed = await fetchBlankDistributed(office);
-    setBlankNotUsed(blankNotUsed.data);
-    setSelectedFirstBlank(blankNotUsed.data[0] ?? null);
+    const { data } = await fetchBlankDistributed(office);
+    const dataBlankNotUsed = data.reverse();
+
+    setBlankNotUsed(dataBlankNotUsed);
+    setSelectedLastBlank(dataBlankNotUsed[0] ?? null);
   };
 
   const addBlank = () => {
@@ -189,16 +196,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
     router.post(route(DistributionOfBlankUtils.link.storeTransfer), data, {
       preserveState: true,
       preserveScroll: true,
-      onSuccess: () => {
-        handleAddBlank(false);
-        setSelectedBlanks([]);
-        setBlankNotUsed([]);
-        setQtyBlank(0);
-        setSelectedFirstBlank(null);
-        setSelectedLastBlank(null);
-        setFromOffice(null);
-        setToOffice(null);
-      },
+      onSuccess: () => clearFormTransfer(),
     });
   };
 
@@ -225,6 +223,17 @@ const DistributionBlank: DistributionBlankPageProps = ({
       }),
       { preserveState: true, preserveScroll: true },
     );
+  };
+
+  const clearFormTransfer = () => {
+    handleAddBlank(false);
+    setSelectedBlanks([]);
+    setBlankNotUsed([]);
+    setQtyBlank(0);
+    setSelectedFirstBlank(null);
+    setSelectedLastBlank(null);
+    setFromOffice(null);
+    setToOffice(null);
   };
 
   const deleteData = (distributionOfBlank: any) => {
@@ -301,6 +310,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     <AlertDialogCancel
                       onClick={() => {
                         setQtyBlank(0);
+                        setBlankNotUsed([]);
                         setSelectedFirstBlank(null);
                         setSelectedLastBlank(null);
                       }}>
@@ -331,8 +341,19 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       Silakan masukan jumlah blangko yang akan di transfer
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <div>
+                  <div className="space-y-4">
                     <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Combobox
+                        datas={guarantors}
+                        labelKey={"name"}
+                        valueKey={"name"}
+                        defaultValue={guarantorIdTransfer}
+                        placeholder={"Pilih Asuransi"}
+                        className={"w-[210px]"}
+                        onSelect={(value) => setGuarantorIdTransfer(value.id)}
+                      />
+                    </div>
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <Combobox
                         datas={officeForTransfer}
@@ -376,9 +397,9 @@ const DistributionBlank: DistributionBlankPageProps = ({
                             setQtyBlank(qty);
                             setSelectedBlanks(blankNotUsed.slice(0, qty));
                             if (qty === 0) {
-                              setSelectedLastBlank(null);
+                              setSelectedFirstBlank(null);
                             } else {
-                              setSelectedLastBlank(blankNotUsed[qty - 1]);
+                              setSelectedFirstBlank(blankNotUsed[qty - 1]);
                             }
                           }}
                           type="number"
@@ -401,16 +422,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     </div>
                   </div>
                   <AlertDialogFooter>
-                    <AlertDialogCancel
-                      onClick={() => {
-                        setQtyBlank(0);
-                        setFromOffice(null);
-                        setToOffice(null);
-                        setSelectedFirstBlank(null);
-                        setSelectedLastBlank(null);
-                      }}>
-                      Batal
-                    </AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => clearFormTransfer()}>Batal</AlertDialogCancel>
                     <AlertDialogAction onClick={transferBlank}>Transfer</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

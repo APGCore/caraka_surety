@@ -155,6 +155,7 @@ class DistributionOfBlankController extends Controller
     public function getBlankDistributed(Request $request): \Illuminate\Http\JsonResponse
     {
         $blanks = Blank::query()
+            ->where('guarantor_id', $request->get('guarantor_id'))
             ->where('profile_id', $request->get('profile_id'))
             ->where('is_used', false)
             ->orderBy('number')
@@ -204,13 +205,13 @@ class DistributionOfBlankController extends Controller
             flashMessage('Berhasil', 'Data berhasil di transfer');
             DB::commit();
 
-            return $this->responseSuccess('Data berhasil di transfer');
+            return back();
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on DistributionOfBlankController@storeTransfer: {$e->getMessage()}");
             flashMessage('Gagal', 'Gagal transfer data', 'error');
 
-            return $this->responseError('Gagal transfer data', ['errors' => 'Gagal transfer data']);
+            return back()->withErrors(['errors' => 'Gagal transfer data']);
         }
     }
 }
