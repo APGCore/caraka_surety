@@ -37,4 +37,9 @@ class Blank extends Model
     {
         return $this->belongsTo(Profile::class, 'from_profile_id');
     }
+
+    public static function countApprovedBlanks()
+    {
+        return self::where('is_approved', true)->count();
+    }
 }

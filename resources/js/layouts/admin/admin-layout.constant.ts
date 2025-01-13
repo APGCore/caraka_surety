@@ -260,6 +260,18 @@ export const adminRoute = {
           href: route("report.invoice.index"),
           url: "#",
         },
+        {
+          title: "Produksi",
+          route_name: "report.production",
+          href: route("report.production.index"),
+          url: "#",
+        },
+        {
+          title: "Penggunaan Blangko",
+          route_name: "report.blank-usage",
+          href: route("report.blank-usage.index"),
+          url: "#",
+        },
       ],
     },
   ],
