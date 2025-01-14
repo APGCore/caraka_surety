@@ -9,7 +9,7 @@ class OptimizeController extends Controller
     public function cacheClear()
     {
         try {
-            //code...
+            // code...
             Artisan::call('cache:clear');
             Artisan::call('optimize');
             Artisan::call('route:cache');

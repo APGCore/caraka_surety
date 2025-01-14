@@ -37,10 +37,9 @@ const BlankUsagePage: BlankUsagePageProps = ({ blankUsage }) => {
   };
 
   const handleExport = () => {
-    // Update the export route based on the selected export option
     const routeName = exportOption === "unit" ? "report.blank-usage.export-unit" : "report.blank-usage.export-branch";
     window.location.href = route(routeName);
-    console.log("Export option:", exportOption); // Make sure the route is correct
+    console.log("Export option:", exportOption);
   };
 
   return (
