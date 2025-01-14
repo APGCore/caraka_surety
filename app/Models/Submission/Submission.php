@@ -52,9 +52,7 @@ class Submission extends Model
 
     public function blank(): BelongsToMany
     {
-        return self::blanks()->whereHas('blank', function ($query) {
-            $query->where('is_broken', false);
-        })->first();
+        return self::blanks()->where('is_broken', false)->first();
     }
 
     public function blanks(): BelongsToMany

@@ -62,6 +62,9 @@ const DistributionBlank: DistributionBlankPageProps = ({
   const [selectedFirstBlank, setSelectedFirstBlank] = useState<blank | null>(null);
   const [qtyBlank, setQtyBlank] = useState<number>(0);
   const [selectedLastBlank, setSelectedLastBlank] = useState<blank | null>(null);
+  const [selectedFirstBlankTransfer, setSelectedFirstBlankTransfer] = useState<blank | null>(null);
+  const [qtyBlankTransfer, setQtyBlankTransfer] = useState<number>(0);
+  const [selectedLastBlankTransfer, setSelectedLastBlankTransfer] = useState<blank | null>(null);
   const [officeForTransfer, setOfficeForTransfer] = useState<Array<any>>([]);
   const [fromOffice, setFromOffice] = useState<any | null>(null);
   const [toOffice, setToOffice] = useState<any | null>(null);
@@ -103,24 +106,23 @@ const DistributionBlank: DistributionBlankPageProps = ({
   };
 
   const handleAddBlankCustom = async () => {
-    const { data } = await fetchBlankRange();
-    const dataBlankNotUsed = data.reverse();
-    setBlankNotUsed(dataBlankNotUsed);
-    setSelectedLastBlank(dataBlankNotUsed[0] ?? null);
+    const dataBlankNotUsed = await fetchBlankRange();
+    setBlankNotUsed(dataBlankNotUsed.data);
+    setSelectedFirstBlank(dataBlankNotUsed.data[0] ?? null);
   };
 
   const handleChangeRange = (range: number) => {
+    setQtyBlank(range);
     if (range === 0) {
-      setSelectedFirstBlank(null);
+      setSelectedLastBlank(null);
       return;
     }
     if (range > blankNotUsed.length) {
       return;
     }
     // get last
-
     let lastBlanks = blankNotUsed[range - 1];
-    setSelectedFirstBlank(lastBlanks);
+    setSelectedLastBlank(lastBlanks);
     setSelectedBlanks(blankNotUsed.slice(0, range));
   };
 
@@ -130,7 +132,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
     const dataBlankNotUsed = data.reverse();
 
     setBlankNotUsed(dataBlankNotUsed);
-    setSelectedLastBlank(dataBlankNotUsed[0] ?? null);
+    setSelectedLastBlankTransfer(dataBlankNotUsed[0] ?? null);
   };
 
   const addBlank = () => {
@@ -229,9 +231,9 @@ const DistributionBlank: DistributionBlankPageProps = ({
     handleAddBlank(false);
     setSelectedBlanks([]);
     setBlankNotUsed([]);
-    setQtyBlank(0);
-    setSelectedFirstBlank(null);
-    setSelectedLastBlank(null);
+    setQtyBlankTransfer(0);
+    setSelectedFirstBlankTransfer(null);
+    setSelectedLastBlankTransfer(null);
     setFromOffice(null);
     setToOffice(null);
   };
@@ -253,8 +255,8 @@ const DistributionBlank: DistributionBlankPageProps = ({
               <AlertDialog>
                 <AlertDialogTrigger
                   className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
-                px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                  onClick={handleAddBlankCustom}
+                                    px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                  onClick={() => handleAddBlankCustom()}
                   asChild>
                   <Button size="sm" className="bg-green-800 hover:bg-green-700">
                     Bagikan Blangko
@@ -271,7 +273,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       <Label htmlFor="number">Nomor Blangko Pertama</Label>
                       <Input
                         id="number"
-                        value={selectedFirstBlank?.number}
+                        value={selectedFirstBlank?.number ?? ""}
                         type="text"
                         className="mt-1 block w-full"
                         disabled
@@ -285,7 +287,6 @@ const DistributionBlank: DistributionBlankPageProps = ({
                         value={qtyBlank}
                         onChange={async (e: any) => {
                           const qty = Number(e.target.value);
-                          setQtyBlank(qty);
                           handleChangeRange(qty);
                         }}
                         type="number"
@@ -299,7 +300,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                       <Label htmlFor="number">Nomor Blangko Terakhir</Label>
                       <Input
                         id="number"
-                        value={selectedLastBlank?.number}
+                        value={selectedLastBlank?.number ?? ""}
                         type="text"
                         className="mt-1 block w-full"
                         disabled
@@ -323,11 +324,11 @@ const DistributionBlank: DistributionBlankPageProps = ({
               <AlertDialog>
                 <AlertDialogTrigger
                   className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
-                px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                                    px-2 py-1.5 text-sm w-full rounded-sm text-start"
                   onClick={() => {
-                    setQtyBlank(0);
-                    setSelectedFirstBlank(null);
-                    setSelectedLastBlank(null);
+                    setQtyBlankTransfer(0);
+                    setSelectedFirstBlankTransfer(null);
+                    setSelectedLastBlankTransfer(null);
                   }}
                   asChild>
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-500" onClick={handleTransfer}>
@@ -380,7 +381,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                         <Label htmlFor="number">Nomor Blangko Pertama</Label>
                         <Input
                           id="number"
-                          value={selectedFirstBlank?.number}
+                          value={selectedFirstBlankTransfer?.number ?? ""}
                           type="text"
                           className="mt-1 block w-full"
                           disabled
@@ -391,15 +392,15 @@ const DistributionBlank: DistributionBlankPageProps = ({
                         <Label htmlFor="qty_blangko">jumlah</Label>
                         <Input
                           id="qty_blangko"
-                          value={qtyBlank}
+                          value={qtyBlankTransfer}
                           onChange={(e: any) => {
                             const qty = Number(e.target.value);
-                            setQtyBlank(qty);
+                            setQtyBlankTransfer(qty);
                             setSelectedBlanks(blankNotUsed.slice(0, qty));
-                            if (qty === 0) {
-                              setSelectedFirstBlank(null);
+                            if (qty == 0) {
+                              setSelectedFirstBlankTransfer(null);
                             } else {
-                              setSelectedFirstBlank(blankNotUsed[qty - 1]);
+                              setSelectedFirstBlankTransfer(blankNotUsed[qty - 1]);
                             }
                           }}
                           type="number"
@@ -413,7 +414,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
                         <Label htmlFor="number">Nomor Blangko Terakhir</Label>
                         <Input
                           id="number"
-                          value={selectedLastBlank?.number}
+                          value={selectedLastBlankTransfer?.number ?? ""}
                           type="text"
                           className="mt-1 block w-full"
                           disabled
