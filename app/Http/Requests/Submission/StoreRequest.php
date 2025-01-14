@@ -120,6 +120,7 @@ class StoreRequest extends FormRequest
             'submission.job_location_postal_code' => ['required', 'string'], // kode pos lokasi pekerjaan
             'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
+            'submission.risk_mitigation' => ['nullable', 'string'], // mitigasi risiko
 
             // scoring
             'scoring' => ['required'],

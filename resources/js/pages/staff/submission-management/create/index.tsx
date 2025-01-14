@@ -84,7 +84,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     year: dayjs().year(),
   };
 
-  const { data, setData, post, processing } = useForm<SubmissionFormProps>({
+  const dataDefault = {
     principal: {
       id: "",
       province_id: undefined,
@@ -150,15 +150,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       job_location_postal_code: "",
       source_of_fund_id: "",
       note: "",
+      risk_mitigation: "",
     },
-
     scoring: {
       id: 1,
       note: "",
       scores: [],
       min_point: 0,
     },
-  });
+  };
+  const { data, setData, post, processing } = useForm<SubmissionFormProps>(dataDefault);
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
@@ -291,12 +292,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       data.obligee.id !== "" ||
       data.obligee.telephone !== "";
 
-    console.log({
-      isHaveDataObligee,
-      isAddNewObligee,
-      obg: data.obligee,
-    });
-
     if (!isAddNewObligee) {
       if (isHaveDataObligee) {
         setData("obligee", {
@@ -326,9 +321,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedBank, setSelectedBank] = useState(null);
 
   // SCORING
-  const { scorings } = useGetScoringById({
+  const { scorings, scoring } = useGetScoringById({
     selectedScoringId: 1,
   });
+  const [lessThanValue, setLessThanValue] = useState<boolean | undefined>();
 
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">("idle");
@@ -410,93 +406,29 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         ...data.scoring,
         scores: updatedScores,
       });
+      const sumPoint = updatedScores.reduce((acc, score) => acc + Number(score.point), 0);
+      setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
     } else {
       // If no matching score is found, add a new entry
+      const scores = [
+        ...data.scoring.scores,
+        {
+          scoring_question_category_id: questionCategoryId,
+          scoring_question_id: questionId,
+          scoring_option_id: optionId,
+          point: val,
+        },
+      ];
       setData("scoring", {
         ...data.scoring,
-        scores: [
-          ...data.scoring.scores,
-          {
-            scoring_question_category_id: questionCategoryId,
-            scoring_question_id: questionId,
-            scoring_option_id: optionId,
-            point: val,
-          },
-        ],
+        scores,
       });
+      const sumPoint = scores.reduce((acc, score) => acc + Number(score.point), 0);
+      setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
     }
   };
-
   const handleReset = () => {
-    setData({
-      principal: {
-        id: "",
-        province_id: undefined,
-        regency_id: undefined,
-        district_id: undefined,
-        village: "",
-        name: "",
-        address: "",
-        postal_code: "",
-        telephone: undefined,
-        fax: "",
-        npwp: "",
-        nib: undefined,
-        siup_siujk: "",
-        head_name: "",
-        director_name: "",
-        director_position: "",
-        director_phone: undefined,
-        commissioner: "",
-        year_established: undefined,
-        last_deed: "",
-        business_fields: "",
-        documents: [],
-        ratios: [],
-      },
-      obligee: {
-        id: "",
-        name: "",
-        pic: "",
-        address: "",
-        no_ppk: "",
-        telephone: "",
-      },
-      submission: {
-        guarantor_id: "",
-        guarantor_branch_id: "",
-        product_id: undefined,
-        product_type_id: "",
-        job_group: "",
-        job_type: "",
-        obligee_id: "",
-        bank_id: "",
-        contract_doc_name: "",
-        contract_doc_number: "",
-        contract_doc_date: new Date(),
-        contract_value: "",
-        guarantee_value: "",
-        time_period: "",
-        start_date: new Date(),
-        end_date: new Date(),
-        job_name: "",
-        job_location_province_id: "",
-        job_location_regency_id: "",
-        job_location_district_id: "",
-        job_location_village: "",
-        job_location_address: "",
-        job_location_postal_code: "",
-        source_of_fund_id: "",
-        note: "",
-      },
-
-      scoring: {
-        id: 1,
-        note: "",
-        scores: [],
-        min_point: 0,
-      },
-    });
+    setData(dataDefault);
     setFormStep("principal");
     setIsAddNewObligee(false);
     setPrincipalDocs([]);
@@ -536,6 +468,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
+  console.log(lessThanValue);
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
       <form
@@ -1855,6 +1788,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       );
                     }}
                   />
+                  <Show when={lessThanValue != undefined && lessThanValue}>
+                    <div className="grid gap-1 w-full">
+                      <Label className="text-sm">Mitigasi Risiko</Label>
+                      <Textarea
+                        className="text-md"
+                        placeholder="Tulis Mitigasi Risiko"
+                        value={data?.submission?.risk_mitigation}
+                        onChange={(e) =>
+                          setData("submission", {
+                            ...data.submission,
+                            risk_mitigation: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  </Show>
                   <div className="grid gap-1 w-full">
                     <Label className="text-sm">Catatan Skoring</Label>
                     <Textarea

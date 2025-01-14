@@ -6,7 +6,7 @@ interface IUseGetScoringById {
 }
 
 const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
-  const [scorings, setScorings] = useState<
+  const [categories, setCategories] = useState<
     Array<{
       id: string;
       name: string;
@@ -22,6 +22,21 @@ const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
       }>;
     }>
   >([]);
+  const [scoring, setScoring] = useState<{
+    id: number | null;
+    min_point: number | null;
+    name: string;
+    updated_at: string;
+    created_at: string;
+    deleted_at: null;
+  }>({
+    id: null,
+    min_point: null,
+    name: "",
+    updated_at: "",
+    created_at: "",
+    deleted_at: null,
+  });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +49,8 @@ const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
         .get(route("staff-scoring-get.byId", { scoring: selectedScoringId }))
         .then((response) => {
           if (!ignore) {
-            setScorings(response.data.categories);
+            setCategories(response.data.categories);
+            setScoring(response.data);
           }
         })
         .catch((error) => {
@@ -50,7 +66,7 @@ const useGetScoringById = ({ selectedScoringId }: IUseGetScoringById) => {
     };
   }, [selectedScoringId]);
 
-  return { scorings, loading, error };
+  return { scorings: categories, scoring, loading, error };
 };
 
 export default useGetScoringById;

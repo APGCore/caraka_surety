@@ -66,6 +66,7 @@ type Submission = {
   job_location_postal_code: string;
   source_of_fund_id: string;
   note: string;
+  risk_mitigation: string;
 };
 
 type Scoring = {
