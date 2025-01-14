@@ -20,10 +20,10 @@ class BlankUsageExport implements FromCollection, WithEvents, WithHeadings
                 'number', // Nomor Blanko
                 \DB::raw("CONCAT(
                             CASE WHEN is_used = 1 THEN 'Terpakai' ELSE '' END,
-                            CASE WHEN is_used = 1 AND (is_broken = 1 OR is_approved = 1) THEN ' / ' ELSE '' END,
+                            CASE WHEN is_used = 1 AND (is_broken = 1 OR is_approved = 1) THEN ', ' ELSE '' END,
                             CASE WHEN is_broken = 1 THEN ' Rusak' ELSE '' END,
-                            CASE WHEN (is_used = 0 AND is_broken = 0) AND is_approved = 1 THEN ' / ' ELSE '' END,
-                            CASE WHEN is_approved = 1 THEN ' / Disetujui' ELSE '' END
+                            CASE WHEN (is_used = 0 AND is_broken = 0) AND is_approved = 1 THEN ', ' ELSE '' END,
+                            CASE WHEN is_approved = 1 THEN ', Disetujui' ELSE '' END
                           ) AS status"), // Gabungan status
                 \DB::raw('(SELECT name FROM profiles WHERE profiles.id = blanks.profile_id) AS kantor_cabang'), // Kantor Cabang
             ])
