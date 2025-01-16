@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Rate\StoreRequest;
 use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorRate;
 use App\Models\Guarantor\GuarantorToProductType;
-use App\Models\GuarantorRate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -24,9 +24,13 @@ class GuarantorRateController extends Controller
         $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
         $guarantorBranches = Guarantor::with(['product', 'productType'])->where('headquarter_id', $guarantor->getAttribute('id'))->get();
-        $guarantorBranchSelected = $request->get('guarantor_branch_id');
+        $guarantorBranches->unshift((object) [
+            'id' => 0,
+            'name' => 'Kantor Pusat',
+        ]);
+        $guarantorBranchSelected = (int) $request->get('guarantor_branch_id') ?: null;
         $products = $guarantor->product?->unique()->values();
-        $product = $products?->find($request->get('product_id')) ?? $products?->first();
+        $product = $products?->firstWhere('id', $request->get('product_id')) ?? $products?->first();
 
         $guarantorSelected = $guarantor->id ?? null;
         $productSelected = $product->id ?? null;
@@ -81,16 +85,17 @@ class GuarantorRateController extends Controller
     {
         $request->validate([
             'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
+            'guarantor_branch_id' => 'nullable|exists:'.Guarantor::class.',id,deleted_at,NULL',
             'guarantor_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
         ]);
         $guarantorId = $request->get('guarantor_id');
-        $guarantorProductTypeId = $request->get('guarantor_product_type_id');
-        $guarantor = Guarantor::query()->find($guarantorId);
-        $guarantorToProductType = GuarantorToProductType::query()->find($guarantorProductTypeId);
+        $guarantorBranchId = $request->get('guarantor_branch_id');
+        $guarantorToProductTypeId = $request->get('guarantor_product_type_id');
         $guarantorRate = GuarantorRate::query()
             ->where([
                 'guarantor_id' => $guarantorId,
-                'guarantor_to_product_type_id' => $guarantorProductTypeId,
+                'guarantor_branch_id' => $guarantorBranchId,
+                'guarantor_to_product_type_id' => $guarantorToProductTypeId,
             ])->first();
         $component = $request->path().'/index';
 
@@ -98,8 +103,9 @@ class GuarantorRateController extends Controller
             'page_settings' => [
                 'title' => 'Tarif Asuransi',
             ],
-            'guarantor' => $guarantor,
-            'guarantorToProductType' => $guarantorToProductType,
+            'guarantorId' => $guarantorId,
+            'guarantorBranchId' => $guarantorBranchId,
+            'guarantorToProductTypeId' => $guarantorToProductTypeId,
             'guarantorRate' => $guarantorRate,
         ]);
     }
@@ -114,11 +120,9 @@ class GuarantorRateController extends Controller
         try {
             DB::beginTransaction();
             $data = [
-                'minimum_bill' => $this->currencyConvert($requestValid['minimum_bill']),
                 'minimum_payment' => $this->currencyConvert($requestValid['minimum_payment']),
-                'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
+                'pay_rate' => $requestValid['pay_rate'],
                 'payment_administration' => $this->currencyConvert($requestValid['payment_administration']),
-                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
                 'stamp_duty' => $this->currencyConvert($requestValid['stamp_duty']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
@@ -128,6 +132,7 @@ class GuarantorRateController extends Controller
                 ->updateOrCreate(
                     [
                         'guarantor_id' => $requestValid['guarantor_id'],
+                        'guarantor_branch_id' => $requestValid['guarantor_branch_id'] ?? null,
                         'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
                     ],
                     $data

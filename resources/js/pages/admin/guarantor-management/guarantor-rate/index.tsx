@@ -101,9 +101,10 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           datas={guarantorBranches}
           labelKey={"name"}
           valueKey={"name"}
-          defaultValue={guarantorBranchSelected}
-          placeholder={"Pusat"}
+          defaultValueId={guarantorBranchSelected}
+          placeholder={"Pilih Cabang Asuransi"}
           className={"min-w-[160px]"}
+          isSelectFirst={true}
           onSelect={(value) => handleSelectGuarantorBranch(value.id)}
         />
         <Combobox
@@ -131,7 +132,8 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
         </Select>
       </div>
       <GuarantorRateDatatable
-        guarantorId={guarantorBranchSelected || guarantorSelected}
+        guarantorId={guarantorSelected}
+        guarantorBranchId={guarantorBranchSelected}
         guarantorProductTypes={guarantorProductTypes}
       />
     </main>

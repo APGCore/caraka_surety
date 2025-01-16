@@ -24,6 +24,7 @@ export interface ComboboxProps<T> {
   shortValue?: boolean;
   isWidthSameWithInput?: boolean;
   checkedWithCondition?: boolean;
+  isSelectFirst?: boolean;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -35,6 +36,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   reset = false,
   shortValue = false,
   isWidthSameWithInput = true,
+  isSelectFirst = false,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -79,7 +81,9 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
           className={cn("w-full justify-between px-2 h-10", props.className)}>
           {(() => {
             let label: string = labelButtonPlaceholder;
-            if (defaultValueId) {
+            if (isSelectFirst && datas.length > 0) {
+              label = datas[0][labelKey] ?? labelButtonPlaceholder;
+            } else if (defaultValueId) {
               label = datas.find((item) => item["id"] === defaultValueId)?.[labelKey] ?? labelButtonPlaceholder;
             } else if (defaultValue) {
               label = datas.find((item) => item["id"] === defaultValue)?.[labelKey] ?? labelButtonPlaceholder;

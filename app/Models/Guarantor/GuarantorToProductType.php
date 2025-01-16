@@ -3,7 +3,6 @@
 namespace App\Models\Guarantor;
 
 use App\Models\Document\DocumentFormat;
-use App\Models\GuarantorRate;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

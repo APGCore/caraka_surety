@@ -112,10 +112,58 @@ class GuarantorToProductTypeSeeder extends Seeder
                 'job_type' => JobType::UNCONDITIONAL,
                 'full_name' => 'Jaminan Pelaksanaan Non Konstruksi',
             ],
+            [
+                'guarantor_id' => 3,
+                'product_id' => 1,
+                'product_type_id' => 1,
+                'no' => 1,
+                'code_product' => '14',
+                'code' => '01',
+                'name' => 'Jaminan Penawaran',
+                'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
+                'full_name' => 'Jaminan Penawaran Konstruksi',
+            ],
+            [
+                'guarantor_id' => 3,
+                'product_id' => 1,
+                'product_type_id' => 1,
+                'no' => 2,
+                'code_product' => '14',
+                'code' => '02',
+                'name' => 'Jaminan Pelaksanaan',
+                'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
+                'full_name' => 'Jaminan Pelaksanaan Konstruksi',
+            ],
+            [
+                'guarantor_id' => 3,
+                'product_id' => 1,
+                'product_type_id' => 1,
+                'no' => 3,
+                'code_product' => '14',
+                'code' => '03',
+                'name' => 'Jaminan Uang Muka',
+                'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
+                'full_name' => 'Jaminan Uang Muka Konstruksi',
+            ],
+            [
+                'guarantor_id' => 3,
+                'product_id' => 1,
+                'product_type_id' => 1,
+                'no' => 4,
+                'code_product' => '14',
+                'code' => '04',
+                'name' => 'Jaminan Pemeliharaan',
+                'job_group' => JobGroup::KONTRUKSI,
+                'job_type' => JobType::UNCONDITIONAL,
+                'full_name' => 'Jaminan Pemeliharaan Konstruksi',
+            ],
         ];
 
         foreach ($dataMany as $data) {
-            GuarantorToProductType::create($data);
+            GuarantorToProductType::query()->create($data);
         }
     }
 }

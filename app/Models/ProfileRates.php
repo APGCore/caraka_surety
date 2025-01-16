@@ -4,15 +4,14 @@ namespace App\Models;
 
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class GuarantorRate extends Model
+class ProfileRates extends Model
 {
-    use HasFactory;
-    use Searchable;
+    use SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -21,7 +20,17 @@ class GuarantorRate extends Model
         'deleted_at',
     ];
 
+    public function profile(): BelongsTo
+    {
+        return $this->belongsTo(Profile::class, 'profile_id');
+    }
+
     public function guarantor(): HasOne
+    {
+        return $this->hasOne(Guarantor::class);
+    }
+
+    public function guarantorBranch(): HasOne
     {
         return $this->hasOne(Guarantor::class);
     }

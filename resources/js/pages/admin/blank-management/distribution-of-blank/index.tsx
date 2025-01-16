@@ -545,84 +545,90 @@ const DistributionBlank: DistributionBlankPageProps = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {blanks.length > 0 ? (
-              blanks.map((blank: any, index: number) => (
-                <TableRow key={blank.id}>
-                  {isAddBlank && (
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedBlanks.some((item) => item.id === blank.id)}
-                        onCheckedChange={(value) => {
-                          if (value) {
-                            setSelectedBlanks([...selectedBlanks, blank]);
-                          } else {
-                            setSelectedBlanks(selectedBlanks.filter((item) => item.id !== blank.id));
-                          }
-                        }}
-                        aria-label={`Select row ${index + 1}`}
-                      />
-                    </TableCell>
-                  )}
-                  <TableCell>{meta.from + index}</TableCell>
-                  <TableCell>{blank.number}</TableCell>
-                  <TableCell className="space-x-1">
-                    <Show when={blank.is_used}>
-                      <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
-                    </Show>
-                    <Show when={!blank.is_used}>
-                      <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
-                    </Show>
-                    <Show when={blank.is_broken}>
-                      <Badge className="text-white bg-red-400">Rusak</Badge>
-                    </Show>
-                    <Show when={!blank.is_broken}>
-                      <Badge className="text-white bg-green-400">Baik</Badge>
-                    </Show>
-                    <Show when={blank.is_approved}>
-                      <Badge className="text-white bg-green-400">Sudah Diterima</Badge>
-                    </Show>
-                    <Show when={!blank.is_approved}>
-                      <Badge className="text-white bg-yellow-400">Belum Diterima</Badge>
-                    </Show>
-                    <Show when={blank.from_profile_id}>
-                      <Badge className="text-white bg-blue-400">Di Transfer Dari {blank.from_profile?.name}</Badge>
-                    </Show>
-                  </TableCell>
-                  <TableCell>{blank.created_at}</TableCell>
-                  <TableCell className="text-right">
-                    <AlertDialog>
-                      <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm rounded-sm text-start">
-                        Delete
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tindakan ini akan menghapus data blangko dari {blank?.profile?.name}?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Batal</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => {
-                              deleteData(blank);
+            <Show when={blanks.length > 0}>
+              <RenderList
+                of={blanks}
+                render={(blank: any, index: number) => {
+                  return (
+                    <TableRow key={blank.id}>
+                      {isAddBlank && (
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedBlanks.some((item) => item.id === blank.id)}
+                            onCheckedChange={(value) => {
+                              if (value) {
+                                setSelectedBlanks([...selectedBlanks, blank]);
+                              } else {
+                                setSelectedBlanks(selectedBlanks.filter((item) => item.id !== blank.id));
+                              }
                             }}
-                            className={buttonVariants({ variant: "destructive" })}>
-                            Lanjutkan Hapus
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
+                            aria-label={`Select row ${index + 1}`}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>{meta.from + index}</TableCell>
+                      <TableCell>{blank.number}</TableCell>
+                      <TableCell className="space-x-1">
+                        <Show when={blank.is_used}>
+                          <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
+                        </Show>
+                        <Show when={!blank.is_used}>
+                          <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
+                        </Show>
+                        <Show when={blank.is_broken}>
+                          <Badge className="text-white bg-red-400">Rusak</Badge>
+                        </Show>
+                        <Show when={!blank.is_broken}>
+                          <Badge className="text-white bg-green-400">Baik</Badge>
+                        </Show>
+                        <Show when={blank.is_approved}>
+                          <Badge className="text-white bg-green-400">Sudah Diterima</Badge>
+                        </Show>
+                        <Show when={!blank.is_approved}>
+                          <Badge className="text-white bg-yellow-400">Belum Diterima</Badge>
+                        </Show>
+                        <Show when={blank.from_profile_id}>
+                          <Badge className="text-white bg-blue-400">Di Transfer Dari {blank.from_profile?.name}</Badge>
+                        </Show>
+                      </TableCell>
+                      <TableCell>{blank.created_at}</TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm rounded-sm text-start">
+                            Delete
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tindakan ini akan menghapus data blangko dari {blank?.profile?.name}?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  deleteData(blank);
+                                }}
+                                className={buttonVariants({ variant: "destructive" })}>
+                                Lanjutkan Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }}
+              />
+            </Show>
+            <Show when={blanks.length < 0}>
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>
-            )}
+            </Show>
           </TableBody>
         </Table>
       </div>

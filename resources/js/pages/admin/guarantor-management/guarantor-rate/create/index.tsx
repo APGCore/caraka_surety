@@ -12,7 +12,11 @@ const GuarantorRateCreate: GuarantorRateCreatePageProps = ({ guarantor, guaranto
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormGuarantorRate guarantor={guarantor} guarantorToProductType={guarantorToProductType} rate={guarantorRate} />
+        <FormGuarantorRate
+          guarantorId={guarantor}
+          guarantorToProductTypeId={guarantorToProductType}
+          rate={guarantorRate}
+        />
       </CardContent>
     </Card>
   );

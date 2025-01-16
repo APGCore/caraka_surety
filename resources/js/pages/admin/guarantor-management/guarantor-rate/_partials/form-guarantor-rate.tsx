@@ -9,37 +9,35 @@ import { LoaderCircle } from "lucide-react";
 import React from "react";
 
 interface FormEmployeeLimitsProps {
-  guarantor?: any;
-  guarantorToProductType: any;
+  guarantorId: number;
+  guarantorBranchId?: number;
+  guarantorToProductTypeId: number;
   rate?: any;
 }
 
-const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guarantorToProductType, rate }) => {
+const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({
+  guarantorId,
+  guarantorBranchId,
+  guarantorToProductTypeId,
+  rate,
+}) => {
   const { data, setData, post, errors, processing } = useForm<{
-    guarantor_id?: number;
+    guarantor_id: number;
+    guarantor_branch_id?: number;
     guarantor_to_product_type_id: number;
-    minimum_bill?: string;
     minimum_payment?: string;
-    selling_rate?: number;
     pay_rate?: number;
-    sales_administration?: string;
     payment_administration?: string;
-    management_fee?: number;
-    minimum_management_fee?: string;
     stamp_duty?: string;
     broken_rate?: string;
     revised_rate?: string;
   }>({
-    guarantor_id: guarantor?.id,
-    guarantor_to_product_type_id: guarantorToProductType.id,
-    minimum_bill: rate?.minimum_bill?.toString() ?? "",
+    guarantor_id: guarantorId,
+    guarantor_branch_id: guarantorBranchId,
+    guarantor_to_product_type_id: guarantorToProductTypeId,
     minimum_payment: rate?.minimum_payment?.toString() ?? "",
-    selling_rate: rate?.selling_rate ?? "",
     pay_rate: rate?.pay_rate ?? "",
-    sales_administration: rate?.sales_administration?.toString() ?? "",
     payment_administration: rate?.payment_administration?.toString() ?? "",
-    management_fee: rate?.management_fee ?? "",
-    minimum_management_fee: rate?.minimum_management_fee?.toString() ?? "",
     stamp_duty: rate?.stamp_duty?.toString() ?? "",
     broken_rate: rate?.broken_rate?.toString() ?? "",
     revised_rate: rate?.revised_rate?.toString() ?? "",
@@ -64,8 +62,9 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
       }}
       id="guarantor-rate-form">
       <div className="flex justify-center w-full mx-auto gap-16">
-        <div className="p-0">
-          {/* <div className="space-y-2">
+        <Show when={!guarantorBranchId}>
+          <div className="p-0">
+            {/* <div className="space-y-2">
             <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
               Minimum Tagihan
             </label>
@@ -79,7 +78,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
             <InputError message={errors?.minimum_bill} />
           </div> */}
-          <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="minimum_payment" className="block text-sm font-medium text-gray-700">
                 Minimum Charge
@@ -94,8 +92,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
               <InputError message={errors?.minimum_payment} />
             </div>
-          </Show>
-          {/* <div className="space-y-2">
+            {/* <div className="space-y-2">
             <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">
               Tarif Jual
             </label>
@@ -114,7 +111,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
             <InputError message={errors?.selling_rate} />
           </div> */}
-          <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="pay_rate" className="block text-sm font-medium text-gray-700">
                 Premi Bayar
@@ -134,8 +130,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
               <InputError message={errors?.pay_rate} />
             </div>
-          </Show>
-          {/* <div className="space-y-2">
+            {/* <div className="space-y-2">
             <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">
               Administrasi Penjualan
             </label>
@@ -148,7 +143,6 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
             <InputError message={errors?.sales_administration} />
           </div> */}
-          <Show when={!guarantor.headquarter_id}>
             <div className="space-y-2">
               <label htmlFor="payment_administration" className="block text-sm font-medium text-gray-700">
                 Administrasi Asuransi
@@ -162,8 +156,8 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({ guarantor, guara
 
               <InputError message={errors?.payment_administration} />
             </div>
-          </Show>
-        </div>
+          </div>
+        </Show>
         <div className="p-0">
           {/* <div className="space-y-2">
             <label htmlFor="management_fee" className="block text-sm font-medium text-gray-700">

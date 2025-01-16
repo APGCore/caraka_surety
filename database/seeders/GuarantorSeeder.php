@@ -55,10 +55,40 @@ class GuarantorSeeder extends Seeder
                 'fax' => '0211234567',
                 'pic' => 'Frenkky F Karuniadi',
             ],
+            [
+                'headquarter_id' => 3,
+                'province_id' => 8,
+                'regency_id' => 150,
+                'district_id' => 314,
+                'village' => 'Rawa Laut',
+                'postal_code' => '35118',
+                'code' => '04',
+                'name' => 'PT. Asuransi Jasa Tania KC Lampung',
+                'email' => 'lampung@jastan.co.id',
+                'address' => 'Jl. Jend. Sudirman No. 82',
+                'telephone' => '081215003232',
+                'fax' => '-',
+                'pic' => 'Budy Santoso',
+            ],
+            [
+                'headquarter_id' => 3,
+                'province_id' => 12,
+                'regency_id' => 72,
+                'district_id' => 19,
+                'village' => 'Bandung',
+                'postal_code' => '1245555',
+                'code' => '05',
+                'name' => 'PT. Asuransi Jasa Tania KC Bandung',
+                'email' => 'bandung@jastan.co.id',
+                'address' => 'Bandung',
+                'telephone' => '08123456789',
+                'fax' => 'da',
+                'pic' => 'Drs. Erwin',
+            ],
         ];
 
         foreach ($datas as $data) {
-            Guarantor::create($data);
+            Guarantor::query()->create($data);
         }
     }
 }
