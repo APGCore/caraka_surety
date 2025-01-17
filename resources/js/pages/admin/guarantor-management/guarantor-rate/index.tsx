@@ -104,7 +104,7 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           defaultValueId={guarantorBranchSelected}
           placeholder={"Pilih Cabang Asuransi"}
           className={"min-w-[160px]"}
-          isSelectFirst={true}
+          isSelectFirst={!guarantorBranchSelected}
           onSelect={(value) => handleSelectGuarantorBranch(value.id)}
         />
         <Combobox

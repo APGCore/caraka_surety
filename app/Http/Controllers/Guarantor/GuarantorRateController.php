@@ -115,10 +115,9 @@ class GuarantorRateController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $requestValid = $request->validated();
-
         try {
             DB::beginTransaction();
+            $requestValid = $request->validated();
             $data = [
                 'minimum_payment' => $this->currencyConvert($requestValid['minimum_payment']),
                 'pay_rate' => $requestValid['pay_rate'],

@@ -1,8 +1,9 @@
 import React from "react";
 
 interface GuarantorRateCreateProps {
-  guarantor: any;
-  guarantorToProductType: any;
+  guarantorId: any;
+  guarantorBranchId: any;
+  guarantorToProductTypeId: any;
   guarantorRate: any;
 }
 

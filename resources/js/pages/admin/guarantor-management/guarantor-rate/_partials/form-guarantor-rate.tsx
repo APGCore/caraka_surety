@@ -8,23 +8,23 @@ import { useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
-interface FormEmployeeLimitsProps {
-  guarantorId: number;
-  guarantorBranchId?: number;
-  guarantorToProductTypeId: number;
+interface FormGuarantorRateProps {
+  guarantorId: number | string;
+  guarantorBranchId?: number | string | null;
+  guarantorToProductTypeId: number | string;
   rate?: any;
 }
 
-const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({
+const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
   guarantorId,
   guarantorBranchId,
   guarantorToProductTypeId,
   rate,
 }) => {
   const { data, setData, post, errors, processing } = useForm<{
-    guarantor_id: number;
-    guarantor_branch_id?: number;
-    guarantor_to_product_type_id: number;
+    guarantor_id: number | string;
+    guarantor_branch_id?: number | string | null;
+    guarantor_to_product_type_id: number | string;
     minimum_payment?: string;
     pay_rate?: number;
     payment_administration?: string;
@@ -33,7 +33,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({
     revised_rate?: string;
   }>({
     guarantor_id: guarantorId,
-    guarantor_branch_id: guarantorBranchId,
+    guarantor_branch_id: guarantorBranchId ?? undefined,
     guarantor_to_product_type_id: guarantorToProductTypeId,
     minimum_payment: rate?.minimum_payment?.toString() ?? "",
     pay_rate: rate?.pay_rate ?? "",
@@ -53,7 +53,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({
   const handleBack = () => {
     window.history.back();
   };
-
+  console.log(guarantorId, guarantorBranchId, guarantorToProductTypeId, rate);
   return (
     <form
       onSubmit={(e) => {
@@ -62,7 +62,7 @@ const FormGuarantorRate: React.FC<FormEmployeeLimitsProps> = ({
       }}
       id="guarantor-rate-form">
       <div className="flex justify-center w-full mx-auto gap-16">
-        <Show when={!guarantorBranchId}>
+        <Show when={guarantorBranchId == null}>
           <div className="p-0">
             {/* <div className="space-y-2">
             <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
