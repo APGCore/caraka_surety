@@ -41,7 +41,7 @@ class DistributionOfBlankController extends Controller
             default => OfficeType::HEADQUARTER->value,
         };
         $offices = Profile::query()->where('office_type', $officeType)->get();
-        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->id);
+        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->getAttribute('id'));
         $isAddBlank = $request->get('is_add_blank') === 'true';
 
         $blanks = $offices->isNotEmpty()

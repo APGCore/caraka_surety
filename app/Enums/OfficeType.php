@@ -18,4 +18,29 @@ enum OfficeType: string
             self::MARKETING_PARTNER->value,
         ];
     }
+
+    public static function getName(): array
+    {
+        return ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+    }
+
+    public static function getNameOfValue(): array
+    {
+        return [
+            self::HEADQUARTER->value => self::getName()[0],
+            self::BRANCH->value => self::getName()[1],
+            self::AGENT_PARTNER->value => self::getName()[2],
+            self::MARKETING_PARTNER->value => self::getName()[3],
+        ];
+    }
+
+    public static function getValueOfName(): array
+    {
+        return [
+            self::getName()[0] => self::HEADQUARTER->value,
+            self::getName()[1] => self::BRANCH->value,
+            self::getName()[2] => self::AGENT_PARTNER->value,
+            self::getName()[3] => self::MARKETING_PARTNER->value,
+        ];
+    }
 }

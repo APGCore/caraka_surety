@@ -83,6 +83,12 @@ export const adminRoute = {
           href: route("employee.index"),
           url: "#",
         },
+        {
+          title: "Tarif Unit Bisnis",
+          route_name: "office-rate",
+          href: route("office-rate.index"),
+          url: "#",
+        },
       ],
     },
     {

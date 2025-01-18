@@ -1,0 +1,48 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import AdminLayout from "@/layouts/admin";
+import FormOfficeRate from "@/pages/admin/office-management/office-rate/_partials/form-office-rate";
+import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
+import { OfficeRateCreatePageProps } from "@/pages/admin/office-management/office-rate/create/office-rate-create.type";
+
+const OfficeRateCreate: OfficeRateCreatePageProps = ({
+  profileId,
+  guarantorId,
+  guarantorBranchId,
+  guarantorToProductTypeId,
+  guarantorRate,
+}) => {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductTypeId?.full_name}</CardTitle>
+        <CardDescription>Silakan Isi Data Di bawah</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormOfficeRate
+          profileId={profileId}
+          guarantorId={guarantorId}
+          guarantorBranchId={guarantorBranchId}
+          guarantorToProductTypeId={guarantorToProductTypeId}
+          rate={guarantorRate}
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default OfficeRateCreate;
+
+OfficeRateCreate.layout = (page: any) => {
+  const pagePropsData = page.props;
+
+  return (
+    <AdminLayout user={pagePropsData?.auth?.user}>
+      <OfficeRateHeader
+        title={pagePropsData?.page_settings?.title}
+        profile={pagePropsData?.profile}
+        guarantor={pagePropsData?.guarantor}
+      />
+      {page}
+    </AdminLayout>
+  );
+};

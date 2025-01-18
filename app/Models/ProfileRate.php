@@ -7,17 +7,13 @@ use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProfileRates extends Model
+class ProfileRate extends Model
 {
-    use SoftDeletes;
-
     protected $guarded = [
         'id',
         'created_at',
         'updated_at',
-        'deleted_at',
     ];
 
     public function profile(): BelongsTo

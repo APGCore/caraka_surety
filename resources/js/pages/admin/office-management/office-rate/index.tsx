@@ -2,18 +2,23 @@ import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import Show from "@/components/common/show";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
-import GuarantorRateDatatable from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
-import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import OfficeRateDatatable from "@/pages/admin/office-management/office-rate/_partials/office-rate-datatable";
+import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
+import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
-import { GuarantorRatePageProps } from "./guarantor-rate.type";
+import { OfficeRatePageProps } from "./office-rate.type";
 
-const GuarantorRatePage: GuarantorRatePageProps = ({
+const OfficeRatePage: OfficeRatePageProps = ({
+  offices,
+  officeTypes,
+  officeSelected,
+  officeTypeSelected,
   guarantors,
   guarantorSelected,
   guarantorBranches,
@@ -36,25 +41,44 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
     getData(select, search);
   };
 
+  const handleSelectOfficeType = (officeType: string) => {
+    getData(select, search, officeType, undefined, guarantorSelected, guarantorBranchSelected, productSelected);
+  };
+
+  const handleSelectOffice = (officeId: number) => {
+    getData(select, search, officeTypeSelected, officeId, guarantorSelected, guarantorBranchSelected, productSelected);
+  };
+
   const handleSelectGuarantor = (guarantorId: number) => {
-    getData(select, search, guarantorId);
+    getData(select, search, officeTypeSelected, officeSelected, guarantorId);
   };
 
   const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
-    getData(select, search, guarantorSelected, guarantorBranchId);
+    getData(select, search, officeTypeSelected, officeSelected, guarantorSelected, guarantorBranchId);
   };
 
   const handleSelectProduct = (productId: number) => {
-    getData(select, search, guarantorSelected, guarantorBranchSelected, productId);
+    getData(select, search, officeTypeSelected, officeSelected, guarantorSelected, guarantorBranchSelected, productId);
   };
 
   const handleSelectJobGroup = (jobGroup: string) => {
-    getData(select, search, guarantorSelected, guarantorBranchSelected, productSelected, jobGroup);
+    getData(
+      select,
+      search,
+      officeTypeSelected,
+      officeSelected,
+      guarantorSelected,
+      guarantorBranchSelected,
+      productSelected,
+      jobGroup,
+    );
   };
 
   const getData = (
     per_page: string,
     search: string,
+    officeType?: string,
+    officeId?: number,
     guarantorId?: number,
     guarantorBranchId?: number,
     productId?: number,
@@ -62,10 +86,12 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
     jobType?: string,
   ) => {
     router.get(
-      route(GuarantorRateUtils.link.index),
+      route(OfficeRateUtils.link.index),
       pickBy({
         per_page,
         search,
+        office_type: officeType,
+        office_id: officeId,
         guarantor_id: guarantorId,
         guarantor_branch_id: guarantorBranchId,
         product_id: productId,
@@ -88,6 +114,30 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
         />
       </div>
       <div className="flex gap-x-3">
+        <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
+          <SelectTrigger className="min-w-[160px]">
+            <SelectValue placeholder="Pilih " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <RenderList
+                of={officeTypes}
+                render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
+              />
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <Show when={officeTypeSelected !== officeTypes[0]}>
+          <Combobox
+            datas={offices}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={officeSelected}
+            placeholder={"Pilih Kantor"}
+            className={"min-w-[160px]"}
+            onSelect={(value) => handleSelectOffice(value.id)}
+          />
+        </Show>
         <Combobox
           datas={guarantors}
           labelKey={"name"}
@@ -107,6 +157,8 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           isSelectFirst={!guarantorBranchSelected}
           onSelect={(value) => handleSelectGuarantorBranch(value.id)}
         />
+      </div>
+      <div className="flex gap-x-3">
         <Combobox
           datas={products}
           labelKey={"name"}
@@ -131,7 +183,8 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           </SelectContent>
         </Select>
       </div>
-      <GuarantorRateDatatable
+      <OfficeRateDatatable
+        profileId={officeSelected}
         guarantorId={guarantorSelected}
         guarantorBranchId={guarantorBranchSelected}
         guarantorProductTypes={guarantorProductTypes}
@@ -140,14 +193,14 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
   );
 };
 
-export default GuarantorRatePage;
+export default OfficeRatePage;
 
-GuarantorRatePage.layout = (page: any) => {
+OfficeRatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <AdminLayout user={pagePropsData?.auth?.user}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} />
+      <OfficeRateHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </AdminLayout>
   );

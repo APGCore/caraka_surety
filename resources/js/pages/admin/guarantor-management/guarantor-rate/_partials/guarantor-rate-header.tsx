@@ -5,7 +5,7 @@ import React from "react";
 
 interface GuarantorRateHeaderProps {
   title: string;
-  guarantor: any;
+  guarantor?: any;
 }
 
 const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, guarantor }) => {
@@ -15,7 +15,7 @@ const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, guaran
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(GuarantorRateUtils.link.index, guarantor?.id)}>
+            <BreadcrumbLink href={route(GuarantorRateUtils.link.index, { guarantor_id: guarantor?.id })}>
               Kelola {title ?? "Tarif Asuransi"}
             </BreadcrumbLink>
           </BreadcrumbItem>

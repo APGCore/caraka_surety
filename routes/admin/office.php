@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Office\EmployeeController;
+use App\Http\Controllers\Office\OfficeRateController;
 use App\Http\Controllers\Office\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,5 +43,12 @@ Route::prefix('office-management')->group(function () {
             Route::get('edit/{employee}', 'edit')->name('edit');
             Route::patch('{employee}', 'update')->name('update');
             Route::delete('{employee}', 'destroy')->name('destroy');
+        });
+
+    Route::controller(OfficeRateController::class)->prefix('office-rate')
+        ->name('office-rate.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'store')->name('store');
+            Route::get('create', 'create')->name('create');
         });
 });

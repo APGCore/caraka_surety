@@ -4,7 +4,7 @@ import Show from "@/components/common/show";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormGuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate.utils";
-import { useForm } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
@@ -51,9 +51,13 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
   };
 
   const handleBack = () => {
-    window.history.back();
+    router.get(
+      route(FormGuarantorRateUtils.index.route, {
+        guarantor_id: guarantorId,
+        guarantor_branch_id: guarantorBranchId ?? undefined,
+      }),
+    );
   };
-  console.log(guarantorId, guarantorBranchId, guarantorToProductTypeId, rate);
   return (
     <form
       onSubmit={(e) => {
