@@ -68,20 +68,6 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
       <div className="flex justify-center w-full mx-auto gap-16">
         <Show when={guarantorBranchId == null}>
           <div className="p-0">
-            {/* <div className="space-y-2">
-            <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
-              Minimum Tagihan
-            </label>
-
-            <div className="flex items-center space-x-4">
-              <InputCurrency
-                value={data.minimum_bill?.toString() ?? ""}
-                onChange={(e) => setData({ ...data, minimum_bill: e })}
-              />
-            </div>
-
-            <InputError message={errors?.minimum_bill} />
-          </div> */}
             <div className="space-y-2">
               <label htmlFor="minimum_payment" className="block text-sm font-medium text-gray-700">
                 Minimum Charge
@@ -96,25 +82,6 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
 
               <InputError message={errors?.minimum_payment} />
             </div>
-            {/* <div className="space-y-2">
-            <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">
-              Tarif Jual
-            </label>
-            <div className="flex items-center space-x-4">
-              <Input
-                type="number"
-                id="selling_rate"
-                name="selling_rate"
-                value={data.selling_rate}
-                step="0.00001"
-                min="0"
-                onChange={(e) => setData({ ...data, selling_rate: Number(e.currentTarget.value) })}
-              />
-              <span className="text-gray-900 text-sm">%</span>
-            </div>
-
-            <InputError message={errors?.selling_rate} />
-          </div> */}
             <div className="space-y-2">
               <label htmlFor="pay_rate" className="block text-sm font-medium text-gray-700">
                 Premi Bayar
@@ -134,19 +101,6 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
 
               <InputError message={errors?.pay_rate} />
             </div>
-            {/* <div className="space-y-2">
-            <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">
-              Administrasi Penjualan
-            </label>
-            <div className="flex items-center space-x-4">
-              <InputCurrency
-                value={data.sales_administration?.toString() ?? ""}
-                onChange={(e) => setData({ ...data, sales_administration: e })}
-              />
-            </div>
-
-            <InputError message={errors?.sales_administration} />
-          </div> */}
             <div className="space-y-2">
               <label htmlFor="payment_administration" className="block text-sm font-medium text-gray-700">
                 Administrasi Asuransi
@@ -163,38 +117,6 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
           </div>
         </Show>
         <div className="p-0">
-          {/* <div className="space-y-2">
-            <label htmlFor="management_fee" className="block text-sm font-medium text-gray-700">
-              Management Fee
-            </label>
-            <div className="flex items-center space-x-4">
-              <Input
-                type="number"
-                id="management_fee"
-                name="management_fee"
-                value={data.management_fee}
-                step="0.00001"
-                min="0"
-                onChange={(e) => setData({ ...data, management_fee: Number(e.currentTarget.value) })}
-              />
-              <span className="text-gray-900 text-sm">%</span>
-            </div>
-
-            <InputError message={errors?.management_fee} />
-          </div> */}
-          {/* <div className="space-y-2">
-            <label htmlFor="minimum_management_fee" className="block text-sm font-medium text-gray-700">
-              Minimum Management Fee
-            </label>
-            <div className="flex items-center space-x-4">
-              <InputCurrency
-                value={data.minimum_management_fee?.toString() ?? ""}
-                onChange={(e) => setData({ ...data, minimum_management_fee: e })}
-              />
-            </div>
-
-            <InputError message={errors?.minimum_management_fee} />
-          </div> */}
           <div className="space-y-2">
             <label htmlFor="stamp_duty" className="block text-sm font-medium text-gray-700">
               Biaya Materai
