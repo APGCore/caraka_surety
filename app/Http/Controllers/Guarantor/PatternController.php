@@ -45,6 +45,6 @@ class PatternController extends Controller
 
         $data = convertPattern($request->get('content'), $contentTemplate['KA'], $contentTemplate['KC'], $contentTemplate['NOA'], $contentTemplate['KP'], $contentTemplate['KB']);
 
-        return $this->responseSuccess('Berhasil Convert Pattern', $data['result']);
+        return $this->responseSuccess('Berhasil Convert Pattern', $data['value']);
     }
 }

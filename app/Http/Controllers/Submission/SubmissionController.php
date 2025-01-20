@@ -12,11 +12,11 @@ use App\Models\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
-use App\Models\Sequence;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionBlank;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
+use App\Traits\GeneratePattern;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
+    use GeneratePattern;
+
     /**
      * Display a listing of the resource.
      */
@@ -162,6 +164,7 @@ class SubmissionController extends Controller
                 ->with(['pattern', 'branch'])
                 ->find($submission['guarantor_id']);
 
+            $guarantorBranchId = $submission['guarantor_branch_id'];
             $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
                 ->where('product_id', $submission['product_id'])
                 ->where('product_type_id', $submission['product_type_id'])
@@ -169,38 +172,7 @@ class SubmissionController extends Controller
                 ->where('job_type', $submission['job_type'])
                 ->first();
 
-            $guarantorHeadId = $guarantorHead->getAttribute('id');
-            $ka = $guarantorHead->code;
-            $kc = $guarantorHead->branch->where('id', $submission['guarantor_branch_id'])->first()->code;
-            $kp = $guarantorToProductType->code;
-            $kb = $blank->number;
-            $noa = $profile->code;
-
-            $guarantorPattern = $guarantorHead->pattern;
-            $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
-            $sequence = Sequence::query()->where('guarantor_id', $guarantorHeadId)->orderByDesc('current')->get();
-            $seqNodLast = $sequence->where('name', 'NOD')->first();
-            $seqNomLast = $sequence->where('name', 'NOM')->first();
-            $seqNoyLast = $sequence->where('name', 'NOY')->first();
-            $nod = (string) $seqNodLast ? $seqNodLast->current + 1 : 1;
-            $nom = (string) $seqNomLast ? $seqNomLast->current + 1 : 1;
-            $noy = (string) $seqNoyLast ? $seqNoyLast->current + 1 : 1;
-            $convertNoGuarantee = convertPattern($pattern, $kc, $ka, $noa, $kp, $kb, $nod, $nom, $noy);
-            $noGuarantee = $convertNoGuarantee['value'];
-            $lengthNOD = $convertNoGuarantee['lengthNOD'];
-            $lengthNOM = $convertNoGuarantee['lengthNOM'];
-            $lengthNOY = $convertNoGuarantee['lengthNOY'];
-
-            // create sequence
-            if (str_contains($pattern, 'NOD')) {
-                $this->createSequence('NOD', $nod, $pattern, $guarantorHeadId, $lengthNOD);
-            }
-            if (str_contains($pattern, 'NOM')) {
-                $this->createSequence('NOM', $nom, $pattern, $guarantorHeadId, $lengthNOM);
-            }
-            if (str_contains($pattern, 'NOY')) {
-                $this->createSequence('NOY', $noy, $pattern, $guarantorHeadId, $lengthNOY);
-            }
+            $noGuarantee = $this->generateNoGuarantee($guarantorHead, $guarantorToProductType, $guarantorBranchId, $blank, $profile);
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
@@ -263,19 +235,6 @@ class SubmissionController extends Controller
 
                 return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
             }
-        }
-    }
-
-    private function createSequence($name, $current, $pattern, $guarantorId, $length): void
-    {
-        if (str_contains($pattern, $name)) {
-            Sequence::query()->updateOrCreate([
-                'name' => $name,
-                'guarantor_id' => $guarantorId,
-            ], [
-                'current' => $current,
-                'length' => $length,
-            ]);
         }
     }
 

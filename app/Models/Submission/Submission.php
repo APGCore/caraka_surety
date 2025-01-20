@@ -50,14 +50,9 @@ class Submission extends Model
         return $this->belongsTo(Bank::class, 'bank_id', 'id');
     }
 
-    public function blank(): BelongsToMany
-    {
-        return self::blanks()->where('is_broken', false)->first();
-    }
-
     public function blanks(): BelongsToMany
     {
-        return $this->belongsToMany(Blank::class, 'submission_blanks', 'blank_id', 'submission_id')->orderBy('id');
+        return $this->belongsToMany(Blank::class, 'submission_blanks', 'submission_id', 'blank_id')->orderBy('id');
     }
 
     public function obligee(): BelongsTo
@@ -72,7 +67,12 @@ class Submission extends Model
 
     public function guarantor(): BelongsTo
     {
-        return $this->belongsTo(Guarantor::class, 'guarantor_id', 'id');
+        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNull('headquarter_id');
+    }
+
+    public function guarantorBranch(): BelongsTo
+    {
+        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNotNull('headquarter_id');
     }
 
     public function product()

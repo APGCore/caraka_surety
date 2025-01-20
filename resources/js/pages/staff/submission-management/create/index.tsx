@@ -123,6 +123,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       address: "",
       no_ppk: "",
       telephone: "",
+      postal_code: "",
     },
     submission: {
       guarantor_id: "",
@@ -1174,6 +1175,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 setData("obligee", {
                                   ...data.obligee,
                                   address: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-1 w-full">
+                            <Label className="text-sm">Kode Pos</Label>
+                            <Input
+                              className="text-sm"
+                              placeholder="Masukan Kode Pos"
+                              value={Number(data.obligee.postal_code)}
+                              min="0"
+                              type="number"
+                              onChange={(e) =>
+                                setData("obligee", {
+                                  ...data.obligee,
+                                  postal_code: String(getNumericValue(e)),
                                 })
                               }
                             />

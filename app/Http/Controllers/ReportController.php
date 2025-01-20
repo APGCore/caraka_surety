@@ -6,18 +6,27 @@ use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Report\InvoiceResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Submission\Submission;
+use App\Traits\GeneratePattern;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    use GeneratePattern;
+
     public function invoice(Request $request)
     {
         $invoices = Submission::search($request->get('search'))
             ->query(function ($query) {
                 return $query->with([
-                    'blank:id,number',
+                    'guarantor:id,name,code',
+                    'guarantorBranch:id,name,code',
+                    'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                    'guarantorToProductType:id,code_product,code',
+                    'blanks:id,number,is_broken',
                     'principal:id,name',
                     'obligee:id,name',
+                    'staff:id,name,profile_id',
+                    'staff.office:id,name,code',
                 ]);
             })
             ->orderBy('id')
@@ -25,6 +34,18 @@ class ReportController extends Controller
             ->appends('query', null)
             ->appends($request->all());
 
+        foreach ($invoices as $invoice) {
+            $guarantor = $invoice->guarantor;
+            $guarantorBranchId = $invoice->guarantor_branch_id;
+            $guarantorToProductType = $invoice->guarantorToProductType;
+            $blank = $invoice->blanks->firstWhere('is_broken', false);
+            $noGuarantee = $this->generateNoGuarantee($guarantor, $guarantorToProductType, $guarantorBranchId, $blank, $invoice->staff?->office);
+            if ($invoice->no_guarantee !== $noGuarantee) {
+                $invoice->no_guarantee = $noGuarantee;
+                $invoice->save();
+            }
+            $invoice->blank = $blank;
+        }
         $resource = InvoiceResource::collection($invoices);
 
         return inertia('report/invoice/index', [

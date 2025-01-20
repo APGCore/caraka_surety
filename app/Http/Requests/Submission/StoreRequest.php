@@ -92,6 +92,7 @@ class StoreRequest extends FormRequest
             'obligee.address' => ['required', 'string'],
             'obligee.no_ppk' => ['nullable', 'string'],
             'obligee.telephone' => ['nullable', 'string'],
+            'obligee.postal_code' => ['nullable', 'string'],
 
             // submission
             'submission' => ['required'],

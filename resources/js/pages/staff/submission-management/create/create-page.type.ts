@@ -83,6 +83,7 @@ type Obligee = {
   address?: string;
   no_ppk?: string;
   telephone?: string;
+  postal_code?: string;
 };
 
 type Document = {

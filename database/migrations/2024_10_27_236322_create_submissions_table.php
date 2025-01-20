@@ -28,6 +28,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
+            $table->foreignId('guarantor_branch_id')->references('id')->on('guarantors')->noActionOnDelete();
             $table->foreignIdFor(Product::class, 'product_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();

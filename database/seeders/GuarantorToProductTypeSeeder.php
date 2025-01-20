@@ -127,7 +127,7 @@ class GuarantorToProductTypeSeeder extends Seeder
             [
                 'guarantor_id' => 3,
                 'product_id' => 1,
-                'product_type_id' => 1,
+                'product_type_id' => 2,
                 'no' => 2,
                 'code_product' => '14',
                 'code' => '02',
@@ -139,7 +139,7 @@ class GuarantorToProductTypeSeeder extends Seeder
             [
                 'guarantor_id' => 3,
                 'product_id' => 1,
-                'product_type_id' => 1,
+                'product_type_id' => 3,
                 'no' => 3,
                 'code_product' => '14',
                 'code' => '03',
@@ -151,7 +151,7 @@ class GuarantorToProductTypeSeeder extends Seeder
             [
                 'guarantor_id' => 3,
                 'product_id' => 1,
-                'product_type_id' => 1,
+                'product_type_id' => 4,
                 'no' => 4,
                 'code_product' => '14',
                 'code' => '04',

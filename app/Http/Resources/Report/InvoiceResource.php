@@ -16,12 +16,8 @@ class InvoiceResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
-            'blank' => $this->whenLoaded('blank', function () {
-                return [
-                    'id' => $this->resource->blank->id,
-                    'number' => $this->resource->blank->number,
-                ];
-            }),
+            'blank' => $this->resource->blank,
+            'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
             'principal' => $this->whenLoaded('principal', function () {
                 return [
                     'id' => $this->resource->principal->id,
