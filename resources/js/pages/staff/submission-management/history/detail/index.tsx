@@ -1276,96 +1276,96 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </div>
               ))}
 
-              {/* {submission?.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
+              {submission?.guarantor?.name.toLowerCase().includes("videi") && (
                 <div>
+                  <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
+                  <div>
+                    <TinyMCEEditor
+                      id="spkmgr-videi"
+                      onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
+                      initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
                   <TinyMCEEditor
-                    id="spkmgr-videi"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
+                    id="surat-pelaksanaan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
+                    initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
                   />
                 </div>
-              </div>
-            )}
+              )}
 
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-                <TinyMCEEditor
-                  id="surat-pelaksanaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                  initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
-                />
-              </div>
-            )}
+              {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
+                  <TinyMCEEditor
+                    id="surat-pelaksanaan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
+                    initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
+                  />
+                </div>
+              )}
 
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-                <TinyMCEEditor
-                  id="surat-pelaksanaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                  initialContent={replacePelaksanaanPlaceholders(templatePelaksanaan, data)}
-                />
-              </div>
-            )}
+              {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
+                  <TinyMCEEditor
+                    id="surat-permohonan"
+                    onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
+                    initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
+                  />
+                </div>
+              )}
 
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-                <TinyMCEEditor
-                  id="surat-permohonan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
-                  initialContent={replacePermohonanBankGaransiPlaceholders(templateBankGaransi, data)}
-                />
-              </div>
-            )}
+              {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
+                  <TinyMCEEditor
+                    id="draft-surety"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
+                    initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
+                  />
+                </div>
+              )}
 
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-                <TinyMCEEditor
-                  id="draft-surety"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
-                  initialContent={replaceDraftSuretyPlaceholders(templateDraftSurety, data)}
-                />
-              </div>
-            )}
+              {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
+                  <TinyMCEEditor
+                    id="draft-surety-bumida"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
+                    initialContent={replacePlaceholders(templateBumida, dataTemplate)}
+                  />
+                </div>
+              )}
 
-            {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
-                <TinyMCEEditor
-                  id="draft-surety-bumida"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
-                  initialContent={replaceBumidaPlaceholders(templateBumida, data)}
-                />
-              </div>
-            )}
+              {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+              submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
+                  <TinyMCEEditor
+                    id="draft-surety-jastan"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
+                    initialContent={replacePlaceholders(templateJastan, dataTemplate)}
+                  />
+                </div>
+              ) : null}
 
-            {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
-                <TinyMCEEditor
-                  id="draft-surety-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
-                  initialContent={replaceJastanPlaceholders(templateJastan, data)}
-                />
-              </div>
-            ) : null}
-
-            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-                <TinyMCEEditor
-                  id="draft-surety-videi"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
-                  initialContent={replaceVideiPlaceholders(templateVidei, data)}
-                />
-              </div>
-            )} */}
+              {submission?.guarantor?.name.toLowerCase().includes("videi") && (
+                <div>
+                  <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
+                  <TinyMCEEditor
+                    id="draft-surety-videi"
+                    onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
+                    initialContent={replacePlaceholders(templateVidei, dataTemplate)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </Show>

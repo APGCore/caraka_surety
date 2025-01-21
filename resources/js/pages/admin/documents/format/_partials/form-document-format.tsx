@@ -334,6 +334,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
             className={"w-min-[210px]"}
             onSelect={(value) => handleSelectGuarantorProduct(value.id)}
           />
+
           <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
         </div>
       </Show>
@@ -342,8 +343,8 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           <InputLabel htmlFor="guarantor_product_type" value="Jenis Jaminan" />
           <Combobox
             datas={guarantorProductTypes}
-            labelKey={"full_name"}
-            valueKey={"full_name"}
+            labelKey={"name"}
+            valueKey={"name"}
             defaultValue={guarantorProductTypeSelected}
             placeholder={"Pilih Jenis Jaminan"}
             className={"w-min-[210px]"}
