@@ -26,7 +26,7 @@ class BlankUsageBranchExport implements FromCollection, ShouldAutoSize, WithEven
                 SUM(CASE WHEN blanks.is_used = 0 AND blanks.is_broken = 0 THEN 1 ELSE 0 END) AS unused
             ')
             ->join('profiles', 'blanks.profile_id', '=', 'profiles.id')
-            ->groupBy('blanks.profile_id')
+            ->groupBy('blanks.profile_id', 'profiles.name')
             ->get();
 
         $totals = [
