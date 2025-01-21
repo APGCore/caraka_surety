@@ -10,13 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import useGetAllBank from "@/hooks/api/bank/useGetAllBank";
@@ -1027,6 +1027,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Jenis Pekerjaan</Label>
                         <Select
+                            value={data.submission.job_group}
                           onValueChange={(val) => {
                             setData("submission", {
                               ...data.submission,
@@ -1049,6 +1050,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Tipe Pekerjaan</Label>
                         <Select
+                            value={data.submission.job_type}
                           onValueChange={(val) => {
                             setData("submission", {
                               ...data.submission,
