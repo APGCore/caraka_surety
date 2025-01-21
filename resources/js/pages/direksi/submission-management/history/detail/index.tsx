@@ -36,7 +36,7 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import tinymce from "tinymce";
+// import tinymce from "tinymce";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -626,43 +626,43 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
-  const saveContent = async (editorId: string, submissionId: number | undefined): Promise<void> => {
-    const content = tinymce.get(editorId)?.getContent();
-    if (content && submissionId) {
-      try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-        if (!csrfToken) {
-          throw new Error("CSRF token tidak ditemukan.");
-        }
+  //   const saveContent = async (editorId: string, submissionId: number | undefined): Promise<void> => {
+  //     const content = tinymce.get(editorId)?.getContent();
+  //     if (content && submissionId) {
+  //       try {
+  //         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+  //         if (!csrfToken) {
+  //           throw new Error("CSRF token tidak ditemukan.");
+  //         }
 
-        const response = await fetch("/your-laravel-route", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken,
-          },
-          body: JSON.stringify({
-            submission_id: submissionId,
-            content,
-          }),
-        });
+  //         const response = await fetch("/your-laravel-route", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             "X-CSRF-TOKEN": csrfToken,
+  //           },
+  //           body: JSON.stringify({
+  //             submission_id: submissionId,
+  //             content,
+  //           }),
+  //         });
 
-        if (response.ok) {
-          const result = await response.json();
-          alert(`Konten berhasil disimpan: ${result.message}`);
-        } else {
-          const error = await response.json();
-          console.error("Error:", error);
-          alert(`Terjadi kesalahan: ${error.message || "Gagal menyimpan data"}`);
-        }
-      } catch (error) {
-        console.error("Fetch Error:", error);
-        alert("Terjadi kesalahan jaringan saat mencoba menyimpan data.");
-      }
-    } else {
-      alert("Tidak ada konten yang disimpan atau submission ID tidak tersedia.");
-    }
-  };
+  //         if (response.ok) {
+  //           const result = await response.json();
+  //           alert(`Konten berhasil disimpan: ${result.message}`);
+  //         } else {
+  //           const error = await response.json();
+  //           console.error("Error:", error);
+  //           alert(`Terjadi kesalahan: ${error.message || "Gagal menyimpan data"}`);
+  //         }
+  //       } catch (error) {
+  //         console.error("Fetch Error:", error);
+  //         alert("Terjadi kesalahan jaringan saat mencoba menyimpan data.");
+  //       }
+  //     } else {
+  //       alert("Tidak ada konten yang disimpan atau submission ID tidak tersedia.");
+  //     }
+  //   };
 
   const handleApprove = (submissionId: number) => {
     setIsLoading(true);
@@ -1400,6 +1400,59 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   className="mt-2 px-4 py-2 bg-blue-500 text-white">
                   Simpan Videi
                 </Button> */}
+              </div>
+            )}
+
+            {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-bumida"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+            submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-jastan"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            {/* DOCUMENT FORMAT  */}
+            {/* <div> */}
+            {/* {submission?.document_format_guarantor?.map((doc: any) => (
+                <div key={doc.id} style={{ marginBottom: "20px" }}>
+                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                  <TinyMCEEditor
+                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                    initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                    onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                  />
+                </div>
+              ))} */}
+
+            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-videi"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
+                  />
+                </div>
               </div>
             )}
           </Show>

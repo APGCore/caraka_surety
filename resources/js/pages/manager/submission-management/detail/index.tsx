@@ -1518,6 +1518,59 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Button> */}
               </div>
             )}
+
+            {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-bumida"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
+            submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-jastan"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            {/* DOCUMENT FORMAT  */}
+            {/* <div> */}
+            {/* {submission?.document_format_guarantor?.map((doc: any) => (
+                <div key={doc.id} style={{ marginBottom: "20px" }}>
+                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                  <TinyMCEEditor
+                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                    initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                    onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                  />
+                </div>
+              ))} */}
+
+            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="spkmgr-videi"
+                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
+                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
+                  />
+                </div>
+              </div>
+            )}
           </Show>
 
           {/* <Show

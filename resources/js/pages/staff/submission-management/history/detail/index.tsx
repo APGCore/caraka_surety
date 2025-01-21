@@ -1265,7 +1265,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
             {/* DOCUMENT FORMAT  */}
             <div>
-              {submission?.document_format_guarantor?.map((doc: any) => (
+              {/* {submission?.document_format_guarantor?.map((doc: any) => (
                 <div key={doc.id} style={{ marginBottom: "20px" }}>
                   <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                   <TinyMCEEditor
@@ -1274,7 +1274,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
                   />
                 </div>
-              ))}
+              ))} */}
 
               {submission?.guarantor?.name.toLowerCase().includes("videi") && (
                 <div>
