@@ -1407,7 +1407,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 />
               </div>
 
-              {/* DOCUMENT FORMAT  */}
+              {/* DOCUMENT FORMAT
               <div>
                 {submission?.document_format_guarantor.map((doc: any) => (
                   <div key={doc.id} style={{ marginBottom: "20px" }}>
@@ -1419,7 +1419,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     />
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
