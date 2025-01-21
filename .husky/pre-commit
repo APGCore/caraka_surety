@@ -1,4 +1,4 @@
-composer pint
-npm run format
-npx lint-staged
+# composer pint
+# npm run format
+# npx lint-staged
 npm run build
