@@ -258,7 +258,7 @@ class GuarantorController extends Controller
             ->with('guarantorHead:id,headquarter_id,name')
             ->get(['guarantor_id']);
 
-        $guarantors = $guarantors->pluck('guarantorHead')->unique()->values();
+        $guarantors = $guarantors->pluck('guarantorHead')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
@@ -284,7 +284,7 @@ class GuarantorController extends Controller
             ->with('office:id,name', 'guarantorBranch:id,name')
             ->get(['office_id', 'guarantor_id']);
 
-        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique()->values();
+        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }
