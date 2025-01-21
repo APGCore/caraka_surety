@@ -1430,14 +1430,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Jaminan Pelaksanaan
-                </Button> */}
               </div>
             )}
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
+            {/* {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
               <div>
                 <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
                 <TinyMCEEditor
@@ -1445,13 +1440,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
                 />
-                {/* <Button
-                  onClick={() => handleSave("surat-pelaksanaan", submission.id)}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                  Simpan Jaminan Pelaksanaan
-                </Button> */}
               </div>
-            )}
+            )} */}
             {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
               <div>
                 <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
