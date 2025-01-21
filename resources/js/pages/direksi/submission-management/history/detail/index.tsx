@@ -1255,11 +1255,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
-                {/* <Button
-                onClick={() => handleSave("hasil-analisis", submission.id)}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white">
-                Simpan Hasil Analisis
-                </Button> */}
               </div>
 
               {/* DOCUMENT FORMAT */}
@@ -1277,14 +1272,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div> */}
             </div>
             <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
+              {/* <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
               <div>
                 <TinyMCEEditor
                   id="hasil-analisis"
                   onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
-              </div>
+              </div> */}
 
               {/* DOCUMENT FORMAT
               <div>

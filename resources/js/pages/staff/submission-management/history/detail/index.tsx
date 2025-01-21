@@ -74,7 +74,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isApproved = submission?.status == SubmissionStatus.APPROVED;
   const isRejected = submission?.status == SubmissionStatus.REJECTED;
 
-  const filteredSubmission = isApproved ? initialSteps : initialSteps?.slice(0, 5);
+  const filteredSubmission = isApproved ? initialSteps : initialSteps?.slice(0, 4);
 
   const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
 
