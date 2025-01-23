@@ -24,8 +24,8 @@ return new class extends Migration
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
             $table->string('name');
-            $table->string('address');
-            $table->string('postal_code');
+            $table->string('address')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('telephone')->nullable();
             $table->string('fax')->nullable();
             $table->string('pic')->nullable();

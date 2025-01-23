@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Report;
+namespace App\Http\Resources\Submission;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class InvoiceResource extends JsonResource
+class SubmissionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,6 +17,13 @@ class InvoiceResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
+            'no_guarantee' => $this->resource->no_guarantee,
+            'job_name' => $this->resource->job_name,
+            'guarantee_value' => $this->resource->guarantee_value,
+            'start_date' => Carbon::parse($this->resource->start_date)->format('d F Y'),
+            'end_date' => Carbon::parse($this->resource->end_date)->format('d F Y'),
+            'time_period' => $this->resource->time_period,
+            'created_at' => $this->resource->created_at->format('d F Y'),
             'blank' => $this->resource->blank,
             'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
             'principal' => $this->whenLoaded('principal', function () {
@@ -30,8 +38,6 @@ class InvoiceResource extends JsonResource
                     'name' => $this->resource->obligee->name,
                 ];
             }),
-            'no_guarantee' => $this->resource->no_guarantee,
-            'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }
 }
