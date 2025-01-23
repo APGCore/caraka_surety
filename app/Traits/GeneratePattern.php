@@ -14,21 +14,21 @@ trait GeneratePattern
      * Upload file to the storage.
      */
     public function generateNoGuarantee(
-        Guarantor $guarantor,
-        GuarantorToProductType $guarantorToProductType,
-        $guarantorBranchId,
-        Blank $blank,
-        Profile $profile
+        ?Guarantor $guarantor = null,
+        ?GuarantorToProductType $guarantorToProductType = null,
+        $guarantorBranchId = null,
+        ?Blank $blank = null,
+        ?Profile $profile = null
     ): string {
-        $guarantor->load(['branch', 'pattern']);
-        $guarantorId = $guarantor->getAttribute('id');
-        $ka = $guarantor->getAttribute('code') ?? '';
-        $kc = $guarantor->branch->where('id', $guarantorBranchId)->first()?->code ?? '';
-        $kp = $guarantorToProductType->getAttribute('code_product') ?? '';
-        $kb = $blank->getAttribute('number') ?? '';
-        $noa = $profile->getAttribute('code') ?? '';
+        $guarantor?->load(['branch', 'pattern']);
+        $guarantorId = $guarantor?->getAttribute('id');
+        $ka = $guarantor?->getAttribute('code') ?? '';
+        $kc = $guarantor?->branch->where('id', $guarantorBranchId)->first()?->code ?? '';
+        $kp = $guarantorToProductType?->getAttribute('code_product') ?? '';
+        $kb = $blank?->getAttribute('number') ?? '';
+        $noa = $profile?->getAttribute('code') ?? '';
 
-        $guarantorPattern = $guarantor->pattern;
+        $guarantorPattern = $guarantor?->pattern;
         $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
         $sequence = Sequence::query()->where('guarantor_id', $guarantorId)->orderByDesc('current')->get();
         $seqNodLast = $sequence->where('name', 'NOD')->first();

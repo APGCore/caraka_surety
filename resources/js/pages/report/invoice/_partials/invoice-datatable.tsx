@@ -1,15 +1,25 @@
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import React from "react";
+import React, { useState } from "react";
 
 interface InvoiceDatatableProps {
-  invoices: any;
+  submissions: any;
 }
 
-const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ invoices }) => {
+const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
+  const [selectedSubmission, setSelectedSubmission] = useState<number | null>(null);
+  const handleDetail = (submission: number) => {
+    if (!selectedSubmission) {
+      setSelectedSubmission(submission);
+    } else if (selectedSubmission == submission) {
+      setSelectedSubmission(null);
+    } else {
+      setSelectedSubmission(submission);
+    }
+  };
   return (
     <>
       <Table>
@@ -21,24 +31,37 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ invoices }) => {
             <TableHead>NAMA PRINCIPAL</TableHead>
             <TableHead>OBLIGEE</TableHead>
             <TableHead>PROJECT</TableHead>
-            <TableHead className="text-right">Aksi</TableHead>
+            <TableHead>NILAI JAMINAN</TableHead>
+            <TableHead>AWAL</TableHead>
+            <TableHead>AKHIR</TableHead>
+            <TableHead>HARI ASURANSI</TableHead>
+            <TableHead>HARI CABANG</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <RenderList
-            of={invoices?.data}
-            render={(invoice: any, index: number) => (
-              <TableRow key={invoice.id}>
-                <TableCell>{invoices?.meta?.from + index}</TableCell>
-                <TableCell>{invoice.blank?.number}</TableCell>
-                <TableCell>{invoice.no_guarantee}</TableCell>
-                <TableCell>{invoice.principal?.name}</TableCell>
-                <TableCell>{invoice.obligee?.name}</TableCell>
-                <TableCell></TableCell>
-                <TableCell className="text-right">
-                  <Button>Detail</Button>
-                </TableCell>
-              </TableRow>
+            of={submissions?.data}
+            render={(submission: any, index: number) => (
+              <>
+                <TableRow key={submission.id} onClick={() => handleDetail(submission.id)} className={"cursor-pointer"}>
+                  <TableCell>{submissions?.meta?.from + index}</TableCell>
+                  <TableCell>{submission.blank?.number}</TableCell>
+                  <TableCell>{submission.no_guarantee}</TableCell>
+                  <TableCell>{submission.principal?.name}</TableCell>
+                  <TableCell>{submission.obligee?.name}</TableCell>
+                  <TableCell>{submission.job_name}</TableCell>
+                  <TableCell>{submission.guarantee_value}</TableCell>
+                  <TableCell>{submission.start_date}</TableCell>
+                  <TableCell>{submission.end_date}</TableCell>
+                  <TableCell>{submission.time_period} Hari</TableCell>
+                  <TableCell>{submission.time_period + 1} Hari</TableCell>
+                </TableRow>
+                <Show when={!!selectedSubmission && selectedSubmission == submission.id}>
+                  <TableRow key={"detail-" + submission.id} className={"bg-blue-400 hover:bg-blue-400"}>
+                    <TableCell colSpan={11}></TableCell>
+                  </TableRow>
+                </Show>
+              </>
             )}
             renderFallback={() => (
               <TableRow>
@@ -50,8 +73,8 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ invoices }) => {
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={invoices?.meta} />
-      <PaginationDatatable meta={invoices?.meta} only={["scorings"]} />
+      <ShowingCountDatatable meta={submissions?.meta} />
+      <PaginationDatatable meta={submissions?.meta} />
     </>
   );
 };

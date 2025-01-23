@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BlankUsageExport;
 use App\Http\Resources\Report\BlankUsageResource;
-use App\Http\Resources\Report\InvoiceResource;
+use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Submission\Submission;
 use App\Traits\GeneratePattern;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -15,9 +17,15 @@ class ReportController extends Controller
 
     public function invoice(Request $request)
     {
-        $invoices = Submission::search($request->get('search'))
-            ->query(function ($query) {
-                return $query->with([
+        $date = collect($request->get('date') ?? [
+            now()->subDays(7)->toDateString(),
+            now()->toDateString(),
+        ])->values();
+        $submissions = Submission::search($request->get('search'))
+            ->query(function ($query) use ($date) {
+                return $query->when($date->isNotEmpty(), function ($query) use ($date) {
+                    $query->whereBetween('created_at', $date);
+                })->with([
                     'guarantor:id,name,code',
                     'guarantorBranch:id,name,code',
                     'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
@@ -34,25 +42,25 @@ class ReportController extends Controller
             ->appends('query', null)
             ->appends($request->all());
 
-        foreach ($invoices as $invoice) {
-            $guarantor = $invoice->guarantor;
-            $guarantorBranchId = $invoice->guarantor_branch_id;
-            $guarantorToProductType = $invoice->guarantorToProductType;
-            $blank = $invoice->blanks->firstWhere('is_broken', false);
-            $noGuarantee = $this->generateNoGuarantee($guarantor, $guarantorToProductType, $guarantorBranchId, $blank, $invoice->staff?->office);
-            if ($invoice->no_guarantee !== $noGuarantee) {
-                $invoice->no_guarantee = $noGuarantee;
-                $invoice->save();
+        foreach ($submissions as $submission) {
+            $guarantor = $submission->guarantor;
+            $guarantorBranchId = $submission->guarantor_branch_id;
+            $guarantorToProductType = $submission->guarantorToProductType;
+            $blank = $submission->blanks->firstWhere('is_broken', false);
+            $noGuarantee = $this->generateNoGuarantee($guarantor, $guarantorToProductType, $guarantorBranchId, $blank, $submission->staff?->office);
+            if ($submission->no_guarantee !== $noGuarantee) {
+                $submission->no_guarantee = $noGuarantee;
+                $submission->save();
             }
-            $invoice->blank = $blank;
+            $submission->blank = $blank;
         }
-        $resource = InvoiceResource::collection($invoices);
+        $resource = SubmissionResource::collection($submissions);
 
         return inertia('report/invoice/index', [
             'page_settings' => [
                 'title' => 'Laporan Invoice',
             ],
-            'invoices' => fn () => $resource,
+            'submissions' => fn () => $resource,
         ]);
     }
 
