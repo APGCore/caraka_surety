@@ -35,6 +35,25 @@ class Submission extends Model
         'deleted_at',
     ];
 
+    protected function guaranteeValue(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->formatRupiah($value),
+        );
+    }
+
+    protected function contractValue(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $this->formatRupiah($value),
+        );
+    }
+
+    private function formatRupiah($value)
+    {
+        return 'Rp. ' . number_format($value, 0, ',', '.');
+    }
+
     public function scores(): HasMany
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');

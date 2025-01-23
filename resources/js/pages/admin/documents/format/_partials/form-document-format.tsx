@@ -41,6 +41,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   const [byGuarantor, setByGuarantor] = useState<boolean>(() => !!guarantorSelected);
   const [byProduct, setByProduct] = useState<boolean>(() => !!productSelected);
   const [byProductType, setByProductType] = useState<boolean>(() => !!guarantorProductTypeSelected);
+
   const editorRef = useRef<any>(null);
 
   const { data, setData, post, put, errors, processing } = useForm<{
@@ -57,38 +58,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     format_document: documentFormat?.format_document || "",
   });
 
-  const checkByGuarantor = (checked: boolean) => {
-    setByGuarantor(checked);
-    if (!checked) {
-      setByProductType(false);
-    }
-    if (!checked && guarantorSelected) {
-      getData();
-      setData((previousData) => ({ ...previousData, guarantor_id: null, guarantor_to_product_type_id: null }));
-    }
-  };
-
-  const checkByProduct = (checked: boolean) => {
-    setByProduct(checked);
-    if (checked) {
-      setByGuarantor(true);
-      setByProductType(false);
-    } else if (productSelected) {
-      getData(guarantorSelected);
-      setData("product_id", null);
-    }
-  };
-
-  const checkByProductType = (checked: boolean) => {
-    setByProductType(checked);
-    if (checked) {
-      setByGuarantor(true);
-      setByProduct(true);
-    } else if (guarantorProductTypeSelected) {
-      getData(guarantorSelected, productSelected);
-      setData("guarantor_to_product_type_id", null);
-    }
-  };
+  //
 
   const handleSelectGuarantor = (guarantorId: number) => {
     const id = guarantorSelected === guarantorId ? undefined : guarantorId;
@@ -97,6 +67,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const handleSelectGuarantorProduct = (guarantorProductId: number) => {
     const id = productSelected === guarantorProductId ? undefined : guarantorProductId;
+
     getData(guarantorSelected, id);
   };
   const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
@@ -134,6 +105,10 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
       return;
     }
 
+    // console.log("Guarantor Selected:", guarantorSelected);
+    // console.log("Product Selected:", productSelected);
+    // console.log("Guarantor Product Type Selected:", guarantorProductTypeSelected);
+
     const content = editor.getContent();
 
     console.log("Content:", content);
@@ -149,18 +124,19 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     };
 
     console.log("Request Data:", requestData);
-    if (byGuarantor && guarantorSelected) {
+    // if (byGuarantor && guarantorSelected) {
+    //   requestData.guarantor_id = guarantorSelected;
+    // } else if (byProduct && productSelected) {
+    //   requestData.product_id = productSelected;
+    // } else if (byProductType && guarantorProductTypeSelected) {
+    //   requestData.guarantor_to_product_type_id = guarantorProductTypeSelected;
+    // }
+    if (guarantorSelected) {
       requestData.guarantor_id = guarantorSelected;
-    } else if (byProduct && productSelected) {
+    } else if (productSelected) {
       requestData.product_id = productSelected;
-    } else if (byProductType && guarantorProductTypeSelected) {
+    } else if (guarantorProductTypeSelected) {
       requestData.guarantor_to_product_type_id = guarantorProductTypeSelected;
-    }
-
-    // Validasi tambahan untuk ID
-    if (!requestData.guarantor_id && !requestData.product_id && !requestData.guarantor_to_product_type_id) {
-      alert("Pilih ID yang valid untuk menyimpan.");
-      return;
     }
 
     // Kirim data dengan cara yang sesuai (PUT atau POST)
@@ -207,57 +183,57 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
-  const handleSave = async (editorId: string) => {
-    const editor = editorRefs.current[editorId];
-    let submissionId;
+  //   const handleSave = async (editorId: string) => {
+  //     const editor = editorRefs.current[editorId];
+  //     let submissionId;
 
-    // Tentukan ID yang digunakan (guarantor_id, product_id, atau guarantor_product_type_id)
-    if (byGuarantor && guarantorSelected) {
-      submissionId = guarantorSelected; // Jika memilih berdasarkan Guarantor
-    } else if (byProduct && productSelected) {
-      submissionId = productSelected; // Jika memilih berdasarkan Product
-    } else if (byProductType && guarantorProductTypeSelected) {
-      submissionId = guarantorProductTypeSelected; // Jika memilih berdasarkan Product Type
-    }
+  //     // Tentukan ID yang digunakan (guarantor_id, product_id, atau guarantor_product_type_id)
+  //     if (byGuarantor && guarantorSelected) {
+  //       submissionId = guarantorSelected; // Jika memilih berdasarkan Guarantor
+  //     } else if (byProduct && productSelected) {
+  //       submissionId = productSelected; // Jika memilih berdasarkan Product
+  //     } else if (byProductType && guarantorProductTypeSelected) {
+  //       submissionId = guarantorProductTypeSelected; // Jika memilih berdasarkan Product Type
+  //     }
 
-    if (!submissionId) {
-      alert("Pilih ID yang valid untuk menyimpan.");
-      return;
-    }
+  //     if (!submissionId) {
+  //       alert("Pilih ID yang valid untuk menyimpan.");
+  //       return;
+  //     }
 
-    // Pastikan editor ditemukan dan mengambil konten
-    if (editor) {
-      const content = editor.getContent();
+  //     // Pastikan editor ditemukan dan mengambil konten
+  //     if (editor) {
+  //       const content = editor.getContent();
 
-      try {
-        const response = await axios.post("/staff/submission-management/save-content", {
-          submission_id: submissionId,
-          name: editorId,
-          format_document: content,
-        });
+  //       try {
+  //         const response = await axios.post("/staff/submission-management/save-content", {
+  //           submission_id: submissionId,
+  //           name: editorId,
+  //           format_document: content,
+  //         });
 
-        alert(`Data dari editor "${editorId}" untuk ID ${submissionId} berhasil disimpan!`);
-        console.log("Response Data:", response.data);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (error.response) {
-            console.error("Error Response:", error.response.data);
-            alert("Gagal menyimpan data. Silakan coba lagi.");
-          } else if (error.request) {
-            console.error("No Response:", error.request);
-            alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
-          } else {
-            console.error("Axios Error:", error.message);
-          }
-        } else {
-          console.error("Unexpected Error:", error);
-          alert("Terjadi kesalahan tak terduga. Silakan coba lagi.");
-        }
-      }
-    } else {
-      console.error(`Editor dengan ID "${editorId}" tidak ditemukan.`);
-    }
-  };
+  //         alert(`Data dari editor "${editorId}" untuk ID ${submissionId} berhasil disimpan!`);
+  //         console.log("Response Data:", response.data);
+  //       } catch (error) {
+  //         if (axios.isAxiosError(error)) {
+  //           if (error.response) {
+  //             console.error("Error Response:", error.response.data);
+  //             alert("Gagal menyimpan data. Silakan coba lagi.");
+  //           } else if (error.request) {
+  //             console.error("No Response:", error.request);
+  //             alert("Terjadi kesalahan jaringan. Silakan coba lagi.");
+  //           } else {
+  //             console.error("Axios Error:", error.message);
+  //           }
+  //         } else {
+  //           console.error("Unexpected Error:", error);
+  //           alert("Terjadi kesalahan tak terduga. Silakan coba lagi.");
+  //         }
+  //       }
+  //     } else {
+  //       console.error(`Editor dengan ID "${editorId}" tidak ditemukan.`);
+  //     }
+  //   };
 
   const formatDocumentRef = useRef(""); // Tempat menyimpan konten editor
 
@@ -265,8 +241,10 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     formatDocumentRef.current = content;
     setData("format_document", content);
   };
+  console.log("Default Product Selected:", productSelected);
 
   console.log("Content formatref:", formatDocumentRef.current);
+  console.log("Data:", products);
 
   //   const handleEditorInit = (evt, editor) => {
   //     editorRefs.current["format-document"] = editor;
@@ -277,7 +255,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   return (
     <div className="mt-6 space-y-6">
-      <div className="flex items-center justify-around gap-2">
+      {/* <div className="flex items-center justify-around gap-2">
         <div className="flex items-center space-x-2">
           <Checkbox id="byGuarantors" checked={byGuarantor} onChange={(e) => checkByGuarantor(e.target.checked)} />
           <label
@@ -306,8 +284,8 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
             Berdasarkan Jenis Jaminan
           </label>
         </div>
-      </div>
-      <Show when={byGuarantor}>
+      </div> */}
+      {/* <Show when={byGuarantor}>
         <div className="space-y-2">
           <InputLabel htmlFor="guarantor" value="Asuransi" />
           <Combobox
@@ -352,13 +330,58 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           />
           <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
         </div>
-      </Show>
-      {/* <div className="space-y-2">
+      </Show> */}
+      <div className="space-y-2">
+        <InputLabel htmlFor="guarantor" value="Asuransi" />
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValueId={guarantorSelected}
+          placeholder={"Pilih Penjamin"}
+          className={"w-min-[210px]"}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <InputError className="mt-2" message={errors.guarantor_id} />
+      </div>
+
+      <div className="space-y-2">
+        <InputLabel htmlFor="guarantor_product" value="Produk" />
+        <Combobox
+          datas={products}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={productSelected}
+          placeholder={"Pilih Produk"}
+          className={"w-min-[210px]"}
+          onSelect={(value) => {
+            console.log("Selected Product ID:", value.id);
+            handleSelectGuarantorProduct(value.id);
+          }}
+        />
+        <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
+      </div>
+
+      <div className="space-y-2">
+        <InputLabel htmlFor="guarantor_product_type" value="Jenis Jaminan" />
+        <Combobox
+          datas={guarantorProductTypes}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorProductTypeSelected}
+          placeholder={"Pilih Jenis Jaminan"}
+          className={"w-min-[210px]"}
+          onSelect={(value) => handleSelectGuarantorProductType(value.id)}
+        />
+        <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
+      </div>
+
+      <div className="space-y-2">
         <InputLabel htmlFor="name" value="Nama" />
         <Input className={"w-full"} id="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
         <InputError className="mt-2" message={errors.name} />
-      </div> */}
-      <div className="space-y-2">
+      </div>
+      {/* <div className="space-y-2">
         <InputLabel htmlFor="name" value="Nama" />
 
         <Combobox
@@ -367,12 +390,12 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           valueKey="name"
           defaultValue={data.name}
           placeholder="Pilih Nama"
-          className="w-full min-w-[210px]" // Menyesuaikan ukuran combobox
-          onSelect={(value) => setData("name", value.name)} // Mengupdate data saat memilih "spkmgr"
+          className="w-full min-w-[210px]"
+          onSelect={(value) => setData("name", value.name)}
         />
 
         <InputError className="mt-2" message={errors.name} />
-      </div>
+      </div> */}
 
       <div>
         <TinyMCEEditor

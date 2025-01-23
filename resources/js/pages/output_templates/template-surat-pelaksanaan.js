@@ -1,7 +1,7 @@
 const templateContent = `
 <h2 style="text-align: center;">JAMINAN PELAKSANAAN</h2>
 
-<p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   :  </p>
+<p style="text-align: justify; margin-bottom: 10px;">Nomor Surat   : [MAIL_NUMBER] </p>
 <p style="text-align: justify; margin-bottom: 10px;">Nilai Jaminan :  [GUARANTEE_VALUE]</p>
 
 <table style="width: 100%; border-collapse: collapse; line-height: 1.5;">

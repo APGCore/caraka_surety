@@ -20,7 +20,7 @@ class DocumentFormatController extends Controller
         $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : null;
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $products = $guarantor?->guarantorToProductTypes->pluck('product')->unique()->values();
-        $productSelected = $request->get('guarantor_product_id');
+        $productSelected = $request->get('product_id');
         $productSelected = $productSelected ? (int) $productSelected : null;
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes->where('product_id', $productSelected)->values();
         $guarantorProductTypeSelected = $request->get('guarantor_to_product_type_id');
@@ -96,10 +96,9 @@ class DocumentFormatController extends Controller
      */
     public function store(Request $request)
     {
-
         $request->validate([
             'guarantor_id' => 'nullable|integer',
-            'guarantor_product_id' => 'nullable|integer',
+            'product_id' => 'nullable|integer',
             'guarantor_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
             'format_document' => 'nullable|string',
@@ -144,7 +143,7 @@ class DocumentFormatController extends Controller
     {
         $component = str_replace(('/'.$documentFormat->getAttribute('id')), '', request()->path()).'/index';
 
-        // dd($documentFormat);
+        dd($documentFormat);
 
         return inertia($component, [
             'page_settings' => [

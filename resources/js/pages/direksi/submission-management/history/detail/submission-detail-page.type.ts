@@ -161,6 +161,7 @@ interface SubmissionDetailProps {
     status: string;
     contract_value: number;
     guarantee_value: number;
+    no_guarantee: string;
     job_location_village: string;
     start_date: string;
     end_date: string;
@@ -202,6 +203,7 @@ interface SubmissionDetailProps {
     province: {
       name: string;
     };
+    mail_number: string;
   };
 }
 

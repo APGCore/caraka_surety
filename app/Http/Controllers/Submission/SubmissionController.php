@@ -403,6 +403,7 @@ class SubmissionController extends Controller
     public function showDetailSubmissionDireksi($id)
     {
         $submission = $this->getSubmission($id);
+        $submission->mail_number = $this->generateNomorSurat($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -775,6 +776,7 @@ class SubmissionController extends Controller
         }
     }
 
+
     public function saveDocSignatured(Request $request)
     {
         $validated = $request->validate([
@@ -783,15 +785,23 @@ class SubmissionController extends Controller
             'submission_id' => 'required|exists:submissions,id',
         ]);
 
+        $submissionId = $request->input('submission_id');
         $documents = [];
 
         if ($request->hasFile('spkmgr_file')) {
             $spkmgrFile = $request->file('spkmgr_file');
-            $spkmgrPath = $spkmgrFile->store('documents/spkmgr', 'public');
+            // Generate nama file unik
+            $uniqueName = uniqid('spkmgr_', true) . '.' . $spkmgrFile->getClientOriginalExtension();
+            // Simpan file di folder dengan path berdasarkan submission_id
+            $spkmgrPath = $spkmgrFile->storeAs(
+                "documents/spkmgr/{$submissionId}",
+                $uniqueName,
+                'public'
+            );
             $documents[] = [
-                'submission_id' => $request->input('submission_id'),
+                'submission_id' => $submissionId,
                 'document_format_id' => null,
-                'name' => $spkmgrFile->getClientOriginalName(),
+                'name' => $uniqueName,
                 'format_document' => null,
                 'url' => $spkmgrPath,
             ];
@@ -799,23 +809,53 @@ class SubmissionController extends Controller
 
         if ($request->hasFile('permohonan_file')) {
             $permohonanFile = $request->file('permohonan_file');
-            $permohonanPath = $permohonanFile->store('documents/permohonan', 'public');
+            // Generate nama file unik
+            $uniqueName = uniqid('permohonan_', true) . '.' . $permohonanFile->getClientOriginalExtension();
+            // Simpan file di folder dengan path berdasarkan submission_id
+            $permohonanPath = $permohonanFile->storeAs(
+                "documents/permohonan/{$submissionId}",
+                $uniqueName,
+                'public'
+            );
             $documents[] = [
-                'submission_id' => $request->input('submission_id'),
+                'submission_id' => $submissionId,
                 'document_format_id' => null,
-                'name' => $permohonanFile->getClientOriginalName(),
+                'name' => $uniqueName,
                 'format_document' => null,
                 'url' => $permohonanPath,
             ];
         }
 
         foreach ($documents as $document) {
-            SubmissionDoc::updateOrCreate($document);
+            SubmissionDoc::updateOrCreate(
+                ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
+                $document
+            );
         }
 
         return response()->json([
             'message' => 'File berhasil diunggah dan disimpan.',
             'data' => $documents,
         ]);
+    }
+
+
+
+    public function generateNomorSurat($submissionId)
+    {
+
+
+        $submission = Submission::find($submissionId);
+
+        if (!$submission) {
+            return null;
+        }
+
+        $submissionId = $submission->id;
+        $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
+
+        $nomorSurat = strtoupper("PEL/BPR/{$submissionId}/{$createdAt}");
+
+        return $nomorSurat;
     }
 }
