@@ -34,6 +34,32 @@ interface DocumentFormatDatatableProps {
   guarantorProductTypeId: number;
 }
 
+function formatTanggal(dateString: any) {
+  if (!dateString) return "-";
+
+  const bulan = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  const date = new Date(dateString);
+  const hari = date.getDate();
+  const bulanNama = bulan[date.getMonth()];
+  const tahun = date.getFullYear();
+
+  return `${hari} ${bulanNama} ${tahun}`;
+}
+
 const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ documentFormats }) => {
   const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
   const onDelete = (documentFormat: any) => {
@@ -63,7 +89,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ docum
               <TableRow key={documentFormat.id}>
                 <TableCell>{documentFormats?.from + index}</TableCell>
                 <TableCell>{documentFormat?.name}</TableCell>
-                <TableCell>{documentFormat?.created_at}</TableCell>
+                <TableCell>{formatTanggal(documentFormat?.created_at)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
