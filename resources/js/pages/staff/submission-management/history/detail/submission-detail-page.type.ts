@@ -157,6 +157,7 @@ interface SubmissionDetailProps {
   submission: {
     id: number;
     bank: Bank;
+    bank_name: string;
     approved_by_direksi: boolean;
     documents: string;
     status: string;

@@ -578,7 +578,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     director_position: submission.principal?.director_position || "",
     location: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
 
-    bank_name: submission?.bank.name || "",
+    bank_name: submission?.bank_name || "",
     obligee_name: submission.obligee?.name || "",
     obligee_address: submission.obligee?.address || "",
     source_of_fund: submission.source_of_fund?.name || "",

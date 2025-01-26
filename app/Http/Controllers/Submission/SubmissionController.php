@@ -322,6 +322,9 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
 
         $principalDocs = collect($submission->principal->documents);
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
+        $submission->document_format_product = $submission->product->documentFormats;
+        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -334,6 +337,8 @@ class SubmissionController extends Controller
             });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
+
+
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
@@ -418,6 +423,9 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
+        $submission->document_format_product = $submission->product->documentFormats;
+        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
