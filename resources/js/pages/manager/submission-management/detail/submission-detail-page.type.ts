@@ -222,6 +222,11 @@ interface SubmissionDetailProps {
       name: string;
     };
     submission_docs: Document[];
+    contract_value_formatted: string;
+    guarantee_value_formatted: string;
+    mail_number: string;
+    no_guarantee: string;
+    bank_name: string;
   };
 
   submissionData: {
@@ -369,6 +374,9 @@ interface SubmissionData {
   no: string | number;
   city: string;
 
+  bank_name: string;
+  contract_value_formatted: string;
+  guarantee_value_formatted: string;
   [key: string]: any;
 }
 

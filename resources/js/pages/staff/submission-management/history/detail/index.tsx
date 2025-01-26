@@ -123,6 +123,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return `${day} ${month} ${year}`;
   }
 
+  const getDayName = (dateString: any) => {
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const date = new Date(dateString);
+    return days[date.getDay()];
+  };
+
   const formattedDate = formatToIndonesianDate(submission?.created_at);
 
   console.log(submission);
@@ -408,14 +414,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       source_of_fund: submission?.source_of_fund?.name || "",
       ppk_name: submission?.obligee?.pic || "",
       city: submission?.obligee?.district?.name,
-      location:
-        submission?.obligee?.address +
-        ", " +
-        submission?.obligee?.district?.name +
-        ", " +
-        submission?.obligee?.regency?.name +
-        ", " +
-        submission?.obligee?.province?.name,
+      location: (
+        submission?.obligee?.address ||
+        "" +
+          ", " +
+          (submission?.obligee?.district?.name || "") +
+          ", " +
+          (submission?.obligee?.regency?.name || "") +
+          ", " +
+          (submission?.obligee?.province?.name || "")
+      ).trim(),
     },
     guarantor: {
       name: submission?.guarantor?.name || "",
@@ -490,6 +498,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     pic: string;
     director_position: string;
     location: string;
+    day: string;
 
     bank_name: string;
     obligee_name: string;
@@ -505,9 +514,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     guarantor_location: string;
 
     source_of_fund_name: string;
-    contract_value: number;
-    guarantee_value: number;
+    contract_value: string | number;
+    guarantee_value: string | number;
     guarantee_type: string;
+    no_guarantee: string;
     time_period: string | number;
     job_name: string;
     job_location_village: string;
@@ -543,7 +553,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       grouped: string;
       score: any;
     };
-    date: string;
     manager_name: string;
     branch_manager: string;
     job_location: string;
@@ -592,19 +601,22 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
 
     source_of_fund_name: submission.source_of_fund?.name || "",
-    contract_value: submission.contract_value || 0,
-    guarantee_value: submission.guarantee_value || 0,
+    contract_value: submission.contract_value_formatted || 0,
+    guarantee_value: submission.guarantee_value_formatted || 0,
     guarantee_type: submission.guarantor_to_product_type?.name || "",
+    no_guarantee: submission.no_guarantee || "",
     time_period: submission.time_period || "",
     job_name: submission.job_name || "",
     job_location_village: submission.job_location_village || "",
     contract_doc_name: submission.contract_doc_name || "",
     contract_doc_number: submission.contract_doc_number || "",
     contract_doc_date: submission.contract_doc_date || "",
-    start_date: submission.start_date || "",
-    end_date: submission.end_date || "",
-    guarantee_issue_date: submission.guarantee_issue_date || "",
-    submission_date: submission.created_at || "",
+    start_date: formatToIndonesianDate(submission.start_date || ""),
+    end_date: formatToIndonesianDate(submission.end_date || ""),
+    // guarantee_issue_date: submission.guarantee_issue_date || "",
+    guarantee_issue_date: formatToIndonesianDate(submission.approved_at || ""),
+    submission_date: formatToIndonesianDate(submission.created_at || ""),
+    day: getDayName(submission.created_at || ""),
 
     analysis: {
       character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
@@ -615,7 +627,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     },
 
     scoring_result: calculateTotalPoint(submission.scores) || "",
-    date: submission.created_at || "",
     manager_name: submission.principal?.commissioner || "",
     branch_manager: submission.principal?.director_name || "",
     job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
@@ -684,12 +695,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     },
     500, // Delay in milliseconds
   );
-
-  const getDayName = (dateString: any) => {
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
 
   const scoring_result = calculateTotalPoint(submission.scores);
 
@@ -1307,7 +1312,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 }
 
                 // Untuk document_format_type_guarantee
-                if (submission?.document_format_type_guarantee?.length) {
+                if (isApproved && submission?.document_format_type_guarantee?.length) {
                   const filteredDocs = submission.document_format_type_guarantee.filter(
                     (doc: any) =>
                       doc.guarantor_id !== null && doc.product_id !== null && doc.guarantor_to_product_type_id !== null,
@@ -1454,7 +1459,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             )}
 
-          {isApproved && submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
+        {isApproved && submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
             <div>
               <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
               <TinyMCEEditor

@@ -338,6 +338,8 @@ class SubmissionController extends Controller
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
 
         $submission->scores->map(function ($score) {
@@ -393,6 +395,9 @@ class SubmissionController extends Controller
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
@@ -440,6 +445,9 @@ class SubmissionController extends Controller
             });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
+
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
@@ -587,6 +595,8 @@ class SubmissionController extends Controller
                 ];
             });
 
+
+
         return inertia($component, [
             'page_settings' => fn() => [
                 'title' => 'List Pengajuan Masuk',
@@ -600,6 +610,9 @@ class SubmissionController extends Controller
         $component = 'manager/submission-management/history/index';
 
         Carbon::setLocale('id');
+
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
@@ -876,5 +889,16 @@ class SubmissionController extends Controller
         $nomorSurat = strtoupper("PEL/BPR/{$submissionId}/{$createdAt}");
 
         return $nomorSurat;
+    }
+
+    private function formatCurrency($value)
+    {
+        return 'Rp. ' . number_format($value, 2, ',', '.');
+    }
+
+    public function formatDate($date)
+    {
+        Carbon::setLocale('id');
+        return Carbon::parse($date)->translatedFormat('d F Y');
     }
 }

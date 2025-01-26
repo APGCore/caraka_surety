@@ -227,6 +227,8 @@ interface SubmissionDetailProps {
     submission_docs: Document[];
     mail_number: string;
     no_guarantee: string;
+    contract_value_formatted: string;
+    guarantee_value_formatted: string;
   };
 
   submissionData: {
@@ -293,7 +295,6 @@ interface SubmissionDetailProps {
       grouped: string;
       score: any;
     };
-    date: string;
     manager_name: string;
     branch_manager: string;
     job_location: string;
