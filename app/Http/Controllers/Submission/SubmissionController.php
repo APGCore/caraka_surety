@@ -80,6 +80,17 @@ class SubmissionController extends Controller
             $principal = $validated['principal'];
             $principalDocuments = $validated['principal']['documents'];
             $principalRatios = $validated['principal']['ratios'];
+            $principalRatios = collect($principalRatios)->map(function ($ratio) {
+                $ratio['current_assets'] = (int) $ratio['current_assets'];
+                $ratio['current_debt'] = (int) $ratio['current_debt'];
+                $ratio['total_debt'] = (int) $ratio['total_debt'];
+                $ratio['total_assets'] = (int) $ratio['total_assets'];
+                $ratio['revenue'] = (int) $ratio['revenue'];
+                $ratio['net_income'] = (int) $ratio['net_income'];
+
+                return $ratio;
+            })->toArray();
+
             $obligee = $validated['obligee'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
@@ -474,7 +485,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -502,10 +513,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -516,10 +527,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -569,10 +580,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -608,10 +619,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -644,10 +655,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
@@ -683,10 +694,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn () => [
+            'page_settings' => fn() => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn() => $submissions,
         ]);
     }
 
