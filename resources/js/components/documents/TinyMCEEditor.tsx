@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf"; // Import jsPDF library
-import React, { useEffect } from "react";
+import React, { useRef } from "react";
 
 interface TinyMCEEditorProps {
   id: string;
@@ -9,7 +9,12 @@ interface TinyMCEEditorProps {
 }
 
 const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onContentChange, onInit }) => {
-  useEffect(() => {
+  const editorRef = useRef<boolean>(false); // To ensure initialization happens only once
+
+  const initializeEditor = () => {
+    if (editorRef.current) return; // Prevent re-initialization
+    editorRef.current = true;
+
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
     tinymceScript.async = true;
@@ -18,7 +23,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     htmlDocxScript.src = "https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js";
     htmlDocxScript.async = true;
 
-    const initializeEditor = () => {
+    const setupEditor = () => {
       window.tinymce.init({
         selector: `#${id}`,
         height: 500,
@@ -29,65 +34,37 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         promotion: false,
         noneditable_class: "mceNonEditable",
         setup: (editor: any) => {
-          // Set initial content and trigger onInit
           editor.on("init", (evt: any) => {
             editor.setContent(initialContent);
-            if (onInit) {
-              onInit(evt, editor);
-            }
+            onInit?.(evt, editor);
           });
 
-          // Handle content change
           if (onContentChange) {
             editor.on("change", () => {
               onContentChange(editor.getContent());
             });
           }
 
-          // Add custom button for exporting to Word
           editor.ui.registry.addButton("exportToWord", {
             text: "Export to Word",
             onAction: () => exportToWord(editor),
           });
 
-          //   // Add custom button for exporting to PDF
-          //   editor.ui.registry.addButton("exportToPDF", {
-          //     text: "Export to PDF",
-          //     onAction: () => exportToPDF(editor),
-          //   });
-
-          // Add custom button for printing document
           editor.ui.registry.addButton("printDocument", {
             text: "Print Document",
-            onAction: () => {
-              printDocument(editor);
-            },
+            onAction: () => printDocument(editor),
           });
         },
       });
     };
 
-    // Load TinyMCE and initialize
     tinymceScript.onload = () => {
       document.body.appendChild(htmlDocxScript);
-      htmlDocxScript.onload = initializeEditor;
+      htmlDocxScript.onload = setupEditor;
     };
 
     document.body.appendChild(tinymceScript);
-
-    return () => {
-      // Cleanup TinyMCE instance and scripts
-      if (window.tinymce?.get(id)) {
-        window.tinymce.remove(`#${id}`);
-      }
-      if (document.body.contains(tinymceScript)) {
-        document.body.removeChild(tinymceScript);
-      }
-      if (document.body.contains(htmlDocxScript)) {
-        document.body.removeChild(htmlDocxScript);
-      }
-    };
-  }, [id, initialContent, onContentChange, onInit]);
+  };
 
   const exportToWord = (editor: any) => {
     try {
@@ -108,26 +85,6 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
       console.error("Export to Word failed:", error);
     }
   };
-
-  //   const exportToPDF = (editor: any) => {
-  //     try {
-  //       const editorContent = editor.getContent();
-
-  //       // Create a new jsPDF instance
-  //       const doc = new jsPDF();
-
-  //       // Convert the HTML content to a PDF
-  //       doc.html(editorContent, {
-  //         callback: function (doc: any) {
-  //           doc.save(`${id}-document.pdf`);
-  //         },
-  //         x: 10,
-  //         y: 10,
-  //       });
-  //     } catch (error) {
-  //       console.error("Export to PDF failed:", error);
-  //     }
-  //   };
 
   const printDocument = (editor: any) => {
     try {
@@ -154,6 +111,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
       console.error("Print document failed:", error);
     }
   };
+
+  // Directly call the initialization function when rendering
+  initializeEditor();
 
   return <textarea id={id}></textarea>;
 };

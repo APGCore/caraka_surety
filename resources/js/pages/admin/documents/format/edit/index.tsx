@@ -19,8 +19,8 @@ const CreateDocumentFormatPage: EditDocumentFormatPageProps = ({
   return (
     <Card className="w-[800px] mx-auto">
       <CardHeader>
-        <CardTitle>Membuat Format Dokumen</CardTitle>
-        <CardDescription>Untuk membuat data format dokumen</CardDescription>
+        <CardTitle>Editor Format Dokumen</CardTitle>
+        <CardDescription>Untuk edit data format dokumen</CardDescription>
       </CardHeader>
       <CardContent>
         <FormDocumentFormat

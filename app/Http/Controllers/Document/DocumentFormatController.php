@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -96,10 +97,11 @@ class DocumentFormatController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
-            'guarantor_id' => 'nullable|integer',
+            'guarantor_id' => 'required|integer',
             'product_id' => 'nullable|integer',
-            'guarantor_product_type_id' => 'nullable|integer',
+            'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
             'format_document' => 'nullable|string',
         ]);
@@ -107,13 +109,13 @@ class DocumentFormatController extends Controller
         try {
             DB::beginTransaction();
             $guarantor_id = $request->get('guarantor_id') ?? null;
-            $product_id = $request->get('guarantor_product_id') ?? null;
-            $guarantor_product_type_id = $request->get('guarantor_product_type_id') ?? null;
+            $product_id = $request->get('product_id') ?? null;
+            $guarantor_product_type_id = $request->get('guarantor_to_product_type_id') ?? null;
 
             DocumentFormat::create([
                 'guarantor_id' => $guarantor_id,
-                'guarantor_product_id' => $product_id,
-                'guarantor_product_type_id' => $guarantor_product_type_id,
+                'product_id' => $product_id,
+                'guarantor_to_product_type_id' => $guarantor_product_type_id,
                 'name' => $request->get('name'),
                 'format_document' => $request->get('format_document'),
             ]);
@@ -141,26 +143,47 @@ class DocumentFormatController extends Controller
      */
     public function edit(DocumentFormat $documentFormat)
     {
-        $component = str_replace(('/'.$documentFormat->getAttribute('id')), '', request()->path()).'/index';
+        $request = request();
 
-        dd($documentFormat);
+        // Menggabungkan parameter bawaan dengan data dari $documentFormat
+        $mergedRequest = $request->merge([
+            'guarantor_id' => $documentFormat->guarantor_id,
+            'product_id' => $documentFormat->product_id,
+            'guarantor_to_product_type_id' => $documentFormat->guarantor_to_product_type_id,
+        ]);
 
+        // Mendapatkan data guarantor berdasarkan request yang telah digabungkan
+        $data = $this->getGuarantorData($mergedRequest);
+
+        // Menentukan komponen yang akan digunakan di Inertia
+        $component = str_replace('/' . $documentFormat->getAttribute('id'), '', $request->path()) . '/index';
+
+        // Mengembalikan respons dengan Inertia
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Format Dokumen',
             ],
             'documentFormat' => $documentFormat,
+            ...$data, // Memasukkan data guarantor yang telah diproses
         ]);
     }
+
+
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, DocumentFormat $documentFormat)
     {
+
+        // dd($request->all());
         $request->validate([
+            'guarantor_id' => 'required|integer',
+            'product_id' => 'nullable|integer',
+            'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
-            'format_document' => 'required|string',
+            'format_document' => 'nullable|string',
         ]);
 
         try {
@@ -169,6 +192,9 @@ class DocumentFormatController extends Controller
             $documentFormat->update([
                 'name' => $request->get('name'),
                 'format_document' => $request->get('format_document'),
+                'product_id' => $request->get('product_id'),
+                'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
+                'guarantor_id' => $request->get('guarantor_id'),
             ]);
 
             DB::commit();

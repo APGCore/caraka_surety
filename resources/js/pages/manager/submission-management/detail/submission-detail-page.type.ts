@@ -189,14 +189,28 @@ interface SubmissionDetailProps {
       format_document: string;
       name: string;
       map: any;
+      length: any;
+      filter: any;
     };
     document_format_product: {
       format_document: string;
       name: string;
+      map: any;
+      length: any;
+      filter: any;
     };
     document_format_type_guarantee: {
       format_document: string;
       name: string;
+      map: any;
+      length: any;
+      filter: any;
+    };
+    document_formats: {
+      format_document: string;
+      name: string;
+      map: any;
+      length: any;
     };
     district: {
       name: string;
