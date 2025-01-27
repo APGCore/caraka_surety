@@ -7,13 +7,14 @@ use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Submission\Submission;
+use App\Traits\CalculateInvoice;
 use App\Traits\GeneratePattern;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-    use GeneratePattern;
+    use CalculateInvoice, GeneratePattern;
 
     public function invoice(Request $request)
     {
@@ -29,12 +30,14 @@ class ReportController extends Controller
                     'guarantor:id,name,code',
                     'guarantorBranch:id,name,code',
                     'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                    'guarantor.rate:id,guarantor_id,minimum,management_fee,service_charge',
                     'guarantorToProductType:id,code_product,code',
                     'blanks:id,number,is_broken',
                     'principal:id,name',
                     'obligee:id,name',
                     'staff:id,name,profile_id',
                     'staff.office:id,name,code',
+                    'staff.office.profileRate',
                 ]);
             })
             ->orderBy('id')
@@ -53,7 +56,23 @@ class ReportController extends Controller
                 $submission->save();
             }
             $submission->blank = $blank;
+            $calculate = $this->calculateForOffice($submission);
+            $centralOfficeRate = [
+                'minimum' => $calculate->get('minimum'),
+                'management_fee' => $calculate->get('management_fee'),
+                'service_charge' => $calculate->get('service_charge_central'),
+                'total' => $calculate->get('total_central'),
+            ];
+            $submission->central_office_rate = $centralOfficeRate;
+            $submission->branch_office_rate = [
+                'minimum_bill' => $calculate->get('minimum_bill'),
+                'selling_rate' => $calculate->get('selling_rate'),
+                'sales_administration' => $calculate->get('sales_administration'),
+                'service_charge' => $calculate->get('service_charge_branch'),
+                'total' => $calculate->get('total_branch'),
+            ];
         }
+
         $resource = SubmissionResource::collection($submissions);
 
         return inertia('report/invoice/index', [

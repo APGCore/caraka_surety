@@ -341,7 +341,6 @@ class SubmissionController extends Controller
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
-
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
@@ -501,7 +500,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -529,10 +528,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -543,10 +542,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -595,13 +594,11 @@ class SubmissionController extends Controller
                 ];
             });
 
-
-
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -640,10 +637,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -676,10 +673,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -715,10 +712,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -808,7 +805,6 @@ class SubmissionController extends Controller
         }
     }
 
-
     public function saveDocSignatured(Request $request)
     {
         $validated = $request->validate([
@@ -823,7 +819,7 @@ class SubmissionController extends Controller
         if ($request->hasFile('spkmgr_file')) {
             $spkmgrFile = $request->file('spkmgr_file');
             // Generate nama file unik
-            $uniqueName = uniqid('spkmgr_', true) . '.' . $spkmgrFile->getClientOriginalExtension();
+            $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
             // Simpan file di folder dengan path berdasarkan submission_id
             $spkmgrPath = $spkmgrFile->storeAs(
                 "documents/spkmgr/{$submissionId}",
@@ -842,7 +838,7 @@ class SubmissionController extends Controller
         if ($request->hasFile('permohonan_file')) {
             $permohonanFile = $request->file('permohonan_file');
             // Generate nama file unik
-            $uniqueName = uniqid('permohonan_', true) . '.' . $permohonanFile->getClientOriginalExtension();
+            $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
             // Simpan file di folder dengan path berdasarkan submission_id
             $permohonanPath = $permohonanFile->storeAs(
                 "documents/permohonan/{$submissionId}",
@@ -871,15 +867,12 @@ class SubmissionController extends Controller
         ]);
     }
 
-
-
     public function generateNomorSurat($submissionId)
     {
 
-
         $submission = Submission::find($submissionId);
 
-        if (!$submission) {
+        if (! $submission) {
             return null;
         }
 
@@ -893,12 +886,13 @@ class SubmissionController extends Controller
 
     private function formatCurrency($value)
     {
-        return 'Rp. ' . number_format($value, 2, ',', '.');
+        return 'Rp. '.number_format($value, 2, ',', '.');
     }
 
     public function formatDate($date)
     {
         Carbon::setLocale('id');
+
         return Carbon::parse($date)->translatedFormat('d F Y');
     }
 }

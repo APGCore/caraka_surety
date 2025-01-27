@@ -4,24 +4,13 @@ import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
 import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
+import { formatToDateIndonesian, getDayName } from "@/lib/date-indo";
 import { formatCurrency } from "@/lib/format-currency";
-import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
-import templateSpkmgrBumida from "@/pages/output_templates/template-spkmgr-bumida";
-import templateSpkmgrJastan from "@/pages/output_templates/template-spkmgr-jastan";
-import templateSpkmgrVidei from "@/pages/output_templates/template-spkmgr-videi";
-import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
-import templatePemeliharaan from "@/pages/output_templates/template-surat-pemeliharaan";
-import templateBankGaransi from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
-import templateBumida from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
-import templateJastan from "@/pages/output_templates/template-surat-permohonan-surety-bond-jastan";
-import templateVidei from "@/pages/output_templates/template-surat-permohonan-surety-bond-videi";
-import templateUangMuka from "@/pages/output_templates/template-surat-uang-muka";
 import { SubmissionStatus } from "@/types/submission-status";
 import axios from "axios";
 import debounce from "lodash/debounce";
@@ -95,41 +84,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   console.log(created_at);
 
-  function formatToIndonesianDate(dateString: string): string {
-    const months = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
-    const date = new Date(dateString);
-
-    const dayOfWeek = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} ${month} ${year}`;
-  }
-
-  const getDayName = (dateString: any) => {
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
-
-  const formattedDate = formatToIndonesianDate(submission?.created_at);
+  const formattedDate = formatToDateIndonesian(submission?.created_at);
 
   console.log(submission);
 
@@ -210,10 +165,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NOMOR_KONTRAK]", data?.contract_doc_number || "")
       .replace("[TANGGAL_KONTRAK]", data?.contract_doc_date || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
+      .replace("[TANGGAL_PENERBITAN]", formatToDateIndonesian(data?.guarantee_issue_date) || "")
       .replace("[NAMA_PENJAMIN_TTD]", data?.guarantor.signer_name || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.guarantor.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data?.guarantor?.pic || "")
@@ -280,15 +235,15 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NOMOR_DOKUMEN]", data?.contract_doc_number || "")
       .replace("[TANGGAL_DOKUMEN]", data?.contract_doc_date || "")
       .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace(
         "[TANGGAL_PENERBITAN]",
-        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
+        data?.guarantee_issue_date ? formatToDateIndonesian(data?.guarantee_issue_date) : "",
       )
       .replace(
         "[TANGGAL_PENERBITAN]",
-        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
+        data?.guarantee_issue_date ? formatToDateIndonesian(data?.guarantee_issue_date) : "",
       )
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
@@ -316,8 +271,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[DASAR_DOKUMEN]", data?.contract_doc_name + " " + data?.contract_doc_number || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data?.principal.director_name || "")
@@ -352,8 +307,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
       .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[NAMA_PROYEK]", data?.job_name || "")
       .replace("[JENIS_PROYEK]", data?.job_group || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
@@ -567,7 +522,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   // Fungsi untuk mengganti placeholder dalam template
   const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
+    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
       const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
       return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
     });
@@ -611,11 +566,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_doc_name: submission.contract_doc_name || "",
     contract_doc_number: submission.contract_doc_number || "",
     contract_doc_date: submission.contract_doc_date || "",
-    start_date: formatToIndonesianDate(submission.start_date || ""),
-    end_date: formatToIndonesianDate(submission.end_date || ""),
+    start_date: formatToDateIndonesian(submission.start_date || ""),
+    end_date: formatToDateIndonesian(submission.end_date || ""),
     // guarantee_issue_date: submission.guarantee_issue_date || "",
-    guarantee_issue_date: formatToIndonesianDate(submission.approved_at || ""),
-    submission_date: formatToIndonesianDate(submission.created_at || ""),
+    guarantee_issue_date: formatToDateIndonesian(submission.approved_at || ""),
+    submission_date: formatToDateIndonesian(submission.created_at || ""),
     day: getDayName(submission.created_at || ""),
 
     analysis: {

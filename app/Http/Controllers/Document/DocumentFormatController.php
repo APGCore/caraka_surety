@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Product\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -156,7 +155,7 @@ class DocumentFormatController extends Controller
         $data = $this->getGuarantorData($mergedRequest);
 
         // Menentukan komponen yang akan digunakan di Inertia
-        $component = str_replace('/' . $documentFormat->getAttribute('id'), '', $request->path()) . '/index';
+        $component = str_replace('/'.$documentFormat->getAttribute('id'), '', $request->path()).'/index';
 
         // Mengembalikan respons dengan Inertia
         return inertia($component, [
@@ -167,9 +166,6 @@ class DocumentFormatController extends Controller
             ...$data, // Memasukkan data guarantor yang telah diproses
         ]);
     }
-
-
-
 
     /**
      * Update the specified resource in storage.

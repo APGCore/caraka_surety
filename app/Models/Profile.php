@@ -70,4 +70,9 @@ class Profile extends Model
     {
         return $this->belongsToMany(Guarantor::class, OfficePairing::class, 'office_id', 'guarantor_id');
     }
+
+    public function profileRate(): HasMany
+    {
+        return $this->hasMany(ProfileRate::class, 'profile_id');
+    }
 }

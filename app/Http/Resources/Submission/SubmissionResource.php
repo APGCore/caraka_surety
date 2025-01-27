@@ -38,6 +38,8 @@ class SubmissionResource extends JsonResource
                     'name' => $this->resource->obligee->name,
                 ];
             }),
+            'central_office_rate' => $this->resource->central_office_rate,
+            'branch_office_rate' => $this->resource->branch_office_rate,
         ];
     }
 }

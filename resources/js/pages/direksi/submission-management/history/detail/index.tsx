@@ -19,20 +19,10 @@ import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import useStepper from "@/hooks/general/use-stepper";
 import DireksiLayoutPage from "@/layouts/direksi";
 import { cn } from "@/lib/cn";
+import { formatToDateIndonesian, getDayName } from "@/lib/date-indo";
 import { formatCurrency } from "@/lib/format-currency";
 import { textCurrency } from "@/lib/text-currency";
-import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
-import templateSpkmgrBumida from "@/pages/output_templates/template-spkmgr-bumida";
-import templateSpkmgrJastan from "@/pages/output_templates/template-spkmgr-jastan";
-import templateSpkmgrVidei from "@/pages/output_templates/template-spkmgr-videi";
-import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
-import templatePemeliharaan from "@/pages/output_templates/template-surat-pemeliharaan";
-import templateBankGaransi from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
-import templateBumida from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
-import templateJastan from "@/pages/output_templates/template-surat-permohonan-surety-bond-jastan";
-import templateVidei from "@/pages/output_templates/template-surat-permohonan-surety-bond-videi";
-import templateUangMuka from "@/pages/output_templates/template-surat-uang-muka";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -85,8 +75,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     handleComparisonRatios(submission?.principal?.ratios);
   }, []);
 
-  const currentDate = new Date();
-  const options = { year: "numeric" as const, month: "long" as const, day: "numeric" as const };
   //   const formattedDate = currentDate.toLocaleDateString("id-ID", options).toUpperCase();
   const isProcess = submission?.status == SubmissionStatus.PROCESS;
   const isApproved = submission?.status == SubmissionStatus.APPROVED;
@@ -105,39 +93,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const created_at = submission?.created_at;
   const nomorSurat = generateNomorSurat(created_at);
 
-  console.log(created_at);
-
-  function formatToIndonesianDate(dateString: string): string {
-    const months = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
-    const date = new Date(dateString);
-
-    const dayOfWeek = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} ${month} ${year}`;
-  }
-
-  const formattedDate = formatToIndonesianDate(submission?.created_at);
-
-  console.log(submission);
+  const formattedDate = formatToDateIndonesian(submission?.created_at);
 
   interface Analysis {
     character: number | string;
@@ -216,10 +172,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NOMOR_KONTRAK]", data?.contract_doc_number || "")
       .replace("[TANGGAL_KONTRAK]", data?.contract_doc_date || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
+      .replace("[TANGGAL_PENERBITAN]", formatToDateIndonesian(data?.guarantee_issue_date) || "")
       .replace("[NAMA_PENJAMIN_TTD]", data?.guarantor.signer_name || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.guarantor.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data?.guarantor?.pic || "")
@@ -284,11 +240,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NOMOR_DOKUMEN]", data?.contract_doc_number || "")
       .replace("[TANGGAL_DOKUMEN]", data?.contract_doc_date || "")
       .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace(
         "[TANGGAL_PENERBITAN]",
-        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
+        data?.guarantee_issue_date ? formatToDateIndonesian(data?.guarantee_issue_date) : "",
       )
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
       .replace("[NAMA_PIC]", data?.pic_name || "")
@@ -316,8 +272,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
       .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[DASAR_DOKUMEN]", data?.contract_doc_name + " " + data?.contract_doc_number || "")
       .replace("[NAMA_PRINCIPAL_TTD]", data?.principal.name || "")
       .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data?.principal.director_name || "")
@@ -352,8 +308,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
       .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
       .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
+      .replace("[START_DATE]", formatToDateIndonesian(data?.start_date) || "")
+      .replace("[END_DATE]", formatToDateIndonesian(data?.end_date) || "")
       .replace("[NAMA_PROYEK]", data?.job_name || "")
       .replace("[JENIS_PROYEK]", data?.job_group || "")
       .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
@@ -471,7 +427,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   // Fungsi untuk mengganti placeholder dalam template
   const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
+    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
       const value = data[key.toLowerCase()];
       return value !== undefined ? value : `[${key}]`;
     });
@@ -512,12 +468,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return `${day} ${month} ${year}`;
   }
 
-  const getDayName = (dateString: any) => {
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
-
   const dataTemplate: SubmissionData = {
     principal_name: submission.principal?.name || "",
     principal_address: submission.principal?.address || "",
@@ -555,11 +505,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_doc_name: submission.contract_doc_name || "",
     contract_doc_number: submission.contract_doc_number || "",
     contract_doc_date: submission.contract_doc_date || "",
-    start_date: formatToIndonesianDate(submission.start_date || ""),
-    end_date: formatToIndonesianDate(submission.end_date || ""),
+    start_date: formatToDateIndonesian(submission.start_date || ""),
+    end_date: formatToDateIndonesian(submission.end_date || ""),
     // guarantee_issue_date: submission.guarantee_issue_date || "",
-    guarantee_issue_date: formatToIndonesianDate(submission.approved_at || ""),
-    submission_date: formatToIndonesianDate(submission.created_at || ""),
+    guarantee_issue_date: formatToDateIndonesian(submission.approved_at || ""),
+    submission_date: formatToDateIndonesian(submission.created_at || ""),
     day: getDayName(submission.created_at || ""),
 
     analysis: {
@@ -749,8 +699,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const scoring_result = calculateTotalPoint(submission.scores);
 
-  let notes = "";
-  let recommendation = "";
+  let notes;
+  let recommendation;
 
   if (scoring_result > 60 && scoring_result < 100) {
     notes = "Dipertimbangkan untuk disetujui";
@@ -1297,7 +1247,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <div>
                 <TinyMCEEditor
                   id="hasil-analisis"
-                  onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
                   initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
                 />
               </div>
@@ -1411,7 +1361,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
                 <TinyMCEEditor
                   id="surat-permohonan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
                   initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
                 />
               </div>
@@ -1421,7 +1371,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
                 <TinyMCEEditor
                   id="draft-surety"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["draft-surety"] = editor)}
                   initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
                 />
               </div>
@@ -1431,7 +1381,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
                 <TinyMCEEditor
                   id="draft-surety-bumida"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
                   initialContent={replacePlaceholders(templateBumida, dataTemplate)}
                 />
               </div>
@@ -1442,7 +1392,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
                 <TinyMCEEditor
                   id="draft-surety-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
                   initialContent={replacePlaceholders(templateJastan, dataTemplate)}
                 />
               </div>
@@ -1453,7 +1403,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
                 <TinyMCEEditor
                   id="draft-surety-videi"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
                   initialContent={replacePlaceholders(templateVidei, dataTemplate)}
                 />
               </div>
@@ -1465,7 +1415,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <div>
                   <TinyMCEEditor
                     id="spkmgr-bumida"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
+                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
                   />
                 </div>
@@ -1479,7 +1429,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <div>
                   <TinyMCEEditor
                     id="spkmgr-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
+                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
                   />
                 </div>
@@ -1492,7 +1442,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <div>
                   <TinyMCEEditor
                     id="spkmgr-videi"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
+                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
                     initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
                   />
                 </div>
@@ -1506,7 +1456,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pemeliharaan</p>
                 <TinyMCEEditor
                   id="surat-pemeliharaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
                   initialContent={replacePlaceholders(templatePemeliharaan, dataTemplate)}
                 />
               </div>
@@ -1519,7 +1469,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <p className="text-xl font-semibold mb-4 mt-5">Jaminan Uang Muka Jastan</p>
                   <TinyMCEEditor
                     id="uang-muka-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
+                    onInit={(_evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
                     initialContent={replacePlaceholders(templateUangMuka, dataTemplate)}
                   />
                 </div>
@@ -1530,7 +1480,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
                 <TinyMCEEditor
                   id="surat-pelaksanaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
+                  onInit={(_evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
                   initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
                 />
               </div>

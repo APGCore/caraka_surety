@@ -15,6 +15,7 @@ use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\User;
+use App\Traits\currencyConverter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +27,7 @@ use Laravel\Scout\Searchable;
 
 class Submission extends Model
 {
-    use HasFactory, Searchable, SoftDeletes;
+    use currencyConverter, HasFactory, Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',
@@ -35,24 +36,24 @@ class Submission extends Model
         'deleted_at',
     ];
 
-    protected function guaranteeValue(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->formatRupiah($value),
-        );
-    }
-
-    protected function contractValue(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $this->formatRupiah($value),
-        );
-    }
-
-    private function formatRupiah($value)
-    {
-        return 'Rp. ' . number_format($value, 0, ',', '.');
-    }
+    //    protected function guaranteeValue(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn ($value) => $this->formatRupiah($value),
+    //        );
+    //    }
+    //
+    //    protected function contractValue(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn ($value) => $this->formatRupiah($value),
+    //        );
+    //    }
+    //
+    //    private function formatRupiah($value): string
+    //    {
+    //        return 'Rp. ' . $this->currencyConvert($value);
+    //    }
 
     public function scores(): HasMany
     {
@@ -94,7 +95,7 @@ class Submission extends Model
         return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNotNull('headquarter_id');
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }

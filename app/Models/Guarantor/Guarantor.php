@@ -100,8 +100,13 @@ class Guarantor extends Model
         return $this->hasOne(Pattern::class);
     }
 
-    public function documentFormats()
+    public function documentFormats(): HasMany
     {
         return $this->hasMany(DocumentFormat::class);
+    }
+
+    public function guarantorRate(): HasMany
+    {
+        return $this->hasMany(GuarantorRate::class);
     }
 }

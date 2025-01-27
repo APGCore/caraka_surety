@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatToDateIndonesian } from "@/lib/date-indo";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
@@ -32,32 +33,6 @@ interface DocumentFormatDatatableProps {
   guarantorSelectedId: number;
   productSelectedId: number;
   guarantorProductTypeId: number;
-}
-
-function formatTanggal(dateString: any) {
-  if (!dateString) return "-";
-
-  const bulan = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const date = new Date(dateString);
-  const hari = date.getDate();
-  const bulanNama = bulan[date.getMonth()];
-  const tahun = date.getFullYear();
-
-  return `${hari} ${bulanNama} ${tahun}`;
 }
 
 const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ documentFormats }) => {
@@ -89,7 +64,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ docum
               <TableRow key={documentFormat.id}>
                 <TableCell>{documentFormats?.from + index}</TableCell>
                 <TableCell>{documentFormat?.name}</TableCell>
-                <TableCell>{formatTanggal(documentFormat?.created_at)}</TableCell>
+                <TableCell>{formatToDateIndonesian(documentFormat?.created_at)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
