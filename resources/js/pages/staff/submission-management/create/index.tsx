@@ -4,20 +4,11 @@ import InputCurrency from "@/components/common/input-currency";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import useGetAllBank from "@/hooks/api/bank/useGetAllBank";
 import useGetGuarantorBranch from "@/hooks/api/guarantor/useGetGuarantorBranch";
@@ -31,11 +22,11 @@ import useGetAllProduct from "@/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/hooks/api/source-of-fund/useGetSourceOfFund";
-import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
 import { toast } from "@/hooks/general/use-toast";
 import StaffLayoutPage from "@/layouts/staff";
 import { cn } from "@/lib/cn";
 import { getNumericValue } from "@/lib/get-numeric-value";
+import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import { subDays } from "date-fns";
@@ -161,15 +152,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     },
   };
   const { data, setData, post, processing } = useForm<SubmissionFormProps>(dataDefault);
-
-  const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
-  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
-
-  const calculateRatios = (value1: string, value2: string) => {
-    const result = (Number(value1) / Number(value2)).toFixed(2);
-
-    return result === "Infinity" ? undefined : isNaN(Number(result)) ? undefined : result;
-  };
 
   const fetchPrincipalDocuments = (principalId?: number) => {
     axios.get(route("references.principal.documents", { principal_id: principalId })).then((response) => {
@@ -354,6 +336,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     },
   ]);
 
+  const handleSetRatios = (ratios: Ratio[]) => {
+    setData("principal", {
+      ...data.principal,
+      ratios,
+    });
+  };
+
   const handleActiveStep = (targetStep: string) => {
     const targetIndex = steps.findIndex((step) => step.name === targetStep);
     const updatedSteps = steps.map((step, index) => ({
@@ -469,7 +458,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
-  console.log(lessThanValue);
+  console.log(data);
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
       <form
@@ -521,7 +510,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     });
 
                     fetchPrincipalDocuments(val.id);
-                    handleComparisonRatios(ratios);
                   }}
                 />
                 <Button
@@ -1500,252 +1488,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
             <Show when={formStep === "skoring"}>
               <div>
                 <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
-                <h2 className="text-xl font-semibold mb-8">Laporan Keuangan Perusahaan</h2>
                 <div className="grid gap-16">
-                  <div className="flex gap-8">
-                    <div className="grid gap-3 w-[550px]">
-                      <div className="pt-2 text-black h-[45px]">Tahun</div>
-                      <div className="pt-2 text-black h-[45px]">Aktiva Lancar</div>
-                      <div className="pt-2 text-black h-[45px]">Utang Lancar</div>
-                      <div className="pt-2 text-black h-[45px]">Total Utang</div>
-                      <div className="pt-2 text-black h-[45px]">Total Aktiva</div>
-                      <div className="pt-2 text-black h-[45px]">Pendapatan</div>
-                      <div className="pt-2 text-black h-[45px]">Laba Bersih</div>
-                      <div className="pt-2 text-black h-[45px] flex justify-between">
-                        Rasio Likuiditas
-                        {comparisonRatios.liquidity_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.liquidity_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6">
-                            Turun
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="pt-2 text-black h-[45px] flex justify-between">
-                        Rasio Profitabilitas
-                        {comparisonRatios.profitability_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.profitability_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6">
-                            Turun
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="pt-2 text-black h-[45px] flex justify-between">
-                        Rasio Solvabilitas
-                        {comparisonRatios.solvency_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.solvency_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6">
-                            Turun
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <RenderList
-                      of={data.principal.ratios}
-                      render={(ratio, index) => {
-                        return (
-                          <div className="grid gap-3 w-full">
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <Select
-                                value={ratio.year?.toString() ?? years[index].toString()}
-                                onValueChange={(year) => {
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios: data.principal.ratios.map((r, i) =>
-                                      i === index
-                                        ? {
-                                            ...r,
-                                            year: Number(year),
-                                          }
-                                        : r,
-                                    ),
-                                  });
-                                }}>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Pilih Tahun" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Tahun</SelectLabel>
-                                    <RenderList
-                                      of={years}
-                                      render={(year) => {
-                                        return <SelectItem value={year.toString()}>{year}</SelectItem>;
-                                      }}
-                                    />
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio?.current_assets ?? ""}
-                                placeholder="Aktiva Lancar"
-                                onChange={(value) => {
-                                  const liquidity = calculateRatios(value ?? "", ratio.current_debt ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        current_assets: value ?? "",
-                                        liquidity_ratios: liquidity ?? "",
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios: ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio.current_debt ?? ""}
-                                placeholder="Utang Lancar"
-                                onChange={(value) => {
-                                  const liquidity = calculateRatios(ratio.current_assets ?? "", value ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        current_debt: value ?? "",
-                                        liquidity_ratios: liquidity ?? "",
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio.total_debt ?? ""}
-                                placeholder="Total Utang"
-                                onChange={(value) => {
-                                  const solvency = calculateRatios(ratio.total_assets ?? "", value ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        total_debt: value ?? "",
-                                        solvency_ratios: solvency ?? "",
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio.total_assets ?? ""}
-                                placeholder="Total Aktiva"
-                                onChange={(value) => {
-                                  const solvency = calculateRatios(value ?? "", ratio.total_debt ?? "");
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        total_assets: value ?? "",
-                                        solvency_ratios: solvency ?? "",
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio.revenue ?? ""}
-                                placeholder="Pendapatan"
-                                onChange={(value) => {
-                                  const profitability = calculateRatios(value ?? "", ratio.net_income ?? "");
-                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        revenue: value ?? "",
-                                        profitability_ratios: profit.toString(),
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="grid gap-1 h-[30px] w-full">
-                              <InputCurrency
-                                value={ratio.net_income ?? ""}
-                                placeholder="Laba Bersih"
-                                onChange={(value) => {
-                                  const profitability = calculateRatios(ratio.revenue ?? "", value ?? "");
-                                  const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
-                                  const ratios = data.principal.ratios.map((r, i) => {
-                                    if (i === index) {
-                                      return {
-                                        ...r,
-                                        net_income: value ?? "",
-                                        profitability_ratios: profit.toString(),
-                                      };
-                                    }
-                                    return r;
-                                  });
-                                  setData("principal", {
-                                    ...data.principal,
-                                    ratios,
-                                  });
-                                  handleComparisonRatios(ratios);
-                                }}
-                              />
-                            </div>
-                            <div className="pt-2 h-[30px] w-full text-black">{ratio.liquidity_ratios ?? "??"}</div>
-                            <div className="pt-2 h-[30px] w-full text-black">
-                              {ratio.profitability_ratios !== undefined
-                                ? ratio.profitability_ratios.toString() + "%"
-                                : "??"}{" "}
-                            </div>
-                            <div className="pt-2 h-[30px] w-full text-black">{ratio.solvency_ratios ?? "??"}</div>
-                          </div>
-                        );
-                      }}
-                    />
-                  </div>
+                  <PrincipalRatios
+                    ratios={data.principal.ratios}
+                    setRatio={handleSetRatios}
+                    defaultPrincipalRatios={defaultPrincipalRatios}
+                  />
                   <RenderList
                     of={scorings}
                     render={(scoringCategories) => {

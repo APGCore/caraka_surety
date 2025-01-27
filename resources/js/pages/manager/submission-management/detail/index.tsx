@@ -23,18 +23,7 @@ import ManagerLayoutPage from "@/layouts/manager";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/format-currency";
 import { textCurrency } from "@/lib/text-currency";
-import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
-import templateSpkmgrBumida from "@/pages/output_templates/template-spkmgr-bumida";
-import templateSpkmgrJastan from "@/pages/output_templates/template-spkmgr-jastan";
-import templateSpkmgrVidei from "@/pages/output_templates/template-spkmgr-videi";
-import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
-import templatePemeliharaan from "@/pages/output_templates/template-surat-pemeliharaan";
-import templateBankGaransi from "@/pages/output_templates/template-surat-permohonan-bank-garansi";
-import templateBumida from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
-import templateJastan from "@/pages/output_templates/template-surat-permohonan-surety-bond-jastan";
-import templateVidei from "@/pages/output_templates/template-surat-permohonan-surety-bond-videi";
-import templateUangMuka from "@/pages/output_templates/template-surat-uang-muka";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -1074,158 +1063,152 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           <Show when={currentStep.name === "skoring"}>
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-10">Analisis Rasio Keuangan Perusahaan</h2>
-              <div className="flex justify-between w-full">
-                <div className="w-full">
-                  <table className="table-fixed border w-full border-gray-300">
-                    <thead>
-                      <tr className="border-b bg-gray-100">
-                        <th className="p-2 font-semibold text-left w-1/2">Rasio</th>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <th className="p-2 font-semibold text-center w-1/2">{ratio.year}</th>;
-                          }}
-                        />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Aktiva Lancar</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_assets}</td>;
-                          }}
-                        />
-                      </tr>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.current_debt}</td>;
-                          }}
-                        />
-                      </tr>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_debt}</td>;
-                          }}
-                        />
-                      </tr>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.total_assets}</td>;
-                          }}
-                        />
-                      </tr>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.revenue}</td>;
-                          }}
-                        />
-                      </tr>
-                      <tr className="border-b">
-                        <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
-                        <RenderList
-                          of={submission?.principal?.ratios}
-                          render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center w-1/2">{ratio.net_income}</td>;
-                          }}
-                        />
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
 
-                <table className="table-fixed w-full border border-gray-300">
-                  <thead>
-                    <tr className="border-b bg-gray-100">
-                      <th className="p-2 font-semibold text-left w-[200px]">Rasio</th>
-                      <RenderList
-                        of={submission?.principal?.ratios}
-                        render={(ratio: any) => {
-                          return <th className="p-2 font-semibold text-center w-1/5">{ratio.year}</th>;
-                        }}
-                      />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b bg-gray-100">
-                      <td className="p-2 font-semibold text-left">
-                        Rasio Likuiditas
-                        {comparisonRatios.liquidity_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.liquidity_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                            Turun
-                          </Badge>
-                        )}
-                      </td>
-                      <RenderList
-                        of={submission?.principal?.ratios}
-                        render={(ratio: any) => {
-                          return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
-                        }}
-                      />
-                    </tr>
-                    <tr className="border-b bg-gray-100">
-                      <td className="p-2 font-semibold text-left">
-                        Rasio Profitabilitas
-                        {comparisonRatios.profitability_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.profitability_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                            Turun
-                          </Badge>
-                        )}
-                      </td>
-                      <RenderList
-                        of={submission?.principal?.ratios}
-                        render={(ratio: any) => {
-                          return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
-                        }}
-                      />
-                    </tr>
-                    <tr className="border-b bg-gray-100">
-                      <td className="p-2 font-semibold text-left">
-                        Rasio Solvabilitas
-                        {comparisonRatios.solvency_ratios == true && (
-                          <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                            Naik
-                          </Badge>
-                        )}
-                        {comparisonRatios.solvency_ratios == false && (
-                          <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                            Turun
-                          </Badge>
-                        )}
-                      </td>
-                      <RenderList
-                        of={submission?.principal?.ratios}
-                        render={(ratio: any) => {
-                          return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
-                        }}
-                      />
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <table className="table-fixed border w-full border-gray-300">
+                <thead>
+                  <tr className="border-b bg-gray-100">
+                    <th className="p-2 font-semibold text-left w-1">Rasio</th>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <th className="p-2 font-semibold text-center w-1">{ratio.year}</th>;
+                      }}
+                    />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1">Aktiva Lancar</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return (
+                          <td className="p-2 font-semibold text-center w-1/2">
+                            {formatCurrency(ratio.current_assets)}
+                          </td>
+                        );
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return (
+                          <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.current_debt)}</td>
+                        );
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return (
+                          <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_debt)}</td>
+                        );
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return (
+                          <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_assets)}</td>
+                        );
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.revenue)}</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return (
+                          <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.net_income)}</td>
+                        );
+                      }}
+                    />
+                  </tr>
+
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Likuiditas
+                      {comparisonRatios.liquidity_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.liquidity_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Profitabilitas
+                      {comparisonRatios.profitability_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.profitability_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
+                      }}
+                    />
+                  </tr>
+                  <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                      Rasio Solvabilitas
+                      {comparisonRatios.solvency_ratios == true && (
+                        <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                          Naik
+                        </Badge>
+                      )}
+                      {comparisonRatios.solvency_ratios == false && (
+                        <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                          Turun
+                        </Badge>
+                      )}
+                    </td>
+                    <RenderList
+                      of={submission?.principal?.ratios}
+                      render={(ratio: any) => {
+                        return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                      }}
+                    />
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-10">Hasil Skoring</h2>
