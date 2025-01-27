@@ -608,9 +608,6 @@ class SubmissionController extends Controller
 
         Carbon::setLocale('id');
 
-        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
             ->where(function ($query) use ($authId) {
@@ -623,6 +620,8 @@ class SubmissionController extends Controller
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
+                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
                 $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
 
