@@ -10,3 +10,4 @@
 # else
 #   echo "No .tsx files staged. Skipping build."
 # fi
+npm run build
