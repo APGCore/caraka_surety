@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Exports\BlankUsageExport;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
 use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
 use App\Traits\GeneratePattern;
@@ -22,10 +24,16 @@ class ReportController extends Controller
             now()->subDays(7)->toDateString(),
             now()->toDateString(),
         ])->values();
+        $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')
+            ->get(['id', 'name']);
+        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->getAttribute('id'));
         $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date) {
+            ->query(function ($query) use ($date, $guarantorSelected) {
                 return $query->when($date->isNotEmpty(), function ($query) use ($date) {
                     $query->whereBetween('created_at', $date);
+                })->when($guarantorSelected, function ($query) use ($guarantorSelected) {
+                    $query->where('guarantor_id', $guarantorSelected);
                 })->with([
                     'guarantor:id,name,code',
                     'guarantorBranch:id,name,code',
@@ -36,7 +44,7 @@ class ReportController extends Controller
                     'principal:id,name',
                     'obligee:id,name',
                     'staff:id,name,profile_id',
-                    'staff.office:id,name,code',
+                    'staff.office:id,name,code,office_type',
                     'staff.office.profileRate',
                 ]);
             })
@@ -56,22 +64,24 @@ class ReportController extends Controller
                 $submission->save();
             }
             $submission->blank = $blank;
-            $calculateOffice = $this->calculateForOffice($submission);
+            $calculateCentralOffice = $this->calculateForCentralOffice($submission);
             $calculateGuarantor = $this->calculateForGuarantor($submission);
-            $centralOfficeRate = [
-                'minimum' => $calculateOffice->get('minimum'),
-                'management_fee' => $calculateOffice->get('management_fee') * 100,
-                'service_charge' => $calculateOffice->get('service_charge_central'),
-                'total' => $calculateOffice->get('total_central'),
+            $submission->central_office_rate = [
+                'minimum' => $calculateCentralOffice->get('minimum'),
+                'management_fee' => $calculateCentralOffice->get('management_fee') * 100,
+                'service_charge' => $calculateCentralOffice->get('service_charge_central'),
+                'total' => $calculateCentralOffice->get('total_central'),
             ];
-            $submission->central_office_rate = $centralOfficeRate;
-            $submission->branch_office_rate = [
-                'minimum_bill' => $calculateOffice->get('minimum_bill'),
-                'selling_rate' => $calculateOffice->get('selling_rate') * 100,
-                'sales_administration' => $calculateOffice->get('sales_administration'),
-                'service_charge' => $calculateOffice->get('service_charge_branch'),
-                'total' => $calculateOffice->get('total_branch'),
-            ];
+            if ($submission->staff?->office?->office_type === OfficeType::BRANCH) {
+                $calculateOffice = $this->calculateForBranchOffice($submission);
+                $submission->branch_office_rate = [
+                    'minimum_bill' => $calculateOffice->get('minimum_bill'),
+                    'selling_rate' => $calculateOffice->get('selling_rate') * 100,
+                    'sales_administration' => $calculateOffice->get('sales_administration'),
+                    'service_charge' => $calculateOffice->get('service_charge_branch'),
+                    'total' => $calculateOffice->get('total_branch'),
+                ];
+            }
             $submission->guarantor_rate = [
                 'minimum_payment' => $calculateGuarantor->get('minimum_payment'),
                 'pay_rate' => $calculateGuarantor->get('pay_rate') * 100,
@@ -91,6 +101,8 @@ class ReportController extends Controller
                 'title' => 'Laporan Invoice',
             ],
             'submissions' => fn () => $resource,
+            'guarantors' => $guarantors,
+            'guarantorSelected' => $guarantorSelected,
         ]);
     }
 

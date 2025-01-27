@@ -7,10 +7,9 @@ use Illuminate\Support\Collection;
 
 trait CalculateInvoice
 {
-    public function calculateForOffice(
+    private function calculateForCentralOffice(
         Submission $submission
     ): Collection {
-        // time_priode > 90
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $office = $submission->getRelation('staff')->getRelation('office');
@@ -18,13 +17,31 @@ trait CalculateInvoice
             ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
             ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
             ->first();
-        // calculate for central office
+
         $managementFee = (float) ($profileRate?->getAttribute('management_fee') ?? 0) / 100;
         $minimum = (float) $profileRate?->getAttribute('minimum_management_fee') ?? 0;
         $serviceChargeCentral = (float) $timePeriode > 90 ? ($guaranteeValue * $managementFee * 90) : ($guaranteeValue * $managementFee);
         $totalCentral = max($serviceChargeCentral, $minimum);
 
-        // calculate for branch office
+        return collect([
+            'minimum' => $minimum,
+            'management_fee' => $managementFee,
+            'service_charge_central' => round($serviceChargeCentral, 2),
+            'total_central' => round($totalCentral, 2),
+        ]);
+    }
+
+    private function calculateForBranchOffice(
+        Submission $submission
+    ): Collection {
+        $timePeriode = (int) $submission->getAttribute('time_period');
+        $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
+        $office = $submission->getRelation('staff')->getRelation('office');
+        $profileRate = collect($office->getRelation('profileRate'))
+            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+            ->first();
+
         $minimumBill = (float) $profileRate?->getAttribute('minimum_bill') ?? 0;
         $sellingRate = (float) ($profileRate?->getAttribute('selling_rate') ?? 0) / 100;
         $salesAdministration = (float) $profileRate?->getAttribute('sales_administration') ?? 0;
@@ -33,11 +50,6 @@ trait CalculateInvoice
         $totalBranch = max($subtotalBranch, $minimumBill);
 
         return collect([
-            'minimum' => $minimum,
-            'management_fee' => $managementFee,
-            'service_charge_central' => round($serviceChargeCentral, 2),
-            'total_central' => round($totalCentral, 2),
-
             'minimum_bill' => $minimumBill,
             'selling_rate' => $sellingRate,
             'sales_administration' => $salesAdministration,

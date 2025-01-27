@@ -1489,11 +1489,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                 <div className="grid gap-16">
-                  <PrincipalRatios
-                    ratios={data.principal.ratios}
-                    setRatio={handleSetRatios}
-                    defaultPrincipalRatios={defaultPrincipalRatios}
-                  />
+                  <PrincipalRatios ratios={data.principal.ratios} setRatio={handleSetRatios} />
                   <RenderList
                     of={scorings}
                     render={(scoringCategories) => {

@@ -3,7 +3,11 @@ import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatCurrency } from "@/lib/format-currency";
+import InvoiceCentralOffice from "@/pages/report/invoice/_partials/invoice-central-office";
+import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";
 import React, { useState } from "react";
+import InvoiceBranchOffice from "./invoice-branch-office";
 
 interface InvoiceDatatableProps {
   submissions: any;
@@ -50,15 +54,32 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{submission.obligee?.name}</TableCell>
                   <TableCell>{submission.job_name}</TableCell>
-                  <TableCell>{submission.guarantee_value}</TableCell>
+                  <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
                   <TableCell>{submission.start_date}</TableCell>
                   <TableCell>{submission.end_date}</TableCell>
                   <TableCell>{submission.time_period} Hari</TableCell>
                   <TableCell>{submission.time_period + 1} Hari</TableCell>
                 </TableRow>
                 <Show when={!!selectedSubmission && selectedSubmission == submission.id}>
-                  <TableRow key={"detail-" + submission.id} className={"bg-blue-400 hover:bg-blue-400"}>
-                    <TableCell colSpan={11}></TableCell>
+                  <TableRow key={"detail-" + submission.id}>
+                    <TableCell colSpan={11} className="p-0">
+                      <div className="flex align-center w-full">
+                        <div className="bg-orange-300 hover:bg-orange-300 p-2 w-full">
+                          <InvoiceCentralOffice centralOfficeRate={submission.central_office_rate} />
+                        </div>
+                        <Show when={submission.branch_office_rate}>
+                          <div className="bg-blue-300 hover:bg-blue-300 p-2 w-full">
+                            <InvoiceBranchOffice branchName={""} branchOfficeRate={submission.branch_office_rate} />
+                          </div>
+                        </Show>
+                        <div className="bg-green-300 hover:bg-green-300 p-2 w-full">
+                          <InvoiceGuarantor
+                            guarantorName={submission.guarantor?.name}
+                            guarantorRate={submission.guarantor_rate}
+                          />
+                        </div>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 </Show>
               </>

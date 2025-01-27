@@ -18,10 +18,9 @@ import React, { useEffect } from "react";
 interface PrincipalRatiosProps {
   ratios: Ratio[];
   setRatio: (ratios: Ratio[]) => void;
-  defaultPrincipalRatios: Ratio;
 }
 
-const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio, defaultPrincipalRatios }) => {
+const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) => {
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);

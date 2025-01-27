@@ -32,6 +32,12 @@ class SubmissionResource extends JsonResource
                     'name' => $this->resource->principal->name,
                 ];
             }),
+            'guarantor' => $this->whenLoaded('guarantor', function () {
+                return [
+                    'id' => $this->resource->guarantor->id,
+                    'name' => $this->resource->guarantor->name,
+                ];
+            }),
             'obligee' => $this->whenLoaded('obligee', function () {
                 return [
                     'id' => $this->resource->obligee->id,
