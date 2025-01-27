@@ -30,7 +30,7 @@ class ReportController extends Controller
                     'guarantor:id,name,code',
                     'guarantorBranch:id,name,code',
                     'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                    'guarantor.rate:id,guarantor_id,minimum,management_fee,service_charge',
+                    'guarantor.guarantorRate',
                     'guarantorToProductType:id,code_product,code',
                     'blanks:id,number,is_broken',
                     'principal:id,name',
@@ -56,20 +56,31 @@ class ReportController extends Controller
                 $submission->save();
             }
             $submission->blank = $blank;
-            $calculate = $this->calculateForOffice($submission);
+            $calculateOffice = $this->calculateForOffice($submission);
+            $calculateGuarantor = $this->calculateForGuarantor($submission);
             $centralOfficeRate = [
-                'minimum' => $calculate->get('minimum'),
-                'management_fee' => $calculate->get('management_fee'),
-                'service_charge' => $calculate->get('service_charge_central'),
-                'total' => $calculate->get('total_central'),
+                'minimum' => $calculateOffice->get('minimum'),
+                'management_fee' => $calculateOffice->get('management_fee') * 100,
+                'service_charge' => $calculateOffice->get('service_charge_central'),
+                'total' => $calculateOffice->get('total_central'),
             ];
             $submission->central_office_rate = $centralOfficeRate;
             $submission->branch_office_rate = [
-                'minimum_bill' => $calculate->get('minimum_bill'),
-                'selling_rate' => $calculate->get('selling_rate'),
-                'sales_administration' => $calculate->get('sales_administration'),
-                'service_charge' => $calculate->get('service_charge_branch'),
-                'total' => $calculate->get('total_branch'),
+                'minimum_bill' => $calculateOffice->get('minimum_bill'),
+                'selling_rate' => $calculateOffice->get('selling_rate') * 100,
+                'sales_administration' => $calculateOffice->get('sales_administration'),
+                'service_charge' => $calculateOffice->get('service_charge_branch'),
+                'total' => $calculateOffice->get('total_branch'),
+            ];
+            $submission->guarantor_rate = [
+                'minimum_payment' => $calculateGuarantor->get('minimum_payment'),
+                'pay_rate' => $calculateGuarantor->get('pay_rate') * 100,
+                'payment_administration' => $calculateGuarantor->get('payment_administration'),
+                'stamp_duty' => $calculateGuarantor->get('stamp_duty'),
+                'broken_rate' => $calculateGuarantor->get('broken_rate'),
+                'revised_rate' => $calculateGuarantor->get('revised_rate'),
+                'service_charge' => $calculateGuarantor->get('service_charge'),
+                'total' => $calculateGuarantor->get('total'),
             ];
         }
 
