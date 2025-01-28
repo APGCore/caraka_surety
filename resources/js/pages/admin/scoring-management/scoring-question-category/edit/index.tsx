@@ -3,7 +3,7 @@ import InputError from "@/components/common/input-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { getNumericValue } from "@/lib/get-numeric-value";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";

@@ -1,5 +1,5 @@
+import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminLayout from "@/layouts/admin";
 import { Head } from "@inertiajs/react";
 import Analytics from "./_partials/analytics";
 import Overview from "./_partials/overview";
@@ -36,9 +36,9 @@ AdminDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

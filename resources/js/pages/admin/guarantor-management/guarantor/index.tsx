@@ -1,8 +1,9 @@
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import GuarantorDatatable from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-datatable";
 import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";
@@ -65,7 +66,7 @@ GuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -81,6 +82,6 @@ GuarantorPage.layout = (page: any) => {
         </Button>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

@@ -1,6 +1,6 @@
 import HeaderPage from "@/components/common/header-page";
 import { Card, CardContent } from "@/components/ui/card";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import Form from "../_partials/form";
 import { AgentPartnerOfficeCreatePageProps } from "./agent-partner-office-create-page.type";
 

@@ -2,8 +2,9 @@ import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
 import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
@@ -146,12 +147,12 @@ GuarantorRatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <GuarantorProductTypeRateHeader
         title={pagePropsData?.page_settings?.title}
         guarantor={pagePropsData?.guarantor}
       />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

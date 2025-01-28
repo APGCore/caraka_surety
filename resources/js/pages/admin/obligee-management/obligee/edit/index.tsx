@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { ObligeeEditPageProps } from "@/pages/admin/obligee-management/obligee/edit/edit-obligee-page.type";
 import Form from "@/pages/admin/obligee-management/obligee/form";
 import { Head } from "@inertiajs/react";

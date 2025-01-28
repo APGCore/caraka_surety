@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { Head, Link } from "@inertiajs/react";
 // import templateDraftSurety from "../template-draft-surety";
 // import templateAnalyst from "../template-hasil-analisa";

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import useFlashMessageToast from "@/hooks/general/use-flash-message";
-import { SidebarMenuCustom } from "@/layouts/_partials/sidebarMenuCustom";
+import { SidebarMenuCustom } from "@/layouts/_Partials/sidebarMenuCustom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";
 import { staffCabangRoute } from "./staff-cabang-layout.constant";

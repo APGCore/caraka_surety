@@ -35,6 +35,7 @@ class Users extends Seeder
             'username' => 'kepala-cabang',
             'email' => 'branchmanagerbpr@gmail.com',
             'password' => bcrypt('password'),
+            'head_id' => 2,
             'profile_id' => 2,
             'role_id' => 3,
         ]);

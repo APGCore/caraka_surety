@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { PrincipalManagementPageProps } from "@/pages/admin/principal-management/principal/principal-management-page.type";

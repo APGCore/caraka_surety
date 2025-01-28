@@ -1,4 +1,4 @@
-import AdminLayoutPage from "@/layouts/admin";
+import AdminLayoutPage from "@/layouts/Admin";
 import DireksiLayoutPage from "@/layouts/direksi";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
 import ManagerLayoutPage from "@/layouts/manager";

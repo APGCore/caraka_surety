@@ -4,7 +4,7 @@ import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import Show from "@/components/common/show";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import OfficeRateDatatable from "@/pages/admin/office-management/office-rate/_partials/office-rate-datatable";
 import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";

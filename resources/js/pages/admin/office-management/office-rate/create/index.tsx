@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import FormOfficeRate from "@/pages/admin/office-management/office-rate/_partials/form-office-rate";
 import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
 import { OfficeRateCreatePageProps } from "@/pages/admin/office-management/office-rate/create/office-rate-create.type";

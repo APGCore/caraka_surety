@@ -1,8 +1,9 @@
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import BranchGuarantorDatatable from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-datatable";
 import { BranchGuarantorPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor-page.type";
@@ -67,7 +68,7 @@ BranchGuarantorsPage.layout = (page: any) => {
   const params = { guarantor: pagePropsData.guarantor.id };
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Cabang Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -90,6 +91,6 @@ BranchGuarantorsPage.layout = (page: any) => {
         </div>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

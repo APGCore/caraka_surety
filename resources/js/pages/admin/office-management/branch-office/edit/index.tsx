@@ -1,6 +1,6 @@
 import HeaderPage from "@/components/common/header-page";
 import { Card, CardContent } from "@/components/ui/card";
-import AdminLayout from "@/layouts/admin";
+import AdminLayout from "@/layouts/Admin";
 import { BranchOfficeEditPageProps } from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
 import Form from "../_partials/form";
 
