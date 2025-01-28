@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { CreateBankPageProps } from "@/pages/admin/bank-management/bank/create/create-bank-page.type";
 import Form from "@/pages/admin/bank-management/bank/form";
 import { Head } from "@inertiajs/react";

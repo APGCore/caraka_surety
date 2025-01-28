@@ -1,7 +1,7 @@
 import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { BlankUsageUtils } from "@/pages/report/blanks-usage/_partials/blank-usage.utils";
 import { router } from "@inertiajs/react";

@@ -1,6 +1,6 @@
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { BankManagementPageProps } from "@/pages/admin/bank-management/bank/bank-management-page.type";

@@ -1,4 +1,4 @@
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { Head } from "@inertiajs/react";
 import { AdminDashboardPageProps } from "./documents-special-required.page.type";
 

@@ -2,7 +2,7 @@ import { Combobox } from "@/components/common/combobox";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
 import { Label } from "@/components/ui/label";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { router } from "@inertiajs/react";
 import axios from "axios";

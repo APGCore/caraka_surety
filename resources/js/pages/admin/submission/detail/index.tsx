@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templateContent from "@/pages/output_templates/template-surat-pelaksanaan";

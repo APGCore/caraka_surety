@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
 import UpdatePasswordForm from "./partials/update-password-form";

@@ -1,9 +1,9 @@
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import BranchGuarantorDatatable from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-datatable";
 import { BranchGuarantorPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor-page.type";

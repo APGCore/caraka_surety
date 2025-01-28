@@ -1,6 +1,6 @@
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import BranchGuarantorForm from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-form";
 import BranchGuarantorHeader from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-header";
 import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";

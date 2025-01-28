@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { PrincipalEditPageProps } from "@/pages/admin/principal-management/principal/edit/edit-principal-page.type";
 import Form from "@/pages/admin/principal-management/principal/form";
 import { Head, router, useForm } from "@inertiajs/react";

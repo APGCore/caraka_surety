@@ -1,11 +1,11 @@
 import Clock from "@/components/common/clock";
-import AppSidebar from "@/components/organisms/SideBar/AppSideBar";
+import AppSidebar from "@/components/organisms/sidebar/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import useFlashMessageToast from "@/hooks/general/use-flash-message";
-import { adminRoute } from "./AdminLayout.constant";
-import { AdminLayoutPageProps } from "./AdminLayout.type";
+import { adminRoute } from "./admin-layout.constant";
+import { AdminLayoutPageProps } from "./admin-layout.type";
 
 export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user }) => {
   useFlashMessageToast();

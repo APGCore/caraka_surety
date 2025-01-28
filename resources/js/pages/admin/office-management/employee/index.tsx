@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { EmployeePageProps } from "@/pages/admin/office-management/employee/employee-page.type";
 import { Head, Link } from "@inertiajs/react";

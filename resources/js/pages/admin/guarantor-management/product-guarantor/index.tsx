@@ -2,7 +2,7 @@ import { Combobox } from "@/components/common/combobox";
 import Loading from "@/components/common/loading";
 import PrimaryButton from "@/components/common/primary-button";
 import RenderList from "@/components/common/render-list";
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/general/use-toast";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { cn } from "@/lib/cn";
 import { Head } from "@inertiajs/react";
 import axios from "axios";

@@ -2,7 +2,7 @@ import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { PrincipalDetailPageProps } from "@/pages/admin/principal-management/principal/detail/detail-principal-page.type";
 import { Head, Link } from "@inertiajs/react";
 

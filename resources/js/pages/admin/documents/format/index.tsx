@@ -1,7 +1,7 @@
 import { Combobox } from "@/components/common/combobox";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { router } from "@inertiajs/react";

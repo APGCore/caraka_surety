@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import FormDocumentFormat from "@/pages/admin/documents/format/_partials/form-document-format";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { EditDocumentFormatPageProps } from "@/pages/admin/documents/format/edit/edit-document-format.type";

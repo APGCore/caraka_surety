@@ -1,4 +1,4 @@
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Head } from "@inertiajs/react";
 import Analytics from "./_partials/analytics";

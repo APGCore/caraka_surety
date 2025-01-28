@@ -1,7 +1,7 @@
-import RoleBasedLayout from "@/components/templates/RoleBasedLayout";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
 import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-edit-page.type";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";

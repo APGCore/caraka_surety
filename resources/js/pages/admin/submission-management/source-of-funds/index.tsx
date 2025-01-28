@@ -1,6 +1,6 @@
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { getQueryParameter } from "@/lib/get-query-parameter";
 import { SourceOfFundsUtils } from "@/pages/admin/submission-management/source-of-funds/source-of-funds.utils";
 import { router } from "@inertiajs/react";

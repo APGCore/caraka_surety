@@ -1,6 +1,6 @@
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import DireksiLayoutPage from "@/layouts/direksi";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
 import ManagerLayoutPage from "@/layouts/manager";

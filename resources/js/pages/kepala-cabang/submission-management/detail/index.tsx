@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import AdminLayout from "@/layouts/Admin";
+import AdminLayout from "@/layouts/admin";
 import { Head, Link } from "@inertiajs/react";
 import { useEffect } from "react";
 // import { Editor } from "tinymce";
