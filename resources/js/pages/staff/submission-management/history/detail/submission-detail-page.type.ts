@@ -225,10 +225,15 @@ interface SubmissionDetailProps {
       name: string;
     };
     submission_docs: Document[];
-    mail_number: string;
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
+
+    mail_number: string;
+    product: {
+      name: string;
+    };
+    job_type: string;
   };
 
   submissionData: {

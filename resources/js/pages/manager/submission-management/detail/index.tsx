@@ -669,6 +669,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     no: submission.id || "",
     city: submission.regency?.name || "",
     date_mail: formattedDate,
+
+    mail_number: submission.mail_number || "",
+    product_name: submission?.product?.name || "",
   };
 
   const handleApprove = (submissionId: number): void => {

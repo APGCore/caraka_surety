@@ -229,6 +229,9 @@ interface SubmissionDetailProps {
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
+    product: {
+      name: string;
+    };
   };
 
   submissionData: {
