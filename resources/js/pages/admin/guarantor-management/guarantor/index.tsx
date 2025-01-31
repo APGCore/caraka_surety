@@ -1,4 +1,5 @@
 import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +66,7 @@ GuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Asuransi"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -81,6 +82,6 @@ GuarantorPage.layout = (page: any) => {
         </Button>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

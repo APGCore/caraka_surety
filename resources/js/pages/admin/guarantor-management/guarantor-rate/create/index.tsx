@@ -1,3 +1,4 @@
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
 import FormGuarantorRate from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate";
@@ -34,9 +35,9 @@ GuarantorRateCreate.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

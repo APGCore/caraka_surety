@@ -35,6 +35,9 @@ class StoreRequest extends FormRequest
             'district_id' => ['required', 'exists:districts,id'],
             'village' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:255'],
+            'prefix' => ['nullable', 'string', 'max:255'],
+            'content' => ['nullable', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

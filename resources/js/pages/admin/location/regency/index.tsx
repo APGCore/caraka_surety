@@ -2,6 +2,7 @@ import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import TextInput from "@/components/common/text-input";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -425,7 +426,7 @@ regencyPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -435,6 +436,6 @@ regencyPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

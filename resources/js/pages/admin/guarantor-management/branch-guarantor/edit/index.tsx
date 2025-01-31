@@ -1,3 +1,4 @@
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
 import BranchGuarantorForm from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-form";
@@ -31,12 +32,12 @@ BranchGuarantorEditPage.layout = (page: any) => {
   const params = { guarantor: pagePropsData.branchGuarantor.headquarter_id };
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <BranchGuarantorHeader
         title={pagePropsData?.page_settings?.title}
         route={route(BranchGuarantorUtils.link.index, params)}
       />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

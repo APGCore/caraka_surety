@@ -1,6 +1,7 @@
 import InputError from "@/components/common/input-error";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -326,7 +327,7 @@ ProvincePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -336,6 +337,6 @@ ProvincePage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

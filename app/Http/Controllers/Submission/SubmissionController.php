@@ -320,6 +320,9 @@ class SubmissionController extends Controller
     public function showDetailSubmission($id)
     {
         $submission = $this->getSubmission($id);
+        $submission->mail_number = $this->generateNomorSurat($id);
+
+
 
         $principalDocs = collect($submission->principal->documents);
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -367,6 +370,8 @@ class SubmissionController extends Controller
     public function showDetailSubmissionManager($id)
     {
         $submission = $this->getSubmission($id);
+        $submission->mail_number = $this->generateNomorSurat($id);
+
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -876,9 +881,10 @@ class SubmissionController extends Controller
         }
 
         $submissionId = $submission->id;
+        $guarantorCode = $submission->guarantor->code;
         $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
 
-        $nomorSurat = strtoupper("PEL/BPR/{$submissionId}/{$createdAt}");
+        $nomorSurat = strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
 
         return $nomorSurat;
     }

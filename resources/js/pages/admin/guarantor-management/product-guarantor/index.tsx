@@ -2,6 +2,7 @@ import { Combobox } from "@/components/common/combobox";
 import Loading from "@/components/common/loading";
 import PrimaryButton from "@/components/common/primary-button";
 import RenderList from "@/components/common/render-list";
+import RoleBasedLayout from "@/components/templates/role-based-layout";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -687,7 +688,7 @@ ProductGuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -700,6 +701,6 @@ ProductGuarantorPage.layout = (page: any) => {
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

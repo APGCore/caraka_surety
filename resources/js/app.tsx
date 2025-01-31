@@ -5,7 +5,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
 import ReactQueryProvider from "./components/common/react-query-provider";
 
-const appName = import.meta.env.VITE_APP_NAME || "APG-CORE-System";
+const appName = import.meta.env.VITE_APP_NAME === "Laravel" ? "APG-Core-System" : import.meta.env.VITE_APP_NAME;
 
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
@@ -20,7 +20,7 @@ createInertiaApp({
     );
   },
   progress: {
-    color: "#FF0000",
+    color: "#efbf04",
     delay: 0,
   },
 });
