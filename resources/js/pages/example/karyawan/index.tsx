@@ -1,4 +1,4 @@
-import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,22 +9,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
 import ExampleLayoutPage from "@/layouts/example";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";

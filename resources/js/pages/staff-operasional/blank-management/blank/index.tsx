@@ -1,8 +1,5 @@
-import { Combobox } from "@/components/common/combobox";
-import InputError from "@/components/common/input-error";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { toast } from "@/common/hooks/general/use-toast";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,24 +10,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "@/hooks/general/use-toast";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { Combobox } from "@/components/common/combobox";
+import InputError from "@/components/common/input-error";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import Show from "@/components/common/show";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import StaffOperasionalLayoutPage from "@/layouts/staff-operasional";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { BlankPageProps } from "@/pages/staff-operasional/blank-management/blank/blank-page.type";
 import { BlankUtils } from "@/pages/staff-operasional/blank-management/blank/blank.utils";
 import { Head, router } from "@inertiajs/react";

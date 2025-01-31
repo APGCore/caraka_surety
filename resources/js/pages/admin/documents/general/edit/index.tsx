@@ -1,4 +1,3 @@
-import InputError from "@/components/common/input-error";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,12 +5,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Textarea } from "@/components/_shadcn-ui/textarea";
+import InputError from "@/components/common/input-error";
 import AdminLayout from "@/layouts/admin";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";

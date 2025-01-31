@@ -1,10 +1,10 @@
+import { cn } from "@/common/utils/cn";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
+import { Input, PasswordInput } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
 import InputError from "@/components/common/input-error";
 import Loading from "@/components/common/loading";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input, PasswordInput } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/cn";
 import React from "react";
 import useLoginForm from "./login-form.hook";
 import { greetingBasedOnDate } from "./login-form.util";

@@ -1,8 +1,5 @@
-import { Combobox } from "@/components/common/combobox";
-import Loading from "@/components/common/loading";
-import PrimaryButton from "@/components/common/primary-button";
-import RenderList from "@/components/common/render-list";
-import RoleBasedLayout from "@/components/templates/role-based-layout";
+import { toast } from "@/common/hooks/general/use-toast";
+import { cn } from "@/common/utils/cn";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,17 +10,34 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "@/hooks/general/use-toast";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/_shadcn-ui/command";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { Combobox } from "@/components/common/combobox";
+import Loading from "@/components/common/loading";
+import PrimaryButton from "@/components/common/primary-button";
+import RenderList from "@/components/common/render-list";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import axios from "axios";
 import { Check, ChevronsUpDown } from "lucide-react";

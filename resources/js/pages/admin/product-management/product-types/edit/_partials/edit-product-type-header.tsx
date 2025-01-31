@@ -5,8 +5,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
 import { Head, Link } from "@inertiajs/react";
 import React from "react";
 

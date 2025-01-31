@@ -1,6 +1,6 @@
+import { cn } from "@/common/utils/cn";
+import { Button } from "@/components/_shadcn-ui/button";
 import { PreviewFile } from "@/components/common/preview-file";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 import { FileIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 

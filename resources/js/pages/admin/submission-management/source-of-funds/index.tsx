@@ -1,7 +1,7 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { SourceOfFundsUtils } from "@/pages/admin/submission-management/source-of-funds/source-of-funds.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";

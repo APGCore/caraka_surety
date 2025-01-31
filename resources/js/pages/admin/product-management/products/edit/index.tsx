@@ -1,4 +1,4 @@
-import InputError from "@/components/common/input-error";
+import { cn } from "@/common/utils/cn";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,15 +6,22 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/_shadcn-ui/command";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
+import { Textarea } from "@/components/_shadcn-ui/textarea";
+import InputError from "@/components/common/input-error";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
 import { Head, useForm } from "@inertiajs/react";
 import axios from "axios";
 import { Check, ChevronsUpDown, RotateCw } from "lucide-react";

@@ -1,6 +1,6 @@
-import { cn } from "@/lib/cn";
-import { Button } from "../ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../ui/pagination";
+import { cn } from "@/common/utils/cn";
+import { Button } from "../_shadcn-ui/button";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../_shadcn-ui/pagination";
 import RenderList from "./render-list";
 
 interface PaginationDatatableProps {

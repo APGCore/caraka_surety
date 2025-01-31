@@ -1,4 +1,4 @@
-import { getQueryParameter } from "@/lib/get-query-parameter";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";

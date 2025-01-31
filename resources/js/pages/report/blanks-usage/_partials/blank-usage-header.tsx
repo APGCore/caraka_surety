@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { BlankUsageUtils } from "@/pages/report/blanks-usage/_partials/blank-usage.utils";
 import { Head } from "@inertiajs/react";
 import React from "react";

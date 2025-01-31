@@ -1,6 +1,3 @@
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,16 +8,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 import FormSkoringQuestionCategory from "./form-scoring-question-category";

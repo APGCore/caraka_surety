@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import DireksiLayoutPage from "@/layouts/direksi";
 import { useState } from "react";
 import SubmissionListDatatable from "./_partials/list-datatable";

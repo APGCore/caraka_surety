@@ -1,5 +1,5 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { Head, Link } from "@inertiajs/react";
 import React from "react";

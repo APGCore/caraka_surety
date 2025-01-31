@@ -1,7 +1,4 @@
-import InputError from "@/components/common/input-error";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import RoleBasedLayout from "@/components/templates/role-based-layout";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -11,22 +8,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import InputError from "@/components/common/input-error";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ProvincePageProps } from "@/pages/admin/location/province/provinsi-page.type";
 import { Head, router, useForm } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

@@ -1,4 +1,4 @@
-import { IAppSideBarMenu } from "@/components/organisms/sidebar/app-sidebar/app-sidebar.type";
+import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
 import { Home, Stamp } from "lucide-react";
 
 export const staffOperasionalRoute: IAppSideBarMenu[] = [

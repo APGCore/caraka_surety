@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import AdminLayout from "@/layouts/admin";
 import { PrincipalEditPageProps } from "@/pages/admin/principal-management/principal/edit/edit-principal-page.type";
 import Form from "@/pages/admin/principal-management/principal/form";

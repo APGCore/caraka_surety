@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { buttonVariants } from "../ui/button";
+} from "../_shadcn-ui/alert-dialog";
+import { buttonVariants } from "../_shadcn-ui/button";
 
 interface ConfirmDialogProps {
   open?: boolean;

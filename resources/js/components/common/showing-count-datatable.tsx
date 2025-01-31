@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
 
 interface ShowingCountDatatableProps {
   meta: any;

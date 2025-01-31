@@ -1,11 +1,18 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_shadcn-ui/select";
 import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import RoleBasedLayout from "@/components/templates/role-based-layout";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorRateDatatable from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
 import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";

@@ -1,5 +1,5 @@
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { cn } from "@/common/utils/cn";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,23 +10,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/_shadcn-ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { PrincipalManagementPageProps } from "@/pages/admin/principal-management/principal/principal-management-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

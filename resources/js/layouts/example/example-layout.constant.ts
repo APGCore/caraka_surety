@@ -1,4 +1,4 @@
-import { generateUUID } from "@/lib/generate-uuid";
+import { generateUUID } from "@/common/utils/generate-uuid";
 import { Home, Shield, User } from "lucide-react";
 
 export const exampleLinks = [

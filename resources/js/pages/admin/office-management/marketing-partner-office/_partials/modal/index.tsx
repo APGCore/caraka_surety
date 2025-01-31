@@ -1,4 +1,4 @@
-import { Combobox } from "@/components/common/combobox";
+import { cn } from "@/common/utils/cn";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,9 +7,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { buttonVariants } from "@/components/_shadcn-ui/button";
+import { Combobox } from "@/components/common/combobox";
 import React from "react";
 
 export type IBranchOfficeTypeModal = "initial" | "add-pairing-guarantor" | "add-pairing-branch-guarantor";

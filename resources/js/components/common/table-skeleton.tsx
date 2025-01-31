@@ -1,5 +1,5 @@
 import React from "react";
-import { TableCell, TableRow } from "../ui/table";
+import { TableCell, TableRow } from "../_shadcn-ui/table";
 
 interface TableSkeletonProps {
   colspan: number;

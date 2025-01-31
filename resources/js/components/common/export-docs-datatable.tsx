@@ -1,6 +1,6 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
 import React from "react";
-import { Button } from "../ui/button";
+import { Button } from "../_shadcn-ui/button";
 
 interface ExportDocsButtonDatatableProps {
   className?: string;

@@ -1,12 +1,19 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import { textCurrency } from "@/common/utils/text-currency";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_shadcn-ui/select";
 import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import RoleBasedLayout from "@/components/templates/role-based-layout";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
-import { textCurrency } from "@/lib/text-currency";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ProfileLimitsUtils } from "@/pages/admin/guarantor-management/profile-limit/profile-limits.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";

@@ -1,9 +1,6 @@
-import { Combobox } from "@/components/common/combobox";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "@/common/hooks/general/use-toast";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,18 +11,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "@/hooks/general/use-toast";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
+import { Checkbox } from "@/components/_shadcn-ui/checkbox";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { Combobox } from "@/components/common/combobox";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
 import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";

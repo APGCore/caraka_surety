@@ -1,15 +1,15 @@
-import InputLabel from "@/components/common/input-label";
-import Loading from "@/components/common/loading";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
+import { Input } from "@/components/_shadcn-ui/input";
+import InputLabel from "@/components/common/input-label";
+import Loading from "@/components/common/loading";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useState } from "react";

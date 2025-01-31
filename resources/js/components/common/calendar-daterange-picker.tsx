@@ -1,11 +1,11 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import * as React from "react";
 import { DateRange } from "react-day-picker";
-import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../_shadcn-ui/button";
+import { Calendar } from "../_shadcn-ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../_shadcn-ui/popover";
 
 interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange?: (date: DateRange | undefined) => void;

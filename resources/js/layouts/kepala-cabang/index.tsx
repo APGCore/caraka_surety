@@ -1,7 +1,6 @@
-import Clock from "@/components/common/clock";
-import RenderList from "@/components/common/render-list";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
+import useFlashMessageToast from "@/common/hooks/general/use-flash-message";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/_shadcn-ui/collapsible";
+import { Separator } from "@/components/_shadcn-ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +17,10 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/general/use-flash-message";
+} from "@/components/_shadcn-ui/sidebar";
+import { Toaster } from "@/components/_shadcn-ui/toaster";
+import Clock from "@/components/common/clock";
+import RenderList from "@/components/common/render-list";
 import { SidebarMenuCustom } from "@/layouts/_partials/sidebar-menu-custom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";

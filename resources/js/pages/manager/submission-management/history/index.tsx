@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import ManagerLayoutPage from "@/layouts/manager";
 import { useState } from "react";
 import SubmissionHistoryDatatable from "./_partials/history-datatable";

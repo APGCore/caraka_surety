@@ -1,8 +1,8 @@
+import { Button } from "@/components/_shadcn-ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import React from "react";
 
 interface BlankUsageDatatableProps {

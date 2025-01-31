@@ -1,10 +1,10 @@
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import RoleBasedLayout from "@/components/templates/role-based-layout";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Input } from "@/components/_shadcn-ui/input";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorDatatable from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-datatable";
 import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";

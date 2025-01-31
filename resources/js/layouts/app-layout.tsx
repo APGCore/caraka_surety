@@ -1,5 +1,5 @@
-import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/general/use-flash-message";
+import useFlashMessageToast from "@/common/hooks/general/use-flash-message";
+import { Toaster } from "@/components/_shadcn-ui/toaster";
 import React from "react";
 
 interface AppLayoutProps extends React.PropsWithChildren {}

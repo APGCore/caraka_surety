@@ -1,8 +1,8 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import MainLayoutPage from "@/layouts/MainLayoutPage";
-import { getQueryParameter } from "@/lib/get-query-parameter";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import MainLayoutPage from "@/layouts/main-layout-page";
 import BlankDatatable from "@/pages/blank-management/approval/_partials/blank-datatable";
 import BlankForm from "@/pages/blank-management/approval/_partials/blank-form";
 import BlankHeader from "@/pages/blank-management/approval/_partials/blank-header";

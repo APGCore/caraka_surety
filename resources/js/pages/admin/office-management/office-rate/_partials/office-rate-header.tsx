@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";
 import { Head } from "@inertiajs/react";
 import React from "react";

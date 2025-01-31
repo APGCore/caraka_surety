@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import AdminLayout from "@/layouts/admin";
 import FormOfficeRate from "@/pages/admin/office-management/office-rate/_partials/form-office-rate";
 import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";

@@ -1,10 +1,10 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
 import { Combobox } from "@/components/common/combobox";
 import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";

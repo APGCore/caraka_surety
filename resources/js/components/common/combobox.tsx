@@ -1,7 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
+import { Button } from "@/components/_shadcn-ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/_shadcn-ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
 import { Check, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { useEffect } from "react";

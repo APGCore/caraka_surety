@@ -1,15 +1,15 @@
-import ConfirmDialog from "@/components/common/confirm-dialog";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import ConfirmDialog from "@/components/common/confirm-dialog";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 import FormSourceOfFunds from "./form-source-of-funds";

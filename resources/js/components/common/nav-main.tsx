@@ -1,6 +1,6 @@
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import React from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../_shadcn-ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +10,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "../ui/sidebar";
+} from "../_shadcn-ui/sidebar";
 
 export function NavMain({
   items,

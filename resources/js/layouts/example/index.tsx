@@ -1,7 +1,8 @@
-import Clock from "@/components/common/clock";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import useFlashMessageToast from "@/common/hooks/general/use-flash-message";
+import { cn } from "@/common/utils/cn";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,11 +10,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/general/use-flash-message";
-import { cn } from "@/lib/cn";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/_shadcn-ui/sheet";
+import { Toaster } from "@/components/_shadcn-ui/toaster";
+import Clock from "@/components/common/clock";
 import { Link } from "@inertiajs/react";
 import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
 import { exampleLinks } from "./example-layout.constant";

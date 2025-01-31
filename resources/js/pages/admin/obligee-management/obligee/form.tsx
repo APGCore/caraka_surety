@@ -1,10 +1,10 @@
+import { Textarea } from "@/components/_shadcn-ui/textarea";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import InputLocation from "@/components/common/input-location";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
 import TextInput from "@/components/common/text-input";
-import { Textarea } from "@/components/ui/textarea";
 import { Transition } from "@headlessui/react";
 import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";

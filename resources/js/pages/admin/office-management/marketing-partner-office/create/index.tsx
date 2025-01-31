@@ -1,5 +1,5 @@
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import HeaderPage from "@/components/common/header-page";
-import { Card, CardContent } from "@/components/ui/card";
 import AdminLayout from "@/layouts/admin";
 import Form from "../_partials/form";
 import { MarketingPartnerOfficeCreatePageProps } from "./marketing-partner-office-create-page.type";

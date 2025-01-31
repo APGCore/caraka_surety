@@ -1,9 +1,9 @@
+import { formatCurrency } from "@/common/utils/format-currency";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/format-currency";
 import InvoiceCentralOffice from "@/pages/report/invoice/_partials/invoice-central-office";
 import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";
 import React, { useState } from "react";

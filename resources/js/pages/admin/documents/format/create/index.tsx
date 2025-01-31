@@ -1,5 +1,5 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import AdminLayout from "@/layouts/admin";
 import FormDocumentFormat from "@/pages/admin/documents/format/_partials/form-document-format";
 import { CreateDocumentFormatPageProps } from "@/pages/admin/documents/format/create/create-document-format.type";

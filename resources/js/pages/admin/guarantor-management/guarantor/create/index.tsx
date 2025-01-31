@@ -1,6 +1,6 @@
-import RoleBasedLayout from "@/components/templates/role-based-layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
 import GuarantorHeader from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-header";
 import { GuarantorCreatePageProps } from "@/pages/admin/guarantor-management/guarantor/create/guarantor-create-page.type";

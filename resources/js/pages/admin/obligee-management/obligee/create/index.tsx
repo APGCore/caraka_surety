@@ -1,4 +1,4 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import AdminLayout from "@/layouts/admin";
 import { CreateObligeePageProps } from "@/pages/admin/obligee-management/obligee/create/create-obligee-page.type";
 import Form from "@/pages/admin/obligee-management/obligee/form";

@@ -8,7 +8,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "../ui/breadcrumb";
+} from "../_shadcn-ui/breadcrumb";
 import RenderList from "./render-list";
 import Show from "./show";
 

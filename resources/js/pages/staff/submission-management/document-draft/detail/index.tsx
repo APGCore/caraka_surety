@@ -1,6 +1,6 @@
-import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
+import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import AdminLayout from "@/layouts/admin";
 import StaffLayoutPage from "@/layouts/staff";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";

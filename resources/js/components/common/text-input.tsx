@@ -1,5 +1,5 @@
 import { forwardRef, InputHTMLAttributes, useEffect, useImperativeHandle, useRef } from "react";
-import { Input } from "../ui/input";
+import { Input } from "../_shadcn-ui/input";
 
 export default forwardRef(function TextInput(
   {

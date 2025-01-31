@@ -1,11 +1,18 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/_shadcn-ui/select";
 import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import Show from "@/components/common/show";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminLayout from "@/layouts/admin";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import OfficeRateDatatable from "@/pages/admin/office-management/office-rate/_partials/office-rate-datatable";
 import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
 import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";

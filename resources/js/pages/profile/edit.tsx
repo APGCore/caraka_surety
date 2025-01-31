@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import AdminLayout from "@/layouts/admin";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";

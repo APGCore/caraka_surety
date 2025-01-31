@@ -1,5 +1,5 @@
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/format-currency";
+import { formatCurrency } from "@/common/utils/format-currency";
+import { Table, TableBody, TableCell, TableRow } from "@/components/_shadcn-ui/table";
 import React from "react";
 
 interface InvoiceCentralOfficeProps {

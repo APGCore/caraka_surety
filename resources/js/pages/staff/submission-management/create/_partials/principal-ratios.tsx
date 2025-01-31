@@ -1,6 +1,5 @@
-import InputCurrency from "@/components/common/input-currency";
-import RenderList from "@/components/common/render-list";
-import { Badge } from "@/components/ui/badge";
+import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
+import { Badge } from "@/components/_shadcn-ui/badge";
 import {
   Select,
   SelectContent,
@@ -9,8 +8,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
+} from "@/components/_shadcn-ui/select";
+import InputCurrency from "@/components/common/input-currency";
+import RenderList from "@/components/common/render-list";
 import { Ratio } from "@/pages/staff/submission-management/create/create-page.type";
 import dayjs from "dayjs";
 import React, { useEffect } from "react";

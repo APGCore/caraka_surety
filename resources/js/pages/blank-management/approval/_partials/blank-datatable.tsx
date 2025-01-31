@@ -1,16 +1,16 @@
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import Show from "@/components/common/show";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
 import { router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

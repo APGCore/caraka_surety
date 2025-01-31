@@ -1,7 +1,7 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
 import React from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Button } from "../_shadcn-ui/button";
+import { Input } from "../_shadcn-ui/input";
 
 interface SearchDatatableProps {
   className?: string;

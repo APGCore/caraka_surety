@@ -1,8 +1,8 @@
-import useGetAllBranchGuarantor from "@/hooks/api/guarantor/useGetAllBranchGuarantor";
-import useGetAllGuarantor from "@/hooks/api/guarantor/useGetAllGuarantor";
-import useGetAllProvince from "@/hooks/api/locations/useGetAllProvince";
-import useGetDistrictByRegencyId from "@/hooks/api/locations/useGetDistrictByRegencyId";
-import useGetRegencyByProvinceId from "@/hooks/api/locations/useGetRegencyByProvinceId";
+import useGetAllBranchGuarantor from "@/common/hooks/api/guarantor/useGetAllBranchGuarantor";
+import useGetAllGuarantor from "@/common/hooks/api/guarantor/useGetAllGuarantor";
+import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
+import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
+import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
 import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler, useMemo, useState } from "react";
 

@@ -1,11 +1,11 @@
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/SelectLengthDatatable";
+import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import AdminLayout from "@/layouts/admin";
 import DireksiLayoutPage from "@/layouts/direksi";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
 import ManagerLayoutPage from "@/layouts/manager";
 import StaffLayoutPage from "@/layouts/staff";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";

@@ -1,6 +1,6 @@
+import { Button } from "@/components/_shadcn-ui/button";
 import InputCurrency from "@/components/common/input-currency";
 import InputError from "@/components/common/input-error";
-import { Button } from "@/components/ui/button";
 import { FormGuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/form-guarantor-product-type-rate.utils";
 import { FormGuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate.utils";
 import { useForm } from "@inertiajs/react";

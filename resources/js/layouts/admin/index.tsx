@@ -1,9 +1,9 @@
+import useFlashMessageToast from "@/common/hooks/general/use-flash-message";
+import { Separator } from "@/components/_shadcn-ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/_shadcn-ui/sidebar";
+import { Toaster } from "@/components/_shadcn-ui/toaster";
 import Clock from "@/components/common/clock";
-import AppSidebar from "@/components/organisms/sidebar/app-sidebar";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/toaster";
-import useFlashMessageToast from "@/hooks/general/use-flash-message";
+import AppSidebar from "@/components/sidebar/app-sidebar";
 import { adminRoute } from "./admin-layout.constant";
 import { AdminLayoutPageProps } from "./admin-layout.type";
 

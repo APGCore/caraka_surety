@@ -1,5 +1,5 @@
-import RoleBasedLayout from "@/components/templates/role-based-layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import Analytics from "./_partials/analytics";
 import Overview from "./_partials/overview";

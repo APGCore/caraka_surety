@@ -1,7 +1,4 @@
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { textCurrency } from "@/common/utils/text-currency";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,18 +9,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { textCurrency } from "@/lib/text-currency";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import FormGuarantorProductTypeRate from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/form-guarantor-product-type-rate";
 import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { JobTypeEnum } from "@/types/job-type-enum";

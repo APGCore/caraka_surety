@@ -1,9 +1,5 @@
-import HeaderPage from "@/components/common/header-page";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import TableSkeleton from "@/components/common/table-skeleton";
+import { cn } from "@/common/utils/cn";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,22 +10,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/_shadcn-ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+} from "@/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import HeaderPage from "@/components/common/header-page";
+import { PaginationDatatable } from "@/components/common/pagination-datatable";
+import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
+import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import TableSkeleton from "@/components/common/table-skeleton";
 import AdminLayout from "@/layouts/admin";
-import { cn } from "@/lib/cn";
-import { getQueryParameter } from "@/lib/get-query-parameter";
 import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

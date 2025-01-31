@@ -1,9 +1,10 @@
-import { FileInput } from "@/components/common/input-file";
-import { PreviewFile } from "@/components/common/preview-file";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import TinyMCEEditor from "@/components/documents/TinyMCEEditor";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
+import useStepper from "@/common/hooks/general/use-stepper";
+import { toast } from "@/common/hooks/general/use-toast";
+import { cn } from "@/common/utils/cn";
+import { formatCurrency } from "@/common/utils/format-currency";
+import { textCurrency } from "@/common/utils/text-currency";
+import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,16 +14,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useCompareRatios } from "@/hooks/general/use-compare-ratios";
-import useStepper from "@/hooks/general/use-stepper";
-import { toast } from "@/hooks/general/use-toast";
+} from "@/components/_shadcn-ui/alert-dialog";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button } from "@/components/_shadcn-ui/button";
+import { FileInput } from "@/components/common/input-file";
+import { PreviewFile } from "@/components/common/preview-file";
+import RenderList from "@/components/common/render-list";
+import Show from "@/components/common/show";
+import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import ManagerLayoutPage from "@/layouts/manager";
-import { cn } from "@/lib/cn";
-import { formatCurrency } from "@/lib/format-currency";
-import { textCurrency } from "@/lib/text-currency";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";

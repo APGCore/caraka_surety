@@ -1,9 +1,9 @@
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";
 import { JobTypeEnum } from "@/types/job-type-enum";
 import { Link } from "@inertiajs/react";

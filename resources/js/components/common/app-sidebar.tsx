@@ -11,7 +11,7 @@ import {
   SquareTerminal,
 } from "lucide-react";
 import React from "react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "../_shadcn-ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";

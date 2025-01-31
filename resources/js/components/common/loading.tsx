@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from "@/common/utils/cn";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
