@@ -2,7 +2,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import PrimaryButton from "@/components/common/primary-button";
 import SecondaryButton from "@/components/common/secondary-button";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ObligeeDetailPageProps } from "@/pages/admin/obligee-management/obligee/detail/obligee-detail-page.type";
 import { Head, Link } from "@inertiajs/react";
 
@@ -178,7 +178,7 @@ ObligeeDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -188,7 +188,7 @@ ObligeeDetailPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };
 

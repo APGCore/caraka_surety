@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { Button } from "@/components/_shadcn-ui/button";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link } from "@inertiajs/react";
 // import templateDraftSurety from "../template-draft-surety";
 // import templateAnalyst from "../template-hasil-analisa";
@@ -95,7 +95,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.applicant_name ?? "Pengajuan"}`} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -105,6 +105,6 @@ SubmissionDetailPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

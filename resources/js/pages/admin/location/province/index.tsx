@@ -25,7 +25,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import InputError from "@/components/common/input-error";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ProvincePageProps } from "@/pages/admin/location/province/provinsi-page.type";
 import { Head, router, useForm } from "@inertiajs/react";

@@ -3,7 +3,7 @@ import { Label } from "@/components/_shadcn-ui/label";
 import { Combobox } from "@/components/common/combobox";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { pickBy } from "lodash";
@@ -103,9 +103,9 @@ AdminScoringQuestionCategoryPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <ScoringQuestionCategoryHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

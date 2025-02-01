@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/common/render-list";
-import DireksiLayoutPage from "@/layouts/direksi";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { DashboardUtils } from "./dashboard.utils";
@@ -157,9 +157,9 @@ DireksiDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </DireksiLayoutPage>
+    </RoleBasedLayout>
   );
 };

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import HeaderPage from "@/components/common/header-page";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { BranchOfficeCreatePageProps } from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
 import Form from "../_partials/form";
 
@@ -25,9 +25,9 @@ BranchOfficeCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <HeaderPage {...pagePropsData} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

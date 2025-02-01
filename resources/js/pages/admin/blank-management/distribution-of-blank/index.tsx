@@ -32,7 +32,7 @@ import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
 import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";
@@ -651,7 +651,7 @@ DistributionBlank.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -661,6 +661,6 @@ DistributionBlank.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

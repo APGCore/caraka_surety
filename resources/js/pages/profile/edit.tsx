@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
 import UpdatePasswordForm from "./partials/update-password-form";
@@ -18,7 +18,7 @@ export default function Edit({
   profile: object;
 }>) {
   return (
-    <AdminLayout user={auth?.user}>
+    <RoleBasedLayout user={auth?.user}>
       <Head title="Profile" />
 
       <div className="flex justify-center pt-2">
@@ -47,6 +47,6 @@ export default function Edit({
           </TabsContent>
         </Tabs>
       </div>
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 }

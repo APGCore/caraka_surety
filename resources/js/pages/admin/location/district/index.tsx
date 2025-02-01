@@ -25,7 +25,6 @@ import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
 import InputLabel from "@/components/common/input-label";
 import TextInput from "@/components/common/text-input";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DistrictPageProps } from "@/pages/admin/location/district/kecamatan-page.type";
 import { Head, router, useForm } from "@inertiajs/react";

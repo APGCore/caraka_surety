@@ -3,7 +3,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/co
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorDatatable from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-datatable";
 import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";

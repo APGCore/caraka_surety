@@ -1,8 +1,8 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
-import DireksiLayoutPage from "@/layouts/direksi";
+import AdminLayoutPage from "@/layouts/admin-layout";
+import DireksiLayoutPage from "@/layouts/direksi-layout";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
 import ManagerLayoutPage from "@/layouts/manager";
 import StaffLayoutPage from "@/layouts/staff";
@@ -72,10 +72,10 @@ const ShowLayout = ({ user, page, title }: { user: any; page: any; title: any })
   switch (user?.role_id) {
     case 1:
       return (
-        <AdminLayout user={user}>
+        <AdminLayoutPage user={user}>
           <ScoringHeader title={title} />
           {page}
-        </AdminLayout>
+        </AdminLayoutPage>
       );
     case 2:
       return (

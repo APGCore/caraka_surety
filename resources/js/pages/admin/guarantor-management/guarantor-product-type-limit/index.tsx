@@ -11,7 +11,6 @@ import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
 import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";

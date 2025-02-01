@@ -26,7 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PrincipalManagementPageProps } from "@/pages/admin/principal-management/principal/principal-management-page.type";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
@@ -196,7 +196,7 @@ PrincipalManagementPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -206,6 +206,6 @@ PrincipalManagementPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

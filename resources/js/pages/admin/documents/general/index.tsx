@@ -22,7 +22,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
@@ -189,7 +189,7 @@ DocumentGeneralPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -205,6 +205,6 @@ DocumentGeneralPage.layout = (page: any) => {
         </Button>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

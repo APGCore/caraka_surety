@@ -29,7 +29,7 @@ import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import TableSkeleton from "@/components/common/table-skeleton";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
@@ -244,9 +244,9 @@ AgentPartnerOfficePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <HeaderPage {...pagePropsData} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

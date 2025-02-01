@@ -1,6 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
 import { GuarantorEditPageProps } from "@/pages/admin/guarantor-management/guarantor/edit/guarantor-edit-page.type";

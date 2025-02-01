@@ -31,7 +31,7 @@ import Loading from "@/components/common/loading";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { BlankPageProps } from "@/pages/admin/blank-management/blank/blank-page.type";
 import { BlankUtils } from "@/pages/admin/blank-management/blank/blank.utils";
 import { Head, router } from "@inertiajs/react";
@@ -452,7 +452,7 @@ BlankPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -462,6 +462,6 @@ BlankPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

@@ -3,7 +3,7 @@ import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import InputError from "@/components/common/input-error";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEvent } from "react";
@@ -87,13 +87,13 @@ AdminCreateScoringQuestionOptionEditPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <CreateScoringQuestionOptionEditHeader
         title={pagePropsData?.page_settings?.title}
         selectedScoringQuestion={pagePropsData?.selectedScoringQuestion}
         scoringOption={pagePropsData?.scoringOption}
       />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

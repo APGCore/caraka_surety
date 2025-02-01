@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import FormDocumentFormat from "@/pages/admin/documents/format/_partials/form-document-format";
 import { CreateDocumentFormatPageProps } from "@/pages/admin/documents/format/create/create-document-format.type";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
@@ -41,7 +41,7 @@ CreateDocumentFormatPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Membuat Format Dokumen"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -51,6 +51,6 @@ CreateDocumentFormatPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

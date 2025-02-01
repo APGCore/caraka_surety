@@ -21,7 +21,7 @@ import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
-import DireksiLayoutPage from "@/layouts/direksi";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
@@ -1553,7 +1553,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <div
         className={cn({
           "mt-[7%]": pagePropsData?.submission?.beyond_the_limit,
@@ -1561,6 +1561,6 @@ SubmissionDetailPage.layout = (page: any) => {
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}
       </div>
-    </DireksiLayoutPage>
+    </RoleBasedLayout>
   );
 };

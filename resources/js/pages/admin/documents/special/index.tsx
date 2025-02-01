@@ -1,4 +1,4 @@
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import { AdminDashboardPageProps } from "./documents-special-required.page.type";
 
@@ -12,9 +12,9 @@ AdminDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

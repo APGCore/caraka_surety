@@ -13,7 +13,6 @@ import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import Show from "@/components/common/show";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { EmployeeLimitsUtils } from "@/pages/admin/guarantor-management/employee-limit/employee-limits.utils";
 import { router } from "@inertiajs/react";

@@ -9,6 +9,7 @@ import { PreviewFile } from "@/components/common/preview-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import StaffLayoutPage from "@/layouts/staff";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";
@@ -1431,9 +1432,9 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <SubmissionDetailHeader title={"Detail Pengajuan"} />
       {page}
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 };

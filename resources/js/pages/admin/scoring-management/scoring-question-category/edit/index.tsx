@@ -4,7 +4,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Combobox } from "@/components/common/combobox";
 import InputError from "@/components/common/input-error";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import { RotateCw } from "lucide-react";
@@ -120,9 +120,9 @@ AdminEditScoringQuestionCategoryPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <EditScoringQuestionCategoryHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

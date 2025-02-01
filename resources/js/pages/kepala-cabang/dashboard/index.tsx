@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import { data } from "./dashboard-utils";
 import { KepalaCabangDashboardPageProps } from "./kepala-cabang-dashboard-page.type";
@@ -136,9 +137,9 @@ KepalaCabangDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <KepalaCabangLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </KepalaCabangLayoutPage>
+    </RoleBasedLayout>
   );
 };

@@ -36,7 +36,6 @@ import { Combobox } from "@/components/common/combobox";
 import Loading from "@/components/common/loading";
 import PrimaryButton from "@/components/common/primary-button";
 import RenderList from "@/components/common/render-list";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import axios from "axios";

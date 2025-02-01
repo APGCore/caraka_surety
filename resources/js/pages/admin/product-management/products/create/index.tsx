@@ -21,7 +21,7 @@ import { Label } from "@/components/_shadcn-ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
 import InputError from "@/components/common/input-error";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import axios from "axios";
 import { Check, ChevronsUpDown, RotateCw } from "lucide-react";
@@ -239,7 +239,7 @@ AdminCreateProductPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <Head title={pagePropsData?.page_settings?.title ?? "Products"} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -259,6 +259,6 @@ AdminCreateProductPage.layout = (page: any) => {
         </Button>
       </div>
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

@@ -26,7 +26,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { PaginationDatatable } from "@/components/common/pagination-datatable";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { BankManagementPageProps } from "@/pages/admin/bank-management/bank/bank-management-page.type";
 import { Head, Link, router } from "@inertiajs/react";

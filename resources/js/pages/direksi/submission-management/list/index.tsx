@@ -1,7 +1,7 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import DireksiLayoutPage from "@/layouts/direksi";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { useState } from "react";
 import SubmissionListDatatable from "./_partials/list-datatable";
 import SubmissionListHeader from "./_partials/list-page-header";
@@ -58,9 +58,9 @@ SubmissionListPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <DireksiLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <SubmissionListHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </DireksiLayoutPage>
+    </RoleBasedLayout>
   );
 };

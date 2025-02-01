@@ -2,7 +2,7 @@ import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
@@ -60,9 +60,9 @@ InvoicePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <InvoiceHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

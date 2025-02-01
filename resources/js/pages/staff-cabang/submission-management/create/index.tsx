@@ -1,3 +1,4 @@
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import StaffLayoutPage from "@/layouts/staff";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import { SubmissionCreatePageProps } from "./create-page.type";
@@ -12,9 +13,9 @@ SubmissionCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <SubmissionCreateHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 };

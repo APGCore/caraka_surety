@@ -10,6 +10,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import StaffLayoutPage from "@/layouts/staff";
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
@@ -145,9 +146,9 @@ SubmissionDocumentDraftPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <SubmissionDocumentDraftHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 };

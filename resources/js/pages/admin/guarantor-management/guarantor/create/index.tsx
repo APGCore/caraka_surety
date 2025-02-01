@@ -1,5 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorForm from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-form";
 import GuarantorHeader from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-header";

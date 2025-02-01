@@ -25,7 +25,7 @@ import InputCurrency from "@/components/common/input-currency";
 import { FileInput } from "@/components/common/input-file";
 import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
-import StaffLayoutPage from "@/layouts/staff";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
@@ -1637,9 +1637,9 @@ SubmissionCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <SubmissionCreateHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 };

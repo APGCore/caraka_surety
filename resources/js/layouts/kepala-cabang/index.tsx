@@ -21,7 +21,7 @@ import {
 import { Toaster } from "@/components/_shadcn-ui/toaster";
 import Clock from "@/components/common/clock";
 import RenderList from "@/components/common/render-list";
-import { SidebarMenuCustom } from "@/layouts/_partials/sidebar-menu-custom";
+import { SidebarMenuCustom } from "@/components/sidebar/app-sidebar/sidebar-menu-custom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";
 import { kepalaCabangRoute } from "./kepala-cabang-layout.constant";

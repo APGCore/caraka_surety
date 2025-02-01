@@ -2,7 +2,7 @@ import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import MainLayoutPage from "@/layouts/main-layout-page";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import BlankDatatable from "@/pages/blank-management/approval/_partials/blank-datatable";
 import BlankForm from "@/pages/blank-management/approval/_partials/blank-form";
 import BlankHeader from "@/pages/blank-management/approval/_partials/blank-header";
@@ -58,7 +58,7 @@ GuarantorPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <MainLayoutPage user={pagePropsData?.auth?.user} roles={pagePropsData?.roles}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <BlankHeader title={pagePropsData?.page_settings?.title ?? "Blangko"} links={pagePropsData?.links} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -68,6 +68,6 @@ GuarantorPage.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </MainLayoutPage>
+    </RoleBasedLayout>
   );
 };

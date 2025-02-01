@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import FormOfficeRate from "@/pages/admin/office-management/office-rate/_partials/form-office-rate";
 import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
 import { OfficeRateCreatePageProps } from "@/pages/admin/office-management/office-rate/create/office-rate-create.type";
@@ -36,13 +36,13 @@ OfficeRateCreate.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <OfficeRateHeader
         title={pagePropsData?.page_settings?.title}
         profile={pagePropsData?.profile}
         guarantor={pagePropsData?.guarantor}
       />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

@@ -1,7 +1,7 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
@@ -69,12 +69,12 @@ AdminEditScoringQuestionOptionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <EditScoringQuestionOptionHeader
         title={pagePropsData?.page_settings?.title}
         selectedScoringQuestion={pagePropsData?.selectedScoringQuestion}
       />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

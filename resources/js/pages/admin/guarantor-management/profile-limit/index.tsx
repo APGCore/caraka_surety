@@ -12,7 +12,6 @@ import { Combobox } from "@/components/common/combobox";
 import RenderList from "@/components/common/render-list";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ProfileLimitsUtils } from "@/pages/admin/guarantor-management/profile-limit/profile-limits.utils";
 import { router } from "@inertiajs/react";

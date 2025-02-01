@@ -2,7 +2,7 @@ import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
@@ -63,9 +63,9 @@ AdminProductTypesPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <ProductTypeHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };

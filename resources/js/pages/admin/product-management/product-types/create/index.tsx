@@ -3,7 +3,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
 import InputError from "@/components/common/input-error";
-import AdminLayout from "@/layouts/admin";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";
@@ -87,9 +87,9 @@ AdminCreateProductTypePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <AdminLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout user={pagePropsData?.auth?.user}>
       <CreateProductTypeHeader title={pagePropsData?.page_settings?.title} />
       {page}
-    </AdminLayout>
+    </RoleBasedLayout>
   );
 };
