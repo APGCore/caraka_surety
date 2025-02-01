@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Profile;
 
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use App\Models\OfficePairing;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -20,8 +20,7 @@ class HandleRoleUsers
     {
         $user = User::query()->find(Auth::id());
 
-
-        if (!$user?->hasRoles($roles)) {
+        if (! $user?->hasRoles($roles)) {
             $role = $user->role?->name;
 
             $roleEnums = RoleEnum::getRoute() ?? [];

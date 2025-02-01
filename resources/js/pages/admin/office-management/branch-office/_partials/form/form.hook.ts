@@ -3,6 +3,7 @@ import useGetAllGuarantor from "@/common/hooks/api/guarantor/useGetAllGuarantor"
 import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
 import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
 import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
+import { OfficeTypeEnum } from "@/types/office-type-enum";
 import { router, useForm } from "@inertiajs/react";
 import { FormEventHandler, useMemo, useState } from "react";
 
@@ -38,7 +39,7 @@ const useBranchOfficeForm = ({ branchOffice, routeSubmit, routeBack }: IBranchOf
     address: branchOffice?.address ?? "",
     postal_code: branchOffice?.postal_code ?? "",
     pairing_guarantor: branchOffice?.pairing_guarantor ?? [],
-    office_type: "branch",
+    office_type: OfficeTypeEnum.BRANCH,
   });
 
   // Open Modal

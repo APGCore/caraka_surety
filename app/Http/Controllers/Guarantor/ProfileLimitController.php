@@ -9,7 +9,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

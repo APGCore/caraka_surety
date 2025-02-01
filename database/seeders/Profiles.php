@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\OfficeType;
 use App\Models\Location\Province;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Database\Seeder;
 
 class Profiles extends Seeder

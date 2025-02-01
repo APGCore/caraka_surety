@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Guarantor\Guarantor;
+use App\Models\Profile\Profile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

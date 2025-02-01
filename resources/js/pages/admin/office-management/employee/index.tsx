@@ -144,7 +144,7 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("employee.edit", employee.id) + "?office_id=" + officeSelected}
+                            href={route("employee.edit", employee.id)}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>

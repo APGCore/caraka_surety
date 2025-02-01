@@ -6,7 +6,7 @@ use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\EmployeeResource;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -59,6 +59,29 @@ class EmployeeController extends Controller
         ]);
     }
 
+    private function getRoles(Profile $office, ?User $employee = null): array
+    {
+        $roleDireksi = RoleEnum::Direksi->value;
+        $roleManager = RoleEnum::Manager->value;
+        $roleKepalaCabang = RoleEnum::KepalaCabang->value;
+        $roles = [];
+        if ($office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
+            if ($employee?->hasRole($roleManager)) {
+                $roles[] = $roleDireksi;
+            } else {
+                $roles[] = $roleManager;
+            }
+        } elseif ($office->getAttribute('office_type') === OfficeType::BRANCH->value) {
+            if ($employee?->hasRole($roleKepalaCabang)) {
+                $roles[] = $roleDireksi;
+            } else {
+                $roles[] = $roleKepalaCabang;
+            }
+        }
+
+        return $roles;
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -68,17 +91,14 @@ class EmployeeController extends Controller
             'office_id' => 'required|exists:profiles,id',
         ]);
         $officeSelected = (int) $request->get('office_id');
+        $userRoles = $this->getRoles(Profile::query()->find($officeSelected));
         $roles = Role::query()->whereNot('id', 1)->get();
-        if ($officeSelected == 1) {
-            $role = RoleEnum::Manager->value;
-        } else {
-            $role = RoleEnum::KepalaCabang->value;
-        }
         $headers = User::query()
             ->where('profile_id', $officeSelected)
+            ->where('profile_id', 1)
             ->with('role')
-            ->whereHas('role', function ($query) use ($role) {
-                $query->where('name', $role);
+            ->whereHas('role', function ($query) use ($userRoles) {
+                $query->where('name', $userRoles);
             })
             ->get();
 
@@ -143,21 +163,15 @@ class EmployeeController extends Controller
      */
     public function edit(Request $request, User $employee)
     {
-        $request->validate([
-            'office_id' => 'required|exists:profiles,id',
-        ]);
-        $officeSelected = (int) $request->get('office_id');
+        $employee = User::query()->with('office')->find($employee->getAttribute('id'));
+        $office = $employee->getRelation('office');
+        $officeSelected = $office->getAttribute('id');
+        $userRoles = $this->getRoles($office, $employee);
         $roles = Role::query()->whereNot('id', 1)->get();
-        $employee = User::query()->find($employee->getAttribute('id'));
-        if ($officeSelected == 1) {
-            $role = RoleEnum::Manager->value;
-        } else {
-            $role = RoleEnum::KepalaCabang->value;
-        }
         $headers = User::query()
             ->with('role')
-            ->whereHas('role', function ($query) use ($role) {
-                $query->where('name', $role);
+            ->whereHas('role', function ($query) use ($userRoles) {
+                $query->whereIn('name', $userRoles);
             })
             ->get();
 

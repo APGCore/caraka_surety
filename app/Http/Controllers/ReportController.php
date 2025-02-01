@@ -72,7 +72,7 @@ class ReportController extends Controller
                 'service_charge' => $calculateCentralOffice->get('service_charge_central'),
                 'total' => $calculateCentralOffice->get('total_central'),
             ];
-            if ($submission->staff?->office?->office_type === OfficeType::BRANCH) {
+            if ($submission->staff?->office?->office_type === OfficeType::BRANCH->value) {
                 $calculateOffice = $this->calculateForBranchOffice($submission);
                 $submission->branch_office_rate = [
                     'minimum_bill' => $calculateOffice->get('minimum_bill'),

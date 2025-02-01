@@ -152,7 +152,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
 
           <InputError message={errors.role_id} className="mt-2" />
         </div>
-        <Show when={data.role_id === 5}>
+        <Show when={headers.length > 0}>
           <div className="sm:col-span-3">
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
               Atasan

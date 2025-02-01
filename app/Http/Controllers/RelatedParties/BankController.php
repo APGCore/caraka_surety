@@ -27,13 +27,13 @@ class BankController extends Controller
             ->appends($request->all());
         $bankResource = BankResource::collection($bank);
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Kelola Bank',
             ],
-            'banks' => fn() => $bankResource,
+            'banks' => fn () => $bankResource,
         ]);
     }
 
@@ -44,7 +44,7 @@ class BankController extends Controller
     {
         $bank = Bank::all();
 
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -106,7 +106,7 @@ class BankController extends Controller
     public function edit(Bank $bank, Request $request)
     {
         $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')) . '/index';
+        $component = substr($component, 0, strrpos($component, '/')).'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -174,7 +174,7 @@ class BankController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: ' . json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
         } finally {
             return redirect()->back();
         }
@@ -187,7 +187,6 @@ class BankController extends Controller
 
         return $this->responseSuccess('Success mendapatkan data bank!', $bank);
     }
-
 
     public function apiGetAllBank()
     {

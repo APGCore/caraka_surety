@@ -3,7 +3,6 @@
 use App\Http\Controllers\Office\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::prefix('office-management')
     ->name('api.office-management.')
     ->group(function () {

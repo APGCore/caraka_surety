@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    private function getCountOfSubmission(): array
+    private function getCountOfSubmission(?int $userId = null): array
     {
-        $submissions = Submission::query()->get();
+        $submissions = Submission::query()->when($userId, fn ($query) => $query->where('staff_id', $userId))->get();
         $totalSubmission = $submissions->count();
         $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
         $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
@@ -25,7 +25,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getChartSubmissionThisYear($productId = null): array
+    private function getChartSubmissionThisYear(?int $productId = null, ?int $userId = null): array
     {
         // get month names in Indonesian
         $monthNames = [
@@ -46,9 +46,8 @@ class DashboardController extends Controller
         $submissions = Submission::query()
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', now()->year)
-            ->when($productId, function ($query, $productId) {
-                return $query->where('product_id', $productId);
-            })
+            ->when($productId, fn ($query) => $query->where('product_id', $productId))
+            ->when($userId, fn ($query) => $query->where('staff_id', $userId))
             ->groupBy('month')
             ->get();
 
@@ -63,11 +62,12 @@ class DashboardController extends Controller
         return $chartData;
     }
 
-    private function getSubmissionThisMonth(): object
+    private function getSubmissionThisMonth(?int $userId = null): object
     {
         return Submission::query()
             ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
             ->with(['principal:id,name', 'product:id,name'])
+            ->when($userId, fn ($query) => $query->where('staff_id', $userId))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->orderByDesc('created_at')
@@ -84,9 +84,10 @@ class DashboardController extends Controller
     public function dashboardStaff(Request $request)
     {
         $productId = $request->get('product_id');
-        $countOfSubmission = $this->getCountOfSubmission();
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
+        $userId = auth()->user()->getAuthIdentifier();
+        $countOfSubmission = $this->getCountOfSubmission($userId);
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId, $userId);
+        $submissionThisMonth = $this->getSubmissionThisMonth($userId);
         $products = Product::query()->get();
 
         $props = [

@@ -31,20 +31,20 @@ export const kepalaCabangRoute = {
       items: [
         {
           title: "List Pengajuan",
-          route_name: "kepala-cabang-submission-list",
-          href: route("kepala-cabang-submission-list.submission"),
+          route_name: "kepala-cabang.submission.list",
+          href: route("kepala-cabang.submission.list"),
           url: "#",
         },
         {
           title: "Riwayat Pengajuan",
-          route_name: "kepala-cabang-submission-history",
-          href: route("kepala-cabang-submission-history.submission"),
+          route_name: "kepala-cabang.submission.history",
+          href: route("kepala-cabang.submission.history"),
           url: "#",
         },
         {
           title: "Draft Dokumen Pengajuan",
-          route_name: "kepala-cabang-submission-document-draft",
-          href: route("kepala-cabang-submission-document-draft.submission"),
+          route_name: "kepala-cabang.submission.document-draft",
+          href: route("kepala-cabang.submission.document-draft"),
           url: "#",
         },
       ],

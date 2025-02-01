@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Blank;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Guarantor;
 use App\Http\Controllers\Controller;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Http\Request;
 
 class PatternController extends Controller

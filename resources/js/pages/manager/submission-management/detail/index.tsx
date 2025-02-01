@@ -590,7 +590,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     city: string;
     date_mail: string;
 
-
     [key: string]: any;
   }
   const editorRefs = useRef<{ [key: string]: any }>({});

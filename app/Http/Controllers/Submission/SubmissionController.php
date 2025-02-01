@@ -8,7 +8,7 @@ use App\Http\Requests\Submission\StoreRequest;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
@@ -56,14 +56,6 @@ class SubmissionController extends Controller
         return inertia('admin/submission/index', [
             'submissions' => $submissions,
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -203,7 +195,7 @@ class SubmissionController extends Controller
             $scores = $scoring['scores'];
             if (collect($scores)->sum('point') > $dataSubmission['min_point_scoring']) {
                 $dataSubmission['checked_by'] = auth()->user()->head_id;
-                $dataSubmission['checked_at'] = now();
+                $dataSubmission['checked_at'] = now()->format('Y-m-d H:i:s');
             }
 
             $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
@@ -322,8 +314,6 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
 
-
-
         $principalDocs = collect($submission->principal->documents);
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
@@ -355,7 +345,7 @@ class SubmissionController extends Controller
         });
 
         return inertia('staff/submission-management/history/detail/index', [
-            'submission' => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -365,7 +355,7 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('staff/submission-management/document-draft/detail/index', [
-            'submission' => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -373,7 +363,6 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
-
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -405,7 +394,6 @@ class SubmissionController extends Controller
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
         $submission->analyst_name = $submission->staff->name;
 
-
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
@@ -415,7 +403,7 @@ class SubmissionController extends Controller
         });
 
         return inertia('manager/submission-management/detail/index', [
-            'submission' => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -425,7 +413,7 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('manager/submission-management/document-draft/detail/index', [
-            'submission' => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -458,7 +446,6 @@ class SubmissionController extends Controller
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
         $submission->analyst_name = $submission->staff->name;
 
-
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
@@ -478,32 +465,56 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('direksi/submission-management/document-draft/detail/index', [
-            'submission' => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Submission $submission)
+    public function showDetailSubmissionKepalaCabang($id)
     {
-        //
-    }
+        $submission = $this->getSubmission($id);
+        $submission->mail_number = $this->generateNomorSurat($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Submission $submission)
-    {
-        //
-    }
+        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier()) ?? 0;
+        $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
+        $submission->document_format_product = $submission->product->documentFormats;
+        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
+        $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
+        $submission->limit = $employeeLimit;
+        $submission->beyond_the_limit = $employeeLimit < $submission->guarantee_value;
+        $principalDocs = collect($submission->principal->documents);
+        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+            ->map(function ($doc) use ($principalDocs) {
+                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+                if ($principalDoc) {
+                    $doc->name = $principalDoc->name;
+                    $doc->url = Storage::url($principalDoc->url);
+                }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Submission $submission)
-    {
-        //
+                return $doc;
+            });
+        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
+            $docSig->url = Storage::url($docSig->url);
+
+            return $docSig;
+        });
+        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+        ($submission->principal->principalRatios);
+
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+
+        $submission->scores->map(function ($score) {
+            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+            $score->question_name = $score->scoringQuestion->name ?? '-';
+            $score->option_name = $score->scoringOption->name ?? '-';
+
+            return $score;
+        });
+
+        return inertia('kepala-cabang/submission-management/detail/index', [
+            'submission' => fn () => $submission,
+        ]);
     }
 
     public function displayCreateByStaff()
@@ -595,14 +606,13 @@ class SubmissionController extends Controller
                 $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
 
-                return [
-                    ...$submission->toArray(),
+                return array_merge($submission, [
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
                     'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
-                ];
+                ]);
             });
 
         return inertia($component, [
@@ -636,14 +646,13 @@ class SubmissionController extends Controller
                 $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
 
-                return [
-                    ...$submission->toArray(),
+                return array_merge($submission, [
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
                     'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
                     'created_at' => $date,
-                ];
+                ]);
             });
 
         return inertia($component, [
@@ -661,23 +670,33 @@ class SubmissionController extends Controller
         Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
+        $staffs = User::query()
+            ->where('head_id', '=', $authId)
+            ->pluck('id');
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+            ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
             ->where('checked_by', '!=', null)
-            ->where('status', '=', SubmissionStatus::PROCESS->value)
+            ->where('status', SubmissionStatus::PROCESS->value)
+            ->whereIn('checked_by', $staffs)
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
                 $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
+                $office = $submission->staff->office;
 
                 return [
-                    ...$submission->toArray(),
+                    'id' => $submission->id,
+                    'principal' => $submission->principal,
+                    'guarantor_to_product_type' => $submission->guarantorToProductType,
+                    'guarantee_value' => $submission->guarantee_value,
+                    'status' => $submission->status,
                     'direksi_limit' => $direksiLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
                     'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'office' => $office,
                     'created_at' => $date,
                 ];
             });
@@ -729,13 +748,66 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function displaySubmissionByKepalaCabang()
+    {
+        $component = 'kepala-cabang/submission-management/list/index';
+
+        Carbon::setLocale('id');
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $staffs = User::query()
+            ->where('head_id', '=', $authId)
+            ->pluck('id');
+        $submissions = Submission::query()
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'employeeLimit',
+                'guarantorProductTypeLimit',
+            ])
+            ->whereIn('staff_id', $staffs)
+            ->where([
+                'checked_by' => null,
+                'approved_by' => null,
+                'rejected_by' => null,
+            ])
+            ->get()
+            ->map(function ($submission) use ($authId) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
+
+                return array_merge($submission->toArray(), [
+                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'created_at' => $date,
+                ]);
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'List Pengajuan Masuk',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
     public function approve(Submission $submission): void
     {
+        $dateNow = now()->format('Y-m-d H:i:s');
         $updated = $submission->update([
             'checked_by' => auth()->user()->getAuthIdentifier(),
             'approved_by' => auth()->user()->getAuthIdentifier(),
-            'checked_at' => now(),
-            'approved_at' => now(),
+            'checked_at' => $dateNow,
+            'approved_at' => $dateNow,
             'status' => SubmissionStatus::APPROVED->value,
         ]);
 
@@ -748,11 +820,12 @@ class SubmissionController extends Controller
 
     public function reject(Submission $submission): void
     {
+        $dateNow = now()->format('Y-m-d H:i:s');
         $updated = $submission->update([
             'checked_by' => auth()->user()->getAuthIdentifier(),
             'rejected_by' => auth()->user()->getAuthIdentifier(),
-            'checked_at' => now(),
-            'rejected_at' => now(),
+            'checked_at' => $dateNow,
+            'rejected_at' => $dateNow,
             'status' => SubmissionStatus::REJECTED->value,
         ]);
 
@@ -766,9 +839,10 @@ class SubmissionController extends Controller
     // check status
     public function check(Submission $submission): void
     {
+        $dateNow = now()->format('Y-m-d H:i:s');
         $updated = $submission->update([
             'checked_by' => auth()->user()->getAuthIdentifier(),
-            'checked_at' => now(),
+            'checked_at' => $dateNow,
         ]);
 
         if (! $updated) {
@@ -890,20 +964,11 @@ class SubmissionController extends Controller
         $guarantorCode = $submission->guarantor->code;
         $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
 
-        $nomorSurat = strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
-
-        return $nomorSurat;
+        return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
     }
 
-    private function formatCurrency($value)
+    private function formatCurrency($value): string
     {
         return 'Rp. '.number_format($value, 2, ',', '.');
-    }
-
-    public function formatDate($date)
-    {
-        Carbon::setLocale('id');
-
-        return Carbon::parse($date)->translatedFormat('d F Y');
     }
 }

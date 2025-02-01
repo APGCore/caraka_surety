@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Requests\Auth\ProfileUpdateRequest;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

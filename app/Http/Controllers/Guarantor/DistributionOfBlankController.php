@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

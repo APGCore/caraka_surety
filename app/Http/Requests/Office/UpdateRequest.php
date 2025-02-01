@@ -5,7 +5,7 @@ namespace App\Http\Requests\Office;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -26,6 +26,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'code' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Profile::class.',email,'.$this->id.',id,deleted_at,NULL'],
             'phone' => ['required', 'string', 'max:255'],
@@ -36,6 +37,7 @@ class UpdateRequest extends FormRequest
             'district_id' => ['required', 'exists:'.District::class.',id'],
             'village' => ['required', 'string', 'max:255'],
             'pairing_guarantor' => ['required', 'array'],
+            'office_type' => ['required'],
         ];
     }
 }

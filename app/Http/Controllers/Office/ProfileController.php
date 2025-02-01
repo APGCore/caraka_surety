@@ -9,7 +9,7 @@ use App\Http\Requests\Office\UpdateRequest;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\OfficePairing;
-use App\Models\Profile;
+use App\Models\Profile\Profile;
 use App\Models\User;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
@@ -264,7 +264,10 @@ class ProfileController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Diperbarui', 'Terjadi kesalahan saat memperbarui', 'error');
-            Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            Log::error('Profil Update: '.json_encode([
+                'message' => $th->getMessage(),
+                'line' => $th->getLine(),
+            ], JSON_PRETTY_PRINT));
 
             return redirect()->back()->withErrors($th->getMessage());
         }

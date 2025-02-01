@@ -41,13 +41,13 @@ class GuarantorController extends Controller
             ->appends($request->all());
 
         $resource = GuarantorResource::collection($guarantors);
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Data Asuransi',
             ],
-            'guarantors' => fn() => $resource,
+            'guarantors' => fn () => $resource,
         ]);
     }
 
@@ -56,7 +56,7 @@ class GuarantorController extends Controller
      */
     public function create(): \Inertia\Response
     {
-        $component = request()->path() . '/index';
+        $component = request()->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -75,7 +75,7 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
                 $requestValid['picture'] = $path;
             }
@@ -114,13 +114,13 @@ class GuarantorController extends Controller
         $guarantor->setAttribute('picture', $picture);
         $guarantor->load('pattern');
 
-        $component = str_replace('/' . $guarantor->getAttribute('id'), '', request()->path()) . '/index';
+        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Asuransi',
             ],
-            'guarantor' => fn() => $guarantor,
+            'guarantor' => fn () => $guarantor,
         ]);
     }
 
@@ -139,7 +139,7 @@ class GuarantorController extends Controller
                     $this->deleteFile($picture);
                 }
 
-                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             }
 
@@ -258,7 +258,7 @@ class GuarantorController extends Controller
             ->with('guarantorHead:id,headquarter_id,name')
             ->get(['guarantor_id']);
 
-        $guarantors = $guarantors->pluck('guarantorHead')->unique()->filter(fn($data) => $data != null)->values();
+        $guarantors = $guarantors->pluck('guarantorHead')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
@@ -277,14 +277,15 @@ class GuarantorController extends Controller
             return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
         }
 
-        $guarantorBranchIds = $guarantor->pluck('branch')->unique('id')->pluck('id');
+        $guarantor->load('branch');
+        $guarantorBranchIds = $guarantor->getRelation('branch')->pluck('id');
         $guarantorOffice = OfficePairing::query()
-            ->where('office_id', $staff->getAttribute('office_id'))
+            ->where('office_id', $staff->getAttribute('profile_id'))
             ->whereIn('guarantor_id', $guarantorBranchIds)
-            ->with('office:id,name', 'guarantorBranch:id,name')
+            ->with('office:id,name', 'guarantor:id,name')
             ->get(['office_id', 'guarantor_id']);
 
-        $guarantorBranch = $guarantorOffice->pluck('guarantorBranch')->unique()->filter(fn($data) => $data != null)->values();
+        $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }

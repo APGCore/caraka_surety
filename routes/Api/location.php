@@ -16,14 +16,12 @@ Route::prefix('location-management')
                 Route::get('all', 'all')->name('all');
             });
 
-
         Route::controller(RegencyController::class)
             ->prefix('regency')
             ->name('location-management.regency.')
             ->group(function () {
                 Route::get('by-province/{province_id}', 'getByProvince')->name('by-province');
             });
-
 
         Route::controller(DistrictController::class)
             ->prefix('district')
