@@ -422,7 +422,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     scoring_result: submission?.scores || "",
     // description: submission?.description || "",
     date: submission?.created_at || "",
-    // analyst_name: submission?.analyst_name || "",
+    analyst_name: submission?.analyst_name || "",
     manager_name: submission?.principal?.commissioner || "",
     branch_manager: submission?.principal?.director_name || "",
     job_location:

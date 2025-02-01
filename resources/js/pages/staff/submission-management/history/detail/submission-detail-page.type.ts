@@ -234,6 +234,7 @@ interface SubmissionDetailProps {
       name: string;
     };
     job_type: string;
+    analyst_name: string;
   };
 
   submissionData: {
@@ -306,6 +307,7 @@ interface SubmissionDetailProps {
     job_group: string;
     no: string | number;
     city: string;
+    analyst_name: string;
   };
 }
 

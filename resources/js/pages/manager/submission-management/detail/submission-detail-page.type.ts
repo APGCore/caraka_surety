@@ -227,6 +227,7 @@ interface SubmissionDetailProps {
     mail_number: string;
     no_guarantee: string;
     bank_name: string;
+    analyst_name: string;
     product: {
       name: string;
     };

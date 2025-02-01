@@ -344,6 +344,8 @@ class SubmissionController extends Controller
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
+        $submission->analyst_name = $submission->staff->name;
+
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
             $score->question_name = $score->scoringQuestion->name ?? '-';
@@ -401,6 +403,8 @@ class SubmissionController extends Controller
 
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+        $submission->analyst_name = $submission->staff->name;
+
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
@@ -452,6 +456,8 @@ class SubmissionController extends Controller
 
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+        $submission->analyst_name = $submission->staff->name;
+
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
