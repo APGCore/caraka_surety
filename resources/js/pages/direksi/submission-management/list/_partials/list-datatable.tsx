@@ -30,6 +30,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Dari Unit Bisnis</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -47,7 +48,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                 </TableCell>
                 <TableCell>
                   <span
-                    className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
+                    className={`p-2 uppercase text-xs font-semibold rounded ${
                       submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
                         : submission.status === SubmissionStatus.REJECTED
@@ -57,6 +58,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                     {submission.status}
                   </span>
                 </TableCell>
+                <TableCell>{submission?.office?.name}</TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell>
                   <Button
