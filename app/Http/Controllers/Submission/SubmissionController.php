@@ -606,7 +606,7 @@ class SubmissionController extends Controller
                 $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
 
-                return array_merge($submission, [
+                return array_merge($submission->toArray(), [
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
@@ -646,7 +646,7 @@ class SubmissionController extends Controller
                 $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
                 $productLimit = $submission->guarantorProductTypeLimit;
 
-                return array_merge($submission, [
+                return array_merge($submission->toArray(), [
                     'manager_limit' => $managerLimit?->limit ?? 0,
                     'product_limit' => $productLimit?->limit ?? 0,
                     'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
