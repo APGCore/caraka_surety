@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Guarantor;
 
-use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Blank\AccBlanksRequest;
@@ -12,7 +11,6 @@ use App\Http\Requests\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Profile\Profile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -208,11 +206,7 @@ class BlankController extends Controller
 
     public function getByOffice(Request $request)
     {
-        $officeTypes = OfficeType::getName();
-        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
-        $officeType = OfficeType::getValueOfName()[$officeTypeSelected];
-        $offices = Profile::query()->where('office_type', $officeType)->get();
-        $officeSelected = (int) ($request->get('profile_id') ?? $offices->first()?->getAttribute('id'));
+        $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
             $links = $this->links->map(fn ($link) => 'kepala-cabang.'.$link);
         } else {
@@ -221,13 +215,13 @@ class BlankController extends Controller
         $component = 'blank-management/approval/index';
 
         $blanks = Blank::query()->where([
-            'profile_id' => $officeSelected,
+            'profile_id' => $profileId,
             'is_approved' => false,
         ])->get();
 
         $blankPage = Blank::search($request->get('search'))
-            ->query(function ($query) use ($officeSelected) {
-                return $query->with('profile')->where('profile_id', $officeSelected);
+            ->query(function ($query) use ($profileId) {
+                return $query->with('profile')->where('profile_id', $profileId);
             })
             ->orderBy('number')
             ->paginate($request->get('per_page') ?? 10)
@@ -242,10 +236,6 @@ class BlankController extends Controller
             'blanks' => fn () => $blankResource,
             'blanks_un_approved' => $blanks,
             'links' => $links ?? null,
-            'offices' => $offices,
-            'officeTypes' => $officeTypes,
-            'officeSelected' => $officeSelected,
-            'officeTypeSelected' => $officeTypeSelected,
         ]);
     }
 

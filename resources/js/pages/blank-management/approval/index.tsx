@@ -10,19 +10,8 @@ import { BlankPageProps } from "@/pages/blank-management/approval/blank-page.typ
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from "@/components/_shadcn-ui/select";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { Combobox } from "@/components/common/combobox";
 
-const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, offices, officeTypes, officeSelected, officeTypeSelected }) => {
+const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -36,22 +25,12 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, offi
     getData(String(select), search);
   };
 
-    const handleSelectOfficeType = (officeType: string) => {
-        getData(select, search, officeType, undefined);
-    };
-
-    const handleSelectOffice = (officeId: number) => {
-        getData(select, search, officeTypeSelected, officeId);
-    };
-
-  const getData = (per_page: string, search: string, office_type?: any, profile_id?: any) => {
+  const getData = (per_page: string, search: string) => {
     return router.get(
       route(links.index),
       pickBy({
         per_page,
         search,
-        office_type,
-        profile_id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -62,30 +41,6 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, offi
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
-            <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
-                <SelectTrigger className="min-w-[160px]">
-                    <SelectValue placeholder="Pilih " />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <RenderList
-                            of={officeTypes}
-                            render={(officeType: string) => <SelectItem value={officeType}>{officeType}</SelectItem>}
-                        />
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
-            <Show when={officeTypeSelected !== officeTypes[0]}>
-                <Combobox
-                    datas={offices}
-                    labelKey={"name"}
-                    valueKey={"name"}
-                    defaultValue={officeSelected}
-                    placeholder={"Pilih Kantor"}
-                    className={"min-w-[160px]"}
-                    onSelect={(value) => handleSelectOffice(value.id)}
-                />
-            </Show>
         </div>
         <div className="flex gap-x-3">
           <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Blangko" />
