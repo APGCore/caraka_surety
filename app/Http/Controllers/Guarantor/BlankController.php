@@ -206,6 +206,9 @@ class BlankController extends Controller
 
     public function getByOffice(Request $request)
     {
+        $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')->get();
+        $guarantorId = $request->get('guarantor_id', $guarantors->first()?->id ?? null);
         $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
             $links = $this->links->map(fn ($link) => 'kepala-cabang.'.$link);
@@ -220,8 +223,10 @@ class BlankController extends Controller
         ])->get();
 
         $blankPage = Blank::search($request->get('search'))
-            ->query(function ($query) use ($profileId) {
-                return $query->with('profile')->where('profile_id', $profileId);
+            ->query(function ($query) use ($guarantorId, $profileId) {
+                return $query->with('profile')
+                    ->where('guarantor_id', $guarantorId)
+                    ->where('profile_id', $profileId);
             })
             ->orderBy('number')
             ->paginate($request->get('per_page') ?? 10)
@@ -236,6 +241,8 @@ class BlankController extends Controller
             'blanks' => fn () => $blankResource,
             'blanks_un_approved' => $blanks,
             'links' => $links ?? null,
+            'guarantors' => $guarantors,
+            'guarantorSelected' => (int) $guarantorId,
         ]);
     }
 

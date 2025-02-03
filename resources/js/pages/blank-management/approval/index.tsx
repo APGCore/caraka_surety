@@ -1,5 +1,6 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Combobox } from "@/components/common/combobox";
 import SearchDatatable from "@/components/common/search-datatable";
 import SelectLengthDatatable from "@/components/common/select-length-datatable";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -11,7 +12,7 @@ import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links }) => {
+const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, guarantors, guarantorSelected }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -25,12 +26,17 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links }) =>
     getData(String(select), search);
   };
 
-  const getData = (per_page: string, search: string) => {
+  const setGuarantor = (value: any) => {
+    getData(String(select), search, value.id);
+  };
+
+  const getData = (per_page: string, search: string, guarantor_id?: any) => {
     return router.get(
       route(links.index),
       pickBy({
         per_page,
         search,
+        guarantor_id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -41,6 +47,15 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links }) =>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+          <Combobox
+            datas={guarantors}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorSelected}
+            placeholder={"Pilih Asuransi"}
+            className={"w-[210px]"}
+            onSelect={(value) => setGuarantor(value)}
+          />
         </div>
         <div className="flex gap-x-3">
           <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Blangko" />
