@@ -15,7 +15,15 @@ import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";
 import { InvoicePageProps } from "./_partials/invoice.type";
 
-const InvoicePage: InvoicePageProps = ({ submissions, guarantors, guarantorSelected }) => {
+const InvoicePage: InvoicePageProps = ({
+  submissions,
+  guarantors,
+  guarantorSelected,
+  products,
+  productSelected,
+  productTypes,
+  productTypeSelected,
+}) => {
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
   const [filterDate, setFilterDate] = useState<DateRange | undefined>({
@@ -25,42 +33,56 @@ const InvoicePage: InvoicePageProps = ({ submissions, guarantors, guarantorSelec
 
   const handleSelectInvoiceLength = (perPage: string) => {
     setPerPage(perPage);
-    getData({ per_page: perPage, search });
+    getData({ per_page: perPage });
   };
 
   const handleSearchInvoice = () => {
-    getData({ per_page: perPage, search });
+    getData({ searchValue: search });
   };
 
   const handleChangeDate = (dateRange: DateRange | undefined) => {
     setFilterDate(dateRange);
     if (dateRange?.from && dateRange?.to) {
-      getData({ per_page: perPage, search, date: dateRange });
+      getData({ date: dateRange });
     }
   };
 
   const handleSelectGuarantor = (guarantorId: number) => {
-    getData({ per_page: perPage, search, date: filterDate, guarantor_id: guarantorId });
+    getData({ guarantor_id: guarantorId });
+  };
+
+  const handleSelectProduct = (productId?: number) => {
+    getData({ product_id: productId });
+  };
+
+  const handleSelectProductType = (productTypeId?: number) => {
+    getData({ product_type_id: productTypeId });
   };
 
   const getData = ({
-    per_page,
-    search,
-    date,
-    guarantor_id,
+    per_page = perPage,
+    searchValue = search,
+    date = filterDate,
+    guarantor_id = guarantorSelected,
+    product_id = productSelected,
+    product_type_id = productTypeSelected,
   }: {
     per_page?: string;
-    search?: string;
+    searchValue?: string;
     date?: DateRange;
     guarantor_id?: number;
+    product_id?: number;
+    product_type_id?: number;
   }) => {
     router.get(
       route(InvoiceUtils.link.index),
       pickBy({
         per_page,
-        search,
+        search: searchValue,
         date,
         guarantor_id,
+        product_id,
+        product_type_id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -72,24 +94,46 @@ const InvoicePage: InvoicePageProps = ({ submissions, guarantors, guarantorSelec
         <div className="flex gap-x-3">
           <ExportDocsButtonDatatable onClick={() => {}} />
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectInvoiceLength} />
-          <CalendarDateRangePicker
-            value={filterDate}
-            onDateChange={(date) => handleChangeDate(date)}></CalendarDateRangePicker>
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Asuransi"}
-            className={"min-w-[160px]"}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
+          <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />
         </div>
         <SearchDatatable
           value={search}
           onChange={setSearch}
           onSubmit={handleSearchInvoice}
           placeholder="Cari Invoice"
+        />
+      </div>
+      <div className="flex gap-x-3">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorSelected}
+          placeholder={"Pilih Asuransi"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        <Combobox
+          datas={products}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={productSelected}
+          placeholder={"Pilih Produk"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectProduct(value.id)}
+          isReset={true}
+          handleReset={() => handleSelectProduct()}
+        />
+        <Combobox
+          datas={productTypes}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={productTypeSelected}
+          placeholder={"Pilih Jenis Jaminan"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectProductType(value.id)}
+          isReset={true}
+          handleReset={() => handleSelectProductType()}
         />
       </div>
       <InvoiceDatatable submissions={submissions} />

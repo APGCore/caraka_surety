@@ -5,6 +5,7 @@ import RenderList from "@/components/common/render-list";
 import Show from "@/components/common/show";
 import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
 import InvoiceCentralOffice from "@/pages/report/invoice/_partials/invoice-central-office";
+import InvoiceDetailDatatable from "@/pages/report/invoice/_partials/invoice-detail-datatable";
 import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";
 import React, { useState } from "react";
 import InvoiceBranchOffice from "./invoice-branch-office";
@@ -30,16 +31,11 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
+            <TableHead>TANGGAL PENGAJUAN</TableHead>
             <TableHead>NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
-            <TableHead>OBLIGEE</TableHead>
-            <TableHead>PROJECT</TableHead>
             <TableHead>NILAI JAMINAN</TableHead>
-            <TableHead>AWAL</TableHead>
-            <TableHead>AKHIR</TableHead>
-            <TableHead>HARI ASURANSI</TableHead>
-            <TableHead>HARI CABANG</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -49,19 +45,19 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
               <>
                 <TableRow key={submission.id} onClick={() => handleDetail(submission.id)} className={"cursor-pointer"}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
+                  <TableCell>{submission.created_at}</TableCell>
                   <TableCell>{submission.blank?.number}</TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name}</TableCell>
-                  <TableCell>{submission.obligee?.name}</TableCell>
-                  <TableCell>{submission.job_name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
-                  <TableCell>{submission.start_date}</TableCell>
-                  <TableCell>{submission.end_date}</TableCell>
-                  <TableCell>{submission.time_period} Hari</TableCell>
-                  <TableCell>{submission.time_period + 1} Hari</TableCell>
                 </TableRow>
                 <Show when={!!selectedSubmission && selectedSubmission == submission.id}>
                   <TableRow key={"detail-" + submission.id}>
+                    <TableCell colSpan={11} className="p-0">
+                      <InvoiceDetailDatatable submission={submission} />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow key={"detail-invoice-" + submission.id}>
                     <TableCell colSpan={11} className="p-0">
                       <div className="flex align-center w-full">
                         <div className="bg-orange-300 hover:bg-orange-300 p-2 w-full">

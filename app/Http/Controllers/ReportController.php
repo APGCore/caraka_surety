@@ -8,6 +8,7 @@ use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
 use App\Traits\GeneratePattern;
@@ -26,29 +27,46 @@ class ReportController extends Controller
         ])->values();
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')
+            ->with('guarantorToProductTypes')
             ->get(['id', 'name']);
         $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->getAttribute('id'));
+        $products = Product::query()
+            ->with('productType')
+            ->get(['id', 'name']);
+        $productSelected = $request->get('product_id');
+        $product = $products->firstWhere('id', $productSelected);
+        $productTypes = $product ? $product->productType : [];
+        $productTypeSelected = $request->get('product_type_id');
+        $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
+            ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
+
         $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date, $guarantorSelected) {
+            ->query(function ($query) use ($date, $guarantorSelected, $productSelected, $guarantorToProductType) {
                 return $query->when($date->isNotEmpty(), function ($query) use ($date) {
                     $query->whereBetween('created_at', $date);
                 })->when($guarantorSelected, function ($query) use ($guarantorSelected) {
                     $query->where('guarantor_id', $guarantorSelected);
-                })->with([
-                    'guarantor:id,name,code',
-                    'guarantorBranch:id,name,code',
-                    'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                    'guarantor.guarantorRate',
-                    'guarantorToProductType:id,code_product,code',
-                    'blanks:id,number,is_broken',
-                    'principal:id,name',
-                    'obligee:id,name',
-                    'staff:id,name,profile_id',
-                    'staff.office:id,name,code,office_type',
-                    'staff.office.profileRate',
-                ]);
+                })->when($productSelected, function ($query) use ($productSelected) {
+                    $query->where('product_id', $productSelected);
+                })->when($guarantorToProductType, function ($query) use ($guarantorToProductType) {
+                    $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
+                })
+                    ->with([
+                        'guarantor:id,name,code',
+                        'guarantorBranch:id,name,code',
+                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                        'guarantor.guarantorRate',
+                        'product:id,name',
+                        'guarantorToProductType:id,code_product,code,name',
+                        'blanks:id,number,is_broken',
+                        'principal:id,name',
+                        'obligee:id,name',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name,code,office_type',
+                        'staff.office.profileRate',
+                    ]);
             })
-            ->orderBy('id')
+            ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
@@ -101,8 +119,12 @@ class ReportController extends Controller
                 'title' => 'Laporan Invoice',
             ],
             'submissions' => fn () => $resource,
-            'guarantors' => $guarantors,
+            'guarantors' => $guarantors->map->only('id', 'name'),
             'guarantorSelected' => $guarantorSelected,
+            'products' => $products,
+            'productSelected' => (int) $productSelected,
+            'productTypes' => $productTypes,
+            'productTypeSelected' => (int) $productTypeSelected,
         ]);
     }
 
