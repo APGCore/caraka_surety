@@ -51,11 +51,11 @@ const InvoicePage: InvoicePageProps = ({
     getData({ guarantor_id: guarantorId });
   };
 
-  const handleSelectProduct = (productId?: number) => {
+  const handleSelectProduct = (productId?: number | null) => {
     getData({ product_id: productId });
   };
 
-  const handleSelectProductType = (productTypeId?: number) => {
+  const handleSelectProductType = (productTypeId?: number | null) => {
     getData({ product_type_id: productTypeId });
   };
 
@@ -71,8 +71,8 @@ const InvoicePage: InvoicePageProps = ({
     searchValue?: string;
     date?: DateRange;
     guarantor_id?: number;
-    product_id?: number;
-    product_type_id?: number;
+    product_id?: number | null;
+    product_type_id?: number | null;
   }) => {
     router.get(
       route(InvoiceUtils.link.index),
@@ -122,7 +122,7 @@ const InvoicePage: InvoicePageProps = ({
           className={"min-w-[160px]"}
           onSelect={(value) => handleSelectProduct(value.id)}
           isReset={true}
-          handleReset={() => handleSelectProduct()}
+          handleReset={() => handleSelectProduct(null)}
         />
         <Combobox
           datas={productTypes}
@@ -133,7 +133,7 @@ const InvoicePage: InvoicePageProps = ({
           className={"min-w-[160px]"}
           onSelect={(value) => handleSelectProductType(value.id)}
           isReset={true}
-          handleReset={() => handleSelectProductType()}
+          handleReset={() => handleSelectProductType(null)}
         />
       </div>
       <InvoiceDatatable submissions={submissions} />

@@ -36,6 +36,8 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
             <TableHead>NILAI JAMINAN</TableHead>
+            <TableHead>PRODUK</TableHead>
+            <TableHead>JENIS JAMINAN</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -50,6 +52,8 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
+                  <TableCell>{submission.product?.name}</TableCell>
+                  <TableCell>{submission.product_type?.name}</TableCell>
                 </TableRow>
                 <Show when={!!selectedSubmission && selectedSubmission == submission.id}>
                   <TableRow key={"detail-" + submission.id}>

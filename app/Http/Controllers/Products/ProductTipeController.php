@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Product\ProductTipeResource;
+use App\Http\Resources\Product\ProductTypeResource;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\ProductType;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -29,7 +29,7 @@ class ProductTipeController extends Controller
             ->appends('query', null)
             ->appends($request->all());
 
-        $productTypeResource = ProductTipeResource::collection($productTypes);
+        $productTypeResource = ProductTypeResource::collection($productTypes);
 
         return inertia($component, [
             'page_settings' => [
