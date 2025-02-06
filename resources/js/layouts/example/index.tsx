@@ -13,7 +13,7 @@ import {
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/_shadcn-ui/sheet";
 import { Toaster } from "@/components/_shadcn-ui/toaster";
-import Clock from "@/components/common/clock";
+import Clock from "@/components/atoms/clock";
 import { Link } from "@inertiajs/react";
 import { CircleUser, Home, LineChart, Menu, Package, Package2, ShoppingCart, Users } from "lucide-react";
 import { exampleLinks } from "./example-layout.constant";

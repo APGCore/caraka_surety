@@ -3,7 +3,7 @@ import "./bootstrap";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
-import ReactQueryProvider from "./components/common/react-query-provider";
+import ReactQueryProvider from "./components/organisms/provider/react-query-provider";
 
 const appName = import.meta.env.VITE_APP_NAME === "Laravel" ? "APG-Core-System" : import.meta.env.VITE_APP_NAME;
 

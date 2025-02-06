@@ -1,4 +1,4 @@
-import { Combobox } from "@/components/common/combobox";
+import { Combobox } from "@/components/molecules/combobox";
 import React from "react";
 import { sumberDanaOptions } from "./sumber-dana.contant";
 

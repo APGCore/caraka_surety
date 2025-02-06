@@ -11,7 +11,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
-import InputError from "@/components/common/input-error";
+import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";

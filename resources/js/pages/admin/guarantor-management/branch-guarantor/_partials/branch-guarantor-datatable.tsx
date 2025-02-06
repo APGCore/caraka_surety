@@ -20,8 +20,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

@@ -9,8 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/_shadcn-ui/select";
-import InputCurrency from "@/components/common/input-currency";
-import RenderList from "@/components/common/render-list";
+import RenderList from "@/components/atoms/render-list";
+import InputCurrency from "@/components/molecules/input/currency-input";
 import { Ratio } from "@/pages/staff/submission-management/create/create-page.type";
 import dayjs from "dayjs";
 import React, { useEffect } from "react";

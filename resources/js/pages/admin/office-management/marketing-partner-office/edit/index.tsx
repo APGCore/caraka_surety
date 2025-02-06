@@ -1,4 +1,4 @@
-import HeaderPage from "@/components/common/header-page";
+import HeaderPage from "@/components/molecules/header";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { BranchOfficeEditPageProps } from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
 import Form from "../_partials/form";

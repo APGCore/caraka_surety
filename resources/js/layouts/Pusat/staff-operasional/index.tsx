@@ -2,7 +2,7 @@ import useFlashMessageToast from "@/common/hooks/general/use-flash-message";
 import { Separator } from "@/components/_shadcn-ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/_shadcn-ui/sidebar";
 import { Toaster } from "@/components/_shadcn-ui/toaster";
-import Clock from "@/components/common/clock";
+import Clock from "@/components/atoms/clock";
 import AppSidebar from "@/components/sidebar/app-sidebar";
 import { staffOperasionalRoute } from "./staff-operasional-layout.constant";
 import { StaffOperasionalLayoutPageProps } from "./staff-operasional-layout.type";

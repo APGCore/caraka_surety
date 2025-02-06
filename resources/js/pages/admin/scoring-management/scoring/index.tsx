@@ -1,6 +1,6 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import AdminLayoutPage from "@/layouts/admin-layout";
 import DireksiLayoutPage from "@/layouts/direksi-layout";
 import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";

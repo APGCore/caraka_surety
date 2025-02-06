@@ -1,10 +1,10 @@
 import { Textarea } from "@/components/_shadcn-ui/textarea";
-import { Combobox } from "@/components/common/combobox";
-import InputError from "@/components/common/input-error";
-import InputLabel from "@/components/common/input-label";
-import PrimaryButton from "@/components/common/primary-button";
-import SecondaryButton from "@/components/common/secondary-button";
-import TextInput from "@/components/common/text-input";
+import PrimaryButton from "@/components/atoms/button/primary-button";
+import SecondaryButton from "@/components/atoms/button/secondary-button";
+import { Combobox } from "@/components/molecules/combobox";
+import InputError from "@/components/molecules/input/error-input";
+import InputLabel from "@/components/molecules/input/label-input";
+import TextInput from "@/components/molecules/input/text-input";
 import { Transition } from "@headlessui/react";
 import { FormEventHandler } from "react";
 

@@ -17,11 +17,11 @@ import {
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
-import { FileInput } from "@/components/common/input-file";
-import { PreviewFile } from "@/components/common/preview-file";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
+import { FileInput } from "@/components/molecules/input/file-input";
+import { PreviewFile } from "@/components/molecules/preview-file";
 import ManagerLayoutPage from "@/layouts/manager";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";

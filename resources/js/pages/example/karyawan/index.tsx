@@ -23,7 +23,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
+import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
 import ExampleLayoutPage from "@/layouts/example";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

@@ -7,11 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/_shadcn-ui/select";
-import InputError from "@/components/common/input-error";
-import PrimaryButton from "@/components/common/primary-button";
-import RenderList from "@/components/common/render-list";
-import SecondaryButton from "@/components/common/secondary-button";
-import Show from "@/components/common/show";
+import PrimaryButton from "@/components/atoms/button/primary-button";
+import SecondaryButton from "@/components/atoms/button/secondary-button";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import InputError from "@/components/molecules/input/error-input";
 import { router, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
 import { FormEventHandler } from "react";

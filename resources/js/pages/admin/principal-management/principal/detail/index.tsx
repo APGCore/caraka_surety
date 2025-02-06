@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
-import PrimaryButton from "@/components/common/primary-button";
-import SecondaryButton from "@/components/common/secondary-button";
+import PrimaryButton from "@/components/atoms/button/primary-button";
+import SecondaryButton from "@/components/atoms/button/secondary-button";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PrincipalDetailPageProps } from "@/pages/admin/principal-management/principal/detail/detail-principal-page.type";
 import { Head, Link } from "@inertiajs/react";

@@ -32,10 +32,10 @@ import {
   SelectValue,
 } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { Combobox } from "@/components/common/combobox";
-import Loading from "@/components/common/loading";
-import PrimaryButton from "@/components/common/primary-button";
-import RenderList from "@/components/common/render-list";
+import PrimaryButton from "@/components/atoms/button/primary-button";
+import Loading from "@/components/atoms/loading";
+import RenderList from "@/components/atoms/render-list";
+import { Combobox } from "@/components/molecules/combobox";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head } from "@inertiajs/react";
 import axios from "axios";

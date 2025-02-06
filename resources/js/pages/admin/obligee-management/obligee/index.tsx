@@ -24,8 +24,8 @@ import {
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { ObligeeManagementPageProps } from "@/pages/admin/obligee-management/obligee/obligee-management-page.type";
 import { Head, Link, router } from "@inertiajs/react";

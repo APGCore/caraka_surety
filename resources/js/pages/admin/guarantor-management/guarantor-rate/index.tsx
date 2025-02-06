@@ -7,10 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/_shadcn-ui/select";
-import { Combobox } from "@/components/common/combobox";
-import RenderList from "@/components/common/render-list";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import RenderList from "@/components/atoms/render-list";
+import { Combobox } from "@/components/molecules/combobox";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorRateDatatable from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";

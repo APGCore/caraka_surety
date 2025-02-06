@@ -20,7 +20,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
-import InputError from "@/components/common/input-error";
+import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import axios from "axios";

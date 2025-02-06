@@ -1,7 +1,7 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import ExportDocsButtonDatatable from "@/components/molecules/datatable/export";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { BlankUsageUtils } from "@/pages/report/blanks-usage/_partials/blank-usage.utils";
 import { router } from "@inertiajs/react";

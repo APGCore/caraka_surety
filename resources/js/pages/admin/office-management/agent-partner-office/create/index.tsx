@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
-import HeaderPage from "@/components/common/header-page";
+import HeaderPage from "@/components/molecules/header";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import Form from "../_partials/form";
 import { AgentPartnerOfficeCreatePageProps } from "./agent-partner-office-create-page.type";

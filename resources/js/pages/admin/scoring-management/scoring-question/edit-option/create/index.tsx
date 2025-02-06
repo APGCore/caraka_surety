@@ -2,7 +2,7 @@ import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
-import InputError from "@/components/common/input-error";
+import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";

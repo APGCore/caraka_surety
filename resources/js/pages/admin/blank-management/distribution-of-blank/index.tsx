@@ -27,11 +27,11 @@ import {
   SelectValue,
 } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { Combobox } from "@/components/common/combobox";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import { Combobox } from "@/components/molecules/combobox";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DistributionBlankPageProps } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank-page.type";
 import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distribution-of-blank/distribution-of-blank.utils";

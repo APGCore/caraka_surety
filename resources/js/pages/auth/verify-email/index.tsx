@@ -1,4 +1,4 @@
-import PrimaryButton from "@/components/common/primary-button";
+import PrimaryButton from "@/components/atoms/button/primary-button";
 import GuestLayoutPage from "@/layouts/guest";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";

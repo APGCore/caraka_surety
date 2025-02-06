@@ -2,7 +2,7 @@ import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import GuarantorDatatable from "@/pages/admin/guarantor-management/guarantor/_partials/guarantor-datatable";
 import { GuarantorPageProps } from "@/pages/admin/guarantor-management/guarantor/guarantor-page.type";

@@ -1,9 +1,9 @@
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import InvoiceCentralOffice from "@/pages/report/invoice/_partials/invoice-central-office";
 import InvoiceDetailDatatable from "@/pages/report/invoice/_partials/invoice-detail-datatable";
 import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";

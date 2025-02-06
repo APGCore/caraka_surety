@@ -19,9 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import RenderList from "@/components/atoms/render-list";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/_shadcn-ui/alert-dialog";
 import { buttonVariants } from "@/components/_shadcn-ui/button";
-import { Combobox } from "@/components/common/combobox";
+import { Combobox } from "@/components/molecules/combobox";
 import React from "react";
 
 export type IBranchOfficeTypeModal = "initial" | "add-pairing-guarantor" | "add-pairing-branch-guarantor";

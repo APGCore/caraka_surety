@@ -23,12 +23,12 @@ import {
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import HeaderPage from "@/components/common/header-page";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
-import TableSkeleton from "@/components/common/table-skeleton";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import TableSkeleton from "@/components/atoms/skeleton/table";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
+import HeaderPage from "@/components/molecules/header";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

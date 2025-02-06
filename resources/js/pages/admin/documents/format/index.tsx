@@ -1,7 +1,7 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-import { Combobox } from "@/components/common/combobox";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import { Combobox } from "@/components/molecules/combobox";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { router } from "@inertiajs/react";

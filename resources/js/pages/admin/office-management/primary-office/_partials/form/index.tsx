@@ -1,11 +1,11 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
-import { Combobox } from "@/components/common/combobox";
-import InputError from "@/components/common/input-error";
-import Label from "@/components/common/input-label";
-import Loading from "@/components/common/loading";
-import RenderList from "@/components/common/render-list";
-import Input from "@/components/common/text-input";
+import Loading from "@/components/atoms/loading";
+import RenderList from "@/components/atoms/render-list";
+import { Combobox } from "@/components/molecules/combobox";
+import InputError from "@/components/molecules/input/error-input";
+import Label from "@/components/molecules/input/label-input";
+import Input from "@/components/molecules/input/text-input";
 import React, { useState } from "react";
 import ModalBranchOffice from "../modal";
 import useBranchOfficeForm from "./form.hook";

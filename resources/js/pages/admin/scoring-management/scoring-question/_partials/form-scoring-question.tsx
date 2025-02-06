@@ -12,9 +12,9 @@ import {
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
-import { Combobox } from "@/components/common/combobox";
-import InputError from "@/components/common/input-error";
-import RenderList from "@/components/common/render-list";
+import RenderList from "@/components/atoms/render-list";
+import { Combobox } from "@/components/molecules/combobox";
+import InputError from "@/components/molecules/input/error-input";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";

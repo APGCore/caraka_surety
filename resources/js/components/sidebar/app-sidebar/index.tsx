@@ -14,7 +14,7 @@ import useSidebar, {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/_shadcn-ui/sidebar";
-import RenderList from "@/components/common/render-list";
+import RenderList from "@/components/atoms/render-list";
 import { SidebarMenuCustom } from "@/components/sidebar/app-sidebar/sidebar-menu-custom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";

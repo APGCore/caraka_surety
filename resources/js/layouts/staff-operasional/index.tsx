@@ -19,8 +19,8 @@ import {
   SidebarTrigger,
 } from "@/components/_shadcn-ui/sidebar";
 import { Toaster } from "@/components/_shadcn-ui/toaster";
-import Clock from "@/components/common/clock";
-import RenderList from "@/components/common/render-list";
+import Clock from "@/components/atoms/clock";
+import RenderList from "@/components/atoms/render-list";
 import { SidebarMenuCustom } from "@/components/sidebar/app-sidebar/sidebar-menu-custom";
 import { Link } from "@inertiajs/react";
 import { ChevronRight, GalleryVerticalEnd } from "lucide-react";

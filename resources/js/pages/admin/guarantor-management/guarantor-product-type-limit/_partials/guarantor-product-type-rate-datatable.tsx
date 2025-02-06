@@ -20,10 +20,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import { PaginationDatatable } from "@/components/common/pagination-datatable";
-import RenderList from "@/components/common/render-list";
-import Show from "@/components/common/show";
-import { ShowingCountDatatable } from "@/components/common/showing-count-datatable";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import FormGuarantorProductTypeRate from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/form-guarantor-product-type-rate";
 import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { JobTypeEnum } from "@/types/job-type-enum";

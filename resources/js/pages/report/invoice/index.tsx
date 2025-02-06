@@ -1,9 +1,9 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-import { CalendarDateRangePicker } from "@/components/common/calendar-daterange-picker";
-import { Combobox } from "@/components/common/combobox";
-import ExportDocsButtonDatatable from "@/components/common/export-docs-datatable";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
+import { Combobox } from "@/components/molecules/combobox";
+import ExportDocsButtonDatatable from "@/components/molecules/datatable/export";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";

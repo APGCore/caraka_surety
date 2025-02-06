@@ -1,6 +1,6 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-import SearchDatatable from "@/components/common/search-datatable";
-import SelectLengthDatatable from "@/components/common/select-length-datatable";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";

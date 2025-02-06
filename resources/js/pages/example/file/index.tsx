@@ -1,6 +1,6 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import { Button } from "@/components/_shadcn-ui/button";
-import { FileInput } from "@/components/common/input-file";
+import { FileInput } from "@/components/molecules/input/file-input";
 import ExampleLayoutPage from "@/layouts/example";
 import { Head } from "@inertiajs/react";
 import { useState } from "react";

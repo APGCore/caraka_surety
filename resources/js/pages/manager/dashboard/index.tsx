@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import RenderList from "@/components/common/render-list";
+import RenderList from "@/components/atoms/render-list";
 import ManagerLayoutPage from "@/layouts/manager";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
