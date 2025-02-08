@@ -204,8 +204,23 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const { districts: principalDistricts } = useGetDistrictByRegencyId({
     regency_id: data?.principal?.regency_id || selectedPrincipalRegency?.id,
   });
-
   const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
+
+  // Obligee Province
+  const { provinces: obligeeProvinces } = useGetAllProvince();
+  const [selectedObligeeProvince, setSelectedObligeeProvince] = useState<{ id: number; name: string } | null>(null);
+
+  // Obligee Regency
+  const { regencies: obligeeRegencies } = useGetRegencyByProvinceId({
+    province_id: data?.obligee?.province_id || selectedObligeeProvince?.id,
+  });
+  const [selectedObligeeRegency, setSelectedObligeeRegency] = useState<{ id: number; name: string } | null>(null);
+
+  // Obligee District
+  const { districts: obligeeDistricts } = useGetDistrictByRegencyId({
+    regency_id: data?.obligee?.regency_id || selectedObligeeRegency?.id,
+  });
+  const [selectedObligeeDistrict, setSelectedObligeeDistrict] = useState<{ id: number; name: string } | null>(null);
 
   // Job Location Province
   const { provinces: jobLocationProvinces } = useGetAllProvince();
@@ -479,6 +494,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   labelKey="name"
                   valueKey="name"
                   placeholder="Pilih Data Perusahaan"
+                  className="w-[30vw]"
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     const ratios = await fetchPrincipalRatios(val.id);
@@ -1155,35 +1171,108 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                               }
                             />
                           </div>
-                          <div className="grid gap-1 w-full">
-                            <Label className="text-sm">Alamat</Label>
-                            <Textarea
-                              className="text-sm"
-                              placeholder="Masukan Alamat Obligee"
-                              value={data.obligee.address}
-                              onChange={(e) =>
-                                setData("obligee", {
-                                  ...data.obligee,
-                                  address: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                          <div className="grid gap-1 w-full">
-                            <Label className="text-sm">Kode Pos</Label>
-                            <Input
-                              className="text-sm"
-                              placeholder="Masukan Kode Pos"
-                              value={Number(data.obligee.postal_code)}
-                              min="0"
-                              type="number"
-                              onChange={(e) =>
-                                setData("obligee", {
-                                  ...data.obligee,
-                                  postal_code: String(getNumericValue(e)),
-                                })
-                              }
-                            />
+                          <div className="grid gap-1">
+                            <Label className="text-md">Alamat Obligee</Label>
+                            <div className="grid gap-10 mt-2">
+                              <div className="flex gap-5">
+                                <div className="grid gap-1 w-full">
+                                  <Label className="text-sm">Provinsi</Label>
+                                  <Combobox
+                                    datas={obligeeProvinces}
+                                    labelKey="name"
+                                    valueKey="name"
+                                    placeholder="Pilih Provinsi"
+                                    defaultValueId={data?.obligee?.province_id || selectedObligeeProvince?.id}
+                                    onSelect={(val: any) => {
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        province_id: val.id,
+                                      });
+                                      setSelectedObligeeProvince(val);
+                                    }}
+                                  />
+                                </div>
+                                <div className="grid gap-1 w-full">
+                                  <Label className="text-sm">Kabupaten/Kota</Label>
+                                  <Combobox
+                                    datas={obligeeRegencies}
+                                    labelKey="name"
+                                    valueKey="name"
+                                    placeholder="Pilih Kabupaten/Kota"
+                                    defaultValueId={data?.obligee?.regency_id || selectedObligeeRegency?.id}
+                                    onSelect={(val: any) => {
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        regency_id: val?.id,
+                                      });
+                                      setSelectedObligeeRegency(val);
+                                    }}
+                                  />
+                                </div>
+                                <div className="grid gap-1 w-full">
+                                  <Label className="text-sm">Kecamatan</Label>
+                                  <Combobox
+                                    datas={obligeeDistricts}
+                                    labelKey="name"
+                                    valueKey="name"
+                                    placeholder="Pilih Kecamatan"
+                                    defaultValueId={data?.obligee?.district_id || selectedObligeeDistrict?.id}
+                                    onSelect={(val: any) => {
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        district_id: val?.id,
+                                      });
+                                      setSelectedObligeeDistrict(val);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-5">
+                                <div className="grid gap-1 w-full h-max">
+                                  <Label className="text-sm">Desa</Label>
+                                  <Input
+                                    className="text-md"
+                                    placeholder="Masukan nama Desa Obligee"
+                                    value={data.obligee.village}
+                                    onChange={(e) =>
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        village: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div className="grid gap-1 w-full">
+                                  <Label className="text-sm">Alamat Lengkap</Label>
+                                  <Textarea
+                                    className="text-md"
+                                    placeholder="Masukan Jalan/RT/RW dsb."
+                                    value={data.obligee.address}
+                                    onChange={(e) =>
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        address: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                                {/* postal code */}
+                                <div className="grid gap-1 w-full">
+                                  <Label className="text-sm">Kode Pos</Label>
+                                  <Input
+                                    className="text-md"
+                                    placeholder="Kode Pos"
+                                    value={data.obligee.postal_code}
+                                    onChange={(e) =>
+                                      setData("obligee", {
+                                        ...data.obligee,
+                                        postal_code: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

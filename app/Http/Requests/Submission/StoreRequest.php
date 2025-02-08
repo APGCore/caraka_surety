@@ -86,12 +86,16 @@ class StoreRequest extends FormRequest
             'principal.ratios.*.year' => ['required'], // tahun
 
             // obligiee
-            'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'], // id obligee
-            'obligee.name' => ['required', 'string'],
-            'obligee.pic' => ['required', 'string'],
-            'obligee.address' => ['required', 'string'],
-            'obligee.no_ppk' => ['nullable', 'string'],
+            'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'],
+            'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.pic' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.no_ppk' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
             'obligee.telephone' => ['nullable', 'string'],
+            'obligee.province_id' => ['nullable', 'exists:'.Province::class.',id'],
+            'obligee.regency_id' => ['nullable', 'exists:'.Regency::class.',id'],
+            'obligee.district_id' => ['nullable', 'exists:'.District::class.',id'],
+            'obligee.village' => ['nullable', 'string'],
+            'obligee.address' => ['nullable', 'string'],
             'obligee.postal_code' => ['nullable', 'string'],
 
             // submission

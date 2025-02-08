@@ -80,9 +80,13 @@ type Obligee = {
   id?: number | string | undefined;
   name?: string;
   pic?: string;
-  address?: string;
   no_ppk?: string;
   telephone?: string;
+  province_id?: string;
+  regency_id?: string;
+  district_id?: string;
+  village?: string;
+  address?: string;
   postal_code?: string;
 };
 
