@@ -21,9 +21,10 @@ interface Props {
   roles: any;
   headers: any;
   employee?: any;
+  routeName: any;
 }
 
-const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => {
+const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee, routeName }) => {
   const { data, setData, post, patch, errors, processing } = useForm<{
     name: string;
     username: string;
@@ -53,7 +54,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-          router.get(route("employee.index", { office_id: officeSelected }));
+          router.get(route(`${routeName}.index`, { office_id: officeSelected }));
         },
       });
     } else {
@@ -61,7 +62,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-          router.get(route("employee.index", { office_id: officeSelected }));
+          router.get(route(`${routeName}.index`, { office_id: officeSelected }));
         },
       });
     }
@@ -131,24 +132,31 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
             Role
           </label>
 
-          <select
-            id="role"
-            name="role"
-            onChange={(e) => {
+          <Select
+            value={data?.role_id?.toString() || ""}
+            onValueChange={(value) => {
               setData((prev) => ({
                 ...prev,
-                role_id: parseInt(e.target.value),
-                ...(parseInt(e.target.value) == 5 && { head_id: null }),
+                role_id: parseInt(value),
+                ...(parseInt(value) == 5 && { head_id: null }),
               }));
-            }}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-            <option value="">Pilih Role</option>
-            {roles.map((role: any) => (
-              <option key={role.id} value={role.id} selected={role.id === data.role_id}>
-                {role.name}
-              </option>
-            ))}
-          </select>
+              router.visit(route(`${routeName}.${employee ? `edit` : "create"}`, employee?.id), {
+                data: { role_id: value, office_id: officeSelected },
+                preserveState: true,
+              });
+            }}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <RenderList
+                  of={roles}
+                  render={(role: any) => <SelectItem value={role.id.toString()}>{role.name}</SelectItem>}
+                />
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
           <InputError message={errors.role_id} className="mt-2" />
         </div>
@@ -169,9 +177,9 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
                 <SelectGroup>
                   <RenderList
                     of={headers}
-                    render={(manager: any) => (
-                      <SelectItem key={manager.id} value={manager.id.toString()}>
-                        {manager.name}
+                    render={(header: any) => (
+                      <SelectItem key={header.id} value={header.id.toString()}>
+                        {header.name}
                       </SelectItem>
                     )}
                   />
@@ -214,7 +222,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee }) => 
         <SecondaryButton
           type="button"
           className="mr-3"
-          onClick={() => router.get(route("employee.index") + "?office_id=" + officeSelected)}>
+          onClick={() => router.get(route(`${routeName}.index`) + "?office_id=" + officeSelected)}>
           Batal
         </SecondaryButton>
         <PrimaryButton type="submit">

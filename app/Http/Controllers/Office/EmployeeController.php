@@ -17,22 +17,26 @@ use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
+    private function getRouteName(Profile $office): string
+    {
+        $officeType = $office->getAttribute('office_type');
+
+        return match ($officeType) {
+            OfficeType::BRANCH->value => 'branch.employee',
+            OfficeType::AGENT_PARTNER->value => 'branch-mitra-agen.employee',
+            OfficeType::MARKETING_PARTNER->value => 'branch-mitra-pemasaran.employee',
+            default => 'employee'
+        };
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        //        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
-        //        $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
-        //        $officeType = match ($officeTypeSelected) {
-        //            'Kantor Cabang' => OfficeType::BRANCH->value,
-        //            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
-        //            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
-        //            default => OfficeType::HEADQUARTER->value,
-        //        };
-        $offices = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
-        $officeSelected = (int) ($request->get('profile_id') ?? $offices->getAttribute('id'));
-
+        $officeSelected = (int) ($request->get('office_id'));
+        $office = Profile::query()->find($officeSelected) ?? Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
+        $routeName = $this->getRouteName($office);
         $employees = User::search($request->get('search'))
             ->query(function ($query) use ($officeSelected) {
                 $query->with('role')
@@ -45,17 +49,15 @@ class EmployeeController extends Controller
             ->appends($request->all());
         $employeeResource = EmployeeResource::collection($employees);
 
-        $component = $request->path().'/index';
+        $component = 'admin/office-management/employee/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Pengguna',
+                'title' => 'Pengguna '.$office->getAttribute('name'),
             ],
-            //            'officeTypes' => $officeTypes,
-            //            'officeTypeSelected' => $officeTypeSelected,
-            //            'offices' => $offices,
-            'officeSelected' => $officeSelected,
+            'office_selected' => $officeSelected,
             'employees' => fn () => $employeeResource,
+            'route_name' => $routeName,
         ]);
     }
 
@@ -91,20 +93,21 @@ class EmployeeController extends Controller
             'office_id' => 'required|exists:profiles,id',
         ]);
         $officeSelected = (int) $request->get('office_id');
-        $userRoles = $this->getRoles(Profile::query()->find($officeSelected));
+        $office = Profile::query()->find($officeSelected);
+        $userRoles = $this->getRoles($office);
         $roles = Role::query()->whereNot('id', 1)->get();
         $headers = User::query()
             ->where('profile_id', $officeSelected)
             ->where('profile_id', 1)
             ->with('role')
             ->whereHas('role', function ($query) use ($userRoles) {
-                $query->where('name', $userRoles);
+                $query->whereIn('name', $userRoles);
             })
             ->get();
+        $routeName = $this->getRouteName($office);
+        $component = 'admin/office-management/employee/create/index';
 
-        $component = $request->path().'/index';
-
-        return inertia($component, compact('officeSelected', 'roles', 'headers'));
+        return inertia($component, compact('officeSelected', 'roles', 'headers', 'routeName'));
     }
 
     /**
@@ -130,7 +133,9 @@ class EmployeeController extends Controller
 
             $requestValid['password'] = Hash::make($requestValid['password']);
             $user = User::query()
-                ->create($requestValid);
+                ->create($requestValid)->load('office');
+            $office = $user->getRelation('office');
+            $routeName = $this->getRouteName($office);
             activity()
                 ->useLog('employee')
                 ->performedOn($user)
@@ -139,7 +144,7 @@ class EmployeeController extends Controller
             flashMessage('Berhasil', 'Data pengguna berhasil ditambahkan');
             DB::commit();
 
-            return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
+            return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@store: {$e->getMessage()}");
@@ -151,17 +156,9 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, User $employee)
+    public function edit(User $employee)
     {
         $employee = User::query()->with('office')->find($employee->getAttribute('id'));
         $office = $employee->getRelation('office');
@@ -174,11 +171,10 @@ class EmployeeController extends Controller
                 $query->whereIn('name', $userRoles);
             })
             ->get();
+        $routeName = $this->getRouteName($office);
+        $component = 'admin/office-management/employee/edit/index';
 
-        $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')).'/index';
-
-        return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers'));
+        return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers', 'routeName'));
     }
 
     /**
@@ -196,16 +192,18 @@ class EmployeeController extends Controller
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
             'password' => 'nullable|string|min:8',
-            'password_confirmation' => 'nullable|same:password',
+            'password_confirmation' => 'nullable|required_with:password|same:password',
         ]);
 
         // get $requestValid value not null
+        $requestValid['password'] = $requestValid['password'] ? Hash::make($requestValid['password']) : null;
         $requestValid = array_filter($requestValid, fn ($value) => $value !== null);
-
         try {
             DB::beginTransaction();
 
-            $user = User::query()->find($employee->getAttribute('id'));
+            $user = User::query()->with('office')->find($employee->getAttribute('id'));
+            $office = $user->getRelation('office');
+            $routeName = $this->getRouteName($office);
             $user->update($requestValid);
             activity()
                 ->useLog('employee')
@@ -215,7 +213,7 @@ class EmployeeController extends Controller
             flashMessage('Berhasil', 'Perubahan data pengguna berhasil');
             DB::commit();
 
-            return redirect()->route('employee.index', ['office_id' => $user->profile_id]);
+            return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error on EmployeeController@update: {$e->getMessage()}");

@@ -47,14 +47,14 @@ export const adminRoute: IAppSideBarMenu[] = [
     icon: User,
     items: [
       {
+        title: "Pengguna Pusat",
+        route_name: "employee",
+        href: route("employee.index"),
+      },
+      {
         title: "Cabang",
         route_name: "branch",
         href: route("branch.index"),
-      },
-      {
-        title: "Mitra Pemasaran",
-        route_name: "branch-mitra-pemasaran",
-        href: route("branch-mitra-pemasaran.index"),
       },
       {
         title: "Mitra Agen",
@@ -62,9 +62,9 @@ export const adminRoute: IAppSideBarMenu[] = [
         href: route("branch-mitra-agen.index"),
       },
       {
-        title: "Pengguna",
-        route_name: "employee",
-        href: route("employee.index"),
+        title: "Mitra Pemasaran",
+        route_name: "branch-mitra-pemasaran",
+        href: route("branch-mitra-pemasaran.index"),
       },
       {
         title: "Tarif Unit Bisnis",

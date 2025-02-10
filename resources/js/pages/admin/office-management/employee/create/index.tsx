@@ -4,7 +4,7 @@ import { EmployeePageCreateProps } from "@/pages/admin/office-management/employe
 import Form from "@/pages/admin/office-management/employee/form";
 import { Head } from "@inertiajs/react";
 
-const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, headers }) => {
+const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, headers, routeName }) => {
   return (
     <main>
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -15,7 +15,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, he
             <p className="mt-1 text-sm text-gray-600">Untuk membuat data pengguna baru</p>
           </header>
 
-          <Form roles={roles} headers={headers} officeSelected={officeSelected} />
+          <Form roles={roles} headers={headers} officeSelected={officeSelected} routeName={routeName} />
         </div>
       </div>
     </main>

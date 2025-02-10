@@ -6,7 +6,6 @@ use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Office\StoreRequest;
 use App\Http\Requests\Office\UpdateRequest;
-use App\Http\Resources\Office\EmployeeResource;
 use App\Http\Resources\Office\ProfileResource;
 use App\Models\OfficePairing;
 use App\Models\Profile\Profile;
@@ -25,7 +24,6 @@ class ProfileController extends Controller
      */
     public function index(Request $request): Response
     {
-
         $component = 'admin/office-management/branch-office/index';
 
         $profiles = Profile::search($request->get('search'))
@@ -134,9 +132,8 @@ class ProfileController extends Controller
         $officeType = $requestValidated['office_type'];
 
         return match ($officeType) {
-            OfficeType::BRANCH->value => 'branch.index',
-            OfficeType::MARKETING_PARTNER->value => 'branch.mitra-pemasaran',
-            OfficeType::AGENT_PARTNER->value => 'branch.mitra-agen',
+            OfficeType::MARKETING_PARTNER->value => 'branch-mitra-pemasaran.index',
+            OfficeType::AGENT_PARTNER->value => 'branch-mitra-agen.index',
             default => 'branch.index',
         };
     }
@@ -306,47 +303,6 @@ class ProfileController extends Controller
         return $this->responseSuccess('Berhasil mengambil data profiles', $profile);
     }
 
-    public function displayMitraPemasaran(Request $request): Response
-    {
-        $component = 'admin/office-management/marketing-partner-office/index';
-
-        $profiles = Profile::search($request->get('search'))
-            ->where('office_type', OfficeType::MARKETING_PARTNER->value)
-            ->orderBy('name')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
-
-        // Get the profile IDs
-        $profileIds = collect($profiles->items())->pluck('id');
-
-        // Fetch all user counts in one query
-        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
-            ->whereIn('profile_id', $profileIds)
-            ->groupBy('profile_id')
-            ->pluck('users_count', 'profile_id');
-
-        // Assign user counts to profiles
-        collect($profiles->items())->each(function ($profile) use ($userCounts) {
-            $profile->users_count = $userCounts[$profile->id] ?? 0;
-        });
-
-        $profileResource = ProfileResource::collection($profiles);
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Mitra Pemasaran',
-                'breadcrumb' => [
-                    [
-                        'title' => 'Unit Bisnis Mitra Pemasaran',
-                        'link' => '#',
-                    ],
-                ],
-            ],
-            'profiles' => fn () => $profileResource,
-        ]);
-    }
-
     public function displayMitraAgen(Request $request): Response
     {
         $component = 'admin/office-management/agent-partner-office/index';
@@ -388,29 +344,44 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function employee(Request $request, Profile $profile)
+    public function displayMitraPemasaran(Request $request): Response
     {
-        $officeSelected = $profile->getAttribute('id');
-        $employees = User::search($request->get('search'))
-            ->query(function ($query) use ($officeSelected) {
-                $query->with('role')
-                    ->where('role_id', '!=', 1)
-                    ->where('profile_id', $officeSelected);
-            })
+        $component = 'admin/office-management/marketing-partner-office/index';
+
+        $profiles = Profile::search($request->get('search'))
+            ->where('office_type', OfficeType::MARKETING_PARTNER->value)
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
-        $employeeResource = EmployeeResource::collection($employees);
 
-        $component = 'admin/office-management/employee/index';
+        // Get the profile IDs
+        $profileIds = collect($profiles->items())->pluck('id');
+
+        // Fetch all user counts in one query
+        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
+            ->whereIn('profile_id', $profileIds)
+            ->groupBy('profile_id')
+            ->pluck('users_count', 'profile_id');
+
+        // Assign user counts to profiles
+        collect($profiles->items())->each(function ($profile) use ($userCounts) {
+            $profile->users_count = $userCounts[$profile->id] ?? 0;
+        });
+
+        $profileResource = ProfileResource::collection($profiles);
 
         return inertia($component, [
-            'page_settings' => [
-                'title' => 'Pengguna Cabang '.$profile->getAttribute('name'),
+            'page_settings' => fn () => [
+                'title' => 'Mitra Pemasaran',
+                'breadcrumb' => [
+                    [
+                        'title' => 'Unit Bisnis Mitra Pemasaran',
+                        'link' => '#',
+                    ],
+                ],
             ],
-            'officeSelected' => $officeSelected,
-            'employees' => fn () => $employeeResource,
+            'profiles' => fn () => $profileResource,
         ]);
     }
 }

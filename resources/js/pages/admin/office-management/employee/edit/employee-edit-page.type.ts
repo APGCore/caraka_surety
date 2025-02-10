@@ -5,6 +5,7 @@ interface EmployeeEditProps {
   roles: any;
   headers: any;
   employee: any;
+  routeName: any;
 }
 
 export type EmployeePageEditProps = React.FC<EmployeeEditProps> & {

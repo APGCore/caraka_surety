@@ -32,10 +32,10 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 import useEmployee from "./_partials/employee.hook";
 
-const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
+const EmployeePage: EmployeePageProps = ({ office_selected, ...props }) => {
   const { data: employees, meta } = props.employees;
   const { perpage, search, handlePerpage, handleSearchSubmit, deleteData, setSearch } = useEmployee({
-    office_id: officeSelected,
+    office_id: office_selected,
   });
 
   return (
@@ -49,7 +49,7 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
                 variant: "default",
               }),
             )}
-            href={route("employee.create") + "?office_id=" + officeSelected}>
+            href={route(`${props.route_name || ""}.create`) + `?office_id=${office_selected}`}>
             Tambah Pengguna
           </Link>
         </div>
@@ -144,7 +144,7 @@ const EmployeePage: EmployeePageProps = ({ officeSelected, ...props }) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                           <Link
-                            href={route("employee.edit", employee.id)}
+                            href={route(`${props.route_name || ""}.edit`, employee.id)}
                             className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                             Edit
                           </Link>

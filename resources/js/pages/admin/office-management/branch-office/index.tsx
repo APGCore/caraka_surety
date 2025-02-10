@@ -192,7 +192,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
-                                href={route("branch.employee", profile.id)}
+                                href={route("branch.employee.index", { office_id: profile.id })}
                                 className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                                 Pengguna
                               </Link>

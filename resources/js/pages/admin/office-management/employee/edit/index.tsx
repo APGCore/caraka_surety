@@ -4,7 +4,7 @@ import { EmployeePageEditProps } from "@/pages/admin/office-management/employee/
 import Form from "@/pages/admin/office-management/employee/form";
 import { Head } from "@inertiajs/react";
 
-const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, headers, employee }) => {
+const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, headers, employee, routeName }) => {
   return (
     <main>
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -15,7 +15,13 @@ const EmployeeCreatePage: EmployeePageEditProps = ({ officeSelected, roles, head
             <p className="mt-1 text-sm text-gray-600">Untuk mengubah data pengguna</p>
           </header>
 
-          <Form roles={roles} headers={headers} employee={employee} officeSelected={officeSelected} />
+          <Form
+            roles={roles}
+            headers={headers}
+            employee={employee}
+            officeSelected={officeSelected}
+            routeName={routeName}
+          />
         </div>
       </div>
     </main>

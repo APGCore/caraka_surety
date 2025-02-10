@@ -190,7 +190,15 @@ const AgentPartnerOfficePage: AgentPartnerOfficePageProps = (props) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
-                                href={route("branch.edit", profile.id)}
+                                href={route("branch-mitra-agen.employee.index", { office_id: profile.id })}
+                                className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                Pengguna
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                              <Link
+                                href={route("branch-mitra-agen.edit", profile.id)}
                                 className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                                 Edit
                               </Link>
