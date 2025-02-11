@@ -9,7 +9,7 @@ Route::prefix('principal-management')
 
         Route::controller(PrincipalController::class)
             ->prefix('principal')
-            ->name('principal-management.principal.')
+            ->name('principal.')
             ->group(function () {
                 Route::get('all', 'getAll')->name('all');
                 Route::get('document', 'getDocument')->name('documents');

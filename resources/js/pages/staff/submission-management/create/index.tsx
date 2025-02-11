@@ -1,16 +1,23 @@
 import useGetAllBank from "@/common/hooks/api/bank/useGetAllBank";
 import useGetGuarantorBranch from "@/common/hooks/api/guarantor/useGetGuarantorBranch";
 import useGetGuarantorByProductId from "@/common/hooks/api/guarantor/useGetGuarantorByProductId";
-import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
-import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
-import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
 import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
-import useGetAllPrincipal from "@/common/hooks/api/principal/useGetAllPrincipal";
-import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
+// import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
+// import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
+// import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
+// import useGetAllPrincipal from "@/common/hooks/api/principal/useGetAllPrincipal";
+// import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
 import { toast } from "@/common/hooks/general/use-toast";
+import {
+  useGetAllProvince,
+  useGetDistrictByRegencyId,
+  useGetRegencyByProvinceId,
+} from "@/common/hooks/react-query/location";
+import { useGetAllPrincipal } from "@/common/hooks/react-query/principal";
+import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { Button } from "@/components/_shadcn-ui/button";
@@ -34,15 +41,20 @@ import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
-import { ISelectedPrincipalDistrict, Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./create-page.type";
+import {
+  ISelectedPrincipalDistrict,
+  Ratio,
+  SubmissionCreatePageProps,
+  SubmissionFormProps,
+} from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   // Product
-  const { products } = useGetAllProduct();
+  const { data: products } = useGetAllProduct();
   const [selectedProducts, setSelectedProducts] = useState(null);
 
   // Principal
-  const { principals } = useGetAllPrincipal();
+  const { data: principals } = useGetAllPrincipal();
 
   // Principal Documents
   const [principalDocs, setPrincipalDocs] = useState<
@@ -188,58 +200,62 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   };
 
   // Principal Province
-  const { provinces: principalProvinces } = useGetAllProvince();
+  const { data: principalProvinces } = useGetAllProvince();
   const [selectedPrincipalProvince, setSelectedPrincipalProvince] = useState<{
     id: number;
     name: string;
   } | null>(null);
 
   // Principal Regency
-  const { regencies: principalRegencies } = useGetRegencyByProvinceId({
-    province_id: data?.principal?.province_id || selectedPrincipalProvince?.id,
-  });
+  const { data: principalRegencies } = useGetRegencyByProvinceId(
+    String(data?.principal?.province_id || selectedPrincipalProvince?.id),
+    {},
+  );
+
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Principal District
-  const { districts: principalDistricts } = useGetDistrictByRegencyId({
-    regency_id: data?.principal?.regency_id || selectedPrincipalRegency?.id,
-  });
+  const { data: principalDistricts } = useGetDistrictByRegencyId(
+    String(data?.principal?.regency_id || selectedPrincipalRegency?.id),
+  );
   const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
   // Obligee Province
-  const { provinces: obligeeProvinces } = useGetAllProvince();
+  const { data: obligeeProvinces } = useGetAllProvince();
   const [selectedObligeeProvince, setSelectedObligeeProvince] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee Regency
-  const { regencies: obligeeRegencies } = useGetRegencyByProvinceId({
-    province_id: data?.obligee?.province_id || selectedObligeeProvince?.id,
-  });
+  const { data: obligeeRegencies } = useGetRegencyByProvinceId(
+    String(data?.obligee?.province_id || selectedObligeeProvince?.id),
+    {},
+  );
   const [selectedObligeeRegency, setSelectedObligeeRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee District
-  const { districts: obligeeDistricts } = useGetDistrictByRegencyId({
-    regency_id: data?.obligee?.regency_id || selectedObligeeRegency?.id,
-  });
+  const { data: obligeeDistricts } = useGetDistrictByRegencyId(
+    String(data?.obligee?.regency_id || selectedObligeeRegency?.id),
+  );
   const [selectedObligeeDistrict, setSelectedObligeeDistrict] = useState<{ id: number; name: string } | null>(null);
 
   // Job Location Province
-  const { provinces: jobLocationProvinces } = useGetAllProvince();
+  const { data: jobLocationProvinces } = useGetAllProvince();
   const [selectedJobLocationProvince, setSelectedJobLocationProvince] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Job Location Regency
-  const { regencies: jobLocationRegencies } = useGetRegencyByProvinceId({
-    province_id: data?.submission?.job_location_province_id || selectedJobLocationProvince?.id,
-  });
+  const { data: jobLocationRegencies } = useGetRegencyByProvinceId(
+    String(data?.submission?.job_location_province_id || selectedJobLocationProvince?.id),
+    {},
+  );
   const [selectedJobLocationRegency, setSelectedJobLocationRegency] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Job Location District
-  const { districts: jobLocationDistricts } = useGetDistrictByRegencyId({
-    regency_id: data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id,
-  });
+  const { data: jobLocationDistricts } = useGetDistrictByRegencyId(
+    String(data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id),
+  );
   const [selectedJobLocationDistrict, setSelectedJobLocationDistrict] = useState<{ id: number; name: string } | null>(
     null,
   );
@@ -484,17 +500,17 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         className="space-y-16">
         {/* FORM STATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
         <Show when={formSearchPrincipalState === "idle"}>
-          <div>
+          <div className="space-y-10">
             <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
-            <div className="grid gap-1">
+            <div className="grid gap-1 bg-re">
               <Label className="text-md">Perusahaan</Label>
-              <div className="flex gap-x-5">
+              <div className="flex gap-x-5 ">
                 <Combobox
-                  datas={principals}
+                  datas={Array.isArray(principals) ? principals : []}
                   labelKey="name"
                   valueKey="name"
                   placeholder="Pilih Data Perusahaan"
-                  className="w-[30vw]"
+                  containerClassName="w-full"
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     const ratios = await fetchPrincipalRatios(val.id);
@@ -793,7 +809,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Provinsi</Label>
                           <Combobox
-                            datas={principalProvinces}
+                            datas={Array.isArray(principalProvinces) ? principalProvinces : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Provinsi"
@@ -810,7 +826,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kabupaten/Kota</Label>
                           <Combobox
-                            datas={principalRegencies}
+                            datas={Array.isArray(principalRegencies) ? principalRegencies : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kabupaten/Kota"
@@ -827,7 +843,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kecamatan</Label>
                           <Combobox
-                            datas={principalDistricts}
+                            datas={Array.isArray(principalDistricts) ? principalDistricts : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kecamatan"
@@ -926,7 +942,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Produk</Label>
                       <Combobox
-                        datas={products}
+                        datas={Array.isArray(products) ? products : []}
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Produk"
@@ -1178,7 +1194,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 <div className="grid gap-1 w-full">
                                   <Label className="text-sm">Provinsi</Label>
                                   <Combobox
-                                    datas={obligeeProvinces}
+                                    datas={Array.isArray(obligeeProvinces) ? obligeeProvinces : []}
                                     labelKey="name"
                                     valueKey="name"
                                     placeholder="Pilih Provinsi"
@@ -1195,7 +1211,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 <div className="grid gap-1 w-full">
                                   <Label className="text-sm">Kabupaten/Kota</Label>
                                   <Combobox
-                                    datas={obligeeRegencies}
+                                    datas={Array.isArray(obligeeRegencies) ? obligeeRegencies : []}
                                     labelKey="name"
                                     valueKey="name"
                                     placeholder="Pilih Kabupaten/Kota"
@@ -1212,7 +1228,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                                 <div className="grid gap-1 w-full">
                                   <Label className="text-sm">Kecamatan</Label>
                                   <Combobox
-                                    datas={obligeeDistricts}
+                                    datas={Array.isArray(obligeeDistricts) ? obligeeDistricts : []}
                                     labelKey="name"
                                     valueKey="name"
                                     placeholder="Pilih Kecamatan"
@@ -1470,7 +1486,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Provinsi</Label>
                           <Combobox
-                            datas={jobLocationProvinces}
+                            datas={Array.isArray(jobLocationProvinces) ? jobLocationProvinces : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Provinsi"
@@ -1489,7 +1505,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kabupaten/Kota</Label>
                           <Combobox
-                            datas={jobLocationRegencies}
+                            datas={Array.isArray(jobLocationRegencies) ? jobLocationRegencies : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kabupaten/Kota"
@@ -1506,7 +1522,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kecamatan</Label>
                           <Combobox
-                            datas={jobLocationDistricts}
+                            datas={Array.isArray(jobLocationDistricts) ? jobLocationDistricts : []}
                             labelKey="name"
                             valueKey="name"
                             placeholder="Pilih Kecamatan"

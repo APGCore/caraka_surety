@@ -11,21 +11,21 @@ Route::prefix('location-management')
 
         Route::controller(ProvinceController::class)
             ->prefix('province')
-            ->name('location-management.province.')
+            ->name('province.')
             ->group(function () {
                 Route::get('all', 'all')->name('all');
             });
 
         Route::controller(RegencyController::class)
             ->prefix('regency')
-            ->name('location-management.regency.')
+            ->name('regency.')
             ->group(function () {
                 Route::get('by-province/{province_id}', 'getByProvince')->name('by-province');
             });
 
         Route::controller(DistrictController::class)
             ->prefix('district')
-            ->name('location-management.district.')
+            ->name('district.')
             ->group(function () {
                 Route::get('by-regency/{regency_id}', 'getByRegency')->name('by-regency');
             });

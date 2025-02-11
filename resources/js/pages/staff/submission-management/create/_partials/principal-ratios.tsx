@@ -11,7 +11,7 @@ import {
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import InputCurrency from "@/components/molecules/input/currency-input";
-import { Ratio } from "@/pages/staff/submission-management/create/create-page.type";
+import { Ratio } from "@/pages/staff/submission-management/create/submission-create-page.type";
 import dayjs from "dayjs";
 import React, { useEffect } from "react";
 

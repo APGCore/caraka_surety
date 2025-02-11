@@ -36,6 +36,7 @@ export interface ComboboxProps<T> {
   checkedWithCondition?: boolean;
   isSelectFirst?: boolean;
   isReset?: boolean;
+  containerClassName?: string;
 }
 
 const Combobox: React.FC<ComboboxProps<any>> = ({
@@ -82,7 +83,7 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   };
 
   return (
-    <div className="flex">
+    <div className={cn("flex", props.containerClassName)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button

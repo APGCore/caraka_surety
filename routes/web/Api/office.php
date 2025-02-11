@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('office-management')
     ->name('api.office-management.')
     ->group(function () {
-
         Route::controller(ProfileController::class)
             ->prefix('office')
             ->name('office.')->group(function () {

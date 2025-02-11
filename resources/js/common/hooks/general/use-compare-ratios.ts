@@ -1,4 +1,4 @@
-import { Ratio } from "@/pages/staff/submission-management/create/create-page.type";
+import { Ratio } from "@/pages/staff/submission-management/create/submission-create-page.type";
 import { useState } from "react";
 
 export function useCompareRatios() {
