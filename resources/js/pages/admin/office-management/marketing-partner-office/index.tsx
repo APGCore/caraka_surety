@@ -1,24 +1,24 @@
 import { cn } from "@/common/utils/cn";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/_shadcn-ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
@@ -188,6 +188,14 @@ const MarketingPartnerOfficePage: MarketingPartnerOfficePageProps = (props) => {
                               </Dialog>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                              <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+                                  <Link
+                                      href={route("branch-mitra-pemasaran.employee.index", { office_id: profile.id })}
+                                      className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                      Pengguna
+                                  </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
                                 href={route("branch.edit", profile.id)}
