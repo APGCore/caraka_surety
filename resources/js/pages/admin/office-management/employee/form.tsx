@@ -18,13 +18,14 @@ import { FormEventHandler } from "react";
 
 interface Props {
   officeSelected: number;
+  role?: any;
   roles: any;
   headers: any;
   employee?: any;
   routeName: any;
 }
 
-const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee, routeName }) => {
+const Form: React.FC<Props> = ({ officeSelected, role, roles, headers, employee, routeName }) => {
   const { data, setData, post, patch, errors, processing } = useForm<{
     name: string;
     username: string;
@@ -41,7 +42,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, headers, employee, route
     email: employee?.email || "",
     phone: employee?.phone || "",
     head_id: employee?.head_id || null,
-    role_id: employee?.role_id || null,
+    role_id: employee?.role_id || role?.id || null,
     profile_id: officeSelected,
     password: employee?.password || "",
     password_confirmation: employee?.password || "",

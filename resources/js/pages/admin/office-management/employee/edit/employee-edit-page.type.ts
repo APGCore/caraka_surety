@@ -2,6 +2,7 @@ import React from "react";
 
 interface EmployeeEditProps {
   officeSelected: number;
+  role?: any;
   roles: any;
   headers: any;
   employee: any;

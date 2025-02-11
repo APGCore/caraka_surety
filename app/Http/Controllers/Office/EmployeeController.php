@@ -29,12 +29,87 @@ class EmployeeController extends Controller
         };
     }
 
+    private function getRoleByOfficeType($officeType): array
+    {
+        $data = [
+            OfficeType::HEADQUARTER->value => [
+                RoleEnum::Direksi->value,
+                RoleEnum::Manager->value,
+                RoleEnum::Staff->value,
+                RoleEnum::StaffTeknik->value,
+                RoleEnum::StaffOperasional->value,
+            ],
+            OfficeType::BRANCH->value => [
+                RoleEnum::KepalaCabang->value,
+                RoleEnum::Staff->value,
+                RoleEnum::StaffTeknik->value,
+                RoleEnum::StaffOperasional->value,
+            ],
+            OfficeType::AGENT_PARTNER->value => [
+                RoleEnum::KepalaAgenPartner->value,
+                RoleEnum::AgentPartner->value,
+            ],
+            OfficeType::MARKETING_PARTNER->value => [
+                RoleEnum::MarketingPartner->value,
+            ],
+        ];
+
+        return $data[$officeType];
+    }
+
+    private function getRoles(Profile $office, ?Role $role = null): array
+    {
+        $officeType = $office->getAttribute('office_type');
+        $roles = [];
+        if ($role === null) {
+            return $roles;
+        }
+        if ($officeType === OfficeType::HEADQUARTER->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::Manager->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+                case RoleEnum::StaffOperasional->value:
+                case RoleEnum::StaffTeknik->value:
+                case RoleEnum::Staff->value:
+                    $roles = [RoleEnum::Manager->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::BRANCH->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::KepalaCabang->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+                case RoleEnum::StaffOperasional->value:
+                case RoleEnum::StaffTeknik->value:
+                case RoleEnum::Staff->value:
+                    $roles = [RoleEnum::KepalaCabang->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::AGENT_PARTNER->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::AgentPartner->value:
+                    $roles = [RoleEnum::KepalaAgenPartner->value];
+                    break;
+                case RoleEnum::KepalaAgenPartner->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::MARKETING_PARTNER->value) {
+            if ($role->getAttribute('name') == RoleEnum::MarketingPartner->value) {
+                $roles = [RoleEnum::Direksi->value];
+            }
+        }
+
+        return $roles;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $officeSelected = (int) ($request->get('office_id'));
+        $officeSelected = (int) $request->get('office_id', 1);
         $office = Profile::query()->find($officeSelected) ?? Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
         $routeName = $this->getRouteName($office);
         $employees = User::search($request->get('search'))
@@ -61,29 +136,6 @@ class EmployeeController extends Controller
         ]);
     }
 
-    private function getRoles(Profile $office, ?User $employee = null): array
-    {
-        $roleDireksi = RoleEnum::Direksi->value;
-        $roleManager = RoleEnum::Manager->value;
-        $roleKepalaCabang = RoleEnum::KepalaCabang->value;
-        $roles = [];
-        if ($office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
-            if ($employee?->hasRole($roleManager)) {
-                $roles[] = $roleDireksi;
-            } else {
-                $roles[] = $roleManager;
-            }
-        } elseif ($office->getAttribute('office_type') === OfficeType::BRANCH->value) {
-            if ($employee?->hasRole($roleKepalaCabang)) {
-                $roles[] = $roleDireksi;
-            } else {
-                $roles[] = $roleKepalaCabang;
-            }
-        }
-
-        return $roles;
-    }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -91,23 +143,28 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'office_id' => 'required|exists:profiles,id',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
-        $officeSelected = (int) $request->get('office_id');
+        $officeSelected = (int) $request->get('office_id', 1);
         $office = Profile::query()->find($officeSelected);
-        $userRoles = $this->getRoles($office);
-        $roles = Role::query()->whereNot('id', 1)->get();
+        $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
+        $roles = Role::query()->whereIn('name', $roleNames)->get();
+        // for head role
+        $roleId = (int) $request->get('role_id');
+        $role = Role::query()->find($roleId);
+        $userRoles = $this->getRoles($office, $role);
         $headers = User::query()
             ->where('profile_id', $officeSelected)
-            ->where('profile_id', 1)
             ->with('role')
             ->whereHas('role', function ($query) use ($userRoles) {
                 $query->whereIn('name', $userRoles);
             })
             ->get();
+
         $routeName = $this->getRouteName($office);
         $component = 'admin/office-management/employee/create/index';
 
-        return inertia($component, compact('officeSelected', 'roles', 'headers', 'routeName'));
+        return inertia($component, compact('officeSelected', 'role', 'roles', 'headers', 'routeName'));
     }
 
     /**
@@ -158,13 +215,16 @@ class EmployeeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $employee)
+    public function edit(Request $request, User $employee)
     {
         $employee = User::query()->with('office')->find($employee->getAttribute('id'));
         $office = $employee->getRelation('office');
         $officeSelected = $office->getAttribute('id');
-        $userRoles = $this->getRoles($office, $employee);
-        $roles = Role::query()->whereNot('id', 1)->get();
+        $roleId = $request->get('role_id', $employee->getAttribute('role_id'));
+        $role = Role::query()->find($roleId);
+        $userRoles = $this->getRoles($office, $role);
+        $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
+        $roles = Role::query()->whereIn('name', $roleNames)->get();
         $headers = User::query()
             ->with('role')
             ->whereHas('role', function ($query) use ($userRoles) {

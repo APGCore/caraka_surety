@@ -2,6 +2,7 @@ import React from "react";
 
 interface EmployeeCreateProps {
   officeSelected: number;
+  role?: any;
   roles: any;
   headers: any;
   routeName: any;
