@@ -10,7 +10,6 @@ import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import StaffLayoutPage from "@/layouts/staff";
 import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";
 import axios from "axios";
@@ -1432,7 +1431,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <SubmissionDetailHeader title={"Detail Pengajuan"} />
       {page}
     </RoleBasedLayout>

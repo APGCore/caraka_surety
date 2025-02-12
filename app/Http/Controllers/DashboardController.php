@@ -11,7 +11,12 @@ class DashboardController extends Controller
 {
     private function getCountOfSubmission(?int $userId = null): array
     {
-        $submissions = Submission::query()->when($userId, fn ($query) => $query->where('staff_id', $userId))->get();
+        $submissions = Submission::query()->when($userId, fn($query) => $query
+            ->where('staff_id', $userId)
+            ->orWhere('checked_by', $userId)
+            ->orWhere('approved_by', $userId)
+            ->orWhere('rejected_by', $userId)
+        )->get();
         $totalSubmission = $submissions->count();
         $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
         $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
@@ -46,8 +51,12 @@ class DashboardController extends Controller
         $submissions = Submission::query()
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', now()->year)
-            ->when($productId, fn ($query) => $query->where('product_id', $productId))
-            ->when($userId, fn ($query) => $query->where('staff_id', $userId))
+            ->when($productId, fn($query) => $query->where('product_id', $productId))
+            ->when($userId, fn($query) => $query
+                ->where('staff_id', $userId)
+                ->orWhere('checked_by', $userId)
+                ->orWhere('approved_by', $userId)
+                ->orWhere('rejected_by', $userId))
             ->groupBy('month')
             ->get();
 
@@ -67,30 +76,26 @@ class DashboardController extends Controller
         return Submission::query()
             ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
             ->with(['principal:id,name', 'product:id,name'])
-            ->when($userId, fn ($query) => $query->where('staff_id', $userId))
+            ->when($userId, fn($query) => $query
+                ->where('staff_id', $userId)
+                ->orWhere('checked_by', $userId)
+                ->orWhere('approved_by', $userId)
+                ->orWhere('rejected_by', $userId))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->orderByDesc('created_at')
             ->get();
     }
 
-    public function dashboardAdmin(Request $request)
+    private function getProps($productId): array
     {
-        $component = 'admin/dashboard/index';
-
-        return inertia($component);
-    }
-
-    public function dashboardStaff(Request $request)
-    {
-        $productId = $request->get('product_id');
         $userId = auth()->user()->getAuthIdentifier();
         $countOfSubmission = $this->getCountOfSubmission($userId);
         $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId, $userId);
         $submissionThisMonth = $this->getSubmissionThisMonth($userId);
         $products = Product::query()->get();
 
-        $props = [
+        return [
             'total_submission' => $countOfSubmission['total'],
             'total_submission_process' => $countOfSubmission['process'],
             'total_submission_approved' => $countOfSubmission['approved'],
@@ -99,115 +104,89 @@ class DashboardController extends Controller
             'graph_data' => $chartSubmissionThisYear,
             'submissions' => $submissionThisMonth,
         ];
+    }
+
+    public function dashboardAdmin(Request $request): \Inertia\Response
+    {
+        $component = 'admin/dashboard/index';
+
+        return inertia($component);
+    }
+
+    public function dashboardStaff(Request $request): \Inertia\Response
+    {
+        $productId = $request->get('product_id');
+        $props = $this->getProps($productId);
 
         $component = 'staff/dashboard/index';
 
         return inertia($component, $props);
     }
 
-    public function dashboardStaffOperasional(Request $request)
+    public function dashboardStaffOperasional(Request $request): \Inertia\Response
     {
         $component = 'staff-operasional/dashboard/index';
 
         $productId = $request->get('product_id');
-        $countOfSubmission = $this->getCountOfSubmission();
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
-        $products = Product::query()->get();
-
-        $props = [
-            'total_submission' => $countOfSubmission['total'],
-            'total_submission_process' => $countOfSubmission['process'],
-            'total_submission_approved' => $countOfSubmission['approved'],
-            'total_submission_rejected' => $countOfSubmission['rejected'],
-            'products' => $products,
-            'graph_data' => $chartSubmissionThisYear,
-            'submissions' => $submissionThisMonth,
-        ];
+        $props = $this->getProps($productId);
 
         return inertia($component, $props);
     }
 
-    public function dashboardStaffTeknik(Request $request)
+    public function dashboardStaffTeknik(Request $request): \Inertia\Response
     {
         $component = 'staff-teknik/dashboard/index';
 
         $productId = $request->get('product_id');
-        $countOfSubmission = $this->getCountOfSubmission();
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
-        $products = Product::query()->get();
-
-        $props = [
-            'total_submission' => $countOfSubmission['total'],
-            'total_submission_process' => $countOfSubmission['process'],
-            'total_submission_approved' => $countOfSubmission['approved'],
-            'total_submission_rejected' => $countOfSubmission['rejected'],
-            'products' => $products,
-            'graph_data' => $chartSubmissionThisYear,
-            'submissions' => $submissionThisMonth,
-        ];
+        $props = $this->getProps($productId);
 
         return inertia($component, $props);
     }
 
-    public function dashboardManager(Request $request)
+    public function dashboardManager(Request $request): \Inertia\Response
     {
         $component = 'manager/dashboard/index';
 
         $productId = $request->get('product_id');
-        $countOfSubmission = $this->getCountOfSubmission();
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
-        $products = Product::query()->get();
-
-        $props = [
-            'total_submission' => $countOfSubmission['total'],
-            'total_submission_process' => $countOfSubmission['process'],
-            'total_submission_approved' => $countOfSubmission['approved'],
-            'total_submission_rejected' => $countOfSubmission['rejected'],
-            'products' => $products,
-            'graph_data' => $chartSubmissionThisYear,
-            'submissions' => $submissionThisMonth,
-        ];
+        $props = $this->getProps($productId);
 
         return inertia($component, $props);
     }
 
-    public function dashboardDireksi(Request $request)
+    public function dashboardDireksi(Request $request): \Inertia\Response
     {
         $component = 'direksi/dashboard/index';
 
         $productId = $request->get('product_id');
-        $countOfSubmission = $this->getCountOfSubmission();
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
-        $products = Product::query()->get();
-
-        $props = [
-            'total_submission' => $countOfSubmission['total'],
-            'total_submission_process' => $countOfSubmission['process'],
-            'total_submission_approved' => $countOfSubmission['approved'],
-            'total_submission_rejected' => $countOfSubmission['rejected'],
-            'products' => $products,
-            'graph_data' => $chartSubmissionThisYear,
-            'submissions' => $submissionThisMonth,
-        ];
+        $props = $this->getProps($productId);
 
         return inertia($component, $props);
     }
 
-    public function dashboardStaffCabang(Request $request)
+    public function dashboardStaffCabang(Request $request): \Inertia\Response
     {
         $component = 'staff-cabang/dashboard/index';
 
         return inertia($component);
     }
 
-    public function dashboardKepalaCabang(Request $request)
+    public function dashboardKepalaCabang(Request $request): \Inertia\Response
     {
         $component = 'kepala-cabang/dashboard/index';
 
-        return inertia($component);
+        $productId = $request->get('product_id');
+        $props = $this->getProps($productId);
+
+        return inertia($component, $props);
+    }
+
+    public function dashboardKepalaAgenPartner(Request $request): \Inertia\Response
+    {
+        $component = 'kepala-agent-partner/dashboard/index';
+
+        $productId = $request->get('product_id');
+        $props = $this->getProps($productId);
+
+        return inertia($component, $props);
     }
 }

@@ -1,9 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import BranchGuarantorForm from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-form";
-import BranchGuarantorHeader from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-header";
+import BranchGuarantorHeader
+    from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-header";
 import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
-import { BranchGuarantorCreatePageProps } from "@/pages/admin/guarantor-management/branch-guarantor/create/branch-guarantor-create-page.type";
+import {
+    BranchGuarantorCreatePageProps
+} from "@/pages/admin/guarantor-management/branch-guarantor/create/branch-guarantor-create-page.type";
 
 const BranchGuarantorCreatePage: BranchGuarantorCreatePageProps = ({ guarantor }) => {
   const params = { guarantor: guarantor.id };
@@ -32,7 +35,7 @@ BranchGuarantorCreatePage.layout = (page: any) => {
   const params = { guarantor: pagePropsData.guarantor.id };
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <BranchGuarantorHeader
         title={pagePropsData?.page_settings?.title}
         route={route(BranchGuarantorUtils.link.index, params)}

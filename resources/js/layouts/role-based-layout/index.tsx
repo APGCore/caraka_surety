@@ -1,75 +1,62 @@
 import AdminLayoutPage from "../admin-layout";
 import KepalaCabangLayoutPage from "../cabang-layout/kepala-cabang";
-import StaffCabangLayoutPage from "../cabang-layout/staff-cabang";
 import DireksiLayoutPage from "../direksi-layout";
 import ManagerLayoutPage from "../pusat-layout/manager";
 import StaffLayoutPage from "../pusat-layout/staff";
 import StaffOperasionalLayoutPage from "../pusat-layout/staff-operasional";
 import StaffTeknikLayoutPage from "../pusat-layout/staff-teknik";
 
-export enum Roles {
-  Admin = "Admin",
-  Direksi = "Direksi",
-  Manager = "Manager",
-  StaffOperasional = "Staff Operasional",
-  StaffTeknik = "Staff Teknik",
-  KepalaCabang = "Kepala Cabang",
-  StaffCabang = "Staff Cabang",
-  KepalaMitraPemasaran = "Kepala Mitra Pemasaran",
-  StaffMitraPemasaran = "Staff Mitra Pemasaran",
-  StaffMitraAgen = "Staff Mitra Agen",
-  Staff = "Staff",
-}
-
 interface IRoleBasedLayout extends React.PropsWithChildren {
-  user: any;
+  propsData?: any;
   [key: string]: unknown;
 }
 
-const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ user, children, ...props }) => {
+const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
+    const { auth, roles } = propsData;
+    const user = auth?.user;
   switch (user.role.name) {
-    case Roles.Admin:
+    case roles.Admin:
       return (
         <AdminLayoutPage user={user} {...props}>
           {children}
         </AdminLayoutPage>
       );
-    case Roles.Direksi:
+    case roles.Direksi:
       return (
         <DireksiLayoutPage user={user} {...props}>
           {children}
         </DireksiLayoutPage>
       );
-    case Roles.Manager:
+    case roles.Manager:
       return (
         <ManagerLayoutPage user={user} {...props}>
           {children}
         </ManagerLayoutPage>
       );
-    case Roles.StaffTeknik:
+    case roles.StaffTeknik:
       return (
         <StaffTeknikLayoutPage user={user} {...props}>
           {children}
         </StaffTeknikLayoutPage>
       );
-    case Roles.StaffOperasional:
+    case roles.StaffOperasional:
       return (
         <StaffOperasionalLayoutPage user={user} {...props}>
           {children}
         </StaffOperasionalLayoutPage>
       );
-    case Roles.KepalaCabang:
+    case roles.KepalaCabang:
       return (
         <KepalaCabangLayoutPage user={user} {...props}>
           {children}
         </KepalaCabangLayoutPage>
       );
-    case Roles.StaffCabang:
-      return (
-        <StaffCabangLayoutPage user={user} {...props}>
-          {children}
-        </StaffCabangLayoutPage>
-      );
+    // case roles.StaffCabang:
+    //   return (
+    //     <StaffCabangLayoutPage user={user} {...props}>
+    //       {children}
+    //     </StaffCabangLayoutPage>
+    //   );
     // case roles.KepalaMitraPemasaran:
     //   return <KepalaMitraPemasaranLayoutPage user={user}>{children}</KepalaMitraPemasaranLayoutPage>;
     // case roles.StaffMitraPemasaran:

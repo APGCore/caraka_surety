@@ -1,17 +1,16 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import StaffLayoutPage from "@/layouts/staff";
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
@@ -151,7 +150,7 @@ SubmissionHistoryPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <SubmissionHistoryHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>

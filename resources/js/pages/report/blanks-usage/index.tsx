@@ -78,7 +78,7 @@ BlankUsagePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <BlankUsageHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>

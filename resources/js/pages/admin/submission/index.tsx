@@ -1,30 +1,11 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/_shadcn-ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/_shadcn-ui/dropdown-menu";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
+import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import { Table, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { Head, Link, usePage } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Head } from "@inertiajs/react";
 import { useState } from "react";
 import { SubmissionPageProps } from "./submission-page.type";
 
@@ -188,7 +169,7 @@ SubmissionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
       <Breadcrumb>
         <BreadcrumbList>

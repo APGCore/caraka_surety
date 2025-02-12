@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import StaffCabangLayoutPage from "@/layouts/staff-cabang";
 import { Head } from "@inertiajs/react";
 import { data } from "./dashboard-utils";
 import { Overview } from "./partials/overview";
@@ -137,7 +136,7 @@ StaffCabangDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
     </RoleBasedLayout>

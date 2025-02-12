@@ -1,6 +1,8 @@
 import HeaderPage from "@/components/molecules/header";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { BranchOfficeEditPageProps } from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
+import {
+    BranchOfficeEditPageProps
+} from "@/pages/admin/office-management/branch-office/edit/branch-office-edit-page.type";
 import Form from "../_partials/form";
 
 const BranchOfficeEditPage: React.FC<BranchOfficeEditPageProps> & { layout?: any } = ({ profile }) => {
@@ -29,7 +31,7 @@ BranchOfficeEditPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <HeaderPage {...pagePropsData} />
       {page}
     </RoleBasedLayout>

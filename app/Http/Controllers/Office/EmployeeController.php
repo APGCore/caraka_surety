@@ -46,7 +46,7 @@ class EmployeeController extends Controller
                 RoleEnum::StaffOperasional->value,
             ],
             OfficeType::AGENT_PARTNER->value => [
-                RoleEnum::KepalaAgenPartner->value,
+                RoleEnum::KepalaAgentPartner->value,
                 RoleEnum::AgentPartner->value,
             ],
             OfficeType::MARKETING_PARTNER->value => [
@@ -89,9 +89,9 @@ class EmployeeController extends Controller
         } elseif ($officeType === OfficeType::AGENT_PARTNER->value) {
             switch ($role->getAttribute('name')) {
                 case RoleEnum::AgentPartner->value:
-                    $roles = [RoleEnum::KepalaAgenPartner->value];
+                    $roles = [RoleEnum::KepalaAgentPartner->value];
                     break;
-                case RoleEnum::KepalaAgenPartner->value:
+                case RoleEnum::KepalaAgentPartner->value:
                     $roles = [RoleEnum::Direksi->value];
                     break;
             }

@@ -1,18 +1,16 @@
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import Show from "@/components/atoms/show";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
-import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
-import { router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
@@ -21,9 +19,6 @@ interface BlankDatatableProps {
 }
 
 const BlankDatatable: React.FC<BlankDatatableProps> = ({ blanks }) => {
-  const deleteProduct = (product: any) => {
-    router.delete(route(GuarantorUtils.link.destroy, product.id));
-  };
 
   return (
     <>

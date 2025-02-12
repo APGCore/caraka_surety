@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import FormGuarantorRate from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate";
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
-import { GuarantorRateCreatePageProps } from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
+import {
+    GuarantorRateCreatePageProps
+} from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
 
 const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
   guarantorId,
@@ -34,7 +36,7 @@ GuarantorRateCreate.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
       {page}
     </RoleBasedLayout>

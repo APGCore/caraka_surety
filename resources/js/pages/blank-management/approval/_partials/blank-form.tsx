@@ -1,9 +1,9 @@
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
@@ -28,7 +28,7 @@ const BlankForm: React.FC<BlankFormProps> = ({ blanksUnApproved, links }) => {
     const blankApprove = blanksUnApproved.slice(0, qtyBlank);
     axios
       .post(route(links.approve), { blanks: blankApprove })
-      .then((res) => {
+      .then(() => {
         setOpen(false);
         setQtyBlank(0);
         router.reload();

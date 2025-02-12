@@ -14,8 +14,8 @@ export const direksiRoute = [
     items: [
       {
         title: "Penerimaan Blangko",
-        route_name: "direksi.blank-management.blank",
-        href: route("direksi.blank-management.blank.index"),
+        route_name: "direksi-blank-management.blank",
+        href: route("direksi-blank-management.blank.index"),
       },
     ],
   },

@@ -3,7 +3,7 @@
 use App\Http\Controllers\Guarantor\BlankController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('blank-management')->name('direksi.blank-management')->group(function () {
+Route::prefix('blank-management')->name('direksi-blank-management')->group(function () {
     Route::controller(BlankController::class)
         ->prefix('blank')->name('.blank')
         ->group(function () {

@@ -211,9 +211,9 @@ class BlankController extends Controller
         $guarantorId = $request->get('guarantor_id', $guarantors->first()?->id ?? null);
         $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
-            $links = $this->links->map(fn ($link) => 'kepala-cabang.'.$link);
+            $links = $this->links->map(fn ($link) => 'kepala-cabang-'.$link);
         } else {
-            $links = $this->links->map(fn ($link) => 'direksi.'.$link);
+            $links = $this->links->map(fn ($link) => 'direksi-'.$link);
         }
         $component = 'blank-management/approval/index';
 

@@ -27,6 +27,11 @@ class SubmissionController extends Controller
 {
     use GeneratePattern;
 
+    public function __construct()
+    {
+        Carbon::setLocale('id');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -532,12 +537,10 @@ class SubmissionController extends Controller
     {
         $component = 'staff/submission-management/history/index';
 
-        Carbon::setLocale('id');
-
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->where('staff_id', '=', auth()->user()->getAuthIdentifier())
+            ->where('staff_id', '=', $authId)
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
@@ -574,8 +577,6 @@ class SubmissionController extends Controller
     public function displaySubmissionByManager()
     {
         $component = 'manager/submission-management/list/index';
-
-        Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
         $staffs = User::query()
@@ -627,8 +628,6 @@ class SubmissionController extends Controller
     {
         $component = 'manager/submission-management/history/index';
 
-        Carbon::setLocale('id');
-
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
             ->where(function ($query) use ($authId) {
@@ -666,8 +665,6 @@ class SubmissionController extends Controller
     public function displaySubmissionByDireksi()
     {
         $component = 'direksi/submission-management/list/index';
-
-        Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
         $staffs = User::query()
@@ -713,8 +710,6 @@ class SubmissionController extends Controller
     {
         $component = 'direksi/submission-management/history/index';
 
-        Carbon::setLocale('id');
-
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()
             ->where(function ($query) use ($authId) {
@@ -751,8 +746,6 @@ class SubmissionController extends Controller
     public function displaySubmissionByKepalaCabang()
     {
         $component = 'kepala-cabang/submission-management/list/index';
-
-        Carbon::setLocale('id');
 
         $authId = auth()->user()->getAuthIdentifier();
         $staffs = User::query()
@@ -795,6 +788,44 @@ class SubmissionController extends Controller
         return inertia($component, [
             'page_settings' => fn () => [
                 'title' => 'List Pengajuan Masuk',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displayHistoryByKepalaCabang()
+    {
+        $component = 'kepala-cabang/submission-management/history/index';
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $submissions = Submission::query()
+            ->where(function ($query) use ($authId) {
+                $query->where('checked_by', '=', $authId)
+                    ->orWhere('approved_by', '=', $authId)
+                    ->orWhere('rejected_by', '=', $authId);
+            })
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) use ($authId) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
+
+                return array_merge($submission->toArray(), [
+                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'created_at' => $date,
+                ]);
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'List Hasil Pengajuan',
             ],
             'submissions' => fn () => $submissions,
         ]);

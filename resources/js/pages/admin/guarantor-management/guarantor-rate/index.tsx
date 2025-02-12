@@ -1,18 +1,19 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import { Combobox } from "@/components/molecules/combobox";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import GuarantorRateDatatable from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
+import GuarantorRateDatatable
+    from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-datatable";
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
 import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
 import { router } from "@inertiajs/react";
@@ -153,7 +154,7 @@ GuarantorRatePage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <GuarantorRateHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>

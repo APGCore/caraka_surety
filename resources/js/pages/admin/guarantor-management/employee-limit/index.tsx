@@ -1,12 +1,12 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { textCurrency } from "@/common/utils/text-currency";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
@@ -277,7 +277,7 @@ ProfileLimitsPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <EmployeeLimitsHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>

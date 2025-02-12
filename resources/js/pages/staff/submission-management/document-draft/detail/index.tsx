@@ -1,16 +1,13 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
-import { Button } from "@/components/_shadcn-ui/button";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import StaffLayoutPage from "@/layouts/staff";
 import templateDraftSurety from "@/pages/output_templates/template-draft-surety";
 import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 // import templateAnalyst from "@/pages/output_templates/template-hasil-analisa";
 import templatePelaksanaan from "@/pages/output_templates/template-surat-pelaksanaan";
 import templatePermohonan from "@/pages/output_templates/template-surat-permohonan-surety-bond-bumida";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { useEffect } from "react";
-import { Editor } from "tinymce";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
@@ -342,7 +339,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={`Detail Pengajuan - ${pagePropsData?.submission?.applicant_name ?? "Pengajuan"}`} />
       <Breadcrumb>
         <BreadcrumbList>

@@ -15,8 +15,8 @@ export const direksiRoute: IAppSideBarMenu[] = [
     items: [
       {
         title: "Penerimaan Blangko",
-        route_name: "direksi.blank-management.blank",
-        href: route("direksi.blank-management.blank.index"),
+        route_name: "direksi-blank-management.blank",
+        href: route("direksi-blank-management.blank.index"),
       },
     ],
   },

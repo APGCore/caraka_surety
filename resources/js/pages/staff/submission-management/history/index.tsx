@@ -2,7 +2,6 @@ import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import StaffLayoutPage from "@/layouts/staff";
 import { useState } from "react";
 import SubmissionHistoryDatatable from "./_partials/history-datatable";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
@@ -59,7 +58,7 @@ SubmissionHistoryPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <RoleBasedLayout user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <SubmissionHistoryHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>
