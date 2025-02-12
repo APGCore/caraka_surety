@@ -1,7 +1,7 @@
-import useGetAllBank from "@/common/hooks/api/bank/useGetAllBank";
-import useGetGuarantorBranch from "@/common/hooks/api/guarantor/useGetGuarantorBranch";
-import useGetGuarantorByProductId from "@/common/hooks/api/guarantor/useGetGuarantorByProductId";
-import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
+// import useGetAllBank from "@/common/hooks/api/bank/useGetAllBank";
+// import useGetGuarantorBranch from "@/common/hooks/api/guarantor/useGetGuarantorBranch";
+// import useGetGuarantorByProductId from "@/common/hooks/api/guarantor/useGetGuarantorByProductId";
+// import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
 // import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
 // import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
 // import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
@@ -9,15 +9,19 @@ import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
 // import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
-import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
+// import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
 import { toast } from "@/common/hooks/general/use-toast";
+import { useGetAllBank } from "@/common/hooks/react-query/bank";
+import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
+import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import { useGetAllPrincipal } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
+import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { Button } from "@/components/_shadcn-ui/button";
@@ -261,15 +265,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   );
 
   // Guarantor
-  const { guarantors } = useGetGuarantorByProductId({ selectedProductId: selectedProducts });
+  const { data: guarantors } = useGetGuarantorByProductId(String(selectedProducts));
   const [selectedGuarantor, setSelectedGuarantor] = useState(null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
-  const { branchGuarantor } = useGetGuarantorBranch({
-    selectedGuarantorId: selectedGuarantor,
-  });
-
+  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(String(selectedGuarantor));
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
@@ -281,12 +282,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedProductType, setSelectedProductType] = useState<object | null>(null);
   const [isResetProductType, setIsResetProductType] = useState(false);
 
-  // Source of Fund
-  const { sourceOfFunds } = useGetSourceOfFund();
+  // Source of Fundd
+  const { data: sourceOfFunds } = useGetAllSourceOfFund();
   const [selectedSourceOfFund, setSelectedSourceOfFund] = useState(null);
 
   // Obligee
-  const { obligees } = useGetAllObligee();
+  //   const { obligees } = useGetAllObligee();
+  const { data: obligees } = useGetAllObligee();
   const [selectedObligee, setSelectedObligee] = useState<{
     id?: number;
     name?: string;
@@ -331,7 +333,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   ]);
 
   // Bank
-  const { banks } = useGetAllBank();
+  //   const { banks } = useGetAllBank();
+  const { data: banks } = useGetAllBank();
   const [selectedBank, setSelectedBank] = useState(null);
 
   // SCORING
@@ -973,7 +976,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Asuransi/Penjamin</Label>
                       <Combobox
-                        datas={guarantors}
+                        datas={Array.isArray(guarantors) ? guarantors : []}
                         labelKey="name"
                         valueKey="name"
                         reset={isResetGuarantor}
@@ -997,7 +1000,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Cabang Asuransi</Label>
                       <Combobox
-                        datas={branchGuarantor}
+                        datas={Array.isArray(branchGuarantor) ? branchGuarantor : []}
                         labelKey="name"
                         valueKey="name"
                         reset={isResetBranchGuarantor}
@@ -1096,7 +1099,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Obligee</Label>
                         <Combobox
-                          datas={obligees}
+                          datas={Array.isArray(obligees) ? obligees : []}
                           labelKey="name"
                           valueKey="name"
                           placeholder="Pilih Obligee"
@@ -1309,7 +1312,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     <div className="grid gap-1">
                       <Label className="text-md">Banks</Label>
                       <Combobox
-                        datas={banks}
+                        datas={Array.isArray(banks) ? banks : []}
                         labelKey="name"
                         valueKey="name"
                         placeholder="Pilih Bank"
@@ -1465,7 +1468,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   <div className="grid gap-1">
                     <Label className="text-md">Sumber Dana</Label>
                     <Combobox
-                      datas={sourceOfFunds}
+                      datas={Array.isArray(sourceOfFunds) ? sourceOfFunds : []}
                       labelKey="name"
                       valueKey="name"
                       placeholder="Pilih Sumber Dana"

@@ -1,0 +1,56 @@
+import { QueryOptions, useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+export const GUARANTOR_QUERY_KEY = {
+  GUARANTOR: "guarantor",
+  GUARANTOR_BY_PRODUCT: "guarantor_by_product",
+  BRANCH_GUARANTOR: "branch_guarantor",
+  BRANCH_GUARANTOR_BY_HEADQUARTER: "branch_guarantor_by_head",
+};
+
+export const useGetAllGuarantor = (querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR],
+    queryFn: async () => {
+      const response = await axios.get(route("api.guarantor-management.guarantor.all"));
+      return response.data.data;
+    },
+    ...querySetting,
+  });
+};
+
+export const useGetGuarantorByProductId = (productId?: string, querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR_BY_PRODUCT],
+    queryFn: async () => {
+      const response = await axios.get(route("api.guarantor-management.guarantor.by-product", { product: productId }));
+      return response.data.data;
+    },
+    ...querySetting,
+  });
+};
+
+export const useGetAllBranchGuarantor = (querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.BRANCH_GUARANTOR],
+    queryFn: async () => {
+      const response = await axios.get(route("api.guarantor-management.guarantor.all-branch"));
+      return response.data.data;
+    },
+    ...querySetting,
+  });
+};
+
+export const useGetBranchGuarantorByHeadquarter = (headquarterId?: string, querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.BRANCH_GUARANTOR_BY_HEADQUARTER, headquarterId],
+    queryFn: async () => {
+      const response = await axios.get(
+        route("api.guarantor-management.guarantor.branch-from-headquarter", { headquarterId }),
+      );
+      return response.data.data;
+    },
+    enabled: !!headquarterId,
+    ...querySetting,
+  });
+};

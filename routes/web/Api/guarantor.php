@@ -12,10 +12,11 @@ Route::prefix('guarantor-management')
             ->prefix('guarantor')
             ->name('guarantor.')->group(function () {
                 Route::get('all', 'getAll')->name('all');
-                Route::get('branch/{headquarterId}', 'getByHeadquarteId')->name('branch.by-headquarter');
-                Route::get('branch', 'getAllBranch')->name('branch.all');
-                Route::get('{guarantor}/product', 'product')->name('product');
-                Route::get('{guarantor}/product/{product}', 'productType')->name('product.type');
+                Route::get('branch', 'getAllBranch')->name('all-branch');
+                Route::get('branch/{headquarterId}', 'getByHeadquarteId')->name('branch-from-headquarter');
+                // Route::get('{guarantor}/product', 'product')->name('product');
+                Route::get('/{product}', 'getGuarantorByProductId')->name('by-product');
+                // Route::get('{guarantor}/product/{product}', 'productType')->name('product-type');
             });
 
         Route::controller(PatternController::class)
