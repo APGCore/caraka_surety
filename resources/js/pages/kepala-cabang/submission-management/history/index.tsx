@@ -1,12 +1,11 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import RoleBasedLayout from "@/layouts/role-based-layout";
+import SubmissionHistoryDatatable from "@/pages/kepala-cabang/submission-management/history/_partials/history-datatable";
 import { useState } from "react";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
 import { SubmissionHistoryPageProps } from "./history-page.type";
-import RoleBasedLayout from "@/layouts/role-based-layout";
-import SubmissionHistoryDatatable
-    from "@/pages/kepala-cabang/submission-management/history/_partials/history-datatable";
 
 const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");
@@ -49,7 +48,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
           </form>
         </div>
       </div>
-        <SubmissionHistoryDatatable submissions={submissions} />
+      <SubmissionHistoryDatatable submissions={submissions} />
     </main>
   );
 };

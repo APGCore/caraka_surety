@@ -12,8 +12,8 @@ interface IRoleBasedLayout extends React.PropsWithChildren {
 }
 
 const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
-    const { auth, roles } = propsData;
-    const user = auth?.user;
+  const { auth, roles } = propsData;
+  const user = auth?.user;
   switch (user.role.name) {
     case roles.Admin:
       return (

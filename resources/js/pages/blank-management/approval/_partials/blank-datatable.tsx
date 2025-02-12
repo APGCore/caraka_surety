@@ -1,11 +1,11 @@
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import Show from "@/components/atoms/show";
@@ -19,7 +19,6 @@ interface BlankDatatableProps {
 }
 
 const BlankDatatable: React.FC<BlankDatatableProps> = ({ blanks }) => {
-
   return (
     <>
       <Table>

@@ -1,9 +1,7 @@
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import HeaderPage from "@/components/molecules/header";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import {
-    BranchOfficeCreatePageProps
-} from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
+import { BranchOfficeCreatePageProps } from "@/pages/admin/office-management/branch-office/create/branch-office-create-page.type";
 import Form from "../_partials/form";
 
 const BranchOfficeCreatePage: BranchOfficeCreatePageProps = (props) => {

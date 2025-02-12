@@ -7,17 +7,16 @@
 // import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
 // import useGetAllPrincipal from "@/common/hooks/api/principal/useGetAllPrincipal";
 // import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
-import useGetProductTypesByProductAndGuarantor
-    from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 // import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
 import {
-    useGetAllProvince,
-    useGetDistrictByRegencyId,
-    useGetRegencyByProvinceId
+  useGetAllProvince,
+  useGetDistrictByRegencyId,
+  useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import { useGetAllPrincipal } from "@/common/hooks/react-query/principal";
@@ -47,10 +46,10 @@ import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import {
-    ISelectedPrincipalDistrict,
-    Ratio,
-    SubmissionCreatePageProps,
-    SubmissionFormProps
+  ISelectedPrincipalDistrict,
+  Ratio,
+  SubmissionCreatePageProps,
+  SubmissionFormProps,
 } from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {

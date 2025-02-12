@@ -1,24 +1,20 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import { Combobox } from "@/components/molecules/combobox";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import GuarantorProductTypeRateDatatable
-    from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
-import GuarantorProductTypeRateHeader
-    from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
-import {
-    GuarantorProductTypeRateUtils
-} from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
+import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-datatable";
+import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
+import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";

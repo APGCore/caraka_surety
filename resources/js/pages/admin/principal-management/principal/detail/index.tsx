@@ -3,9 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-u
 import PrimaryButton from "@/components/atoms/button/primary-button";
 import SecondaryButton from "@/components/atoms/button/secondary-button";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import {
-    PrincipalDetailPageProps
-} from "@/pages/admin/principal-management/principal/detail/detail-principal-page.type";
+import { PrincipalDetailPageProps } from "@/pages/admin/principal-management/principal/detail/detail-principal-page.type";
 import { Head, Link } from "@inertiajs/react";
 
 const PrincipalDetailPage: PrincipalDetailPageProps & { layout?: any } = ({ principal }) => {

@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { Overview } from "./_partials/overview";
 import { RecentSales } from "./_partials/recent-sales";
 import { ManagerDashboardPageProps } from "./kepala-cabang-dashboard-page.type";
 import { DashboardUtils } from "./kepala-cabang-dashboard-page.utils";
-import RoleBasedLayout from "@/layouts/role-based-layout";
 
 const KepalaCabangDashboardPage: ManagerDashboardPageProps = ({
   total_submission,

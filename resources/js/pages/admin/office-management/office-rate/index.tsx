@@ -1,11 +1,11 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";

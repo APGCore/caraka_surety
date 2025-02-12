@@ -62,6 +62,13 @@ class SubmissionResource extends JsonResource
                     'name' => $this->resource->obligee->name,
                 ];
             }),
+            'staff' => $this->whenLoaded('staff', function () {
+                return [
+                    'id' => $this->resource->staff->id,
+                    'name' => $this->resource->staff->name,
+                    'office' => $this->resource->staff->office->name,
+                ];
+            }),
             'central_office_rate' => $this->resource->central_office_rate,
             'branch_office_rate' => $this->resource->branch_office_rate,
             'guarantor_rate' => $this->resource->guarantor_rate,

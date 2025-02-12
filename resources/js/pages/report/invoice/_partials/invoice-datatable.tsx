@@ -69,7 +69,10 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                         </div>
                         <Show when={submission.branch_office_rate}>
                           <div className="bg-blue-300 hover:bg-blue-300 p-2 w-full">
-                            <InvoiceBranchOffice branchName={""} branchOfficeRate={submission.branch_office_rate} />
+                            <InvoiceBranchOffice
+                              branchName={submission.staff.office}
+                              branchOfficeRate={submission.branch_office_rate}
+                            />
                           </div>
                         </Show>
                         <div className="bg-green-300 hover:bg-green-300 p-2 w-full">

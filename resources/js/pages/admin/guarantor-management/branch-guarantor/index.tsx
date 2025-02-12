@@ -4,11 +4,8 @@ import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import BranchGuarantorDatatable
-    from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-datatable";
-import {
-    BranchGuarantorPageProps
-} from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor-page.type";
+import BranchGuarantorDatatable from "@/pages/admin/guarantor-management/branch-guarantor/_partials/branch-guarantor-datatable";
+import { BranchGuarantorPageProps } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor-page.type";
 import { BranchGuarantorUtils } from "@/pages/admin/guarantor-management/branch-guarantor/branch-guarantor.utils";
 import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/guarantor.utils";
 import { Head, Link, router } from "@inertiajs/react";

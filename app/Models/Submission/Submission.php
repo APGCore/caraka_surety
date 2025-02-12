@@ -87,12 +87,12 @@ class Submission extends Model
 
     public function guarantor(): BelongsTo
     {
-        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNull('headquarter_id');
+        return $this->belongsTo(Guarantor::class, 'guarantor_id');
     }
 
     public function guarantorBranch(): BelongsTo
     {
-        return $this->belongsTo(Guarantor::class, 'guarantor_id')->whereNotNull('headquarter_id');
+        return $this->belongsTo(Guarantor::class, 'guarantor_branch_id');
     }
 
     public function product(): BelongsTo

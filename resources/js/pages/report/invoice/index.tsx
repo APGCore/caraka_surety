@@ -43,7 +43,11 @@ const InvoicePage: InvoicePageProps = ({
   const handleChangeDate = (dateRange: DateRange | undefined) => {
     setFilterDate(dateRange);
     if (dateRange?.from && dateRange?.to) {
-      getData({ date: dateRange });
+      const dates = {
+        from: (dateRange?.from?.toLocaleDateString("en-CA") || subDays(new Date(), 7).toLocaleDateString("en-CA")) + " 00:00:00",
+        to: (dateRange?.to?.toLocaleDateString("en-CA") || new Date().toLocaleDateString("en-CA")) + " 23:59:59",
+      };
+      getData({ date: dates });
     }
   };
 
@@ -62,14 +66,14 @@ const InvoicePage: InvoicePageProps = ({
   const getData = ({
     per_page = perPage,
     searchValue = search,
-    date = filterDate,
+    date,
     guarantor_id = guarantorSelected,
     product_id = productSelected,
     product_type_id = productTypeSelected,
   }: {
     per_page?: string;
     searchValue?: string;
-    date?: DateRange;
+    date?: { from: string; to: string };
     guarantor_id?: number;
     product_id?: number | null;
     product_type_id?: number | null;

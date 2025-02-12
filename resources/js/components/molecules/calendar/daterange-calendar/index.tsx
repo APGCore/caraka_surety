@@ -4,6 +4,7 @@ import { Calendar } from "@/components/_shadcn-ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
+import { id } from "date-fns/locale";
 import * as React from "react";
 import { DateRange } from "react-day-picker";
 
@@ -32,10 +33,10 @@ const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ class
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                  {format(date.from, "dd LLL y")} - {format(date.to, "dd LLL y")}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, "dd LLL y")
               )
             ) : (
               <span>Pick a date</span>
@@ -54,6 +55,7 @@ const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ class
             }}
             numberOfMonths={1}
             disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+            locale={id}
           />
         </PopoverContent>
       </Popover>

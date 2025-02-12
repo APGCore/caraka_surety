@@ -2,9 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import FormGuarantorRate from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate";
 import GuarantorRateHeader from "@/pages/admin/guarantor-management/guarantor-rate/_partials/guarantor-rate-header";
-import {
-    GuarantorRateCreatePageProps
-} from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
+import { GuarantorRateCreatePageProps } from "@/pages/admin/guarantor-management/guarantor-rate/create/guarantor-rate-create.type";
 
 const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
   guarantorId,

@@ -1,9 +1,9 @@
 import {
-    AlertDialog,
-    AlertDialogContent,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
