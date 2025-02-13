@@ -668,13 +668,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       <Input
                         className="text-md"
                         placeholder="No NPWP"
-                        value={Number(data.principal.npwp)}
-                        min="0"
-                        type="number"
+                        value={data.principal.npwp}
+                        type="text"
                         onChange={(e) =>
                           setData("principal", {
                             ...data.principal,
-                            npwp: String(getNumericValue(e)),
+                            npwp: e.target.value,
                           })
                         }
                       />
