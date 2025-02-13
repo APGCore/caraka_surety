@@ -7,12 +7,12 @@ import AppSidebar from "@/components/sidebar/app-sidebar";
 import { direksiRoute } from "./direksi-layout.constant";
 import { DireksiLayoutPageProps } from "./direksi-layout.type";
 
-export const DireksiLayoutPage: DireksiLayoutPageProps = ({ children, user }) => {
+export const DireksiLayoutPage: DireksiLayoutPageProps = ({ children, user, roles }) => {
   useFlashMessageToast();
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} routes={direksiRoute} />
+      <AppSidebar user={user} routes={direksiRoute} roles={roles} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_269px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
           <div className="flex justify-between pr-4 w-full">

@@ -204,7 +204,7 @@ class BlankController extends Controller
         }
     }
 
-    public function getByOffice(Request $request)
+    public function getByOffice(Request $request): \Inertia\Response
     {
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')->get();
@@ -212,6 +212,8 @@ class BlankController extends Controller
         $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
             $links = $this->links->map(fn ($link) => 'kepala-cabang-'.$link);
+        } elseif ($request->user()->hasRole(RoleEnum::KepalaAgentPartner->value)) {
+            $links = $this->links->map(fn ($link) => 'kepala-agent-partner-'.$link);
         } else {
             $links = $this->links->map(fn ($link) => 'direksi-'.$link);
         }
@@ -246,7 +248,7 @@ class BlankController extends Controller
         ]);
     }
 
-    public function approveBlanks(AccBlanksRequest $request)
+    public function approveBlanks(AccBlanksRequest $request): JsonResponse
     {
         $requestValidated = $request->validated();
         $blanks = collect($requestValidated['blanks']);

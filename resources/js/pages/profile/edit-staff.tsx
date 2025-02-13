@@ -1,4 +1,5 @@
-import StaffLayoutPage from "@/layouts/staff";
+import { Roles } from "@/common/types/roles";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PageProps } from "@/types";
 import { Head } from "@inertiajs/react";
 import UpdatePasswordForm from "./partials/update-password-form";
@@ -8,13 +9,21 @@ export default function Edit({
   mustVerifyEmail,
   status,
   auth,
+  roles,
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
   auth: object;
+  roles: Roles;
 }>) {
+  const propsData = {
+    mustVerifyEmail,
+    status,
+    auth,
+    roles,
+  };
   return (
-    <StaffLayoutPage user={auth?.user}>
+    <RoleBasedLayout propsData={propsData}>
       <Head title="Profile" />
 
       <div className="flex justify-center pt-2">
@@ -28,6 +37,6 @@ export default function Edit({
           </div>
         </div>
       </div>
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 }

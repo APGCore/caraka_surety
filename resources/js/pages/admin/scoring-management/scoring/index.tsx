@@ -1,16 +1,12 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
-import AdminLayoutPage from "@/layouts/admin-layout";
-import DireksiLayoutPage from "@/layouts/direksi-layout";
-import KepalaCabangLayoutPage from "@/layouts/kepala-cabang";
-import ManagerLayoutPage from "@/layouts/manager";
-import StaffLayoutPage from "@/layouts/staff";
+import RoleBasedLayout from "@/layouts/role-based-layout";
+import ProductHeader from "@/pages/admin/product-management/products/_partials/product-header";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
 import ScoringDatatable from "./_partials/scoring-datatable";
-import ScoringHeader from "./_partials/scoring-header";
 import { AdminScoringsPageProps } from "./scoring.type";
 
 const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {
@@ -63,47 +59,11 @@ export default AdminScoringsPage;
 
 AdminScoringsPage.layout = (page: any) => {
   const pagePropsData = page.props;
-  const user = pagePropsData?.auth?.user;
 
-  return <ShowLayout user={user} page={page} title={pagePropsData?.page_settings?.title} />;
-};
-
-const ShowLayout = ({ user, page, title }: { user: any; page: any; title: any }) => {
-  switch (user?.role_id) {
-    case 1:
-      return (
-        <AdminLayoutPage user={user}>
-          <ScoringHeader title={title} />
-          {page}
-        </AdminLayoutPage>
-      );
-    case 2:
-      return (
-        <DireksiLayoutPage user={user}>
-          <ScoringHeader title={title} />
-          {page}
-        </DireksiLayoutPage>
-      );
-    case 3:
-      return (
-        <KepalaCabangLayoutPage user={user}>
-          <ScoringHeader title={title} />
-          {page}
-        </KepalaCabangLayoutPage>
-      );
-    case 4:
-      return (
-        <ManagerLayoutPage user={user}>
-          <ScoringHeader title={title} />
-          {page}
-        </ManagerLayoutPage>
-      );
-    default:
-      return (
-        <StaffLayoutPage user={user}>
-          <ScoringHeader title={title} />
-          {page}
-        </StaffLayoutPage>
-      );
-  }
+  return (
+    <RoleBasedLayout propsData={pagePropsData}>
+      <ProductHeader title={pagePropsData?.page_settings?.title} />
+      {page}
+    </RoleBasedLayout>
+  );
 };

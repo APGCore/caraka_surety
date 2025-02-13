@@ -22,8 +22,7 @@ import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { FileInput } from "@/components/molecules/input/file-input";
 import { PreviewFile } from "@/components/molecules/preview-file";
-import ManagerLayoutPage from "@/layouts/manager";
-import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -1761,7 +1760,7 @@ SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <ManagerLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <div
         className={cn({
           "mt-[7%]": pagePropsData?.submission?.beyond_the_limit,
@@ -1769,6 +1768,6 @@ SubmissionDetailPage.layout = (page: any) => {
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}
       </div>
-    </ManagerLayoutPage>
+    </RoleBasedLayout>
   );
 };

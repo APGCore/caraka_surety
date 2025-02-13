@@ -26,7 +26,7 @@ class UserController extends Controller
 
         if ($request->user()->hasRole(RoleEnum::Admin)) {
             $component .= '/edit';
-        } elseif ($request->user()->hasRole(RoleEnum::Staff)) {
+        } else {
             $component .= '/edit-staff';
         }
 

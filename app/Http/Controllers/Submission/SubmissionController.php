@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Submission;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
-use App\Models\Document\RequiredDoc;
 use App\Models\Document\DocumentFormat;
+use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
@@ -31,37 +31,6 @@ class SubmissionController extends Controller
     public function __construct()
     {
         Carbon::setLocale('id');
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $submissions = [
-            [
-                'id' => 1,
-                'name' => 'submission 1',
-                'created_at' => '2024-01-01',
-                'status' => 'Pending',
-            ],
-            [
-                'id' => 2,
-                'name' => 'submission 2',
-                'created_at' => '2024-01-02',
-                'status' => 'Approved',
-            ],
-            [
-                'id' => 3,
-                'name' => 'submission 3',
-                'created_at' => '2024-01-03',
-                'status' => 'Rejected',
-            ],
-        ];
-
-        return inertia('admin/submission/index', [
-            'submissions' => $submissions,
-        ]);
     }
 
     /**
@@ -816,6 +785,94 @@ class SubmissionController extends Controller
     public function displayHistoryByKepalaCabang()
     {
         $component = 'kepala-cabang/submission-management/history/index';
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $submissions = Submission::query()
+            ->where(function ($query) use ($authId) {
+                $query->where('checked_by', '=', $authId)
+                    ->orWhere('approved_by', '=', $authId)
+                    ->orWhere('rejected_by', '=', $authId);
+            })
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->get()
+            ->map(function ($submission) use ($authId) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
+
+                return array_merge($submission->toArray(), [
+                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'created_at' => $date,
+                ]);
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'List Hasil Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displaySubmissionByKepalaAgentPartner()
+    {
+        $component = 'kepala-agent-partner/submission-management/list/index';
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $staffs = User::query()
+            ->where('head_id', '=', $authId)
+            ->pluck('id');
+        $submissions = Submission::query()
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'employeeLimit',
+                'guarantorProductTypeLimit',
+            ])
+            ->whereIn('staff_id', $staffs)
+            ->where([
+                'checked_by' => null,
+                'approved_by' => null,
+                'rejected_by' => null,
+            ])
+            ->get()
+            ->map(function ($submission) use ($authId) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+                $productLimit = $submission->guarantorProductTypeLimit;
+
+                return array_merge($submission->toArray(), [
+                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+                    'product_limit' => $productLimit?->limit ?? 0,
+                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'created_at' => $date,
+                ]);
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'List Pengajuan Masuk',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displayHistoryByKepalaAgentPartner()
+    {
+        $component = 'kepala-agent-partner/submission-management/history/index';
 
         $authId = auth()->user()->getAuthIdentifier();
         $submissions = Submission::query()

@@ -6,7 +6,7 @@ export interface Roles {
   Staff: string;
   StaffTeknik: string;
   StaffOperasional: string;
+  KepalaAgentPartner: string;
   AgentPartner: string;
   MarketingPartner: string;
-  KepalaAgentPartner: string;
 }

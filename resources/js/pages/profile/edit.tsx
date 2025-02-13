@@ -1,3 +1,4 @@
+import { Roles } from "@/common/types/roles";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PageProps } from "@/types";
@@ -11,14 +12,23 @@ export default function Edit({
   status,
   auth,
   profile,
+  roles,
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
   auth: object;
   profile: object;
+  roles: Roles;
 }>) {
+  const propsData = {
+    mustVerifyEmail,
+    status,
+    auth,
+    profile,
+    roles,
+  };
   return (
-    <RoleBasedLayout user={auth?.user}>
+    <RoleBasedLayout propsData={propsData}>
       <Head title="Profile" />
 
       <div className="flex justify-center pt-2">

@@ -22,7 +22,7 @@ import React from "react";
 import { IAppSideBarProps } from "./app-sidebar.type";
 import { displaySidebarMenuName } from "./app-sidebar.utils";
 
-const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes }) => {
+const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes, roles }) => {
   const { state } = useSidebar();
 
   return (
@@ -38,7 +38,7 @@ const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes }) => {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">APG - Core System</span>
-                <span className="truncate text-xs">{displaySidebarMenuName(user?.role?.name)}</span>
+                <span className="truncate text-xs">{displaySidebarMenuName(user?.role?.name, roles)}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

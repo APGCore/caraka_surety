@@ -7,12 +7,12 @@ import AppSidebar from "@/components/sidebar/app-sidebar";
 import { managerRoute } from "./manager-layout.constant";
 import { ManagerLayoutPageProps } from "./manager-layout.type";
 
-export const ManagerLayoutPage: ManagerLayoutPageProps = ({ children, user }) => {
+export const ManagerLayoutPage: ManagerLayoutPageProps = ({ children, user, roles }) => {
   useFlashMessageToast();
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} routes={managerRoute} />
+      <AppSidebar user={user} routes={managerRoute} roles={roles} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_269px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
           <div className="flex justify-between pr-4 w-full">

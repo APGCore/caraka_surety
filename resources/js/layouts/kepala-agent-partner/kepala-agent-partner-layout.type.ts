@@ -7,4 +7,4 @@ export interface KepalaCabangLayoutProps extends React.PropsWithChildren {
   roles: Roles;
 }
 
-export type KepalaCabangLayoutPageProps = React.FC<KepalaCabangLayoutProps>;
+export type KepalaAgentPartnerLayoutPageProps = React.FC<KepalaCabangLayoutProps>;

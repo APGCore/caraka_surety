@@ -1,40 +1,26 @@
-export enum Roles {
-  Admin = "Admin",
-  Direksi = "Direksi",
-  Manager = "Manager",
-  StaffOperasional = "Staff Operasional",
-  StaffTeknik = "Staff Teknik",
-  LeadCabang = "Kepala Cabang",
-  StaffCabang = "Staff Cabang",
-  LeadMarketingPartner = "Kepala Mitra Pemasaran",
-  StaffMarketingPartner = "Staff Mitra Pemasaran",
-  StaffAgentPartner = "Staff Mitra Agen",
-  Staff = "Staff",
-}
+import { Roles } from "@/common/types/roles";
 
-export const displaySidebarMenuName = (role: string) => {
+export const displaySidebarMenuName = (role: string, roles: Roles) => {
   switch (role) {
-    case Roles.Admin:
+    case roles.Admin:
       return "Admin";
-    case Roles.Direksi:
+    case roles.Direksi:
       return "Direksi";
-    case Roles.Manager:
+    case roles.Manager:
       return "Manager";
-    case Roles.StaffOperasional:
+    case roles.StaffOperasional:
       return "Staff Operasional";
-    case Roles.StaffTeknik:
+    case roles.StaffTeknik:
       return "Staff Teknik";
-    case Roles.LeadCabang:
+    case roles.KepalaCabang:
       return "Kepala Cabang";
-    case Roles.StaffCabang:
-      return "Staff Cabang";
-    case Roles.LeadMarketingPartner:
-      return "Kepala Mitra Pemasaran";
-    case Roles.StaffMarketingPartner:
-      return "Staff Mitra Pemasaran";
-    case Roles.StaffAgentPartner:
+    case roles.KepalaAgentPartner:
+      return "Kepala Mitra Agen";
+    case roles.AgentPartner:
       return "Staff Mitra Agen";
-    case Roles.Staff:
+    case roles.MarketingPartner:
+      return "Staff Mitra Pemasaran";
+    case roles.Staff:
       return "Staff";
     default:
       return "User";

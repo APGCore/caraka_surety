@@ -1,3 +1,5 @@
+import { Roles } from "@/common/types/roles";
+
 export interface IAppSideBarMenu {
   title: string;
   route_name?: string;
@@ -13,4 +15,5 @@ export interface IAppSideBarMenu {
 export interface IAppSideBarProps {
   user?: any;
   routes: IAppSideBarMenu[];
+  roles: Roles;
 }
