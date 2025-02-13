@@ -22,8 +22,8 @@ class ReportController extends Controller
     public function invoice(Request $request)
     {
         $date = collect($request->get('date') ?? [
-            now()->subDays(7)->toDateString() . ' 00:00:00',
-            now()->toDateString() . ' 23:59:59',
+            now()->subDays(7)->toDateString().' 00:00:00',
+            now()->toDateString().' 23:59:59',
         ])->values();
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')

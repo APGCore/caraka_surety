@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\RelatedParties\ObligeeController;
 use Illuminate\Support\Facades\Route;
 

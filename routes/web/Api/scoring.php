@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\Scorings\ScoringController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +16,4 @@ Route::prefix('scoring-management')
             });
     });
 
-
-    // api.scoring-management.scoring.get-by-id
+// api.scoring-management.scoring.get-by-id

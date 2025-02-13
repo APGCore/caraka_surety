@@ -44,7 +44,9 @@ const InvoicePage: InvoicePageProps = ({
     setFilterDate(dateRange);
     if (dateRange?.from && dateRange?.to) {
       const dates = {
-        from: (dateRange?.from?.toLocaleDateString("en-CA") || subDays(new Date(), 7).toLocaleDateString("en-CA")) + " 00:00:00",
+        from:
+          (dateRange?.from?.toLocaleDateString("en-CA") || subDays(new Date(), 7).toLocaleDateString("en-CA")) +
+          " 00:00:00",
         to: (dateRange?.to?.toLocaleDateString("en-CA") || new Date().toLocaleDateString("en-CA")) + " 23:59:59",
       };
       getData({ date: dates });

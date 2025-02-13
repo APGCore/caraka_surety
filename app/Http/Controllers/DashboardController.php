@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     private function getCountOfSubmission(?int $userId = null): array
     {
-        $submissions = Submission::query()->when($userId, fn($query) => $query
+        $submissions = Submission::query()->when($userId, fn ($query) => $query
             ->where('staff_id', $userId)
             ->orWhere('checked_by', $userId)
             ->orWhere('approved_by', $userId)
@@ -51,8 +51,8 @@ class DashboardController extends Controller
         $submissions = Submission::query()
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', now()->year)
-            ->when($productId, fn($query) => $query->where('product_id', $productId))
-            ->when($userId, fn($query) => $query
+            ->when($productId, fn ($query) => $query->where('product_id', $productId))
+            ->when($userId, fn ($query) => $query
                 ->where('staff_id', $userId)
                 ->orWhere('checked_by', $userId)
                 ->orWhere('approved_by', $userId)
@@ -76,7 +76,7 @@ class DashboardController extends Controller
         return Submission::query()
             ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
             ->with(['principal:id,name', 'product:id,name'])
-            ->when($userId, fn($query) => $query
+            ->when($userId, fn ($query) => $query
                 ->where('staff_id', $userId)
                 ->orWhere('checked_by', $userId)
                 ->orWhere('approved_by', $userId)
