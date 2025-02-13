@@ -279,7 +279,20 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.year_established} />
       </div>
 
-      {/* 18. Akta Terakhir */}
+      {/* 18. Akta Pendirian */}
+      <div>
+        <InputLabel htmlFor="est_deed" value="Akta Pendirian" />
+        <TextInput
+          id="est_deed"
+          className="mt-1 block w-full"
+          placeholder="Masukkan Akta Pendirian..."
+          value={data.est_deed || ""}
+          onChange={(e) => setData("est_deed", e.target.value)}
+        />
+        <InputError className="mt-2" message={errors.est_deed} />
+      </div>
+
+      {/* 19.Akta Terakhir   */}
       <div>
         <InputLabel htmlFor="last_deed" value="Akta Terakhir" />
         <TextInput

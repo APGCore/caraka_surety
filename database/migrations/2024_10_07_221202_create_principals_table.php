@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('director_phone')->nullable();
             $table->string('commissioner')->nullable();
             $table->string('year_established')->nullable();
+            $table->string('est_deed')->nullable();
             $table->string('last_deed')->nullable();
             $table->boolean('is_approved')->default(false);
             $table->text('picture')->nullable();

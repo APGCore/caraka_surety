@@ -34,6 +34,7 @@ type Principal = {
   director_phone: number | string | undefined;
   commissioner: string;
   year_established?: number | string | undefined;
+  est_deed: string;
   last_deed: string;
   business_fields: string;
   documents: Document[]; // Adjust `any` to a more specific type if needed

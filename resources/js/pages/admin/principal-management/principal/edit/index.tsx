@@ -31,6 +31,7 @@ const PrincipalEditPage: React.FC<PrincipalEditPageProps> & { layout?: any } = (
     director_phone: string | null;
     commissioner: string | null;
     year_established: string | null;
+    est_deed: string | null;
     last_deed: string | null;
     picture: string | null;
     is_approved: boolean;
@@ -54,6 +55,7 @@ const PrincipalEditPage: React.FC<PrincipalEditPageProps> & { layout?: any } = (
     director_phone: principal.director_phone,
     commissioner: principal.commissioner,
     year_established: principal.year_established,
+    est_deed: principal.last_deed,
     last_deed: principal.last_deed,
     picture: principal.picture,
     is_approved: principal.is_approved,

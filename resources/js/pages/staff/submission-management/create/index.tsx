@@ -112,6 +112,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       director_phone: undefined,
       commissioner: "",
       year_established: undefined,
+      est_deed: "",
       last_deed: "",
       business_fields: "",
       documents: [],
@@ -540,6 +541,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       director_phone: val.director_phone,
                       commissioner: val.commissioner,
                       year_established: val.year_established,
+                      est_deed: val.est_deed,
                       last_deed: val.last_deed,
                       ratios,
                     });
@@ -790,10 +792,24 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       />
                     </div>
                     <div className="grid w-full gap-1">
+                      <Label className="text-sm">Akte Pendirian</Label>
+                      <Input
+                        className="text-md"
+                        placeholder="Akte Pendirian"
+                        value={data.principal.est_deed}
+                        onChange={(e) =>
+                          setData("principal", {
+                            ...data.principal,
+                            est_deed: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="grid w-full gap-1">
                       <Label className="text-sm">Akte Perubahan Terakhir</Label>
                       <Input
                         className="text-md"
-                        placeholder="Akte perubahan terakir"
+                        placeholder="Akte Perubahan Terakhir"
                         value={data.principal.last_deed}
                         onChange={(e) =>
                           setData("principal", {
