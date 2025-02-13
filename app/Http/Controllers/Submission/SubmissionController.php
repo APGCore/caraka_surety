@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Models\Document\RequiredDoc;
+use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
@@ -320,6 +321,10 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
 
         $principalDocs = collect($submission->principal->documents);
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -370,6 +375,12 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
+
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
@@ -429,6 +440,11 @@ class SubmissionController extends Controller
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
+
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -481,6 +497,10 @@ class SubmissionController extends Controller
 
         $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier()) ?? 0;
         $submission->product_limit = $submission->guarantorProductTypeLimit;
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;

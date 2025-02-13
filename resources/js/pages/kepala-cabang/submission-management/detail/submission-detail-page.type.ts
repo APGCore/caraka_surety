@@ -186,6 +186,13 @@ interface SubmissionDetailProps {
     rejected_at: string;
     limit: number;
     beyond_the_limit: boolean;
+    document_format_analysis: {
+      format_document: any;
+      name: string;
+      map: any;
+      length: any;
+      filter: any;
+    };
     document_format_guarantor: {
       format_document: string;
       name: string;

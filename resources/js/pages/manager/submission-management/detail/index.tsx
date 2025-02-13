@@ -1365,7 +1365,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <TinyMCEEditor
                   id="hasil-analisis"
                   onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                  initialContent={replaceHasilAnalisaPlaceholders(templateHasilAnalisa, data)}
+                  initialContent={replaceHasilAnalisaPlaceholders(
+                    submission?.document_format_analysis?.format_document,
+                    data,
+                  )}
                 />
               </div>
 
