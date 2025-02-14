@@ -2,9 +2,9 @@ import { Roles } from "@/common/types/roles";
 import { User } from "@/types";
 import React from "react";
 
-export interface StaffLayoutProps extends React.PropsWithChildren {
+export interface AgentPartnerLayoutProps extends React.PropsWithChildren {
   user: User;
   roles: Roles;
 }
 
-export type StaffLayoutPageProps = React.FC<StaffLayoutProps>;
+export type AgentPartnerLayoutPageProps = React.FC<AgentPartnerLayoutProps>;

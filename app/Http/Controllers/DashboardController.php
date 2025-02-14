@@ -199,4 +199,14 @@ class DashboardController extends Controller
 
         return inertia($component, $props);
     }
+
+    public function dashboardMarketingPartner(Request $request): \Inertia\Response
+    {
+        $component = 'marketing-partner/dashboard/index';
+
+        $productId = $request->get('product_id');
+        $props = $this->getProps($productId);
+
+        return inertia($component, $props);
+    }
 }

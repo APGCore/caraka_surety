@@ -2,6 +2,7 @@ import AdminLayoutPage from "../admin-layout";
 import AgentPartnerLayoutPage from "../agent-partner";
 import KepalaCabangLayoutPage from "../cabang-layout/kepala-cabang";
 import KepalaAgentPartnerLayoutPage from "../kepala-agent-partner";
+import MarketingPartnerLayoutPage from "../marketing-partner";
 import DireksiLayoutPage from "../pusat-layout/direksi";
 import ManagerLayoutPage from "../pusat-layout/manager";
 import StaffLayoutPage from "../pusat-layout/staff";
@@ -65,18 +66,18 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
           {children}
         </AgentPartnerLayoutPage>
       );
+    case roles.MarketingPartner:
+      return (
+        <MarketingPartnerLayoutPage user={user} roles={roles} {...props}>
+          {children}
+        </MarketingPartnerLayoutPage>
+      );
     // case roles.StaffCabang:
     //   return (
     //     <StaffCabangLayoutPage user={user} {...props}>
     //       {children}
     //     </StaffCabangLayoutPage>
     //   );
-    // case roles.KepalaMitraPemasaran:
-    //   return <KepalaMitraPemasaranLayoutPage user={user}>{children}</KepalaMitraPemasaranLayoutPage>;
-    // case roles.StaffMitraPemasaran:
-    //   return <StaffMitraAgenLayoutPage user={user}>{children}</StaffMitraAgenLayoutPage>;
-    // case roles.StaffMitraAgen:
-    //   return <StaffMitraAgenLayoutPage user={user}>{children}</StaffMitraAgenLayoutPage>;
     default:
       return (
         <StaffLayoutPage user={user} roles={roles} {...props}>

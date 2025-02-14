@@ -958,6 +958,58 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function displayCreateByMarketingPartner()
+    {
+        $component = 'marketing-partner/submission-management/create/index';
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Buat Pengajuan',
+            ],
+        ]);
+    }
+
+    public function displayHistoryByMarketingPartner()
+    {
+        $component = 'marketing-partner/submission-management/history/index';
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $submissions = Submission::query()
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('staff_id', '=', $authId)
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Histori Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displayDocumentDraftByMarketingPartner()
+    {
+        $component = 'marketing-partner/submission-management/document-draft/index';
+
+        $submissions = Submission::with('principal')->get();
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Draft Dokumen Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
     public function approve(Submission $submission): void
     {
         $dateNow = now()->format('Y-m-d H:i:s');
