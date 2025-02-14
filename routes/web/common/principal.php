@@ -3,7 +3,8 @@
 use App\Http\Controllers\RelatedParties\PrincipalController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->prefix('references')->name('references.')
+Route::middleware('auth')
+    ->prefix('references')->name('references.')
     ->group(function () {
         // references.principal.*
         Route::controller(PrincipalController::class)->prefix('principal')

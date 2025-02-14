@@ -25,25 +25,26 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'telephone' => ['required', 'string', 'max:255'],
-            'fax' => ['nullable', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:255'],
             'province_id' => ['required', 'exists:'.Province::class.',id'],
             'regency_id' => ['required', 'exists:'.Regency::class.',id'],
             'district_id' => ['required', 'exists:'.District::class.',id'],
-            'village' => ['required', 'string', 'max:255'],
-            'npwp' => ['required', 'string', 'max:255'],
-            'nib' => ['required', 'string', 'max:255'],
-            'siup_siujk' => ['required', 'string', 'max:255'],
-            'head_name' => ['required', 'string', 'max:255'],
-            'director_name' => ['required', 'string', 'max:255'],
-            'director_position' => ['required', 'string', 'max:255'],
-            'director_phone' => ['required', 'string', 'max:255'],
-            'commissioner' => ['required', 'string', 'max:255'],
-            'year_established' => ['required', 'integer'],
-            'last_deed' => ['required', 'string', 'max:255'],
-            'pic' => ['required', 'string', 'max:255'],
+            'village' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'], // nama perusahaan
+            'address' => ['required', 'string', 'max:255'], // alamat perusahaan
+            'telephone' => ['required', 'string', 'max:255'], // telepon perusahaan
+            'fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
+            'postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
+            'npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
+            'nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
+            'siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
+            'head_name' => ['nullable', 'string', 'max:255'], // nama kepala perusahaan
+            'director_name' => ['required', 'string', 'max:255'], // nama direktur perusahaan
+            'director_position' => ['required', 'string', 'max:255'], // jabatan direktur perusahaan
+            'director_phone' => ['required', 'string', 'max:255'], // telepon direktur perusahaan
+            'commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
+            'year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
+            'last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
+            'business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
         ];
     }
 }
