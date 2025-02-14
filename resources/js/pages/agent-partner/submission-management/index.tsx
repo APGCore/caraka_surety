@@ -1,3 +1,4 @@
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
 import { Button } from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
@@ -11,13 +12,12 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { Link } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import SubmissionDocumentDraftHeader from "./_partials/document-draft-page-header";
-import { SubmissionDocumentDraftPageProps } from "./document-draft-page.type";
+import { SubmissionPageProps } from "./submission-page.type";
 
-const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submissions }) => {
+const SubmissionPage: SubmissionPageProps = ({ submissions }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
 
@@ -33,6 +33,7 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
+          <Button>Export</Button>
           <Select onValueChange={handleSelect} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Items per page" />
@@ -143,14 +144,25 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
   );
 };
 
-export default SubmissionDocumentDraftPage;
+export default SubmissionPage;
 
-SubmissionDocumentDraftPage.layout = (page: any) => {
+SubmissionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionDocumentDraftHeader title={pagePropsData?.page_settings?.title} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            {/* <BreadcrumbLink href={route("pengajuan.index")}>Kelola Pengajuan</BreadcrumbLink> */}
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
+        <Button asChild>{/* <Link href={route("pengajuan.create")}>Tambah Pengajuan</Link> */}</Button>
+      </div>
       {page}
     </RoleBasedLayout>
   );

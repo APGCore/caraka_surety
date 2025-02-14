@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
-import StaffLayoutPage from "@/layouts/staff";
-import { DashboardUtils } from "@/pages/staff/dashboard/staff-dashboard-page.utils";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { Overview } from "./_partials/overview";
 import { RecentSales } from "./_partials/recent-sales";
 import { StaffDashboardPageProps } from "./staff-dashboard-page.type";
+import { DashboardUtils } from "./staff-dashboard-page.utils";
 
 const StaffDashboardPage: StaffDashboardPageProps = ({
   total_submission,
@@ -157,9 +157,9 @@ StaffDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </StaffLayoutPage>
+    </RoleBasedLayout>
   );
 };

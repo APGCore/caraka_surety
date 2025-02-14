@@ -32,7 +32,7 @@ import Show from "@/components/atoms/show";
 import { Combobox } from "@/components/molecules/combobox";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
-import StaffOperasionalLayoutPage from "@/layouts/staff-operasional";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DistributionBlankPageProps } from "@/pages/staff-operasional/blank-management/distribution-of-blank/distribution-of-blank-page.type";
 import { DistributionOfBlankUtils } from "@/pages/staff-operasional/blank-management/distribution-of-blank/distribution-of-blank.utils";
 import { Head, router } from "@inertiajs/react";
@@ -631,7 +631,7 @@ DistributionBlank.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffOperasionalLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title} />
       <Breadcrumb>
         <BreadcrumbList>
@@ -641,6 +641,6 @@ DistributionBlank.layout = (page: any) => {
         </BreadcrumbList>
       </Breadcrumb>
       {page}
-    </StaffOperasionalLayoutPage>
+    </RoleBasedLayout>
   );
 };

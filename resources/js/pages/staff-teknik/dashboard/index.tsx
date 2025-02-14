@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
-import StaffTeknikLayoutPage from "@/layouts/staff-teknik";
+import RoleBasedLayout from "@/layouts/role-based-layout";
 import { DashboardUtils } from "@/pages/staff/dashboard/staff-dashboard-page.utils";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
@@ -157,9 +157,9 @@ StaffTeknikDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <StaffTeknikLayoutPage user={pagePropsData?.auth?.user}>
+    <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title ?? "Dashboard Admin"} />
       {page}
-    </StaffTeknikLayoutPage>
+    </RoleBasedLayout>
   );
 };

@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
-        ->name('agent-partner.submission.')
+        ->name('agent-partner-submission.')
         ->group(function () {
-            Route::get('/create', 'displayCreateByStaff')->name('create');
-            Route::get('/history', 'displayHistoryByStaff')->name('history');
-            Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft');
+            Route::get('/create', 'displayCreateByAgentPartner')->name('create.index');
+            Route::get('/history', 'displayHistoryByAgentPartner')->name('history.index');
+            Route::get('/draft', 'displayDocumentDraftByAgentPartner')->name('document-draft');
             Route::get('/getAllBanks', 'getAllBanks')->name('getbanks');
             Route::post('/store', 'store')->name('form.store');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail');

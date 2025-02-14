@@ -40,8 +40,6 @@ class SubmissionController extends Controller
     {
         $validated = $request->validated();
 
-        // @dd($request->all());
-
         try {
             DB::beginTransaction();
             $principal = $validated['principal'];
@@ -903,6 +901,58 @@ class SubmissionController extends Controller
         return inertia($component, [
             'page_settings' => fn () => [
                 'title' => 'List Hasil Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displayCreateByAgentPartner()
+    {
+        $component = 'agent-partner/submission-management/create/index';
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Buat Pengajuan',
+            ],
+        ]);
+    }
+
+    public function displayHistoryByAgentPartner()
+    {
+        $component = 'agent-partner/submission-management/history/index';
+
+        $authId = auth()->user()->getAuthIdentifier();
+        $submissions = Submission::query()
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('staff_id', '=', $authId)
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+
+                return [
+                    ...$submission->toArray(),
+                    'created_at' => $date,
+                ];
+            });
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Histori Pengajuan',
+            ],
+            'submissions' => fn () => $submissions,
+        ]);
+    }
+
+    public function displayDocumentDraftByAgentPartner()
+    {
+        $component = 'agent-partner/submission-management/document-draft/index';
+
+        $submissions = Submission::with('principal')->get();
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Draft Dokumen Pengajuan',
             ],
             'submissions' => fn () => $submissions,
         ]);

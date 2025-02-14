@@ -1,18 +1,10 @@
 import { Button } from "@/components/_shadcn-ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/_shadcn-ui/dropdown-menu";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Link } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import SubmissionDocumentDraftHeader from "./_partials/document-draft-page-header";
 import { SubmissionDocumentDraftPageProps } from "./document-draft-page.type";
@@ -28,6 +20,7 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
   const handleSelect = (value: string) => {
     setSelect(Number(value));
   };
+  console.log(submissions);
 
   return (
     <main className="space-y-2.5">
@@ -62,7 +55,7 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
-              <TableHead>Nama Pemohon</TableHead>
+              <TableHead>Perusahaan</TableHead>
               <TableHead>Tanggal Pengajuan</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
@@ -73,8 +66,14 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
               submissions.map((submission, index) => (
                 <TableRow key={submission.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{submission.name}</TableCell>
-                  <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.principal.name}</TableCell>
+                  <TableCell>
+                    {new Date(submission.created_at).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded ${
@@ -88,22 +87,11 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group">
-                          <DotsHorizontalIcon className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={route("submission.show", { id: submission.id })}>Detail</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuSeparator />
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Link href={route("staff-submission-docs.submission", { id: submission.id })}>
+                      <Button variant="outline" size="sm">
+                        Detail
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

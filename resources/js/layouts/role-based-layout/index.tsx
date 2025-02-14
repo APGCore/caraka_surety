@@ -1,7 +1,8 @@
 import AdminLayoutPage from "../admin-layout";
+import AgentPartnerLayoutPage from "../agent-partner";
 import KepalaCabangLayoutPage from "../cabang-layout/kepala-cabang";
-import DireksiLayoutPage from "../direksi-layout";
 import KepalaAgentPartnerLayoutPage from "../kepala-agent-partner";
+import DireksiLayoutPage from "../pusat-layout/direksi";
 import ManagerLayoutPage from "../pusat-layout/manager";
 import StaffLayoutPage from "../pusat-layout/staff";
 import StaffOperasionalLayoutPage from "../pusat-layout/staff-operasional";
@@ -57,6 +58,12 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
         <KepalaAgentPartnerLayoutPage user={user} roles={roles} {...props}>
           {children}
         </KepalaAgentPartnerLayoutPage>
+      );
+    case roles.AgentPartner:
+      return (
+        <AgentPartnerLayoutPage user={user} roles={roles} {...props}>
+          {children}
+        </AgentPartnerLayoutPage>
       );
     // case roles.StaffCabang:
     //   return (

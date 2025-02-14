@@ -2,14 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { DashboardUtils } from "@/pages/staff/dashboard/staff-dashboard-page.utils";
 import { Head, router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { Overview } from "./_partials/overview";
 import { RecentSales } from "./_partials/recent-sales";
-import { StaffOperasionalDashboardPageProps } from "./staff-operasional-dashboard-page.type";
+import { AgentPartnerDashboardPageProps } from "./agent-partner-dashboard-page.type";
+import { DashboardUtils } from "./agent-partner-dashboard-page.utils";
 
-const StaffOperasionalDashboardPage: StaffOperasionalDashboardPageProps = ({
+const StaffDashboardPage: AgentPartnerDashboardPageProps = ({
   total_submission,
   total_submission_process,
   total_submission_approved,
@@ -151,9 +151,9 @@ const StaffOperasionalDashboardPage: StaffOperasionalDashboardPageProps = ({
   );
 };
 
-export default StaffOperasionalDashboardPage;
+export default StaffDashboardPage;
 
-StaffOperasionalDashboardPage.layout = (page: any) => {
+StaffDashboardPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
