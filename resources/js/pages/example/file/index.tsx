@@ -32,7 +32,7 @@ ExampleKaryawanPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
-    <ExampleLayoutPage user={pagePropsData?.auth?.user}>
+    <ExampleLayoutPage user={pagePropsData?.auth?.user} roles={pagePropsData?.auth?.roles}>
       <Head title={pagePropsData?.page_settings?.title ?? "Pengguna"} />
       <Breadcrumb>
         <BreadcrumbList>

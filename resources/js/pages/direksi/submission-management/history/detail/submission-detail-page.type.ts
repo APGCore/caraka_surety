@@ -5,6 +5,7 @@ interface Document {
   name: string;
   number: string;
   url: string;
+  id: number;
 }
 
 interface Score {
@@ -51,6 +52,7 @@ interface Principal {
   headquarter_id: number | null;
   id: number;
   is_approved: number;
+  est_deed: string;
   last_deed: string;
   name: string;
   nib: string;
@@ -89,6 +91,7 @@ interface Obligee {
   name: string;
   address: string;
   pic: string;
+  no_ppk: string;
   district: {
     name: string;
   };
@@ -232,15 +235,32 @@ interface SubmissionDetailProps {
       name: string;
     };
     submission_docs: Document[];
-    mail_number: string;
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
-    analyst_name: string;
 
+    mail_number: string;
+    mail_number_resume: string;
     product: {
       name: string;
     };
+
+    analysis: {
+      character: number;
+      capacity: number;
+      capital: number;
+      condition: number;
+      collateral: number;
+    };
+    job_type: string;
+    analyst_name: string;
+    get_exp: string;
+    notes: string;
+    recommendation: string;
+    total_score: number;
+    get_administators_principal: string;
+    day_name: string;
+    submission_date: string;
   };
 
   submissionData: {
@@ -307,12 +327,14 @@ interface SubmissionDetailProps {
       grouped: string;
       score: any;
     };
-    manager_name: string;
+    principal_commissioner: string;
     branch_manager: string;
     job_location: string;
     job_group: string;
     no: string | number;
     city: string;
+    analyst_name: string;
+    get_exp: string;
   };
 }
 

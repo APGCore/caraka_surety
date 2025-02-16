@@ -3,6 +3,7 @@ import React from "react";
 
 interface Document {
   name: string;
+  number: string;
   url: string;
   id: number;
 }
@@ -39,18 +40,19 @@ interface Principal {
   address: string;
   commissioner: string;
   created_at: string;
+  bussiness_field: string;
   created_by: number;
   deleted_at: string | null;
   director_name: string;
   director_phone: string;
   director_position: string;
   district_id: number;
-  bussiness_field: string;
   fax: string;
   head_name: string;
   headquarter_id: number | null;
   id: number;
   is_approved: number;
+  est_deed: string;
   last_deed: string;
   name: string;
   nib: string;
@@ -64,6 +66,7 @@ interface Principal {
   updated_at: string;
   village: string;
   year_established: string;
+  business_fields: string;
   documents: Document[];
   ratios: Ratio[];
   district: {
@@ -83,10 +86,12 @@ interface GuarantorToProductType {
   full_name: string;
   job_group: string;
 }
+
 interface Obligee {
   name: string;
   address: string;
   pic: string;
+  no_ppk: string;
   district: {
     name: string;
   };
@@ -155,6 +160,7 @@ interface SubmissionDetailProps {
   submission: {
     id: number;
     bank: Bank;
+    bank_name: string;
     approved_by_direksi: boolean;
     documents: string;
     status: string;
@@ -229,15 +235,32 @@ interface SubmissionDetailProps {
       name: string;
     };
     submission_docs: Document[];
+    no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
+
     mail_number: string;
-    no_guarantee: string;
-    bank_name: string;
-    analyst_name: string;
+    mail_number_resume: string;
     product: {
       name: string;
     };
+
+    analysis: {
+      character: number;
+      capacity: number;
+      capital: number;
+      condition: number;
+      collateral: number;
+    };
+    job_type: string;
+    analyst_name: string;
+    get_exp: string;
+    notes: string;
+    recommendation: string;
+    total_score: number;
+    get_administators_principal: string;
+    day_name: string;
+    submission_date: string;
   };
 
   submissionData: {
@@ -304,91 +327,15 @@ interface SubmissionDetailProps {
       grouped: string;
       score: any;
     };
-    date: string;
-    manager_name: string;
+    principal_commissioner: string;
     branch_manager: string;
     job_location: string;
     job_group: string;
     no: string | number;
     city: string;
+    analyst_name: string;
+    get_exp: string;
   };
-}
-
-interface SubmissionData {
-  principal_name: string;
-  principal_address: string;
-  npwp: string;
-  nib: string;
-  telephone: string;
-  director_name: string;
-  director_phone: string;
-  pic: string;
-  director_position: string;
-  location: string;
-
-  obligee_name: string;
-  obligee_address: string;
-  source_of_fund: string;
-  ppk_name: string;
-  obligee_city: string;
-  obligee_location: string;
-
-  guarantor_name: string;
-  guarantor_address: string;
-  guarantor_pic: string;
-  guarantor_location: string;
-
-  source_of_fund_name: string;
-  contract_value: number;
-  guarantee_value: number;
-  guarantee_type: string;
-  time_period: string | number;
-  job_name: string;
-  job_location_village: string;
-  contract_doc_name: string;
-  contract_doc_number: string;
-  contract_doc_date: string;
-  start_date: string;
-  end_date: string;
-  guarantee_issue_date: string;
-  submission_date: string;
-  analysis: {
-    character: string | number;
-    capacity: string | number;
-    capital: string | number;
-    condition: string | number;
-    collateral: string | number;
-  };
-  scoring_result: {
-    id: number;
-    scoring_id: number;
-    scoring: any;
-    scoring_question_category_id: number;
-    scoring_question_category: any;
-    scoring_question_id: number;
-    scoring_question: any;
-    scoring_option_id: number;
-    scoring_option: any;
-    point: number;
-    category_name: string;
-    question_name: string;
-    option_name: string;
-    reduce: any;
-    grouped: string;
-    score: any;
-  };
-  date: string;
-  manager_name: string;
-  branch_manager: string;
-  job_location: string;
-  job_group: string;
-  no: string | number;
-  city: string;
-
-  bank_name: string;
-  contract_value_formatted: string;
-  guarantee_value_formatted: string;
-  [key: string]: any;
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {
