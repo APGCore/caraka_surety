@@ -3,6 +3,7 @@
 namespace App\Models\Guarantor;
 
 use App\Models\Document\DocumentFormat;
+use App\Models\HostToHost;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
@@ -108,5 +109,10 @@ class Guarantor extends Model
     public function guarantorRate(): HasMany
     {
         return $this->hasMany(GuarantorRate::class);
+    }
+
+    public function hostToHost(): HasMany
+    {
+        return $this->hasMany(HostToHost::class);
     }
 }

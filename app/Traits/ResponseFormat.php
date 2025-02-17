@@ -18,11 +18,11 @@ trait ResponseFormat
     /**
      * Format the response error.
      */
-    public function responseError($message, $data = null)
+    public function responseError($message, $data = null, $code = 400)
     {
         return response()->json([
             'message' => $message,
             'data' => $data,
-        ], 400);
+        ], $code);
     }
 }
