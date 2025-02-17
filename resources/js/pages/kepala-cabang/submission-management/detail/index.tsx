@@ -124,414 +124,31 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return `${day} ${month} ${year}`;
   }
 
-  const formattedDate = formatToIndonesianDate(submission?.created_at);
-
-  interface Analysis {
-    character: number | string;
-    capacity: number | string;
-    capital: number | string;
-    condition: number | string;
-    collateral: number | string;
-  }
-
-  interface DataAnalyst {
-    analysis: Analysis;
-    scoring_result: number | string;
-  }
-
-  // Initialize analysis object
-  const analysis: Analysis = {
-    character: 0,
-    capacity: 0,
-    capital: 0,
-    condition: 0,
-    collateral: 0,
-  };
-
-  // Assuming 'submission?.scores' contains the necessary data
-  const scoringResult = submission?.scores.reduce((grouped: any, score: any) => {
-    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
-
-    // Group scores by scoring_question_category_id
-    if (!grouped[scoring_question_category_id]) {
-      grouped[scoring_question_category_id] = {
-        ...scoring_question_category,
-        items: [],
-      };
-    }
-    grouped[scoring_question_category_id].items.push(rest);
-
-    // Add points to the corresponding analysis category
-    if (scoring_question_category.name === "Character") {
-      analysis.character += score.point || 0;
-    } else if (scoring_question_category.name === "Capacity") {
-      analysis.capacity += score.point || 0;
-    } else if (scoring_question_category.name === "Capital") {
-      analysis.capital += score.point || 0;
-    } else if (scoring_question_category.name === "Condition") {
-      analysis.condition += score.point || 0;
-    } else if (scoring_question_category.name === "Collateral") {
-      analysis.collateral += score.point || 0;
-    }
-
-    return grouped;
-  }, {});
-
-  // Calculate total scoring result
-  const scoringResultTotal = Object.values(analysis).reduce(
-    (total, value) => total + (typeof value === "number" ? value : 0),
-    0,
-  );
-
-  // Create the dataAnalyst object
-  const dataAnalyst: DataAnalyst = {
-    analysis,
-    scoring_result: scoringResultTotal,
-  };
-
-  //   upload file
-
-  const replaceDraftSuretyPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[NOMOR_SURETY_BOND]", data?.surety_bond_number || "")
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value))
-      .replace("[NAMA_PENJAMIN]", data?.guarantor?.name || "")
-      .replace("[ALAMAT_PENJAMIN]", data?.guarantor?.location || "")
-      .replace("[ALAMAT_PRINCIPAL]", data?.principal?.location || "")
-      .replace("[NAMA_PRINCIPAL2]", data?.principal?.name || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[BESARAN_NILAI_JAMINAN]", formatCurrency(data?.guarantee_value))
-      .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
-      .replace("[NOMOR_KONTRAK]", data?.contract_doc_number || "")
-      .replace("[TANGGAL_KONTRAK]", data?.contract_doc_date || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[TANGGAL_PENERBITAN]", formatToIndonesianDate(data?.guarantee_issue_date) || "")
-      .replace("[NAMA_PENJAMIN_TTD]", data?.guarantor.signer_name || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data?.guarantor.name || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB_PENJAMIN]", data?.guarantor?.pic || "")
-      .replace("[JABATAN_PENJAMIN]", data?.guarantor.position || "")
-      .replace("[NAMA_KEPALA_CABANG]", data?.branch_manager || "");
-  };
-
-  const replaceHasilAnalisaPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[NAMA_JAMINAN]", data?.guarantee_type || "")
-      .replace("[NAMA_PRINCIPAL]", data?.principal.name || "")
-      .replace("[NOMOR_SURAT]", data?.no + nomorSurat || "")
-      .replace("[TGL_PENGAJUAN]", formattedDate || "")
-      .replace("[NAMA_TERJAMIN]", data?.principal?.name || "")
-      .replace("[ALAMAT_TERJAMIN]", data?.principal?.location || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data?.principal?.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data?.principal?.director_position || "")
-      .replace("[AKTA_PENDIRIAN]", data?.deed_of_establishment || "-")
-      .replace("[AKTA_PERUBAHAN]", data?.deed_of_amendment || "-")
-      .replace("[NAMA_PRINCIPAL2]", data?.principal?.name || "")
-      .replace("[NPWP]", data?.principal?.npwp || "")
-      .replace("[NIB]", data?.principal?.nib || "")
-      .replace("[NAMA_PENGURUS_1]", data?.principal?.director_name || "")
-      .replace("[JABATAN_PENGURUS_1]", data?.principal?.director_position || "")
-      .replace("[NAMA_PENGURUS_2]", data?.management_2_name || "")
-      .replace("[JABATAN_PENGURUS_2]", data?.management_2_position || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[NAMA_PPK]", data?.obligee?.ppk_name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[SUMBER_DANA]", data?.obligee?.source_of_fund || "")
-      .replace("[NILAI_KONTRAK]", formatCurrency(data?.contract_value || 0))
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
-      .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
-      .replace("[LOKASI_PROYEK]", data?.job_location || "")
-      .replace("[UNDERLYING]", data?.contract_doc_name + " " + data?.contract_doc_number + " " + data?.job_name || "")
-      .replace("[NAMA_PROYEK]", data?.project_name || "")
-      .replace("[NILAI_PROYEK]", formatCurrency(data?.project_value || 0))
-      .replace("[ANALISA_CHARACTER]", String(dataAnalyst?.analysis?.character) || "")
-      .replace("[ANALISA_CAPACITY]", String(dataAnalyst?.analysis?.capacity) || "")
-      .replace("[ANALISA_CAPITAL]", String(dataAnalyst?.analysis?.capital) || "")
-      .replace("[ANALISA_CONDITION]", String(dataAnalyst?.analysis?.condition) || "")
-      .replace("[ANALISA_COLLATERAL]", String(dataAnalyst?.analysis?.collateral) || "")
-      .replace("[HASIL_SCORING]", String(dataAnalyst?.scoring_result) || "")
-      .replace("[KETERANGAN]", data?.description || "")
-      .replace("[TANGGAL]", formattedDate || "")
-      .replace("[NAMA_ANALIS]", data?.analyst_name || "")
-      .replace("[NAMA_MANAJER]", data?.manager_name || "");
-  };
-
-  const replacePelaksanaanPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[NAMA_PRINCIPAL]", data?.principal?.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data?.principal?.location || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[BESARAN_NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
-      .replace("[NAMA_DOKUMEN]", data?.contract_doc_name || "")
-      .replace("[NOMOR_DOKUMEN]", data?.contract_doc_number || "")
-      .replace("[TANGGAL_DOKUMEN]", data?.contract_doc_date || "")
-      .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace(
-        "[TANGGAL_PENERBITAN]",
-        data?.guarantee_issue_date ? formatToIndonesianDate(data?.guarantee_issue_date) : "",
-      )
-      .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "")
-      .replace("[NAMA_PIC]", data?.pic_name || "")
-      .replace("[JABATAN]", data?.pic_position || "")
-      .replace("[NAMA_ASURANSI]", data?.guarantor?.name || "")
-      .replace("[NAMA_ASURANSI_ATAS]", data?.guarantor?.name || "")
-      .replace("[ALAMAT_ASURANSI_ATAS]", data?.guarantor?.location || "")
-      .replace("[NAMA_KEPALA_CABANG_TTD]", data?.guarantor?.pic || "")
-      .replace("[NAMA_PIC_PRINCIPAL_TTD]", data?.principal?.director_name || "");
-  };
-
-  const replacePermohonanBankGaransiPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[TANGGAL_PENERBITAN_PERMOHONAN]", formattedDate || "")
-      .replace("[NAMA_BANK]", data?.bank_name || "")
-      .replace("[NAMA_PRINCIPAL]", data?.principal?.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data?.principal?.location || "")
-      .replace("[NPWP]", data?.principal?.npwp || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data?.principal?.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data?.principal?.director_position || "")
-      .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
-      .replace("[PENERBIT_BANK_GARANSI]", data?.bank_guarantee_issuer || "")
-      .replace("[PROYEK]", data?.project_name || "")
-      .replace("[ALAMAT_PEMILIK_PROYEK]", data?.project_owner_address || "")
-      .replace("[NAMA_PEKERJAAN]", data?.job_name || "")
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[TIME_PERIOD]", data?.time_period || "")
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace("[DASAR_DOKUMEN]", data?.contract_doc_name + " " + data?.contract_doc_number || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data?.principal.name || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB_TTD]", data?.principal.director_name || "")
-      .replace("[JABATAN_PENANGGUNG_JAWAB]", data?.principal.director_position || "");
-  };
-
-  const replaceBumidaPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[TANGGAL_SURAT]", formattedDate || "")
-      .replace("[NOMOR_SURAT]", data?.letter_number || "")
-      .replace("[NAMA_PENJAMIN]", data?.guarantor?.name || "")
-      .replace("[NAMA_PERUSAHAAN]", data?.principal?.name || "")
-      .replace("[ALAMAT_PERUSAHAAN]", data?.principal?.location || "")
-      .replace("[PIC]", data?.principal?.pic || "")
-      .replace("[NAMA_JAMINAN]", data?.guarantee_type || "")
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[JANGKA_WAKTU]", data?.time_period || "")
-      .replace("[NAMA_PROYEK]", data?.job_name || "")
-      .replace("[DASAR_JAMINAN]", data?.contract_doc_name || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[NAMA_PENANGGUNG_JAWAB]", data?.principal?.director_name || "");
-  };
-
-  const replaceJastanPlaceholders = (template: string, data: any) => {
-    return template
-      .replace("[PERUSAHAAN/BADAN_HUKUM]", data?.principal?.name || "")
-      .replace("[ALAMAT_LENGKAP]", data?.principal?.location || "")
-      .replace("[NOMOR_TELEPON_FAX]", data?.principal?.telephone || "")
-      .replace("[PEJABAT_YANG_BERURUSAN]", data?.principal?.director_name || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
-      .replace("[NILAI_JAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[START_DATE]", formatToIndonesianDate(data?.start_date) || "")
-      .replace("[END_DATE]", formatToIndonesianDate(data?.end_date) || "")
-      .replace("[NAMA_PROYEK]", data?.job_name || "")
-      .replace("[JENIS_PROYEK]", data?.job_group || "")
-      .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
-      .replace("[LOKASI_PROYEK]", data?.job_location || "")
-      .replace("[SUMBER_DANA]", data?.source_of_fund.name || "")
-      .replace("[DOKUMEN_PENDUKUNG]", data?.contract_doc_name || "")
-      .replace("[NAMA_KOTA]", data?.city || "")
-      .replace("[TANGGAL_SURAT]", formattedDate || "")
-      .replace("[NAMA_PRINCIPAL_TTD]", data?.principal?.name || "");
-  };
-
-  //   console.log("doc format :", submission?.document_format_guara?.format_document);
-
-  const replaceVideiPlaceholders = (template: string, data: any) => {
-    // Pastikan template adalah string
-    if (typeof template !== "string") {
-      console.error("Template is not a valid string");
-      return "";
-    }
-
-    // Pastikan data tidak null atau undefined
-    if (!data) {
-      console.error("Data is undefined or null");
-      return template;
-    }
-
-    // Lakukan replace pada template
-    return template
-      .replace("[NAMA_PRINCIPAL]", data?.principal?.name || "")
-      .replace("[ALAMAT_PRINCIPAL]", data?.principal?.location || "")
-      .replace("[DIRECTOR_NAME]", data?.principal?.director_name || "")
-      .replace("[KONTAK_PERSON]", data?.principal?.director_phone || "")
-      .replace("[BIDANG_USAHA]", data?.principal?.business_field || "")
-      .replace("[JENIS_JAMINAN]", data?.guarantee_type || "")
-      .replace("[NILAI_PENJAMINAN]", formatCurrency(data?.guarantee_value || 0))
-      .replace("[PERIODE_JAMINAN]", data?.time_period || "")
-      .replace("[TANGGAL_PENERBITAN]", data?.contract_doc_date || "")
-      .replace("[NAMA_OBLIGEE]", data?.obligee?.name || "")
-      .replace("[ALAMAT_OBLIGEE]", data?.obligee?.location || "")
-      .replace("[NAMA_PROYEK]", data?.job_name || "")
-      .replace("[LOKASI_PROYEK]", data?.job_location || "")
-      .replace("[NILAI_PROYEK]", formatCurrency(data?.contract_value || 0))
-      .replace("[DOKUMEN_SURAT]", data?.letter_document || "")
-      .replace("[TANGGAL_SURAT]", formattedDate || "")
-      .replace("[NAMA_DIREKTUR]", data?.principal?.director_name || "");
-  };
-
-  // console.log("Address:", submission?.principal?.address);
-  // console.log("District Name:", submission?.principal?.district?.name);
-  // console.log("Regency Name:", submission?.principal?.regency?.name);
-  // console.log("Province Name:", submission?.principal?.province?.name);
-  //
-  // console.log(submission);
-
-  const data = {
-    principal: {
-      name: submission?.principal?.name || "",
-      address: submission?.principal?.address || "",
-      npwp: submission?.principal?.npwp || "",
-      nib: submission?.principal?.nib || "",
-      //   signer_name: submission?.principal?.signer_name || "",
-      telephone: submission?.principal?.telephone || "",
-      director_name: submission?.principal?.director_name || "",
-      director_phone: submission?.principal?.director_phone || "",
-      pic: submission?.principal?.pic || "",
-      director_position: submission?.principal?.director_position || "",
-      location:
-        submission?.principal?.address +
-        ", " +
-        submission?.principal?.district?.name +
-        ", " +
-        submission?.principal?.regency?.name +
-        ", " +
-        submission?.principal?.province?.name,
-    },
-    obligee: {
-      name: submission?.obligee?.name || "",
-      address: submission?.obligee?.address || "",
-      source_of_fund: submission?.source_of_fund?.name || "",
-      ppk_name: submission?.obligee?.pic || "",
-      city: submission?.obligee?.district?.name,
-      location: (
-        submission?.obligee?.address ||
-        "" +
-          ", " +
-          (submission?.obligee?.district?.name || "") +
-          ", " +
-          (submission?.obligee?.regency?.name || "") +
-          ", " +
-          (submission?.obligee?.province?.name || "")
-      ).trim(),
-    },
-    guarantor: {
-      name: submission?.guarantor?.name || "",
-      address: submission?.guarantor?.address || "",
-      pic: submission?.guarantor?.pic || "",
-      location:
-        submission?.guarantor?.address +
-        ", " +
-        submission?.guarantor?.district?.name +
-        ", " +
-        submission?.guarantor?.regency?.name +
-        ", " +
-        submission?.guarantor?.province?.name,
-    },
-    source_of_fund: {
-      name: submission?.source_of_fund.name,
-    },
-    contract_value: submission?.contract_value || 0,
-    guarantee_value: submission?.guarantee_value || 0,
-    guarantee_type: submission?.guarantor_to_product_type?.name || "",
-    time_period: submission?.time_period || "",
-    job_name: submission?.job_name || "",
-    job_location_village: submission?.job_location_village || "",
-    contract_doc_name: submission?.contract_doc_name || "",
-    contract_doc_number: submission?.contract_doc_number || "",
-    contract_doc_date: submission?.contract_doc_date || "",
-    start_date: submission?.start_date || "",
-    end_date: submission?.end_date || "",
-    guarantee_issue_date: submission?.guarantee_issue_date || "",
-    submission_date: submission?.created_at || "",
-    // letter_date: submission?.letter_date || "",
-    // letter_number: submission?.letter_number || "",
-    analysis: {
-      character: submission?.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission?.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission?.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission?.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission?.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
-    scoring_result: submission?.scores || "",
-    // description: submission?.description || "",
-    date: submission?.created_at || "",
-    // analyst_name: submission?.analyst_name || "",
-    manager_name: submission?.principal?.commissioner || "",
-    branch_manager: submission?.principal?.director_name || "",
-    job_location:
-      submission?.job_location_village +
-      ", " +
-      submission?.district?.name +
-      ", " +
-      submission?.regency?.name +
-      ", " +
-      submission?.province?.name,
-    job_group: submission?.guarantor_to_product_type?.job_group,
-    no: submission?.id,
-    city: submission?.regency?.name,
-  };
-
-  const calculateTotalPoint = (scores: any) => {
-    return scores.reduce((total: number, score: any) => total + score.point, 0);
-  };
-
-  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
-
-  //   const handleApprove = (submissionId: number) => {
-  //     setIsLoading(true);
-  //     axios
-  //       .post(route("manager-submission-approve", submissionId))
-  //       .then((response) => {
-  //         console.log("success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.log("error approve submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
-
+  //   DOCUMENTS FORMAT
   interface SubmissionData {
     principal_name: string;
-    principal_address: string;
+    location: string;
     npwp: string;
     nib: string;
     telephone: string;
     director_name: string;
     director_phone: string;
+    bussiness_field: string;
+    principal_commissioner: string;
     pic: string;
     director_position: string;
-    location: string;
-    day: string;
+    principal_address: string;
+    est_deed: string;
+    last_deed: string;
+    get_susunan_pengurus: string;
+    get_exp: string;
 
     bank_name: string;
     obligee_name: string;
     obligee_address: string;
     source_of_fund: string;
     ppk_name: string;
+    ppk_number: string;
     obligee_city: string;
     obligee_location: string;
 
@@ -555,84 +172,78 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     end_date: string;
     guarantee_issue_date: string;
     submission_date: string;
-    analysis: {
-      character: string | number;
-      capacity: string | number;
-      capital: string | number;
-      condition: string | number;
-      collateral: string | number;
-    };
-    scoring_result: {
-      id: number;
-      scoring_id: number;
-      scoring: any;
-      scoring_question_category_id: number;
-      scoring_question_category: any;
-      scoring_question_id: number;
-      scoring_question: any;
-      scoring_option_id: number;
-      scoring_option: any;
-      point: number;
-      category_name: string;
-      question_name: string;
-      option_name: string;
-      reduce: any;
-      grouped: string;
-      score: any;
-    };
-    manager_name: string;
+    day: string;
+
+    character_score: string | number;
+    capacity_score: string | number;
+    capital_score: string | number;
+    collateral_score: string | number;
+    condition_score: string | number;
+    total_score: string | number;
+    recommendation: string;
+    notes: string;
+    analyst_name: string;
+    manager_technique_name: string;
+
     branch_manager: string;
     job_location: string;
     job_group: string;
     no: string | number;
     city: string;
-    date_mail: string;
+    mail_number: string;
+    mail_number_resume: string;
+    underlying: string;
+    product_name: string;
 
     [key: string]: any;
   }
+
   const editorRefs = useRef<{ [key: string]: any }>({});
 
   // Fungsi untuk mengganti placeholder dalam template
   const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)\]/g, (_, key: string) => {
+    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
       const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
       return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
     });
   };
 
-  const getDayName = (dateString: any) => {
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
-
-  // Mapping data ke struktur `SubmissionData`
   const dataTemplate: SubmissionData = {
+    // Informasi Principal
     principal_name: submission.principal?.name || "",
-    principal_address: submission.principal?.address || "",
+    location: submission.principal?.address || "",
     npwp: submission.principal?.npwp || "",
     nib: submission.principal?.nib || "",
     telephone: submission.principal?.telephone || "",
     director_name: submission.principal?.director_name || "",
     director_phone: submission.principal?.director_phone || "",
     bussiness_field: submission.principal?.bussiness_field || "",
+    principal_commissioner: submission.principal?.commissioner || "",
     pic: submission.principal?.pic || "",
     director_position: submission.principal?.director_position || "",
-    location: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    est_deed: submission?.principal?.est_deed || "",
+    last_deed: submission?.principal?.last_deed || "",
+    get_susunan_pengurus: submission?.get_administators_principal || "",
+    get_exp: submission?.get_exp || "",
 
+    // Informasi Bank & Obligee
     bank_name: submission?.bank_name || "",
     obligee_name: submission.obligee?.name || "",
     obligee_address: submission.obligee?.address || "",
     source_of_fund: submission.source_of_fund?.name || "",
     ppk_name: submission.obligee?.pic || "",
+    ppk_number: submission.obligee?.no_ppk || "",
     obligee_city: submission.obligee?.district?.name || "",
     obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
 
+    // Informasi Guarantor
     guarantor_name: submission.guarantor?.name || "",
     guarantor_address: submission.guarantor?.address || "",
     guarantor_pic: submission.guarantor?.pic || "",
     guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
 
+    // Informasi Kontrak & Proyek
     source_of_fund_name: submission.source_of_fund?.name || "",
     contract_value: submission.contract_value_formatted || 0,
     guarantee_value: submission.guarantee_value_formatted || 0,
@@ -644,33 +255,58 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_doc_name: submission.contract_doc_name || "",
     contract_doc_number: submission.contract_doc_number || "",
     contract_doc_date: submission.contract_doc_date || "",
-    start_date: formatToIndonesianDate(submission.start_date || ""),
-    end_date: formatToIndonesianDate(submission.end_date || ""),
-    // guarantee_issue_date: submission.guarantee_issue_date || "",
-    guarantee_issue_date: formatToIndonesianDate(submission.approved_at || ""),
-    submission_date: formatToIndonesianDate(submission.created_at || ""),
-    day: getDayName(submission.created_at || ""),
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.submission_date || "",
+    day: submission.day_name || "",
 
-    analysis: {
-      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
+    // SCORING
+    character_score: submission?.analysis?.character,
+    capacity_score: submission?.analysis?.capacity,
+    capital_score: submission?.analysis?.capital,
+    collateral_score: submission?.analysis?.collateral,
+    condition_score: submission?.analysis?.character,
+    total_score: submission?.total_score,
 
-    scoring_result: calculateTotalPoint(submission.scores) || "",
-    manager_name: submission.principal?.commissioner || "",
+    recommendation: submission?.recommendation,
+    notes: submission?.notes,
+    analyst_name: submission?.analyst_name || "",
+    manager_technique_name: submission?.principal?.commissioner || "",
+
+    // Informasi Tambahan
     branch_manager: submission.principal?.director_name || "",
     job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
     job_group: submission.guarantor_to_product_type?.job_group || "",
     no: submission.id || "",
     city: submission.regency?.name || "",
-    date_mail: formattedDate,
-
     mail_number: submission.mail_number || "",
+    mail_number_resume: submission.mail_number_resume || "",
+    underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission?.product?.name || "",
   };
+
+  const calculateTotalPoint = (scores: any) => {
+    return scores.reduce((total: number, score: any) => total + score.point, 0);
+  };
+
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
+
+  //   const handleApprove = (submissionId: number) => {
+  //     setIsLoading(true);
+  //     axios
+  //       .post(route("manager-submission-approve", submissionId))
+  //       .then((response) => {
+  //         console.log("success approve submission", response);
+  //         router.reload();
+  //       })
+  //       .catch((error) => {
+  //         console.log("error approve submission", error);
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false);
+  //       });
+  //   };
 
   const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
@@ -1026,7 +662,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Lokasi Proyek</td>
-                  <td className="p-2">: {data?.job_location}</td>
+                  <td className="p-2">: {submission?.job_location}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Sumber Dana</td>
@@ -1363,25 +999,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <TinyMCEEditor
                   id="hasil-analisis"
                   onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                  initialContent={replaceHasilAnalisaPlaceholders(
+                  initialContent={replacePlaceholders(
                     submission?.document_format_analysis?.format_document,
-                    data,
+                    dataTemplate,
                   )}
                 />
               </div>
-              {/* DOCUMENT FORMAT */}
-              {/* <div>
-                {submission?.document_format_guarantor.map((doc: any) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
-                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                    <TinyMCEEditor
-                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                      initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                      onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                    />
-                  </div>
-                ))}
-              </div> */}
             </div>
             <div>
               <div>

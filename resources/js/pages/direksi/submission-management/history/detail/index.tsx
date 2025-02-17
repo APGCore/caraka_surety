@@ -346,25 +346,31 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     return scores.reduce((total: number, score: any) => total + score.point, 0);
   };
 
-  //   document format implementation
+  //   DOCUMENTS FORMAT
   interface SubmissionData {
     principal_name: string;
-    principal_address: string;
+    location: string;
     npwp: string;
     nib: string;
     telephone: string;
     director_name: string;
     director_phone: string;
+    bussiness_field: string;
+    principal_commissioner: string;
     pic: string;
     director_position: string;
-    location: string;
-    day: string;
+    principal_address: string;
+    est_deed: string;
+    last_deed: string;
+    get_susunan_pengurus: string;
+    get_exp: string;
 
     bank_name: string;
     obligee_name: string;
     obligee_address: string;
     source_of_fund: string;
     ppk_name: string;
+    ppk_number: string;
     obligee_city: string;
     obligee_location: string;
 
@@ -388,112 +394,78 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     end_date: string;
     guarantee_issue_date: string;
     submission_date: string;
-    analysis: {
-      character: string | number;
-      capacity: string | number;
-      capital: string | number;
-      condition: string | number;
-      collateral: string | number;
-    };
-    scoring_result: {
-      id: number;
-      scoring_id: number;
-      scoring: any;
-      scoring_question_category_id: number;
-      scoring_question_category: any;
-      scoring_question_id: number;
-      scoring_question: any;
-      scoring_option_id: number;
-      scoring_option: any;
-      point: number;
-      category_name: string;
-      question_name: string;
-      option_name: string;
-      reduce: any;
-      grouped: string;
-      score: any;
-    };
-    manager_name: string;
+    day: string;
+
+    character_score: string | number;
+    capacity_score: string | number;
+    capital_score: string | number;
+    collateral_score: string | number;
+    condition_score: string | number;
+    total_score: string | number;
+    recommendation: string;
+    notes: string;
+    analyst_name: string;
+    manager_technique_name: string;
+
     branch_manager: string;
     job_location: string;
     job_group: string;
     no: string | number;
     city: string;
-    date_mail: string;
+    mail_number: string;
+    mail_number_resume: string;
+    underlying: string;
+    product_name: string;
 
     [key: string]: any;
   }
+
   const editorRefs = useRef<{ [key: string]: any }>({});
 
   // Fungsi untuk mengganti placeholder dalam template
   const replacePlaceholders = (template: string, data: SubmissionData): string => {
     return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
-      const value = data[key.toLowerCase()];
-      return value !== undefined ? value : `[${key}]`;
+      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
+      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
     });
   };
 
-  // Mapping data ke struktur `SubmissionData`
-  function formatToRupiah(value: number): string {
-    if (isNaN(value) || value <= 0) {
-      return "Rp. 0";
-    }
-    return `Rp. ${value.toLocaleString("id-ID", {
-      style: "decimal",
-      maximumFractionDigits: 0,
-    })}`;
-  }
-
-  function formatTanggal(tanggal: string): string {
-    const bulanIndonesia = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    const date = new Date(tanggal);
-    const day = date.getDate();
-    const month = bulanIndonesia[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} ${month} ${year}`;
-  }
-
   const dataTemplate: SubmissionData = {
+    // Informasi Principal
     principal_name: submission.principal?.name || "",
-    principal_address: submission.principal?.address || "",
+    location: submission.principal?.address || "",
     npwp: submission.principal?.npwp || "",
     nib: submission.principal?.nib || "",
     telephone: submission.principal?.telephone || "",
     director_name: submission.principal?.director_name || "",
     director_phone: submission.principal?.director_phone || "",
     bussiness_field: submission.principal?.bussiness_field || "",
+    principal_commissioner: submission.principal?.commissioner || "",
     pic: submission.principal?.pic || "",
     director_position: submission.principal?.director_position || "",
-    location: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    est_deed: submission?.principal?.est_deed || "",
+    last_deed: submission?.principal?.last_deed || "",
+    get_susunan_pengurus: submission?.get_administators_principal || "",
+    get_exp: submission?.get_exp || "",
 
+    // Informasi Bank & Obligee
     bank_name: submission?.bank_name || "",
     obligee_name: submission.obligee?.name || "",
     obligee_address: submission.obligee?.address || "",
     source_of_fund: submission.source_of_fund?.name || "",
     ppk_name: submission.obligee?.pic || "",
+    ppk_number: submission.obligee?.no_ppk || "",
     obligee_city: submission.obligee?.district?.name || "",
     obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
 
+    // Informasi Guarantor
     guarantor_name: submission.guarantor?.name || "",
     guarantor_address: submission.guarantor?.address || "",
     guarantor_pic: submission.guarantor?.pic || "",
     guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
 
+    // Informasi Kontrak & Proyek
     source_of_fund_name: submission.source_of_fund?.name || "",
     contract_value: submission.contract_value_formatted || 0,
     guarantee_value: submission.guarantee_value_formatted || 0,
@@ -505,127 +477,35 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_doc_name: submission.contract_doc_name || "",
     contract_doc_number: submission.contract_doc_number || "",
     contract_doc_date: submission.contract_doc_date || "",
-    start_date: formatToDateIndonesian(submission.start_date || ""),
-    end_date: formatToDateIndonesian(submission.end_date || ""),
-    // guarantee_issue_date: submission.guarantee_issue_date || "",
-    guarantee_issue_date: formatToDateIndonesian(submission.approved_at || ""),
-    submission_date: formatToDateIndonesian(submission.created_at || ""),
-    day: getDayName(submission.created_at || ""),
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.submission_date || "",
+    day: submission.day_name || "",
 
-    analysis: {
-      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
+    // SCORING
+    character_score: submission?.analysis?.character,
+    capacity_score: submission?.analysis?.capacity,
+    capital_score: submission?.analysis?.capital,
+    collateral_score: submission?.analysis?.collateral,
+    condition_score: submission?.analysis?.character,
+    total_score: submission?.total_score,
 
-    scoring_result: calculateTotalPoint(submission.scores) || "",
-    manager_name: submission.principal?.commissioner || "",
+    recommendation: submission?.recommendation,
+    notes: submission?.notes,
+    analyst_name: submission?.analyst_name || "",
+    manager_technique_name: submission?.principal?.commissioner || "",
+
+    // Informasi Tambahan
     branch_manager: submission.principal?.director_name || "",
     job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
     job_group: submission.guarantor_to_product_type?.job_group || "",
     no: submission.id || "",
     city: submission.regency?.name || "",
-    date_mail: formattedDate,
-
     mail_number: submission.mail_number || "",
+    mail_number_resume: submission.mail_number_resume || "",
+    underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission?.product?.name || "",
-  };
-
-  const data = {
-    principal: {
-      name: submission?.principal?.name || "",
-      address: submission?.principal?.address || "",
-      npwp: submission?.principal?.npwp || "",
-      nib: submission?.principal?.nib || "",
-      //   signer_name: submission?.principal?.signer_name || "",
-      telephone: submission?.principal?.telephone || "",
-      director_name: submission?.principal?.director_name || "",
-      director_phone: submission?.principal?.director_phone || "",
-      pic: submission?.principal?.pic || "",
-      director_position: submission?.principal?.director_position || "",
-      location:
-        submission?.principal?.address +
-        ", " +
-        submission?.principal?.district?.name +
-        ", " +
-        submission?.principal?.regency?.name +
-        ", " +
-        submission?.principal?.province?.name,
-    },
-    obligee: {
-      name: submission?.obligee?.name || "",
-      address: submission?.obligee?.address || "",
-      source_of_fund: submission?.source_of_fund?.name || "",
-      ppk_name: submission?.obligee?.pic || "",
-      city: submission?.obligee?.district?.name,
-      location: (
-        submission?.obligee?.address ||
-        "" +
-          ", " +
-          (submission?.obligee?.district?.name || "") +
-          ", " +
-          (submission?.obligee?.regency?.name || "") +
-          ", " +
-          (submission?.obligee?.province?.name || "")
-      ).trim(),
-    },
-    guarantor: {
-      name: submission?.guarantor?.name || "",
-      address: submission?.guarantor?.address || "",
-      pic: submission?.guarantor?.pic || "",
-      location:
-        submission?.guarantor?.address +
-        ", " +
-        submission?.guarantor?.district?.name +
-        ", " +
-        submission?.guarantor?.regency?.name +
-        ", " +
-        submission?.guarantor?.province?.name,
-    },
-    source_of_fund: {
-      name: submission?.source_of_fund.name,
-    },
-    contract_value: submission?.contract_value || 0,
-    guarantee_value: submission?.guarantee_value || 0,
-    guarantee_type: submission?.guarantor_to_product_type?.name || "",
-    time_period: submission?.time_period || "",
-    job_name: submission?.job_name || "",
-    job_location_village: submission?.job_location_village || "",
-    contract_doc_name: submission?.contract_doc_name || "",
-    contract_doc_number: submission?.contract_doc_number || "",
-    contract_doc_date: submission?.contract_doc_date || "",
-    start_date: submission?.start_date || "",
-    end_date: submission?.end_date || "",
-    guarantee_issue_date: submission?.guarantee_issue_date || "",
-    submission_date: submission?.created_at || "",
-    // letter_date: submission?.letter_date || "",
-    // letter_number: submission?.letter_number || "",
-    analysis: {
-      character: submission?.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission?.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission?.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission?.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission?.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
-    scoring_result: submission?.scores || "",
-    // description: submission?.description || "",
-    date: submission?.created_at || "",
-    analyst_name: submission?.analyst_name || "",
-    manager_name: submission?.principal?.commissioner || "",
-    branch_manager: submission?.principal?.director_name || "",
-    job_location:
-      submission?.job_location_village +
-      ", " +
-      submission?.district?.name +
-      ", " +
-      submission?.regency?.name +
-      ", " +
-      submission?.province?.name,
-    job_group: submission?.guarantor_to_product_type?.job_group,
-    no: submission?.id,
-    city: submission?.regency?.name,
   };
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
@@ -962,7 +842,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Lokasi Proyek</td>
-                  <td className="p-2">: {data?.job_location}</td>
+                  <td className="p-2">: {submission?.job_location}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Sumber Dana</td>
@@ -1245,26 +1125,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <TinyMCEEditor
                   id="hasil-analisis"
                   onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                  initialContent={replaceHasilAnalisaPlaceholders(
+                  initialContent={replacePlaceholders(
                     submission?.document_format_analysis?.format_document,
-                    data,
+                    dataTemplate,
                   )}
                 />
               </div>
-
-              {/* DOCUMENT FORMAT */}
-              {/* <div>
-                {submission?.document_format_guarantor.map((doc: any) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
-                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                    <TinyMCEEditor
-                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                      initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                      onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                    />
-                  </div>
-                ))}
-              </div> */}
             </div>
             <div>
               {/* DOCUMENT FORMAT

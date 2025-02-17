@@ -36,6 +36,16 @@ class SubmissionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+    // private function formatToIndonesianDate($date)
+    // {
+    //     if (!$date) {
+    //         return null;
+    //     }
+
+    //     return Carbon::parse($date)->translatedFormat('d F Y');
+    // }
+
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
@@ -288,10 +298,9 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
 
         $principalDocs = collect($submission->principal->documents);
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
+
+
+
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -302,29 +311,185 @@ class SubmissionController extends Controller
                     $doc->name = $principalDoc->name;
                     $doc->url = Storage::url($principalDoc->url);
                 }
-
                 return $doc;
             });
+
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
-        ($submission->principal->principalRatios);
 
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
         $submission->analyst_name = $submission->staff->name;
 
-        $submission->scores->map(function ($score) {
-            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
-            $score->question_name = $score->scoringQuestion->name ?? '-';
-            $score->option_name = $score->scoringOption->name ?? '-';
 
-            return $score;
-        });
+
+        // GET DOC FORMAT ANALYSIS
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+
+        // SCORING RESULT
+        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+            $categoryId = $score->scoring_question_category_id;
+            $category = $score->scoringQuestionCategory;
+
+            if (!isset($grouped[$categoryId])) {
+                $grouped[$categoryId] = [
+                    'id' => $categoryId,
+                    'name' => $category->name,
+                    'items' => []
+                ];
+            }
+
+            $grouped[$categoryId]['items'][] = $score;
+
+            switch ($category->name) {
+                case 'Character':
+                    $analysis['character'] += $score->point ?? 0;
+                    break;
+                case 'Capacity':
+                    $analysis['capacity'] += $score->point ?? 0;
+                    break;
+                case 'Capital':
+                    $analysis['capital'] += $score->point ?? 0;
+                    break;
+                case 'Condition':
+                    $analysis['condition'] += $score->point ?? 0;
+                    break;
+                case 'Collateral':
+                    $analysis['collateral'] += $score->point ?? 0;
+                    break;
+            }
+
+            return $grouped;
+        }, []);
+
+        $submission->analysis = $analysis;
+
+        // Hitung total skoring
+        $totalScore = array_sum($analysis);
+
+        // Tentukan notes dan recommendation
+        if ($totalScore > 60 && $totalScore < 100) {
+            $submission->notes = "Dipertimbangkan untuk disetujui";
+            $submission->recommendation = "disetujui";
+        } elseif ($totalScore <= 60) {
+            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
+            $submission->recommendation = "ditolak";
+        } else {
+            $submission->notes = "Skoring tidak valid";
+            $submission->recommendation = "ditolak";
+        }
+
+        $submission->total_score = $totalScore;
+
+        // GET EXPERIENCE
+        $approvedSubmissionsExp = Submission::where('status', 'approved')
+            ->where(function ($query) use ($submission) {
+                $query->where('principal_id', $submission->principal_id)
+                    ->orWhere('obligee_id', $submission->obligee_id);
+            })
+            ->with(['obligee'])
+            ->get()
+            ->map(function ($submission) use (&$index) {
+                $index++;
+                return "<tr style='text-align: left;'>
+                            <td style='text-align: center;'>{$index}</td>
+                            <td>{$submission->obligee->name}</td>
+                            <td>{$submission->job_name}</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
+                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
+                        </tr>";
+            })->implode('');
+
+        $submission->get_exp = "
+            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
+                <tr>
+                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
+                        <strong>PENGALAMAN KERJA</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5' style='text-align:left'>
+                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Obligee</th>
+                    <th>Nama Proyek</th>
+                    <th>Nilai Proyek</th>
+                    <th>Tahun</th>
+                </tr>
+                {$approvedSubmissionsExp}
+            </table>
+        ";
+
+        // GET SUSUNAN PENGURUS
+        $principal = $submission->principal;
+
+        $pengurus = collect();
+
+        if (!empty($principal->director_name)) {
+            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+        }
+        if (!empty($principal->commissioner)) {
+            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+        }
+
+        if (!empty($principal->head_name)) {
+            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+        }
+
+        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+            return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+                        <td>{$pengurus['nama']}</td>
+                        <td>{$pengurus['jabatan']}</td>
+                    </tr>";
+        })->implode('');
+
+        $submission->get_administators_principal = "
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+                <tr>
+                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                </tr>
+                {$susunanPengurus}
+            </table>
+        ";
+
+
+        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+            ->with('obligee')
+            ->get();
+
+        // number surat
+        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+        // tanggal pengajuan
+        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+
 
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
         ]);
     }
+
+
+
 
     public function showDetailDocsSubmission($id)
     {
@@ -385,6 +550,167 @@ class SubmissionController extends Controller
             return $score;
         });
 
+
+        // GET DOC FORMAT ANALYSIS
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+
+        // SCORING RESULT
+        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+            $categoryId = $score->scoring_question_category_id;
+            $category = $score->scoringQuestionCategory;
+
+            if (!isset($grouped[$categoryId])) {
+                $grouped[$categoryId] = [
+                    'id' => $categoryId,
+                    'name' => $category->name,
+                    'items' => []
+                ];
+            }
+
+            $grouped[$categoryId]['items'][] = $score;
+
+            switch ($category->name) {
+                case 'Character':
+                    $analysis['character'] += $score->point ?? 0;
+                    break;
+                case 'Capacity':
+                    $analysis['capacity'] += $score->point ?? 0;
+                    break;
+                case 'Capital':
+                    $analysis['capital'] += $score->point ?? 0;
+                    break;
+                case 'Condition':
+                    $analysis['condition'] += $score->point ?? 0;
+                    break;
+                case 'Collateral':
+                    $analysis['collateral'] += $score->point ?? 0;
+                    break;
+            }
+
+            return $grouped;
+        }, []);
+
+        $submission->analysis = $analysis;
+
+        // Hitung total skoring
+        $totalScore = array_sum($analysis);
+
+        // Tentukan notes dan recommendation
+        if ($totalScore > 60 && $totalScore < 100) {
+            $submission->notes = "Dipertimbangkan untuk disetujui";
+            $submission->recommendation = "disetujui";
+        } elseif ($totalScore <= 60) {
+            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
+            $submission->recommendation = "ditolak";
+        } else {
+            $submission->notes = "Skoring tidak valid";
+            $submission->recommendation = "ditolak";
+        }
+
+        $submission->total_score = $totalScore;
+
+        // GET EXPERIENCE
+        $approvedSubmissionsExp = Submission::where('status', 'approved')
+            ->where(function ($query) use ($submission) {
+                $query->where('principal_id', $submission->principal_id)
+                    ->orWhere('obligee_id', $submission->obligee_id);
+            })
+            ->with(['obligee'])
+            ->get()
+            ->map(function ($submission) use (&$index) {
+                $index++;
+                return "<tr style='text-align: left;'>
+                            <td style='text-align: center;'>{$index}</td>
+                            <td>{$submission->obligee->name}</td>
+                            <td>{$submission->job_name}</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
+                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
+                        </tr>";
+            })->implode('');
+
+        $submission->get_exp = "
+            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
+                <tr>
+                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
+                        <strong>PENGALAMAN KERJA</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5' style='text-align:left'>
+                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Obligee</th>
+                    <th>Nama Proyek</th>
+                    <th>Nilai Proyek</th>
+                    <th>Tahun</th>
+                </tr>
+                {$approvedSubmissionsExp}
+            </table>
+        ";
+
+        // GET SUSUNAN PENGURUS
+        $principal = $submission->principal;
+
+        $pengurus = collect();
+
+        if (!empty($principal->director_name)) {
+            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+        }
+        if (!empty($principal->commissioner)) {
+            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+        }
+
+        if (!empty($principal->head_name)) {
+            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+        }
+
+        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+            return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+                        <td>{$pengurus['nama']}</td>
+                        <td>{$pengurus['jabatan']}</td>
+                    </tr>";
+        })->implode('');
+
+        $submission->get_administators_principal = "
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+                <tr>
+                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                </tr>
+                {$susunanPengurus}
+            </table>
+        ";
+
+
+        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+            ->with('obligee')
+            ->get();
+
+        // number surat
+        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+        // tanggal pengajuan
+        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+
+
         return inertia('manager/submission-management/detail/index', [
             'submission' => fn () => $submission,
         ]);
@@ -408,10 +734,6 @@ class SubmissionController extends Controller
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
 
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -441,6 +763,166 @@ class SubmissionController extends Controller
 
             return $score;
         });
+
+
+        // GET DOC FORMAT ANALYSIS
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+
+        // SCORING RESULT
+        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+            $categoryId = $score->scoring_question_category_id;
+            $category = $score->scoringQuestionCategory;
+
+            if (!isset($grouped[$categoryId])) {
+                $grouped[$categoryId] = [
+                    'id' => $categoryId,
+                    'name' => $category->name,
+                    'items' => []
+                ];
+            }
+
+            $grouped[$categoryId]['items'][] = $score;
+
+            switch ($category->name) {
+                case 'Character':
+                    $analysis['character'] += $score->point ?? 0;
+                    break;
+                case 'Capacity':
+                    $analysis['capacity'] += $score->point ?? 0;
+                    break;
+                case 'Capital':
+                    $analysis['capital'] += $score->point ?? 0;
+                    break;
+                case 'Condition':
+                    $analysis['condition'] += $score->point ?? 0;
+                    break;
+                case 'Collateral':
+                    $analysis['collateral'] += $score->point ?? 0;
+                    break;
+            }
+
+            return $grouped;
+        }, []);
+
+        $submission->analysis = $analysis;
+
+        // Hitung total skoring
+        $totalScore = array_sum($analysis);
+
+        // Tentukan notes dan recommendation
+        if ($totalScore > 60 && $totalScore < 100) {
+            $submission->notes = "Dipertimbangkan untuk disetujui";
+            $submission->recommendation = "disetujui";
+        } elseif ($totalScore <= 60) {
+            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
+            $submission->recommendation = "ditolak";
+        } else {
+            $submission->notes = "Skoring tidak valid";
+            $submission->recommendation = "ditolak";
+        }
+
+        $submission->total_score = $totalScore;
+
+        // GET EXPERIENCE
+        $approvedSubmissionsExp = Submission::where('status', 'approved')
+            ->where(function ($query) use ($submission) {
+                $query->where('principal_id', $submission->principal_id)
+                    ->orWhere('obligee_id', $submission->obligee_id);
+            })
+            ->with(['obligee'])
+            ->get()
+            ->map(function ($submission) use (&$index) {
+                $index++;
+                return "<tr style='text-align: left;'>
+                            <td style='text-align: center;'>{$index}</td>
+                            <td>{$submission->obligee->name}</td>
+                            <td>{$submission->job_name}</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
+                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
+                        </tr>";
+            })->implode('');
+
+        $submission->get_exp = "
+            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
+                <tr>
+                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
+                        <strong>PENGALAMAN KERJA</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5' style='text-align:left'>
+                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Obligee</th>
+                    <th>Nama Proyek</th>
+                    <th>Nilai Proyek</th>
+                    <th>Tahun</th>
+                </tr>
+                {$approvedSubmissionsExp}
+            </table>
+        ";
+
+        // GET SUSUNAN PENGURUS
+        $principal = $submission->principal;
+
+        $pengurus = collect();
+
+        if (!empty($principal->director_name)) {
+            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+        }
+        if (!empty($principal->commissioner)) {
+            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+        }
+
+        if (!empty($principal->head_name)) {
+            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+        }
+
+        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+            return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+                        <td>{$pengurus['nama']}</td>
+                        <td>{$pengurus['jabatan']}</td>
+                    </tr>";
+        })->implode('');
+
+        $submission->get_administators_principal = "
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+                <tr>
+                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                </tr>
+                {$susunanPengurus}
+            </table>
+        ";
+
+
+        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+            ->with('obligee')
+            ->get();
+
+        // number surat
+        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+        // tanggal pengajuan
+        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('direksi/submission-management/history/detail/index', [
             'submission' => $submission,
@@ -503,6 +985,166 @@ class SubmissionController extends Controller
 
             return $score;
         });
+
+
+        // GET DOC FORMAT ANALYSIS
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+
+        // SCORING RESULT
+        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+            $categoryId = $score->scoring_question_category_id;
+            $category = $score->scoringQuestionCategory;
+
+            if (!isset($grouped[$categoryId])) {
+                $grouped[$categoryId] = [
+                    'id' => $categoryId,
+                    'name' => $category->name,
+                    'items' => []
+                ];
+            }
+
+            $grouped[$categoryId]['items'][] = $score;
+
+            switch ($category->name) {
+                case 'Character':
+                    $analysis['character'] += $score->point ?? 0;
+                    break;
+                case 'Capacity':
+                    $analysis['capacity'] += $score->point ?? 0;
+                    break;
+                case 'Capital':
+                    $analysis['capital'] += $score->point ?? 0;
+                    break;
+                case 'Condition':
+                    $analysis['condition'] += $score->point ?? 0;
+                    break;
+                case 'Collateral':
+                    $analysis['collateral'] += $score->point ?? 0;
+                    break;
+            }
+
+            return $grouped;
+        }, []);
+
+        $submission->analysis = $analysis;
+
+        // Hitung total skoring
+        $totalScore = array_sum($analysis);
+
+        // Tentukan notes dan recommendation
+        if ($totalScore > 60 && $totalScore < 100) {
+            $submission->notes = "Dipertimbangkan untuk disetujui";
+            $submission->recommendation = "disetujui";
+        } elseif ($totalScore <= 60) {
+            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
+            $submission->recommendation = "ditolak";
+        } else {
+            $submission->notes = "Skoring tidak valid";
+            $submission->recommendation = "ditolak";
+        }
+
+        $submission->total_score = $totalScore;
+
+        // GET EXPERIENCE
+        $approvedSubmissionsExp = Submission::where('status', 'approved')
+            ->where(function ($query) use ($submission) {
+                $query->where('principal_id', $submission->principal_id)
+                    ->orWhere('obligee_id', $submission->obligee_id);
+            })
+            ->with(['obligee'])
+            ->get()
+            ->map(function ($submission) use (&$index) {
+                $index++;
+                return "<tr style='text-align: left;'>
+                            <td style='text-align: center;'>{$index}</td>
+                            <td>{$submission->obligee->name}</td>
+                            <td>{$submission->job_name}</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
+                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
+                        </tr>";
+            })->implode('');
+
+        $submission->get_exp = "
+            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
+                <tr>
+                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
+                        <strong>PENGALAMAN KERJA</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5' style='text-align:left'>
+                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Obligee</th>
+                    <th>Nama Proyek</th>
+                    <th>Nilai Proyek</th>
+                    <th>Tahun</th>
+                </tr>
+                {$approvedSubmissionsExp}
+            </table>
+        ";
+
+        // GET SUSUNAN PENGURUS
+        $principal = $submission->principal;
+
+        $pengurus = collect();
+
+        if (!empty($principal->director_name)) {
+            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+        }
+        if (!empty($principal->commissioner)) {
+            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+        }
+
+        if (!empty($principal->head_name)) {
+            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+        }
+
+        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+            return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+                        <td>{$pengurus['nama']}</td>
+                        <td>{$pengurus['jabatan']}</td>
+                    </tr>";
+        })->implode('');
+
+        $submission->get_administators_principal = "
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+                <tr>
+                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                </tr>
+                {$susunanPengurus}
+            </table>
+        ";
+
+
+        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+            ->with('obligee')
+            ->get();
+
+        // number surat
+        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+        // tanggal pengajuan
+        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('kepala-cabang/submission-management/detail/index', [
             'submission' => fn () => $submission,
@@ -1177,8 +1819,27 @@ class SubmissionController extends Controller
         return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
     }
 
+    private function generateNomorSuratResume($id, $createdAt)
+    {
+        return "{$id}/BPR/" . Carbon::parse($createdAt)->format('m/Y');
+    }
+
+
+
     private function formatCurrency($value): string
     {
         return 'Rp. '.number_format($value, 2, ',', '.');
     }
+
+    public function getApprovedSubmissionsByPrincipal($principalId)
+    {
+        $principal = Principal::with(['approvedSubmissions'])->findOrFail($principalId);
+
+        return inertia('staff/submission-management/history/principal-submissions', [
+            'principal' => fn () => $principal,
+        ]);
+    }
+
+
+
 }

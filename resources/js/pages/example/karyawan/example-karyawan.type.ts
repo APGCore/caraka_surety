@@ -6,6 +6,7 @@ interface ExampleKaryawanProps extends PageProps {
     data: User[];
     links: any;
     meta: any;
+    roles: any;
   };
 }
 

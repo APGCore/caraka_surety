@@ -5,6 +5,7 @@ namespace App\Models\RelatedParties;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use App\Models\Submission\Submission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,4 +57,9 @@ class Principal extends Model
     {
         return $this->hasMany(PrincipalRatio::class);
     }
+    public function approvedSubmissions()
+    {
+        return $this->hasMany(Submission::class)->where('status', 'approved');
+    }
+
 }
