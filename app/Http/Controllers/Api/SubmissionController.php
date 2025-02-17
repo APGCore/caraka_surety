@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -143,5 +144,21 @@ class SubmissionController extends Controller
         ];
 
         return $this->responseSuccess('success', $result);
+    }
+
+    public function callback(CallbackRequest $request): JsonResponse
+    {
+        try {
+            $submission = Submission::query()->find($request->get('submission_id'));
+            $submission->setAttribute('verified_doc_link', $request->get('doc_url'));
+            $submission->save();
+
+            return $this->responseSuccess('success', [
+                'submission_id' => $submission->getAttribute('id'),
+                'doc_url' => $submission->getAttribute('verified_doc_link'),
+            ]);
+        } catch (\Exception $e) {
+            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
+        }
     }
 }

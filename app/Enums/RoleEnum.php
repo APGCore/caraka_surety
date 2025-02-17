@@ -30,6 +30,9 @@ enum RoleEnum: string
     case StaffOperasional = 'Staff Operasional';
     case StaffOperasionalRoute = 'staff-operasional.dashboard.index';
 
+    case Guarantor = 'Penjamin';
+    case GuarantorRoute = 'guarantor.index';
+
     public static function getValues(): array
     {
         return [
@@ -43,6 +46,7 @@ enum RoleEnum: string
             self::AgentPartner->value,
             self::MarketingPartner->value,
             self::KepalaAgentPartner->value,
+            self::Guarantor->value,
         ];
     }
 
@@ -56,9 +60,10 @@ enum RoleEnum: string
             self::Staff->value => self::StaffRoute->value,
             self::StaffTeknik->value => self::StaffTeknikRoute->value,
             self::StaffOperasional->value => self::StaffOperasionalRoute->value,
+            self::KepalaAgentPartner->value => self::KepalaAgentPartnerRoute->value,
             self::AgentPartner->value => self::AgentPartnerRoute->value,
             self::MarketingPartner->value => self::MarketingPartnerRoute->value,
-            self::KepalaAgentPartner->value => self::KepalaAgentPartnerRoute->value,
+            self::Guarantor->value => self::GuarantorRoute->value,
         ];
     }
 
@@ -72,9 +77,10 @@ enum RoleEnum: string
             self::Staff->name => self::Staff->value,
             self::StaffTeknik->name => self::StaffTeknik->value,
             self::StaffOperasional->name => self::StaffOperasional->value,
+            self::KepalaAgentPartner->name => self::KepalaAgentPartner->value,
             self::AgentPartner->name => self::AgentPartner->value,
             self::MarketingPartner->name => self::MarketingPartner->value,
-            self::KepalaAgentPartner->name => self::KepalaAgentPartner->value,
+            self::Guarantor->name => self::Guarantor->value,
         ];
     }
 }
