@@ -299,8 +299,6 @@ class SubmissionController extends Controller
 
         $principalDocs = collect($submission->principal->documents);
 
-
-
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -311,6 +309,7 @@ class SubmissionController extends Controller
                     $doc->name = $principalDoc->name;
                     $doc->url = Storage::url($principalDoc->url);
                 }
+
                 return $doc;
             });
 
@@ -320,8 +319,6 @@ class SubmissionController extends Controller
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
         $submission->analyst_name = $submission->staff->name;
-
-
 
         // GET DOC FORMAT ANALYSIS
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
@@ -336,11 +333,11 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
-                    'items' => []
+                    'items' => [],
                 ];
             }
 
@@ -374,14 +371,14 @@ class SubmissionController extends Controller
 
         // Tentukan notes dan recommendation
         if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = "Dipertimbangkan untuk disetujui";
-            $submission->recommendation = "disetujui";
+            $submission->notes = 'Dipertimbangkan untuk disetujui';
+            $submission->recommendation = 'disetujui';
         } elseif ($totalScore <= 60) {
-            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+            $submission->recommendation = 'ditolak';
         } else {
-            $submission->notes = "Skoring tidak valid";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Skoring tidak valid';
+            $submission->recommendation = 'ditolak';
         }
 
         $submission->total_score = $totalScore;
@@ -396,13 +393,14 @@ class SubmissionController extends Controller
             ->get()
             ->map(function ($submission) use (&$index) {
                 $index++;
+
                 return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
-                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
-                        </tr>";
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                        </tr>';
             })->implode('');
 
         $submission->get_exp = "
@@ -433,14 +431,14 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
@@ -466,7 +464,6 @@ class SubmissionController extends Controller
             </table>
         ";
 
-
         $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
             ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
             ->with('obligee')
@@ -477,19 +474,15 @@ class SubmissionController extends Controller
         // tanggal pengajuan
         $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
-
 
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
         ]);
     }
-
-
-
 
     public function showDetailDocsSubmission($id)
     {
@@ -550,7 +543,6 @@ class SubmissionController extends Controller
             return $score;
         });
 
-
         // GET DOC FORMAT ANALYSIS
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
@@ -564,11 +556,11 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
-                    'items' => []
+                    'items' => [],
                 ];
             }
 
@@ -602,14 +594,14 @@ class SubmissionController extends Controller
 
         // Tentukan notes dan recommendation
         if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = "Dipertimbangkan untuk disetujui";
-            $submission->recommendation = "disetujui";
+            $submission->notes = 'Dipertimbangkan untuk disetujui';
+            $submission->recommendation = 'disetujui';
         } elseif ($totalScore <= 60) {
-            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+            $submission->recommendation = 'ditolak';
         } else {
-            $submission->notes = "Skoring tidak valid";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Skoring tidak valid';
+            $submission->recommendation = 'ditolak';
         }
 
         $submission->total_score = $totalScore;
@@ -624,13 +616,14 @@ class SubmissionController extends Controller
             ->get()
             ->map(function ($submission) use (&$index) {
                 $index++;
+
                 return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
-                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
-                        </tr>";
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                        </tr>';
             })->implode('');
 
         $submission->get_exp = "
@@ -661,14 +654,14 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
@@ -694,7 +687,6 @@ class SubmissionController extends Controller
             </table>
         ";
 
-
         $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
             ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
             ->with('obligee')
@@ -705,11 +697,10 @@ class SubmissionController extends Controller
         // tanggal pengajuan
         $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
-
 
         return inertia('manager/submission-management/detail/index', [
             'submission' => fn () => $submission,
@@ -764,7 +755,6 @@ class SubmissionController extends Controller
             return $score;
         });
 
-
         // GET DOC FORMAT ANALYSIS
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
@@ -778,11 +768,11 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
-                    'items' => []
+                    'items' => [],
                 ];
             }
 
@@ -816,14 +806,14 @@ class SubmissionController extends Controller
 
         // Tentukan notes dan recommendation
         if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = "Dipertimbangkan untuk disetujui";
-            $submission->recommendation = "disetujui";
+            $submission->notes = 'Dipertimbangkan untuk disetujui';
+            $submission->recommendation = 'disetujui';
         } elseif ($totalScore <= 60) {
-            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+            $submission->recommendation = 'ditolak';
         } else {
-            $submission->notes = "Skoring tidak valid";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Skoring tidak valid';
+            $submission->recommendation = 'ditolak';
         }
 
         $submission->total_score = $totalScore;
@@ -838,13 +828,14 @@ class SubmissionController extends Controller
             ->get()
             ->map(function ($submission) use (&$index) {
                 $index++;
+
                 return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
-                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
-                        </tr>";
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                        </tr>';
             })->implode('');
 
         $submission->get_exp = "
@@ -875,14 +866,14 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
@@ -908,7 +899,6 @@ class SubmissionController extends Controller
             </table>
         ";
 
-
         $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
             ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
             ->with('obligee')
@@ -919,9 +909,9 @@ class SubmissionController extends Controller
         // tanggal pengajuan
         $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('direksi/submission-management/history/detail/index', [
@@ -986,7 +976,6 @@ class SubmissionController extends Controller
             return $score;
         });
 
-
         // GET DOC FORMAT ANALYSIS
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
@@ -1000,11 +989,11 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
-                    'items' => []
+                    'items' => [],
                 ];
             }
 
@@ -1038,14 +1027,14 @@ class SubmissionController extends Controller
 
         // Tentukan notes dan recommendation
         if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = "Dipertimbangkan untuk disetujui";
-            $submission->recommendation = "disetujui";
+            $submission->notes = 'Dipertimbangkan untuk disetujui';
+            $submission->recommendation = 'disetujui';
         } elseif ($totalScore <= 60) {
-            $submission->notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+            $submission->recommendation = 'ditolak';
         } else {
-            $submission->notes = "Skoring tidak valid";
-            $submission->recommendation = "ditolak";
+            $submission->notes = 'Skoring tidak valid';
+            $submission->recommendation = 'ditolak';
         }
 
         $submission->total_score = $totalScore;
@@ -1060,13 +1049,14 @@ class SubmissionController extends Controller
             ->get()
             ->map(function ($submission) use (&$index) {
                 $index++;
+
                 return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . "</td>
-                            <td>" . date('Y', strtotime($submission->approved_at)) . "</td>
-                        </tr>";
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                        </tr>';
             })->implode('');
 
         $submission->get_exp = "
@@ -1097,14 +1087,14 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
@@ -1130,7 +1120,6 @@ class SubmissionController extends Controller
             </table>
         ";
 
-
         $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
             ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
             ->with('obligee')
@@ -1141,9 +1130,9 @@ class SubmissionController extends Controller
         // tanggal pengajuan
         $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date =  Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date =  Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date =  Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('kepala-cabang/submission-management/detail/index', [
@@ -1821,10 +1810,8 @@ class SubmissionController extends Controller
 
     private function generateNomorSuratResume($id, $createdAt)
     {
-        return "{$id}/BPR/" . Carbon::parse($createdAt)->format('m/Y');
+        return "{$id}/BPR/".Carbon::parse($createdAt)->format('m/Y');
     }
-
-
 
     private function formatCurrency($value): string
     {
@@ -1839,7 +1826,4 @@ class SubmissionController extends Controller
             'principal' => fn () => $principal,
         ]);
     }
-
-
-
 }

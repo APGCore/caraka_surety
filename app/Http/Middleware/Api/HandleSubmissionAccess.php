@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class HandleSubmissionAccess
 {
     use ResponseFormat;
+
     /**
      * Handle an incoming request.
      *
@@ -25,8 +26,8 @@ class HandleSubmissionAccess
         $submissionId = $request->get('submission_id');
         $submission = Submission::query()->select(['id', 'guarantor_id'])->with(['guarantor:id', 'guarantor.hostToHost'])->find($submissionId);
         $hostToHost = $submission->getRelation('guarantor')->getRelation('hostToHost');
-        if(($hostToHost->isNotEmpty() ? $hostToHost->getAttribute('token') : null) !== $request->get('token')) {
-            return $this->responseError(message: ['message' => 'Token Salah'],code: 401);
+        if (($hostToHost ? $hostToHost->getAttribute('token') : null) !== $request->get('token')) {
+            return $this->responseError(message: ['message' => 'Token Salah'], code: 401);
         }
         $hostToHost->setAttribute('accessed_at', now());
         $hostToHost->save();

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('guarantor_name');
             $table->string('guarantor_url_host');
             $table->string('token')->nullable();
-            $table->date('accessed_at');
+            $table->date('accessed_at')->nullable();
             $table->timestamps();
         });
     }

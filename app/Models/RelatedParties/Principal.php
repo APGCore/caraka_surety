@@ -57,9 +57,9 @@ class Principal extends Model
     {
         return $this->hasMany(PrincipalRatio::class);
     }
+
     public function approvedSubmissions()
     {
         return $this->hasMany(Submission::class)->where('status', 'approved');
     }
-
 }

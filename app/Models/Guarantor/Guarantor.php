@@ -111,8 +111,8 @@ class Guarantor extends Model
         return $this->hasMany(GuarantorRate::class);
     }
 
-    public function hostToHost(): HasMany
+    public function hostToHost(): HasOne
     {
-        return $this->hasMany(HostToHost::class);
+        return $this->hasOne(HostToHost::class);
     }
 }
