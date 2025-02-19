@@ -9,7 +9,7 @@ import {
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
-import { useGetAllPrincipal } from "@/common/hooks/react-query/principal";
+import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
@@ -20,12 +20,14 @@ import { Label } from "@/components/_shadcn-ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/_shadcn-ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
+import Loading from "@/components/atoms/loading";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import { FileInput } from "@/components/molecules/input/file-input";
+import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import { useForm } from "@inertiajs/react";
@@ -384,26 +386,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleNextStepForm = () => {
-    if (formStep === "principal") {
-      handleClickStep("docs");
-    } else if (formStep === "docs") {
-      handleClickStep("contract");
-    } else if (formStep === "contract") {
-      handleClickStep("skoring");
-    }
-  };
-
-  const handlePrevStepForm = () => {
-    if (formStep === "docs") {
-      handleClickStep("principal");
-    } else if (formStep === "contract") {
-      handleClickStep("docs");
-    } else if (formStep === "skoring") {
-      handleClickStep("contract");
-    }
-  };
-
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
 
@@ -481,6 +463,92 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         handleReset();
       },
     });
+  };
+
+  const { mutate, isPending } = useCreatePrincipal({
+    onSuccess: async (data: any) => {
+      const principalId = data.id;
+      toast({
+        title: "Berhasil Menambah Principal!",
+        description: "Data berhasil disimpan",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+        refetchType: "active",
+      });
+      setData("principal", {
+        ...data.principal,
+        id: principalId,
+      });
+      fetchPrincipalDocuments(principalId);
+      handleClickStep("docs");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Gagal Menambah Principal Baru",
+        description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreatePrincipal = () => {
+    if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {
+      return;
+    }
+
+    const principalData = {
+      province_id: data.principal.province_id,
+      regency_id: data.principal.regency_id,
+      district_id: data.principal.district_id,
+      village: data.principal.village || "",
+      name: data.principal.name || "",
+      address: data.principal.address || "",
+      postal_code: data.principal.postal_code || "",
+      telephone: String(data.principal.telephone || ""),
+      fax: data.principal.fax || "",
+      npwp: String(data.principal.npwp || ""),
+      nib: String(data.principal.nib || ""),
+      siup_siujk: data.principal.siup_siujk || "",
+      head_name: data.principal.head_name || "",
+      director_name: data.principal.director_name || "",
+      director_position: data.principal.director_position || "",
+      director_phone: String(data.principal.director_phone || ""),
+      commissioner: data.principal.commissioner || "",
+      year_established: String(data.principal.year_established || ""),
+      est_deed: data.principal.est_deed || "",
+      last_deed: data.principal.last_deed || "",
+      business_fields: data.principal.business_fields || "",
+      ratios: data.principal.ratios,
+    };
+    mutate(principalData);
+  };
+
+  const handleNextStepForm = () => {
+    if (formStep === "principal") {
+      if (data.principal.id) {
+        handleClickStep("docs");
+      } else if (formSearchPrincipalState === "search") {
+        handleClickStep("docs");
+      } else {
+        handleCreatePrincipal();
+      }
+    } else if (formStep === "docs") {
+      handleClickStep("contract");
+    } else if (formStep === "contract") {
+      handleClickStep("skoring");
+    }
+  };
+
+  const handlePrevStepForm = () => {
+    if (formStep === "docs") {
+      handleClickStep("principal");
+    } else if (formStep === "contract") {
+      handleClickStep("docs");
+    } else if (formStep === "skoring") {
+      handleClickStep("contract");
+    }
   };
 
   console.log(data);
@@ -1716,13 +1784,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               {/* SHOW NEXT IF SECTION IS NOT SKORING */}
               <Show when={formStep !== "skoring"}>
                 <Button
+                  disabled={isPending}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleNextStepForm();
                   }}
                   type="button">
-                  Selanjutnya
+                  Selanjutnya <Loading isLoading={isPending} />
                 </Button>
               </Show>
 

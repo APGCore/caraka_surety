@@ -9,16 +9,25 @@ Route::prefix('principal-management')
         Route::controller(PrincipalController::class)
             ->group(function () {
                 Route::prefix('principal')
-                    ->name('principal.')->group(function () {
+                    ->name('principal.')
+                    ->group(function () {
+                        // api.principal-management.principal.all
                         Route::get('all', 'getAll')->name('all');
+                        // api.principal-management.principal.documents
                         Route::get('document', 'getDocument')->name('documents');
+                        // api.principal-management.principal.ratios
                         Route::get('ratios/{principal}', 'getRatios')->name('ratios');
+                        // api.principal-management.principal.store
                         Route::post('store', 'store')->name('store');
+                        // api.principal-management.principal.update
                         Route::put('update/{principal}', 'update')->name('update');
                     });
 
-                Route::prefix('document')->name('document.')->group(function () {
-                    Route::get('upload/{principal}', 'uploadDocument')->name('upload');
-                });
+                Route::prefix('document')
+                    ->name('document.')
+                    ->group(function () {
+                        // api.principal-management.document.upload
+                        Route::get('upload/{principal}', 'uploadDocument')->name('upload');
+                    });
             });
     });
