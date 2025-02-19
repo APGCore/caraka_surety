@@ -19,6 +19,27 @@ export const useGetAllGuarantor = (querySetting?: QueryOptions) => {
   });
 };
 
+export const useFetchGetAllGuarantor = (isHead: boolean, querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR + "1"],
+    queryFn: async () => {
+      let response;
+      if (isHead) {
+        response = await axios.get(
+          route("api.guarantor-management.guarantor.all", {
+            isHead: "true",
+          }),
+        );
+      } else {
+        response = await axios.get(route("api.guarantor-management.guarantor.all"));
+      }
+
+      return response.data.data;
+    },
+    ...querySetting,
+  });
+};
+
 export const useGetGuarantorByProductId = (productId?: string, querySetting?: QueryOptions) => {
   return useQuery({
     queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR_BY_PRODUCT],

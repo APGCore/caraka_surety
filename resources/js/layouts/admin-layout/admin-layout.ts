@@ -9,6 +9,7 @@ import {
   Infinity,
   LibraryBig,
   MapPinHouse,
+  Network,
   Stamp,
   User,
 } from "lucide-react";
@@ -229,6 +230,17 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Penggunaan Blangko",
         route_name: "report.blank-usage",
         href: route("report.blank-usage.index"),
+      },
+    ],
+  },
+  {
+    title: "Kelola Host to Host",
+    icon: Network,
+    items: [
+      {
+        title: "Host to Host",
+        route_name: "host-to-host",
+        href: route("host-to-host.index"),
       },
     ],
   },

@@ -1,15 +1,5 @@
-// import useGetAllBank from "@/common/hooks/api/bank/useGetAllBank";
-// import useGetGuarantorBranch from "@/common/hooks/api/guarantor/useGetGuarantorBranch";
-// import useGetGuarantorByProductId from "@/common/hooks/api/guarantor/useGetGuarantorByProductId";
-// import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
-// import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
-// import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
-// import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
-// import useGetAllPrincipal from "@/common/hooks/api/principal/useGetAllPrincipal";
-// import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
-// import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
