@@ -8,31 +8,11 @@ export const GUARANTOR_QUERY_KEY = {
   BRANCH_GUARANTOR_BY_HEADQUARTER: "branch_guarantor_by_head",
 };
 
-export const useGetAllGuarantor = (querySetting?: QueryOptions) => {
+export const useFetchGetAllGuarantor = (params: any, querySetting?: QueryOptions) => {
   return useQuery({
     queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR],
     queryFn: async () => {
-      const response = await axios.get(route("api.guarantor-management.guarantor.all"));
-      return response.data.data;
-    },
-    ...querySetting,
-  });
-};
-
-export const useFetchGetAllGuarantor = (isHead: boolean, querySetting?: QueryOptions) => {
-  return useQuery({
-    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR + "1"],
-    queryFn: async () => {
-      let response;
-      if (isHead) {
-        response = await axios.get(
-          route("api.guarantor-management.guarantor.all", {
-            isHead: "true",
-          }),
-        );
-      } else {
-        response = await axios.get(route("api.guarantor-management.guarantor.all"));
-      }
+      const response = await axios.get(route("api.guarantor-management.guarantor.all"), { params });
 
       return response.data.data;
     },

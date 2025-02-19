@@ -10,12 +10,12 @@ use Laravel\Scout\Searchable;
 class HostToHost extends Model
 {
     use HasFactory, Searchable;
+
     protected $guarded = [
         'id',
         'created_at',
         'updated_at',
     ];
-
 
     public function toSearchableArray(): array
     {

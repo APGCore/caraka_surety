@@ -32,7 +32,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             // if route WEB, return Inertia response
-            return back()->withInput()->withErrors($e->errors());
+            // error message will be displayed in the form
+            $errors = collect($e->errors())->pluck(0)->toArray();
+            flashMessage('Failed', implode(', ', $errors), 'error');
+
+            return redirect()->back()->withInput($errors)->withErrors($errors);
         });
 
         $exceptions->renderable(function (AuthenticationException $e, $request) {
