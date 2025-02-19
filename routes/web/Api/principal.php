@@ -13,11 +13,12 @@ Route::prefix('principal-management')
                         Route::get('all', 'getAll')->name('all');
                         Route::get('document', 'getDocument')->name('documents');
                         Route::get('ratios/{principal}', 'getRatios')->name('ratios');
+                        Route::post('store', 'store')->name('store');
+                        Route::put('update/{principal}', 'update')->name('update');
                     });
 
                 Route::prefix('document')->name('document.')->group(function () {
-                    Route::post('store', 'store')->name('store');
-                    Route::put('update/{principal}', 'update')->name('update');
+                    Route::get('upload/{principal}', 'uploadDocument')->name('upload');
                 });
             });
     });
