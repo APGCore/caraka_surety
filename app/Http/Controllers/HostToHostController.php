@@ -46,7 +46,7 @@ class HostToHostController extends Controller
             'hostToHosts' => fn () => $resource,
         ];
 
-        return inertia($this->components['list'], $inertiaProps);
+        return inertia($this->components->list, $inertiaProps);
     }
 
     /**
