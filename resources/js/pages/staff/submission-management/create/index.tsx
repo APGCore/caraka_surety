@@ -204,16 +204,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   } | null>(null);
 
   // Principal Regency
+  const principalProvinceId = data?.principal?.province_id || selectedPrincipalProvince?.id;
   const { data: principalRegencies } = useGetRegencyByProvinceId(
-    String(data?.principal?.province_id || selectedPrincipalProvince?.id),
-    {},
+    principalProvinceId ? String(principalProvinceId) : undefined,
   );
-
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Principal District
+  const principalRegencyId = data?.principal?.regency_id || selectedPrincipalRegency?.id;
   const { data: principalDistricts } = useGetDistrictByRegencyId(
-    String(data?.principal?.regency_id || selectedPrincipalRegency?.id),
+    principalRegencyId ? String(principalRegencyId) : undefined,
   );
   const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
@@ -222,16 +222,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedObligeeProvince, setSelectedObligeeProvince] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee Regency
+  const obligeeProvinceId = data?.obligee?.province_id || selectedObligeeProvince?.id;
   const { data: obligeeRegencies } = useGetRegencyByProvinceId(
-    String(data?.obligee?.province_id || selectedObligeeProvince?.id),
-    {},
+    obligeeProvinceId ? String(obligeeProvinceId) : undefined,
   );
   const [selectedObligeeRegency, setSelectedObligeeRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee District
-  const { data: obligeeDistricts } = useGetDistrictByRegencyId(
-    String(data?.obligee?.regency_id || selectedObligeeRegency?.id),
-  );
+  const obligeeRegencyId = data?.obligee?.regency_id || selectedObligeeRegency?.id;
+  const { data: obligeeDistricts } = useGetDistrictByRegencyId(obligeeRegencyId ? String(obligeeRegencyId) : undefined);
   const [selectedObligeeDistrict, setSelectedObligeeDistrict] = useState<{ id: number; name: string } | null>(null);
 
   // Job Location Province
@@ -241,29 +240,32 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   );
 
   // Job Location Regency
+  const jobLocationProvinceId = data?.submission?.job_location_province_id || selectedJobLocationProvince?.id;
   const { data: jobLocationRegencies } = useGetRegencyByProvinceId(
-    String(data?.submission?.job_location_province_id || selectedJobLocationProvince?.id),
-    {},
+    jobLocationProvinceId ? String(jobLocationProvinceId) : undefined,
   );
   const [selectedJobLocationRegency, setSelectedJobLocationRegency] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Job Location District
+  const jobLocationRegencyId = data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id;
   const { data: jobLocationDistricts } = useGetDistrictByRegencyId(
-    String(data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id),
+    jobLocationRegencyId ? String(jobLocationRegencyId) : undefined,
   );
   const [selectedJobLocationDistrict, setSelectedJobLocationDistrict] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Guarantor
-  const { data: guarantors } = useGetGuarantorByProductId(String(selectedProducts));
+  const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
   const [selectedGuarantor, setSelectedGuarantor] = useState(null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
-  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(String(selectedGuarantor));
+  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(
+    selectedGuarantor ? String(selectedGuarantor) : undefined,
+  );
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
