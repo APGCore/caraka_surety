@@ -325,6 +325,14 @@ class SubmissionController extends Controller
 
         $submission->analyst_name = $submission->staff->name;
 
+        $submission->scores->map(function ($score) {
+            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+            $score->question_name = $score->scoringQuestion->name ?? '-';
+            $score->option_name = $score->scoringOption->name ?? '-';
+
+            return $score;
+        });
+
         // GET DOC FORMAT ANALYSIS
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
