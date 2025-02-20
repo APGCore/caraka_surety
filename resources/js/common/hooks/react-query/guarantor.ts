@@ -10,7 +10,7 @@ export const GUARANTOR_QUERY_KEY = {
 
 export const useFetchGetAllGuarantor = (params: any, querySetting?: QueryOptions) => {
   return useQuery({
-    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR],
+    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR, params && typeof params === "object" ? JSON.stringify(params) : params],
     queryFn: async () => {
       const response = await axios.get(route("api.guarantor-management.guarantor.all"), { params });
 
@@ -22,11 +22,13 @@ export const useFetchGetAllGuarantor = (params: any, querySetting?: QueryOptions
 
 export const useGetGuarantorByProductId = (productId?: string, querySetting?: QueryOptions) => {
   return useQuery({
-    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR_BY_PRODUCT],
+    queryKey: [GUARANTOR_QUERY_KEY.GUARANTOR_BY_PRODUCT, productId],
     queryFn: async () => {
       const response = await axios.get(route("api.guarantor-management.guarantor.by-product", { product: productId }));
+
       return response.data.data;
     },
+    enabled: !!productId,
     ...querySetting,
   });
 };
