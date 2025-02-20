@@ -467,7 +467,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
 
   const { mutate, isPending } = useCreatePrincipal({
     onSuccess: async (data: any) => {
-      const principalId = data.id;
+      //   console.log(data);
+      //   const principalId = data.id;
       toast({
         title: "Berhasil Menambah Principal!",
         description: "Data berhasil disimpan",
@@ -476,11 +477,41 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
         refetchType: "active",
       });
+      const ratios = await fetchPrincipalRatios(data.id);
+      // SETTING PRINCIPAL DATA
       setData("principal", {
-        ...data.principal,
-        id: principalId,
+        ...data?.principal,
+        id: data?.id,
+        province_id: data?.province_id,
+        regency_id: data?.regency_id,
+        district_id: data?.district_id,
+        village: data?.village,
+        name: data?.name,
+        address: data?.address,
+        telephone: data?.telephone,
+        postal_code: data?.postal_code,
+        fax: data?.fax,
+        npwp: data?.npwp,
+        nib: data?.nib,
+        siup_siujk: data?.siup_siujk,
+        head_name: data?.head_name,
+        business_fields: data?.business_fields,
+        director_name: data?.director_name,
+        director_position: data?.director_position,
+        director_phone: data?.director_phone,
+        commissioner: data?.commissioner,
+        year_established: data?.year_established,
+        est_deed: data?.est_deed,
+        last_deed: data?.last_deed,
+        ratios,
       });
-      fetchPrincipalDocuments(principalId);
+
+      fetchPrincipalDocuments(data.id);
+      //   setData("principal", {
+      //     ...data.principal,
+      //     id: principalId,
+      //   });
+      //   fetchPrincipalDocuments(principalId);
       handleClickStep("docs");
     },
     onError: (error) => {
