@@ -1685,7 +1685,11 @@ class SubmissionController extends Controller
             ])->toArray();
             $submission->submissionDocs()->createMany($docData);
 
-            $this->sendToGuarantor($submission->getAttribute('id'));
+            $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
+            $hostToHost = $guarantor->getRelation('hostToHost');
+            if ($hostToHost) {
+                $this->sendToGuarantor($submission->getAttribute('id'));
+            }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
         } catch (\Exception $e) {

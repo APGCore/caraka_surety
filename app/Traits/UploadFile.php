@@ -12,7 +12,7 @@ trait UploadFile
      */
     public function uploadFile(UploadedFile $file, $path, $fileName): string
     {
-        $extension = $file->getClientOriginalExtension();
+        $extension = $file->getClientOriginalExtension() ?: 'pdf';
         $fileName = str_replace(' ', '_', $fileName);
         $newFileName = time().'_'.$fileName.'.'.$extension;
 
