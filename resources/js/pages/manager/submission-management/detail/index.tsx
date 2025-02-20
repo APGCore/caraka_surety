@@ -677,11 +677,52 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     product_name: submission?.product?.name || "",
   };
 
+  //   const handleApprove = (submissionId: number): void => {
+  //     setIsLoading(true);
+
+  //     axios
+  //       .post(route("manager-submission-approve", { id: submissionId }))
+  //       .then((response) => {
+  //         console.log("Success approve submission", response);
+  //         router.reload();
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error approving submission", error);
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false);
+  //       });
+  //   };
+
   const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
 
+    const documents = Object.keys(editorRefs.current).map((key) => {
+      const allDocuments = [
+        ...(Array.isArray(submission?.document_format_guarantor) ? submission.document_format_guarantor : []),
+        ...(Array.isArray(submission?.document_format_product) ? submission.document_format_product : []),
+        ...(Array.isArray(submission?.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
+      ];
+
+      if (key === "hasil-analisis") {
+        return {
+          id: submission?.document_format_analysis?.id || "hasil-analisis",
+          name: "Resume Analisa Penjaminan",
+          content: editorRefs.current[key].getContent(),
+        };
+      }
+
+      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
+
+      return {
+        id: doc ? doc.id : key,
+        name: doc ? doc.name : key,
+        content: editorRefs.current[key].getContent(),
+      };
+    });
+
     axios
-      .post(route("manager-submission-approve", { id: submissionId }))
+      .post(route("manager-submission-approve", { id: submissionId }), { documents })
       .then((response) => {
         console.log("Success approve submission", response);
         router.reload();
@@ -1376,19 +1417,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </div>
 
-            {/* DOCUMENT FORMAT */}
-            {/* <div>
-                {submission?.document_format_guarantor.map((doc: any) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
-                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                    <TinyMCEEditor
-                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                      initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                      onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                    />
-                  </div>
-                ))}
-              </div> */}
             <div>
               <div>
                 {(() => {
@@ -1462,136 +1490,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 })()}
               </div>
             </div>
-
-            {/* {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-                <TinyMCEEditor
-                  id="surat-permohonan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
-                  initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-                <TinyMCEEditor
-                  id="draft-surety"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
-                  initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
-                <TinyMCEEditor
-                  id="draft-surety-bumida"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
-                  initialContent={replacePlaceholders(templateBumida, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
-                <TinyMCEEditor
-                  id="draft-surety-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
-                  initialContent={replacePlaceholders(templateJastan, dataTemplate)}
-                />
-              </div>
-            ) : null}
-
-            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-                <TinyMCEEditor
-                  id="draft-surety-videi"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
-                  initialContent={replacePlaceholders(templateVidei, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {submission?.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-bumida"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {submission?.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission?.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {submission?.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-videi"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )} */}
-
-            {/* OUTPUT SURAT JAMINAN  */}
-
-            {/* {isApproved && submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pemeliharaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pemeliharaan</p>
-                <TinyMCEEditor
-                  id="surat-pemeliharaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePemeliharaan, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {isApproved &&
-              (submission?.guarantor?.name.toLowerCase().includes("jastan") ||
-                submission?.guarantor?.name.toLowerCase().includes("jasa tania")) && (
-                <div>
-                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Uang Muka Jastan</p>
-                  <TinyMCEEditor
-                    id="uang-muka-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateUangMuka, dataTemplate)}
-                  />
-                </div>
-              )}
-
-            {isApproved && submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-                <TinyMCEEditor
-                  id="surat-pelaksanaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
-                />
-              </div>
-            )} */}
           </Show>
 
           <Show
@@ -1599,7 +1497,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               submission?.status === SubmissionStatus.PROCESS &&
               !submission?.beyond_the_limit &&
               !submission?.approved_at &&
-              !submission?.rejected_at
+              !submission?.rejected_at &&
+              currentStep.name === "luaran"
             }>
             <div className="flex gap-2">
               <AlertDialog>

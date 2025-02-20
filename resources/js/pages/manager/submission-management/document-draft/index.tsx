@@ -29,6 +29,8 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
     setSelect(Number(value));
   };
 
+  console.log(submissions);
+
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
@@ -69,12 +71,12 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
             </TableRow>
           </TableHeader>
           <TableBody>
-            {submissions.length > 0 ? (
-              submissions.map((submission, index) => (
+            {submissions?.length > 0 ? (
+              submissions.map((submission: any, index: number) => (
                 <TableRow key={submission.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{submission.name}</TableCell>
-                  <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission?.principal?.name}</TableCell>
+                  <TableCell>{submission?.submission_date}</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded ${
@@ -97,7 +99,7 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-36 mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={route("submission.show", { id: submission.id })}>Detail</Link>
+                          <Link href={route("manager-submission-docs.submission", { id: submission.id })}>Detail</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
 
@@ -118,7 +120,7 @@ const SubmissionDocumentDraftPage: SubmissionDocumentDraftPageProps = ({ submiss
         </Table>
       </div>
       <div className="text-sm text-gray-500">
-        Menampilkan {submissions.length > 0 ? 1 : 0} sampai {submissions.length} dari {submissions.length} hasil
+        Menampilkan {submissions?.length > 0 ? 1 : 0} sampai {submissions?.length} dari {submissions?.length} hasil
       </div>
       <Pagination>
         <PaginationContent>

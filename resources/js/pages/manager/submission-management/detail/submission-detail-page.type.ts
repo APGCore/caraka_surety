@@ -158,6 +158,7 @@ interface User {
 
 interface SubmissionDetailProps {
   submission: {
+    [key: string]: any;
     id: number;
     bank: Bank;
     bank_name: string;
@@ -192,6 +193,7 @@ interface SubmissionDetailProps {
     rejected_at: string;
     beyond_the_limit: boolean;
     document_format_analysis: {
+      id: number;
       format_document: any;
       name: string;
       map: any;

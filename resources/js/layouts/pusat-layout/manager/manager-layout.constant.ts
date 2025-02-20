@@ -24,6 +24,11 @@ export const managerRoute: IAppSideBarMenu[] = [
         route_name: "manager-submission-history",
         href: route("manager-submission-history.submission"),
       },
+      {
+        title: "Draft Dokumen Pengajuan",
+        route_name: "manager-submission-document-draft",
+        href: route("manager-submission-document-draft.submission"),
+      },
     ],
   },
 ];

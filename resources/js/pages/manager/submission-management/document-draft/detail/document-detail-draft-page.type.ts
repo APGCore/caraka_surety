@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SubmissionDocumentDraftProps {
-  submissions: {
+  submission: {
     [key: string]: any;
     id: number;
     length: any;

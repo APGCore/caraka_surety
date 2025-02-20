@@ -709,7 +709,7 @@ class SubmissionController extends Controller
 
     public function showDetailDocsSubmissionManager($id)
     {
-        $submission = Submission::with(['principal', 'guarantorToProductType'])
+        $submission = SubmissionDoc::with(['requiredDoc'])
             ->findOrFail($id);
 
         return inertia('manager/submission-management/document-draft/detail/index', [
@@ -1180,9 +1180,16 @@ class SubmissionController extends Controller
 
     public function displayDocumentDraftByStaff()
     {
-        $component = 'staff/submission-management/document-draft/index';
+        $component = 'manager/submission-management/document-draft/index';
 
-        $submissions = Submission::with('principal')->get();
+        $submissions = Submission::whereHas('submissionDocs')
+            ->with(['submissionDocs', 'principal'])
+            ->get();
+
+        $submissions->transform(function ($submission) {
+            $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+            return $submission;
+        });
 
         return inertia($component, [
             'page_settings' => fn () => [
@@ -1191,6 +1198,7 @@ class SubmissionController extends Controller
             'submissions' => fn () => $submissions,
         ]);
     }
+
 
     public function displaySubmissionByManager()
     {
@@ -1641,12 +1649,31 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function approve(Submission $submission): void
+    // public function approve(Submission $submission): void
+    // {
+    //     $dateNow = now()->format('Y-m-d H:i:s');
+    //     $updated = $submission->update([
+    //         'checked_by' => auth()->user()->getAuthIdentifier(),
+    //         'approved_by' => auth()->user()->getAuthIdentifier(),
+    //         'checked_at' => $dateNow,
+    //         'approved_at' => $dateNow,
+    //         'status' => SubmissionStatus::APPROVED->value,
+    //     ]);
+
+    //     if (! $updated) {
+    //         flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
+    //     } else {
+    //         flashMessage('success', 'Berhasil menyetujui pengajuan');
+    //     }
+    // }
+
+    public function approve(Request $request, Submission $submission): void
     {
         $dateNow = now()->format('Y-m-d H:i:s');
+
         $updated = $submission->update([
-            'checked_by' => auth()->user()->getAuthIdentifier(),
-            'approved_by' => auth()->user()->getAuthIdentifier(),
+            'checked_by' => auth()->id(),
+            'approved_by' => auth()->id(),
             'checked_at' => $dateNow,
             'approved_at' => $dateNow,
             'status' => SubmissionStatus::APPROVED->value,
@@ -1654,9 +1681,22 @@ class SubmissionController extends Controller
 
         if (! $updated) {
             flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
-        } else {
-            flashMessage('success', 'Berhasil menyetujui pengajuan');
+            return;
         }
+
+        $documents = $request->input('documents', []);
+
+        foreach ($documents as $doc) {
+            SubmissionDoc::create([
+                'submission_id' => $submission->id,
+                'document_format_id' => $doc['id'] ?? null,
+                'name' => $doc['name'] ?? null,
+                'format_document' => $doc['content'], 
+                'url' => $doc['url'] ?? null,
+            ]);
+        }
+
+        flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
     }
 
     public function reject(Submission $submission): void
