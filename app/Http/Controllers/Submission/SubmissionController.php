@@ -1164,6 +1164,7 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->where('staff_id', '=', $authId)
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
@@ -1267,6 +1268,7 @@ class SubmissionController extends Controller
                     ->orWhere('rejected_by', '=', $authId);
             })
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1349,6 +1351,7 @@ class SubmissionController extends Controller
                     ->orWhere('rejected_by', '=', $authId);
             })
             ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1436,6 +1439,7 @@ class SubmissionController extends Controller
                     ->orWhere('rejected_by', '=', $authId);
             })
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1524,6 +1528,7 @@ class SubmissionController extends Controller
                     ->orWhere('rejected_by', '=', $authId);
             })
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1569,6 +1574,7 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->where('staff_id', '=', $authId)
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
@@ -1621,6 +1627,7 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->where('staff_id', '=', $authId)
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
@@ -1664,9 +1671,9 @@ class SubmissionController extends Controller
             $updated = $submission->update([
                 'checked_by' => $checkedBy ?? auth()->id(),
                 'checked_at' => $checkedAt ?? $dateNow,
-                // 'approved_by' => auth()->id(),
-                // 'approved_at' => $dateNow,
-                // 'status' => SubmissionStatus::APPROVED->value,
+                 'approved_by' => auth()->id(),
+                 'approved_at' => $dateNow,
+                 'status' => SubmissionStatus::APPROVED->value,
             ]);
 
             if (! $updated) {
@@ -1836,7 +1843,6 @@ class SubmissionController extends Controller
 
     public function generateNomorSurat($submissionId)
     {
-
         $submission = Submission::find($submissionId);
 
         if (! $submission) {
