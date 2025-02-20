@@ -510,54 +510,41 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
-  //   const saveContent = async (editorId: string, submissionId: number | undefined): Promise<void> => {
-  //     const content = tinymce.get(editorId)?.getContent();
-  //     if (content && submissionId) {
-  //       try {
-  //         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-  //         if (!csrfToken) {
-  //           throw new Error("CSRF token tidak ditemukan.");
-  //         }
-
-  //         const response = await fetch("/your-laravel-route", {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             "X-CSRF-TOKEN": csrfToken,
-  //           },
-  //           body: JSON.stringify({
-  //             submission_id: submissionId,
-  //             content,
-  //           }),
-  //         });
-
-  //         if (response.ok) {
-  //           const result = await response.json();
-  //           alert(`Konten berhasil disimpan: ${result.message}`);
-  //         } else {
-  //           const error = await response.json();
-  //           console.error("Error:", error);
-  //           alert(`Terjadi kesalahan: ${error.message || "Gagal menyimpan data"}`);
-  //         }
-  //       } catch (error) {
-  //         console.error("Fetch Error:", error);
-  //         alert("Terjadi kesalahan jaringan saat mencoba menyimpan data.");
-  //       }
-  //     } else {
-  //       alert("Tidak ada konten yang disimpan atau submission ID tidak tersedia.");
-  //     }
-  //   };
-
-  const handleApprove = (submissionId: number) => {
+  const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
+
+    const documents = Object.keys(editorRefs.current).map((key) => {
+      const allDocuments = [
+        ...(Array.isArray(submission?.document_format_guarantor) ? submission.document_format_guarantor : []),
+        ...(Array.isArray(submission?.document_format_product) ? submission.document_format_product : []),
+        ...(Array.isArray(submission?.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
+      ];
+
+      if (key === "hasil-analisis") {
+        return {
+          id: submission?.document_format_analysis?.id || "hasil-analisis",
+          name: "Resume Analisa Penjaminan",
+          content: editorRefs.current[key].getContent(),
+        };
+      }
+
+      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
+
+      return {
+        id: doc ? doc.id : key,
+        name: doc ? doc.name : key,
+        content: editorRefs.current[key].getContent(),
+      };
+    });
+
     axios
-      .post(route("direksi-submission-approve", submissionId))
+      .post(route("manager-submission-approve", { id: submissionId }), { documents })
       .then((response) => {
-        console.log("success approve submission", response);
+        console.log("Success approve submission", response);
         router.reload();
       })
       .catch((error) => {
-        console.log("error approve submission", error);
+        console.error("Error approving submission", error);
       })
       .finally(() => {
         setIsLoading(false);

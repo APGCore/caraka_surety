@@ -192,6 +192,7 @@ interface SubmissionDetailProps {
     rejected_at: string;
     beyond_the_limit: boolean;
     document_format_analysis: {
+      id: number;
       format_document: any;
       name: string;
       map: any;
