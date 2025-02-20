@@ -1,5 +1,6 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
 import {
+  Activity,
   Archive,
   BookOpenCheck,
   Boxes,
@@ -241,6 +242,17 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Penggunaan Blangko",
         route_name: "report.blank-usage",
         href: route("report.blank-usage.index"),
+      },
+    ],
+  },
+  {
+    title: "Kelola Aktivitas",
+    icon: Activity,
+    items: [
+      {
+        title: "Aktivitas Aplikasi",
+        route_name: "activity-log",
+        href: route("activity-log.index"),
       },
     ],
   },
