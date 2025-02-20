@@ -10,7 +10,6 @@ use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
-
     protected object $inertiaComponents;
 
     public function __construct()
@@ -52,15 +51,12 @@ class ActivityLogController extends Controller
 
         // $activities = ActivityLogResource::collection($activities);
 
-
         $inertiaProps = [
             'page_settings' => [
                 'title' => 'Log Aktivitas',
             ],
-            'activitylogs' => fn() => $activities,
+            'activitylogs' => fn () => $activities,
         ];
-
-
 
         return inertia($this->inertiaComponents->list, $inertiaProps);
     }

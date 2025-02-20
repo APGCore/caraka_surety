@@ -43,10 +43,10 @@ class HostToHostController extends Controller
                 'title' => 'Host To Host',
             ],
 
-            'hostToHosts' => fn() => $resource,
+            'hostToHosts' => fn () => $resource,
         ];
 
-        return inertia($this->components['list'], $inertiaProps);
+        return inertia($this->components->list, $inertiaProps);
     }
 
     /**
@@ -63,7 +63,7 @@ class HostToHostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'guarantor_id' => 'required:exists:' . Guarantor::class . ',id',
+            'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
             'guarantor_url_host' => 'required',
             'token' => 'nullable',
         ]);
@@ -108,7 +108,7 @@ class HostToHostController extends Controller
     public function update(Request $request, HostToHost $hostToHost)
     {
         $request->validate([
-            'guarantor_id' => 'required:exists:' . Guarantor::class . ',id',
+            'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
             'guarantor_url_host' => 'required',
             'token' => 'nullable',
         ]);

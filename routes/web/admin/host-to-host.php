@@ -13,5 +13,3 @@ Route::prefix('host-to-host-management')->group(function () {
             Route::delete('delete/{hostToHost}', 'destroy')->name('delete');
         });
 });
-
-// host-to-host.index

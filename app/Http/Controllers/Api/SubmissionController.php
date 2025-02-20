@@ -5,11 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Models\Submission\Submission;
+use App\Services\HostToHostService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
+    protected HostToHostService $hostToHostService;
+
+    public function __construct(HostToHostService $hostToHostService)
+    {
+        $this->hostToHostService = $hostToHostService;
+    }
+
     public function show(Request $request, Submission $submission): JsonResponse
     {
         $submission->load([
@@ -22,6 +30,7 @@ class SubmissionController extends Controller
             'blanks',
             'guarantor:id,name',
             'guarantorBranch:id,name',
+            'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,token',
             'product:id,name',
             'guarantorToProductType:id,name,job_group,job_type',
             'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
@@ -32,6 +41,7 @@ class SubmissionController extends Controller
             'regency:id,code,name',
             'district:id,code,name',
             'sourceOfFund:id,name',
+            'submissionDocs:id,submission_id,name,format_document',
         ]);
         $principal = $submission->getRelation('principal');
         $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
@@ -44,7 +54,10 @@ class SubmissionController extends Controller
         $jobRegency = $submission->getRelation('regency');
         $jobDistrict = $submission->getRelation('district');
         $sourceOfFound = $submission->getRelation('sourceOfFund');
-        $result = (object) [
+        $hostToHost = $guarantor->getRelation('hostToHost');
+        $url = $hostToHost->guarantor_url_host;
+        $token = $hostToHost->token;
+        $result = [
             'submission_id' => $submission->getAttribute('id'),
             'principal' => (object) [
                 'id' => $principal->getAttribute('id'),
@@ -141,6 +154,12 @@ class SubmissionController extends Controller
                     ],
                 ],
             ],
+            'output' => $submission->getRelation('submissionDocs')->map(function ($doc) {
+                return (object) [
+                    'name' => $doc->getAttribute('name'),
+                    'value' => $doc->getAttribute('format_document'),
+                ];
+            }),
         ];
 
         return $this->responseSuccess('success', $result);
