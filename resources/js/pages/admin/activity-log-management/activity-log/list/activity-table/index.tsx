@@ -65,7 +65,7 @@ const ActivityTable = ({ activities, meta }: { activities: Activity[]; meta: any
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Provinsi" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Cari Aktivitas" value={search} onChange={(e) => setSearch(e.target.value)} />
             <Button type="submit">Cari</Button>
           </form>
         </div>
