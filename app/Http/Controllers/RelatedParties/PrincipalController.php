@@ -220,10 +220,9 @@ class PrincipalController extends Controller
     {
         $principal = Principal::query()
             ->with('principalRatios')
-            ->where('id', $principalId)
-            ->first();
+            ->firstWhere('id', $principalId);
 
-        $ratios = $principal?->principalRatios->take(2) ?? [];
+        $ratios = $principal?->getRelation('principalRatios') ?? [];
 
         return $this->responseSuccess('Data Ratio', $ratios);
     }

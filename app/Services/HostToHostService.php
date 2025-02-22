@@ -17,16 +17,18 @@ class HostToHostService
 
     public function sendPostRequest(string $url, string $token, array $data): object
     {
+        $jsonData = json_encode($data);
+        dd($jsonData);
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'Authorization' => 'token '.$token,
-        ])->post($url, $data);
-        activity()
-            ->useLog('host-to-host')
-            ->causedBy(auth()->user())
-            ->log('Sent POST request to '.$url);
+            'Authorization' => $token,
+        ])->post($url, $jsonData);
 
         if ($response->successful()) {
+            activity()
+                ->useLog('host-to-host')
+                ->causedBy(auth()->user())
+                ->log('Sent POST request to '.$url);
             Log::info('Request to '.$url.' was successful', ['response' => $response->json()]);
         } else {
             Log::error('Request to '.$url.' was failed: ', ['response' => $response->body()]);

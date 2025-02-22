@@ -4,7 +4,6 @@ namespace App\Http\Requests\Submission;
 
 use App\Enums\JobGroup;
 use App\Enums\JobType;
-use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Location\District;
 use App\Models\Location\Province;
@@ -14,7 +13,6 @@ use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
-use App\Models\RelatedParties\PrincipalDocument;
 use App\Models\RelatedParties\PrincipalRatio;
 use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringOption;
@@ -44,36 +42,37 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // principals
-            'principal' => ['required'],
-            'principal.id' => ['nullable', 'exists:'.Principal::class.',id'],
-            'principal.province_id' => ['required', 'exists:'.Province::class.',id'],
-            'principal.regency_id' => ['required', 'exists:'.Regency::class.',id'],
-            'principal.district_id' => ['required', 'exists:'.District::class.',id'],
-            'principal.village' => ['nullable', 'string', 'max:255'],
-            'principal.name' => ['required', 'string', 'max:255'], // nama perusahaan
-            'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
-            'principal.telephone' => ['required', 'string', 'max:255'], // telepon perusahaan
-            'principal.fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
-            'principal.postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
-            'principal.npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
-            'principal.nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
-            'principal.siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
-            'principal.head_name' => ['nullable', 'string', 'max:255'], // nama kepala perusahaan
-            'principal.director_name' => ['required', 'string', 'max:255'], // nama direktur perusahaan
-            'principal.director_position' => ['required', 'string', 'max:255'], // jabatan direktur perusahaan
-            'principal.director_phone' => ['required', 'string', 'max:255'], // telepon direktur perusahaan
-            'principal.commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
-            'principal.year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
-            'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
-            'principal.business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
-            // principal documents
-            'principal.documents' => ['nullable', 'array'],
-            'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
-            'principal.documents.*.required_doc_id' => ['nullable', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
-            'principal.documents.*.required_doc_name' => ['nullable', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
-            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
+            //            // principals
+            //            'principal' => ['required'],
+            //            'principal.province_id' => ['required', 'exists:'.Province::class.',id'],
+            //            'principal.regency_id' => ['required', 'exists:'.Regency::class.',id'],
+            //            'principal.district_id' => ['required', 'exists:'.District::class.',id'],
+            //            'principal.village' => ['nullable', 'string', 'max:255'],
+            //            'principal.name' => ['required', 'string', 'max:255'], // nama perusahaan
+            //            'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
+            //            'principal.telephone' => ['required', 'string', 'max:255'], // telepon perusahaan
+            //            'principal.fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
+            //            'principal.postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
+            //            'principal.npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
+            //            'principal.nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
+            //            'principal.siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
+            //            'principal.head_name' => ['nullable', 'string', 'max:255'], // nama kepala perusahaan
+            //            'principal.director_name' => ['required', 'string', 'max:255'], // nama direktur perusahaan
+            //            'principal.director_position' => ['required', 'string', 'max:255'], // jabatan direktur perusahaan
+            //            'principal.director_phone' => ['required', 'string', 'max:255'], // telepon direktur perusahaan
+            //            'principal.commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
+            //            'principal.year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
+            //            'principal.est_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
+            //            'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
+            //            'principal.business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
+            //            // principal documents
+            //            'principal.documents' => ['nullable', 'array'],
+            //            'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
+            //            'principal.documents.*.required_doc_id' => ['nullable', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
+            //            'principal.documents.*.required_doc_name' => ['nullable', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
+            //            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
 
+            'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
             'principal.ratios.*.id' => ['nullable',  'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio

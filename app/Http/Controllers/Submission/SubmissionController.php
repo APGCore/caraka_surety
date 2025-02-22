@@ -41,24 +41,15 @@ class SubmissionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
-    // private function formatToIndonesianDate($date)
-    // {
-    //     if (!$date) {
-    //         return null;
-    //     }
-
-    //     return Carbon::parse($date)->translatedFormat('d F Y');
-    // }
-
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-            $principal = $validated['principal'];
-            $principalDocuments = $validated['principal']['documents'];
+            //            $principal = $validated['principal'];
+            //            $principalDocuments = $validated['principal']['documents'];
+            $principalId = $validated['principal_id'];
             $principalRatios = $validated['principal']['ratios'];
             $principalRatios = collect($principalRatios)->map(function ($ratio) {
                 $ratio['current_assets'] = (int) $ratio['current_assets'];
@@ -102,47 +93,48 @@ class SubmissionController extends Controller
                 'is_used' => true,
             ]);
 
-            $createPrincipal = Principal::query()
-                ->with(['documents', 'principalRatios'])
-                ->updateOrCreate([
-                    'id' => $principal['id'] ?? null,
-                ], collect($principal)->toArray());
+            //            $createPrincipal = Principal::query()
+            //                ->with(['documents', 'principalRatios'])
+            //                ->updateOrCreate([
+            //                    'id' => $principal['id'] ?? null,
+            //                ], collect($principal)->toArray());
 
+            $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
             foreach ($principalRatios as $principalRatio) {
-                $createPrincipal->principalRatios()
+                $principal?->principalRatios()
                     ->updateOrCreate([
                         'year' => $principalRatio['year'],
                     ], $principalRatio);
             }
 
             // create principal document
-            foreach ($principalDocuments as $principalDocument) {
-                $document = collect($principalDocument)->toArray();
-                $document['name'] = $document['required_doc_name'];
-                $document['is_approved'] = true;
-                $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
-                $path = "principal/{$createPrincipal->id}-{$principalName}/documents";
-
-                $existingDocument = $createPrincipal->documents()
-                    ->where('required_doc_id', $principalDocument['required_doc_id'])
-                    ->first();
-
-                if ($existingDocument && $existingDocument->url) {
-                    $this->deleteFile($existingDocument->url);
-                }
-
-                $document['url'] = $this->uploadFile(
-                    $document['file'],
-                    $path,
-                    $document['required_doc_name']
-                );
-
-                $createPrincipal->documents()
-                    ->updateOrCreate([
-                        'required_doc_id' => $principalDocument['required_doc_id'],
-                    ], $document);
-            }
+            //            foreach ($principalDocuments as $principalDocument) {
+            //                $document = collect($principalDocument)->toArray();
+            //                $document['name'] = $document['required_doc_name'];
+            //                $document['is_approved'] = true;
+            //                $principalName = $principal['name'] ? str_replace(' ', '_', $principal['name']) : 'principal';
+            //                $path = "principal/{$createPrincipal->id}-{$principalName}/documents";
+            //
+            //                $existingDocument = $createPrincipal->documents()
+            //                    ->where('required_doc_id', $principalDocument['required_doc_id'])
+            //                    ->first();
+            //
+            //                if ($existingDocument && $existingDocument->url) {
+            //                    $this->deleteFile($existingDocument->url);
+            //                }
+            //
+            //                $document['url'] = $this->uploadFile(
+            //                    $document['file'],
+            //                    $path,
+            //                    $document['required_doc_name']
+            //                );
+            //
+            //                $createPrincipal->documents()
+            //                    ->updateOrCreate([
+            //                        'required_doc_id' => $principalDocument['required_doc_id'],
+            //                    ], $document);
+            //            }
 
             // create or update obligee
             $obligee = Obligee::query()
@@ -168,7 +160,7 @@ class SubmissionController extends Controller
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
-            $dataSubmission['principal_id'] = $createPrincipal->getAttribute('id');
+            $dataSubmission['principal_id'] = $principalId;
             $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['no_guarantee'] = $noGuarantee;
@@ -1679,9 +1671,9 @@ class SubmissionController extends Controller
             $updated = $submission->update([
                 'checked_by' => $checkedBy ?? auth()->id(),
                 'checked_at' => $checkedAt ?? $dateNow,
-                 'approved_by' => auth()->id(),
-                 'approved_at' => $dateNow,
-                 'status' => SubmissionStatus::APPROVED->value,
+                'approved_by' => auth()->id(),
+                'approved_at' => $dateNow,
+                'status' => SubmissionStatus::APPROVED->value,
             ]);
 
             if (! $updated) {
@@ -1924,108 +1916,80 @@ class SubmissionController extends Controller
         $url = $hostToHost->guarantor_url_host;
         $token = $hostToHost->token;
         $result = [
-            'submission_id' => $submission->getAttribute('id'),
-            'principal' => (object) [
-                'id' => $principal->getAttribute('id'),
-                'name' => $principal->getAttribute('name'),
-                'telephone' => $principal->getAttribute('telephone'),
-                'pic' => $principal->getAttribute('pic'),
-                'npwp' => $principal->getAttribute('npwp'),
-                'nib' => $principal->getAttribute('nib'),
-                'siup_siujk' => $principal->getAttribute('siup_siujk'),
-                'head_name' => $principal->getAttribute('head_name'),
-                'business_fields' => $principal->getAttribute('business_fields'),
-                'director_name' => $principal->getAttribute('director_name'),
-                'director_position' => $principal->getAttribute('director_position'),
-                'director_phone' => $principal->getAttribute('director_phone'),
-                'commissioner' => $principal->getAttribute('commissioner'),
-                'year_established' => $principal->getAttribute('year_established'),
-                'last_legality' => $principal->getAttribute('last_deed'),
-                'province' => (object) [
-                    'code' => $principal->province?->getAttribute('code'),
-                    'name' => $principal->province?->getAttribute('name'),
+            'submission_id' => $submission->getAttribute('id') ?? '',
+            'principal' => [
+                'name' => $principal->getAttribute('name') ?? '',
+                'telephone' => $principal->getAttribute('telephone') ?? '',
+                'pic' => $principal->getAttribute('pic') ?? '',
+                'npwp' => $principal->getAttribute('npwp') ?? '',
+                'nib' => $principal->getAttribute('nib') ?? '',
+                'siup_siujk' => $principal->getAttribute('siup_siujk') ?? '',
+                'head_name' => $principal->getAttribute('head_name') ?? '',
+                'business_field' => $principal->getAttribute('business_fields') ?? '',
+                'director_name' => $principal->getAttribute('director_name') ?? '',
+                'director_position' => $principal->getAttribute('director_position') ?? '',
+                'director_phone' => $principal->getAttribute('director_phone') ?? '',
+                'commissioner' => $principal->getAttribute('commissioner') ?? '',
+                'year_established' => $principal->getAttribute('year_established') ?? '',
+                'last_legality' => $principal->getAttribute('last_deed') ?? '',
+                'province' => [
+                    'code' => $principal->province?->getAttribute('code') ?? '',
+                    'name' => $principal->province?->getAttribute('name') ?? '',
                 ],
-                'regency' => (object) [
-                    'code' => $principal->regency?->getAttribute('code'),
-                    'name' => $principal->regency?->getAttribute('name'),
+                'regency' => [
+                    'code' => $principal->regency?->getAttribute('code') ?? '',
+                    'name' => $principal->regency?->getAttribute('name') ?? '',
                 ],
-                'district' => (object) [
-                    'code' => $principal->district?->getAttribute('code'),
-                    'name' => $principal->district?->getAttribute('name'),
+                'district' => [
+                    'code' => $principal->district?->getAttribute('code') ?? '',
+                    'name' => $principal->district?->getAttribute('name') ?? '',
                 ],
-                'village' => $principal->getAttribute('village'),
-                'address' => $principal->getAttribute('address'),
-                'postal_code' => $principal->getAttribute('postal_code'),
+                'village' => $principal->getAttribute('village') ?? '',
+                'address' => $principal->getAttribute('address') ?? '',
+                'postal_code' => $principal->getAttribute('postal_code') ?? '',
             ],
-            'guarantee' => (object) [
-                'no' => $submission->getAttribute('no_guarantee'),
-                'value' => $submission->getAttribute('guarantee_value'),
+            'guarantee' => [
+                'no' => $submission->getAttribute('no_guarantee') ?? '',
+                'value' => $submission->getAttribute('guarantee_value') ?? '',
             ],
-            'contract' => (object) [
-                'value' => $submission->getAttribute('contract_value'),
-                'doc_name' => $submission->getAttribute('doc_name'),
-                'doc_number' => $submission->getAttribute('doc_number'),
-                'doc_date' => $submission->getAttribute('doc_date'),
-                'blank' => $blank?->number,
-                'guarantor_name' => $guarantor->getAttribute('name'),
-                'guarantor_branch_name' => $guarantorBranch?->getAttribute('name'),
-                'product_name' => $product->getAttribute('name'),
-                'product_type_name' => $guarantorToProductType->getAttribute('name'),
-                'obligee' => (object) [
-                    'id' => $obligee->getAttribute('id'),
-                    'name' => $obligee->getAttribute('name'),
-                    'telephone' => $obligee->getAttribute('telephone'),
-                    'pic' => $obligee->getAttribute('pic'),
-                    'no_ppk' => $obligee->getAttribute('npwp'),
-                    'province' => (object) [
-                        'code' => $obligee->province?->getAttribute('code'),
-                        'name' => $obligee->province?->getAttribute('name'),
+            'contract' => [
+                'value' => $submission->getAttribute('contract_value') ?? '',
+                'doc_name' => $submission->getAttribute('doc_name') ?? '',
+                'doc_number' => $submission->getAttribute('doc_number') ?? '',
+                'doc_date' => $submission->getAttribute('doc_date') ?? '',
+                'blank' => $blank?->number ?? '',
+                'guarantor_name' => $guarantor->getAttribute('name') ?? '',
+                'guarantor_branch_name' => $guarantorBranch?->getAttribute('name') ?? '',
+                'product_name' => $product->getAttribute('name') ?? '',
+                'product_type_name' => $guarantorToProductType->getAttribute('name') ?? '',
+                'obligee' => [
+                    'name' => $obligee->getAttribute('name') ?? '',
+                    'telephone' => $obligee->getAttribute('telephone') ?? '',
+                    'pic' => $obligee->getAttribute('pic') ?? '',
+                    'no_ppk' => $obligee->getAttribute('npwp') ?? '',
+                    'province' => [
+                        'code' => $obligee->province?->getAttribute('code') ?? '',
+                        'name' => $obligee->province?->getAttribute('name') ?? '',
                     ],
-                    'regency' => (object) [
-                        'code' => $obligee->regency?->getAttribute('code'),
-                        'name' => $obligee->regency?->getAttribute('name'),
+                    'regency' => [
+                        'code' => $obligee->regency?->getAttribute('code') ?? '',
+                        'name' => $obligee->regency?->getAttribute('name') ?? '',
                     ],
-                    'district' => (object) [
-                        'code' => $obligee->district?->getAttribute('code'),
-                        'name' => $obligee->district?->getAttribute('name'),
+                    'district' => [
+                        'code' => $obligee->district?->getAttribute('code') ?? '',
+                        'name' => $obligee->district?->getAttribute('name') ?? '',
                     ],
-                    'village' => $obligee->getAttribute('village'),
-                    'address' => $obligee->getAttribute('address'),
-                    'postal_code' => $obligee->getAttribute('postal_code'),
-                ],
-                'project' => (object) [
-                    'name' => $submission->getAttribute('job_name'),
-                    'group' => $guarantorToProductType->getAttribute('job_group'),
-                    'type' => $guarantorToProductType->getAttribute('job_type'),
-                    'time_period' => $submission->getAttribute('time_period'),
-                    'start_date' => $submission->getAttribute('start_date'),
-                    'end_date' => $submission->getAttribute('end_date'),
-                    'source_of_fund' => $sourceOfFound->getAttribute('name'),
-                    'location' => (object) [
-                        'province' => (object) [
-                            'code' => $jobProvince->getAttribute('code'),
-                            'name' => $jobProvince->getAttribute('name'),
-                        ],
-                        'regency' => (object) [
-                            'code' => $jobRegency->getAttribute('code'),
-                            'name' => $jobRegency->getAttribute('name'),
-                        ],
-                        'district' => (object) [
-                            'code' => $jobDistrict->getAttribute('code'),
-                            'name' => $jobDistrict->getAttribute('name'),
-                        ],
-                        'village' => $submission->getAttribute('job_location_village'),
-                        'address' => $submission->getAttribute('job_location_address'),
-                        'postal_code' => $submission->getAttribute('job_location_postal_code'),
-                    ],
+                    'village' => $obligee->getAttribute('village') ?? '',
+                    'address' => $obligee->getAttribute('address') ?? '',
+                    'postal_code' => $obligee->getAttribute('postal_code') ?? '',
                 ],
             ],
             'output' => $submission->getRelation('submissionDocs')->map(function ($doc) {
-                return (object) [
-                    'name' => $doc->getAttribute('name'),
-                    'value' => $doc->getAttribute('format_document'),
+                return [
+                    'name' => $doc->getAttribute('name') ?? '',
+                    'value' => $doc->getAttribute('format_document') ?? '',
                 ];
-            }),
+            })->toArray(),
         ];
 
         $this->hostToHostService->sendPostRequest($url, $token, $result);

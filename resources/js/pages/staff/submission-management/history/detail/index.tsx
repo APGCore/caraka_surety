@@ -1,7 +1,6 @@
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
 import { cn } from "@/common/utils/cn";
-import { formatToDateIndonesian, getDayName } from "@/common/utils/date-indo";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import { Badge } from "@/components/_shadcn-ui/badge";
@@ -10,10 +9,8 @@ import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import templateHasilAnalisa from "@/pages/output_templates/template-hasil-analisa";
 import { SubmissionStatus } from "@/types/submission-status";
 import axios from "axios";
-import { get } from "lodash";
 import debounce from "lodash/debounce";
 import React, { Fragment, useEffect, useRef } from "react";
 import SubmissionDetailHeader from "./_partials/create-page-header";
@@ -732,6 +729,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     return grouped;
                   }, {}),
                 ).map(([id, scores]: [any, any]) => {
+                  console.log("scores", scores.items);
                   return (
                     <React.Fragment key={id}>
                       <tr className="border-b bg-gray-100">
@@ -743,7 +741,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <tr key={score.id} className="border-b">
                           <td className="p-2 text-left"></td>
                           <td className="p-2 text-left">{score.question_name}</td>
-                          <td className="p-2 text-left">{score.option_name}</td>
+                          <td className="p-2 text-left">{score.scoring_option.name}</td>
                           <td className="p-2 text-center">{score.point}</td>
                         </tr>
                       ))}

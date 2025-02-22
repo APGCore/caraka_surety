@@ -83,6 +83,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     year: dayjs().year(),
   };
 
+  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([
+    defaultPrincipalRatios,
+    {
+      ...defaultPrincipalRatios,
+      year: dayjs().year() - 1,
+    },
+  ]);
+
   const dataDefault = {
     principal: {
       id: "",
@@ -479,7 +487,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
         refetchType: "active",
       });
-      const ratios = await fetchPrincipalRatios(data.id);
       // SETTING PRINCIPAL DATA
       setData("principal", {
         ...data?.principal,
@@ -505,15 +512,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         year_established: data?.year_established,
         est_deed: data?.est_deed,
         last_deed: data?.last_deed,
-        ratios,
+        ratios: [],
       });
 
-      fetchPrincipalDocuments(data.id);
-      //   setData("principal", {
-      //     ...data.principal,
-      //     id: principalId,
-      //   });
-      //   fetchPrincipalDocuments(principalId);
+      if (data.id) {
+        const ratios = await fetchPrincipalRatios(data.id);
+        setPrincipalRatios(ratios);
+        fetchPrincipalDocuments(data.id);
+      }
       handleClickStep("docs");
     },
     onError: (error) => {
@@ -584,7 +590,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     }
   };
 
-  console.log(data);
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
       <form
@@ -608,7 +613,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   containerClassName="w-full"
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
-                    const ratios = await fetchPrincipalRatios(val.id);
                     // SETTING PRINCIPAL DATA
                     setData("principal", {
                       ...data.principal,
@@ -634,9 +638,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       est_deed: val.est_deed,
                       last_deed: val.last_deed,
-                      ratios,
+                      ratios: [],
                     });
 
+                    const ratios = await fetchPrincipalRatios(val.id);
+                    setPrincipalRatios(ratios);
                     fetchPrincipalDocuments(val.id);
                   }}
                 />
@@ -1703,7 +1709,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                 <div className="grid gap-16">
-                  <PrincipalRatios ratios={data.principal.ratios} setRatio={handleSetRatios} />
+                  <PrincipalRatios ratios={principalRatios} setRatio={handleSetRatios} />
                   <RenderList
                     of={scorings}
                     render={(scoringCategories) => {

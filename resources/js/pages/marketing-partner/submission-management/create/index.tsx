@@ -1,15 +1,5 @@
-// import useGetAllBank from "@/common/hooks/api/bank/useGetAllBank";
-// import useGetGuarantorBranch from "@/common/hooks/api/guarantor/useGetGuarantorBranch";
-// import useGetGuarantorByProductId from "@/common/hooks/api/guarantor/useGetGuarantorByProductId";
-// import useGetAllObligee from "@/common/hooks/api/obligee/useGetAllObligee";
-// import useGetDistrictByRegencyId from "@/common/hooks/api/locations/useGetDistrictByRegencyId";
-// import useGetAllProvince from "@/common/hooks/api/locations/useGetAllProvince";
-// import useGetRegencyByProvinceId from "@/common/hooks/api/locations/useGetRegencyByProvinceId";
-// import useGetAllPrincipal from "@/common/hooks/api/principal/useGetAllPrincipal";
-// import useGetAllProduct from "@/common/hooks/api/product/useGetAllProduct";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
-// import useGetSourceOfFund from "@/common/hooks/api/source-of-fund/useGetSourceOfFund";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
@@ -19,7 +9,7 @@ import {
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
-import { useGetAllPrincipal } from "@/common/hooks/react-query/principal";
+import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
@@ -30,12 +20,14 @@ import { Label } from "@/components/_shadcn-ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/_shadcn-ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
+import Loading from "@/components/atoms/loading";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import { FileInput } from "@/components/molecules/input/file-input";
+import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import { useForm } from "@inertiajs/react";
@@ -90,6 +82,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     net_income: "",
     year: dayjs().year(),
   };
+
+  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([
+    defaultPrincipalRatios,
+    {
+      ...defaultPrincipalRatios,
+      year: dayjs().year() - 1,
+    },
+  ]);
 
   const dataDefault = {
     principal: {
@@ -212,16 +212,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   } | null>(null);
 
   // Principal Regency
+  const principalProvinceId = data?.principal?.province_id || selectedPrincipalProvince?.id;
   const { data: principalRegencies } = useGetRegencyByProvinceId(
-    String(data?.principal?.province_id || selectedPrincipalProvince?.id),
-    {},
+    principalProvinceId ? String(principalProvinceId) : undefined,
   );
-
   const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Principal District
+  const principalRegencyId = data?.principal?.regency_id || selectedPrincipalRegency?.id;
   const { data: principalDistricts } = useGetDistrictByRegencyId(
-    String(data?.principal?.regency_id || selectedPrincipalRegency?.id),
+    principalRegencyId ? String(principalRegencyId) : undefined,
   );
   const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
@@ -230,16 +230,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   const [selectedObligeeProvince, setSelectedObligeeProvince] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee Regency
+  const obligeeProvinceId = data?.obligee?.province_id || selectedObligeeProvince?.id;
   const { data: obligeeRegencies } = useGetRegencyByProvinceId(
-    String(data?.obligee?.province_id || selectedObligeeProvince?.id),
-    {},
+    obligeeProvinceId ? String(obligeeProvinceId) : undefined,
   );
   const [selectedObligeeRegency, setSelectedObligeeRegency] = useState<{ id: number; name: string } | null>(null);
 
   // Obligee District
-  const { data: obligeeDistricts } = useGetDistrictByRegencyId(
-    String(data?.obligee?.regency_id || selectedObligeeRegency?.id),
-  );
+  const obligeeRegencyId = data?.obligee?.regency_id || selectedObligeeRegency?.id;
+  const { data: obligeeDistricts } = useGetDistrictByRegencyId(obligeeRegencyId ? String(obligeeRegencyId) : undefined);
   const [selectedObligeeDistrict, setSelectedObligeeDistrict] = useState<{ id: number; name: string } | null>(null);
 
   // Job Location Province
@@ -249,29 +248,32 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   );
 
   // Job Location Regency
+  const jobLocationProvinceId = data?.submission?.job_location_province_id || selectedJobLocationProvince?.id;
   const { data: jobLocationRegencies } = useGetRegencyByProvinceId(
-    String(data?.submission?.job_location_province_id || selectedJobLocationProvince?.id),
-    {},
+    jobLocationProvinceId ? String(jobLocationProvinceId) : undefined,
   );
   const [selectedJobLocationRegency, setSelectedJobLocationRegency] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Job Location District
+  const jobLocationRegencyId = data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id;
   const { data: jobLocationDistricts } = useGetDistrictByRegencyId(
-    String(data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id),
+    jobLocationRegencyId ? String(jobLocationRegencyId) : undefined,
   );
   const [selectedJobLocationDistrict, setSelectedJobLocationDistrict] = useState<{ id: number; name: string } | null>(
     null,
   );
 
   // Guarantor
-  const { data: guarantors } = useGetGuarantorByProductId(String(selectedProducts));
+  const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
   const [selectedGuarantor, setSelectedGuarantor] = useState(null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
-  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(String(selectedGuarantor));
+  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(
+    selectedGuarantor ? String(selectedGuarantor) : undefined,
+  );
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
@@ -394,26 +396,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleNextStepForm = () => {
-    if (formStep === "principal") {
-      handleClickStep("docs");
-    } else if (formStep === "docs") {
-      handleClickStep("contract");
-    } else if (formStep === "contract") {
-      handleClickStep("skoring");
-    }
-  };
-
-  const handlePrevStepForm = () => {
-    if (formStep === "docs") {
-      handleClickStep("principal");
-    } else if (formStep === "contract") {
-      handleClickStep("docs");
-    } else if (formStep === "skoring") {
-      handleClickStep("contract");
-    }
-  };
-
   const handleOptionChange = (questionCategoryId: string, questionId: string, optionId: string, val: string) => {
     const existingScoreIndex = data.scoring.scores.findIndex((s) => s.scoring_question_id === questionId);
 
@@ -493,7 +475,121 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
-  console.log(data);
+  const { mutate, isPending } = useCreatePrincipal({
+    onSuccess: async (data: any) => {
+      //   console.log(data);
+      //   const principalId = data.id;
+      toast({
+        title: "Berhasil Menambah Principal!",
+        description: "Data berhasil disimpan",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+        refetchType: "active",
+      });
+      // SETTING PRINCIPAL DATA
+      setData("principal", {
+        ...data?.principal,
+        id: data?.id,
+        province_id: data?.province_id,
+        regency_id: data?.regency_id,
+        district_id: data?.district_id,
+        village: data?.village,
+        name: data?.name,
+        address: data?.address,
+        telephone: data?.telephone,
+        postal_code: data?.postal_code,
+        fax: data?.fax,
+        npwp: data?.npwp,
+        nib: data?.nib,
+        siup_siujk: data?.siup_siujk,
+        head_name: data?.head_name,
+        business_fields: data?.business_fields,
+        director_name: data?.director_name,
+        director_position: data?.director_position,
+        director_phone: data?.director_phone,
+        commissioner: data?.commissioner,
+        year_established: data?.year_established,
+        est_deed: data?.est_deed,
+        last_deed: data?.last_deed,
+        ratios: [],
+      });
+
+      if (data.id) {
+        const ratios = await fetchPrincipalRatios(data.id);
+        setPrincipalRatios(ratios);
+        fetchPrincipalDocuments(data.id);
+      }
+      handleClickStep("docs");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Gagal Menambah Principal Baru",
+        description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreatePrincipal = () => {
+    if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {
+      return;
+    }
+
+    const principalData = {
+      province_id: data.principal.province_id,
+      regency_id: data.principal.regency_id,
+      district_id: data.principal.district_id,
+      village: data.principal.village || "",
+      name: data.principal.name || "",
+      address: data.principal.address || "",
+      postal_code: data.principal.postal_code || "",
+      telephone: String(data.principal.telephone || ""),
+      fax: data.principal.fax || "",
+      npwp: String(data.principal.npwp || ""),
+      nib: String(data.principal.nib || ""),
+      siup_siujk: data.principal.siup_siujk || "",
+      head_name: data.principal.head_name || "",
+      director_name: data.principal.director_name || "",
+      director_position: data.principal.director_position || "",
+      director_phone: String(data.principal.director_phone || ""),
+      commissioner: data.principal.commissioner || "",
+      year_established: String(data.principal.year_established || ""),
+      est_deed: data.principal.est_deed || "",
+      last_deed: data.principal.last_deed || "",
+      business_fields: data.principal.business_fields || "",
+      ratios: data.principal.ratios,
+    };
+    mutate(principalData);
+  };
+
+  const handleNextStepForm = () => {
+    if (formStep === "principal") {
+      if (data.principal.id) {
+        handleClickStep("docs");
+      } else if (formSearchPrincipalState === "search") {
+        handleClickStep("docs");
+      } else {
+        handleCreatePrincipal();
+      }
+    } else if (formStep === "docs") {
+      handleClickStep("contract");
+    } else if (formStep === "contract") {
+      handleClickStep("skoring");
+    }
+  };
+
+  const handlePrevStepForm = () => {
+    if (formStep === "docs") {
+      handleClickStep("principal");
+    } else if (formStep === "contract") {
+      handleClickStep("docs");
+    } else if (formStep === "skoring") {
+      handleClickStep("contract");
+    }
+  };
+
   return (
     <div className="w-[800px] mt-[50px] mx-auto ">
       <form
@@ -517,7 +613,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   containerClassName="w-full"
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
-                    const ratios = await fetchPrincipalRatios(val.id);
                     // SETTING PRINCIPAL DATA
                     setData("principal", {
                       ...data.principal,
@@ -543,9 +638,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       est_deed: val.est_deed,
                       last_deed: val.last_deed,
-                      ratios,
+                      ratios: [],
                     });
 
+                    const ratios = await fetchPrincipalRatios(val.id);
+                    setPrincipalRatios(ratios);
                     fetchPrincipalDocuments(val.id);
                   }}
                 />
@@ -1612,7 +1709,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                 <div className="grid gap-16">
-                  <PrincipalRatios ratios={data.principal.ratios} setRatio={handleSetRatios} />
+                  <PrincipalRatios ratios={principalRatios} setRatio={handleSetRatios} />
                   <RenderList
                     of={scorings}
                     render={(scoringCategories) => {
@@ -1726,13 +1823,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               {/* SHOW NEXT IF SECTION IS NOT SKORING */}
               <Show when={formStep !== "skoring"}>
                 <Button
+                  disabled={isPending}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleNextStepForm();
                   }}
                   type="button">
-                  Selanjutnya
+                  Selanjutnya <Loading isLoading={isPending} />
                 </Button>
               </Show>
 
