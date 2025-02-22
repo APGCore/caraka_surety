@@ -1,13 +1,12 @@
-import useGetProductTypesByProductAndGuarantor
-    from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
 import {
-    useGetAllProvince,
-    useGetDistrictByRegencyId,
-    useGetRegencyByProvinceId
+  useGetAllProvince,
+  useGetDistrictByRegencyId,
+  useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
@@ -39,10 +38,10 @@ import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import {
-    ISelectedPrincipalDistrict,
-    Ratio,
-    SubmissionCreatePageProps,
-    SubmissionFormProps
+  ISelectedPrincipalDistrict,
+  Ratio,
+  SubmissionCreatePageProps,
+  SubmissionFormProps,
 } from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
@@ -490,7 +489,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       });
       // SETTING PRINCIPAL DATA
 
-        const ratios = await fetchPrincipalRatios(data.id);
+      const ratios = await fetchPrincipalRatios(data.id);
       setData("principal", {
         ...data?.principal,
         id: data?.id,
@@ -614,7 +613,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     setFormSearchPrincipalState("search");
                     // SETTING PRINCIPAL DATA
 
-                      const ratios = await fetchPrincipalRatios(val.id);
+                    const ratios = await fetchPrincipalRatios(val.id);
                     setData("principal", {
                       ...data.principal,
                       id: val.id,
@@ -639,7 +638,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       est_deed: val.est_deed,
                       last_deed: val.last_deed,
-                        ratios: ratios.slice(0, 2)
+                      ratios: ratios.slice(0, 2),
                     });
 
                     setPrincipalRatios(ratios);
