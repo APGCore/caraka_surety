@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ActivityLogResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,10 +21,21 @@ class ActivityLogController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function index()
+    public function index(Request $request)
     {
         Carbon::setLocale('id');
-        $activities = Activity::orderBy('created_at', 'desc')->get();
+        $request->validate([
+            'search' => 'nullable|string',
+            'page' => 'nullable|integer',
+            'per_page' => 'nullable|integer',
+        ]);
+        $activities = Activity::when($request->search, function ($query) use ($request) {
+            $query->where('log_name', 'like', '%'.$request->search.'%')
+                ->orWhere('description', 'like', '%'.$request->search.'%');
+        })
+            ->select(['id', 'log_name', 'description', 'subject_type', 'event', 'subject_id', 'causer_type', 'causer_id', 'properties', 'created_at'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->per_page ?? 10, ['*'], 'page', $request->page ?? 1);
 
         // list of unique causer_id
         $causerIds = $activities->pluck('causer_id')->filter()->unique();
@@ -33,7 +43,7 @@ class ActivityLogController extends Controller
         // list of user in causer_id
         $users = User::whereIn('id', $causerIds)->pluck('name', 'id');
 
-        $activities = $activities->map(function ($activity) use ($users) {
+        $result = $activities->map(function ($activity) use ($users) {
             return [
                 'id' => $activity->id,
                 'username' => $users[$activity->causer_id] ?? 'Unknown',
@@ -49,13 +59,12 @@ class ActivityLogController extends Controller
             ];
         });
 
-        // $activities = ActivityLogResource::collection($activities);
-
         $inertiaProps = [
             'page_settings' => [
                 'title' => 'Log Aktivitas',
             ],
-            'activitylogs' => fn () => $activities,
+            'activitylogs' => fn () => $result,
+            'meta' => fn () => $activities,
         ];
 
         return inertia($this->inertiaComponents->list, $inertiaProps);

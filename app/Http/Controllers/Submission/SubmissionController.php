@@ -1923,11 +1923,11 @@ class SubmissionController extends Controller
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             'resources' => [
-                "project_group" => JobGroup::getValues(),
-                "project_type" => JobType::getValues(),
-                "product" => $products->toArray(),
-                "product_type" => $productTypes->toArray(),
-                "source_of_fund" => $sourceOfFounds->toArray(),
+                'project_group' => JobGroup::getValues(),
+                'project_type' => JobType::getValues(),
+                'product' => $products->toArray(),
+                'product_type' => $productTypes->toArray(),
+                'source_of_fund' => $sourceOfFounds->toArray(),
             ],
             'principal' => [
                 'id' => $principal->getAttribute('id'),
@@ -1954,7 +1954,7 @@ class SubmissionController extends Controller
                     'village' => $principal->getAttribute('village'),
                     'address' => $principal->getAttribute('address'),
                     'postal_code' => $principal->getAttribute('postal_code'),
-                ]
+                ],
             ],
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),

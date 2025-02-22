@@ -12,7 +12,7 @@ const ListActivityLogPage: ListActivityPageProps = (props) => {
       </div>
 
       <div>
-        <ActivityTable activities={props.activitylogs} />
+        <ActivityTable activities={props.activitylogs} meta={props.meta} />
       </div>
     </main>
   );

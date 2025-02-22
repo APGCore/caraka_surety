@@ -25,8 +25,8 @@ class SubmissionController extends Controller
     public function show(Submission $submission): JsonResponse
     {
         $submission->load([
-            'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,' .
-            'director_name,director_position,director_phone,commissioner,year_established,' .
+            'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
+            'director_name,director_position,director_phone,commissioner,year_established,'.
             'last_deed,province_id,regency_id,district_id,village,address,postal_code',
             'principal.province:id,code,name',
             'principal.regency:id,code,name',
@@ -64,11 +64,11 @@ class SubmissionController extends Controller
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             'resources' => [
-                "project_group" => JobGroup::getValues(),
-                "project_type" => JobType::getValues(),
-                "product" => $products->toArray(),
-                "product_type" => $productTypes->toArray(),
-                "source_of_fund" => $sourceOfFounds->toArray(),
+                'project_group' => JobGroup::getValues(),
+                'project_type' => JobType::getValues(),
+                'product' => $products->toArray(),
+                'product_type' => $productTypes->toArray(),
+                'source_of_fund' => $sourceOfFounds->toArray(),
             ],
             'principal' => [
                 'id' => $principal->getAttribute('id'),
@@ -95,7 +95,7 @@ class SubmissionController extends Controller
                     'village' => $principal->getAttribute('village'),
                     'address' => $principal->getAttribute('address'),
                     'postal_code' => $principal->getAttribute('postal_code'),
-                ]
+                ],
             ],
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
