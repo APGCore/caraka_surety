@@ -9,7 +9,12 @@ import {
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
-import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
+import {
+  PRINCIPAL_QUERY_KEY,
+  useCreatePrincipal,
+  useGetAllPrincipal,
+  useUpdatePrincipal,
+} from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
@@ -475,10 +480,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
+  const [isPrincipalFetch, setIsPrincipalFetch] = useState(false);
+
   const { mutate, isPending } = useCreatePrincipal({
     onSuccess: async (data: any) => {
-      //   console.log(data);
-      //   const principalId = data.id;
+      setIsPrincipalFetch(true);
       toast({
         title: "Berhasil Menambah Principal!",
         description: "Data berhasil disimpan",
@@ -488,7 +494,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         refetchType: "active",
       });
       // SETTING PRINCIPAL DATA
-
       const ratios = await fetchPrincipalRatios(data.id);
       setData("principal", {
         ...data?.principal,
@@ -530,6 +535,59 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     },
   });
 
+  const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useUpdatePrincipal({
+    onSuccess: async (data: any) => {
+      setIsPrincipalFetch(true);
+      toast({
+        title: "Berhasil Mengupdate Principal!",
+        description: "Data berhasil diupdate",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+        refetchType: "active",
+      });
+      // SETTING PRINCIPAL DATA
+      const ratios = await fetchPrincipalRatios(data.id);
+      setData("principal", {
+        ...data?.principal,
+        id: data?.id,
+        province_id: data?.province_id,
+        regency_id: data?.regency_id,
+        district_id: data?.district_id,
+        village: data?.village,
+        name: data?.name,
+        address: data?.address,
+        telephone: data?.telephone,
+        postal_code: data?.postal_code,
+        fax: data?.fax,
+        npwp: data?.npwp,
+        nib: data?.nib,
+        siup_siujk: data?.siup_siujk,
+        head_name: data?.head_name,
+        business_fields: data?.business_fields,
+        director_name: data?.director_name,
+        director_position: data?.director_position,
+        director_phone: data?.director_phone,
+        commissioner: data?.commissioner,
+        year_established: data?.year_established,
+        est_deed: data?.est_deed,
+        last_deed: data?.last_deed,
+        ratios: ratios.slice(0, 2),
+      });
+
+      fetchPrincipalDocuments(data.id);
+      handleClickStep("docs");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Gagal Mengupdate Principal!",
+        description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCreatePrincipal = () => {
     if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {
       return;
@@ -562,14 +620,49 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     mutate(principalData);
   };
 
+  const handleUpdatePrincipal = () => {
+    if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {
+      return;
+    }
+
+    const principalData = {
+      principal_id: data.principal.id,
+      province_id: data.principal.province_id,
+      regency_id: data.principal.regency_id,
+      district_id: data.principal.district_id,
+      village: data.principal.village || "",
+      name: data.principal.name || "",
+      address: data.principal.address || "",
+      postal_code: data.principal.postal_code || "",
+      telephone: String(data.principal.telephone || ""),
+      fax: data.principal.fax || "",
+      npwp: String(data.principal.npwp || ""),
+      nib: String(data.principal.nib || ""),
+      siup_siujk: data.principal.siup_siujk || "",
+      head_name: data.principal.head_name || "",
+      director_name: data.principal.director_name || "",
+      director_position: data.principal.director_position || "",
+      director_phone: String(data.principal.director_phone || ""),
+      commissioner: data.principal.commissioner || "",
+      year_established: String(data.principal.year_established || ""),
+      est_deed: data.principal.est_deed || "",
+      last_deed: data.principal.last_deed || "",
+      business_fields: data.principal.business_fields || "",
+      ratios: data.principal.ratios,
+    };
+    updatePrincipal(principalData);
+  };
+
   const handleNextStepForm = () => {
     if (formStep === "principal") {
-      if (data.principal.id) {
-        handleClickStep("docs");
-      } else if (formSearchPrincipalState === "search") {
+      if (isPrincipalFetch) {
         handleClickStep("docs");
       } else {
-        handleCreatePrincipal();
+        if (data.principal.id) {
+          handleUpdatePrincipal();
+        } else {
+          handleCreatePrincipal();
+        }
       }
     } else if (formStep === "docs") {
       handleClickStep("contract");
@@ -1822,14 +1915,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               {/* SHOW NEXT IF SECTION IS NOT SKORING */}
               <Show when={formStep !== "skoring"}>
                 <Button
-                  disabled={isPending}
+                  disabled={isPending || isPendingUpdatePrincipal}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleNextStepForm();
                   }}
                   type="button">
-                  Selanjutnya <Loading isLoading={isPending} />
+                  Selanjutnya <Loading isLoading={isPending || isPendingUpdatePrincipal} />
                 </Button>
               </Show>
 
