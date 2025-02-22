@@ -1,12 +1,13 @@
-import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor
+    from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
 import {
-  useGetAllProvince,
-  useGetDistrictByRegencyId,
-  useGetRegencyByProvinceId,
+    useGetAllProvince,
+    useGetDistrictByRegencyId,
+    useGetRegencyByProvinceId
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
@@ -38,10 +39,10 @@ import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import {
-  ISelectedPrincipalDistrict,
-  Ratio,
-  SubmissionCreatePageProps,
-  SubmissionFormProps,
+    ISelectedPrincipalDistrict,
+    Ratio,
+    SubmissionCreatePageProps,
+    SubmissionFormProps
 } from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
@@ -488,6 +489,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         refetchType: "active",
       });
       // SETTING PRINCIPAL DATA
+
+        const ratios = await fetchPrincipalRatios(data.id);
       setData("principal", {
         ...data?.principal,
         id: data?.id,
@@ -512,14 +515,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         year_established: data?.year_established,
         est_deed: data?.est_deed,
         last_deed: data?.last_deed,
-        ratios: [],
+        ratios: ratios.slice(0, 2),
       });
 
-      if (data.id) {
-        const ratios = await fetchPrincipalRatios(data.id);
-        setPrincipalRatios(ratios);
-        fetchPrincipalDocuments(data.id);
-      }
+      fetchPrincipalDocuments(data.id);
       handleClickStep("docs");
     },
     onError: (error) => {
@@ -614,6 +613,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     // SETTING PRINCIPAL DATA
+
+                      const ratios = await fetchPrincipalRatios(val.id);
                     setData("principal", {
                       ...data.principal,
                       id: val.id,
@@ -638,10 +639,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       est_deed: val.est_deed,
                       last_deed: val.last_deed,
-                      ratios: [],
+                        ratios: ratios.slice(0, 2)
                     });
 
-                    const ratios = await fetchPrincipalRatios(val.id);
                     setPrincipalRatios(ratios);
                     fetchPrincipalDocuments(val.id);
                   }}
