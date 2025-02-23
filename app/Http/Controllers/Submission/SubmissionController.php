@@ -54,8 +54,10 @@ class SubmissionController extends Controller
         try {
             //            $principal = $validated['principal'];
             //            $principalDocuments = $validated['principal']['documents'];
-            $principalId = $validated['principal_id'];
-            $principalRatios = $validated['principal']['ratios'];
+
+            $principal = $validated['principal'];
+            $principalId = $principal['id'];
+            $principalRatios = $principal['ratios'];
             $principalRatios = collect($principalRatios)->map(function ($ratio) {
                 $ratio['current_assets'] = (int) $ratio['current_assets'];
                 $ratio['current_debt'] = (int) $ratio['current_debt'];
