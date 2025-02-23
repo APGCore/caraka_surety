@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Architecture\Elements\ObjectDescription;
 
 class PrincipalController extends Controller
 {
@@ -81,7 +82,7 @@ class PrincipalController extends Controller
     public function getDocument(Request $request): JsonResponse
     {
         $request->validate([
-            'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
+            'principal_id' => 'nullable|exists:' . Principal::class . ',id,deleted_at,NULL',
         ]);
 
         $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($request) {
@@ -109,6 +110,7 @@ class PrincipalController extends Controller
     {
         try {
             DB::beginTransaction();
+            $principal->load('documents');
             $requestValid = $request->validated();
             $requiredDocId = $requestValid['required_doc_id'];
             $file = $requestValid['file'];
@@ -123,26 +125,26 @@ class PrincipalController extends Controller
                 $path,
                 $requiredDoc->name
             );
-            $document = [
+            $document = collect([
                 'required_doc_id' => $requiredDocId,
                 'name' => $requiredDoc->name,
                 'is_approved' => true,
                 'url' => $url,
-            ];
+            ]);
 
-            $principal->getRelation('documents')->updateOrCreate([
+            $principal->documents()->updateOrCreate([
                 'required_doc_id' => $requiredDocId,
-            ], $document);
+            ], $document->toArray());
 
-            DB::commit();
             // Delete existing document if exists
-            $existingDocument = $principal->getRelation('documents')->firstWhere('required_doc_id', $requiredDocId);
+            $existingDocument = $principal->documents()->firstWhere('required_doc_id', $requiredDocId);
 
             if ($existingDocument && $existingDocument->url) {
                 $this->deleteFile($existingDocument->url);
             }
 
-            return $this->responseSuccess('Dokumen berhasil diunggah', new PrincipalDocumentResource($document));
+            DB::commit();
+            return $this->responseSuccess('Dokumen berhasil diunggah', $document);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('PrincipalController@uploadDocument: ', ['message' => $e->getMessage()]);

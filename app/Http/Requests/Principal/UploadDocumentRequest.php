@@ -23,8 +23,8 @@ class UploadDocumentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id'],
-            'file' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'required_doc_id' => ['required', 'exists:' . RequiredDoc::class . ',id'],
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
         ];
     }
 }

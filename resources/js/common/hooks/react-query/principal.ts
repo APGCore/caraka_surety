@@ -5,6 +5,8 @@ export const PRINCIPAL_QUERY_KEY = {
   PRINCIPAL: "principal",
   CREATE_PRINCIPAL: "create-principal",
   UPDATE_PRINCIPAL: "update-principal",
+  CREATE_OR_UPDATE_PRINCIPAL_DOCS: "create-or-update-principal-docs",
+  GET_PRINCIPAL_DOCS: "get-principal-docs",
 };
 
 export const useGetAllPrincipal = (querySetting?: UseQueryOptions) => {
@@ -93,5 +95,49 @@ export const useUpdatePrincipal = (
       return response?.data?.data;
     },
     ...mutationSetting,
+  });
+};
+
+interface CreateOrUpdatePrincipalDocRequest {
+  principal_id: number;
+  required_doc_id: number;
+  file: File;
+}
+
+export const useCreateOrUpdatePrincipalDocs = (
+  mutationSetting: UseMutationOptions<unknown, Error, CreateOrUpdatePrincipalDocRequest, unknown> = {},
+) => {
+  return useMutation({
+    mutationKey: [PRINCIPAL_QUERY_KEY.CREATE_OR_UPDATE_PRINCIPAL_DOCS],
+    mutationFn: async (data: CreateOrUpdatePrincipalDocRequest) => {
+      const response = await axios.post(
+        route("api.principal-management.document.upload", {
+          principal: data.principal_id,
+        }),
+        {
+          required_doc_id: data.required_doc_id,
+          file: data.file,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response?.data?.data;
+    },
+    ...mutationSetting,
+  });
+};
+
+export const useGetPrincipalDocs = (principalId: number, querySetting?: UseQueryOptions) => {
+  return useQuery({
+    queryKey: [PRINCIPAL_QUERY_KEY.GET_PRINCIPAL_DOCS, principalId],
+    queryFn: async () => {
+      const response = await axios.get(route("references.principal.documents", { principal_id: principalId }));
+      return response.data.data;
+    },
+    enabled: !!principalId,
+    ...querySetting,
   });
 };

@@ -5,6 +5,7 @@ import { FileIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 interface InputFileProps {
+  isLoading?: boolean;
   className?: string;
   limit?: number;
   onFileChange?: (file: File | null) => void;
@@ -22,6 +23,7 @@ const FileInput: React.FC<InputFileProps> = ({
   validation = ["image/jpeg", "image/png", "application/pdf"],
   previewValue,
   required = false,
+  isLoading = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -55,6 +57,7 @@ const FileInput: React.FC<InputFileProps> = ({
   return (
     <div className={cn(className)}>
       <button
+        disabled={isLoading}
         type="button"
         onClick={(e) => {
           e.preventDefault();

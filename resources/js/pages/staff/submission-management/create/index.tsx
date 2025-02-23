@@ -42,6 +42,7 @@ import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
+import PrincipalDocsSection from "./principal-docs-section";
 import {
   ISelectedPrincipalDistrict,
   Ratio,
@@ -1121,7 +1122,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                 <div className="grid gap-5">
-                  <RenderList
+                  {/* <RenderList
                     of={principalDocs}
                     render={(doc) => {
                       const findFiles = principalFiles.find((file) => file.required_doc_id === doc.id);
@@ -1135,7 +1136,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         </div>
                       );
                     }}
-                  />
+                  /> */}
+                  <PrincipalDocsSection principalId={data?.principal?.id ? Number(data.principal.id) : undefined} />
                 </div>
               </div>
             </Show>
