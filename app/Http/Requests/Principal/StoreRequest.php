@@ -43,7 +43,7 @@ class StoreRequest extends FormRequest
             'director_phone' => ['required', 'string', 'max:255'], // telepon direktur perusahaan
             'commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
             'year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
-            'eas_deed' => ['nullable', 'string', 'max:255'], // akta pendirian perusahaan
+            'est_deed' => ['nullable', 'string', 'max:255'], // akta pendirian perusahaan
             'last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
             'business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
         ];
