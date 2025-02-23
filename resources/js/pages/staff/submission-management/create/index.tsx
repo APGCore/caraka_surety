@@ -43,6 +43,7 @@ import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
+import PrincipalSection from "./principal-section";
 import {
   ISelectedPrincipalDistrict,
   Ratio,
@@ -823,7 +824,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     Kembali Cari Data
                   </Button>
                 </div>
-                <div className="grid gap-5">
+                {/* <div className="grid gap-5">
                   <div className="grid w-full gap-1">
                     <Label className="text-sm">Nama</Label>
                     <Input
@@ -1095,7 +1096,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             }
                           />
                         </div>
-                        {/* postal code */}
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kode Pos</Label>
                           <Input
@@ -1113,7 +1113,31 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
+                <PrincipalSection
+                  {...data.principal}
+                  onChangePrincipal={(field, value) => {
+                    if (field === "province_id") {
+                      setData("principal", {
+                        ...data.principal,
+                        regency_id: "",
+                        district_id: "",
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    } else if (field === "regency_id") {
+                      setData("principal", {
+                        ...data.principal,
+                        district_id: "",
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    } else {
+                      setData("principal", {
+                        ...data.principal,
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    }
+                  }}
+                />
               </div>
             </Show>
 
@@ -1122,21 +1146,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                 <div className="grid gap-5">
-                  {/* <RenderList
-                    of={principalDocs}
-                    render={(doc) => {
-                      const findFiles = principalFiles.find((file) => file.required_doc_id === doc.id);
-                      return (
-                        <div className="grid gap-1">
-                          <Label className="text-md">{doc.name}</Label>
-                          <FileInput
-                            onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                            previewValue={findFiles?.file ? findFiles?.file : doc.principal_document?.path}
-                          />
-                        </div>
-                      );
-                    }}
-                  /> */}
                   <PrincipalDocsSection principalId={data?.principal?.id ? Number(data.principal.id) : undefined} />
                 </div>
               </div>
