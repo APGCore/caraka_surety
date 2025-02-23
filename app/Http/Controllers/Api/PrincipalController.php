@@ -112,6 +112,12 @@ class PrincipalController extends Controller
             $principal->load('documents');
             $requestValid = $request->validated();
             $requiredDocId = $requestValid['required_doc_id'];
+            // Delete existing document if exists
+            $existingDocument = $principal->documents()->firstWhere('required_doc_id', $requiredDocId);
+
+            if ($existingDocument && $existingDocument->url) {
+                $this->deleteFile($existingDocument->url);
+            }
             $file = $requestValid['file'];
             $requiredDoc = RequiredDoc::query()->firstWhere('id', $requiredDocId);
 
@@ -119,6 +125,7 @@ class PrincipalController extends Controller
                 ? str_replace(' ', '_', $principal->getAttribute('name'))
                 : 'principal';
             $path = "principal/{$principal->getAttribute('id')}-{$principalName}/documents";
+
             $url = $this->uploadFile(
                 $file,
                 $path,
@@ -134,13 +141,6 @@ class PrincipalController extends Controller
             $principal->documents()->updateOrCreate([
                 'required_doc_id' => $requiredDocId,
             ], $document->toArray());
-
-            // Delete existing document if exists
-            $existingDocument = $principal->documents()->firstWhere('required_doc_id', $requiredDocId);
-
-            if ($existingDocument && $existingDocument->url) {
-                $this->deleteFile($existingDocument->url);
-            }
 
             DB::commit();
 
