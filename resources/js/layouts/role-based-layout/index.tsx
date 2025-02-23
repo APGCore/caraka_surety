@@ -15,7 +15,7 @@ interface IRoleBasedLayout extends React.PropsWithChildren {
 }
 
 const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
-  const { auth, roles } = propsData;
+  const { auth, roles, guarantor } = propsData;
   const user = auth?.user;
   switch (user.role.name) {
     case roles.Admin:
@@ -26,49 +26,49 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
       );
     case roles.Direksi:
       return (
-        <DireksiLayoutPage user={user} roles={roles} {...props}>
+        <DireksiLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </DireksiLayoutPage>
       );
     case roles.Manager:
       return (
-        <ManagerLayoutPage user={user} roles={roles} {...props}>
+        <ManagerLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </ManagerLayoutPage>
       );
     case roles.StaffTeknik:
       return (
-        <StaffTeknikLayoutPage user={user} roles={roles} {...props}>
+        <StaffTeknikLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </StaffTeknikLayoutPage>
       );
     case roles.StaffOperasional:
       return (
-        <StaffOperasionalLayoutPage user={user} roles={roles} {...props}>
+        <StaffOperasionalLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </StaffOperasionalLayoutPage>
       );
     case roles.KepalaCabang:
       return (
-        <KepalaCabangLayoutPage user={user} roles={roles} {...props}>
+        <KepalaCabangLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </KepalaCabangLayoutPage>
       );
     case roles.KepalaAgentPartner:
       return (
-        <KepalaAgentPartnerLayoutPage user={user} roles={roles} {...props}>
+        <KepalaAgentPartnerLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </KepalaAgentPartnerLayoutPage>
       );
     case roles.AgentPartner:
       return (
-        <AgentPartnerLayoutPage user={user} roles={roles} {...props}>
+        <AgentPartnerLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </AgentPartnerLayoutPage>
       );
     case roles.MarketingPartner:
       return (
-        <MarketingPartnerLayoutPage user={user} roles={roles} {...props}>
+        <MarketingPartnerLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </MarketingPartnerLayoutPage>
       );
@@ -80,7 +80,7 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
     //   );
     default:
       return (
-        <StaffLayoutPage user={user} roles={roles} {...props}>
+        <StaffLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </StaffLayoutPage>
       );

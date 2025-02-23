@@ -5,6 +5,7 @@ import React from "react";
 export interface ManagerLayoutProps extends React.PropsWithChildren {
   user: User;
   roles: Roles;
+  guarantor: any | null;
 }
 
 export type ManagerLayoutPageProps = React.FC<ManagerLayoutProps>;

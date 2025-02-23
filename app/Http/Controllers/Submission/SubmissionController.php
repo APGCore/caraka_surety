@@ -166,7 +166,7 @@ class SubmissionController extends Controller
             $dataSubmission = collect($submission)->toArray();
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
-            $dataSubmission['staff_id'] = auth()->user()->getAuthIdentifier();
+            $dataSubmission['staff_id'] = auth()->id();
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['no_guarantee'] = $noGuarantee;
             $dataSubmission['note_scoring'] = $scoring['note'];
@@ -287,7 +287,15 @@ class SubmissionController extends Controller
             'userRejected' => function ($query) {
                 $query->withTrashed();
             },
-
+            'staff' => function ($query) {
+                $query->withTrashed();
+            },
+            'employeeLimit' => function ($query) {
+                $query->withTrashed();
+            },
+            'guarantorProductTypeLimit' => function ($query) {
+                $query->withTrashed();
+            },
         ])->findOrFail($id);
     }
 
@@ -509,7 +517,7 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
 
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
@@ -732,7 +740,7 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier());
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -944,7 +952,7 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
 
-        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->user()->getAuthIdentifier()) ?? 0;
+        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
@@ -1165,10 +1173,11 @@ class SubmissionController extends Controller
     {
         $component = 'staff/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('guarantor_id', session('guarantor_id'))
             ->where('staff_id', '=', $authId)
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
@@ -1215,11 +1224,19 @@ class SubmissionController extends Controller
     {
         $component = 'manager/submission-management/list/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $staffs = User::query()
-            ->where('head_id', '=', $authId)
+            ->where('head_id', $authId)
             ->pluck('id');
+
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
+            ->whereIn('staff_id', $staffs)
+            ->where([
+                'checked_by' => null,
+                'approved_by' => null,
+                'rejected_by' => null,
+            ])
             ->with([
                 'scores',
                 'principal',
@@ -1230,12 +1247,6 @@ class SubmissionController extends Controller
                 'guarantorToProductType',
                 'employeeLimit',
                 'guarantorProductTypeLimit',
-            ])
-            ->whereIn('staff_id', $staffs)
-            ->where([
-                'checked_by' => null,
-                'approved_by' => null,
-                'rejected_by' => null,
             ])
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1265,14 +1276,15 @@ class SubmissionController extends Controller
     {
         $component = 'manager/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
                     ->orWhere('rejected_by', '=', $authId);
             })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1304,15 +1316,17 @@ class SubmissionController extends Controller
     {
         $component = 'direksi/submission-management/list/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $staffs = User::query()
             ->where('head_id', '=', $authId)
             ->pluck('id');
+
         $submissions = Submission::query()
-            ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
+            ->where('guarantor_id', session('guarantor_id'))
             ->where('checked_by', '!=', null)
             ->where('status', SubmissionStatus::PROCESS->value)
             ->whereIn('checked_by', $staffs)
+            ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1348,14 +1362,15 @@ class SubmissionController extends Controller
     {
         $component = 'direksi/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
                     ->orWhere('rejected_by', '=', $authId);
             })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1386,11 +1401,19 @@ class SubmissionController extends Controller
     {
         $component = 'kepala-cabang/submission-management/list/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $staffs = User::query()
             ->where('head_id', '=', $authId)
             ->pluck('id');
+
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
+            ->whereIn('staff_id', $staffs)
+            ->where([
+                'checked_by' => null,
+                'approved_by' => null,
+                'rejected_by' => null,
+            ])
             ->with([
                 'scores',
                 'principal',
@@ -1401,12 +1424,6 @@ class SubmissionController extends Controller
                 'guarantorToProductType',
                 'employeeLimit',
                 'guarantorProductTypeLimit',
-            ])
-            ->whereIn('staff_id', $staffs)
-            ->where([
-                'checked_by' => null,
-                'approved_by' => null,
-                'rejected_by' => null,
             ])
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1436,14 +1453,15 @@ class SubmissionController extends Controller
     {
         $component = 'kepala-cabang/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
                     ->orWhere('rejected_by', '=', $authId);
             })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1475,8 +1493,9 @@ class SubmissionController extends Controller
     {
         $component = 'kepala-agent-partner/submission-management/list/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $staffs = User::query()
+            ->where('guarantor_id', session('guarantor_id'))
             ->where('head_id', '=', $authId)
             ->pluck('id');
         $submissions = Submission::query()
@@ -1525,14 +1544,15 @@ class SubmissionController extends Controller
     {
         $component = 'kepala-agent-partner/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
+            ->where('guarantor_id', session('guarantor_id'))
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
                     ->orWhere('rejected_by', '=', $authId);
             })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
@@ -1575,10 +1595,11 @@ class SubmissionController extends Controller
     {
         $component = 'agent-partner/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('guarantor_id', session('guarantor_id'))
             ->where('staff_id', '=', $authId)
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
@@ -1628,10 +1649,11 @@ class SubmissionController extends Controller
     {
         $component = 'marketing-partner/submission-management/history/index';
 
-        $authId = auth()->user()->getAuthIdentifier();
+        $authId = auth()->id();
         $submissions = Submission::query()
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+            ->where('guarantor_id', session('guarantor_id'))
             ->where('staff_id', '=', $authId)
+            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) {
@@ -1736,7 +1758,7 @@ class SubmissionController extends Controller
     {
         $dateNow = now()->format('Y-m-d H:i:s');
         $updated = $submission->update([
-            'checked_by' => auth()->user()->getAuthIdentifier(),
+            'checked_by' => auth()->id(),
             'checked_at' => $dateNow,
         ]);
 
@@ -1920,6 +1942,9 @@ class SubmissionController extends Controller
         $products = Product::get(['id', 'name']);
         $productTypes = ProductType::get(['id', 'name']);
         $sourceOfFounds = SourceOfFund::get(['id', 'name']);
+        $hostToHost = $guarantor->getRelation('hostToHost');
+        $url = $hostToHost->getAttribute('guarantor_url_host');
+        $token = $hostToHost->getAttribute('token');
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             'resources' => [

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginAdminRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Guarantor\Guarantor;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,11 +21,21 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $guarantorId = $request->get('guarantor_id');
+        if ($guarantorId) {
+            session(['guarantor_id' => $guarantorId]);
+        } else {
+            $guarantorId = session('guarantor_id');
+        }
+        $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
+
         return Inertia::render('auth/login/index', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'guarantors' => $guarantors,
+            'guarantorSelected' => (int) $guarantorId,
         ]);
     }
 
@@ -33,10 +45,28 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         // Validate the incoming request
-        $validatedData = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string|min:8',
-        ]);
+        $validatedData = $request->validated();
+
+        // Error message to display if the credentials are invalid
+        $errorMessage = [
+            'username' => 'Username Tidak Terdaftar.',
+            'password' => 'Atau Password Salah.',
+            'id asuransi' => 'Asuransi Tidak Dipilih.',
+        ];
+
+        // Check if the username exists
+        $user = User::where('username', $validatedData['username'])
+            ->with('role')->whereHas('role', function ($query) {
+                $query->whereNot('name', RoleEnum::Admin);
+            })->first();
+
+        return $this->afterChackUser($user, $validatedData, $errorMessage, $request);
+    }
+
+    public function storeAdmin(LoginAdminRequest $request)
+    {
+        // Validate the incoming request
+        $validatedData = $request->validated();
 
         // Error message to display if the credentials are invalid
         $errorMessage = [
@@ -45,8 +75,16 @@ class AuthenticatedSessionController extends Controller
         ];
 
         // Check if the username exists
-        $user = User::where('username', $validatedData['username'])->first();
+        $user = User::where('username', $validatedData['username'])
+            ->with('role')->whereHas('role', function ($query) {
+                $query->where('name', RoleEnum::Admin);
+            })->first();
 
+        return $this->afterChackUser($user, $validatedData, $errorMessage, $request);
+    }
+
+    public function afterChackUser($user, $validatedData, $errorMessage, $request)
+    {
         // Check if the user exists
         if (! $user) {
             flashMessage('Gagal Login!', 'Username Tidak Ditemukan.', 'error');
@@ -71,50 +109,16 @@ class AuthenticatedSessionController extends Controller
 
         // Redirect to the intended page (e.g., dashboard)
 
-        $userLogin = User::find(Auth::id());
+        $userRole = $user->getRelation('role');
+        $roleRoute = RoleEnum::getRoute();
 
-        $userRole = $userLogin->role_id;
+        if ($userRole) {
+            $userRole = $userRole->getAttribute('name');
+            $route = $roleRoute[$userRole];
+            $this->activityLogin('Login sebagai '.$userRole);
+            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
 
-        if ($userRole == 1) {
-            $this->activityLogin('Login sebagai Admin');
-            flashMessage('Berhasil Login sebagai Admin!', 'Anda berhasil login sebagai Admin.');
-
-            return redirect()->intended(route(RoleEnum::AdminRoute->value, absolute: false));
-        } elseif ($userRole == 2) {
-            $this->activityLogin('Login sebagai Direksi');
-            flashMessage('Berhasil Login sebagai Direksi!', 'Anda berhasil login sebagai Direksi.');
-
-            return redirect()->intended(route(RoleEnum::DireksiRoute->value, absolute: false));
-        } elseif ($userRole == 3) {
-            $this->activityLogin('Login sebagai Kepala Cabang');
-            flashMessage('Berhasil Login sebagai Kepala Cabang!', 'Anda berhasil login sebagai Kepala Cabang.');
-
-            return redirect()->intended(route(RoleEnum::KepalaCabangRoute->value, absolute: false));
-        } elseif ($userRole == 4) {
-            $this->activityLogin('Login sebagai Manager');
-            flashMessage('Berhasil Login sebagai Manager!', 'Anda berhasil login sebagai Manager.');
-
-            return redirect()->intended(route(RoleEnum::ManagerRoute->value, absolute: false));
-        } elseif ($userRole == 5) {
-            $this->activityLogin('Login sebagai Staff Operasional');
-            flashMessage('Berhasil Login sebagai Staff Operasional!', 'Anda berhasil login sebagai Staff Operasional.');
-
-            return redirect()->intended(route(RoleEnum::StaffOperasionalRoute->value, absolute: false));
-        } elseif ($userRole == 6) {
-            $this->activityLogin('Login sebagai Staff Teknik');
-            flashMessage('Berhasil Login sebagai Staff Teknik!', 'Anda berhasil login sebagai Staff Teknik.');
-
-            return redirect()->intended(route(RoleEnum::StaffTeknikRoute->value, absolute: false));
-        } elseif ($userRole == 7) {
-            $this->activityLogin('Login sebagai Staff Operasional');
-            flashMessage('Berhasil Login sebagai Staff Operasional!', 'Anda berhasil login sebagai Staff Operasional.');
-
-            return redirect()->intended(route(RoleEnum::StaffOperasionalRoute->value, absolute: false));
-        } elseif ($userRole == 8) {
-            $this->activityLogin('Login sebagai Staff Cabang');
-            flashMessage('Berhasil Login sebagai Staff Cabang!', 'Anda berhasil login sebagai Staff Cabang.');
-
-            return redirect()->intended(route(RoleEnum::StaffRoute->value, absolute: false));
+            return redirect()->intended(route($route, absolute: false));
         }
 
         return redirect()->intended(route('login', absolute: false));

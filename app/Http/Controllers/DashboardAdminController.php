@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
@@ -33,9 +34,6 @@ class DashboardAdminController extends Controller
         // Load the relationship after filtering
         $approvedSubmission->load('userApproved');
 
-        // Total Submission
-        $totalSubmission = $submission->count();
-
         // Total Premi
         $totalPremi = $approvedSubmission->sum('guarantee_value');
 
@@ -46,21 +44,26 @@ class DashboardAdminController extends Controller
 
         $chartSubmissionThisYear = $this->getChartSubmissionThisYear($profileId);
         $submissionThisMonth = $this->getSubmissionThisMonth();
+        $countOfSubmission = $this->getCountOfSubmission($submission);
+        $countGuarantors = Guarantor::whereNull('headquarter_id')->count();
 
         return inertia('admin/dashboard/index', [
             'totalPremi' => fn () => $totalPremi,
             'totalUsedBlank' => fn () => $usedBlanks,
-            'totalSubmission' => fn () => $totalSubmission,
+            'totalSubmission' => fn () => $countOfSubmission['total'],
+            'process' => fn () => $countOfSubmission['process'],
+            'approved' => fn () => $countOfSubmission['approved'],
+            'rejected' => fn () => $countOfSubmission['rejected'],
             'branches' => fn () => $userBranch,
             'userApprovedSubmission' => fn () => $userApprovedSubmission,
             'graph_data' => $chartSubmissionThisYear,
             'submissions' => $submissionThisMonth,
+            'countGuarantors' => $countGuarantors,
         ]);
     }
 
-    private function getCountOfSubmission(): array
+    private function getCountOfSubmission($submissions): array
     {
-        $submissions = Submission::query()->get();
         $totalSubmission = $submissions->count();
         $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
         $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();

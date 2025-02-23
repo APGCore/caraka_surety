@@ -86,4 +86,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Profile::class, 'profile_id');
     }
+
+    public function staff(): HasMany
+    {
+        return $this->hasMany(User::class, 'head_id');
+    }
 }

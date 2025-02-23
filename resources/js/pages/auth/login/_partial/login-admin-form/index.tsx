@@ -1,32 +1,21 @@
 import { cn } from "@/common/utils/cn";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/_shadcn-ui/hover-card";
 import { Input, PasswordInput } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import Loading from "@/components/atoms/loading";
-import { Combobox } from "@/components/molecules/combobox";
 import InputError from "@/components/molecules/input/error-input";
-import { router } from "@inertiajs/react";
-import { pickBy } from "lodash";
 import React from "react";
 import useLoginForm from "./login-form.hook";
 import { greetingBasedOnDate } from "./login-form.util";
 
-interface LoginFormProps extends React.ComponentProps<"div"> {
-  guarantors: any[];
-  guarantorSelected: number;
+interface LoginAdminFormProps extends React.ComponentProps<"div"> {
   className?: string;
   setTab: (tab: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorSelected, setTab, ...props }) => {
+const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...props }) => {
   const { data, errors, handleLogin, processing, setData } = useLoginForm();
-  const guarantor = guarantors.find((guarantor) => guarantor.id === guarantorSelected);
-  const handleSelectGuarantor = (guarantorId: number) => {
-    setData("guarantor_id", guarantorId);
-    router.get(route("login"), pickBy({ guarantor_id: guarantorId }), { preserveState: true, preserveScroll: true });
-  };
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -40,34 +29,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
             />
             <div className="flex flex-col items-center gap-10 z-20">
               <h1 className="text-5xl font-bold">Welcome</h1>
-              <div className="flex flex-col items-center gap-1">
-                <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[88px] w-[180px]" />
-                <h1 className="text-1xl font-bold">X</h1>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    {guarantor?.picture ? (
-                      <img
-                        src={"storage/" + guarantor.picture}
-                        alt=""
-                        className="flex-shrink-0 h-auto w-auto cursor-pointer"
-                      />
-                    ) : (
-                      <h1 className="text-1xl font-bold cursor-pointer">{guarantor?.name || "Asuransi"}</h1>
-                    )}
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-80">
-                    <Combobox
-                      datas={guarantors}
-                      labelKey={"name"}
-                      valueKey={"name"}
-                      defaultValue={guarantorSelected}
-                      placeholder={"Pilih Asuransi"}
-                      className={"min-w-[160px]"}
-                      onSelect={(value) => handleSelectGuarantor(value.id)}
-                    />
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
+              <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 h-[88px] w-[180px]" />
             </div>
             <h1 className="absolute bottom-2 font-bold">A Member Of APG</h1>
           </div>
@@ -110,8 +72,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
                 <Button form="login-form" className="w-full" disabled={processing}>
                   <Loading isLoading={processing} className="mr-1" /> Login
                 </Button>
-                <Button type="button" onClick={() => setTab("admin")}>
-                  Login Admin
+                <Button type="button" onClick={() => setTab("staff")}>
+                  Login Karyawan
                 </Button>
               </div>
             </div>
@@ -125,4 +87,4 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
   );
 };
 
-export default LoginForm;
+export default LoginAdminForm;

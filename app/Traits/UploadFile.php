@@ -16,7 +16,7 @@ trait UploadFile
             ? $file->getClientOriginalExtension()
             : 'pdf';
         $fileName = str_replace(' ', '_', $fileName);
-        $newFileName = time() . '_' . $fileName . '.' . $extension;
+        $newFileName = time().'_'.$fileName.'.'.$extension;
 
         return $file->storeAs($path, $newFileName, 'public');
     }

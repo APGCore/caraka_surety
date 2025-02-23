@@ -17,7 +17,6 @@ class PrincipalDocumentResource extends JsonResource
     {
         $principalDocument = collect($this->resource->principalDocument);
 
-
         if ($principalDocument->isNotEmpty()) {
             $principalDocument = [
                 ...$principalDocument->toArray(),

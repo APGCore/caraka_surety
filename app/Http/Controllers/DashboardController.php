@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
@@ -9,18 +10,12 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    private function getCountOfSubmission(?int $userId = null): array
+    private function getCountOfSubmission($submissions): array
     {
-        $submissions = Submission::query()->when($userId, fn ($query) => $query
-            ->where('staff_id', $userId)
-            ->orWhere('checked_by', $userId)
-            ->orWhere('approved_by', $userId)
-            ->orWhere('rejected_by', $userId)
-        )->get();
-        $totalSubmission = $submissions->count();
-        $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
-        $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
-        $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED->value)->count();
+        $totalSubmission = (clone $submissions)->count();
+        $totalSubmissionProcess = (clone $submissions)->where('status', SubmissionStatus::PROCESS->value)->count();
+        $totalSubmissionApproved = (clone $submissions)->where('status', SubmissionStatus::APPROVED->value)->count();
+        $totalSubmissionRejected = (clone $submissions)->where('status', SubmissionStatus::REJECTED->value)->count();
 
         return [
             'total' => $totalSubmission,
@@ -30,7 +25,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getChartSubmissionThisYear(?int $productId = null, ?int $userId = null): array
+    private function getChartSubmissionThisYear(?int $productId, $submissions): array
     {
         // get month names in Indonesian
         $monthNames = [
@@ -48,51 +43,69 @@ class DashboardController extends Controller
             'Des',
         ];
 
-        $submissions = Submission::query()
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->whereYear('created_at', now()->year)
-            ->when($productId, fn ($query) => $query->where('product_id', $productId))
-            ->when($userId, fn ($query) => $query
-                ->where('staff_id', $userId)
-                ->orWhere('checked_by', $userId)
-                ->orWhere('approved_by', $userId)
-                ->orWhere('rejected_by', $userId))
-            ->groupBy('month')
-            ->get();
+        $result = (clone $submissions)->filter(function ($submission) use ($productId) {
+            return $submission->created_at->year == now()->year && (! $productId || $submission->product_id == $productId);
+        })->groupBy(function ($submission) {
+            return $submission->created_at->month;
+        })->map(function ($group) {
+            return $group->count();
+        });
 
         $chartData = [];
         foreach ($monthNames as $key => $monthName) {
             $chartData[] = [
                 'month' => $monthName,
-                'total' => $submissions->firstWhere('month', $key + 1)?->total ?? 0,
+                'total' => $result->get($key + 1, 0),
             ];
         }
 
         return $chartData;
     }
 
-    private function getSubmissionThisMonth(?int $userId = null): object
+    private function getSubmissionThisMonth($submissions): object
     {
-        return Submission::query()
-            ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
-            ->with(['principal:id,name', 'product:id,name'])
-            ->when($userId, fn ($query) => $query
-                ->where('staff_id', $userId)
-                ->orWhere('checked_by', $userId)
-                ->orWhere('approved_by', $userId)
-                ->orWhere('rejected_by', $userId))
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->orderByDesc('created_at')
-            ->get();
+        return (clone $submissions)
+            ->filter(function ($submission) {
+                return $submission->created_at->year == now()->year && $submission->created_at->month == now()->month;
+            })
+            ->map(function ($submission) {
+                return [
+                    'id' => $submission->id,
+                    'principal_id' => $submission->principal_id,
+                    'product_id' => $submission->product_id,
+                    'contract_value' => $submission->contract_value,
+                    'guarantee_value' => $submission->guarantee_value,
+                    'status' => $submission->status,
+                    'principal' => $submission->principal ? $submission->principal->only(['id', 'name']) : null,
+                    'product' => $submission->product ? $submission->product->only(['id', 'name']) : null,
+                ];
+            })
+            ->sortByDesc('created_at')
+            ->values();
     }
 
     private function getProps($productId): array
     {
-        $userId = auth()->user()->getAuthIdentifier();
-        $countOfSubmission = $this->getCountOfSubmission($userId);
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId, $userId);
-        $submissionThisMonth = $this->getSubmissionThisMonth($userId);
+        $user = auth()->user();
+        $isStaff = $user->hasRole(RoleEnum::Staff->value);
+        $userId = $user->id;
+        $user->load('staff');
+        $staffs = $user->getRelation('staff');
+        $guarantorId = session('guarantor_id');
+        $submissions = Submission::query()
+            ->where('guarantor_id', $guarantorId)
+            ->when($userId, fn ($query) => $query->where(
+                fn ($query) => $query
+                    ->whereIn('staff_id', $isStaff ? [$userId] : $staffs->pluck('id')->toArray())
+                    ->orWhere('checked_by', $userId)
+                    ->orWhere('approved_by', $userId)
+                    ->orWhere('rejected_by', $userId)
+            ))
+            ->with(['principal:id,name', 'product:id,name'])
+            ->get();
+        $countOfSubmission = $this->getCountOfSubmission($submissions);
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($productId, $submissions);
+        $submissionThisMonth = $this->getSubmissionThisMonth($submissions);
         $products = Product::query()->get();
 
         return [

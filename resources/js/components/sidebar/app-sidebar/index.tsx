@@ -17,7 +17,7 @@ import useSidebar, {
 import RenderList from "@/components/atoms/render-list";
 import { SidebarMenuCustom } from "@/components/sidebar/app-sidebar/sidebar-menu-custom";
 import { Link } from "@inertiajs/react";
-import { ChevronRight, GalleryVerticalEnd } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import React from "react";
 import { IAppSideBarProps } from "./app-sidebar.type";
 import { displaySidebarMenuName } from "./app-sidebar.utils";
@@ -33,9 +33,7 @@ const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes, roles }) => {
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <GalleryVerticalEnd className="size-4" />
-              </div>
+              <img src="/icon-bpr.png" alt="" className="flex-shrink-0 size-8" />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">APG - Core System</span>
                 <span className="truncate text-xs">{displaySidebarMenuName(user?.role?.name, roles)}</span>

@@ -14,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PHPUnit\Architecture\Elements\ObjectDescription;
 
 class PrincipalController extends Controller
 {
@@ -82,7 +81,7 @@ class PrincipalController extends Controller
     public function getDocument(Request $request): JsonResponse
     {
         $request->validate([
-            'principal_id' => 'nullable|exists:' . Principal::class . ',id,deleted_at,NULL',
+            'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
         ]);
 
         $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($request) {
@@ -144,6 +143,7 @@ class PrincipalController extends Controller
             }
 
             DB::commit();
+
             return $this->responseSuccess('Dokumen berhasil diunggah', $document);
         } catch (\Exception $e) {
             DB::rollBack();

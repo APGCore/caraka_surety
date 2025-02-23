@@ -15,7 +15,11 @@ export interface AdminDashboardProps {
   totalPremi?: number;
   totalSubmission?: number;
   totalUsedBlank?: number;
+  process: number;
+  approved: number;
+  rejected: number;
   branches?: Branch[];
+  countGuarantors: number;
   userApprovedSubmission?: User[];
   graph_data?: any;
   submissions?: any;

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\RoleEnum;
+use App\Models\Guarantor\Guarantor;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -41,13 +42,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()?->load('role'),
             ],
             'roles' => fn () => (object) RoleEnum::getKeyValue(),
+            'guarantor' => Guarantor::select(['id', 'name', 'picture'])->firstWhere('id', session('guarantor_id')),
             'location' => fn () => $request->url(),
             'flash_message' => fn () => [
                 'title' => $request->session()->get('title'),
                 'description' => $request->session()->get('description'),
                 'type' => $request->session()->get('type'),
             ],
-
         ];
     }
 }

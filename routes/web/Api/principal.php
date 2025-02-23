@@ -23,7 +23,6 @@ Route::prefix('principal-management')
                         Route::put('update/{principal}', 'update')->name('update');
                     });
 
-
                 Route::prefix('document')
                     ->name('document.')
                     ->group(function () {

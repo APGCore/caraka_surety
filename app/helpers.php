@@ -1,14 +1,15 @@
 <?php
 
 if (! function_exists('flashMessage')) {
-
     function flashMessage(string $message, string $description, string $type = 'success')
     {
         session()->flash('title', $message);
         session()->flash('description', $description);
         session()->flash('type', $type);
     }
+}
 
+if (! function_exists('convertPattern')) {
     function convertPattern(string $pattern, string $ka = '', string $kc = '', string $noa = '', string $kp = '', string $kb = '',
         string $nod = '1', string $nom = '1', string $noy = '1')
     {
