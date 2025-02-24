@@ -292,12 +292,8 @@ class SubmissionController extends Controller
             'staff' => function ($query) {
                 $query->withTrashed();
             },
-            'employeeLimit' => function ($query) {
-                $query->withTrashed();
-            },
-            'guarantorProductTypeLimit' => function ($query) {
-                $query->withTrashed();
-            },
+            'employeeLimit',
+            'guarantorProductTypeLimit',
         ])->findOrFail($id);
     }
 
