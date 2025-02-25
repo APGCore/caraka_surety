@@ -173,11 +173,14 @@ class SubmissionController extends Controller
             // save image to storage
             $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
 
-            SubmissionCallback::query()->create([
-                'submission_id' => $submissionId,
-                'doc_url' => $request->get('doc_url'),
-                'url' => $url,
-            ]);
+            SubmissionCallback::query()->updateOrCreate(
+                ['submission_id' => $submissionId],
+                [
+                    'submission_id' => $submissionId,
+                    'doc_url' => $request->get('doc_url'),
+                    'url' => $url,
+                ]
+            );
 
             return $this->responseSuccess('Berhasil Mengirimkan data');
         } catch (\Exception $e) {
