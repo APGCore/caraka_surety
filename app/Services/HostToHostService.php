@@ -18,7 +18,6 @@ class HostToHostService
     public function sendPostRequest(string $url, string $token, array $data): object
     {
         $jsonData = json_encode($data);
-        dd($jsonData);
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'Authorization' => $token,

@@ -60,7 +60,6 @@ return new class extends Migration
             $table->text('note_scoring')->nullable();
             $table->text('min_point_scoring')->nullable();
             $table->text('risk_mitigation')->nullable();
-            $table->text('verified_doc_link')->nullable();
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();

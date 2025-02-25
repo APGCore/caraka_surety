@@ -47,6 +47,20 @@ const HostToHostForm = ({ handleSubmit, data, setData }: { handleSubmit: () => v
           />
         </div>
       </div>
+      {/*auth_prefix*/}
+      <div className="space-y-2">
+        <Label htmlFor={`${id}-auth_prefix`}>Prefix Auth</Label>
+        <div className="flex rounded-lg shadow-sm shadow-black/5">
+          <Input
+            id={`${id}-auth_prefix`}
+            className=" shadow-none"
+            placeholder="Isi dengan prefix auth boleh kosong"
+            defaultValue={data.auth_prefix}
+            type="text"
+            onChange={(e) => setData({ ...data, auth_prefix: e.target.value })}
+          />
+        </div>
+      </div>
       <div className="space-y-2">
         <Label htmlFor={`${id}-token`}>Token</Label>
         <Textarea

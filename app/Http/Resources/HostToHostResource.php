@@ -19,6 +19,7 @@ class HostToHostResource extends JsonResource
             'guarantor_id' => $this->resource->guarantor_id,
             'guarantor_name' => $this->resource->guarantor_name,
             'guarantor_url_host' => $this->resource->guarantor_url_host,
+            'auth_prefix' => $this->resource->auth_prefix,
             'token' => $this->resource->token,
             'accessed_at' => $this->resource->accessed_at,
             'created_at' => $this->resource->created_at->format('Y-m-d H:i:s'),

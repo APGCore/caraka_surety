@@ -10,6 +10,7 @@ use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use App\Models\Submission\SourceOfFund;
 use App\Models\Submission\Submission;
+use App\Models\Submission\SubmissionCallback;
 use App\Services\HostToHostService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -164,14 +165,21 @@ class SubmissionController extends Controller
     public function callback(CallbackRequest $request): JsonResponse
     {
         try {
-            $submission = Submission::query()->find($request->get('submission_id'));
-            $submission->setAttribute('verified_doc_link', $request->get('doc_url'));
-            $submission->save();
+            // image is base64
+            $imageString = $request->get('image');
+            // base64 to file
+            $fileData = $this->base64ToFile($imageString);
+            $submissionId = $request->get('submission_id');
+            // save image to storage
+            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
 
-            return $this->responseSuccess('success', [
-                'submission_id' => $submission->getAttribute('id'),
-                'doc_url' => $submission->getAttribute('verified_doc_link'),
+            SubmissionCallback::query()->create([
+                'submission_id' => $submissionId,
+                'doc_url' => $request->get('doc_url'),
+                'url' => $url,
             ]);
+
+            return $this->responseSuccess('Berhasil Mengirimkan data');
         } catch (\Exception $e) {
             return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
         }

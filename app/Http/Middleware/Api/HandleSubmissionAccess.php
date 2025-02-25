@@ -21,12 +21,15 @@ class HandleSubmissionAccess
     {
         $request->validate([
             'submission_id' => 'required|exists:'.Submission::class.',id',
-            'token' => 'required|string',
         ]);
+        $token = $request->header('token');
+        if (! $token) {
+            return $this->responseError(message: ['message' => 'Token Tidak Ditemukan'], code: 401);
+        }
         $submissionId = $request->get('submission_id');
         $submission = Submission::query()->select(['id', 'guarantor_id'])->with(['guarantor:id', 'guarantor.hostToHost'])->find($submissionId);
         $hostToHost = $submission->getRelation('guarantor')->getRelation('hostToHost');
-        if (($hostToHost ? $hostToHost->getAttribute('token') : null) !== $request->get('token')) {
+        if (($hostToHost ? $hostToHost->getAttribute('token') : null) !== $token) {
             return $this->responseError(message: ['message' => 'Token Salah'], code: 401);
         }
         $hostToHost->setAttribute('accessed_at', now());

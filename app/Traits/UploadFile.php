@@ -7,6 +7,25 @@ use Illuminate\Support\Facades\Storage;
 
 trait UploadFile
 {
+    public function base64ToFile($base64String): UploadedFile
+    {
+        if (str_starts_with($base64String, 'data:image')) {
+            preg_match('/data:image\/(\w+);base64,/', $base64String, $matches);
+            $extension = $matches[1];
+
+            $base64String = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
+        } else {
+            $extension = 'jpg'; // Default to jpg if no extension is found
+        }
+
+        // Decode the base64 string
+        $fileDataString = base64_decode($base64String);
+
+        // $fileData to UploadedFile
+        return UploadedFile::fake()->createWithContent('file.'.$extension, $fileDataString);
+
+    }
+
     /**
      * Upload file to the storage.
      */

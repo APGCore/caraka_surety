@@ -64,8 +64,9 @@ class HostToHostController extends Controller
     {
         $request->validate([
             'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
-            'guarantor_url_host' => 'required',
-            'token' => 'nullable',
+            'guarantor_url_host' => 'required|string',
+            'auth_prefix' => 'nullable|string',
+            'token' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -76,6 +77,7 @@ class HostToHostController extends Controller
                     $request->only([
                         'guarantor_id',
                         'guarantor_url_host',
+                        'auth_prefix',
                         'token',
                     ]),
                     [
@@ -109,8 +111,9 @@ class HostToHostController extends Controller
     {
         $request->validate([
             'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
-            'guarantor_url_host' => 'required',
-            'token' => 'nullable',
+            'guarantor_url_host' => 'required|string',
+            'auth_prefix' => 'nullable|string',
+            'token' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -121,6 +124,7 @@ class HostToHostController extends Controller
                     $request->only([
                         'guarantor_id',
                         'guarantor_url_host',
+                        'auth_prefix',
                         'token',
                     ]),
                     [

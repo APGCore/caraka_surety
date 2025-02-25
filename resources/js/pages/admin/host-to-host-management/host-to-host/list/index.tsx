@@ -98,6 +98,7 @@ const ListHostToHost: ListHostToHostPageProps = (props) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama Asuransi</TableHead>
               <TableHead>Alamat Host Asuransi</TableHead>
+              <TableHead>Prefix Auth</TableHead>
               <TableHead>Token</TableHead>
               <TableHead>Terakhir Di Akses</TableHead>
               <TableHead>Tanggal Dibuat</TableHead>
@@ -113,6 +114,7 @@ const ListHostToHost: ListHostToHostPageProps = (props) => {
                     <TableCell>{meta.from + index}</TableCell>
                     <TableCell>{hostToHost?.guarantor_name}</TableCell>
                     <TableCell>{hostToHost?.guarantor_url_host}</TableCell>
+                    <TableCell>{hostToHost?.auth_prefix}</TableCell>
                     <TableCell>{hostToHost?.token}</TableCell>
                     <TableCell>{hostToHost?.accessed_at}</TableCell>
                     <TableCell>{hostToHost?.created_at}</TableCell>

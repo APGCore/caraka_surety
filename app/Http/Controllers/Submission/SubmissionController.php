@@ -52,9 +52,6 @@ class SubmissionController extends Controller
 
         DB::beginTransaction();
         try {
-            //            $principal = $validated['principal'];
-            //            $principalDocuments = $validated['principal']['documents'];
-
             $principal = $validated['principal'];
             $principalId = $principal['id'];
             $principalRatios = $principal['ratios'];
@@ -1942,7 +1939,7 @@ class SubmissionController extends Controller
         $sourceOfFounds = SourceOfFund::get(['id', 'name']);
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
-        $token = $hostToHost->getAttribute('token');
+        $token = $hostToHost->getAttribute('auth_prefix').$hostToHost->getAttribute('token');
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             'resources' => [

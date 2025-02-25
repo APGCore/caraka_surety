@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete();
             $table->string('guarantor_name');
             $table->string('guarantor_url_host');
+            $table->string('auth_prefix')->nullable();
             $table->string('token')->nullable();
             $table->date('accessed_at')->nullable();
             $table->timestamps();
