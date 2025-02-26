@@ -2,7 +2,7 @@ import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
-import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
+import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
@@ -31,7 +31,6 @@ import Show from "@/components/atoms/show";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import InputCurrency from "@/components/molecules/input/currency-input";
-import { FileInput } from "@/components/molecules/input/file-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
@@ -51,9 +50,9 @@ import {
   SubmissionFormProps,
 } from "./submission-create-page.type";
 
-const SubmissionCreatePage: SubmissionCreatePageProps = () => {
+const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
   // Product
-  const { data: products } = useGetAllProduct();
+  const { data: products } = useGetAllProduct(guarantor.id);
   const [selectedProducts, setSelectedProducts] = useState(null);
 
   // Principal
@@ -141,7 +140,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       postal_code: "",
     },
     submission: {
-      guarantor_id: "",
+      guarantor_id: guarantor?.id ?? "",
       guarantor_branch_id: "",
       product_id: "",
       product_type_id: "",
@@ -273,8 +272,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   );
 
   // Guarantor
-  const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
-  const [selectedGuarantor, setSelectedGuarantor] = useState(null);
+  // const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
+  const [selectedGuarantor, setSelectedGuarantor] = useState(guarantor?.id ?? null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
@@ -448,7 +447,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     setPrincipalDocs([]);
     setPrincipalFiles([]);
     setSelectedBank(null);
-    setSelectedGuarantor(null);
+    // setSelectedGuarantor(null);
     setSelectedObligee(null);
     setSelectedPrincipalDistrict(null);
     setSelectedPrincipalProvince(null);
@@ -1171,11 +1170,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           };
                           if (val.id !== selectedProducts) {
                             setSelectedBranchGuarantor(null);
-                            setSelectedGuarantor(null);
                             setSelectedProductType(null);
-                            setIsResetGuarantor(true);
                             setIsResetProductType(true);
-                            changedSubmission["guarantor_id"] = "";
+                            // setSelectedGuarantor(null);
+                            // setIsResetGuarantor(true);
+                            // changedSubmission["guarantor_id"] = "";
                             changedSubmission["product_type_id"] = "";
                             if (data?.submission?.bank_id) {
                               changedSubmission["bank_id"] = "";
@@ -1188,30 +1187,30 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Asuransi/Penjamin</Label>
-                      <Combobox
-                        datas={Array.isArray(guarantors) ? guarantors : []}
-                        labelKey="name"
-                        valueKey="name"
-                        reset={isResetGuarantor}
-                        defaultValueId={data?.submission?.guarantor_id || selectedGuarantor}
-                        onReset={(resetVal) => setIsResetGuarantor(resetVal)}
-                        placeholder="Pilih Asuransi/Penjamin"
-                        onSelect={(val: any) => {
-                          if (val.id !== selectedGuarantor) {
-                            setSelectedBranchGuarantor(null);
-                            setSelectedProductType(null);
-                            setIsResetProductType(true);
-                          }
-                          setData("submission", {
-                            ...data.submission,
-                            guarantor_id: val?.id,
-                          });
-                          setSelectedGuarantor(val.id);
-                        }}
-                      />
-                    </div>
+                    {/*<div className="grid gap-1 w-full">*/}
+                    {/*  <Label className="text-md">Asuransi/Penjamin</Label>*/}
+                    {/*  <Combobox*/}
+                    {/*    datas={Array.isArray(guarantors) ? guarantors : []}*/}
+                    {/*    labelKey="name"*/}
+                    {/*    valueKey="name"*/}
+                    {/*    reset={isResetGuarantor}*/}
+                    {/*    defaultValueId={data?.submission?.guarantor_id || selectedGuarantor}*/}
+                    {/*    onReset={(resetVal) => setIsResetGuarantor(resetVal)}*/}
+                    {/*    placeholder="Pilih Asuransi/Penjamin"*/}
+                    {/*    onSelect={(val: any) => {*/}
+                    {/*      if (val.id !== selectedGuarantor) {*/}
+                    {/*        setSelectedBranchGuarantor(null);*/}
+                    {/*        setSelectedProductType(null);*/}
+                    {/*        setIsResetProductType(true);*/}
+                    {/*      }*/}
+                    {/*      setData("submission", {*/}
+                    {/*        ...data.submission,*/}
+                    {/*        guarantor_id: val?.id,*/}
+                    {/*      });*/}
+                    {/*      setSelectedGuarantor(val.id);*/}
+                    {/*    }}*/}
+                    {/*  />*/}
+                    {/*</div>*/}
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Cabang Asuransi</Label>
                       <Combobox

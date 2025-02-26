@@ -8,13 +8,14 @@ export const PRODUCT_QUERY_KEY = {
   DISTRICT_BY_REGENCY_ID: "districtByRegencyId",
 };
 
-export const useGetAllProduct = (querySetting?: QueryOptions) => {
+export const useGetAllProduct = (guarantorId: number, querySetting?: QueryOptions) => {
   return useQuery({
-    queryKey: [PRODUCT_QUERY_KEY.PRODUCT],
+    queryKey: [PRODUCT_QUERY_KEY.PRODUCT, guarantorId],
     queryFn: async () => {
-      const response = await axios.get(route("api.product-management.product.all"));
+      const response = await axios.get(route("api.product-management.product.all", { guarantor_id: guarantorId }));
       return response.data.data;
     },
+    enabled: !!guarantorId,
     ...querySetting,
   });
 };

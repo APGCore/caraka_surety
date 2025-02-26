@@ -1,13 +1,7 @@
 import React from "react";
 
 interface SubmissionCreateProps {
-  question: string;
-  name: string;
-  scoringOptions: ScoringOptions[];
-  scoringCategories: ScoringCategories;
-  scoringQuestions: ScoringQuestions;
-  required_doc_id: any;
-  id: any;
+  guarantor: any;
 }
 
 export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {

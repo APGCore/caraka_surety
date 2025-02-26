@@ -23,7 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ guarantor }) => {
               {guarantor.picture ? (
                 <img src={"/storage/" + guarantor.picture} alt="" className="flex-shrink-0 max-h-[40px] w-auto" />
               ) : (
-                <h1 className="text-1xl font-bold">{guarantor?.name || "Asuransi"}</h1>
+                <h1 className="text-1xl font-bold ml-2">{guarantor?.name || "Asuransi"}</h1>
               )}
             </>
           )}

@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Document\DocumentFormat;
+use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -38,6 +39,11 @@ class Product extends Model
     public function productTypeToProduct(): HasMany
     {
         return $this->hasMany(ProductTypeToProduct::class);
+    }
+
+    public function guarantorToProductType(): HasMany
+    {
+        return $this->hasMany(GuarantorToProductType::class, 'product_id');
     }
 
     public function documentFormats()

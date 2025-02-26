@@ -226,9 +226,16 @@ class ProductController extends Controller
         }
     }
 
-    public function getAllProducts()
+    public function getAllProducts(Request $request)
     {
-        $products = Product::all();
+        $guarantorId = $request->get('guarantor_id');
+
+        $products = Product::query()
+            ->when($guarantorId != null, function ($query) use ($guarantorId) {
+                $query->whereHas('guarantorToProductType', function ($query) use ($guarantorId) {
+                    $query->where('guarantor_id', $guarantorId);
+                });
+            })->get();
 
         return $this->responseSuccess('Berhasil mengambil data produk', $products);
     }

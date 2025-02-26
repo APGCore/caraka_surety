@@ -63,13 +63,13 @@ class SubmissionController extends Controller
         // $submission->getAttribute('id')
         $result = [
             'submission_id' => 1,
-//            'resources' => [
-//                'project_group' => JobGroup::getValues(),
-//                'project_type' => JobType::getValues(),
-//                'product' => $products->toArray(),
-//                'product_type' => $productTypes->toArray(),
-//                'source_of_fund' => $sourceOfFounds->toArray(),
-//            ],
+            //            'resources' => [
+            //                'project_group' => JobGroup::getValues(),
+            //                'project_type' => JobType::getValues(),
+            //                'product' => $products->toArray(),
+            //                'product_type' => $productTypes->toArray(),
+            //                'source_of_fund' => $sourceOfFounds->toArray(),
+            //            ],
             'principal' => [
                 'id' => $principal->getAttribute('id'),
                 'name' => $principal->getAttribute('name'),

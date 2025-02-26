@@ -2,14 +2,19 @@ import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
-import { useGetBranchGuarantorByHeadquarter, useGetGuarantorByProductId } from "@/common/hooks/react-query/guarantor";
+import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
-import { PRINCIPAL_QUERY_KEY, useCreatePrincipal, useGetAllPrincipal } from "@/common/hooks/react-query/principal";
+import {
+  PRINCIPAL_QUERY_KEY,
+  useCreatePrincipal,
+  useGetAllPrincipal,
+  useUpdatePrincipal,
+} from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
@@ -26,7 +31,6 @@ import Show from "@/components/atoms/show";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import InputCurrency from "@/components/molecules/input/currency-input";
-import { FileInput } from "@/components/molecules/input/file-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
@@ -37,6 +41,8 @@ import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import { Fragment, useCallback, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
+import PrincipalDocsSection from "./principal-docs-section";
+import PrincipalSection from "./principal-section";
 import {
   ISelectedPrincipalDistrict,
   Ratio,
@@ -44,9 +50,9 @@ import {
   SubmissionFormProps,
 } from "./submission-create-page.type";
 
-const SubmissionCreatePage: SubmissionCreatePageProps = () => {
+const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
   // Product
-  const { data: products } = useGetAllProduct();
+  const { data: products } = useGetAllProduct(guarantor.id);
   const [selectedProducts, setSelectedProducts] = useState(null);
 
   // Principal
@@ -134,7 +140,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       postal_code: "",
     },
     submission: {
-      guarantor_id: "",
+      guarantor_id: guarantor?.id ?? "",
       guarantor_branch_id: "",
       product_id: "",
       product_type_id: "",
@@ -266,8 +272,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
   );
 
   // Guarantor
-  const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
-  const [selectedGuarantor, setSelectedGuarantor] = useState(null);
+  // const { data: guarantors } = useGetGuarantorByProductId(selectedProducts ? String(selectedProducts) : undefined);
+  const [selectedGuarantor, setSelectedGuarantor] = useState(guarantor?.id ?? null);
   const [isResetGuarantor, setIsResetGuarantor] = useState(false);
 
   // Branch Guarantor
@@ -441,7 +447,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     setPrincipalDocs([]);
     setPrincipalFiles([]);
     setSelectedBank(null);
-    setSelectedGuarantor(null);
+    // setSelectedGuarantor(null);
     setSelectedObligee(null);
     setSelectedPrincipalDistrict(null);
     setSelectedPrincipalProvince(null);
@@ -475,10 +481,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     });
   };
 
+  const [isPrincipalFetch, setIsPrincipalFetch] = useState(false);
+
   const { mutate, isPending } = useCreatePrincipal({
     onSuccess: async (data: any) => {
-      //   console.log(data);
-      //   const principalId = data.id;
+      setIsPrincipalFetch(true);
       toast({
         title: "Berhasil Menambah Principal!",
         description: "Data berhasil disimpan",
@@ -488,6 +495,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         refetchType: "active",
       });
       // SETTING PRINCIPAL DATA
+      const ratios = await fetchPrincipalRatios(data.id);
       setData("principal", {
         ...data?.principal,
         id: data?.id,
@@ -512,14 +520,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
         year_established: data?.year_established,
         est_deed: data?.est_deed,
         last_deed: data?.last_deed,
-        ratios: [],
+        ratios: ratios.slice(0, 2),
       });
 
-      if (data.id) {
-        const ratios = await fetchPrincipalRatios(data.id);
-        setPrincipalRatios(ratios);
-        fetchPrincipalDocuments(data.id);
-      }
+      fetchPrincipalDocuments(data.id);
       handleClickStep("docs");
     },
     onError: (error) => {
@@ -527,6 +531,59 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
       toast({
         title: "Gagal Menambah Principal Baru",
         description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useUpdatePrincipal({
+    onSuccess: async (data: any) => {
+      setIsPrincipalFetch(true);
+      toast({
+        title: "Berhasil Mengupdate Principal!",
+        description: "Data berhasil diupdate",
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+        refetchType: "active",
+      });
+      // SETTING PRINCIPAL DATA
+      const ratios = await fetchPrincipalRatios(data.id);
+      setData("principal", {
+        ...data?.principal,
+        id: data?.id,
+        province_id: data?.province_id,
+        regency_id: data?.regency_id,
+        district_id: data?.district_id,
+        village: data?.village,
+        name: data?.name,
+        address: data?.address,
+        telephone: data?.telephone,
+        postal_code: data?.postal_code,
+        fax: data?.fax,
+        npwp: data?.npwp,
+        nib: data?.nib,
+        siup_siujk: data?.siup_siujk,
+        head_name: data?.head_name,
+        business_fields: data?.business_fields,
+        director_name: data?.director_name,
+        director_position: data?.director_position,
+        director_phone: data?.director_phone,
+        commissioner: data?.commissioner,
+        year_established: data?.year_established,
+        est_deed: data?.est_deed,
+        last_deed: data?.last_deed,
+        ratios: ratios.slice(0, 2),
+      });
+
+      fetchPrincipalDocuments(data.id);
+      handleClickStep("docs");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast({
+        title: "Gagal Mengupdate Principal!",
+        description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
         variant: "destructive",
       });
     },
@@ -564,14 +621,49 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
     mutate(principalData);
   };
 
+  const handleUpdatePrincipal = () => {
+    if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {
+      return;
+    }
+
+    const principalData = {
+      principal_id: data.principal.id,
+      province_id: data.principal.province_id,
+      regency_id: data.principal.regency_id,
+      district_id: data.principal.district_id,
+      village: data.principal.village || "",
+      name: data.principal.name || "",
+      address: data.principal.address || "",
+      postal_code: data.principal.postal_code || "",
+      telephone: String(data.principal.telephone || ""),
+      fax: data.principal.fax || "",
+      npwp: String(data.principal.npwp || ""),
+      nib: String(data.principal.nib || ""),
+      siup_siujk: data.principal.siup_siujk || "",
+      head_name: data.principal.head_name || "",
+      director_name: data.principal.director_name || "",
+      director_position: data.principal.director_position || "",
+      director_phone: String(data.principal.director_phone || ""),
+      commissioner: data.principal.commissioner || "",
+      year_established: String(data.principal.year_established || ""),
+      est_deed: data.principal.est_deed || "",
+      last_deed: data.principal.last_deed || "",
+      business_fields: data.principal.business_fields || "",
+      ratios: data.principal.ratios,
+    };
+    updatePrincipal(principalData);
+  };
+
   const handleNextStepForm = () => {
     if (formStep === "principal") {
-      if (data.principal.id) {
-        handleClickStep("docs");
-      } else if (formSearchPrincipalState === "search") {
+      if (isPrincipalFetch) {
         handleClickStep("docs");
       } else {
-        handleCreatePrincipal();
+        if (data.principal.id) {
+          handleUpdatePrincipal();
+        } else {
+          handleCreatePrincipal();
+        }
       }
     } else if (formStep === "docs") {
       handleClickStep("contract");
@@ -614,6 +706,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                   onSelect={async (val: any) => {
                     setFormSearchPrincipalState("search");
                     // SETTING PRINCIPAL DATA
+
+                    const ratios = await fetchPrincipalRatios(val.id);
                     setData("principal", {
                       ...data.principal,
                       id: val.id,
@@ -638,10 +732,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       year_established: val.year_established,
                       est_deed: val.est_deed,
                       last_deed: val.last_deed,
-                      ratios: [],
+                      ratios: ratios.slice(0, 2),
                     });
 
-                    const ratios = await fetchPrincipalRatios(val.id);
                     setPrincipalRatios(ratios);
                     fetchPrincipalDocuments(val.id);
                   }}
@@ -730,7 +823,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                     Kembali Cari Data
                   </Button>
                 </div>
-                <div className="grid gap-5">
+                {/* <div className="grid gap-5">
                   <div className="grid w-full gap-1">
                     <Label className="text-sm">Nama</Label>
                     <Input
@@ -1002,7 +1095,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                             }
                           />
                         </div>
-                        {/* postal code */}
                         <div className="grid gap-1 w-full">
                           <Label className="text-sm">Kode Pos</Label>
                           <Input
@@ -1020,7 +1112,31 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
+                <PrincipalSection
+                  {...data.principal}
+                  onChangePrincipal={(field, value) => {
+                    if (field === "province_id") {
+                      setData("principal", {
+                        ...data.principal,
+                        regency_id: "",
+                        district_id: "",
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    } else if (field === "regency_id") {
+                      setData("principal", {
+                        ...data.principal,
+                        district_id: "",
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    } else {
+                      setData("principal", {
+                        ...data.principal,
+                        [field]: typeof value === "number" ? String(value) : value,
+                      });
+                    }
+                  }}
+                />
               </div>
             </Show>
 
@@ -1029,21 +1145,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               <div>
                 <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                 <div className="grid gap-5">
-                  <RenderList
-                    of={principalDocs}
-                    render={(doc) => {
-                      const findFiles = principalFiles.find((file) => file.required_doc_id === doc.id);
-                      return (
-                        <div className="grid gap-1">
-                          <Label className="text-md">{doc.name}</Label>
-                          <FileInput
-                            onFileChange={(file: File | null) => changePrincipalDoc(file, doc)}
-                            previewValue={findFiles?.file ? findFiles?.file : doc.principal_document?.path}
-                          />
-                        </div>
-                      );
-                    }}
-                  />
+                  <PrincipalDocsSection principalId={data?.principal?.id ? Number(data.principal.id) : undefined} />
                 </div>
               </div>
             </Show>
@@ -1068,11 +1170,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                           };
                           if (val.id !== selectedProducts) {
                             setSelectedBranchGuarantor(null);
-                            setSelectedGuarantor(null);
                             setSelectedProductType(null);
-                            setIsResetGuarantor(true);
                             setIsResetProductType(true);
-                            changedSubmission["guarantor_id"] = "";
+                            // setSelectedGuarantor(null);
+                            // setIsResetGuarantor(true);
+                            // changedSubmission["guarantor_id"] = "";
                             changedSubmission["product_type_id"] = "";
                             if (data?.submission?.bank_id) {
                               changedSubmission["bank_id"] = "";
@@ -1085,30 +1187,30 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
                         }}
                       />
                     </div>
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Asuransi/Penjamin</Label>
-                      <Combobox
-                        datas={Array.isArray(guarantors) ? guarantors : []}
-                        labelKey="name"
-                        valueKey="name"
-                        reset={isResetGuarantor}
-                        defaultValueId={data?.submission?.guarantor_id || selectedGuarantor}
-                        onReset={(resetVal) => setIsResetGuarantor(resetVal)}
-                        placeholder="Pilih Asuransi/Penjamin"
-                        onSelect={(val: any) => {
-                          if (val.id !== selectedGuarantor) {
-                            setSelectedBranchGuarantor(null);
-                            setSelectedProductType(null);
-                            setIsResetProductType(true);
-                          }
-                          setData("submission", {
-                            ...data.submission,
-                            guarantor_id: val?.id,
-                          });
-                          setSelectedGuarantor(val.id);
-                        }}
-                      />
-                    </div>
+                    {/*<div className="grid gap-1 w-full">*/}
+                    {/*  <Label className="text-md">Asuransi/Penjamin</Label>*/}
+                    {/*  <Combobox*/}
+                    {/*    datas={Array.isArray(guarantors) ? guarantors : []}*/}
+                    {/*    labelKey="name"*/}
+                    {/*    valueKey="name"*/}
+                    {/*    reset={isResetGuarantor}*/}
+                    {/*    defaultValueId={data?.submission?.guarantor_id || selectedGuarantor}*/}
+                    {/*    onReset={(resetVal) => setIsResetGuarantor(resetVal)}*/}
+                    {/*    placeholder="Pilih Asuransi/Penjamin"*/}
+                    {/*    onSelect={(val: any) => {*/}
+                    {/*      if (val.id !== selectedGuarantor) {*/}
+                    {/*        setSelectedBranchGuarantor(null);*/}
+                    {/*        setSelectedProductType(null);*/}
+                    {/*        setIsResetProductType(true);*/}
+                    {/*      }*/}
+                    {/*      setData("submission", {*/}
+                    {/*        ...data.submission,*/}
+                    {/*        guarantor_id: val?.id,*/}
+                    {/*      });*/}
+                    {/*      setSelectedGuarantor(val.id);*/}
+                    {/*    }}*/}
+                    {/*  />*/}
+                    {/*</div>*/}
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Cabang Asuransi</Label>
                       <Combobox
@@ -1823,14 +1925,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = () => {
               {/* SHOW NEXT IF SECTION IS NOT SKORING */}
               <Show when={formStep !== "skoring"}>
                 <Button
-                  disabled={isPending}
+                  disabled={isPending || isPendingUpdatePrincipal}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleNextStepForm();
                   }}
                   type="button">
-                  Selanjutnya <Loading isLoading={isPending} />
+                  Selanjutnya <Loading isLoading={isPending || isPendingUpdatePrincipal} />
                 </Button>
               </Show>
 
