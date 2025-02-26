@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Submission;
 
-use App\Enums\JobGroup;
-use App\Enums\JobType;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
@@ -759,6 +757,7 @@ class SubmissionController extends Controller
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
         $submission->analyst_name = $submission->staff->name;
+        $submission->job_location = $submission->job_location_address.', '.$submission->job_location_village.', '.$submission->district->name.', '.$submission->regency->name.', '.$submission->province->name;
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
@@ -1322,6 +1321,7 @@ class SubmissionController extends Controller
             ->where('status', SubmissionStatus::PROCESS->value)
             ->whereIn('checked_by', $staffs)
             ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($submission) use ($authId) {
                 $date = Carbon::parse($submission->created_at)
@@ -1685,6 +1685,7 @@ class SubmissionController extends Controller
 
     public function approve(Request $request, Submission $submission): void
     {
+        DB::beginTransaction();
         try {
             $dateNow = now()->format('Y-m-d H:i:s');
 
@@ -1721,7 +1722,9 @@ class SubmissionController extends Controller
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Failed to approve submission', ['error' => $e->getMessage()]);
             flashMessage('error', 'Terjadi kesalahan saat menyetujui pengajuan', 'error');
         }
@@ -1729,38 +1732,56 @@ class SubmissionController extends Controller
 
     public function reject(Submission $submission): void
     {
-        $dateNow = now()->format('Y-m-d H:i:s');
+        DB::beginTransaction();
+        try {
+            $dateNow = now()->format('Y-m-d H:i:s');
 
-        $checkedBy = $submission->getAttribute('checked_by');
-        $checkedAt = $submission->getAttribute('checked_at');
-        $updated = $submission->update([
-            'checked_by' => $checkedBy ?? auth()->id(),
-            'checked_at' => $checkedAt ?? $dateNow,
-            'rejected_by' => auth()->id(),
-            'rejected_at' => $dateNow,
-            'status' => SubmissionStatus::REJECTED->value,
-        ]);
+            $checkedBy = $submission->getAttribute('checked_by');
+            $checkedAt = $submission->getAttribute('checked_at');
+            $updated = $submission->update([
+                'checked_by' => $checkedBy ?? auth()->id(),
+                'checked_at' => $checkedAt ?? $dateNow,
+                'rejected_by' => auth()->id(),
+                'rejected_at' => $dateNow,
+                'status' => SubmissionStatus::REJECTED->value,
+            ]);
 
-        if (! $updated) {
-            flashMessage('error', 'Gagal menolak pengajuan', 'error');
-        } else {
-            flashMessage('success', 'Berhasil menolak pengajuan');
+            if (! $updated) {
+                DB::rollBack();
+                flashMessage('error', 'Gagal menolak pengajuan', 'error');
+            } else {
+                DB::commit();
+                flashMessage('success', 'Berhasil menolak pengajuan');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to reject submission', ['error' => $e->getMessage()]);
+            flashMessage('error', 'Terjadi kesalahan saat menolak pengajuan', 'error');
         }
     }
 
     // check status
     public function check(Submission $submission): void
     {
-        $dateNow = now()->format('Y-m-d H:i:s');
-        $updated = $submission->update([
-            'checked_by' => auth()->id(),
-            'checked_at' => $dateNow,
-        ]);
+        DB::beginTransaction();
+        try {
+            $dateNow = now()->format('Y-m-d H:i:s');
+            $updated = $submission->update([
+                'checked_by' => auth()->id(),
+                'checked_at' => $dateNow,
+            ]);
 
-        if (! $updated) {
-            flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
-        } else {
-            flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
+            if (! $updated) {
+                DB::rollBack();
+                flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
+            } else {
+                DB::commit();
+                flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
+            Log::error('Failed to check submission', ['error' => $e->getMessage()]);
         }
     }
 
@@ -1774,6 +1795,7 @@ class SubmissionController extends Controller
             'format_document' => 'required|string',
         ]);
 
+        DB::beginTransaction();
         try {
             $submissionDoc = SubmissionDoc::updateOrCreate(
                 [
@@ -1786,6 +1808,8 @@ class SubmissionController extends Controller
                 ]
             );
 
+            DB::commit();
+
             return response()->json([
                 'message' => $submissionDoc->wasRecentlyCreated
                     ? 'Dokumen berhasil dibuat.'
@@ -1794,6 +1818,8 @@ class SubmissionController extends Controller
             ], 201);
         } catch (\Exception $e) {
             // Error handling
+            DB::rollBack();
+
             return response()->json([
                 'message' => 'Gagal menyimpan dokumen.',
                 'error' => $e->getMessage(),
@@ -1803,64 +1829,76 @@ class SubmissionController extends Controller
 
     public function saveDocSignatured(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
             'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
             'submission_id' => 'required|exists:submissions,id',
         ]);
 
-        $submissionId = $request->input('submission_id');
-        $documents = [];
+        DB::beginTransaction();
+        try {
+            $submissionId = $request->input('submission_id');
+            $documents = [];
 
-        if ($request->hasFile('spkmgr_file')) {
-            $spkmgrFile = $request->file('spkmgr_file');
-            // Generate nama file unik
-            $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
-            // Simpan file di folder dengan path berdasarkan submission_id
-            $spkmgrPath = $spkmgrFile->storeAs(
-                "documents/spkmgr/{$submissionId}",
-                $uniqueName,
-                'public'
-            );
-            $documents[] = [
-                'submission_id' => $submissionId,
-                'document_format_id' => null,
-                'name' => $uniqueName,
-                'format_document' => null,
-                'url' => $spkmgrPath,
-            ];
+            if ($request->hasFile('spkmgr_file')) {
+                $spkmgrFile = $request->file('spkmgr_file');
+                // Generate nama file unik
+                $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
+                // Simpan file di folder dengan path berdasarkan submission_id
+                $spkmgrPath = $spkmgrFile->storeAs(
+                    "documents/spkmgr/{$submissionId}",
+                    $uniqueName,
+                    'public'
+                );
+                $documents[] = [
+                    'submission_id' => $submissionId,
+                    'document_format_id' => null,
+                    'name' => $uniqueName,
+                    'format_document' => null,
+                    'url' => $spkmgrPath,
+                ];
+            }
+
+            if ($request->hasFile('permohonan_file')) {
+                $permohonanFile = $request->file('permohonan_file');
+                // Generate nama file unik
+                $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
+                // Simpan file di folder dengan path berdasarkan submission_id
+                $permohonanPath = $permohonanFile->storeAs(
+                    "documents/permohonan/{$submissionId}",
+                    $uniqueName,
+                    'public'
+                );
+                $documents[] = [
+                    'submission_id' => $submissionId,
+                    'document_format_id' => null,
+                    'name' => $uniqueName,
+                    'format_document' => null,
+                    'url' => $permohonanPath,
+                ];
+            }
+
+            foreach ($documents as $document) {
+                SubmissionDoc::updateOrCreate(
+                    ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
+                    $document
+                );
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'File berhasil diunggah dan disimpan.',
+                'data' => $documents,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Gagal mengunggah file.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        if ($request->hasFile('permohonan_file')) {
-            $permohonanFile = $request->file('permohonan_file');
-            // Generate nama file unik
-            $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
-            // Simpan file di folder dengan path berdasarkan submission_id
-            $permohonanPath = $permohonanFile->storeAs(
-                "documents/permohonan/{$submissionId}",
-                $uniqueName,
-                'public'
-            );
-            $documents[] = [
-                'submission_id' => $submissionId,
-                'document_format_id' => null,
-                'name' => $uniqueName,
-                'format_document' => null,
-                'url' => $permohonanPath,
-            ];
-        }
-
-        foreach ($documents as $document) {
-            SubmissionDoc::updateOrCreate(
-                ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
-                $document
-            );
-        }
-
-        return response()->json([
-            'message' => 'File berhasil diunggah dan disimpan.',
-            'data' => $documents,
-        ]);
     }
 
     public function generateNomorSurat($submissionId)
@@ -1910,7 +1948,7 @@ class SubmissionController extends Controller
                 'blanks',
                 'guarantor:id,name',
                 'guarantorBranch:id,name',
-                'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,token',
+                'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
                 'product:id,name',
                 'guarantorToProductType:id,name,job_group,job_type',
                 'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
@@ -1939,16 +1977,18 @@ class SubmissionController extends Controller
         $sourceOfFounds = SourceOfFund::get(['id', 'name']);
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
-        $token = $hostToHost->getAttribute('auth_prefix').$hostToHost->getAttribute('token');
+        $prefix = $hostToHost->getAttribute('auth_prefix');
+        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+        // $submission->getAttribute('id')
         $result = [
-            'submission_id' => $submission->getAttribute('id'),
-            'resources' => [
-                'project_group' => JobGroup::getValues(),
-                'project_type' => JobType::getValues(),
-                'product' => $products->toArray(),
-                'product_type' => $productTypes->toArray(),
-                'source_of_fund' => $sourceOfFounds->toArray(),
-            ],
+            'submission_id' => 1,
+//            'resources' => [
+//                'project_group' => JobGroup::getValues(),
+//                'project_type' => JobType::getValues(),
+//                'product' => $products->toArray(),
+//                'product_type' => $productTypes->toArray(),
+//                'source_of_fund' => $sourceOfFounds->toArray(),
+//            ],
             'principal' => [
                 'id' => $principal->getAttribute('id'),
                 'name' => $principal->getAttribute('name'),

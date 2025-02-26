@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\JobGroup;
-use App\Enums\JobType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Models\Product\Product;
@@ -35,7 +33,7 @@ class SubmissionController extends Controller
             'blanks',
             'guarantor:id,name',
             'guarantorBranch:id,name',
-            'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,token',
+            'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
             'product:id,name',
             'guarantorToProductType:id,product_type_id,name,job_group,job_type',
             'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
@@ -62,15 +60,16 @@ class SubmissionController extends Controller
         $products = Product::get(['id', 'name']);
         $productTypes = ProductType::get(['id', 'name']);
         $sourceOfFounds = SourceOfFund::get(['id', 'name']);
+        // $submission->getAttribute('id')
         $result = [
-            'submission_id' => $submission->getAttribute('id'),
-            'resources' => [
-                'project_group' => JobGroup::getValues(),
-                'project_type' => JobType::getValues(),
-                'product' => $products->toArray(),
-                'product_type' => $productTypes->toArray(),
-                'source_of_fund' => $sourceOfFounds->toArray(),
-            ],
+            'submission_id' => 1,
+//            'resources' => [
+//                'project_group' => JobGroup::getValues(),
+//                'project_type' => JobType::getValues(),
+//                'product' => $products->toArray(),
+//                'product_type' => $productTypes->toArray(),
+//                'source_of_fund' => $sourceOfFounds->toArray(),
+//            ],
             'principal' => [
                 'id' => $principal->getAttribute('id'),
                 'name' => $principal->getAttribute('name'),
@@ -158,6 +157,11 @@ class SubmissionController extends Controller
                 ];
             })->toArray(),
         ];
+        $hostToHost = $guarantor->getRelation('hostToHost');
+        $url = $hostToHost->getAttribute('guarantor_url_host');
+        $prefix = $hostToHost->getAttribute('auth_prefix');
+        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+        $this->hostToHostService->sendPostRequest($url, $token, $result);
 
         return $this->responseSuccess('success', $result);
     }

@@ -20,6 +20,7 @@ export default function HostToHostEdit({ hostToHost }: { hostToHost: any }) {
     id: hostToHost.id,
     guarantor_id: hostToHost.guarantor_id,
     guarantor_url_host: hostToHost.guarantor_url_host,
+    auth_prefix: hostToHost.auth_prefix,
     token: hostToHost.token,
   });
   const [open, setOpen] = useState<boolean>(false);
