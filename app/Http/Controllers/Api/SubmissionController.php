@@ -60,9 +60,8 @@ class SubmissionController extends Controller
         $products = Product::get(['id', 'name']);
         $productTypes = ProductType::get(['id', 'name']);
         $sourceOfFounds = SourceOfFund::get(['id', 'name']);
-        // $submission->getAttribute('id')
         $result = [
-            'submission_id' => 1,
+            'submission_id' => $submission->getAttribute('id'),
             //            'resources' => [
             //                'project_group' => JobGroup::getValues(),
             //                'project_type' => JobType::getValues(),

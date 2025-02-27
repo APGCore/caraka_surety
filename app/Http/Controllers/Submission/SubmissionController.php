@@ -2004,9 +2004,8 @@ class SubmissionController extends Controller
         $url = $hostToHost->getAttribute('guarantor_url_host');
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-        // $submission->getAttribute('id')
         $result = [
-            'submission_id' => 1,
+            'submission_id' => $submission->getAttribute('id'),
             //            'resources' => [
             //                'project_group' => JobGroup::getValues(),
             //                'project_type' => JobType::getValues(),
