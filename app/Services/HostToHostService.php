@@ -7,15 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class HostToHostService
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    public function sendPostRequest(string $url, string $token, array $data): object
+    public function sendPostRequest(string $url, string $token, array $data): bool
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -32,6 +24,6 @@ class HostToHostService
             Log::error('Request to '.$url.' was failed: ', ['response' => $response->body()]);
         }
 
-        return (object) $response->json();
+        return $response->successful();
     }
 }

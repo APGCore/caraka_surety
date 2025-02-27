@@ -156,6 +156,14 @@ interface User {
   regency_id: number;
 }
 
+interface Callback {
+  id: number;
+  submission_id: number;
+  doc_url: string;
+  url: string;
+  updated_at: string;
+}
+
 interface SubmissionDetailProps {
   submission: {
     id: number;
@@ -263,6 +271,7 @@ interface SubmissionDetailProps {
     day_name: string;
     submission_date: string;
     guarantor_address: string;
+    callback: Callback | null;
   };
 
   submissionData: {

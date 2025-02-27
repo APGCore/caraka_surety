@@ -17,6 +17,7 @@ import {
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
@@ -1104,6 +1105,23 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            {submission?.callback && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">
+                  Dokumen Terverifikasi Dari {submission?.guarantor?.name}
+                </h2>
+                <Card className="w-auto">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <img src={"/storage/" + submission.callback.url} alt="Code QR" />
+                      <Button onClick={() => window.open(submission?.callback?.doc_url, "_blank")}>
+                        Dokumen Pendukung
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
               <div>
@@ -1117,8 +1135,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 />
               </div>
             </div>
-            <div>
-              {/* DOCUMENT FORMAT
+            {/* DOCUMENT FORMAT
               <div>
                 {submission?.document_format_guarantor.map((doc: any) => (
                   <div key={doc.id} style={{ marginBottom: "20px" }}>
@@ -1131,79 +1148,74 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </div>
                 ))}
               </div> */}
-            </div>
             <div>
-              <div>
-                {(() => {
-                  const documentsToDisplay: JSX.Element[] = [];
+              {(() => {
+                const documentsToDisplay: JSX.Element[] = [];
 
-                  // Untuk document_format_guarantor
-                  if (submission?.document_format_guarantor?.length) {
-                    const filteredGuarantorDocs = submission.document_format_guarantor.filter(
-                      (doc: any) => doc.product_id === null && doc.guarantor_to_product_type_id === null,
+                // Untuk document_format_guarantor
+                if (submission?.document_format_guarantor?.length) {
+                  const filteredGuarantorDocs = submission.document_format_guarantor.filter(
+                    (doc: any) => doc.product_id === null && doc.guarantor_to_product_type_id === null,
+                  );
+                  filteredGuarantorDocs.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
                     );
-                    filteredGuarantorDocs.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                  });
+                }
 
-                  // Untuk document_format_product
-                  if (submission?.document_format_product?.length) {
-                    const filteredProductDocs = submission.document_format_product.filter(
-                      (doc: any) => doc.guarantor_to_product_type_id === null,
+                // Untuk document_format_product
+                if (submission?.document_format_product?.length) {
+                  const filteredProductDocs = submission.document_format_product.filter(
+                    (doc: any) => doc.guarantor_to_product_type_id === null,
+                  );
+                  filteredProductDocs.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
                     );
-                    filteredProductDocs.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                  });
+                }
 
-                  // Untuk document_format_type_guarantee
-                  if (submission?.document_format_type_guarantee?.length) {
-                    const filteredDocs = submission.document_format_type_guarantee.filter(
-                      (doc: any) =>
-                        doc.guarantor_id !== null &&
-                        doc.product_id !== null &&
-                        doc.guarantor_to_product_type_id !== null,
+                // Untuk document_format_type_guarantee
+                if (submission?.document_format_type_guarantee?.length) {
+                  const filteredDocs = submission.document_format_type_guarantee.filter(
+                    (doc: any) =>
+                      doc.guarantor_id !== null && doc.product_id !== null && doc.guarantor_to_product_type_id !== null,
+                  );
+                  filteredDocs.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
                     );
-                    filteredDocs.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                  });
+                }
 
-                  if (documentsToDisplay.length > 0) {
-                    return documentsToDisplay;
-                  }
+                if (documentsToDisplay.length > 0) {
+                  return documentsToDisplay;
+                }
 
-                  return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
-                })()}
-              </div>
+                return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
+              })()}
             </div>
             {/*
             {submission?.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (

@@ -156,4 +156,9 @@ class Submission extends Model
     {
         return $this->belongsTo(User::class, 'staff_id', 'id');
     }
+
+    public function callback(): HasOne
+    {
+        return $this->hasOne(SubmissionCallback::class, 'submission_id', 'id');
+    }
 }

@@ -289,6 +289,7 @@ class SubmissionController extends Controller
             },
             'employeeLimit',
             'guarantorProductTypeLimit',
+            'callback',
         ])->findOrFail($id);
     }
 
@@ -2101,6 +2102,11 @@ class SubmissionController extends Controller
             })->toArray(),
         ];
 
-        $this->hostToHostService->sendPostRequest($url, $token, $result);
+        $success = $this->hostToHostService->sendPostRequest($url, $token, $result);
+        if ($success) {
+            flashMessage('success', 'Berhasil mengirimkan data ke pihak asuransi');
+        } else {
+            flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi', 'error');
+        }
     }
 }
