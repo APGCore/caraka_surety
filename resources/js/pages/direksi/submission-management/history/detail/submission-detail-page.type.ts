@@ -262,6 +262,7 @@ interface SubmissionDetailProps {
     get_administators_principal: string;
     day_name: string;
     submission_date: string;
+    guarantor_address: string;
   };
 
   submissionData: {

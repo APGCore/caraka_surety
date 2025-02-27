@@ -238,6 +238,7 @@ interface SubmissionDetailProps {
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
+    guarantor_address: string;
 
     mail_number: string;
     mail_number_resume: string;

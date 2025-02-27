@@ -262,6 +262,7 @@ interface SubmissionDetailProps {
     day_name: string;
     submission_date: string;
     limit: string;
+    guarantor_address: string;
   };
 
   submissionData: {

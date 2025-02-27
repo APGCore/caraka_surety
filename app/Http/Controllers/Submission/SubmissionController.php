@@ -302,6 +302,12 @@ class SubmissionController extends Controller
 
         $principalDocs = collect($submission->principal->documents);
 
+        $submission->guarantor_address =
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -516,6 +522,12 @@ class SubmissionController extends Controller
             ->whereNull('product_id')
             ->whereNull('guarantor_to_product_type_id')
             ->first();
+
+        $submission->guarantor_address =
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -736,6 +748,13 @@ class SubmissionController extends Controller
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
 
+        $submission->guarantor_address =
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+
+
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
         $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
@@ -945,6 +964,12 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
+
+        $submission->guarantor_address =
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
         $submission->product_limit = $submission->guarantorProductTypeLimit;
