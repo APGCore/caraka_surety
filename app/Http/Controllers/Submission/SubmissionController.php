@@ -304,9 +304,9 @@ class SubmissionController extends Controller
         $principalDocs = collect($submission->principal->documents);
 
         $submission->guarantor_address =
-        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
         ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -525,9 +525,9 @@ class SubmissionController extends Controller
             ->first();
 
         $submission->guarantor_address =
-        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
         ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -750,11 +750,10 @@ class SubmissionController extends Controller
         $submission->product_limit = $submission->guarantorProductTypeLimit;
 
         $submission->guarantor_address =
-        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
         ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
-
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
         $submission->document_format_product = $submission->product->documentFormats;
@@ -967,9 +966,9 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
 
         $submission->guarantor_address =
-        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+        ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
         ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;

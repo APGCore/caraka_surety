@@ -131,9 +131,10 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
+        $guarantorId = session('guarantor_id');
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+        session(['guarantor_id' => $guarantorId]);
 
         return redirect()->route('login');
     }

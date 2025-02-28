@@ -275,4 +275,17 @@ class BlankController extends Controller
             return $this->responseError('Blangko gagal diterima', [$e->getMessage()]);
         }
     }
+
+    public function apiGetBlank(): JsonResponse
+    {
+        $guarantorId = session('guarantor_id');
+        $user = auth()->user();
+
+        $blanks = Blank::query()
+            ->where('guarantor_id', $guarantorId)
+            ->where('profile_id', $user?->profile_id)
+            ->get(['id', 'guarantor_id', 'profile_id', 'number']);
+
+        return $this->responseSuccess('Berhasil mengambil data blangko', $blanks);
+    }
 }
