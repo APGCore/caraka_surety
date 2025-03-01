@@ -4,6 +4,7 @@ namespace App\Http\Requests\Submission;
 
 use App\Enums\JobGroup;
 use App\Enums\JobType;
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Location\District;
 use App\Models\Location\Province;
@@ -72,18 +73,6 @@ class StoreRequest extends FormRequest
             //            'principal.documents.*.required_doc_name' => ['nullable', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
             //            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
 
-            'principal.id' => ['required', 'exists:'.Principal::class.',id'],
-            // principal ratios
-            'principal.ratios' => ['required', 'array', 'min:1'],
-            'principal.ratios.*.id' => ['nullable',  'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
-            'principal.ratios.*.current_assets' => ['required'], // aktiva lancar
-            'principal.ratios.*.current_debt' => ['required'], // utang lancar
-            'principal.ratios.*.total_debt' => ['required'], // total utang
-            'principal.ratios.*.total_assets' => ['required'], // total aktiva
-            'principal.ratios.*.revenue' => ['required'], // pendapatan
-            'principal.ratios.*.net_income' => ['required'], // laba bersih
-            'principal.ratios.*.year' => ['required'], // tahun
-
             // obligiee
             'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'],
             'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
@@ -107,6 +96,7 @@ class StoreRequest extends FormRequest
             'submission.job_group' => ['required', 'string', Rule::in(JobGroup::getValues())], // kelompok pekerjaan
             'submission.job_type' => ['required', 'string', Rule::in(JobType::getValues())], // jenis pekerjaan
             'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
+            'submission.blank_id' => ['required', 'exists:'.Blank::class.',id,deleted_at,NULL'], // id blank
             'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
             'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
             'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
@@ -125,6 +115,18 @@ class StoreRequest extends FormRequest
             'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
             'submission.risk_mitigation' => ['nullable', 'string'], // mitigasi risiko
+
+            'principal.id' => ['required', 'exists:'.Principal::class.',id'],
+            // principal ratios
+            'principal.ratios' => ['required', 'array', 'min:1'],
+            'principal.ratios.*.id' => ['nullable',  'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
+            'principal.ratios.*.current_assets' => ['required'], // aktiva lancar
+            'principal.ratios.*.current_debt' => ['required'], // utang lancar
+            'principal.ratios.*.total_debt' => ['required'], // total utang
+            'principal.ratios.*.total_assets' => ['required'], // total aktiva
+            'principal.ratios.*.revenue' => ['required'], // pendapatan
+            'principal.ratios.*.net_income' => ['required'], // laba bersih
+            'principal.ratios.*.year' => ['required'], // tahun
 
             // scoring
             'scoring' => ['required'],

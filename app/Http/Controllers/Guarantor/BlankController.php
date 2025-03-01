@@ -282,8 +282,13 @@ class BlankController extends Controller
         $user = auth()->user();
 
         $blanks = Blank::query()
-            ->where('guarantor_id', $guarantorId)
-            ->where('profile_id', $user?->profile_id)
+            ->where([
+                'guarantor_id' => $guarantorId,
+                'profile_id' => $user?->profile_id,
+                'is_used' => false,
+                'is_broken' => false,
+                'is_approved' => true,
+            ])
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
 
         return $this->responseSuccess('Berhasil mengambil data blangko', $blanks);

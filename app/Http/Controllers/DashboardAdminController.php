@@ -26,25 +26,21 @@ class DashboardAdminController extends Controller
         $userBranch = Profile::where('office_type', OfficeType::BRANCH->value)->get();
 
         // initiate the model
-        $submission = Submission::all();
+        $submission = Submission::whereYear('created_at', now()->year);
 
         // Filter the collection in memory
-        $approvedSubmission = $submission->whereNotNull('approved_by');
-
-        // Load the relationship after filtering
-        $approvedSubmission->load('userApproved');
+        $approvedSubmission = (clone $submission)->whereNotNull('approved_by')->with('userApproved')->get();
 
         // Total Premi
         $totalPremi = $approvedSubmission->sum('guarantee_value');
 
         // Total User Who Aprrove Subs
         $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique()->values();
-
         $profileId = $request->get('profile_id');
 
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear($profileId);
-        $submissionThisMonth = $this->getSubmissionThisMonth();
-        $countOfSubmission = $this->getCountOfSubmission($submission);
+        $chartSubmissionThisYear = $this->getChartSubmissionThisYear((clone $submission), $profileId);
+        $submissionThisMonth = $this->getSubmissionThisMonth((clone $submission));
+        $countOfSubmission = $this->getCountOfSubmission((clone $submission));
         $countGuarantors = Guarantor::whereNull('headquarter_id')->count();
 
         return inertia('admin/dashboard/index', [
@@ -77,7 +73,7 @@ class DashboardAdminController extends Controller
         ];
     }
 
-    private function getChartSubmissionThisYear($profileId = null): array
+    private function getChartSubmissionThisYear($submissions, $profileId): array
     {
         // get month names in Indonesian
         $monthNames = [
@@ -95,7 +91,7 @@ class DashboardAdminController extends Controller
             'Des',
         ];
 
-        $submissions = Submission::query()
+        $submissions = $submissions
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
             ->whereYear('created_at', now()->year)
             ->when($profileId, function ($query, $profileId) {
@@ -117,10 +113,9 @@ class DashboardAdminController extends Controller
         return $chartData;
     }
 
-    private function getSubmissionThisMonth(): object
+    private function getSubmissionThisMonth($submissions): object
     {
-        return Submission::query()
-            ->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
+        return $submissions->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
             ->with(['principal:id,name', 'product:id,name'])
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)

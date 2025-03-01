@@ -75,31 +75,12 @@ class SubmissionController extends Controller
 
             // get blanks
             $blank = Blank::query()
-                ->where([
-                    'guarantor_id' => $submission['guarantor_id'],
-                    'profile_id' => $profile->id,
-                    'is_used' => false,
-                    'is_broken' => false,
-                    'is_approved' => true,
-                ])
-                ->orderBy('created_at')
-                ->first();
-
-            // error when $blanks is empty
-            if (! $blank) {
-                throw new \Exception('Blangko belum tersedia');
-            }
+                ->firstWhere('id', $submission['blank_id']);
 
             // update blank
             $blank->update([
                 'is_used' => true,
             ]);
-
-            //            $createPrincipal = Principal::query()
-            //                ->with(['documents', 'principalRatios'])
-            //                ->updateOrCreate([
-            //                    'id' => $principal['id'] ?? null,
-            //                ], collect($principal)->toArray());
 
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
