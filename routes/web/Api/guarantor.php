@@ -11,17 +11,23 @@ Route::prefix('guarantor-management')
         Route::controller(GuarantorController::class)
             ->prefix('guarantor')
             ->name('guarantor.')->group(function () {
+                // api.guarantor-management.guarantor.all
                 Route::get('all', 'getAll')->name('all');
+
+                // api.guarantor-management.guarantor.all-branch
                 Route::get('branch', 'getAllBranch')->name('all-branch');
+
+                // api.guarantor-management.guarantor.branch-from-headquarter
                 Route::get('branch/{headquarterId}', 'getByHeadquarteId')->name('branch-from-headquarter');
-                // Route::get('{guarantor}/product', 'product')->name('product');
+
+                // api.guarantor-management.guarantor.by-product
                 Route::get('/{product}', 'getGuarantorByProductId')->name('by-product');
-                // Route::get('{guarantor}/product/{product}', 'productType')->name('product-type');
             });
 
         Route::controller(PatternController::class)
             ->prefix('pattern')
             ->name('pattern.')->group(function () {
+                // api.guarantor-management.pattern.convert
                 Route::get('convert', 'convert')->name('convert');
             });
     });

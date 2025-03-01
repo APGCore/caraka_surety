@@ -11,9 +11,11 @@ Route::prefix('scoring-management')
             ->prefix('scoring')
             ->name('scoring.')
             ->group(function () {
+
+                // api.scoring-management.scoring.all
                 Route::get('/all', 'getAllScoring')->name('all');
+
+                // api.scoring-management.scoring.get-by-id
                 Route::get('{scoring}', 'getScoringById')->name('get-by-id');
             });
     });
-
-// api.scoring-management.scoring.get-by-id

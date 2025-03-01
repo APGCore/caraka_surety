@@ -8,8 +8,9 @@ Route::prefix('blank-management')
     ->group(function () {
         Route::controller(BlankController::class)
             ->prefix('blank')
-            ->name('blank.') // Use a descriptive and consistent name prefix
+            ->name('blank.')
             ->group(function () {
-                Route::get('/all', 'apiGetBlank')->name('all'); // The full name will be 'bank-management.bank.all'
+                // api.blank-management.blank.all
+                Route::get('/all', 'apiGetBlank')->name('all');
             });
     });

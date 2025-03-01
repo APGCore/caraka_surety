@@ -8,7 +8,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
 import { Combobox } from "@/components/molecules/combobox";
-import React, { useEffect } from "react";
+import React from "react";
 
 interface PrincipalSectionProps {
   province_id?: string;

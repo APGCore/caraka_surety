@@ -11,6 +11,8 @@ Route::prefix('obligee-management')
             ->prefix('obligee')
             ->name('obligee.')
             ->group(function () {
+
+                // api.obligee-management.obligee.all
                 Route::get('/all', 'getObligee')->name('all');
             });
     });

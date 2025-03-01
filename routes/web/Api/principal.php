@@ -13,12 +13,16 @@ Route::prefix('principal-management')
                     ->group(function () {
                         // api.principal-management.principal.all
                         Route::get('all', 'getAll')->name('all');
+
                         // api.principal-management.principal.documents
                         Route::get('document', 'getDocument')->name('documents');
+
                         // api.principal-management.principal.ratios
                         Route::get('ratios/{principal}', 'getRatios')->name('ratios');
+
                         // api.principal-management.principal.store
                         Route::post('store', 'store')->name('store');
+
                         // api.principal-management.principal.update
                         Route::put('update/{principal}', 'update')->name('update');
                     });

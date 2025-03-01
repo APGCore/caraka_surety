@@ -2,6 +2,7 @@ import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
+import { useGetAllBlank } from "@/common/hooks/react-query/blank";
 import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
@@ -148,6 +149,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
       job_type: "",
       obligee_id: "",
       bank_id: "",
+      blank_id: "",
       contract_doc_name: "",
       contract_doc_number: "",
       contract_doc_date: new Date(),
@@ -482,6 +484,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
   };
 
   const [isPrincipalFetch, setIsPrincipalFetch] = useState(false);
+
+  const { data: blanks, isLoading: isLoadingGetBlanks } = useGetAllBlank();
+
+  console.log(blanks);
 
   const { mutate, isPending } = useCreatePrincipal({
     onSuccess: async (data: any) => {
@@ -1155,6 +1161,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
               <div>
                 <h2 className="text-2xl font-bold mb-8">Detail Kontrak dan Dasar Pengajuan</h2>
                 <div className="grid gap-5">
+                  <div className="grid gap-1 w-full">
+                    <Label className="text-md">Blanko</Label>
+                    <Combobox
+                      datas={Array.isArray(blanks) ? blanks : []}
+                      labelKey="number"
+                      valueKey="number"
+                      defaultValueId={data?.submission?.blank_id}
+                      placeholder="Pilih Blanko"
+                      onSelect={(val: any) => {
+                        setData("submission", {
+                          ...data.submission,
+                          blank_id: val?.id,
+                        });
+                      }}
+                    />
+                  </div>
                   <div className="flex gap-5">
                     <div className="grid gap-1 w-full">
                       <Label className="text-md">Produk</Label>

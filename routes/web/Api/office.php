@@ -9,6 +9,8 @@ Route::prefix('office-management')
         Route::controller(ProfileController::class)
             ->prefix('office')
             ->name('office.')->group(function () {
+
+                // api.office-management.office.all
                 Route::get('all', 'all')->name('all');
             });
     });

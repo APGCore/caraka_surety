@@ -11,6 +11,7 @@ Route::prefix('product-management')
             ->prefix('product')
             ->name('product.')
             ->group(function () {
+                // api.product-management.product.all
                 Route::get('all', 'getAllProducts')->name('all');
             });
 
@@ -18,7 +19,11 @@ Route::prefix('product-management')
             ->prefix('product-type')
             ->name('product-type.')
             ->group(function () {
+
+                // api.product-type-management.product-type.all
                 Route::get('all', 'index')->name('all');
+
+                // api.product-type-management.product-type.from-product-and-guarantor
                 Route::get('/get-by-product-and-guarantor/{productId}/guarantor/{guarantorId}', 'getByProductAndGuarantor')->name('from-product-and-guarantor');
             });
     });

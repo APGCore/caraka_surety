@@ -62,6 +62,7 @@ type Submission = {
   source_of_fund_id: string;
   note: string;
   risk_mitigation: string;
+  blank_id: string;
 };
 
 type Scoring = {

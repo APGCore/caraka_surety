@@ -2,6 +2,7 @@ import "../css/app.css";
 import "./bootstrap";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { NuqsAdapter } from "nuqs/adapters/react";
 import { createRoot } from "react-dom/client";
 import ReactQueryProvider from "./components/organisms/provider/react-query-provider";
 
@@ -15,7 +16,9 @@ createInertiaApp({
 
     root.render(
       <ReactQueryProvider>
-        <App {...props} />
+        <NuqsAdapter>
+          <App {...props} />
+        </NuqsAdapter>
       </ReactQueryProvider>,
     );
   },

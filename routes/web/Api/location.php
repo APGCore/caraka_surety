@@ -13,6 +13,7 @@ Route::prefix('location-management')
             ->prefix('province')
             ->name('province.')
             ->group(function () {
+                // api.location-management.province.all
                 Route::get('all', 'all')->name('all');
             });
 
@@ -20,6 +21,7 @@ Route::prefix('location-management')
             ->prefix('regency')
             ->name('regency.')
             ->group(function () {
+                // api.location-management.regency.all
                 Route::get('by-province/{province_id}', 'getByProvince')->name('by-province');
             });
 
@@ -27,6 +29,7 @@ Route::prefix('location-management')
             ->prefix('district')
             ->name('district.')
             ->group(function () {
+                // api.location-management.district.all
                 Route::get('by-regency/{regency_id}', 'getByRegency')->name('by-regency');
             });
     });
