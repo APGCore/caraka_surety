@@ -284,6 +284,9 @@ class SubmissionController extends Controller
 
         $principalDocs = collect($submission->principal->documents);
 
+        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+
+
         $submission->guarantor_address =
         ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
         ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
@@ -497,6 +500,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
+        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
 
@@ -726,6 +730,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
+        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -945,6 +950,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
+        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->guarantor_address =
         ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.

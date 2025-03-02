@@ -528,10 +528,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <td className="p-2">: {submission?.principal?.nib}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 font-semibold">SIUP / SIUJK</td>
-                    <td className="p-2">: {submission?.principal?.siup_siujk}</td>
-                  </tr>
-                  <tr className="border-b">
                     <td className="p-2 font-semibold">Nama Direksi</td>
                     <td className="p-2">: {submission?.principal?.director_name}</td>
                   </tr>
@@ -585,6 +581,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           <Show when={currentStep.name === "contract"}>
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
+                  <td className="p-2 ">: {submission?.blank?.number}</td>
+                </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Produk</td>
                   <td className="p-2 ">: {submission?.guarantor_to_product_type?.name}</td>

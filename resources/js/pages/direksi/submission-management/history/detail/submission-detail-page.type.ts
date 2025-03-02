@@ -243,6 +243,9 @@ interface SubmissionDetailProps {
     province: {
       name: string;
     };
+    blank: {
+      number: number;
+    };
     submission_docs: Document[];
     no_guarantee: string;
     contract_value_formatted: string;
