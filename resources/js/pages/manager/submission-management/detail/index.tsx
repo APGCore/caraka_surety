@@ -625,6 +625,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     }
   };
 
+  console.log(
+    submission?.status === SubmissionStatus.PROCESS &&
+      !submission?.beyond_the_limit &&
+      !submission?.checked_at &&
+      !submission?.approved_at &&
+      !submission?.rejected_at,
+  );
   return (
     <>
       <Show when={submission?.beyond_the_limit}>
@@ -1285,67 +1292,67 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 })()}
               </div>
             </div>
+            <Show
+              when={
+                submission?.status === SubmissionStatus.PROCESS &&
+                !submission?.beyond_the_limit &&
+                !submission?.checked_at &&
+                !submission?.approved_at &&
+                !submission?.rejected_at
+              }>
+              <div className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Reject
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-600 hover:bg-red-400"
+                        onClick={() => submission?.id && handleReject(submission?.id)}>
+                        Tolak
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Approve
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-green-600 hover:bg-green-400"
+                        onClick={() => submission?.id && handleApprove(submission?.id)}>
+                        Setujui
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </Show>
           </Show>
 
-          <Show
-            when={
-              submission?.status === SubmissionStatus.PROCESS &&
-              !submission?.beyond_the_limit &&
-              !submission?.approved_at &&
-              !submission?.rejected_at &&
-              currentStep.name === "luaran"
-            }>
-            <div className="flex gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Reject
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-600 hover:bg-red-400"
-                      onClick={() => submission?.id && handleReject(submission?.id)}>
-                      Tolak
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Approve
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-green-600 hover:bg-green-400"
-                      onClick={() => submission?.id && handleApprove(submission?.id)}>
-                      Setujui
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </Show>
           {/* <Show
             when={
               submission?.status === SubmissionStatus.PROCESS &&
