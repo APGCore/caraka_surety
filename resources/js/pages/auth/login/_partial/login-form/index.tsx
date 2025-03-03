@@ -9,7 +9,7 @@ import { Combobox } from "@/components/molecules/combobox";
 import InputError from "@/components/molecules/input/error-input";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 import useLoginForm from "./login-form.hook";
 import { greetingBasedOnDate } from "./login-form.util";
 
@@ -27,6 +27,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
     setData("guarantor_id", guarantorId);
     router.get(route("login"), pickBy({ guarantor_id: guarantorId }), { preserveState: true, preserveScroll: true });
   };
+
+  useEffect(() => {
+    setData("guarantor_id", guarantorSelected);
+  }, []);
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>

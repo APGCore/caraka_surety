@@ -27,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
@@ -285,7 +286,6 @@ class SubmissionController extends Controller
         $principalDocs = collect($submission->principal->documents);
 
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
-
 
         $submission->guarantor_address =
         ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
@@ -1730,7 +1730,12 @@ class SubmissionController extends Controller
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
             if ($hostToHost) {
-                $this->sendToGuarantor($submission->getAttribute('id'));
+                $success = $this->sendToGuarantor($submission->getAttribute('id'));
+                if ($success) {
+                    flashMessage('success', 'Berhasil mengirimkan data ke pihak asuransi');
+                } else {
+                    flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi', 'error');
+                }
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
@@ -1947,7 +1952,20 @@ class SubmissionController extends Controller
         ]);
     }
 
-    private function sendToGuarantor($submissionId): void
+    public function send($submissionId): JsonResponse
+    {
+        $success = $this->sendToGuarantor($submissionId);
+
+        if ($success) {
+            Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
+
+            return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
+        }
+
+        return $this->responseError('Gagal mengirimkan data ke pihak asuransi');
+    }
+
+    private function sendToGuarantor($submissionId): bool
     {
         $submission = Submission::query()
             ->with([
@@ -2088,11 +2106,6 @@ class SubmissionController extends Controller
             })->toArray(),
         ];
 
-        $success = $this->hostToHostService->sendPostRequest($url, $token, $result);
-        if ($success) {
-            flashMessage('success', 'Berhasil mengirimkan data ke pihak asuransi');
-        } else {
-            flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi', 'error');
-        }
+        return $this->hostToHostService->sendPostRequest($url, $token, $result);
     }
 }
