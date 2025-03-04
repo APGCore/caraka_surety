@@ -275,6 +275,7 @@ interface SubmissionDetailProps {
     submission_date: string;
     guarantor_address: string;
     callback: Callback | null;
+    has_send_to_guarantor: boolean;
   };
 
   submissionData: {

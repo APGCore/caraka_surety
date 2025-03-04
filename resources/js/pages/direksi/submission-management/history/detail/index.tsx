@@ -424,17 +424,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     recommendation = "ditolak";
   }
 
-  console.log({ scoring_result, notes, recommendation });
+  console.log(submission?.has_send_to_guarantor);
 
   return (
     <>
       <Show when={submission?.beyond_the_limit}>
-        <div className="fixed top-20 w-[81%] z-[100]">
+        <div className="fixed top-20 w-[73vw] z-[100]">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
               Pengajuan Melebihi Batas Kewenangan Nilai Jaminan Rp. {textCurrency(submission?.guarantee_value)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Show>
+      {/* has_send_to_guarantor */}
+      <Show when={submission?.has_send_to_guarantor && !submission?.callback}>
+        <div className="fixed top-20 w-[73vw] z-[100]">
+          <Alert variant="warning">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Pemberitahuan</AlertTitle>
+            <AlertDescription>
+              Pengajuan telah dikirim ke {submission?.guarantor?.name} dan menunggu hasil dari asuransi
             </AlertDescription>
           </Alert>
         </div>
@@ -1250,6 +1262,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <Show
               when={
                 !submission?.callback &&
+                !submission?.has_send_to_guarantor &&
                 (submission?.status === SubmissionStatus.APPROVED || submission?.status === SubmissionStatus.REJECTED)
               }>
               <AlertDialog>
@@ -1293,7 +1306,9 @@ SubmissionDetailPage.layout = (page: any) => {
     <RoleBasedLayout propsData={pagePropsData}>
       <div
         className={cn({
-          "mt-[7%]": pagePropsData?.submission?.beyond_the_limit,
+          "mt-[7%]":
+            pagePropsData?.submission?.beyond_the_limit |
+            (pagePropsData?.submission?.has_send_to_guarantor && !pagePropsData?.submission?.callback),
         })}>
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}

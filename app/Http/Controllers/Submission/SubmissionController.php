@@ -2106,6 +2106,13 @@ class SubmissionController extends Controller
             })->toArray(),
         ];
 
-        return $this->hostToHostService->sendPostRequest($url, $token, $result);
+        $success = $this->hostToHostService->sendPostRequest($url, $token, $result);
+        if ($success) {
+            $submission->update(['has_send_to_guarantor' => true]);
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -60,6 +60,7 @@ return new class extends Migration
             $table->text('note_scoring')->nullable();
             $table->text('min_point_scoring')->nullable();
             $table->text('risk_mitigation')->nullable();
+            $table->boolean('has_send_to_guarantor')->default(false);
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
