@@ -1729,16 +1729,17 @@ class SubmissionController extends Controller
 
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
+            $messageSend = '';
             if ($hostToHost) {
                 $result = $this->sendToGuarantor($submission->getAttribute('id'));
                 if ($result['status'] == 'success') {
-                    flashMessage('success', 'Berhasil mengirimkan data ke pihak asuransi');
+                    $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
                 } else {
-                    flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'], 'error');
+                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
                 }
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
-            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
+            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, '.$messageSend);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
