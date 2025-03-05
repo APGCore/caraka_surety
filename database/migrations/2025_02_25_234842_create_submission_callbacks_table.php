@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Submission::class, 'submission_id')->constrained()->noActionOnDelete();
             $table->string('doc_url');
             $table->string('url')->nullable();
+            $table->string('no_policy');
             $table->timestamps();
         });
     }

@@ -26,6 +26,7 @@ class SubmissionController extends Controller
                     'submission_id' => $submissionId,
                     'doc_url' => $request->get('doc_url'),
                     'url' => $url,
+                    'no_policy' => $request->get('policyno'),
                 ]
             );
 
