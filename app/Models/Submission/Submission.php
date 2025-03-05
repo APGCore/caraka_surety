@@ -16,7 +16,6 @@ use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\User;
 use App\Traits\currencyConverter;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -27,7 +26,7 @@ use Laravel\Scout\Searchable;
 
 class Submission extends Model
 {
-    use currencyConverter, HasFactory, Searchable, SoftDeletes;
+    use currencyConverter, Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',

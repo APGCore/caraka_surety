@@ -1730,11 +1730,11 @@ class SubmissionController extends Controller
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
             if ($hostToHost) {
-                $success = $this->sendToGuarantor($submission->getAttribute('id'));
-                if ($success) {
+                $result = $this->sendToGuarantor($submission->getAttribute('id'));
+                if ($result['status'] == 'success') {
                     flashMessage('success', 'Berhasil mengirimkan data ke pihak asuransi');
                 } else {
-                    flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi', 'error');
+                    flashMessage('error', 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'], 'error');
                 }
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
@@ -1954,18 +1954,20 @@ class SubmissionController extends Controller
 
     public function send($submissionId): JsonResponse
     {
-        $success = $this->sendToGuarantor($submissionId);
+        $result = $this->sendToGuarantor($submissionId);
 
-        if ($success) {
+        if ($result['status'] === 'success') {
             Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
 
             return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
         }
 
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi');
+        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
+
+        return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
     }
 
-    private function sendToGuarantor($submissionId): bool
+    private function sendToGuarantor($submissionId): array
     {
         $submission = Submission::query()
             ->with([
@@ -1976,8 +1978,8 @@ class SubmissionController extends Controller
                 'principal.regency:id,code,name',
                 'principal.district:id,code,name',
                 'blanks',
-                'guarantor:id,name',
-                'guarantorBranch:id,name',
+                'guarantor:id,code,name',
+                'guarantorBranch:id,code,name',
                 'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
                 'product:id,name',
                 'guarantorToProductType:id,name,job_group,job_type',
@@ -2106,13 +2108,14 @@ class SubmissionController extends Controller
             })->toArray(),
         ];
 
-        $success = $this->hostToHostService->sendPostRequest($url, $token, $result);
-        if ($success) {
+        Log::info('Data Send To Assurance', $result);
+        $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
+        if ($final['status'] == 'success') {
             $submission->update(['has_send_to_guarantor' => true]);
 
-            return true;
+            return $final;
         }
 
-        return false;
+        return $final;
     }
 }
