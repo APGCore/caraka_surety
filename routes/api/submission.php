@@ -10,3 +10,9 @@ Route::controller(SubmissionController::class)
         Route::middleware(HandleSubmissionAccess::class)
             ->post('callback', 'callback')->name('callback');
     });
+Route::controller(\App\Http\Controllers\Submission\SubmissionController::class)
+    ->prefix('submission')->name('submission.')
+    ->group(function () {
+        Route::middleware(HandleSubmissionAccess::class)
+            ->post('send/{submissionId}', 'send')->name('send');
+    });
