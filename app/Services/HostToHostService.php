@@ -31,7 +31,7 @@ class HostToHostService
 
         return [
             'status' => 'error',
-            'message' => $responseJson?->error?->message ?? 'Unknown error',
+            'message' => $responseJson['error']['message'] ?? 'Terjadi Kesalahan',
         ];
     }
 }
