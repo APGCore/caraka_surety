@@ -353,8 +353,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       };
     });
 
+    // sort if data exist allDocuments name 'Jaminan'
+    const documentsJaminan = documents.filter((doc) => doc.name.includes("Jaminan"));
+    const documentFilter = documents.filter((doc) => !doc.name.includes("Jaminan"));
+    documentFilter.unshift(...documentsJaminan);
+    console.log("documents", {
+        '1':documentFilter,
+        '2':editorRefs.current
+    });
     axios
-      .post(route("direksi-submission-approve", { id: submissionId }), { documents })
+      .post(route("direksi-submission-approve", { id: submissionId }), { documents: documentFilter })
       .then((response) => {
         console.log("Success approve submission", response);
         router.reload();
@@ -423,8 +431,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     notes = "Skoring tidak valid";
     recommendation = "ditolak";
   }
-
-  console.log(submission?.has_send_to_guarantor);
 
   return (
     <>
