@@ -20,7 +20,7 @@ class DocumentFormatController extends Controller
         $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : null;
         $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $products = $guarantor?->guarantorToProductTypes->pluck('product')->unique()->values();
-        $productSelected = $request->get('product_id');
+        $productSelected = $request->get('guarantor_product_id');
         $productSelected = $productSelected ? (int) $productSelected : null;
         $guarantorProductTypes = $guarantor?->guarantorToProductTypes->where('product_id', $productSelected)->values();
         $guarantorProductTypeSelected = $request->get('guarantor_to_product_type_id');
@@ -28,9 +28,13 @@ class DocumentFormatController extends Controller
 
         $documentFormats = DocumentFormat::search($request->get('search'))
             ->query(function ($query) use ($guarantorSelected, $productSelected, $guarantorProductTypeSelected) {
-                $query->where('guarantor_id', $guarantorSelected)
-                    ->where('product_id', $productSelected)
-                    ->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
+                $query->when($guarantorSelected, function ($query, $guarantorSelected) {
+                    $query->where('guarantor_id', $guarantorSelected);
+                })->when($productSelected, function ($query, $productSelected) {
+                    $query->where('product_id', $productSelected);
+                })->when($guarantorProductTypeSelected, function ($query, $guarantorProductTypeSelected) {
+                    $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
@@ -41,11 +45,11 @@ class DocumentFormatController extends Controller
 
         return [
             'guarantors' => $guarantors,
-            'guarantorSelected' => $guarantorSelected,
+            'guarantorSelected' => (int) $guarantorSelected,
             'products' => $products,
-            'productSelected' => $productSelected,
+            'productSelected' => (int) $productSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
-            'guarantorProductTypeSelected' => $guarantorProductTypeSelected,
+            'guarantorProductTypeSelected' => (int) $guarantorProductTypeSelected,
             'documentFormats' => fn () => $resourceDocumentFormats,
         ];
     }
@@ -59,12 +63,6 @@ class DocumentFormatController extends Controller
         $data = $this->getGuarantorData($request);
 
         $component = $request->path().'/index';
-        $documentFormats = DocumentFormat::query()
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends($request->all());
-
-        $data['documentFormats'] = $documentFormats;
 
         return inertia($component, [
             'page_settings' => [

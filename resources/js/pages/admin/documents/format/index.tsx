@@ -65,6 +65,7 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
     );
   };
 
+  console.log(documentFormats);
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">

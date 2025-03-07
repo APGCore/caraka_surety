@@ -6,14 +6,13 @@ use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use App\Models\Submission\Submission;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class DocumentFormat extends Model
 {
-    use HasFactory, Searchable;
+    use Searchable;
 
     protected $guarded = [
         'id',

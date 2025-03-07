@@ -37,8 +37,7 @@ class SubmissionController extends Controller
 
     public function __construct(
         HostToHostService $hostToHostService
-    )
-    {
+    ) {
         Carbon::setLocale('id');
         $this->hostToHostService = $hostToHostService;
     }
@@ -56,12 +55,12 @@ class SubmissionController extends Controller
             $principalId = $principal['id'];
             $principalRatios = $principal['ratios'];
             $principalRatios = collect($principalRatios)->map(function ($ratio) {
-                $ratio['current_assets'] = (int)$ratio['current_assets'];
-                $ratio['current_debt'] = (int)$ratio['current_debt'];
-                $ratio['total_debt'] = (int)$ratio['total_debt'];
-                $ratio['total_assets'] = (int)$ratio['total_assets'];
-                $ratio['revenue'] = (int)$ratio['revenue'];
-                $ratio['net_income'] = (int)$ratio['net_income'];
+                $ratio['current_assets'] = (int) $ratio['current_assets'];
+                $ratio['current_debt'] = (int) $ratio['current_debt'];
+                $ratio['total_debt'] = (int) $ratio['total_debt'];
+                $ratio['total_assets'] = (int) $ratio['total_assets'];
+                $ratio['revenue'] = (int) $ratio['revenue'];
+                $ratio['net_income'] = (int) $ratio['net_income'];
 
                 return $ratio;
             })->toArray();
@@ -261,9 +260,9 @@ class SubmissionController extends Controller
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -308,7 +307,7 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
@@ -373,8 +372,8 @@ class SubmissionController extends Controller
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
-                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
                         </tr>';
             })->implode('');
 
@@ -406,20 +405,20 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
         $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
             return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
@@ -455,7 +454,7 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('staff/submission-management/history/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -465,7 +464,7 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('staff/submission-management/document-draft/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -483,9 +482,9 @@ class SubmissionController extends Controller
             ->first();
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -538,7 +537,7 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
@@ -603,8 +602,8 @@ class SubmissionController extends Controller
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
-                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
                         </tr>';
             })->implode('');
 
@@ -636,20 +635,20 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
         $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
             return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
@@ -685,7 +684,7 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('manager/submission-management/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -695,7 +694,7 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('manager/submission-management/document-draft/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -709,9 +708,9 @@ class SubmissionController extends Controller
         $submission->product_limit = $submission->guarantorProductTypeLimit;
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats;
@@ -735,7 +734,7 @@ class SubmissionController extends Controller
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
         $submission->analyst_name = $submission->staff->name;
-        $submission->job_location = $submission->job_location_address . ', ' . $submission->job_location_village . ', ' . $submission->district->name . ', ' . $submission->regency->name . ', ' . $submission->province->name;
+        $submission->job_location = $submission->job_location_address.', '.$submission->job_location_village.', '.$submission->district->name.', '.$submission->regency->name.', '.$submission->province->name;
 
         $submission->scores->map(function ($score) {
             $score->category_name = $score->scoringQuestionCategory->name ?? '-';
@@ -758,7 +757,7 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
@@ -823,8 +822,8 @@ class SubmissionController extends Controller
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
-                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
                         </tr>';
             })->implode('');
 
@@ -856,20 +855,20 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
         $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
             return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
@@ -915,7 +914,7 @@ class SubmissionController extends Controller
             ->findOrFail($id);
 
         return inertia('direksi/submission-management/document-draft/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -926,9 +925,9 @@ class SubmissionController extends Controller
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
@@ -986,7 +985,7 @@ class SubmissionController extends Controller
             $categoryId = $score->scoring_question_category_id;
             $category = $score->scoringQuestionCategory;
 
-            if (!isset($grouped[$categoryId])) {
+            if (! isset($grouped[$categoryId])) {
                 $grouped[$categoryId] = [
                     'id' => $categoryId,
                     'name' => $category->name,
@@ -1051,8 +1050,8 @@ class SubmissionController extends Controller
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
-                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
                         </tr>';
             })->implode('');
 
@@ -1084,20 +1083,20 @@ class SubmissionController extends Controller
 
         $pengurus = collect();
 
-        if (!empty($principal->director_name)) {
+        if (! empty($principal->director_name)) {
             $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
         }
-        if (!empty($principal->commissioner)) {
+        if (! empty($principal->commissioner)) {
             $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
         }
 
-        if (!empty($principal->head_name)) {
+        if (! empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
 
         $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
             return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
@@ -1133,7 +1132,7 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('kepala-cabang/submission-management/detail/index', [
-            'submission' => fn() => $submission,
+            'submission' => fn () => $submission,
         ]);
     }
 
@@ -1142,7 +1141,7 @@ class SubmissionController extends Controller
         $component = 'staff/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -1170,10 +1169,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1192,10 +1191,10 @@ class SubmissionController extends Controller
         });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1244,10 +1243,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1284,10 +1283,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1331,10 +1330,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1370,10 +1369,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1422,10 +1421,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1462,10 +1461,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1513,10 +1512,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Pengajuan Masuk',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1553,10 +1552,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'List Hasil Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1565,7 +1564,7 @@ class SubmissionController extends Controller
         $component = 'agent-partner/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -1593,10 +1592,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1607,10 +1606,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1619,7 +1618,7 @@ class SubmissionController extends Controller
         $component = 'marketing-partner/submission-management/create/index';
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Buat Pengajuan',
             ],
         ]);
@@ -1647,10 +1646,10 @@ class SubmissionController extends Controller
             });
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Histori Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1661,10 +1660,10 @@ class SubmissionController extends Controller
         $submissions = Submission::with('principal')->get();
 
         return inertia($component, [
-            'page_settings' => fn() => [
+            'page_settings' => fn () => [
                 'title' => 'Draft Dokumen Pengajuan',
             ],
-            'submissions' => fn() => $submissions,
+            'submissions' => fn () => $submissions,
         ]);
     }
 
@@ -1684,7 +1683,7 @@ class SubmissionController extends Controller
                 'status' => SubmissionStatus::APPROVED->value,
             ]);
 
-            if (!$updated) {
+            if (! $updated) {
                 flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
 
                 return;
@@ -1692,7 +1691,7 @@ class SubmissionController extends Controller
 
             $documents = $request->input('documents', []);
             $submission->submissionDocs()->delete();
-            $docData = collect($documents)->map(fn($doc) => [
+            $docData = collect($documents)->map(fn ($doc) => [
                 'document_format_id' => $doc['id'] ?? null,
                 'name' => $doc['name'] ?? null,
                 'format_document' => $doc['content'],
@@ -1708,11 +1707,11 @@ class SubmissionController extends Controller
                 if ($result['status'] == 'success') {
                     $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
                 } else {
-                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi: ' . $result['message'];
+                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
                 }
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
-            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, ' . $messageSend);
+            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, '.$messageSend);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1737,7 +1736,7 @@ class SubmissionController extends Controller
                 'status' => SubmissionStatus::REJECTED->value,
             ]);
 
-            if (!$updated) {
+            if (! $updated) {
                 DB::rollBack();
                 flashMessage('error', 'Gagal menolak pengajuan', 'error');
             } else {
@@ -1762,7 +1761,7 @@ class SubmissionController extends Controller
                 'checked_at' => $dateNow,
             ]);
 
-            if (!$updated) {
+            if (! $updated) {
                 DB::rollBack();
                 flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
             } else {
@@ -1834,7 +1833,7 @@ class SubmissionController extends Controller
             if ($request->hasFile('spkmgr_file')) {
                 $spkmgrFile = $request->file('spkmgr_file');
                 // Generate nama file unik
-                $uniqueName = uniqid('spkmgr_', true) . '.' . $spkmgrFile->getClientOriginalExtension();
+                $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
                 // Simpan file di folder dengan path berdasarkan submission_id
                 $spkmgrPath = $spkmgrFile->storeAs(
                     "documents/spkmgr/{$submissionId}",
@@ -1853,7 +1852,7 @@ class SubmissionController extends Controller
             if ($request->hasFile('permohonan_file')) {
                 $permohonanFile = $request->file('permohonan_file');
                 // Generate nama file unik
-                $uniqueName = uniqid('permohonan_', true) . '.' . $permohonanFile->getClientOriginalExtension();
+                $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
                 // Simpan file di folder dengan path berdasarkan submission_id
                 $permohonanPath = $permohonanFile->storeAs(
                     "documents/permohonan/{$submissionId}",
@@ -1896,7 +1895,7 @@ class SubmissionController extends Controller
     {
         $submission = Submission::find($submissionId);
 
-        if (!$submission) {
+        if (! $submission) {
             return null;
         }
 
@@ -1909,12 +1908,12 @@ class SubmissionController extends Controller
 
     private function generateNomorSuratResume($id, $createdAt)
     {
-        return "{$id}/BPR/" . Carbon::parse($createdAt)->format('m/Y');
+        return "{$id}/BPR/".Carbon::parse($createdAt)->format('m/Y');
     }
 
     private function formatCurrency($value): string
     {
-        return 'Rp. ' . number_format($value, 2, ',', '.');
+        return 'Rp. '.number_format($value, 2, ',', '.');
     }
 
     public function getApprovedSubmissionsByPrincipal($principalId)
@@ -1922,7 +1921,7 @@ class SubmissionController extends Controller
         $principal = Principal::with(['approvedSubmissions'])->findOrFail($principalId);
 
         return inertia('staff/submission-management/history/principal-submissions', [
-            'principal' => fn() => $principal,
+            'principal' => fn () => $principal,
         ]);
     }
 
@@ -1938,15 +1937,15 @@ class SubmissionController extends Controller
 
         Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
 
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi: ' . $result['message']);
+        return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
     }
 
     private function sendToGuarantor($submissionId): array
     {
         $submission = Submission::query()
             ->with([
-                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,' .
-                'director_name,director_position,director_phone,commissioner,year_established,' .
+                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
+                'director_name,director_position,director_phone,commissioner,year_established,'.
                 'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
@@ -1984,7 +1983,7 @@ class SubmissionController extends Controller
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
         $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
+        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             //            'resources' => [
