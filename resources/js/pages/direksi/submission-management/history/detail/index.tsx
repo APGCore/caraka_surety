@@ -7,14 +7,14 @@ import { formatCurrency } from "@/common/utils/format-currency";
 import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
@@ -358,8 +358,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     const documentFilter = documents.filter((doc) => !doc.name.includes("Jaminan"));
     documentFilter.unshift(...documentsJaminan);
     console.log("documents", {
-        '1':documentFilter,
-        '2':editorRefs.current
+      "1": documentFilter,
+      "2": editorRefs.current,
     });
     axios
       .post(route("direksi-submission-approve", { id: submissionId }), { documents: documentFilter })

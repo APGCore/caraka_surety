@@ -26,23 +26,6 @@ class DocumentFormatController extends Controller
         $guarantorProductTypeSelected = $request->get('guarantor_to_product_type_id');
         $guarantorProductTypeSelected = $guarantorProductTypeSelected ? (int) $guarantorProductTypeSelected : null;
 
-        $documentFormats = DocumentFormat::search($request->get('search'))
-            ->query(function ($query) use ($guarantorSelected, $productSelected, $guarantorProductTypeSelected) {
-                $query->when($guarantorSelected, function ($query, $guarantorSelected) {
-                    $query->where('guarantor_id', $guarantorSelected);
-                })->when($productSelected, function ($query, $productSelected) {
-                    $query->where('product_id', $productSelected);
-                })->when($guarantorProductTypeSelected, function ($query, $guarantorProductTypeSelected) {
-                    $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
-
-        $resourceDocumentFormats = DocumentFormatResource::collection($documentFormats);
-
         return [
             'guarantors' => $guarantors,
             'guarantorSelected' => (int) $guarantorSelected,
@@ -50,7 +33,6 @@ class DocumentFormatController extends Controller
             'productSelected' => (int) $productSelected,
             'guarantorProductTypes' => $guarantorProductTypes,
             'guarantorProductTypeSelected' => (int) $guarantorProductTypeSelected,
-            'documentFormats' => fn () => $resourceDocumentFormats,
         ];
     }
 
@@ -62,6 +44,22 @@ class DocumentFormatController extends Controller
 
         $data = $this->getGuarantorData($request);
 
+        $documentFormats = DocumentFormat::search($request->get('search'))
+            ->query(function ($query) use ($data) {
+                $query->when($data['guarantorSelected'], function ($query, $guarantorSelected) {
+                    $query->where('guarantor_id', $guarantorSelected);
+                })->when($data['productSelected'], function ($query, $productSelected) {
+                    $query->where('product_id', $productSelected);
+                })->when($data['guarantorProductTypeSelected'], function ($query, $guarantorProductTypeSelected) {
+                    $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $resourceDocumentFormats = DocumentFormatResource::collection($documentFormats);
         $component = $request->path().'/index';
 
         return inertia($component, [
@@ -69,6 +67,7 @@ class DocumentFormatController extends Controller
                 'title' => 'Format Dokumen',
             ],
             ...$data,
+            'documentFormats' => fn () => $resourceDocumentFormats,
         ]);
     }
 
@@ -160,8 +159,8 @@ class DocumentFormatController extends Controller
             'page_settings' => [
                 'title' => 'Edit Format Dokumen',
             ],
-            'documentFormat' => $documentFormat,
             ...$data, // Memasukkan data guarantor yang telah diproses
+            'documentFormat' => $documentFormat,
         ]);
     }
 
