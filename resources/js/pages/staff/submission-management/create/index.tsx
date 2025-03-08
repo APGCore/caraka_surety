@@ -1,20 +1,21 @@
-import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor
+    from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import { useGetAllBlank } from "@/common/hooks/react-query/blank";
 import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
 import {
-  useGetAllProvince,
-  useGetDistrictByRegencyId,
-  useGetRegencyByProvinceId,
+    useGetAllProvince,
+    useGetDistrictByRegencyId,
+    useGetRegencyByProvinceId
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import {
-  PRINCIPAL_QUERY_KEY,
-  useCreatePrincipal,
-  useGetAllPrincipal,
-  useUpdatePrincipal,
+    PRINCIPAL_QUERY_KEY,
+    useCreatePrincipal,
+    useGetAllPrincipal,
+    useUpdatePrincipal
 } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
@@ -45,10 +46,10 @@ import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
 import {
-  ISelectedPrincipalDistrict,
-  Ratio,
-  SubmissionCreatePageProps,
-  SubmissionFormProps,
+    ISelectedPrincipalDistrict,
+    Ratio,
+    SubmissionCreatePageProps,
+    SubmissionFormProps
 } from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
