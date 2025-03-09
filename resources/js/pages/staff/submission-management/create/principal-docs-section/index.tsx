@@ -13,7 +13,7 @@ const PrincipalDocsSection: React.FC<PrincipalDocsSectionProps> = ({ principalId
   return (
     <RenderList
       of={Array.isArray(principalDocs) ? principalDocs : []}
-      render={(doc, idx) => <CreateOrUpdatePrincipalDocForm key={(idx + 1)} principalId={Number(principalId)} {...doc} />}
+      render={(doc, idx) => <CreateOrUpdatePrincipalDocForm key={idx + 1} principalId={Number(principalId)} {...doc} />}
     />
   );
 };

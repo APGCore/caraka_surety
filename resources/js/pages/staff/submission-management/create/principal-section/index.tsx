@@ -1,7 +1,7 @@
 import {
-    useGetAllProvince,
-    useGetDistrictByRegencyId,
-    useGetRegencyByProvinceId
+  useGetAllProvince,
+  useGetDistrictByRegencyId,
+  useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { Input } from "@/components/_shadcn-ui/input";

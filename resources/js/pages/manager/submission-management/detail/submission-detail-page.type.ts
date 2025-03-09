@@ -191,7 +191,7 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
-    beyond_the_limit: boolean;
+    beyond_the_limit: boolean | null;
     document_format_analysis: {
       id: number;
       format_document: any;
