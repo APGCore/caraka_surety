@@ -55,12 +55,16 @@ class SubmissionController extends Controller
             $principalId = $principal['id'];
             $principalRatios = $principal['ratios'];
             $principalRatios = collect($principalRatios)->map(function ($ratio) {
-                $ratio['current_assets'] = (int) $ratio['current_assets'];
-                $ratio['current_debt'] = (int) $ratio['current_debt'];
-                $ratio['total_debt'] = (int) $ratio['total_debt'];
-                $ratio['total_assets'] = (int) $ratio['total_assets'];
-                $ratio['revenue'] = (int) $ratio['revenue'];
-                $ratio['net_income'] = (int) $ratio['net_income'];
+                $ratio['year'] = (int) $ratio['year'];
+                $ratio['current_assets'] = (float) $ratio['current_assets'];
+                $ratio['current_debt'] = (float) $ratio['current_debt'];
+                $ratio['total_debt'] = (float) $ratio['total_debt'];
+                $ratio['total_assets'] = (float) $ratio['total_assets'];
+                $ratio['revenue'] = (float) $ratio['revenue'];
+                $ratio['net_income'] = (float) $ratio['net_income'];
+                $ratio['liquidity_ratios'] = (float) $ratio['liquidity_ratios'];
+                $ratio['profitability_ratios'] = (float) $ratio['profitability_ratios'];
+                $ratio['solvency_ratios'] = (float) $ratio['solvency_ratios'];
 
                 return $ratio;
             })->toArray();
