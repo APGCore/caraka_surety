@@ -268,10 +268,10 @@ class SubmissionController extends Controller
             ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
-        $submission->document_format_product = $submission->product->documentFormats;
-        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -478,23 +478,17 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
-
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-
         $submission->guarantor_address =
             ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
             ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
-        $submission->document_format_product = $submission->product->documentFormats;
-        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
         $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
@@ -708,18 +702,17 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
-        $submission->product_limit = $submission->guarantorProductTypeLimit;
-
         $submission->guarantor_address =
             ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
             ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
-        $submission->document_format_product = $submission->product->documentFormats;
-        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
+        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
+        $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
         $principalDocs = collect($submission->principal->documents);
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
@@ -934,15 +927,16 @@ class SubmissionController extends Controller
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
-        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
-        $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
             ->whereNull('product_id')
             ->whereNull('guarantor_to_product_type_id')
             ->first();
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats;
-        $submission->document_format_product = $submission->product->documentFormats;
-        $submission->document_format_type_guarantee = $submission->guarantorToProductType->documentFormats;
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+
+        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
+        $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
         $submission->limit = $employeeLimit;
         $submission->beyond_the_limit = $employeeLimit < $submission->guarantee_value;
