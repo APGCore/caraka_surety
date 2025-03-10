@@ -987,29 +987,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 />
               </div>
             </div>
-            {/* DOCUMENT FORMAT
-              <div>
-                {submission.document_format_guarantor.map((doc: any) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
-                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                    <TinyMCEEditor
-                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                      initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                      onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                    />
-                  </div>
-                ))}
-              </div> */}
             <div>
               {(() => {
                 const documentsToDisplay: JSX.Element[] = [];
 
                 // Untuk document_format_guarantor
                 if (submission.document_format_guarantor?.length) {
-                  const filteredGuarantorDocs = submission.document_format_guarantor.filter(
-                    (doc: any) => doc.product_id === null && doc.guarantor_to_product_type_id === null,
-                  );
-                  filteredGuarantorDocs.forEach((doc: any) => {
+                  submission.document_format_guarantor.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
@@ -1025,10 +1009,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                 // Untuk document_format_product
                 if (submission.document_format_product?.length) {
-                  const filteredProductDocs = submission.document_format_product.filter(
-                    (doc: any) => doc.guarantor_to_product_type_id === null,
-                  );
-                  filteredProductDocs.forEach((doc: any) => {
+                  submission.document_format_product.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
@@ -1044,11 +1025,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                 // Untuk document_format_type_guarantee
                 if (submission.document_format_type_guarantee?.length) {
-                  const filteredDocs = submission.document_format_type_guarantee.filter(
-                    (doc: any) =>
-                      doc.guarantor_id !== null && doc.product_id !== null && doc.guarantor_to_product_type_id !== null,
-                  );
-                  filteredDocs.forEach((doc: any) => {
+                  submission.document_format_type_guarantee.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>

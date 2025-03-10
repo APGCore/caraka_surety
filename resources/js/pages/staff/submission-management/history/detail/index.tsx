@@ -604,6 +604,27 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   />
                 </tr>
                 <tr className="border-b bg-gray-100">
+                    <td className="p-2 font-semibold text-left">
+                        Rasio Solvabilitas
+                        {comparisonRatios.solvency_ratios == true && (
+                            <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                                Naik
+                            </Badge>
+                        )}
+                        {comparisonRatios.solvency_ratios == false && (
+                            <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                                Turun
+                            </Badge>
+                        )}
+                    </td>
+                    <RenderList
+                        of={submission.principal?.ratios as Array<any>}
+                        render={(ratio: any) => {
+                            return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                        }}
+                    />
+                </tr>
+                <tr className="border-b bg-gray-100">
                   <td className="p-2 font-semibold text-left">
                     Rasio Profitabilitas
                     {comparisonRatios.profitability_ratios == true && (
@@ -621,27 +642,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     of={submission.principal?.ratios as Array<any>}
                     render={(ratio: any) => {
                       return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
-                    }}
-                  />
-                </tr>
-                <tr className="border-b bg-gray-100">
-                  <td className="p-2 font-semibold text-left">
-                    Rasio Solvabilitas
-                    {comparisonRatios.solvency_ratios == true && (
-                      <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                        Naik
-                      </Badge>
-                    )}
-                    {comparisonRatios.solvency_ratios == false && (
-                      <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                        Turun
-                      </Badge>
-                    )}
-                  </td>
-                  <RenderList
-                    of={submission.principal?.ratios as Array<any>}
-                    render={(ratio: any) => {
-                      return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
                     }}
                   />
                 </tr>
@@ -753,13 +753,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <div>
               {(() => {
                 const documentsToDisplay: JSX.Element[] = [];
-
                 // Untuk document_format_guarantor
                 if (submission.document_format_guarantor?.length) {
-                  const filteredGuarantorDocs = submission.document_format_guarantor.filter(
-                    (doc: any) => doc.product_id === null && doc.guarantor_to_product_type_id === null,
-                  );
-                  filteredGuarantorDocs.forEach((doc: any) => {
+                  submission.document_format_guarantor.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
@@ -775,10 +771,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                 // Untuk document_format_product
                 if (submission.document_format_product?.length) {
-                  const filteredProductDocs = submission.document_format_product.filter(
-                    (doc: any) => doc.guarantor_to_product_type_id === null,
-                  );
-                  filteredProductDocs.forEach((doc: any) => {
+                  submission.document_format_product.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
@@ -794,11 +787,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
                 // Untuk document_format_type_guarantee
                 if (isApproved && submission.document_format_type_guarantee?.length) {
-                  const filteredDocs = submission.document_format_type_guarantee.filter(
-                    (doc: any) =>
-                      doc.guarantor_id !== null && doc.product_id !== null && doc.guarantor_to_product_type_id !== null,
-                  );
-                  filteredDocs.forEach((doc: any) => {
+                  submission.document_format_type_guarantee.forEach((doc: any) => {
                     documentsToDisplay.push(
                       <div key={doc.id} style={{ marginBottom: "20px" }}>
                         <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>

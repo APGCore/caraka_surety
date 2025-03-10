@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Models\Submission\SubmissionCallback;
+use Illuminate\Container\Attributes\Log;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
@@ -20,7 +21,7 @@ class SubmissionController extends Controller
             // save image to storage
             $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
 
-            SubmissionCallback::query()->updateOrCreate(
+            $data = SubmissionCallback::query()->updateOrCreate(
                 ['submission_id' => $submissionId],
                 [
                     'submission_id' => $submissionId,
@@ -30,8 +31,12 @@ class SubmissionController extends Controller
                 ]
             );
 
+            Log::info('Callback Success: ', $data->toArray());
+
             return $this->responseSuccess('Berhasil Mengirimkan data');
         } catch (\Exception $e) {
+            Log::error('Callback Error: ', $e->getMessage());
+
             return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
         }
     }
