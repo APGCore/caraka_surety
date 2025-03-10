@@ -96,7 +96,7 @@ class DocumentFormatController extends Controller
         // dd($request->all());
         $request->validate([
             'guarantor_id' => 'required|integer',
-            'product_id' => 'nullable|integer',
+            'product_id' => 'required_with:guarantor_to_product_type_id|nullable|integer',
             'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
             'format_document' => 'nullable|string',
@@ -124,7 +124,11 @@ class DocumentFormatController extends Controller
                 ->causedBy(auth()->user())
                 ->log('menambahkan format dokumen');
 
-            return redirect()->back()->with('success', 'Berhasil menyimpan data');
+            return redirect()->back()->with('success', 'Berhasil menyimpan data')->withInput([
+                'guarantorSelected' => $guarantor_id,
+                'productSelected' => $product_id,
+                'guarantorProductTypeSelected' => $guarantor_product_type_id,
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
@@ -144,7 +148,7 @@ class DocumentFormatController extends Controller
         // Menggabungkan parameter bawaan dengan data dari $documentFormat
         $mergedRequest = $request->merge([
             'guarantor_id' => $documentFormat->guarantor_id,
-            'product_id' => $documentFormat->product_id,
+            'guarantor_product_id' => $documentFormat->product_id,
             'guarantor_to_product_type_id' => $documentFormat->guarantor_to_product_type_id,
         ]);
 
@@ -198,7 +202,11 @@ class DocumentFormatController extends Controller
                 ->causedBy(auth()->user())
                 ->log('mengubah format dokumen');
 
-            return redirect()->back()->with('success', 'Berhasil menyimpan data');
+            return redirect()->back()->with('success', 'Berhasil menyimpan data')->withInput([
+                'guarantorSelected' => $request->get('guarantor_id'),
+                'productSelected' => $request->get('product_id'),
+                'guarantorProductTypeSelected' => $request->get('guarantor_to_product_type_id'),
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');

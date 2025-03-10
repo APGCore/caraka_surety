@@ -10,10 +10,10 @@ import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
+import { StringToBoolean } from "class-variance-authority/types";
 import React, { Fragment, useEffect, useRef } from "react";
 import SubmissionDetailHeader from "./_partials/create-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
-import { StringToBoolean } from "class-variance-authority/types";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
 type TFormDetailStepperIndicator = {
@@ -58,7 +58,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isProcess = submission.status == SubmissionStatus.PROCESS;
   const isApproved = submission.status == SubmissionStatus.APPROVED;
   const isRejected = submission.status == SubmissionStatus.REJECTED;
-  const colorAlert: StringToBoolean<any> = isProcess ? "warning" : isApproved ? "success" : isRejected ? "destructive" : "default";
+  const colorAlert: StringToBoolean<any> = isProcess
+    ? "warning"
+    : isApproved
+      ? "success"
+      : isRejected
+        ? "destructive"
+        : "default";
 
   const filteredSubmission = isApproved ? initialSteps : initialSteps.slice(0, 4);
 
@@ -739,10 +745,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <TinyMCEEditor
                 id="hasil-analisis"
                 onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                initialContent={replacePlaceholders(
-                  submission.document_format_analysis?.format_document,
-                  dataTemplate,
-                )}
+                initialContent={replacePlaceholders(submission.document_format_analysis.format_document, dataTemplate)}
               />
             </div>
           </div>

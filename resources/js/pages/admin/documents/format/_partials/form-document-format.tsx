@@ -3,7 +3,6 @@ import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 // import Checkbox from "@/components/common/checkbox";
 import SecondaryButton from "@/components/atoms/button/secondary-button";
-import Show from "@/components/atoms/show";
 import SubmissionUiPlaceholder from "@/components/documents/submission-ui-placeholder";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { Combobox } from "@/components/molecules/combobox";
@@ -11,11 +10,9 @@ import InputError from "@/components/molecules/input/error-input";
 import InputLabel from "@/components/molecules/input/label-input";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { router, useForm } from "@inertiajs/react";
-import { Editor } from "@tinymce/tinymce-react";
-import axios from "axios";
-import { debounce, pickBy } from "lodash";
+import { pickBy } from "lodash";
 import { LoaderCircle } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { FormDocumentFormatUtils } from "./form-document-format.utils";
 
 interface FormProfileLimitsProps {
@@ -39,19 +36,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   guarantorProductTypeSelected,
   documentFormat,
 }) => {
-  const [byGuarantor, setByGuarantor] = useState<boolean>(() => !!guarantorSelected);
-  const [byProduct, setByProduct] = useState<boolean>(() => !!productSelected);
-  const [byProductType, setByProductType] = useState<boolean>(() => !!guarantorProductTypeSelected);
-
-  const editorRef = useRef<any>(null);
-
-  const { data, setData, post, put, errors, processing } = useForm<{
-    guarantor_id: number | null;
-    product_id: number | null;
-    guarantor_to_product_type_id: number | null;
-    name: string;
-    format_document: string;
-  }>({
+  const { data, setData, post, put, errors, processing }: any = useForm({
     guarantor_id: guarantorSelected || null,
     product_id: productSelected || null,
     guarantor_to_product_type_id: guarantorProductTypeSelected || null,
@@ -59,63 +44,29 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     format_document: documentFormat?.format_document || "",
   });
 
-  //   const [selectedValues, setSelectedValues] = useState({
-  //     guarantor_id: guarantorSelected || null,
-  //     product_id: productSelected || null,
-  //     guarantor_product_type_id: guarantorProductTypeSelected || null,
-  //   });
-
-  //   // Sinkronisasi initial props dengan state jika berubah
-  //   useEffect(() => {
-  //     setSelectedValues({
-  //       guarantor_id: guarantorSelected || null,
-  //       product_id: productSelected || null,
-  //       guarantor_product_type_id: guarantorProductTypeSelected || null,
-  //     });
-  //   }, [guarantorSelected, productSelected, guarantorProductTypeSelected]);
-
-  //
-
   const handleSelectGuarantor = (guarantorId: number) => {
     const id = guarantorSelected === guarantorId ? undefined : guarantorId;
+    setData("guarantor_id", id);
     getData(id);
   };
 
   const handleSelectGuarantorProduct = (guarantorProductId: number) => {
     const id = productSelected === guarantorProductId ? undefined : guarantorProductId;
-
+    setData("product_id", id);
     getData(guarantorSelected, id);
   };
   const handleSelectGuarantorProductType = (guarantorProductTypeId: number) => {
     const id = guarantorProductTypeSelected === guarantorProductTypeId ? undefined : guarantorProductTypeId;
+    setData("guarantor_to_product_type_id", id);
     getData(guarantorSelected, productSelected, id);
   };
-
-  //   const getData = (guarantorId?: number, guarantorProductId?: number, guarantorProductTypeId?: number) => {
-  //     const routeName = isEdit
-  //       ? route(DocumentFormatUtils.link.edit, { id: documentFormat.id })
-  //       : route(DocumentFormatUtils.link.create);
-
-  //     router.get(
-  //       routeName,
-  //       pickBy({
-  //         guarantor_id: guarantorId,
-  //         product_id: guarantorProductId,
-  //         guarantor_to_product_type_id: guarantorProductTypeId,
-  //       }),
-  //       {
-  //         preserveScroll: true,
-  //         preserveState: true,
-  //       },
-  //     );
-  //   };
 
   const getData = (guarantorId?: number, guarantorProductId?: number, guarantorProductTypeId?: number) => {
     router.get(
       route(DocumentFormatUtils.link.create),
       pickBy({
         guarantor_id: guarantorId,
-        product_id: guarantorProductId,
+        guarantor_product_id: guarantorProductId,
         guarantor_to_product_type_id: guarantorProductTypeId,
       }),
       {
@@ -125,8 +76,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     );
   };
 
-  console.log("Data:", documentFormat);
-
   const cancel = () => {
     router.get(route(DocumentFormatUtils.link.index));
   };
@@ -134,6 +83,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   console.log("Guarantor Selected:", guarantorSelected);
   console.log("Product Selected:", productSelected);
   console.log("Guarantor Product Type Selected:", guarantorProductTypeSelected);
+  console.log("Data:", data);
   const submit = async () => {
     // Ambil konten dari TinyMCE
     const editor = editorRefs.current["format-document"];
@@ -157,23 +107,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
       format_document: content,
     };
 
-    // if (byGuarantor && guarantorSelected) {
-    //   requestData.guarantor_id = guarantorSelected;
-    // } else if (byProduct && productSelected) {
-    //   requestData.product_id = productSelected;
-    // } else if (byProductType && guarantorProductTypeSelected) {
-    //   requestData.guarantor_to_product_type_id = guarantorProductTypeSelected;
-    // }
-    // if (guarantorSelected) {
-    //   requestData.guarantor_id = guarantorSelected;
-    // }
-    // if (productSelected) {
-    //   requestData.product_id = productSelected;
-    // }
-    // if (guarantorProductTypeSelected) {
-    //   requestData.guarantor_to_product_type_id = guarantorProductTypeSelected;
-    // }
-    console.log("Request Data data:", requestData);
+    console.log("Request Data:", requestData);
 
     // Kirim data dengan cara yang sesuai (PUT atau POST)
     if (isEdit) {
@@ -219,102 +153,8 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
-  const formatDocumentRef = useRef(""); // Tempat menyimpan konten editor
-
-  const handleContentChange = (content: string) => {
-    formatDocumentRef.current = content;
-    setData("format_document", content);
-  };
-  console.log("Default Product Selected:", productSelected);
-
-  console.log("Content formatref:", formatDocumentRef.current);
-  console.log("Data:", products);
-
-  //   const handleEditorInit = (evt, editor) => {
-  //     editorRefs.current["format-document"] = editor;
-
-  //     // Inisialisasi konten pertama kali
-  //     editor.setContent("Konten awal di sini!");
-  //   };
-
   return (
     <div className="mt-6 space-y-6">
-      {/* <div className="flex items-center justify-around gap-2">
-        <div className="flex items-center space-x-2">
-          <Checkbox id="byGuarantors" checked={byGuarantor} onChange={(e) => checkByGuarantor(e.target.checked)} />
-          <label
-            htmlFor="byGuarantors"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Berdasarkan Asuransi
-          </label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="byProducts" checked={byProduct} onChange={(e) => checkByProduct(e.target.checked)} />
-          <label
-            htmlFor="byProducts"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Berdasarkan Produk
-          </label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="byProductTypes"
-            checked={byProductType}
-            onChange={(e) => checkByProductType(e.target.checked)}
-          />
-          <label
-            htmlFor="byProductTypes"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Berdasarkan Jenis Jaminan
-          </label>
-        </div>
-      </div> */}
-      {/* <Show when={byGuarantor}>
-        <div className="space-y-2">
-          <InputLabel htmlFor="guarantor" value="Asuransi" />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Penjamin"}
-            className={"w-min-[210px]"}
-            onSelect={(value) => handleSelectGuarantor(value.id)}
-          />
-          <InputError className="mt-2" message={errors.guarantor_id} />
-        </div>
-      </Show>
-      <Show when={byProduct}>
-        <div className="space-y-2">
-          <InputLabel htmlFor="guarantor_product" value="Produk" />
-          <Combobox
-            datas={products}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={productSelected}
-            placeholder={"Pilih Produk"}
-            className={"w-min-[210px]"}
-            onSelect={(value) => handleSelectGuarantorProduct(value.id)}
-          />
-
-          <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
-        </div>
-      </Show>
-      <Show when={byProductType}>
-        <div className="space-y-2">
-          <InputLabel htmlFor="guarantor_product_type" value="Jenis Jaminan" />
-          <Combobox
-            datas={guarantorProductTypes}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorProductTypeSelected}
-            placeholder={"Pilih Jenis Jaminan"}
-            className={"w-min-[210px]"}
-            onSelect={(value) => handleSelectGuarantorProductType(value.id)}
-          />
-          <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
-        </div>
-      </Show> */}
       <div className="space-y-2">
         <InputLabel htmlFor="guarantor" value="Asuransi" />
         <Combobox
@@ -338,8 +178,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           placeholder={"Pilih Produk"}
           className={"w-min-[210px]"}
           onSelect={(value) => {
-            console.log("Selected Product ID:", value.id);
-
             handleSelectGuarantorProduct(value.id);
           }}
         />
@@ -349,8 +187,8 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         <InputLabel htmlFor="guarantor_product_type" value="Jenis Jaminan" />
         <Combobox
           datas={guarantorProductTypes}
-          labelKey={"name"}
-          valueKey={"name"}
+          labelKey={"full_name"}
+          valueKey={"full_name"}
           defaultValue={guarantorProductTypeSelected}
           placeholder={"Pilih Jenis Jaminan"}
           className={"w-min-[210px]"}
@@ -363,21 +201,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         <Input className={"w-full"} id="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
         <InputError className="mt-2" message={errors.name} />
       </div>
-      {/* <div className="space-y-2">
-        <InputLabel htmlFor="name" value="Nama" />
-
-        <Combobox
-          datas={[{ name: "SPKMGR" }, { name: "ADMIN" }, { name: "USER" }]}
-          labelKey="name"
-          valueKey="name"
-          defaultValue={data.name}
-          placeholder="Pilih Nama"
-          className="w-full min-w-[210px]"
-          onSelect={(value) => setData("name", value.name)}
-        />
-
-        <InputError className="mt-2" message={errors.name} />
-      </div> */}
       <div>
         <TinyMCEEditor
           id="format-document"
