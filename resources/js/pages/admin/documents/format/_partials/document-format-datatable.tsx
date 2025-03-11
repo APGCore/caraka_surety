@@ -38,6 +38,7 @@ interface DocumentFormatDatatableProps {
 const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ ...props }) => {
   const { data: documentFormats, meta } = props.documentFormats;
   const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
+
   const onDelete = (documentFormat: any) => {
     setIsLoadingDelete(true);
     router.delete(route(DocumentFormatUtils.link.destroy, documentFormat.id), {
@@ -55,6 +56,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ ...pr
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Nama</TableHead>
+              <TableHead>Jenis</TableHead>
               <TableHead>Tanggal Dibuat</TableHead>
               <TableHead className="text-right" />
             </TableRow>
@@ -66,6 +68,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ ...pr
                 <TableRow key={documentFormat.id}>
                   <TableCell>{meta?.from + index}</TableCell>
                   <TableCell>{documentFormat?.name}</TableCell>
+                  <TableCell>{documentFormat?.type}</TableCell>
                   <TableCell>{formatToDateIndonesian(documentFormat?.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

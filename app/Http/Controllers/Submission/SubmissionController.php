@@ -133,10 +133,6 @@ class SubmissionController extends Controller
             $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
             $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
             $scores = $scoring['scores'];
-            if (collect($scores)->sum('point') > $dataSubmission['min_point_scoring']) {
-                $dataSubmission['checked_by'] = auth()->user()->head_id;
-                $dataSubmission['checked_at'] = now()->format('Y-m-d H:i:s');
-            }
 
             $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
 

@@ -63,7 +63,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
 
   const getData = (guarantorId?: number, guarantorProductId?: number, guarantorProductTypeId?: number) => {
     router.get(
-      route(DocumentFormatUtils.link.create),
+      isEdit ? route(DocumentFormatUtils.link.edit, documentFormat.id) : route(DocumentFormatUtils.link.create),
       pickBy({
         guarantor_id: guarantorId,
         guarantor_product_id: guarantorProductId,
@@ -80,10 +80,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     router.get(route(DocumentFormatUtils.link.index));
   };
 
-  console.log("Guarantor Selected:", guarantorSelected);
-  console.log("Product Selected:", productSelected);
-  console.log("Guarantor Product Type Selected:", guarantorProductTypeSelected);
-  console.log("Data:", data);
   const submit = async () => {
     // Ambil konten dari TinyMCE
     const editor = editorRefs.current["format-document"];

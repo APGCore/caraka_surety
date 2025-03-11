@@ -1,4 +1,5 @@
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import { Button } from "@/components/_shadcn-ui/button";
 import { Combobox } from "@/components/molecules/combobox";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
@@ -65,7 +66,6 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
     );
   };
 
-  console.log(documentFormats);
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
@@ -101,6 +101,9 @@ const DocumentFormatPage: DocumentFormatPageProps = ({
             shortValue={true}
             onSelect={(value) => handleSelectGuarantorProductType(value.id)}
           />
+          <Button className="w-min-[100px]" color={"warning"} onClick={() => getData(select, search)}>
+            Clear
+          </Button>
         </div>
         <SearchDatatable
           value={search}

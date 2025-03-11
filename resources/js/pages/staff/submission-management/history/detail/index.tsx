@@ -604,25 +604,25 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   />
                 </tr>
                 <tr className="border-b bg-gray-100">
-                    <td className="p-2 font-semibold text-left">
-                        Rasio Solvabilitas
-                        {comparisonRatios.solvency_ratios == true && (
-                            <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                                Naik
-                            </Badge>
-                        )}
-                        {comparisonRatios.solvency_ratios == false && (
-                            <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                                Turun
-                            </Badge>
-                        )}
-                    </td>
-                    <RenderList
-                        of={submission.principal?.ratios as Array<any>}
-                        render={(ratio: any) => {
-                            return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
-                        }}
-                    />
+                  <td className="p-2 font-semibold text-left">
+                    Rasio Solvabilitas
+                    {comparisonRatios.solvency_ratios == true && (
+                      <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                        Naik
+                      </Badge>
+                    )}
+                    {comparisonRatios.solvency_ratios == false && (
+                      <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                        Turun
+                      </Badge>
+                    )}
+                  </td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                    }}
+                  />
                 </tr>
                 <tr className="border-b bg-gray-100">
                   <td className="p-2 font-semibold text-left">

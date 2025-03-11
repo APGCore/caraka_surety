@@ -7,6 +7,7 @@ use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,10 +16,14 @@ class DocumentFormatController extends Controller
 {
     private function getGuarantorData(Request $request)
     {
-        $guarantors = Guarantor::query()->select('id', 'name')->get();
+        $guarantors = Guarantor::query()->with('head:id,name')->select(['id', 'headquarter_id', 'name'])->get();
         $guarantorSelected = $request->get('guarantor_id');
         $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : null;
-        $guarantor = $guarantors->find($guarantorSelected)?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
+        $guarantor = $guarantors->find($guarantorSelected);
+        if ($guarantor?->headquarter_id) {
+            $guarantor = $guarantor->head ?? null;
+        }
+        $guarantor?->load(['guarantorToProductTypes', 'guarantorToProductTypes.product']);
         $products = $guarantor?->guarantorToProductTypes->pluck('product')->unique()->values();
         $productSelected = $request->get('guarantor_product_id');
         $productSelected = $productSelected ? (int) $productSelected : null;
@@ -46,13 +51,17 @@ class DocumentFormatController extends Controller
 
         $documentFormats = DocumentFormat::search($request->get('search'))
             ->query(function ($query) use ($data) {
-                $query->when($data['guarantorSelected'], function ($query, $guarantorSelected) {
-                    $query->where('guarantor_id', $guarantorSelected);
-                })->when($data['productSelected'], function ($query, $productSelected) {
-                    $query->where('product_id', $productSelected);
-                })->when($data['guarantorProductTypeSelected'], function ($query, $guarantorProductTypeSelected) {
-                    $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
-                });
+                $query
+                    ->when($data['guarantorSelected'], function ($query, $guarantorSelected) {
+                        $query->where('guarantor_id', $guarantorSelected);
+                    }, function ($query) {
+                        $query->whereNull('guarantor_id');
+                    })
+                    ->when($data['productSelected'], function ($query, $productSelected) {
+                        $query->where('product_id', $productSelected);
+                    })->when($data['guarantorProductTypeSelected'], function ($query, $guarantorProductTypeSelected) {
+                        $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
+                    });
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
@@ -129,7 +138,7 @@ class DocumentFormatController extends Controller
                 'productSelected' => $product_id,
                 'guarantorProductTypeSelected' => $guarantor_product_type_id,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
             Log::error('Error store format document', ['error' => $e->getMessage()]);
@@ -207,7 +216,7 @@ class DocumentFormatController extends Controller
                 'productSelected' => $request->get('product_id'),
                 'guarantorProductTypeSelected' => $request->get('guarantor_to_product_type_id'),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
             Log::error('Error update format document', ['error' => $e->getMessage()]);
@@ -231,7 +240,7 @@ class DocumentFormatController extends Controller
                 ->log('menghapus format dokumen');
 
             return redirect()->back()->with('success', 'Berhasil menghapus data');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             flashMessage('Gagal', 'Gagal menghapus data', 'error');
             Log::error('Error delete format document', ['error' => $e->getMessage()]);
 
