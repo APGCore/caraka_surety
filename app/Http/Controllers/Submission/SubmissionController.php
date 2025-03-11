@@ -23,6 +23,7 @@ use App\Models\User;
 use App\Services\HostToHostService;
 use App\Traits\GeneratePattern;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -157,7 +158,7 @@ class SubmissionController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Berhasil membuat pengajuan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('SubmissionController@store: ', [
                 'message' => $e->getMessage(),
@@ -214,9 +215,7 @@ class SubmissionController extends Controller
             'sourceOfFund' => function ($query) {
                 $query->withTrashed();
             },
-            'submissionDocs' => function ($query) {
-                $query->withTrashed();
-            },
+            'submissionDocs',
             'scores.scoring' => function ($query) {
                 $query->withTrashed();
             },
@@ -498,11 +497,6 @@ class SubmissionController extends Controller
 
                 return $doc;
             });
-        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
-            $docSig->url = Storage::url($docSig->url);
-
-            return $docSig;
-        });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -703,9 +697,6 @@ class SubmissionController extends Controller
             ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
@@ -737,11 +728,12 @@ class SubmissionController extends Controller
             return $score;
         });
 
-        // GET DOC FORMAT ANALYSIS
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
+        // GET DOC
+        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
+            $docSig->url = Storage::url($docSig->url);
+
+            return $docSig;
+        });
 
         // SCORING RESULT
         $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
@@ -947,11 +939,6 @@ class SubmissionController extends Controller
 
                 return $doc;
             });
-        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
-            $docSig->url = Storage::url($docSig->url);
-
-            return $docSig;
-        });
         $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
         ($submission->principal->principalRatios);
 
@@ -1707,7 +1694,7 @@ class SubmissionController extends Controller
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, '.$messageSend);
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to approve submission', ['error' => $e->getMessage()]);
             flashMessage('error', 'Terjadi kesalahan saat menyetujui pengajuan', 'error');
@@ -1737,7 +1724,7 @@ class SubmissionController extends Controller
                 DB::commit();
                 flashMessage('success', 'Berhasil menolak pengajuan');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to reject submission', ['error' => $e->getMessage()]);
             flashMessage('error', 'Terjadi kesalahan saat menolak pengajuan', 'error');
@@ -1745,7 +1732,7 @@ class SubmissionController extends Controller
     }
 
     // check status
-    public function check(Submission $submission): void
+    public function check(Request $request, Submission $submission): void
     {
         DB::beginTransaction();
         try {
@@ -1759,10 +1746,20 @@ class SubmissionController extends Controller
                 DB::rollBack();
                 flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
             } else {
+                $documents = $request->input('documents', []);
+                $submission->submissionDocs()->delete();
+                $docData = collect($documents)->map(fn ($doc) => [
+                    'document_format_id' => $doc['id'] ?? null,
+                    'name' => $doc['name'] ?? null,
+                    'format_document' => $doc['content'],
+                    'url' => $doc['url'] ?? null,
+                ])->toArray();
+                $submission->submissionDocs()->createMany($docData);
+
                 DB::commit();
                 flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
             Log::error('Failed to check submission', ['error' => $e->getMessage()]);
@@ -1800,7 +1797,7 @@ class SubmissionController extends Controller
                     : 'Dokumen berhasil diperbarui.',
                 'data' => $submissionDoc,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Error handling
             DB::rollBack();
 
@@ -1875,7 +1872,7 @@ class SubmissionController extends Controller
                 'message' => 'File berhasil diunggah dan disimpan.',
                 'data' => $documents,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -1910,13 +1907,26 @@ class SubmissionController extends Controller
         return 'Rp. '.number_format($value, 2, ',', '.');
     }
 
-    public function getApprovedSubmissionsByPrincipal($principalId)
+    public function updateDocument(Request $request, SubmissionDoc $submissionDoc)
     {
-        $principal = Principal::with(['approvedSubmissions'])->findOrFail($principalId);
-
-        return inertia('staff/submission-management/history/principal-submissions', [
-            'principal' => fn () => $principal,
+        $validated = $request->validate([
+            'format' => 'required|string',
         ]);
+
+        DB::beginTransaction();
+        try {
+            $submissionDoc->update([
+                'format_document' => $validated['format'],
+            ]);
+
+            DB::commit();
+
+            return $this->responseSuccess('Berhasil mengubah format dokumen');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return $this->responseError('Gagal mengubah format dokumen', ['message' => $e->getMessage()]);
+        }
     }
 
     public function send($submissionId): JsonResponse

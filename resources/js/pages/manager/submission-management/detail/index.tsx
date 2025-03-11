@@ -494,10 +494,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   //       });
   //   };
 
-  const handleApprove = (submissionId: number): void => {
-    setIsLoading(true);
-
-    const documents = Object.keys(editorRefs.current).map((key) => {
+  const documentFormat = () => {
+    return Object.keys(editorRefs.current).map((key) => {
       const allDocuments = [
         ...(Array.isArray(submission.document_format_guarantor) ? submission.document_format_guarantor : []),
         ...(Array.isArray(submission.document_format_product) ? submission.document_format_product : []),
@@ -520,6 +518,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         content: editorRefs.current[key].getContent(),
       };
     });
+  };
+
+  const handleApprove = (submissionId: number): void => {
+    setIsLoading(true);
+
+    const documents = documentFormat();
 
     axios
       .post(route("manager-submission-approve", { id: submissionId }), { documents })
@@ -537,8 +541,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const handleReject = (submissionId: number) => {
     setIsLoading(true);
+    const documents = documentFormat();
+
     axios
-      .post(route("manager-submission-reject", submissionId))
+      .post(route("manager-submission-reject", submissionId), { documents })
       .then((response) => {
         console.log("success reject submission", response);
         router.reload();
@@ -554,6 +560,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // handle check status
   const handleCheck = (submissionId: number) => {
     setIsLoading(true);
+
     axios
       .post(route("manager-submission-check", submissionId))
       .then((response) => {
@@ -619,24 +626,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isFileUploaded, setIsFileUploaded] = useState<boolean>(false);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadedFile(file);
-      setIsFileUploaded(true);
-    }
-  };
-
-  console.log(
-    submission.status === SubmissionStatus.PROCESS &&
-      !submission.beyond_the_limit &&
-      !submission.checked_at &&
-      !submission.approved_at &&
-      !submission.rejected_at,
-  );
   return (
     <>
       <Show when={submission.beyond_the_limit}>

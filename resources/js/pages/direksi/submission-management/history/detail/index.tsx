@@ -88,273 +88,19 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         ? "destructive"
         : "default";
 
-  interface Analysis {
-    character: number | string;
-    capacity: number | string;
-    capital: number | string;
-    condition: number | string;
-    collateral: number | string;
-  }
-
-  interface DataAnalyst {
-    analysis: Analysis;
-    scoring_result: number | string;
-  }
-
-  // Initialize analysis object
-  const analysis: Analysis = {
-    character: 0,
-    capacity: 0,
-    capital: 0,
-    condition: 0,
-    collateral: 0,
-  };
-
-  // Assuming 'submission.scores' contains the necessary data
-  const scoringResult = submission.scores.reduce((grouped: any, score: any) => {
-    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
-
-    // Group scores by scoring_question_category_id
-    if (!grouped[scoring_question_category_id]) {
-      grouped[scoring_question_category_id] = {
-        ...scoring_question_category,
-        items: [],
-      };
-    }
-    grouped[scoring_question_category_id].items.push(rest);
-
-    // Add points to the corresponding analysis category
-    if (scoring_question_category.name === "Character") {
-      analysis.character += score.point || 0;
-    } else if (scoring_question_category.name === "Capacity") {
-      analysis.capacity += score.point || 0;
-    } else if (scoring_question_category.name === "Capital") {
-      analysis.capital += score.point || 0;
-    } else if (scoring_question_category.name === "Condition") {
-      analysis.condition += score.point || 0;
-    } else if (scoring_question_category.name === "Collateral") {
-      analysis.collateral += score.point || 0;
-    }
-
-    return grouped;
-  }, {});
-
-  // Calculate total scoring result
-  const scoringResultTotal = Object.values(analysis).reduce(
-    (total, value) => total + (typeof value === "number" ? value : 0),
-    0,
-  );
-
-  // Create the dataAnalyst object
-  const dataAnalyst: DataAnalyst = {
-    analysis,
-    scoring_result: scoringResultTotal,
-  };
-
   const calculateTotalPoint = (scores: any) => {
     return scores.reduce((total: number, score: any) => total + score.point, 0);
   };
 
-  //   DOCUMENTS FORMAT
-  interface SubmissionData {
-    principal_name: string;
-    location: string;
-    npwp: string;
-    nib: string;
-    telephone: string;
-    director_name: string;
-    director_phone: string;
-    bussiness_field: string;
-    principal_commissioner: string;
-    pic: string;
-    director_position: string;
-    principal_address: string;
-    est_deed: string;
-    last_deed: string;
-    get_susunan_pengurus: string;
-    get_exp: string;
-
-    bank_name: string;
-    obligee_name: string;
-    obligee_address: string;
-    source_of_fund: string;
-    ppk_name: string;
-    ppk_number: string;
-    obligee_city: string;
-    obligee_location: string;
-
-    guarantor_name: string;
-    guarantor_address: string;
-    guarantor_pic: string;
-    guarantor_location: string;
-
-    source_of_fund_name: string;
-    contract_value: string | number;
-    guarantee_value: string | number;
-    guarantee_type: string;
-    no_guarantee: string;
-    time_period: string | number;
-    job_name: string;
-    job_location_village: string;
-    contract_doc_name: string;
-    contract_doc_number: string;
-    contract_doc_date: string;
-    start_date: string;
-    end_date: string;
-    guarantee_issue_date: string;
-    submission_date: string;
-    day: string;
-
-    character_score: string | number | undefined;
-    capacity_score: string | number | undefined;
-    capital_score: string | number | undefined;
-    collateral_score: string | number | undefined;
-    condition_score: string | number | undefined;
-    total_score: string | number | undefined;
-    recommendation: string | undefined;
-    notes: string | undefined;
-    analyst_name: string;
-    manager_technique_name: string;
-
-    branch_manager: string;
-    job_location: string;
-    job_group: string;
-    no: string | number;
-    city: string;
-    mail_number: string;
-    mail_number_resume: string;
-    underlying: string;
-    product_name: string;
-
-    [key: string]: any;
-  }
-
   const editorRefs = useRef<{ [key: string]: any }>({});
 
-  // Fungsi untuk mengganti placeholder dalam template
-  const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
-      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
-      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
-    });
-  };
-
-  const dataTemplate: SubmissionData = {
-    // Informasi Principal
-    principal_name: submission.principal?.name || "",
-    location: submission.principal?.address || "",
-    npwp: submission.principal?.npwp || "",
-    nib: submission.principal?.nib || "",
-    telephone: submission.principal?.telephone || "",
-    director_name: submission.principal?.director_name || "",
-    director_phone: submission.principal?.director_phone || "",
-    bussiness_field: submission.principal?.bussiness_field || "",
-    principal_commissioner: submission.principal?.commissioner || "",
-    pic: submission.principal?.pic || "",
-    director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
-    est_deed: submission.principal?.est_deed || "",
-    last_deed: submission.principal?.last_deed || "",
-    get_susunan_pengurus: submission.get_administators_principal || "",
-    get_exp: submission.get_exp || "",
-
-    // Informasi Bank & Obligee
-    bank_name: submission.bank_name || "",
-    obligee_name: submission.obligee?.name || "",
-    obligee_address: submission.obligee?.address || "",
-    source_of_fund: submission.source_of_fund?.name || "",
-    ppk_name: submission.obligee?.pic || "",
-    ppk_number: submission.obligee?.no_ppk || "",
-    obligee_city: submission.obligee?.district?.name || "",
-    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
-
-    // Informasi Guarantor
-    guarantor_name: submission.guarantor?.name || "",
-    guarantor_address: submission.guarantor_address || "",
-    guarantor_pic: submission.guarantor?.pic || "",
-    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
-
-    // Informasi Kontrak & Proyek
-    source_of_fund_name: submission.source_of_fund?.name || "",
-    contract_value: submission.contract_value_formatted || 0,
-    guarantee_value: submission.guarantee_value_formatted || 0,
-    guarantee_type: submission.guarantor_to_product_type?.name || "",
-    no_guarantee: submission.no_guarantee || "",
-    time_period: submission.time_period || "",
-    job_name: submission.job_name || "",
-    job_location_village: submission.job_location_village || "",
-    contract_doc_name: submission.contract_doc_name || "",
-    contract_doc_number: submission.contract_doc_number || "",
-    contract_doc_date: submission.contract_doc_date || "",
-    start_date: submission.start_date || "",
-    end_date: submission.end_date || "",
-    guarantee_issue_date: submission.guarantee_issue_date || "",
-    submission_date: submission.submission_date || "",
-    day: submission.day_name || "",
-
-    // SCORING
-    character_score: submission.analysis?.character,
-    capacity_score: submission.analysis?.capacity,
-    capital_score: submission.analysis?.capital,
-    collateral_score: submission.analysis?.collateral,
-    condition_score: submission.analysis?.character,
-    total_score: submission.total_score,
-
-    recommendation: submission.recommendation,
-    notes: submission.notes,
-    analyst_name: submission.analyst_name || "",
-    manager_technique_name: submission.principal?.commissioner || "",
-
-    // Informasi Tambahan
-    branch_manager: submission.principal?.director_name || "",
-    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
-    job_group: submission.guarantor_to_product_type?.job_group || "",
-    no: submission.id || "",
-    city: submission.regency?.name || "",
-    mail_number: submission.mail_number || "",
-    mail_number_resume: submission.mail_number_resume || "",
-    underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
-    product_name: submission.product?.name || "",
-  };
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
 
-    const documents = Object.keys(editorRefs.current).map((key) => {
-      const allDocuments = [
-        ...(Array.isArray(submission.document_format_guarantor) ? submission.document_format_guarantor : []),
-        ...(Array.isArray(submission.document_format_product) ? submission.document_format_product : []),
-        ...(Array.isArray(submission.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
-      ];
-
-      if (key === "hasil-analisis") {
-        return {
-          id: submission.document_format_analysis?.id || "hasil-analisis",
-          name: "Resume Analisa Penjaminan",
-          content: editorRefs.current[key].getContent(),
-        };
-      }
-
-      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
-
-      return {
-        id: doc ? doc.id : key,
-        name: doc ? doc.name : key,
-        content: editorRefs.current[key].getContent(),
-      };
-    });
-
-    // sort if data exist allDocuments name 'Jaminan'
-    const documentsJaminan = documents.filter((doc) => doc.name.includes("Jaminan"));
-    const documentFilter = documents.filter((doc) => !doc.name.includes("Jaminan"));
-    documentFilter.unshift(...documentsJaminan);
-    console.log("documents", {
-      "1": documentFilter,
-      "2": editorRefs.current,
-    });
     axios
-      .post(route("direksi-submission-approve", { id: submissionId }), { documents: documentFilter })
+      .post(route("direksi-submission-approve", { id: submissionId }))
       .then((response) => {
         console.log("Success approve submission", response);
         router.reload();
@@ -408,21 +154,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const scoring_result = calculateTotalPoint(submission.scores);
-
-  let notes;
-  let recommendation;
-
-  if (scoring_result > 60 && scoring_result < 100) {
-    notes = "Dipertimbangkan untuk disetujui";
-    recommendation = "disetujui";
-  } else if (scoring_result <= 60) {
-    notes = "Dipertimbangkan untuk ditambahkan mitigasi risiko";
-    recommendation = "ditolak";
-  } else {
-    notes = "Skoring tidak valid";
-    recommendation = "ditolak";
-  }
+  const handleSaveDocument = (id: number, format: string) => {
+    axios
+      .put(route("api.submission-management.document", { id }), { format })
+      .then((response) => {
+        console.log("Success Send To Guarantor", response);
+      })
+      .catch((error) => {
+        console.error("Error Send To Guarantor", error);
+      });
+  };
 
   return (
     <>
@@ -974,208 +715,26 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Card>
               </div>
             )}
-            <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
-              <div>
-                <TinyMCEEditor
-                  id="hasil-analisis"
-                  onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                  initialContent={replacePlaceholders(
-                    submission.document_format_analysis?.format_document,
-                    dataTemplate,
-                  )}
-                />
-              </div>
-            </div>
-            <div>
-              {(() => {
-                const documentsToDisplay: JSX.Element[] = [];
-
-                // Untuk document_format_guarantor
-                if (submission.document_format_guarantor?.length) {
-                  submission.document_format_guarantor.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                // Untuk document_format_product
-                if (submission.document_format_product?.length) {
-                  submission.document_format_product.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                // Untuk document_format_type_guarantee
-                if (submission.document_format_type_guarantee?.length) {
-                  submission.document_format_type_guarantee.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                if (documentsToDisplay.length > 0) {
-                  return documentsToDisplay;
-                }
-
-                return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
-              })()}
-            </div>
-            {/*
-            {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-                <TinyMCEEditor
-                  id="surat-permohonan"
-                  onInit={(_evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
-                  initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-                <TinyMCEEditor
-                  id="draft-surety"
-                  onInit={(_evt, editor) => (editorRefs.current["draft-surety"] = editor)}
-                  initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
-                <TinyMCEEditor
-                  id="draft-surety-bumida"
-                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
-                  initialContent={replacePlaceholders(templateBumida, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
-                <TinyMCEEditor
-                  id="draft-surety-jastan"
-                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
-                  initialContent={replacePlaceholders(templateJastan, dataTemplate)}
-                />
-              </div>
-            ) : null}
-
-            {submission.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-                <TinyMCEEditor
-                  id="draft-surety-videi"
-                  onInit={(_evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
-                  initialContent={replacePlaceholders(templateVidei, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-bumida"
-                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-jastan"
-                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {submission.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-videi"
-                    onInit={(_evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )} */}
-
-            {/* OUTPUT SURAT JAMINAN  */}
-
-            {/* {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pemeliharaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pemeliharaan</p>
-                <TinyMCEEditor
-                  id="surat-pemeliharaan"
-                  onInit={(_evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePemeliharaan, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {isApproved &&
-              (submission.guarantor?.name.toLowerCase().includes("jastan") ||
-                submission.guarantor?.name.toLowerCase().includes("jasa tania")) && (
-                <div>
-                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Uang Muka Jastan</p>
-                  <TinyMCEEditor
-                    id="uang-muka-jastan"
-                    onInit={(_evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateUangMuka, dataTemplate)}
-                  />
-                </div>
-              )}
-
-            {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-                <TinyMCEEditor
-                  id="surat-pelaksanaan"
-                  onInit={(_evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
-                />
-              </div>
-            )} */}
+            <RenderList
+              of={submission.submission_docs as Array<any>}
+              render={(doc) => {
+                return (
+                  <div>
+                    <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
+                    <div>
+                      <TinyMCEEditor
+                        id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                        onContentChange={(content: string) => {
+                          handleSaveDocument(doc.id, content);
+                        }}
+                        onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        initialContent={doc.format_document}
+                      />
+                    </div>
+                  </div>
+                );
+              }}
+            />
             <Show
               when={
                 submission.status === SubmissionStatus.PROCESS &&

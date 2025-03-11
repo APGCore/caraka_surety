@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Models\Submission\SubmissionCallback;
-use Illuminate\Container\Attributes\Log;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
@@ -34,8 +35,8 @@ class SubmissionController extends Controller
             Log::info('Callback Success: ', $data->toArray());
 
             return $this->responseSuccess('Berhasil Mengirimkan data');
-        } catch (\Exception $e) {
-            Log::error('Callback Error: ', $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Callback Error: ', ['message' => $e->getMessage()]);
 
             return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
         }

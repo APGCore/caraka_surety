@@ -113,7 +113,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         data: requestData,
         onSuccess: () => {
           toast(FormDocumentFormatUtils.edit.toast_success);
-          router.get(route(FormDocumentFormatUtils.redirect));
         },
         onError: () => {
           toast({
@@ -129,7 +128,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         data: requestData,
         onSuccess: () => {
           toast(FormDocumentFormatUtils.create.toast_success);
-          router.get(route(FormDocumentFormatUtils.redirect));
+          // router.get(route(FormDocumentFormatUtils.redirect));
         },
         onError: () => {
           toast({
