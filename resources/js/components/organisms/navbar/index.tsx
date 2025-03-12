@@ -17,16 +17,6 @@ const Navbar: React.FC<NavbarProps> = ({ guarantor }) => {
         </div>
         <div className="flex items-center justify-between w-auto">
           <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 max-h-[50px] w-auto" />
-          {guarantor && (
-            <>
-              <h1 className="text-1xl font-bold">X</h1>
-              {guarantor.picture ? (
-                <img src={"/storage/" + guarantor.picture} alt="" className="flex-shrink-0 max-h-[40px] w-auto" />
-              ) : (
-                <h1 className="text-1xl font-bold ml-2">{guarantor?.name || "Asuransi"}</h1>
-              )}
-            </>
-          )}
         </div>
         <div>
           <Clock />
