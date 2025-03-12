@@ -154,6 +154,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
+  const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    axios
+      .get(route("api.submission-management.post-to-get-callback", { submission_id: submissionId }))
+      .then((response) => {
+        console.log("Success Get Callback From Guarantor", response);
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error Get Callback From Guarantor", error);
+      });
+  };
+
   const handleSaveDocument = (id: number, format: string) => {
     axios
       .put(route("api.submission-management.document", { id }), { format })
@@ -698,7 +710,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
-            {submission.callback && (
+            {submission.has_send_to_guarantor && (
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
                   Dokumen Terverifikasi Dari {submission.guarantor?.name}
@@ -706,10 +718,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <Card className="w-auto">
                   <CardContent className="p-0">
                     <div className="flex flex-col items-center justify-center py-4">
-                      <img src={"/storage/" + submission.callback.url} alt="Code QR" />
-                      <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
-                        Dokumen Pendukung
-                      </Button>
+                      {submission.callback ? (
+                        <>
+                          <img src={"/storage/" + submission.callback.url} alt="Code QR" />
+                          <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
+                            Dokumen Pendukung
+                          </Button>
+                        </>
+                      ) : (
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

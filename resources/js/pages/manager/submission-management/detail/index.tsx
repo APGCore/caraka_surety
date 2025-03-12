@@ -17,6 +17,7 @@ import {
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
@@ -1195,6 +1196,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            {submission.has_send_to_guarantor && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">
+                  Dokumen Terverifikasi Dari {submission.guarantor?.name}
+                </h2>
+                <Card className="w-auto">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col items-center justify-center py-4">
+                      {submission.callback ? (
+                        <>
+                          <img src={"/storage/" + submission.callback.url} alt="Code QR" />
+                          <Button onClick={() => window.open(submission.callback.doc_url, "_blank")}>
+                            Dokumen Pendukung
+                          </Button>
+                        </>
+                      ) : (
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
