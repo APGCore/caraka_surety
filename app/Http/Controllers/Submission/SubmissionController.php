@@ -1327,11 +1327,11 @@ class SubmissionController extends Controller
         $authId = auth()->id();
         $submissions = Submission::query()
             ->where('guarantor_id', session('guarantor_id'))
-            ->where(function ($query) use ($authId) {
-                $query->where('checked_by', '=', $authId)
-                    ->orWhere('approved_by', '=', $authId)
-                    ->orWhere('rejected_by', '=', $authId);
-            })
+//            ->where(function ($query) use ($authId) {
+//                $query->where('checked_by', '=', $authId)
+//                    ->orWhere('approved_by', '=', $authId)
+//                    ->orWhere('rejected_by', '=', $authId);
+//            })
             ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit'])
             ->orderByDesc('created_at')
             ->get()
