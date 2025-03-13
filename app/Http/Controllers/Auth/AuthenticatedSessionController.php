@@ -28,7 +28,6 @@ class AuthenticatedSessionController extends Controller
 
         $findJastan = Guarantor::where('id', '=', $guarantorId)->get(['id', 'name', 'picture']);
 
-
         if ($findJastan) {
             session(['guarantor_id' => $guarantorId]);
         } else {
@@ -135,8 +134,8 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai ' . $userRole);
-            flashMessage('Berhasil Login sebagai ' . $userRole . '!', 'Anda berhasil login sebagai ' . $userRole . '.');
+            $this->activityLogin('Login sebagai '.$userRole);
+            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
 
             return redirect()->intended(route($route, absolute: false));
         }

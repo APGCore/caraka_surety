@@ -327,9 +327,8 @@ class SubmissionController extends Controller
         $submission->analysis = $analysis;
 
         // terbilang
-        $locale = Config::get('terbilang.locale', 'id');
+        //        $locale = config('terbilang.locale', 'id');
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
-
 
         // Hitung total skoring
         $totalScore = array_sum($analysis);
@@ -349,7 +348,6 @@ class SubmissionController extends Controller
         // submissionDoc
 
         $submission->total_score = $totalScore;
-
 
         // GET EXPERIENCE
         $approvedSubmissionsExp = Submission::where('status', 'approved')
@@ -447,6 +445,14 @@ class SubmissionController extends Controller
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
+        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+            ->whereNull('product_id')
+            ->whereNull('guarantor_to_product_type_id')
+            ->first();
+        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
         ]);
@@ -475,8 +481,7 @@ class SubmissionController extends Controller
             ->whereNull('guarantor_to_product_type_id')
             ->first();
 
-
-        $locale = Config::get('terbilang.locale', 'id');
+        //        $locale = config('terbilang.locale', 'id');
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
 
         $submission->guarantor_address =
@@ -798,9 +803,8 @@ class SubmissionController extends Controller
         $submission->analysis = $analysis;
 
         // terbilang
-        $locale = Config::get('terbilang.locale', 'id');
+        //        $locale = config('terbilang.locale', 'id');
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
-
 
         // Hitung total skoring
         $totalScore = array_sum($analysis);
@@ -1025,9 +1029,8 @@ class SubmissionController extends Controller
 
         $submission->analysis = $analysis;
         // terbilang
-        $locale = Config::get('terbilang.locale', 'id');
+        //        $locale = config('terbilang.locale', 'id');
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
-
 
         // Hitung total skoring
         $totalScore = array_sum($analysis);
