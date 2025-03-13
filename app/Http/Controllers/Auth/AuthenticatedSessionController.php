@@ -39,6 +39,23 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
+
+    public function createAdmin(Request $request): Response
+    {
+        // $guarantorId = $request->get('guarantor_id');
+        // if ($guarantorId) {
+        //     session(['guarantor_id' => $guarantorId]);
+        // } else {
+        //     $guarantorId = session('guarantor_id');
+        // }
+        // $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
+
+        return Inertia::render('auth/login/admin/index', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => session('status'),
+        ]);
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -115,8 +132,8 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai '.$userRole);
-            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
+            $this->activityLogin('Login sebagai ' . $userRole);
+            flashMessage('Berhasil Login sebagai ' . $userRole . '!', 'Anda berhasil login sebagai ' . $userRole . '.');
 
             return redirect()->intended(route($route, absolute: false));
         }
@@ -129,7 +146,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
         Auth::guard('web')->logout();
+
+
+
+        if ($user && $user->role_id === 1) {
+            return redirect()->route('login.adminn');
+        }
 
         $guarantorId = session('guarantor_id');
         $request->session()->invalidate();
