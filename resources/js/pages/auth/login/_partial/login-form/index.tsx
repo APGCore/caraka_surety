@@ -42,9 +42,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
   // };
 
   // console.log(data);
-  useEffect(() => {
-    setData("guarantor_id", 4);
-  }, []);
+  // useEffect(() => {
+  //   setData("guarantor_id", 4);
+  // }, []);
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>

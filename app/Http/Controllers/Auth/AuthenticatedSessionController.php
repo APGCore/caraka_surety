@@ -21,21 +21,28 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(Request $request): Response
+    public function create(Request $request)
     {
-        $guarantorId = $request->get('guarantor_id');
-        if ($guarantorId) {
-            session(['guarantor_id' => $guarantorId]);
-        } else {
-            $guarantorId = session('guarantor_id');
+
+        $guarantorId = session('guarantor_id');
+
+        if (!$guarantorId) {
+            return redirect()->route('onboarding');
         }
-        $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
+
+        // $guarantorId = $request->get('guarantor_id');
+        // if ($guarantorId) {
+        //     session(['guarantor_id' => $guarantorId]);
+        // } else {
+        //     $guarantorId = session('guarantor_id');
+        // }
+        // $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
 
         return Inertia::render('auth/login/index', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'guarantors' => $guarantors,
-            'guarantorSelected' => (int) $guarantorId,
+            'guarantors' => [],
+            'guarantorSelected' =>  0,
         ]);
     }
 
@@ -67,7 +74,7 @@ class AuthenticatedSessionController extends Controller
         $errorMessage = [
             'username' => 'Username Tidak Terdaftar.',
             'password' => 'Atau Password Salah.',
-            'id asuransi' => 'Asuransi Tidak Dipilih.',
+            // 'id asuransi' => 'Asuransi Tidak Dipilih.',
         ];
 
         // Check if the username exists
@@ -131,8 +138,8 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai '.$userRole);
-            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
+            $this->activityLogin('Login sebagai ' . $userRole);
+            flashMessage('Berhasil Login sebagai ' . $userRole . '!', 'Anda berhasil login sebagai ' . $userRole . '.');
 
             return redirect()->intended(route($route, absolute: false));
         }

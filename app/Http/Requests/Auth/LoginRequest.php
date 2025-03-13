@@ -29,7 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'guarantor_id' => ['required', 'exists:guarantors,id'],
+            // 'guarantor_id' => ['required', 'exists:guarantors,id'],
         ];
     }
 
@@ -81,7 +81,7 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('username')) . '|' . $this->ip());
     }
 
     public function messages(): array
