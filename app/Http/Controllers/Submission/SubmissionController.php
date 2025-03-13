@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Riskihajar\Terbilang\Facades\Terbilang;
 
 class SubmissionController extends Controller
 {
@@ -464,6 +465,7 @@ class SubmissionController extends Controller
         $submission = Submission::with(['principal', 'guarantorToProductType'])
             ->findOrFail($id);
 
+
         return inertia('staff/submission-management/document-draft/detail/index', [
             'submission' => fn() => $submission,
         ]);
@@ -481,6 +483,9 @@ class SubmissionController extends Controller
             ->whereNull('product_id')
             ->whereNull('guarantor_to_product_type_id')
             ->first();
+
+        $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
+
 
         $submission->guarantor_address =
             ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
@@ -691,13 +696,31 @@ class SubmissionController extends Controller
 
     public function showDetailDocsSubmissionManager($id)
     {
-        $submission = SubmissionDoc::with(['requiredDoc'])
-            ->findOrFail($id);
+        // $submissionDoc = SubmissionDoc::with(['requiredDoc', 'submission.principal'])
+        //     ->findOrFail($id);
+
+        // $submission = [
+        //     'id' => $submissionDoc->submission->id,
+        //     'submission_date' => $submissionDoc->submission->created_at->translatedFormat('d F Y'),
+        //     'principal' => $submissionDoc->submission->principal,
+        //     'submissionDocs' => $submissionDoc->submission->submissionDocs->map(function ($doc) {
+        //         return [
+        //             'id' => $doc->id,
+        //             'name' => $doc->name,
+        //             'url' => $doc->url,
+        //             'requiredDoc' => $doc->requiredDoc,
+        //         ];
+        //     }),
+        // ];
+
+        $submission = DocumentFormat::all()->toArray();
+
 
         return inertia('manager/submission-management/document-draft/detail/index', [
             'submission' => fn() => $submission,
         ]);
     }
+
 
     public function showDetailSubmissionDireksi($id)
     {
@@ -866,7 +889,6 @@ class SubmissionController extends Controller
         if (!empty($principal->head_name)) {
             $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
         }
-
         $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
             return "<tr>
                         <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
@@ -1177,9 +1199,11 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function displayDocumentDraftByStaff()
+    public function displayDocumentDraftByManager()
     {
         $component = 'manager/submission-management/document-draft/index';
+
+
 
         $submissions = Submission::whereHas('submissionDocs')
             ->with(['submissionDocs', 'principal'])
@@ -1190,6 +1214,7 @@ class SubmissionController extends Controller
 
             return $submission;
         });
+
 
         return inertia($component, [
             'page_settings' => fn() => [

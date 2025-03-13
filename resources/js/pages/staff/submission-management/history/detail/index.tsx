@@ -203,6 +203,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     guarantee_issue_date: submission?.guarantee_issue_date || "",
     submission_date: submission?.submission_date || "",
     day: submission?.day_name || "",
+    
 
     // SCORING
     character_score: submission?.analysis?.character,

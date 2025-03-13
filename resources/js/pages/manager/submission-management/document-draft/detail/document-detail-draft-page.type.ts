@@ -3,6 +3,7 @@ import React from "react";
 interface SubmissionDocumentDraftProps {
   submission: {
     [key: string]: any;
+    map: any;
     id: number;
     length: any;
     submission: string;
