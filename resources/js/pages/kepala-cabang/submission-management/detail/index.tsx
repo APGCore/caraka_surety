@@ -198,6 +198,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     guarantor_address: submission.guarantor_address || "",
     guarantor_pic: submission.guarantor?.pic || "",
     guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
+    guarantor_city: submission.guarantor_city || "",
 
     // Informasi Kontrak & Proyek
     source_of_fund_name: submission.source_of_fund?.name || "",
