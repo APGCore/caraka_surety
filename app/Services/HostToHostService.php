@@ -11,7 +11,7 @@ class HostToHostService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'Authorization' => $token,
+            'Authorization' => 'token 03f7b0b2fbf076fec3f55b8d19615316',
         ])->post($url, $data);
 
         $responseJson = $response->json();
@@ -19,15 +19,15 @@ class HostToHostService
             activity()
                 ->useLog('host-to-host')
                 ->causedBy(auth()->user())
-                ->log('Sent POST request to '.$url);
-            Log::info('Request to '.$url.' was successful', ['response' => $responseJson]);
+                ->log('Sent POST request to ' . $url);
+            Log::info('Request to ' . $url . ' was successful', ['response' => $responseJson]);
 
             return [
                 'status' => 'success',
                 'message' => $responseJson,
             ];
         }
-        Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson]);
+        Log::error('Request to ' . $url . ' was failed: ', ['error' => $responseJson]);
 
         return [
             'status' => 'error',
