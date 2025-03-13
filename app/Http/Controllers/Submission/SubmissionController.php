@@ -489,6 +489,7 @@ class SubmissionController extends Controller
             ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
             ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
             ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+
         $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
@@ -1707,14 +1708,16 @@ class SubmissionController extends Controller
             }
 
             $documents = $request->input('documents', []);
-            $submission->submissionDocs()->delete();
-            $docData = collect($documents)->map(fn ($doc) => [
-                'document_format_id' => $doc['id'] ?? null,
-                'name' => $doc['name'] ?? null,
-                'format_document' => $doc['content'],
-                'url' => $doc['url'] ?? null,
-            ])->toArray();
-            $submission->submissionDocs()->createMany($docData);
+            if (count($documents) > 0) {
+                $submission->submissionDocs()->delete();
+                $docData = collect($documents)->map(fn ($doc) => [
+                    'document_format_id' => $doc['id'] ?? null,
+                    'name' => $doc['name'] ?? null,
+                    'format_document' => $doc['content'],
+                    'url' => $doc['url'] ?? null,
+                ])->toArray();
+                $submission->submissionDocs()->createMany($docData);
+            }
 
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
