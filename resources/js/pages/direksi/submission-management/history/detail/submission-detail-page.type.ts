@@ -242,6 +242,7 @@ interface SubmissionDetailProps {
     callback: Callback | null;
     has_send_to_guarantor: boolean;
     terbilang: string;
+    guarantor_city: string;
   };
 }
 

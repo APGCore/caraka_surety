@@ -253,6 +253,7 @@ interface SubmissionDetailProps {
     limit: string;
     guarantor_address: string;
     terbilang: string;
+    guarantor_city: string;
   };
 
   submissionData: {
