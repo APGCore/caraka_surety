@@ -4,14 +4,19 @@ import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
+import { router } from "@inertiajs/react";
+import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
-import React, { Fragment, useEffect, useRef } from "react";
+import { LoaderCircle } from "lucide-react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/create-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -58,6 +63,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isProcess = submission.status == SubmissionStatus.PROCESS;
   const isApproved = submission.status == SubmissionStatus.APPROVED;
   const isRejected = submission.status == SubmissionStatus.REJECTED;
+  const [isLoading, setIsLoading] = useState(false);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
     : isApproved
@@ -70,170 +76,25 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
 
-  //   DOCUMENTS FORMAT
-  interface SubmissionData {
-    principal_name: string;
-    location: string;
-    npwp: string;
-    nib: string;
-    telephone: string;
-    director_name: string;
-    director_phone: string;
-    bussiness_field: string;
-    principal_commissioner: string;
-    pic: string;
-    director_position: string;
-    principal_address: string;
-    est_deed: string;
-    last_deed: string;
-    get_susunan_pengurus: string;
-    get_exp: string;
-
-    bank_name: string;
-    obligee_name: string;
-    obligee_address: string;
-    source_of_fund: string;
-    ppk_name: string;
-    ppk_number: string;
-    obligee_city: string;
-    obligee_location: string;
-
-    guarantor_name: string;
-    guarantor_address: string;
-    guarantor_pic: string;
-    guarantor_location: string;
-
-    source_of_fund_name: string;
-    contract_value: string | number;
-    guarantee_value: string | number;
-    guarantee_type: string;
-    no_guarantee: string;
-    time_period: string | number;
-    job_name: string;
-    job_location_village: string;
-    contract_doc_name: string;
-    contract_doc_number: string;
-    contract_doc_date: string;
-    start_date: string;
-    end_date: string;
-    guarantee_issue_date: string;
-    submission_date: string;
-    day: string;
-
-    character_score: string | number | undefined;
-    capacity_score: string | number | undefined;
-    capital_score: string | number | undefined;
-    collateral_score: string | number | undefined;
-    condition_score: string | number | undefined;
-    total_score: string | number | undefined;
-    recommendation: string | undefined;
-    notes: string | undefined;
-    analyst_name: string;
-    manager_technique_name: string;
-
-    branch_manager: string;
-    job_location: string;
-    job_group: string;
-    no: string | number;
-    city: string;
-    mail_number: string;
-    mail_number_resume: string;
-    underlying: string;
-    product_name: string;
-
-    [key: string]: any;
-  }
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
-  // Fungsi untuk mengganti placeholder dalam template
-  const replacePlaceholders = (template: string, data: SubmissionData): string => {
-    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
-      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
-      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
-    });
+  const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    setIsLoading(true);
+    axios
+      .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
+      .then((response) => {
+        console.log("Success Get Callback From Guarantor", response);
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error Get Callback From Guarantor", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
-
-  const dataTemplate: SubmissionData = {
-    // Informasi Principal
-    principal_name: submission.principal?.name || "",
-    location: submission.principal?.address || "",
-    npwp: submission.principal?.npwp || "",
-    nib: submission.principal?.nib || "",
-    telephone: submission.principal?.telephone || "",
-    director_name: submission.principal?.director_name || "",
-    director_phone: submission.principal?.director_phone || "",
-    bussiness_field: submission.principal?.bussiness_field || "",
-    principal_commissioner: submission.principal?.commissioner || "",
-    pic: submission.principal?.pic || "",
-    director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
-    est_deed: submission.principal?.est_deed || "",
-    last_deed: submission.principal?.last_deed || "",
-    get_susunan_pengurus: submission.get_administators_principal || "",
-    get_exp: submission.get_exp || "",
-
-    // Informasi Bank & Obligee
-    bank_name: submission.bank_name || "",
-    obligee_name: submission.obligee?.name || "",
-    obligee_address: submission.obligee?.address || "",
-    source_of_fund: submission.source_of_fund?.name || "",
-    ppk_name: submission.obligee?.pic || "",
-    ppk_number: submission.obligee?.no_ppk || "",
-    obligee_city: submission.obligee?.district?.name || "",
-    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
-
-    // Informasi Guarantor
-    guarantor_name: submission.guarantor?.name || "",
-    guarantor_address: submission.guarantor_address || "",
-    guarantor_pic: submission.guarantor?.pic || "",
-    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
-
-    // Informasi Kontrak & Proyek
-    source_of_fund_name: submission?.source_of_fund?.name || "",
-    contract_value: submission?.contract_value_formatted || 0,
-    guarantee_value: submission?.guarantee_value_formatted || 0,
-    guarantee_type: submission?.guarantor_to_product_type?.name || "",
-    no_guarantee: submission?.no_guarantee || "",
-    time_period: submission?.time_period || "",
-    job_name: submission?.job_name || "",
-    job_location_village: submission?.job_location_village || "",
-    contract_doc_name: submission?.contract_doc_name || "",
-    contract_doc_number: submission?.contract_doc_number || "",
-    contract_doc_date: submission?.contract_doc_date || "",
-    start_date: submission?.start_date || "",
-    end_date: submission?.end_date || "",
-    guarantee_issue_date: submission?.guarantee_issue_date || "",
-    submission_date: submission?.submission_date || "",
-    day: submission?.day_name || "",
-
-
-    // SCORING
-    character_score: submission.analysis?.character,
-    capacity_score: submission.analysis?.capacity,
-    capital_score: submission.analysis?.capital,
-    collateral_score: submission.analysis?.collateral,
-    condition_score: submission.analysis?.character,
-    total_score: submission.total_score,
-
-    recommendation: submission.recommendation,
-    notes: submission.notes,
-    analyst_name: submission.analyst_name || "",
-    manager_technique_name: submission.principal?.commissioner || "",
-
-    // Informasi Tambahan
-    branch_manager: submission.principal?.director_name || "",
-    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
-    job_group: submission.guarantor_to_product_type?.job_group || "",
-    no: submission.id || "",
-    city: submission.regency?.name || "",
-    mail_number: submission.mail_number || "",
-    mail_number_resume: submission.mail_number_resume || "",
-    underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
-    product_name: submission.product?.name || "",
-  };
-
-  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
@@ -466,7 +327,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Lokasi Proyek</td>
-                <td className="p-2">: {dataTemplate?.job_location}</td>
+                <td className="p-2">
+                  : {submission.job_location_village}, {submission.district?.name}, {submission.regency?.name},{" "}
+                  {submission.province?.name}
+                </td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Sumber Dana</td>
@@ -740,206 +604,49 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </div>
         </Show>
         <Show when={currentStep.name === "luaran"}>
-          <div>
-            <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
+          {submission.has_send_to_guarantor ? (
             <div>
-              <TinyMCEEditor
-                id="hasil-analisis"
-                onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
-                initialContent={replacePlaceholders(submission.document_format_analysis.format_document, dataTemplate)}
-              />
-            </div>
-          </div>
-          <div>
-            <div>
-              {(() => {
-                const documentsToDisplay: JSX.Element[] = [];
-                // Untuk document_format_guarantor
-                if (submission.document_format_guarantor?.length) {
-                  submission.document_format_guarantor.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                // Untuk document_format_product
-                if (submission.document_format_product?.length) {
-                  submission.document_format_product.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                // Untuk document_format_type_guarantee
-                if (isApproved && submission.document_format_type_guarantee?.length) {
-                  submission.document_format_type_guarantee.forEach((doc: any) => {
-                    documentsToDisplay.push(
-                      <div key={doc.id} style={{ marginBottom: "20px" }}>
-                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                        <TinyMCEEditor
-                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        />
-                      </div>,
-                    );
-                  });
-                }
-
-                if (documentsToDisplay.length > 0) {
-                  return documentsToDisplay;
-                }
-
-                return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
-              })()}
-            </div>
-          </div>
-
-          {/* {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-              <TinyMCEEditor
-                id="surat-permohonan"
-                onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
-                initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
-              />
-            </div>
-          )}
-          {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-              <TinyMCEEditor
-                id="draft-surety"
-                onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
-                initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
-              />
-            </div>
-          )}
-          {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
-              <TinyMCEEditor
-                id="draft-surety-bumida"
-                onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
-                initialContent={replacePlaceholders(templateBumida, dataTemplate)}
-              />
-            </div>
-          )}
-          {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-          submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
-              <TinyMCEEditor
-                id="draft-surety-jastan"
-                onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
-                initialContent={replacePlaceholders(templateJastan, dataTemplate)}
-              />
+              <h2 className="text-lg font-semibold mb-4 mt-5">
+                Dokumen Terverifikasi Dari {submission.guarantor?.name}
+              </h2>
+              <Card className="w-auto">
+                <CardContent className="p-0">
+                  <div className="flex flex-col items-center justify-center py-4">
+                    {submission.callback ? (
+                      <>
+                        <img src={"/storage/" + submission.callback.url} alt="Code QR" />
+                        <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
+                          Dokumen Pendukung
+                        </Button>
+                      </>
+                    ) : (
+                      <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
+                        {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                        Refresh
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           ) : null}
-
-          {submission.guarantor?.name.toLowerCase().includes("videi") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-              <TinyMCEEditor
-                id="draft-surety-videi"
-                onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
-                initialContent={replacePlaceholders(templateVidei, dataTemplate)}
-              />
-            </div>
-          )}
-
-          {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-            <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
-              <div>
-                <TinyMCEEditor
-                  id="spkmgr-bumida"
-                  onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
-                  initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
-                />
-              </div>
-            </div>
-          )}
-
-          {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-          submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-            <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
-              <div>
-                <TinyMCEEditor
-                  id="spkmgr-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
-                  initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
-                />
-              </div>
-            </div>
-          ) : null}
-
-          {submission.guarantor?.name.toLowerCase().includes("videi") && (
-            <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
-              <div>
-                <TinyMCEEditor
-                  id="spkmgr-videi"
-                  onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
-                  initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
-                />
-              </div>
-            </div>
-          )} */}
-
-          {/* OUTPUT SURAT JAMINAN  */}
-
-          {/* {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pemeliharaan") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pemeliharaan</p>
-              <TinyMCEEditor
-                id="surat-pemeliharaan"
-                onInit={(evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
-                initialContent={replacePlaceholders(templatePemeliharaan, dataTemplate)}
-              />
-            </div>
-          )}
-
-          {isApproved &&
-            (submission.guarantor?.name.toLowerCase().includes("jastan") ||
-              submission.guarantor?.name.toLowerCase().includes("jasa tania")) && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Uang Muka Jastan</p>
-                <TinyMCEEditor
-                  id="uang-muka-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
-                  initialContent={replacePlaceholders(templateUangMuka, dataTemplate)}
-                />
-              </div>
-            )}
-
-        {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-            <div>
-              <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-              <TinyMCEEditor
-                id="surat-pelaksanaan"
-                onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
-              />
-            </div>
-          )} */}
+          <RenderList
+            of={submission.submission_docs as Array<any>}
+            render={(doc) => {
+              return (
+                <div>
+                  <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
+                  <div>
+                    <TinyMCEEditor
+                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                      onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                      initialContent={doc.format_document}
+                    />
+                  </div>
+                </div>
+              );
+            }}
+          />
         </Show>
       </div>
     </main>

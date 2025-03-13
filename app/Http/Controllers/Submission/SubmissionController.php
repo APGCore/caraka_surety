@@ -29,8 +29,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Riskihajar\Terbilang\Facades\Terbilang;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
@@ -260,15 +260,6 @@ class SubmissionController extends Controller
 
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-            ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
-
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -294,12 +285,6 @@ class SubmissionController extends Controller
 
             return $score;
         });
-
-        // GET DOC FORMAT ANALYSIS
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
 
         // SCORING RESULT
         $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
@@ -356,103 +341,9 @@ class SubmissionController extends Controller
             $submission->recommendation = 'ditolak';
         }
 
+        // submissionDoc
+
         $submission->total_score = $totalScore;
-
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->principal_id)
-                    ->orWhere('obligee_id', $submission->obligee_id);
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
-
-                return "<tr style='text-align: left;'>
-                            <td style='text-align: center;'>{$index}</td>
-                            <td>{$submission->obligee->name}</td>
-                            <td>{$submission->job_name}</td>
-                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
-                        </tr>';
-            })->implode('');
-
-        $submission->get_exp = "
-            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
-                <tr>
-                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
-                        <strong>PENGALAMAN KERJA</strong>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan='5' style='text-align:left'>
-                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
-                    </td>
-                </tr>
-                <tr>
-                    <th>No</th>
-                    <th>Obligee</th>
-                    <th>Nama Proyek</th>
-                    <th>Nilai Proyek</th>
-                    <th>Tahun</th>
-                </tr>
-                {$approvedSubmissionsExp}
-            </table>
-        ";
-
-        // GET SUSUNAN PENGURUS
-        $principal = $submission->principal;
-
-        $pengurus = collect();
-
-        if (! empty($principal->director_name)) {
-            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
-        }
-
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
-        }
-
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
-                        <td>{$pengurus['nama']}</td>
-                        <td>{$pengurus['jabatan']}</td>
-                    </tr>";
-        })->implode('');
-
-        $submission->get_administators_principal = "
-            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
-                <tr>
-                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
-                </tr>
-                <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Jabatan</th>
-                </tr>
-                {$susunanPengurus}
-            </table>
-        ";
-
-        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
-            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
-            ->with('obligee')
-            ->get();
-
-        // number surat
-        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
-        // tanggal pengajuan
-        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
-
-        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
-        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
@@ -463,7 +354,6 @@ class SubmissionController extends Controller
     {
         $submission = Submission::with(['principal', 'guarantorToProductType'])
             ->findOrFail($id);
-
 
         return inertia('staff/submission-management/document-draft/detail/index', [
             'submission' => fn () => $submission,
@@ -484,7 +374,6 @@ class SubmissionController extends Controller
             ->first();
 
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
-
 
         $submission->guarantor_address =
             ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
@@ -710,12 +599,10 @@ class SubmissionController extends Controller
 
         $submission = DocumentFormat::all()->toArray();
 
-
         return inertia('manager/submission-management/document-draft/detail/index', [
             'submission' => fn () => $submission,
         ]);
     }
-
 
     public function showDetailSubmissionDireksi($id)
     {
@@ -1191,8 +1078,6 @@ class SubmissionController extends Controller
     {
         $component = 'manager/submission-management/document-draft/index';
 
-
-
         $submissions = Submission::whereHas('submissionDocs')
             ->with(['submissionDocs', 'principal'])
             ->get();
@@ -1202,7 +1087,6 @@ class SubmissionController extends Controller
 
             return $submission;
         });
-
 
         return inertia($component, [
             'page_settings' => fn () => [

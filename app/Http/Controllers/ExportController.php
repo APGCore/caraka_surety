@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Submission\SubmissionDoc;
 use App\Models\Document\DocumentFormat;
-use TCPDF;
+use App\Models\Submission\SubmissionDoc;
 use Storage;
+use TCPDF;
 
 class ExportController extends Controller
 {
@@ -15,7 +14,7 @@ class ExportController extends Controller
         // $document = SubmissionDoc::findOrFail($docId);
         $document = DocumentFormat::findOrFail($docId);
 
-        $pdf = new TCPDF();
+        $pdf = new TCPDF;
         $pdf->SetCreator('MyApp');
         $pdf->SetAuthor('MyApp');
         $pdf->SetTitle($document->name);
@@ -39,19 +38,19 @@ class ExportController extends Controller
         // Buat response download langsung
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S'); // Output sebagai string
-        }, $document->name . '.pdf');
+        }, $document->name.'.pdf');
     }
 
     public function uploadToS3($docId)
     {
-        $pdfPath = 'temp/document_' . $docId . '.pdf';
+        $pdfPath = 'temp/document_'.$docId.'.pdf';
 
-        if (!Storage::disk('local')->exists($pdfPath)) {
+        if (! Storage::disk('local')->exists($pdfPath)) {
             return response()->json(['error' => 'File PDF tidak ditemukan'], 404);
         }
 
         // Unggah ke S3
-        $s3Path = 'documents/' . basename($pdfPath);
+        $s3Path = 'documents/'.basename($pdfPath);
         Storage::disk('s3')->put($s3Path, Storage::disk('local')->get($pdfPath));
 
         // Hapus file dari penyimpanan lokal setelah diunggah
