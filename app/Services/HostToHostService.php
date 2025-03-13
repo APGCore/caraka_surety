@@ -11,7 +11,7 @@ class HostToHostService
     {
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-            'Authorization' => 'token 03f7b0b2fbf076fec3f55b8d19615316',
+            'Authorization' => $token,
         ])->post($url, $data);
 
         $responseJson = $response->json();
