@@ -6,12 +6,12 @@ const useLoginForm = () => {
     username: string;
     password: string;
     remember: boolean;
-    guarantor_id: number;
+    // guarantor_id: number;
   }>({
     username: "",
     password: "",
     remember: false,
-    guarantor_id: 0,
+    // guarantor_id: 0,
   });
 
   const handleLogin: FormEventHandler = (e) => {

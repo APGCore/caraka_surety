@@ -23,7 +23,7 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
         <CardContent className="grid p-0 h-[450px] md:grid-cols-2">
           <div className="relative hidden bg-muted md:flex md:justify-center md:items-center ">
             <img
-              src="/bpr-jastan.png"
+              src="/apg-core.png"
               alt="Image"
               className="absolute flex-shrink-0 inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
