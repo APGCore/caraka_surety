@@ -74,7 +74,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios as Array<any>);
-    handleGetCallBackFromGuarantor(submission.id);
   }, []);
 
   const isProcess = submission.status == SubmissionStatus.PROCESS;
@@ -562,9 +561,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // handle check status
   const handleCheck = (submissionId: number) => {
     setIsLoading(true);
+    const documents = documentFormat();
 
     axios
-      .post(route("manager-submission-check", submissionId))
+      .post(route("manager-submission-check", submissionId), { documents })
       .then((response) => {
         console.log("success check submission", response);
         router.reload();
@@ -1442,7 +1442,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </Show>
             <Show
               when={
-                (!submission.callback || !submission.has_send_to_guarantor) &&
+                !submission.has_send_to_guarantor &&
                 (submission.status === SubmissionStatus.APPROVED || submission.status === SubmissionStatus.REJECTED)
               }>
               <AlertDialog>

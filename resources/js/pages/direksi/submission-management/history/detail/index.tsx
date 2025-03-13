@@ -155,6 +155,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    setIsLoading(true);
     axios
       .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
@@ -163,6 +164,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       })
       .catch((error) => {
         console.error("Error Get Callback From Guarantor", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -726,7 +730,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           </Button>
                         </>
                       ) : (
-                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
+                          {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                          Refresh
+                        </Button>
                       )}
                     </div>
                   </CardContent>
