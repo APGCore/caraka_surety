@@ -156,7 +156,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     axios
-      .get(route("api.submission-management.post-to-get-callback", { submission_id: submissionId }))
+      .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
         router.reload();
@@ -710,7 +710,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
-            {submission.has_send_to_guarantor && (
+            {submission.has_send_to_guarantor ? (
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
                   Dokumen Terverifikasi Dari {submission.guarantor?.name}
@@ -732,7 +732,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </CardContent>
                 </Card>
               </div>
-            )}
+            ) : null}
             <RenderList
               of={submission.submission_docs as Array<any>}
               render={(doc) => {
