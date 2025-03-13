@@ -241,6 +241,7 @@ interface SubmissionDetailProps {
     guarantor_address: string;
     callback: Callback | null;
     has_send_to_guarantor: boolean;
+    terbilang: string;
   };
 }
 

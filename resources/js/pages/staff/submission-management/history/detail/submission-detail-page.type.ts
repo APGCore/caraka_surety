@@ -158,6 +158,7 @@ interface User {
 
 interface SubmissionDetailProps {
   submission: {
+    [key: string]: any;
     id: number;
     bank: Bank;
     bank_name: string;
@@ -190,7 +191,27 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
-    beyond_the_limit: boolean;
+    beyond_the_limit: boolean | null;
+    document_format_analysis: {
+      id: number;
+      name: string;
+      format_document: any;
+    };
+    document_format_guarantor: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
+    document_format_product: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
+    document_format_type_guarantee: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
     district: {
       name: string;
     };
@@ -207,7 +228,6 @@ interface SubmissionDetailProps {
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
-    guarantor_address: string;
 
     mail_number: string;
     mail_number_resume: string;
@@ -224,12 +244,14 @@ interface SubmissionDetailProps {
     };
     job_type: string;
     analyst_name: string;
+    get_exp: string;
     notes: string;
     recommendation: string;
     total_score: number;
-
-    has_send_to_guarantor: boolean;
-    callback: any;
+    get_administators_principal: string;
+    day_name: string;
+    submission_date: string;
+    terbilang: string;
   };
 }
 

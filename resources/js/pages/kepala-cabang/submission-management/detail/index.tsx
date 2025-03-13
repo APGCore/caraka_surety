@@ -240,6 +240,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     mail_number_resume: submission.mail_number_resume || "",
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
+    terbilang: submission?.terbilang || "",
   };
 
   const calculateTotalPoint = (scores: any) => {

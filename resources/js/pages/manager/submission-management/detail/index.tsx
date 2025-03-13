@@ -476,24 +476,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     mail_number_resume: submission.mail_number_resume || "",
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
+    terbilang: submission?.terbilang || "",
   };
-
-  //   const handleApprove = (submissionId: number): void => {
-  //     setIsLoading(true);
-
-  //     axios
-  //       .post(route("manager-submission-approve", { id: submissionId }))
-  //       .then((response) => {
-  //         console.log("Success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error approving submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {

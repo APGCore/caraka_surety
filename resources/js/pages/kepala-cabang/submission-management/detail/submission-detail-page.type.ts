@@ -252,6 +252,7 @@ interface SubmissionDetailProps {
     submission_date: string;
     limit: string;
     guarantor_address: string;
+    terbilang: string;
   };
 
   submissionData: {

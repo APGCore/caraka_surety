@@ -326,6 +326,11 @@ class SubmissionController extends Controller
 
         $submission->analysis = $analysis;
 
+        // terbilang
+        $locale = Config::get('terbilang.locale', 'id');
+        $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
+
+
         // Hitung total skoring
         $totalScore = array_sum($analysis);
 
@@ -344,6 +349,103 @@ class SubmissionController extends Controller
         // submissionDoc
 
         $submission->total_score = $totalScore;
+
+
+        // GET EXPERIENCE
+        $approvedSubmissionsExp = Submission::where('status', 'approved')
+            ->where(function ($query) use ($submission) {
+                $query->where('principal_id', $submission->principal_id)
+                    ->orWhere('obligee_id', $submission->obligee_id);
+            })
+            ->with(['obligee'])
+            ->get()
+            ->map(function ($submission) use (&$index) {
+                $index++;
+
+                return "<tr style='text-align: left;'>
+                            <td style='text-align: center;'>{$index}</td>
+                            <td>{$submission->obligee->name}</td>
+                            <td>{$submission->job_name}</td>
+                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
+                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                        </tr>';
+            })->implode('');
+
+        $submission->get_exp = "
+            <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
+                <tr>
+                    <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
+                        <strong>PENGALAMAN KERJA</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan='5' style='text-align:left'>
+                        <strong>Berikut Pengalaman Kerja PT {$submission->principal->name}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Obligee</th>
+                    <th>Nama Proyek</th>
+                    <th>Nilai Proyek</th>
+                    <th>Tahun</th>
+                </tr>
+                {$approvedSubmissionsExp}
+            </table>
+        ";
+
+        // GET SUSUNAN PENGURUS
+        $principal = $submission->principal;
+
+        $pengurus = collect();
+
+        if (! empty($principal->director_name)) {
+            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+        }
+        if (! empty($principal->commissioner)) {
+            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+        }
+
+        if (! empty($principal->head_name)) {
+            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+        }
+
+        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+            return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+                        <td>{$pengurus['nama']}</td>
+                        <td>{$pengurus['jabatan']}</td>
+                    </tr>";
+        })->implode('');
+
+        $submission->get_administators_principal = "
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+                <tr>
+                    <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+                </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                </tr>
+                {$susunanPengurus}
+            </table>
+        ";
+
+        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+            ->with('obligee')
+            ->get();
+
+        // number surat
+        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+        // tanggal pengajuan
+        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
@@ -373,6 +475,8 @@ class SubmissionController extends Controller
             ->whereNull('guarantor_to_product_type_id')
             ->first();
 
+
+        $locale = Config::get('terbilang.locale', 'id');
         $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
 
         $submission->guarantor_address =
@@ -693,6 +797,11 @@ class SubmissionController extends Controller
 
         $submission->analysis = $analysis;
 
+        // terbilang
+        $locale = Config::get('terbilang.locale', 'id');
+        $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
+
+
         // Hitung total skoring
         $totalScore = array_sum($analysis);
 
@@ -915,6 +1024,10 @@ class SubmissionController extends Controller
         }, []);
 
         $submission->analysis = $analysis;
+        // terbilang
+        $locale = Config::get('terbilang.locale', 'id');
+        $submission->terbilang = $submission->guarantee_value ? Terbilang::make($submission->guarantee_value, 'rupiah') : '';
+
 
         // Hitung total skoring
         $totalScore = array_sum($analysis);
