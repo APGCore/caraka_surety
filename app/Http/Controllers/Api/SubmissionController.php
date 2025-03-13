@@ -30,7 +30,7 @@ class SubmissionController extends Controller
             $fileData = $this->base64ToFile($imageString);
             $submissionId = $request->get('submission_id');
             // save image to storage
-            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId . '-image-from-guarantor');
 
             $data = SubmissionCallback::query()->updateOrCreate(
                 ['submission_id' => $submissionId],
@@ -60,30 +60,32 @@ class SubmissionController extends Controller
             ->find($submissionId);
         $guarantor = $submission->getRelation('guarantor');
         $hostToHost = $guarantor->getRelation('hostToHost');
-        $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
+        $url = $hostToHost->getAttribute('guarantor_url_host') . '/status';
         $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+        $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
 
         $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
 
         if ($result['status'] === 'success') {
             $data = $result['message'];
             // image is base64
-            $imageString = $data['image'];
-            // base64 to file
-            $fileData = $this->base64ToFile($imageString);
-            // save image to storage
-            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
-            $submission->update(['has_send_to_guarantor' => true]);
-            SubmissionCallback::query()->updateOrCreate(
-                ['submission_id' => $submissionId],
-                [
-                    'submission_id' => $submissionId,
-                    'doc_url' => $data['doc_url'],
-                    'url' => $url,
-                    'no_policy' => $data['policyno'],
-                ]
-            );
+            $imageString = $data['image'] ?? null;
+            if ($imageString) {
+                // base64 to file
+                $fileData = $this->base64ToFile($imageString);
+                // save image to storage
+                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId . '-image-from-guarantor');
+                $submission->update(['has_send_to_guarantor' => true]);
+                SubmissionCallback::query()->updateOrCreate(
+                    ['submission_id' => $submissionId],
+                    [
+                        'submission_id' => $submissionId,
+                        'doc_url' => $data['doc_url'],
+                        'url' => $url,
+                        'no_policy' => $data['policyno'],
+                    ]
+                );
+            }
 
             Log::info('Callback Success: ', $data);
 
