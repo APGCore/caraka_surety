@@ -818,7 +818,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialog>
               </div>
             </Show>
-            <Show when={!submission.callback || !submission.has_send_to_guarantor || submission.beyond_the_limit}>
+            <Show when={!submission.callback || !submission.has_send_to_guarantor}>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
