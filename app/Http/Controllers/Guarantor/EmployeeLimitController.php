@@ -11,6 +11,7 @@ use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile\Profile;
 use App\Models\User;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -139,7 +140,7 @@ class EmployeeLimitController extends Controller
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
             if ($limit > $profileLimit->getAttribute('limit')) {
-                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+                throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
             EmployeeLimit::query()->create(
@@ -157,7 +158,7 @@ class EmployeeLimitController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Berhasil menambahkan limit pengguna');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error store profile limit', ['error' => $e->getMessage()]);
 
@@ -179,13 +180,14 @@ class EmployeeLimitController extends Controller
 
             $profileLimit = ProfileLimit::query()
                 ->where('guarantor_id', $employeeLimit->getAttribute('guarantor_id'))
+                ->where('guarantor_to_product_type_id', $employeeLimit->getAttribute('guarantor_to_product_type_id'))
                 ->where('profile_id', $employeeLimit->getAttribute('profile_id'))
                 ->first();
 
             $limit = (int) str_replace('.', '', $requestValid['limit']);
 
             if ($limit > $profileLimit->getAttribute('limit')) {
-                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+                throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
             $updated = $employeeLimit->update(
@@ -194,13 +196,13 @@ class EmployeeLimitController extends Controller
                 ]
             );
             if (! $updated) {
-                throw new \Exception('Gagal mengubah limit pengguna');
+                throw new Exception('Gagal mengubah limit pengguna');
             }
 
             DB::commit();
 
             return $this->responseSuccess('Berhasil mengubah limit pengguna');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error update profile limit', ['error' => $e->getMessage()]);
 
@@ -218,11 +220,11 @@ class EmployeeLimitController extends Controller
 
             $deleted = $employeeLimit->delete();
             if (! $deleted) {
-                throw new \Exception('Gagal menghapus limit pengguna');
+                throw new Exception('Gagal menghapus limit pengguna');
             }
 
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error delete profile limit', ['error' => $e->getMessage()]);
         }

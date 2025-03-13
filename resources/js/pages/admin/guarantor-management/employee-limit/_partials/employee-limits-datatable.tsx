@@ -70,9 +70,7 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
                 <TableCell>{employees?.meta?.from + index}</TableCell>
                 <TableCell>{employee.name}</TableCell>
                 <TableCell>
-                  {employee.employee_limit?.limit
-                    ? "Rp. " + textCurrency(employee.employee_limit?.limit)
-                    : "Belum di setting"}
+                  {employee.employee_limit ? "Rp. " + textCurrency(employee.employee_limit?.limit) : "Belum di setting"}
                 </TableCell>
                 <TableCell>{employee.created_at}</TableCell>
                 <TableCell className="text-right">
@@ -89,7 +87,7 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
                       <DropdownMenuContent className="w-[40%] mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <FormEmployeeLimits
-                            isEdit={employee.employee_limit?.limit}
+                            isEdit={employee.employee_limit}
                             guarantorSelectedId={guarantorSelectedId}
                             guarantorProductSelectedId={guarantorProductSelectedId}
                             guarantorProductTypeSelectedId={guarantorProductTypeSelectedId}

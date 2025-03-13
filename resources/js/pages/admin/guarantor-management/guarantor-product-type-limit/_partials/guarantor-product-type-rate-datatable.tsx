@@ -50,6 +50,7 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
           <TableRow>
             <TableHead>Kode</TableHead>
             <TableHead>Limit</TableHead>
+            <TableHead>Limit Turunan</TableHead>
             <TableHead>Jenis Jaminan</TableHead>
             <TableHead>Kelompok Pekerjaan</TableHead>
             <TableHead className="text-right" />
@@ -62,8 +63,13 @@ const GuarantorProductTypeRateDatatable: React.FC<GuarantorRateDatatableProps> =
               <TableRow key={guarantorProductType.id}>
                 <TableCell>{guarantorProductType.code}</TableCell>
                 <TableCell>
-                  {guarantorProductType.limit?.limit
-                    ? "Rp. " + textCurrency(guarantorProductType.limit?.limit)
+                  {guarantorProductType.limit
+                    ? "Rp. " + textCurrency(guarantorProductType.limit.limit)
+                    : "Belum di setting"}
+                </TableCell>
+                <TableCell>
+                  {guarantorProductType.limit
+                    ? "Rp. " + textCurrency(guarantorProductType.limit.limit_inherit)
                     : "Belum di setting"}
                 </TableCell>
                 <TableCell>{guarantorProductType.name}</TableCell>

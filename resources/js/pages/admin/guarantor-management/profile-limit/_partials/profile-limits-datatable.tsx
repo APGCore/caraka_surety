@@ -56,6 +56,7 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
             <TableHead className="w-0">#</TableHead>
             <TableHead>Kantor</TableHead>
             <TableHead>Limit</TableHead>
+            <TableHead>Limit Turunan</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -68,8 +69,11 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
                 <TableCell>{profiles.meta?.from + index}</TableCell>
                 <TableCell>{profile.name}</TableCell>
                 <TableCell>
-                  {profile.profile_limit?.limit
-                    ? "Rp. " + textCurrency(profile.profile_limit?.limit)
+                  {profile.profile_limit ? "Rp. " + textCurrency(profile.profile_limit.limit) : "Belum Di setting"}
+                </TableCell>
+                <TableCell>
+                  {profile.profile_limit
+                    ? "Rp. " + textCurrency(profile.profile_limit.limit_inherit)
                     : "Belum Di setting"}
                 </TableCell>
                 <TableCell>{profile.created_at}</TableCell>
