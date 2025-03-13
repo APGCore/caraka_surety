@@ -9,7 +9,7 @@ import Loading from "@/components/atoms/loading";
 import { PasswordInputField } from "@/components/atoms/password-input-field";
 import { Combobox } from "@/components/molecules/combobox";
 import InputError from "@/components/molecules/input/error-input";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, useForm } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { Eye, EyeOff } from "lucide-react";
 import React, { ComponentPropsWithRef, forwardRef, useEffect, useState } from "react";
@@ -27,6 +27,13 @@ interface LoginFormProps extends React.ComponentProps<"div"> {
 
 const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorSelected, setTab, ...props }) => {
   const { data, errors, handleLogin, processing, setData } = useLoginForm();
+  const { post: deleteSession } = useForm();
+
+  const handleDeleteSession = () => {
+    deleteSession(route("onboarding.forget-guarantor"), {
+      onSuccess: () => {},
+    });
+  };
   // const guarantor = guarantors.find((guarantor) => guarantor.id === guarantorSelected);
 
   // const handleSelectGuarantor = (guarantorId: number) => {
@@ -120,9 +127,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
           </div>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-red-700 [&_span]:underline [&_span]:underline-offset-4 hover:[&_span]:text-red-700 [&_span]:cursor-pointer">
         Enter your credentials correctly. If you forget your password, please contact the{" "}
-        <Link href={route("login.adminn")}>Admin</Link>.
+        <Link href={route("login.adminn")}>Admin</Link> or{" "}
+        <span
+          onClick={(e) => {
+            e.preventDefault();
+            handleDeleteSession();
+          }}>
+          Reset the session
+        </span>
+        .
       </div>
     </div>
   );
