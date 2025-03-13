@@ -4,11 +4,11 @@ export const greetingBasedOnDate = () => {
   let subtitle;
 
   if (hour < 12) {
-    subtitle = "Good Morning!";
+    subtitle = "Good Morning";
   } else if (hour < 18) {
-    subtitle = "Good Afternoon!";
+    subtitle = "Good Afternoon";
   } else {
-    subtitle = "Good Night!";
+    subtitle = "Good Night";
   }
 
   return subtitle;

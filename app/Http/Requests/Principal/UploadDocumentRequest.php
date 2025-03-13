@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Principal;
 
 use App\Models\Document\RequiredDoc;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadDocumentRequest extends FormRequest
@@ -18,13 +19,13 @@ class UploadDocumentRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id'],
-            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }
 }

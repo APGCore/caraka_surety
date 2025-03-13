@@ -1,7 +1,7 @@
 import React from "react";
 
 interface ShowProps<T> {
-  when: T | null | false;
+  when: T | null | boolean;
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }

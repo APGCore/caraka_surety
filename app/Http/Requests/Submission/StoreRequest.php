@@ -78,13 +78,13 @@ class StoreRequest extends FormRequest
             'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
             'obligee.pic' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
             'obligee.no_ppk' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.telephone' => ['required', 'string'],
-            'obligee.province_id' => ['required', 'exists:'.Province::class.',id'],
-            'obligee.regency_id' => ['required', 'exists:'.Regency::class.',id'],
-            'obligee.district_id' => ['required', 'exists:'.District::class.',id'],
-            'obligee.village' => ['required', 'string'],
-            'obligee.address' => ['required', 'string'],
-            'obligee.postal_code' => ['required', 'string'],
+            'obligee.telephone' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.province_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Province::class.',id'],
+            'obligee.regency_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Regency::class.',id'],
+            'obligee.district_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.District::class.',id'],
+            'obligee.village' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.address' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.postal_code' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
 
             // submission
             'submission' => ['required'],
@@ -120,6 +120,9 @@ class StoreRequest extends FormRequest
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
             'principal.ratios.*.id' => ['nullable',  'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
+            'principal.ratios.*.liquidity_ratios' => ['required'], // rasio likuiditas
+            'principal.ratios.*.profitability_ratios' => ['required'], // rasio profitabilitas
+            'principal.ratios.*.solvency_ratios' => ['required'], // rasio solvabilitas
             'principal.ratios.*.current_assets' => ['required'], // aktiva lancar
             'principal.ratios.*.current_debt' => ['required'], // utang lancar
             'principal.ratios.*.total_debt' => ['required'], // total utang

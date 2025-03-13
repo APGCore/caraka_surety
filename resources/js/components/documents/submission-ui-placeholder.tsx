@@ -104,7 +104,7 @@ const SubmissionPlaceholderUI = () => {
             <strong>Mail Number:</strong> [mail_number]
           </p>
           <p>
-            <strong>Guarantee Number:</strong> [guarantee_number]
+            <strong>Guarantee Number:</strong> [no_guarantee]
           </p>
           <p>
             <strong>Guarantee Value:</strong> [guarantee_value]

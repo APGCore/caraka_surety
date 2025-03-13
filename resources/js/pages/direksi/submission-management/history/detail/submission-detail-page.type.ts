@@ -199,41 +199,6 @@ interface SubmissionDetailProps {
     user_rejected: User;
     rejected_at: string;
     beyond_the_limit: boolean;
-    document_format_analysis: {
-      id: number;
-      format_document: any;
-      name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
-    document_format_guarantor: {
-      format_document: string;
-      name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
-    document_format_product: {
-      format_document: string;
-      name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
-    document_format_type_guarantee: {
-      format_document: string;
-      name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
-    document_formats: {
-      format_document: string;
-      name: string;
-      map: any;
-      length: any;
-    };
     district: {
       name: string;
     };
@@ -276,80 +241,6 @@ interface SubmissionDetailProps {
     guarantor_address: string;
     callback: Callback | null;
     has_send_to_guarantor: boolean;
-  };
-
-  submissionData: {
-    principal_name: string;
-    principal_address: string;
-    npwp: string;
-    nib: string;
-    telephone: string;
-    director_name: string;
-    director_phone: string;
-    pic: string;
-    director_position: string;
-    location: string;
-
-    bank: string;
-    obligee_name: string;
-    obligee_address: string;
-    source_of_fund: string;
-    ppk_name: string;
-    obligee_city: string;
-    obligee_location: string;
-
-    guarantor_name: string;
-    guarantor_address: string;
-    guarantor_pic: string;
-    guarantor_location: string;
-
-    source_of_fund_name: string;
-    contract_value: number;
-    guarantee_value: number;
-    guarantee_type: string;
-    time_period: string | number;
-    job_name: string;
-    job_location_village: string;
-    contract_doc_name: string;
-    contract_doc_number: string;
-    contract_doc_date: string;
-    start_date: string;
-    end_date: string;
-    guarantee_issue_date: string;
-    submission_date: string;
-    analysis: {
-      character: string | number;
-      capacity: string | number;
-      capital: string | number;
-      condition: string | number;
-      collateral: string | number;
-    };
-    scoring_result: {
-      id: number;
-      scoring_id: number;
-      scoring: any;
-      scoring_question_category_id: number;
-      scoring_question_category: any;
-      scoring_question_id: number;
-      scoring_question: any;
-      scoring_option_id: number;
-      scoring_option: any;
-      point: number;
-      category_name: string;
-      question_name: string;
-      option_name: string;
-      reduce: any;
-      grouped: string;
-      score: any;
-    };
-    principal_commissioner: string;
-    branch_manager: string;
-    job_location: string;
-    job_group: string;
-    no: string | number;
-    city: string;
-    analyst_name: string;
-    get_exp: string;
   };
 }
 

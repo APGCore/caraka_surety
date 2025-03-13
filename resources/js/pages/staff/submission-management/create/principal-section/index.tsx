@@ -130,9 +130,9 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
   ];
 
   const locationFieldsCombobox = [
-    { key: "province_id", name: "Provinsi", value: province_id },
-    { key: "regency_id", name: "Kabupaten", value: regency_id },
-    { key: "district_id", name: "Kecamatan", value: district_id },
+    { key: "province_id", name: "Provinsi", value: Number(province_id) },
+    { key: "regency_id", name: "Kabupaten", value: Number(regency_id) },
+    { key: "district_id", name: "Kecamatan", value: Number(district_id) },
   ];
 
   const locationFieldsInput = [

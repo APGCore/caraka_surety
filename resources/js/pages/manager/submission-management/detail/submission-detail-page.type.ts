@@ -191,42 +191,27 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
-    beyond_the_limit: boolean;
+    beyond_the_limit: boolean | null;
     document_format_analysis: {
       id: number;
-      format_document: any;
       name: string;
-      map: any;
-      length: any;
-      filter: any;
+      format_document: any;
     };
     document_format_guarantor: {
-      format_document: string;
+      id: number;
       name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
+      format_document: string;
+    }[];
     document_format_product: {
-      format_document: string;
+      id: number;
       name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
+      format_document: string;
+    }[];
     document_format_type_guarantee: {
-      format_document: string;
+      id: number;
       name: string;
-      map: any;
-      length: any;
-      filter: any;
-    };
-    document_formats: {
       format_document: string;
-      name: string;
-      map: any;
-      length: any;
-    };
+    }[];
     district: {
       name: string;
     };
