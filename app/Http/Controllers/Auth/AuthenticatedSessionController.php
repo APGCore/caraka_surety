@@ -26,7 +26,7 @@ class AuthenticatedSessionController extends Controller
 
         $guarantorId = session('guarantor_id');
 
-        if (!$guarantorId) {
+        if (! $guarantorId) {
             return redirect()->route('onboarding');
         }
 
@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
             'guarantors' => [],
-            'guarantorSelected' =>  0,
+            'guarantorSelected' => 0,
         ]);
     }
 
@@ -138,8 +138,8 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai ' . $userRole);
-            flashMessage('Berhasil Login sebagai ' . $userRole . '!', 'Anda berhasil login sebagai ' . $userRole . '.');
+            $this->activityLogin('Login sebagai '.$userRole);
+            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
 
             return redirect()->intended(route($route, absolute: false));
         }

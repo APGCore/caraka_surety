@@ -16,7 +16,9 @@ class DocumentFormatController extends Controller
 {
     private function getGuarantorData(Request $request)
     {
-        $guarantors = Guarantor::query()->with('head:id,name')->select(['id', 'headquarter_id', 'name'])->get();
+        $guarantors = Guarantor::query()->with('head:id,name')
+            ->whereNull('headquarter_id')
+            ->get(['id', 'headquarter_id', 'name']);
         $guarantorSelected = $request->get('guarantor_id');
         $guarantorSelected = $guarantorSelected ? (int) $guarantorSelected : null;
         $guarantor = $guarantors->find($guarantorSelected);
@@ -54,8 +56,6 @@ class DocumentFormatController extends Controller
                 $query
                     ->when($data['guarantorSelected'], function ($query, $guarantorSelected) {
                         $query->where('guarantor_id', $guarantorSelected);
-                    }, function ($query) {
-                        $query->whereNull('guarantor_id');
                     })
                     ->when($data['productSelected'], function ($query, $productSelected) {
                         $query->where('product_id', $productSelected);

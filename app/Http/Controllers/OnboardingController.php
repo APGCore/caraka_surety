@@ -22,10 +22,10 @@ class OnboardingController extends Controller
         $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
 
         $inertiaProps = [
-            'page_settings' => fn() =>  [
+            'page_settings' => fn () => [
                 'title' => 'Onboarding',
             ],
-            'guarantors' => fn() => $guarantors,
+            'guarantors' => fn () => $guarantors,
 
         ];
 
@@ -34,13 +34,10 @@ class OnboardingController extends Controller
         return inertia($inertiaPage, $inertiaProps);
     }
 
-
     public function storeGuarantorSession(Request $request)
     {
         $guarantorId = $request->get('guarantor_id');
         $guarantorName = $request->get('guarantor_name');
-
-
 
         if ($guarantorId) {
             session(['guarantor_id' => $guarantorId]);
@@ -48,11 +45,10 @@ class OnboardingController extends Controller
             $guarantorId = session('guarantor_id');
         }
 
-        flashMessage('Berhasil Memilih Asuransi ' . $guarantorName . '!', 'Silahkan masuk dengan akun Anda!.');
+        flashMessage('Berhasil Memilih Asuransi '.$guarantorName.'!', 'Silahkan masuk dengan akun Anda!.');
 
         return redirect()->route('login');
     }
-
 
     public function resetGuarantorSession(Request $request)
     {
