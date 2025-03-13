@@ -45,15 +45,15 @@ Route::middleware('guest')->group(function () {
             'onboarding'
         );
 
-    Route::post('/onboarding', [OnboardingController::class, 'storeGuarantorSession'])
-        ->name(
-            'onboarding.set-guarantor'
-        );
+    // Route::post('/onboarding', [OnboardingController::class, 'storeGuarantorSession'])
+    //     ->name(
+    //         'onboarding.set-guarantor'
+    //     );
 
-    Route::post('/onboarding-forget-session', [OnboardingController::class, 'resetGuarantorSession'])
-        ->name(
-            'onboarding.forget-guarantor'
-        );
+    // Route::post('/onboarding-forget-session', [OnboardingController::class, 'resetGuarantorSession'])
+    //     ->name(
+    //         'onboarding.forget-guarantor'
+    //     );
 });
 
 Route::middleware('auth')->group(function () {

@@ -24,19 +24,16 @@ class AuthenticatedSessionController extends Controller
     public function create(Request $request)
     {
 
-        $guarantorId = session('guarantor_id');
+        $guarantorId = 3;
 
-        if (! $guarantorId) {
-            return redirect()->route('onboarding');
+        $findJastan = Guarantor::where('id', '=', $guarantorId)->get(['id', 'name', 'picture']);
+
+
+        if ($findJastan) {
+            session(['guarantor_id' => $guarantorId]);
+        } else {
+            $guarantorId = session('guarantor_id');
         }
-
-        // $guarantorId = $request->get('guarantor_id');
-        // if ($guarantorId) {
-        //     session(['guarantor_id' => $guarantorId]);
-        // } else {
-        //     $guarantorId = session('guarantor_id');
-        // }
-        // $guarantors = Guarantor::whereNull('headquarter_id')->get(['id', 'name', 'picture']);
 
         return Inertia::render('auth/login/index', [
             'canResetPassword' => Route::has('password.request'),
@@ -138,8 +135,8 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai '.$userRole);
-            flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
+            $this->activityLogin('Login sebagai ' . $userRole);
+            flashMessage('Berhasil Login sebagai ' . $userRole . '!', 'Anda berhasil login sebagai ' . $userRole . '.');
 
             return redirect()->intended(route($route, absolute: false));
         }

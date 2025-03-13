@@ -129,7 +129,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-red-700 [&_span]:underline [&_span]:underline-offset-4 hover:[&_span]:text-red-700 [&_span]:cursor-pointer">
         Enter your credentials correctly. If you forget your password, please contact the{" "}
-        <Link href={route("login.adminn")}>Admin</Link> or{" "}
+        <Link href={route("login.adminn")}>Admin</Link>.
+        {/* or
         <span
           onClick={(e) => {
             e.preventDefault();
@@ -137,7 +138,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
           }}>
           Reset the session
         </span>
-        .
+        . */}
       </div>
     </div>
   );
