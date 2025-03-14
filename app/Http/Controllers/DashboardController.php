@@ -91,7 +91,7 @@ class DashboardController extends Controller
         $userId = $user->id;
         $user->load('staff');
         $staffs = $user->getRelation('staff');
-        $guarantorId = session('guarantor_id');
+        $guarantorId = session('guarantor_id', config('guarantor.id'));
         $submissions = Submission::query()
             ->where('guarantor_id', $guarantorId)
             ->when($userId, fn ($query) => $query->where(

@@ -257,6 +257,7 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
         </Show>
       </div>
       <EmployeeLimitsDatatable
+        limit={limit?.limit ?? 0}
         employees={employees}
         guarantorSelectedId={guarantorSelected}
         guarantorProductSelectedId={guarantorProductSelected}

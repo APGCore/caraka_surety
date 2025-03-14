@@ -653,7 +653,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   return (
     <>
       <Show when={submission.beyond_the_limit}>
-        <div className="fixed top-20 w-[81%] z-[100]">
+        <div className="fixed top-20 w-[73vw] z-[100]">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
@@ -1378,7 +1378,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                      </AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Batal</AlertDialogCancel>
@@ -1425,11 +1427,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </Show>
-            <Show
-              when={
-                !submission.has_send_to_guarantor &&
-                (submission.status === SubmissionStatus.APPROVED || submission.status === SubmissionStatus.REJECTED)
-              }>
+            <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -1456,78 +1454,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </AlertDialog>
             </Show>
           </Show>
-
-          {/* <Show
-            when={
-              submission.status === SubmissionStatus.PROCESS &&
-              !submission.beyond_the_limit &&
-              !submission.approved_at &&
-              !submission.rejected_at
-            }>
-            <div className="flex gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Reject
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-600 hover:bg-red-400"
-                      onClick={() => submission.id && handleReject(submission.id)}>
-                      Tolak
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Approve
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700">Upload Dokumen Pendukung</label>
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {!isFileUploaded && (
-                        <p className="text-red-500 text-sm mt-2">File wajib diunggah sebelum menyetujui.</p>
-                      )}
-                    </div>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className={`bg-green-600 hover:bg-green-400 ${!isFileUploaded ? "opacity-50 cursor-not-allowed" : ""}`}
-                      onClick={handleApproveClick}
-                      disabled={!isFileUploaded}>
-                      Setujui
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </Show> */}
         </div>
       </main>
     </>

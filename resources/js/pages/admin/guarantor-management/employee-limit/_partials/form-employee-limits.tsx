@@ -22,6 +22,7 @@ import { FormEmployeeLimitsUtils } from "./form-employee-limits.utils";
 
 interface FormEmployeeLimitsProps {
   isEdit?: boolean;
+  limit?: number;
   guarantorSelectedId: number;
   guarantorProductSelectedId: number;
   guarantorProductTypeSelectedId: number;
@@ -34,6 +35,7 @@ interface FormEmployeeLimitsProps {
 
 const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
   isEdit,
+  limit,
   guarantorSelectedId,
   guarantorProductSelectedId,
   guarantorProductTypeSelectedId,
@@ -145,14 +147,26 @@ const FormEmployeeLimits: React.FC<FormEmployeeLimitsProps> = ({
           className="grid gap-6">
           <div className="grid gap-[5px]">
             <Label htmlFor="limit">Batas Kewenangan Nilai Jaminan</Label>
-            <InputCurrency
-              value={dataForm.limit ?? ""}
-              placeholder="Masukan limit pengajuan"
-              onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
-            />
+            <div className="flex w-full max-w-sm items-center space-x-2">
+              <InputCurrency
+                value={dataForm.limit ?? ""}
+                placeholder="Masukan limit pengajuan"
+                onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
+              />
+              <Button
+                type={"button"}
+                onClick={() => {
+                  setDataForm({
+                    ...dataForm,
+                    limit: limit?.toString(),
+                  });
+                }}>
+                Max
+              </Button>
+            </div>
             <RenderList
               of={errors?.limit ?? []}
-              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+              render={(error: string) => <InputError className="mt-1" message={error} />}
             />
           </div>
           <div className="flex justify-end gap-x-3">

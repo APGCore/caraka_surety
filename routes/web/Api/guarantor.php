@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\GuarantorProductTypeLimitController;
 use App\Http\Controllers\Guarantor\GuarantorController;
 use App\Http\Controllers\Guarantor\PatternController;
 use Illuminate\Support\Facades\Route;
@@ -29,5 +30,10 @@ Route::prefix('guarantor-management')
             ->name('pattern.')->group(function () {
                 // api.guarantor-management.pattern.convert
                 Route::get('convert', 'convert')->name('convert');
+            });
+
+        Route::controller(GuarantorProductTypeLimitController::class)->prefix('guarantor-product-type-limit')
+            ->name('guarantor-product-type-limit.')->group(function () {
+                Route::get('show', 'show')->name('show');
             });
     });

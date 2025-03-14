@@ -804,7 +804,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                      </AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Batal</AlertDialogCancel>
@@ -818,7 +820,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialog>
               </div>
             </Show>
-            <Show when={!submission.callback || !submission.has_send_to_guarantor}>
+            <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button

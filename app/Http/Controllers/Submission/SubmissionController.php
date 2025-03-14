@@ -38,11 +38,14 @@ class SubmissionController extends Controller
 
     protected HostToHostService $hostToHostService;
 
+    protected int $guarantorId;
+
     public function __construct(
         HostToHostService $hostToHostService
     ) {
         Carbon::setLocale('id');
         $this->hostToHostService = $hostToHostService;
+        $this->guarantorId = config('guarantor.id');
     }
 
     /**
@@ -730,7 +733,6 @@ class SubmissionController extends Controller
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
-
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
@@ -1175,7 +1177,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where('staff_id', '=', $authId)
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
@@ -1230,7 +1232,7 @@ class SubmissionController extends Controller
             ->pluck('id');
 
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->whereIn('staff_id', $staffs)
             ->where([
                 'checked_by' => null,
@@ -1279,7 +1281,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1323,7 +1325,7 @@ class SubmissionController extends Controller
             ->pluck('id');
 
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where('checked_by', '!=', null)
             ->where('status', SubmissionStatus::PROCESS->value)
             ->whereIn('checked_by', $staffs)
@@ -1366,7 +1368,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
 //            ->where(function ($query) use ($authId) {
 //                $query->where('checked_by', '=', $authId)
 //                    ->orWhere('approved_by', '=', $authId)
@@ -1409,7 +1411,7 @@ class SubmissionController extends Controller
             ->pluck('id');
 
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->whereIn('staff_id', $staffs)
             ->where([
                 'checked_by' => null,
@@ -1458,7 +1460,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1498,7 +1500,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $staffs = User::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where('head_id', '=', $authId)
             ->pluck('id');
         $submissions = Submission::query()
@@ -1550,7 +1552,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1601,7 +1603,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where('staff_id', '=', $authId)
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
@@ -1655,7 +1657,7 @@ class SubmissionController extends Controller
 
         $authId = auth()->id();
         $submissions = Submission::query()
-            ->where('guarantor_id', session('guarantor_id'))
+            ->where('guarantor_id', $this->guarantorId)
             ->where('staff_id', '=', $authId)
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')

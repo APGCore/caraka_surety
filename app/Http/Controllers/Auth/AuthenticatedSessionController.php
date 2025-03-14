@@ -24,14 +24,14 @@ class AuthenticatedSessionController extends Controller
     public function create(Request $request)
     {
 
-        $guarantorId = 3;
+        $guarantorId = config('guarantor.id');
 
         $findJastan = Guarantor::where('id', '=', $guarantorId)->get(['id', 'name', 'picture']);
 
         if ($findJastan) {
             session(['guarantor_id' => $guarantorId]);
         } else {
-            $guarantorId = session('guarantor_id');
+            $guarantorId = session('guarantor_id', config('guarantor.id'));
         }
 
         return Inertia::render('auth/login/index', [
@@ -155,7 +155,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('login.adminn');
         }
 
-        $guarantorId = session('guarantor_id');
+        $guarantorId = session('guarantor_id', config('guarantor.id'));
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         session(['guarantor_id' => $guarantorId]);

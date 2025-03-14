@@ -11,10 +11,12 @@ use App\Http\Requests\Blank\UpdateRequest;
 use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Response;
 
 class BlankController extends Controller
 {
@@ -35,7 +37,7 @@ class BlankController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Inertia\Response
+    public function index(Request $request): Response
     {
         if ($request->user()->hasRole(RoleEnum::StaffOperasional->value)) {
             $component = 'staff-operasional/blank-management/blank/index';
@@ -92,7 +94,7 @@ class BlankController extends Controller
                 ->log('Menambahkan blangko baru');
 
             return $this->responseSuccess('Blangko berhasil ditambahkan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error store blank', [$e->getMessage()]);
             DB::rollBack();
 
@@ -133,7 +135,7 @@ class BlankController extends Controller
                 ->log('Menambahkan blangko baru');
 
             return $this->responseSuccess('Blangko berhasil ditambahkan', 'Blangko berhasil ditambahkan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error store multi blank', [$e->getMessage()]);
             DB::rollBack();
 
@@ -150,7 +152,7 @@ class BlankController extends Controller
         DB::beginTransaction();
         try {
             if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
-                throw new \Exception('Blangko sudah digunakan', 400);
+                throw new Exception('Blangko sudah digunakan', 400);
             }
             $blank->update($requestValidated);
 
@@ -162,7 +164,7 @@ class BlankController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Blangko berhasil diubah');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error update blank', [$e->getMessage()]);
             DB::rollBack();
 
@@ -182,7 +184,7 @@ class BlankController extends Controller
         DB::beginTransaction();
         try {
             if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
-                throw new \Exception('Blangko sudah digunakan', 400);
+                throw new Exception('Blangko sudah digunakan', 400);
             }
             $blank->delete();
 
@@ -193,7 +195,7 @@ class BlankController extends Controller
                 ->log('Menghapus blangko dengan nomor '.$blank->getAttribute('number'));
             flashMessage('Berhasil', 'Blangko berhasil dihapus');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error destroy blank', [$e->getMessage()]);
             if ($e->getCode() === 400) {
@@ -204,7 +206,7 @@ class BlankController extends Controller
         }
     }
 
-    public function getByOffice(Request $request): \Inertia\Response
+    public function getByOffice(Request $request): Response
     {
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')->get();
@@ -268,7 +270,7 @@ class BlankController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Blangko berhasil diterima');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error acc blanks', [$e->getMessage()]);
             DB::rollBack();
 
@@ -278,7 +280,7 @@ class BlankController extends Controller
 
     public function apiGetBlank(): JsonResponse
     {
-        $guarantorId = session('guarantor_id');
+        $guarantorId = session('guarantor_id', config('guarantor.id'));
         $user = auth()->user();
 
         $blanks = Blank::query()

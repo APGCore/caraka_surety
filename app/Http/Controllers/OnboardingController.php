@@ -13,7 +13,7 @@ class OnboardingController extends Controller
     public function index(Request $request)
     {
 
-        $guarantorId = session('guarantor_id');
+        $guarantorId = session('guarantor_id', config('guarantor.id'));
 
         if ($guarantorId) {
             return redirect()->route('login');
@@ -42,7 +42,7 @@ class OnboardingController extends Controller
         if ($guarantorId) {
             session(['guarantor_id' => $guarantorId]);
         } else {
-            $guarantorId = session('guarantor_id');
+            $guarantorId = session('guarantor_id', config('guarantor.id'));
         }
 
         flashMessage('Berhasil Memilih Asuransi '.$guarantorName.'!', 'Silahkan masuk dengan akun Anda!.');
@@ -52,7 +52,7 @@ class OnboardingController extends Controller
 
     public function resetGuarantorSession(Request $request)
     {
-        $guarantorId = session('guarantor_id');
+        $guarantorId = session('guarantor_id', config('guarantor.id'));
 
         if ($guarantorId) {
             session()->forget('guarantor_id');

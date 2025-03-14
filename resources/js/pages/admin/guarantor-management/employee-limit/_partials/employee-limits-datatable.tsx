@@ -28,6 +28,7 @@ import React from "react";
 import FormEmployeeLimits from "./form-employee-limits";
 
 interface EmployeeLimitsDatatableProps {
+  limit: number;
   employees: any;
   guarantorSelectedId: number;
   guarantorProductSelectedId: number;
@@ -40,6 +41,7 @@ interface EmployeeLimitsDatatableProps {
 }
 
 const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
+  limit,
   employees,
   guarantorSelectedId,
   guarantorProductSelectedId,
@@ -87,6 +89,7 @@ const EmployeeLimitsDatatable: React.FC<EmployeeLimitsDatatableProps> = ({
                       <DropdownMenuContent className="w-[40%] mr-8 mt-1">
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <FormEmployeeLimits
+                            limit={limit}
                             isEdit={employee.employee_limit}
                             guarantorSelectedId={guarantorSelectedId}
                             guarantorProductSelectedId={guarantorProductSelectedId}

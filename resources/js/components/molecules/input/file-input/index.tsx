@@ -70,7 +70,7 @@ const FileInput: React.FC<InputFileProps> = ({
           <>
             <span className="text-sm font-medium text-gray-500">Klik untuk upload file Anda!</span>
             <span className="text-xs text-gray-500">PDF atau Gambar</span>
-            <span className="text-xs text-gray-500">Ukuran file tidak boleh lebih dari 2 MB</span>
+            <span className="text-xs text-gray-500">Ukuran file tidak boleh lebih dari 10 MB</span>
           </>
         ) : (
           <p className="text-sm text-gray-500 mt-1">
