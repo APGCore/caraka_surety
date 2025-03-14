@@ -1,5 +1,5 @@
 import { cn } from "@/common/utils/cn";
-import { ComponentPropsWithRef, forwardRef, useState } from "react";
+import { ComponentPropsWithRef, forwardRef, useEffect, useState } from "react";
 
 type InputFieldProps = ComponentPropsWithRef<"input"> & {
   id: string;
@@ -10,6 +10,24 @@ type InputFieldProps = ComponentPropsWithRef<"input"> & {
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   ({ id, label, type = "text", ...props }, ref) => {
     const [value, setValue] = useState("");
+
+    useEffect(() => {
+      const input = document.getElementById(id) as HTMLInputElement;
+
+      if (input) {
+        // Check initial value in case autofill happens before useEffect runs
+        setValue(input.value);
+
+        // Use MutationObserver to detect autofill changes
+        const observer = new MutationObserver(() => {
+          setValue(input.value);
+        });
+
+        observer.observe(input, { attributes: true, attributeFilter: ["value"] });
+
+        return () => observer.disconnect();
+      }
+    }, [id]);
 
     return (
       <div className="relative w-full">

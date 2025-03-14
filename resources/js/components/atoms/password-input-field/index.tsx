@@ -1,6 +1,6 @@
 import { cn } from "@/common/utils/cn";
 import { Eye, EyeOff } from "lucide-react";
-import React, { ComponentPropsWithRef, forwardRef, useState } from "react";
+import React, { ComponentPropsWithRef, forwardRef, useEffect, useState } from "react";
 
 type InputFieldProps = ComponentPropsWithRef<"input"> & {
   id: string;
@@ -12,6 +12,24 @@ export const PasswordInputField = forwardRef<HTMLInputElement, InputFieldProps>(
   const [value, setValue] = useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const togglePassword = () => setShowPassword(!showPassword);
+
+  useEffect(() => {
+    const input = document.getElementById(id) as HTMLInputElement;
+
+    if (input) {
+      // Check initial value in case autofill happens before useEffect runs
+      setValue(input.value);
+
+      // Use MutationObserver to detect autofill changes
+      const observer = new MutationObserver(() => {
+        setValue(input.value);
+      });
+
+      observer.observe(input, { attributes: true, attributeFilter: ["value"] });
+
+      return () => observer.disconnect();
+    }
+  }, [id]);
 
   return (
     <div className="relative w-full">
