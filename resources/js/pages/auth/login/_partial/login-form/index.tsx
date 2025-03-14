@@ -81,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
               </HoverCardContent>
             </HoverCard> */}
           </div>
-          <div className="w-[360px] border-l-[1.5px] border-black">
+          <div className="w-[360px] border-l-[1.4px] border-blue-950">
             <form id="login-form" onSubmit={handleLogin} className="px-6 flex flex-col mt-[30px]">
               <div className="flex min-w-[260px] flex-col gap-7 pb-4">
                 <div className="text-start">
