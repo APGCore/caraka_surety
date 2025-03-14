@@ -703,7 +703,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
     };
     return (
         <>
-            <Show when={profileLimit}>
+            <Show when={profileLimit.limit !== 0}>
                 <div className="fixed top-22 right-20 w-[40vw] z-[100]">
                     <Alert variant="info">
                         <AlertCircle className="h-4 w-4" />
