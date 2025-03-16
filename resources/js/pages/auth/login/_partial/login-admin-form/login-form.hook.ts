@@ -2,30 +2,30 @@ import { useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";
 
 const useLoginForm = () => {
-  const { data, setData, post, processing, errors, reset } = useForm({
-    username: "",
-    password: "",
-    remember: false,
-  });
-
-  const handleLogin: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    post(route("login.admin"), {
-      onSuccess: () => {
-        reset("username");
-        reset("password");
-      },
+    const { data, setData, post, processing, errors, reset } = useForm({
+        username: "",
+        password: "",
+        remember: false,
     });
-  };
 
-  return {
-    data,
-    setData,
-    processing,
-    errors,
-    handleLogin,
-  };
+    const handleLogin: FormEventHandler = (e) => {
+        e.preventDefault();
+
+        post(route("login.admin"), {
+            onSuccess: () => {
+                reset("username");
+                reset("password");
+            },
+        });
+    };
+
+    return {
+        data,
+        setData,
+        processing,
+        errors,
+        handleLogin,
+    };
 };
 
 export default useLoginForm;

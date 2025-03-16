@@ -23,8 +23,8 @@ const useGetProfileLimit = ({ guarantor_id, product_type_id, job_group, job_type
                         guarantor_id,
                         product_type_id,
                         job_group,
-                        job_type
-                    })
+                        job_type,
+                    }),
                 )
                 .then((response) => {
                     setProfileLimit(response.data.data);

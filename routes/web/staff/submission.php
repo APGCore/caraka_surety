@@ -12,6 +12,7 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
             Route::post('/store', 'store')->name('form.store');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
+            Route::get('/revision/{id}', 'revision')->name('revision');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmission')->name('docs.submission');
             Route::post('/save-content', 'saveDocument')->name('save.content');
 

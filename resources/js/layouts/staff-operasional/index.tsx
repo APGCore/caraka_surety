@@ -8,28 +8,28 @@ import { staffOperasionalRoute } from "./staff-operasional-layout.constant";
 import { StaffOperasionalLayoutPageProps } from "./staff-operasional-layout.type";
 
 export const StaffOperasionalLayoutPage: StaffOperasionalLayoutPageProps = ({ children, user, roles }) => {
-  useFlashMessageToast();
+    useFlashMessageToast();
 
-  return (
-    <SidebarProvider>
-      <AppSidebar user={user} routes={staffOperasionalRoute} roles={roles} />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_255px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
-          <div className="flex justify-between pr-4 w-full">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-            </div>
-            <div>
-              <Clock />
-            </div>
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]">{children}</div>
-      </SidebarInset>
-      <Toaster />
-    </SidebarProvider>
-  );
+    return (
+        <SidebarProvider>
+            <AppSidebar user={user} routes={staffOperasionalRoute} roles={roles} />
+            <SidebarInset>
+                <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_255px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
+                    <div className="flex justify-between pr-4 w-full">
+                        <div className="flex items-center gap-2 px-4">
+                            <SidebarTrigger className="-ml-1" />
+                            <Separator orientation="vertical" className="mr-2 h-4" />
+                        </div>
+                        <div>
+                            <Clock />
+                        </div>
+                    </div>
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]">{children}</div>
+            </SidebarInset>
+            <Toaster />
+        </SidebarProvider>
+    );
 };
 
 export default StaffOperasionalLayoutPage;
