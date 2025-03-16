@@ -67,7 +67,12 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                                                 Detail
                                             </Button>
                                         </Link>
-                                        <Show when={submission.status === "approved"}>
+                                        <Show
+                                            when={
+                                                submission.status === "approved" &&
+                                                !submission.is_revised &&
+                                                !submission.submission_before_id
+                                            }>
                                             <Button asChild>
                                                 <Link
                                                     type="button"
@@ -77,6 +82,11 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                                                     })}>
                                                     Revisi
                                                 </Link>
+                                            </Button>
+                                        </Show>
+                                        <Show when={submission.status === "approved" && submission.is_revised}>
+                                            <Button variant="outline" size="sm">
+                                                Di Revisi
                                             </Button>
                                         </Show>
                                     </div>

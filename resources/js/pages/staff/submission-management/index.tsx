@@ -4,60 +4,41 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
-import { Input } from "@/components/_shadcn-ui/input";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import Show from "@/components/atoms/show";
+import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { pickBy } from "lodash";
 import { useState } from "react";
 import { SubmissionPageProps } from "./submission-page.type";
 
 const SubmissionPage: SubmissionPageProps = ({ submissions }) => {
     const [search, setSearch] = useState("");
-    const [select, setSelect] = useState(10);
+    const [select, setSelect] = useState("10");
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
     };
 
     const handleSelect = (value: string) => {
-        setSelect(Number(value));
+        setSelect(value);
     };
 
     return (
         <main className="space-y-2.5">
             <div className="flex justify-between items-end">
-                <div className="flex gap-x-3">
-                    <Button>Export</Button>
-                    <Select onValueChange={handleSelect} defaultValue={String(select)}>
-                        <SelectTrigger className="w-max">
-                            <SelectValue placeholder="Items per page" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="50">50</SelectItem>
-                            <SelectItem value="100">100</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex gap-x-3">
-                    <form onSubmit={handleSearch} className="flex items-end gap-x-3">
-                        <Input
-                            className="h-full"
-                            placeholder="Cari Pengajuan"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                        <Button type="submit">Cari</Button>
-                    </form>
-                </div>
+                <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+                <SearchDatatable
+                    value={search}
+                    onChange={setSearch}
+                    onSubmit={handleSearch}
+                    placeholder="Cari Pengajuan"
+                />
             </div>
             <div>
                 <Table>

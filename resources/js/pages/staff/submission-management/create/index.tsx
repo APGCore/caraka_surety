@@ -18,6 +18,17 @@ import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
@@ -572,12 +583,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                 </div>
             </Show>
             <div className="w-[800px] mt-[50px] mx-auto ">
-                <form
+                {/* <form
                     onSubmit={(e) => {
                         e.preventDefault();
                         handleSubmit();
                     }}
                     className="space-y-16">
+                </form> */}
+                <div className="space-y-16">
                     {/* FORM STATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
                     <Show when={formSearchPrincipalState === "idle"}>
                         <div className="space-y-10">
@@ -706,15 +719,17 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                                             {formSearchPrincipalState === "search" ? "Data" : "Tambah Data"} Profile
                                             Perusahaan
                                         </h2>
-                                        <Button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleReset();
-                                            }}>
-                                            Kembali Cari Data
-                                        </Button>
+                                        <Show when={!submission}>
+                                            <Button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleReset();
+                                                }}>
+                                                Kembali Cari Data
+                                            </Button>
+                                        </Show>
                                     </div>
                                     <PrincipalSection
                                         {...data.principal}
@@ -1607,18 +1622,39 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
                                 {/* SHOW SUBMIT IF SECTION IS SKORING */}
                                 <Show when={formStep === "skoring"}>
-                                    <Button type="submit" disabled={processing}>
-                                        {/* SHOW CIRCLE LOADER IND */}
-                                        <Show when={processing}>
-                                            <LoaderCircle className="animate-spin mr-1" />
-                                        </Show>
-                                        Submit
-                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger className="bg-green-500 text-destructive-foreground shadow-sm hover:bg-green-500/90 px-2 py-1.5 text-sm rounded-sm text-start">
+                                            Submit
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Apakah Anda Yakin?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Anda akan{" "}
+                                                    {submission
+                                                        ? "mengajukan revisi permohonan"
+                                                        : "mengajukan permohonan baru"}
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <Button
+                                                    type="button"
+                                                    className="bg-green-500 hover:bg-green-500/90"
+                                                    onClick={() => {
+                                                        handleSubmit();
+                                                    }}
+                                                    disabled={processing}>
+                                                    Submit <Loading isLoading={processing} />
+                                                </Button>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </Show>
                             </div>
                         </>
                     </Show>
-                </form>
+                </div>
             </div>
         </>
     );

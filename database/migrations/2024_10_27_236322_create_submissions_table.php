@@ -26,6 +26,7 @@ return new class extends Migration
         $district = new District;
         Schema::create('submissions', function (Blueprint $table) use ($province, $regency, $district) {
             $table->id();
+            $table->bigInteger('submission_before_id')->nullable()->unsigned();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
             $table->foreignId('guarantor_branch_id')->references('id')->on('guarantors')->noActionOnDelete();
@@ -61,11 +62,16 @@ return new class extends Migration
             $table->text('min_point_scoring')->nullable();
             $table->text('risk_mitigation')->nullable();
             $table->boolean('has_send_to_guarantor')->default(false);
+            $table->boolean('is_revised')->default(false);
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::table('submissions', function (Blueprint $table) {
+            $table->foreign('submission_before_id')->references('id')->on('submissions')->nullOnDelete();
         });
     }
 
