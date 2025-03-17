@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'id' => 3,
+    'id' => env('GUARANTOR_ID', 1),
 ];
