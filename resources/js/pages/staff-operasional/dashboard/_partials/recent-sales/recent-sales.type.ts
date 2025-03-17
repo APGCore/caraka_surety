@@ -1,9 +1,9 @@
 import React from "react";
 
 interface RecentSalesProps {
-    submissions: any[];
+  submissions: any[];
 }
 
 export type RecentSalesPageProps = React.FC<RecentSalesProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

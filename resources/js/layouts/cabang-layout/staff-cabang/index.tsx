@@ -7,20 +7,20 @@ import { staffCabangRoute } from "./staff-cabang-layout.constant";
 import { StaffCabangLayoutPageProps } from "./staff-cabang-layout.type";
 
 export const StaffCabangLayoutPage: StaffCabangLayoutPageProps = ({ children, user, roles }) => {
-    useFlashMessageToast();
+  useFlashMessageToast();
 
-    return (
-        <SidebarProvider>
-            <AppSidebar user={user} routes={staffCabangRoute} roles={roles} />
-            <SidebarInset>
-                <Navbar />
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
-                    {children}
-                </div>
-            </SidebarInset>
-            <Toaster />
-        </SidebarProvider>
-    );
+  return (
+    <SidebarProvider>
+      <AppSidebar user={user} routes={staffCabangRoute} roles={roles} />
+      <SidebarInset>
+        <Navbar />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+          {children}
+        </div>
+      </SidebarInset>
+      <Toaster />
+    </SidebarProvider>
+  );
 };
 
 export default StaffCabangLayoutPage;

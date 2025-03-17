@@ -3,9 +3,9 @@ import { User } from "@/types";
 import React from "react";
 
 export interface DireksiLayoutProps extends React.PropsWithChildren {
-    user: User;
-    roles: Roles;
-    guarantor: any | null;
+  user: User;
+  roles: Roles;
+  guarantor: any | null;
 }
 
 export type DireksiLayoutPageProps = React.FC<DireksiLayoutProps>;

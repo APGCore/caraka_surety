@@ -7,20 +7,20 @@ import { staffOperasionalRoute } from "./staff-operasional-layout.constant";
 import { StaffOperasionalLayoutPageProps } from "./staff-operasional-layout.type";
 
 export const StaffOperasionalLayoutPage: StaffOperasionalLayoutPageProps = ({ children, user, roles, guarantor }) => {
-    useFlashMessageToast();
+  useFlashMessageToast();
 
-    return (
-        <SidebarProvider>
-            <AppSidebar user={user} routes={staffOperasionalRoute} roles={roles} />
-            <SidebarInset>
-                <Navbar guarantor={guarantor} />
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
-                    {children}
-                </div>
-            </SidebarInset>
-            <Toaster />
-        </SidebarProvider>
-    );
+  return (
+    <SidebarProvider>
+      <AppSidebar user={user} routes={staffOperasionalRoute} roles={roles} />
+      <SidebarInset>
+        <Navbar guarantor={guarantor} />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+          {children}
+        </div>
+      </SidebarInset>
+      <Toaster />
+    </SidebarProvider>
+  );
 };
 
 export default StaffOperasionalLayoutPage;

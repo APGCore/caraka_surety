@@ -1,14 +1,14 @@
 import { cn } from "@/common/utils/cn";
 
 interface ShowingCountDatatableProps {
-    meta: any;
-    className?: string;
+  meta: any;
+  className?: string;
 }
 
 export const ShowingCountDatatable = ({ meta, className }: ShowingCountDatatableProps) => {
-    return (
-        <div className={cn("text-sm text-gray-500", className)}>
-            Menampilkan {meta?.from} hingga {meta?.to} dari {meta?.total} hasil
-        </div>
-    );
+  return (
+    <div className={cn("text-sm text-gray-500", className)}>
+      Menampilkan {meta?.from} hingga {meta?.to} dari {meta?.total} hasil
+    </div>
+  );
 };

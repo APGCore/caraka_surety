@@ -7,20 +7,20 @@ import { staffTeknikRoute } from "./staff-teknik-layout.constant";
 import { StaffTeknikLayoutPageProps } from "./staff-teknik-layout.type";
 
 export const StaffTeknikLayoutPage: StaffTeknikLayoutPageProps = ({ children, user, roles }) => {
-    useFlashMessageToast();
+  useFlashMessageToast();
 
-    return (
-        <SidebarProvider>
-            <AppSidebar user={user} routes={staffTeknikRoute} roles={roles} />
-            <SidebarInset>
-                <Navbar />
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
-                    {children}
-                </div>
-            </SidebarInset>
-            <Toaster />
-        </SidebarProvider>
-    );
+  return (
+    <SidebarProvider>
+      <AppSidebar user={user} routes={staffTeknikRoute} roles={roles} />
+      <SidebarInset>
+        <Navbar />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+          {children}
+        </div>
+      </SidebarInset>
+      <Toaster />
+    </SidebarProvider>
+  );
 };
 
 export default StaffTeknikLayoutPage;

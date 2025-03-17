@@ -5,44 +5,44 @@ import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_parti
 import { OfficeRateCreatePageProps } from "@/pages/admin/office-management/office-rate/create/office-rate-create.type";
 
 const OfficeRateCreate: OfficeRateCreatePageProps = ({
-    profileId,
-    guarantorId,
-    guarantorBranchId,
-    guarantorToProductTypeId,
-    guarantorRate,
+  profileId,
+  guarantorId,
+  guarantorBranchId,
+  guarantorToProductTypeId,
+  guarantorRate,
 }) => {
-    return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductTypeId?.full_name}</CardTitle>
-                <CardDescription>Silakan Isi Data Di bawah</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <FormOfficeRate
-                    profileId={profileId}
-                    guarantorId={guarantorId}
-                    guarantorBranchId={guarantorBranchId}
-                    guarantorToProductTypeId={guarantorToProductTypeId}
-                    rate={guarantorRate}
-                />
-            </CardContent>
-        </Card>
-    );
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductTypeId?.full_name}</CardTitle>
+        <CardDescription>Silakan Isi Data Di bawah</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <FormOfficeRate
+          profileId={profileId}
+          guarantorId={guarantorId}
+          guarantorBranchId={guarantorBranchId}
+          guarantorToProductTypeId={guarantorToProductTypeId}
+          rate={guarantorRate}
+        />
+      </CardContent>
+    </Card>
+  );
 };
 
 export default OfficeRateCreate;
 
 OfficeRateCreate.layout = (page: any) => {
-    const pagePropsData = page.props;
+  const pagePropsData = page.props;
 
-    return (
-        <RoleBasedLayout propsData={pagePropsData}>
-            <OfficeRateHeader
-                title={pagePropsData?.page_settings?.title}
-                profile={pagePropsData?.profile}
-                guarantor={pagePropsData?.guarantor}
-            />
-            {page}
-        </RoleBasedLayout>
-    );
+  return (
+    <RoleBasedLayout propsData={pagePropsData}>
+      <OfficeRateHeader
+        title={pagePropsData?.page_settings?.title}
+        profile={pagePropsData?.profile}
+        guarantor={pagePropsData?.guarantor}
+      />
+      {page}
+    </RoleBasedLayout>
+  );
 };

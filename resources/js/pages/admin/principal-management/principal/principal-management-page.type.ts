@@ -1,9 +1,9 @@
 import React from "react";
 
 interface PrincipalManagementProps {
-    principals: any;
+  principals: any;
 }
 
 export type PrincipalManagementPageProps = React.FC<PrincipalManagementProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

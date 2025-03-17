@@ -1,9 +1,9 @@
 import React from "react";
 
 interface BlankUsageProps {
-    blankUsage: any;
+  blankUsage: any;
 }
 
 export type BlankUsagePageProps = React.FC<BlankUsageProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

@@ -1,7 +1,7 @@
 import React from "react";
 
 const PrincipalContrakSection = () => {
-    return <div>PrincipalContrakSection</div>;
+  return <div>PrincipalContrakSection</div>;
 };
 
 export default PrincipalContrakSection;

@@ -3,18 +3,18 @@ import SubmissionCreateHeader from "./_partials/create-page-header";
 import { SubmissionCreatePageProps } from "./create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = () => {
-    return <div>SubmissionCreatePage</div>;
+  return <div>SubmissionCreatePage</div>;
 };
 
 export default SubmissionCreatePage;
 
 SubmissionCreatePage.layout = (page: any) => {
-    const pagePropsData = page.props;
+  const pagePropsData = page.props;
 
-    return (
-        <RoleBasedLayout propsData={pagePropsData}>
-            <SubmissionCreateHeader title={pagePropsData?.page_settings?.title} />
-            {page}
-        </RoleBasedLayout>
-    );
+  return (
+    <RoleBasedLayout propsData={pagePropsData}>
+      <SubmissionCreateHeader title={pagePropsData?.page_settings?.title} />
+      {page}
+    </RoleBasedLayout>
+  );
 };
