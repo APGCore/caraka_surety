@@ -1,5 +1,5 @@
 export enum SubmissionStatus {
-  PROCESS = "process",
-  APPROVED = "approved",
-  REJECTED = "rejected",
+    PROCESS = "process",
+    APPROVED = "approved",
+    REJECTED = "rejected",
 }

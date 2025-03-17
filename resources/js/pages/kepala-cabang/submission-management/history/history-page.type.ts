@@ -1,9 +1,9 @@
 import React from "react";
 
 interface SubmissionHistoryProps {
-  submissions: any[];
+    submissions: any[];
 }
 
 export type SubmissionHistoryPageProps = React.FC<SubmissionHistoryProps> & {
-  layout?: (page: any) => JSX.Element;
+    layout?: (page: any) => JSX.Element;
 };

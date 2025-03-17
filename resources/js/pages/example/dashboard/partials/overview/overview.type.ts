@@ -1,8 +1,8 @@
 export interface Overview {
-  name: string;
-  total: number;
+    name: string;
+    total: number;
 }
 
 export interface OverviewProps {
-  data: Overview[];
+    data: Overview[];
 }

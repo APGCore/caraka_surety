@@ -3,8 +3,8 @@ import { User } from "@/types";
 import React from "react";
 
 export interface KepalaCabangLayoutProps extends React.PropsWithChildren {
-  user: User;
-  roles: Roles;
+    user: User;
+    roles: Roles;
 }
 
 export type KepalaCabangLayoutPageProps = React.FC<KepalaCabangLayoutProps>;

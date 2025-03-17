@@ -1,5 +1,4 @@
-import useGetProductTypesByProductAndGuarantor
-    from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -9,14 +8,14 @@ import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/g
 import {
     useGetAllProvince,
     useGetDistrictByRegencyId,
-    useGetRegencyByProvinceId
+    useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import {
     PRINCIPAL_QUERY_KEY,
     useCreatePrincipal,
     useGetAllPrincipal,
-    useUpdatePrincipal
+    useUpdatePrincipal,
 } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
@@ -52,7 +51,7 @@ import {
     ISelectedPrincipalDistrict,
     Ratio,
     SubmissionCreatePageProps,
-    SubmissionFormProps
+    SubmissionFormProps,
 } from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
@@ -91,15 +90,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
         total_assets: "",
         revenue: "",
         net_income: "",
-        year: dayjs().year()
+        year: dayjs().year(),
     };
 
     const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([
         defaultPrincipalRatios,
         {
             ...defaultPrincipalRatios,
-            year: dayjs().year() - 1
-        }
+            year: dayjs().year() - 1,
+        },
     ]);
 
     const dataDefault = {
@@ -131,9 +130,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                 defaultPrincipalRatios,
                 {
                     ...defaultPrincipalRatios,
-                    year: dayjs().year() - 1
-                }
-            ]
+                    year: dayjs().year() - 1,
+                },
+            ],
         },
         obligee: {
             id: "",
@@ -142,7 +141,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             address: "",
             no_ppk: "",
             telephone: "",
-            postal_code: ""
+            postal_code: "",
         },
         submission: {
             guarantor_id: guarantor?.id ?? "",
@@ -171,14 +170,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             job_location_postal_code: "",
             source_of_fund_id: "",
             note: "",
-            risk_mitigation: ""
+            risk_mitigation: "",
         },
         scoring: {
             id: 1,
             note: "",
             scores: [],
-            min_point: 0
-        }
+            min_point: 0,
+        },
     };
     const { data, setData, post, processing } = useForm<SubmissionFormProps>(dataDefault);
 
@@ -206,7 +205,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             id: number;
             name: string;
             file: File;
-        }
+        },
     ) => {
         const newFiles = principalFiles.filter((doc) => doc?.required_doc_id !== document?.id);
         if (file) {
@@ -228,14 +227,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
     // Principal Regency
     const principalProvinceId = data?.principal?.province_id || selectedPrincipalProvince?.id;
     const { data: principalRegencies } = useGetRegencyByProvinceId(
-        principalProvinceId ? String(principalProvinceId) : undefined
+        principalProvinceId ? String(principalProvinceId) : undefined,
     );
     const [selectedPrincipalRegency, setSelectedPrincipalRegency] = useState<{ id: number; name: string } | null>(null);
 
     // Principal District
     const principalRegencyId = data?.principal?.regency_id || selectedPrincipalRegency?.id;
     const { data: principalDistricts } = useGetDistrictByRegencyId(
-        principalRegencyId ? String(principalRegencyId) : undefined
+        principalRegencyId ? String(principalRegencyId) : undefined,
     );
     const [selectedPrincipalDistrict, setSelectedPrincipalDistrict] = useState<ISelectedPrincipalDistrict | null>(null);
 
@@ -246,37 +245,39 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
     // Obligee Regency
     const obligeeProvinceId = data?.obligee?.province_id || selectedObligeeProvince?.id;
     const { data: obligeeRegencies } = useGetRegencyByProvinceId(
-        obligeeProvinceId ? String(obligeeProvinceId) : undefined
+        obligeeProvinceId ? String(obligeeProvinceId) : undefined,
     );
     const [selectedObligeeRegency, setSelectedObligeeRegency] = useState<{ id: number; name: string } | null>(null);
 
     // Obligee District
     const obligeeRegencyId = data?.obligee?.regency_id || selectedObligeeRegency?.id;
-    const { data: obligeeDistricts } = useGetDistrictByRegencyId(obligeeRegencyId ? String(obligeeRegencyId) : undefined);
+    const { data: obligeeDistricts } = useGetDistrictByRegencyId(
+        obligeeRegencyId ? String(obligeeRegencyId) : undefined,
+    );
     const [selectedObligeeDistrict, setSelectedObligeeDistrict] = useState<{ id: number; name: string } | null>(null);
 
     // Job Location Province
     const { data: jobLocationProvinces } = useGetAllProvince();
     const [selectedJobLocationProvince, setSelectedJobLocationProvince] = useState<{ id: number; name: string } | null>(
-        null
+        null,
     );
 
     // Job Location Regency
     const jobLocationProvinceId = data?.submission?.job_location_province_id || selectedJobLocationProvince?.id;
     const { data: jobLocationRegencies } = useGetRegencyByProvinceId(
-        jobLocationProvinceId ? String(jobLocationProvinceId) : undefined
+        jobLocationProvinceId ? String(jobLocationProvinceId) : undefined,
     );
     const [selectedJobLocationRegency, setSelectedJobLocationRegency] = useState<{ id: number; name: string } | null>(
-        null
+        null,
     );
 
     // Job Location District
     const jobLocationRegencyId = data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id;
     const { data: jobLocationDistricts } = useGetDistrictByRegencyId(
-        jobLocationRegencyId ? String(jobLocationRegencyId) : undefined
+        jobLocationRegencyId ? String(jobLocationRegencyId) : undefined,
     );
     const [selectedJobLocationDistrict, setSelectedJobLocationDistrict] = useState<{ id: number; name: string } | null>(
-        null
+        null,
     );
 
     // Guarantor
@@ -286,7 +287,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
 
     // Branch Guarantor
     const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(
-        selectedGuarantor ? String(selectedGuarantor) : undefined
+        selectedGuarantor ? String(selectedGuarantor) : undefined,
     );
     const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(null);
     const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
@@ -294,7 +295,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
     // Product Type
     const { productTypes, jobGroups, jobTypes } = useGetProductTypesByProductAndGuarantor({
         selectedProductId: selectedProducts,
-        selectedGuarantorId: selectedGuarantor
+        selectedGuarantorId: selectedGuarantor,
     });
     const [selectedProductType, setSelectedProductType] = useState<object | null>(null);
     const [isResetProductType, setIsResetProductType] = useState(false);
@@ -304,7 +305,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
         guarantor_id: Number(selectedGuarantor),
         product_type_id: Number(data.submission.product_type_id),
         job_group: data.submission.job_group,
-        job_type: data.submission.job_type
+        job_type: data.submission.job_type,
     });
 
     // Source of Fundd
@@ -341,7 +342,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                     pic: "",
                     address: "",
                     no_ppk: "",
-                    telephone: ""
+                    telephone: "",
                 });
                 setSelectedObligee(null);
             }
@@ -354,7 +355,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
         data.obligee.pic,
         data.obligee.address,
         data.obligee.telephone,
-        isAddNewObligee
+        isAddNewObligee,
     ]);
 
     // Bank
@@ -364,7 +365,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
 
     // SCORING
     const { scorings, scoring } = useGetScoringById({
-        selectedScoringId: 1
+        selectedScoringId: 1,
     });
     const [lessThanValue, setLessThanValue] = useState<boolean | undefined>();
 
@@ -376,29 +377,29 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
         {
             title: "Profile Perusahaan",
             name: "principal",
-            isActive: true
+            isActive: true,
         },
         {
             title: "Dokumen Perusahaan",
             name: "docs",
-            isActive: false
+            isActive: false,
         },
         {
             title: "Detail Kontrak dan Dasar Pengajuan",
             name: "contract",
-            isActive: false
+            isActive: false,
         },
         {
             title: "Resume dan Skoring",
             name: "skoring",
-            isActive: false
-        }
+            isActive: false,
+        },
     ]);
 
     const handleSetRatios = (ratios: Ratio[]) => {
         setData("principal", {
             ...data.principal,
-            ratios
+            ratios,
         });
     };
 
@@ -406,7 +407,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
         const targetIndex = steps.findIndex((step) => step.name === targetStep);
         const updatedSteps = steps.map((step, index) => ({
             ...step,
-            isActive: index <= targetIndex
+            isActive: index <= targetIndex,
         }));
         setSteps(updatedSteps);
     };
@@ -428,12 +429,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                 ...updatedScores[existingScoreIndex],
                 scoring_question_category_id: questionCategoryId,
                 scoring_option_id: optionId,
-                point: val
+                point: val,
             };
 
             setData("scoring", {
                 ...data.scoring,
-                scores: updatedScores
+                scores: updatedScores,
             });
             const sumPoint = updatedScores.reduce((acc, score) => acc + Number(score.point), 0);
             setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
@@ -445,12 +446,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                     scoring_question_category_id: questionCategoryId,
                     scoring_question_id: questionId,
                     scoring_option_id: optionId,
-                    point: val
-                }
+                    point: val,
+                },
             ];
             setData("scoring", {
                 ...data.scoring,
-                scores
+                scores,
             });
             const sumPoint = scores.reduce((acc, score) => acc + Number(score.point), 0);
             setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
@@ -487,13 +488,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                 toast({
                     title: "Gagal",
                     description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
-                    variant: "destructive"
+                    variant: "destructive",
                 });
             },
             onSuccess: () => {
                 console.log("success");
                 handleReset();
-            }
+            },
         });
     };
 
@@ -508,11 +509,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             setIsPrincipalFetch(true);
             toast({
                 title: "Berhasil Menambah Principal!",
-                description: "Data berhasil disimpan"
+                description: "Data berhasil disimpan",
             });
             await queryClient.invalidateQueries({
                 queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-                refetchType: "active"
+                refetchType: "active",
             });
             // SETTING PRINCIPAL DATA
             const ratios = await fetchPrincipalRatios(data.id);
@@ -540,7 +541,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                 year_established: data?.year_established,
                 est_deed: data?.est_deed,
                 last_deed: data?.last_deed,
-                ratios: ratios.slice(0, 2)
+                ratios: ratios.slice(0, 2),
             });
 
             fetchPrincipalDocuments(data.id);
@@ -551,9 +552,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             toast({
                 title: "Gagal Menambah Principal Baru",
                 description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
-                variant: "destructive"
+                variant: "destructive",
             });
-        }
+        },
     });
 
     const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useUpdatePrincipal({
@@ -561,11 +562,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             setIsPrincipalFetch(true);
             toast({
                 title: "Berhasil Mengupdate Principal!",
-                description: "Data berhasil diupdate"
+                description: "Data berhasil diupdate",
             });
             await queryClient.invalidateQueries({
                 queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-                refetchType: "active"
+                refetchType: "active",
             });
             // SETTING PRINCIPAL DATA
             const ratios = await fetchPrincipalRatios(data.id);
@@ -593,7 +594,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                 year_established: data?.year_established,
                 est_deed: data?.est_deed,
                 last_deed: data?.last_deed,
-                ratios: ratios.slice(0, 2)
+                ratios: ratios.slice(0, 2),
             });
 
             fetchPrincipalDocuments(data.id);
@@ -604,9 +605,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             toast({
                 title: "Gagal Mengupdate Principal!",
                 description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
-                variant: "destructive"
+                variant: "destructive",
             });
-        }
+        },
     });
 
     const handleCreatePrincipal = () => {
@@ -636,7 +637,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             est_deed: data.principal.est_deed || "",
             last_deed: data.principal.last_deed || "",
             business_fields: data.principal.business_fields || "",
-            ratios: data.principal.ratios
+            ratios: data.principal.ratios,
         };
         mutate(principalData);
     };
@@ -669,7 +670,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
             est_deed: data.principal.est_deed || "",
             last_deed: data.principal.last_deed || "",
             business_fields: data.principal.business_fields || "",
-            ratios: data.principal.ratios
+            ratios: data.principal.ratios,
         };
         updatePrincipal(principalData);
     };
@@ -708,8 +709,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                     <Alert variant="info">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Informasi</AlertTitle>
-                        <AlertDescription>Batas Kewenangan Nilai Jaminan
-                            Rp. {textCurrency(profileLimit?.limit)}</AlertDescription>
+                        <AlertDescription>
+                            Batas Kewenangan Nilai Jaminan Rp. {textCurrency(profileLimit?.limit)}
+                        </AlertDescription>
                     </Alert>
                 </div>
             </Show>
@@ -762,7 +764,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 year_established: val.year_established,
                                                 est_deed: val.est_deed,
                                                 last_deed: val.last_deed,
-                                                ratios: ratios.slice(0, 2)
+                                                ratios: ratios.slice(0, 2),
                                             });
 
                                             setPrincipalRatios(ratios);
@@ -807,27 +809,33 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         className={cn(
                                                             "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 bg-gray-300 text-gray-700",
                                                             {
-                                                                "bg-black text-white": step.isActive
-                                                            }
+                                                                "bg-black text-white": step.isActive,
+                                                            },
                                                         )}>
                                                         {index + 1}
                                                     </div>
 
                                                     {/* STEPPER LABEL */}
                                                     <span
-                                                        className={cn("transition-all duration-300 text-gray-500 mt-2 text-sm min-w-[100px]", {
-                                                            "text-black font-semibold": step.isActive
-                                                        })}>
-                            {step.title}
-                          </span>
+                                                        className={cn(
+                                                            "transition-all duration-300 text-gray-500 mt-2 text-sm min-w-[100px]",
+                                                            {
+                                                                "text-black font-semibold": step.isActive,
+                                                            },
+                                                        )}>
+                                                        {step.title}
+                                                    </span>
                                                 </button>
 
                                                 {/* ARROW BETWEEN STEPPER */}
                                                 {index < steps.length - 1 && (
                                                     <div
-                                                        className={cn("w-full mt-5 h-1 mx-5 transition-all duration-300 bg-gray-300", {
-                                                            "bg-black": steps[index + 1].isActive
-                                                        })}
+                                                        className={cn(
+                                                            "w-full mt-5 h-1 mx-5 transition-all duration-300 bg-gray-300",
+                                                            {
+                                                                "bg-black": steps[index + 1].isActive,
+                                                            },
+                                                        )}
                                                     />
                                                 )}
                                             </Fragment>
@@ -862,18 +870,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     ...data.principal,
                                                     regency_id: "",
                                                     district_id: "",
-                                                    [field]: typeof value === "number" ? String(value) : value
+                                                    [field]: typeof value === "number" ? String(value) : value,
                                                 });
                                             } else if (field === "regency_id") {
                                                 setData("principal", {
                                                     ...data.principal,
                                                     district_id: "",
-                                                    [field]: typeof value === "number" ? String(value) : value
+                                                    [field]: typeof value === "number" ? String(value) : value,
                                                 });
                                             } else {
                                                 setData("principal", {
                                                     ...data.principal,
-                                                    [field]: typeof value === "number" ? String(value) : value
+                                                    [field]: typeof value === "number" ? String(value) : value,
                                                 });
                                             }
                                         }}
@@ -887,7 +895,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                     <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                                     <div className="grid gap-5">
                                         <PrincipalDocsSection
-                                            principalId={data?.principal?.id ? Number(data.principal.id) : undefined} />
+                                            principalId={data?.principal?.id ? Number(data.principal.id) : undefined}
+                                        />
                                     </div>
                                 </div>
                             </Show>
@@ -908,7 +917,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 onSelect={(val: any) => {
                                                     setData("submission", {
                                                         ...data.submission,
-                                                        blank_id: val?.id
+                                                        blank_id: val?.id,
                                                     });
                                                 }}
                                             />
@@ -924,7 +933,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     defaultValueId={data?.submission?.product_id || selectedProducts}
                                                     onSelect={(val: any) => {
                                                         let changedSubmission = {
-                                                            ...data.submission
+                                                            ...data.submission,
                                                         };
                                                         if (val.id !== selectedProducts) {
                                                             setSelectedBranchGuarantor(null);
@@ -976,7 +985,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     labelKey="name"
                                                     valueKey="name"
                                                     reset={isResetBranchGuarantor}
-                                                    defaultValueId={data?.submission?.guarantor_branch_id || selectedBranchGuarantor}
+                                                    defaultValueId={
+                                                        data?.submission?.guarantor_branch_id || selectedBranchGuarantor
+                                                    }
                                                     onReset={(resetVal) => setIsResetBranchGuarantor(resetVal)}
                                                     placeholder="Pilih Cabang Asuransi/Penjamin"
                                                     onSelect={(val: any) => {
@@ -987,7 +998,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
 
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            guarantor_branch_id: val?.id
+                                                            guarantor_branch_id: val?.id,
                                                         });
 
                                                         setSelectedBranchGuarantor(val.id);
@@ -1012,7 +1023,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onSelect={(val: any) => {
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            product_type_id: val?.id
+                                                            product_type_id: val?.id,
                                                         });
                                                         setSelectedProductType(val.id);
                                                     }}
@@ -1026,7 +1037,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         onValueChange={(val) => {
                                                             setData("submission", {
                                                                 ...data.submission,
-                                                                job_group: val
+                                                                job_group: val,
                                                             });
                                                         }}>
                                                         <SelectTrigger className="w-full">
@@ -1035,8 +1046,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         <SelectContent>
                                                             <RenderList
                                                                 of={jobGroups}
-                                                                render={(jobGroup) => <SelectItem
-                                                                    value={jobGroup}>{jobGroup}</SelectItem>}
+                                                                render={(jobGroup) => (
+                                                                    <SelectItem value={jobGroup}>{jobGroup}</SelectItem>
+                                                                )}
                                                             />
                                                         </SelectContent>
                                                     </Select>
@@ -1050,7 +1062,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         onValueChange={(val) => {
                                                             setData("submission", {
                                                                 ...data.submission,
-                                                                job_type: val
+                                                                job_type: val,
                                                             });
                                                         }}>
                                                         <SelectTrigger className="w-full">
@@ -1059,8 +1071,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         <SelectContent>
                                                             <RenderList
                                                                 of={jobTypes}
-                                                                render={(jobType) => <SelectItem
-                                                                    value={jobType}>{jobType}</SelectItem>}
+                                                                render={(jobType) => (
+                                                                    <SelectItem value={jobType}>{jobType}</SelectItem>
+                                                                )}
                                                             />
                                                         </SelectContent>
                                                     </Select>
@@ -1086,7 +1099,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 pic: val?.pic,
                                                                 address: val?.address,
                                                                 no_ppk: val?.no_ppk,
-                                                                telephone: val?.telephone
+                                                                telephone: val?.telephone,
                                                             });
                                                             setSelectedObligee({
                                                                 id: val?.id,
@@ -1094,7 +1107,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 pic: val?.pic,
                                                                 address: val?.address,
                                                                 no_ppk: val?.no_ppk,
-                                                                telephone: val?.telephone
+                                                                telephone: val?.telephone,
                                                             });
                                                         }}
                                                     />
@@ -1115,7 +1128,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 onChange={(e) =>
                                                                     setData("obligee", {
                                                                         ...data.obligee,
-                                                                        name: e.target.value
+                                                                        name: e.target.value,
                                                                     })
                                                                 }
                                                             />
@@ -1129,7 +1142,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 onChange={(e) =>
                                                                     setData("obligee", {
                                                                         ...data.obligee,
-                                                                        pic: e.target.value
+                                                                        pic: e.target.value,
                                                                     })
                                                                 }
                                                             />
@@ -1143,7 +1156,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 onChange={(e) =>
                                                                     setData("obligee", {
                                                                         ...data.obligee,
-                                                                        no_ppk: e.target.value
+                                                                        no_ppk: e.target.value,
                                                                     })
                                                                 }
                                                             />
@@ -1159,7 +1172,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                 onChange={(e) =>
                                                                     setData("obligee", {
                                                                         ...data.obligee,
-                                                                        telephone: String(getNumericValue(e))
+                                                                        telephone: String(getNumericValue(e)),
                                                                     })
                                                                 }
                                                             />
@@ -1171,33 +1184,48 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                     <div className="grid gap-1 w-full">
                                                                         <Label className="text-sm">Provinsi</Label>
                                                                         <Combobox
-                                                                            datas={Array.isArray(obligeeProvinces) ? obligeeProvinces : []}
+                                                                            datas={
+                                                                                Array.isArray(obligeeProvinces)
+                                                                                    ? obligeeProvinces
+                                                                                    : []
+                                                                            }
                                                                             labelKey="name"
                                                                             valueKey="name"
                                                                             placeholder="Pilih Provinsi"
-                                                                            defaultValueId={data?.obligee?.province_id || selectedObligeeProvince?.id}
+                                                                            defaultValueId={
+                                                                                data?.obligee?.province_id ||
+                                                                                selectedObligeeProvince?.id
+                                                                            }
                                                                             onSelect={(val: any) => {
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    province_id: val.id
+                                                                                    province_id: val.id,
                                                                                 });
                                                                                 setSelectedObligeeProvince(val);
                                                                             }}
                                                                         />
                                                                     </div>
                                                                     <div className="grid gap-1 w-full">
-                                                                        <Label
-                                                                            className="text-sm">Kabupaten/Kota</Label>
+                                                                        <Label className="text-sm">
+                                                                            Kabupaten/Kota
+                                                                        </Label>
                                                                         <Combobox
-                                                                            datas={Array.isArray(obligeeRegencies) ? obligeeRegencies : []}
+                                                                            datas={
+                                                                                Array.isArray(obligeeRegencies)
+                                                                                    ? obligeeRegencies
+                                                                                    : []
+                                                                            }
                                                                             labelKey="name"
                                                                             valueKey="name"
                                                                             placeholder="Pilih Kabupaten/Kota"
-                                                                            defaultValueId={data?.obligee?.regency_id || selectedObligeeRegency?.id}
+                                                                            defaultValueId={
+                                                                                data?.obligee?.regency_id ||
+                                                                                selectedObligeeRegency?.id
+                                                                            }
                                                                             onSelect={(val: any) => {
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    regency_id: val?.id
+                                                                                    regency_id: val?.id,
                                                                                 });
                                                                                 setSelectedObligeeRegency(val);
                                                                             }}
@@ -1206,15 +1234,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                     <div className="grid gap-1 w-full">
                                                                         <Label className="text-sm">Kecamatan</Label>
                                                                         <Combobox
-                                                                            datas={Array.isArray(obligeeDistricts) ? obligeeDistricts : []}
+                                                                            datas={
+                                                                                Array.isArray(obligeeDistricts)
+                                                                                    ? obligeeDistricts
+                                                                                    : []
+                                                                            }
                                                                             labelKey="name"
                                                                             valueKey="name"
                                                                             placeholder="Pilih Kecamatan"
-                                                                            defaultValueId={data?.obligee?.district_id || selectedObligeeDistrict?.id}
+                                                                            defaultValueId={
+                                                                                data?.obligee?.district_id ||
+                                                                                selectedObligeeDistrict?.id
+                                                                            }
                                                                             onSelect={(val: any) => {
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    district_id: val?.id
+                                                                                    district_id: val?.id,
                                                                                 });
                                                                                 setSelectedObligeeDistrict(val);
                                                                             }}
@@ -1231,14 +1266,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                             onChange={(e) =>
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    village: e.target.value
+                                                                                    village: e.target.value,
                                                                                 })
                                                                             }
                                                                         />
                                                                     </div>
                                                                     <div className="grid gap-1 w-full">
-                                                                        <Label className="text-sm">Alamat
-                                                                            Lengkap</Label>
+                                                                        <Label className="text-sm">
+                                                                            Alamat Lengkap
+                                                                        </Label>
                                                                         <Textarea
                                                                             className="text-md"
                                                                             placeholder="Masukan Jalan/RT/RW dsb."
@@ -1246,7 +1282,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                             onChange={(e) =>
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    address: e.target.value
+                                                                                    address: e.target.value,
                                                                                 })
                                                                             }
                                                                         />
@@ -1261,7 +1297,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                             onChange={(e) =>
                                                                                 setData("obligee", {
                                                                                     ...data.obligee,
-                                                                                    postal_code: e.target.value
+                                                                                    postal_code: e.target.value,
                                                                                 })
                                                                             }
                                                                         />
@@ -1296,7 +1332,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onSelect={(val: any) => {
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            bank_id: data?.submission?.bank_id === val?.id ? "" : val.id
+                                                            bank_id:
+                                                                data?.submission?.bank_id === val?.id ? "" : val.id,
                                                         });
                                                         setSelectedBank((prev) => (prev === val.id ? null : val.id));
                                                     }}
@@ -1313,7 +1350,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 onChange={(e) =>
                                                     setData("submission", {
                                                         ...data.submission,
-                                                        job_name: e.target.value
+                                                        job_name: e.target.value,
                                                     })
                                                 }
                                             />
@@ -1329,7 +1366,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onChange={(e) =>
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            contract_doc_name: e.target.value
+                                                            contract_doc_name: e.target.value,
                                                         })
                                                     }
                                                 />
@@ -1343,7 +1380,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onChange={(e) =>
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            contract_doc_number: e.target.value
+                                                            contract_doc_number: e.target.value,
                                                         })
                                                     }
                                                 />
@@ -1354,7 +1391,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onPickDate={(d) => {
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            contract_doc_date: d
+                                                            contract_doc_date: d,
                                                         });
                                                     }}
                                                 />
@@ -1369,7 +1406,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onChange={(value) => {
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            contract_value: value
+                                                            contract_value: value,
                                                         });
                                                     }}
                                                 />
@@ -1382,7 +1419,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onChange={(value) => {
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            guarantee_value: value
+                                                            guarantee_value: value,
                                                         });
                                                     }}
                                                 />
@@ -1400,7 +1437,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                         setData("submission", {
                                                             ...data.submission,
                                                             time_period: e.target.value,
-                                                            end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate()
+                                                            end_date: dayjs(data.submission.start_date)
+                                                                .add(Number(e.target.value), "day")
+                                                                .toDate(),
                                                         })
                                                     }
                                                 />
@@ -1409,14 +1448,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 <Label className="text-md">Tanggal Awal Jaminan</Label>
                                                 <CalendarPicker
                                                     disabled={{
-                                                        before: subDays(new Date(), 90)
+                                                        before: subDays(new Date(), 90),
                                                     }}
                                                     onPickDate={(d) => {
                                                         setData("submission", {
                                                             ...data.submission,
                                                             start_date: d,
                                                             time_period: "0",
-                                                            end_date: d
+                                                            end_date: d,
                                                         });
                                                     }}
                                                 />
@@ -1426,7 +1465,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 <CalendarPicker
                                                     initialDate={
                                                         data?.submission?.end_date ??
-                                                        dayjs().add(Number(data?.submission?.time_period), "day").toDate()
+                                                        dayjs()
+                                                            .add(Number(data?.submission?.time_period), "day")
+                                                            .toDate()
                                                     }
                                                     onPickDate={(e) => {
                                                         setData("submission", {
@@ -1434,8 +1475,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                             end_date: e,
                                                             time_period: dayjs(e)
                                                                 .startOf("day")
-                                                                .diff(dayjs(data.submission.start_date).startOf("day"), "day")
-                                                                .toString()
+                                                                .diff(
+                                                                    dayjs(data.submission.start_date).startOf("day"),
+                                                                    "day",
+                                                                )
+                                                                .toString(),
                                                         });
                                                     }}
                                                 />
@@ -1448,11 +1492,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 labelKey="name"
                                                 valueKey="name"
                                                 placeholder="Pilih Sumber Dana"
-                                                defaultValueId={data?.submission?.source_of_fund_id || selectedSourceOfFund}
+                                                defaultValueId={
+                                                    data?.submission?.source_of_fund_id || selectedSourceOfFund
+                                                }
                                                 onSelect={(val) => {
                                                     setData("submission", {
                                                         ...data.submission,
-                                                        source_of_fund_id: val?.id
+                                                        source_of_fund_id: val?.id,
                                                     });
                                                     setSelectedSourceOfFund(val);
                                                 }}
@@ -1465,17 +1511,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     <div className="grid gap-1 w-full">
                                                         <Label className="text-sm">Provinsi</Label>
                                                         <Combobox
-                                                            datas={Array.isArray(jobLocationProvinces) ? jobLocationProvinces : []}
+                                                            datas={
+                                                                Array.isArray(jobLocationProvinces)
+                                                                    ? jobLocationProvinces
+                                                                    : []
+                                                            }
                                                             labelKey="name"
                                                             valueKey="name"
                                                             placeholder="Pilih Provinsi"
                                                             defaultValueId={
-                                                                data?.submission?.job_location_province_id || selectedJobLocationProvince?.id
+                                                                data?.submission?.job_location_province_id ||
+                                                                selectedJobLocationProvince?.id
                                                             }
                                                             onSelect={(val: any) => {
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_province_id: val.id
+                                                                    job_location_province_id: val.id,
                                                                 });
                                                                 setSelectedJobLocationProvince(val);
                                                             }}
@@ -1484,17 +1535,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     <div className="grid gap-1 w-full">
                                                         <Label className="text-sm">Kabupaten/Kota</Label>
                                                         <Combobox
-                                                            datas={Array.isArray(jobLocationRegencies) ? jobLocationRegencies : []}
+                                                            datas={
+                                                                Array.isArray(jobLocationRegencies)
+                                                                    ? jobLocationRegencies
+                                                                    : []
+                                                            }
                                                             labelKey="name"
                                                             valueKey="name"
                                                             placeholder="Pilih Kabupaten/Kota"
                                                             defaultValueId={
-                                                                data?.submission?.job_location_regency_id || selectedJobLocationRegency?.id
+                                                                data?.submission?.job_location_regency_id ||
+                                                                selectedJobLocationRegency?.id
                                                             }
                                                             onSelect={(val: any) => {
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_regency_id: val.id
+                                                                    job_location_regency_id: val.id,
                                                                 });
                                                                 setSelectedJobLocationRegency(val);
                                                             }}
@@ -1503,17 +1559,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     <div className="grid gap-1 w-full">
                                                         <Label className="text-sm">Kecamatan</Label>
                                                         <Combobox
-                                                            datas={Array.isArray(jobLocationDistricts) ? jobLocationDistricts : []}
+                                                            datas={
+                                                                Array.isArray(jobLocationDistricts)
+                                                                    ? jobLocationDistricts
+                                                                    : []
+                                                            }
                                                             labelKey="name"
                                                             valueKey="name"
                                                             placeholder="Pilih Kecamatan"
                                                             defaultValueId={
-                                                                data?.submission?.job_location_district_id || selectedJobLocationDistrict?.id
+                                                                data?.submission?.job_location_district_id ||
+                                                                selectedJobLocationDistrict?.id
                                                             }
                                                             onSelect={(val: any) => {
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_district_id: val.id
+                                                                    job_location_district_id: val.id,
                                                                 });
                                                                 setSelectedJobLocationDistrict(val);
                                                             }}
@@ -1530,7 +1591,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                             onChange={(e) =>
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_village: e.target.value
+                                                                    job_location_village: e.target.value,
                                                                 })
                                                             }
                                                         />
@@ -1544,7 +1605,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                             onChange={(e) => {
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_address: e.target.value
+                                                                    job_location_address: e.target.value,
                                                                 });
                                                             }}
                                                         />
@@ -1558,7 +1619,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                             onChange={(e) =>
                                                                 setData("submission", {
                                                                     ...data.submission,
-                                                                    job_location_postal_code: e.target.value
+                                                                    job_location_postal_code: e.target.value,
                                                                 })
                                                             }
                                                         />
@@ -1582,8 +1643,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 return (
                                                     <div className="grid gap-[14px]">
                                                         <Label className="text-xl underline underline-offset-4">
-                                                            {scoringCategories?.name} ({scoringCategories?.max_point} Poin
-                                                            Maks)
+                                                            {scoringCategories?.name} ({scoringCategories?.max_point}{" "}
+                                                            Poin Maks)
                                                         </Label>
                                                         <div className="space-y-8">
                                                             <RenderList
@@ -1595,37 +1656,49 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                                                 <span className="mr-3">{idx + 1}.</span>
                                                                                 <span>{scoringQuestions?.name}</span>
                                                                             </div>
-                                                                            <RadioGroup
-                                                                                className="flex flex-col gap-y-3.5 ml-6">
+                                                                            <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
                                                                                 <RenderList
                                                                                     of={scoringQuestions?.options}
                                                                                     render={(scoringOptions) => {
-                                                                                        const isOptionChecked = data?.scoring.scores.some(
-                                                                                            (s) => s.scoring_option_id === scoringOptions?.id
-                                                                                        );
+                                                                                        const isOptionChecked =
+                                                                                            data?.scoring.scores.some(
+                                                                                                (s) =>
+                                                                                                    s.scoring_option_id ===
+                                                                                                    scoringOptions?.id,
+                                                                                            );
 
                                                                                         return (
-                                                                                            <div
-                                                                                                className="flex items-center space-x-2">
+                                                                                            <div className="flex items-center space-x-2">
                                                                                                 <RadioGroupItem
-                                                                                                    value={String(scoringOptions?.id)}
+                                                                                                    value={String(
+                                                                                                        scoringOptions?.id,
+                                                                                                    )}
                                                                                                     id={`option-${scoringOptions?.id}`}
-                                                                                                    checked={isOptionChecked}
+                                                                                                    checked={
+                                                                                                        isOptionChecked
+                                                                                                    }
                                                                                                     onClick={() =>
                                                                                                         handleOptionChange(
                                                                                                             scoringCategories?.id,
                                                                                                             scoringQuestions.id,
                                                                                                             scoringOptions.id,
-                                                                                                            scoringOptions.point
+                                                                                                            scoringOptions.point,
                                                                                                         )
                                                                                                     }
                                                                                                 />
                                                                                                 <Label
                                                                                                     className="cursor-pointer w-full flex justify-between"
                                                                                                     htmlFor={`option-${scoringOptions?.id}`}>
-                                                                                                    {scoringOptions?.name}{" "}
-                                                                                                    <span
-                                                                                                        className="font-[800]">({scoringOptions?.point} Poin)</span>
+                                                                                                    {
+                                                                                                        scoringOptions?.name
+                                                                                                    }{" "}
+                                                                                                    <span className="font-[800]">
+                                                                                                        (
+                                                                                                        {
+                                                                                                            scoringOptions?.point
+                                                                                                        }{" "}
+                                                                                                        Poin)
+                                                                                                    </span>
                                                                                                 </Label>
                                                                                             </div>
                                                                                         );
@@ -1651,7 +1724,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                     onChange={(e) =>
                                                         setData("submission", {
                                                             ...data.submission,
-                                                            risk_mitigation: e.target.value
+                                                            risk_mitigation: e.target.value,
                                                         })
                                                     }
                                                 />
@@ -1666,7 +1739,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                                 onChange={(e) =>
                                                     setData("scoring", {
                                                         ...data.scoring,
-                                                        note: e.target.value
+                                                        note: e.target.value,
                                                     })
                                                 }
                                             />

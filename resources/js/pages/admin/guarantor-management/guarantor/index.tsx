@@ -12,75 +12,75 @@ import { pickBy } from "lodash";
 import React, { useState } from "react";
 
 const GuarantorPage: GuarantorPageProps = ({ guarantors }) => {
-  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+    const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
+    const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
-  const handleSelect = (e: string) => {
-    setSelect(e);
-    getData(String(select), search);
-  };
+    const handleSelect = (e: string) => {
+        setSelect(e);
+        getData(String(select), search);
+    };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    getData(String(select), search);
-  };
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        getData(String(select), search);
+    };
 
-  const getData = (per_page: string, search: string) => {
-    return router.get(
-      route(GuarantorUtils.link.index),
-      pickBy({
-        per_page,
-        search,
-      }),
-      { preserveState: true, preserveScroll: true },
+    const getData = (per_page: string, search: string) => {
+        return router.get(
+            route(GuarantorUtils.link.index),
+            pickBy({
+                per_page,
+                search,
+            }),
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    return (
+        <main className="space-y-2.5">
+            <div className="flex justify-between items-end">
+                <div className="flex gap-x-3">
+                    <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+                </div>
+                <div className="flex gap-x-3">
+                    <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
+                        <Input
+                            className="h-full"
+                            placeholder="Cari Asuransi"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <Button type="submit">Cari</Button>
+                    </form>
+                </div>
+            </div>
+            <GuarantorDatatable guarantors={guarantors} />
+        </main>
     );
-  };
-
-  return (
-    <main className="space-y-2.5">
-      <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
-        </div>
-        <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearch(e)} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Asuransi"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Button type="submit">Cari</Button>
-          </form>
-        </div>
-      </div>
-      <GuarantorDatatable guarantors={guarantors} />
-    </main>
-  );
 };
 
 export default GuarantorPage;
 
 GuarantorPage.layout = (page: any) => {
-  const pagePropsData = page.props;
+    const pagePropsData = page.props;
 
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Asuransi"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route(GuarantorUtils.link.index)}>Kelola Asuransi</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>
-          <Link href={route(GuarantorUtils.link.create)}>Tambah Asuransi</Link>
-        </Button>
-      </div>
-      {page}
-    </RoleBasedLayout>
-  );
+    return (
+        <RoleBasedLayout propsData={pagePropsData}>
+            <Head title={pagePropsData?.page_settings?.title ?? "Asuransi"} />
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={route(GuarantorUtils.link.index)}>Kelola Asuransi</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex items-center justify-between">
+                <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
+                <Button asChild>
+                    <Link href={route(GuarantorUtils.link.create)}>Tambah Asuransi</Link>
+                </Button>
+            </div>
+            {page}
+        </RoleBasedLayout>
+    );
 };

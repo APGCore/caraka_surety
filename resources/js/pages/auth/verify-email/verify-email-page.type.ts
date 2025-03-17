@@ -1,9 +1,9 @@
 import React from "react";
 
 interface VerifyEmailProps {
-  status?: string;
+    status?: string;
 }
 
 export type VerifyEmailPageProps = React.FC<VerifyEmailProps> & {
-  layout?: (page: any) => JSX.Element;
+    layout?: (page: any) => JSX.Element;
 };

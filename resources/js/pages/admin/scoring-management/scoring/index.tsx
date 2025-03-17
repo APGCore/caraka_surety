@@ -10,60 +10,60 @@ import ScoringDatatable from "./_partials/scoring-datatable";
 import { AdminScoringsPageProps } from "./scoring.type";
 
 const AdminScoringsPage: AdminScoringsPageProps = ({ scorings }) => {
-  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
-  const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
+    const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
+    const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
 
-  const handleSelectSkoringLength = (per_page: string) => {
-    setSelect(per_page);
-    getData(per_page, search);
-  };
+    const handleSelectSkoringLength = (per_page: string) => {
+        setSelect(per_page);
+        getData(per_page, search);
+    };
 
-  const handleSearchSkoring = () => {
-    getData(select, search);
-  };
+    const handleSearchSkoring = () => {
+        getData(select, search);
+    };
 
-  const getData = (per_page: string, search: string) => {
-    router.get(
-      route("scoring.index"),
-      pickBy({
-        per_page,
-        search,
-      }),
-      { preserveState: true, preserveScroll: true },
+    const getData = (per_page: string, search: string) => {
+        router.get(
+            route("scoring.index"),
+            pickBy({
+                per_page,
+                search,
+            }),
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    const deleteSkoring = (scoring: any) => {
+        router.delete(route("scoring.destroy", scoring.id));
+    };
+
+    return (
+        <main className="space-y-2.5">
+            <div className="flex justify-between items-end">
+                <div className="flex gap-x-3">
+                    <SelectLengthDatatable defaultValue={select} onChange={handleSelectSkoringLength} />
+                </div>
+                <SearchDatatable
+                    value={search}
+                    onChange={setSearch}
+                    onSubmit={handleSearchSkoring}
+                    placeholder="Cari Skoring"
+                />
+            </div>
+            <ScoringDatatable scorings={scorings} onDelete={deleteSkoring} />
+        </main>
     );
-  };
-
-  const deleteSkoring = (scoring: any) => {
-    router.delete(route("scoring.destroy", scoring.id));
-  };
-
-  return (
-    <main className="space-y-2.5">
-      <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelectSkoringLength} />
-        </div>
-        <SearchDatatable
-          value={search}
-          onChange={setSearch}
-          onSubmit={handleSearchSkoring}
-          placeholder="Cari Skoring"
-        />
-      </div>
-      <ScoringDatatable scorings={scorings} onDelete={deleteSkoring} />
-    </main>
-  );
 };
 
 export default AdminScoringsPage;
 
 AdminScoringsPage.layout = (page: any) => {
-  const pagePropsData = page.props;
+    const pagePropsData = page.props;
 
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <ProductHeader title={pagePropsData?.page_settings?.title} />
-      {page}
-    </RoleBasedLayout>
-  );
+    return (
+        <RoleBasedLayout propsData={pagePropsData}>
+            <ProductHeader title={pagePropsData?.page_settings?.title} />
+            {page}
+        </RoleBasedLayout>
+    );
 };

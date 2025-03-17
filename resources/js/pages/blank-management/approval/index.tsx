@@ -13,76 +13,81 @@ import { pickBy } from "lodash";
 import React, { useState } from "react";
 
 const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, guarantors, guarantorSelected }) => {
-  const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
+    const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
+    const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
-  const handleSelect = (e: string) => {
-    setSelect(e);
-    getData(String(select), search);
-  };
+    const handleSelect = (e: string) => {
+        setSelect(e);
+        getData(String(select), search);
+    };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    getData(String(select), search);
-  };
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        getData(String(select), search);
+    };
 
-  const setGuarantor = (value: any) => {
-    getData(String(select), search, value.id);
-  };
+    const setGuarantor = (value: any) => {
+        getData(String(select), search, value.id);
+    };
 
-  const getData = (per_page: string, search: string, guarantor_id?: any) => {
-    return router.get(
-      route(links.index),
-      pickBy({
-        per_page,
-        search,
-        guarantor_id,
-      }),
-      { preserveState: true, preserveScroll: true },
+    const getData = (per_page: string, search: string, guarantor_id?: any) => {
+        return router.get(
+            route(links.index),
+            pickBy({
+                per_page,
+                search,
+                guarantor_id,
+            }),
+            { preserveState: true, preserveScroll: true },
+        );
+    };
+
+    return (
+        <main className="space-y-2.5">
+            <div className="flex justify-between items-end">
+                <div className="flex gap-x-3">
+                    <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+                    <Combobox
+                        datas={guarantors}
+                        labelKey={"name"}
+                        valueKey={"name"}
+                        defaultValue={guarantorSelected}
+                        placeholder={"Pilih Asuransi"}
+                        className={"w-[210px]"}
+                        onSelect={(value) => setGuarantor(value)}
+                    />
+                </div>
+                <div className="flex gap-x-3">
+                    <SearchDatatable
+                        value={search}
+                        onChange={setSearch}
+                        onSubmit={handleSearch}
+                        placeholder="Cari Blangko"
+                    />
+                    <BlankForm blanksUnApproved={blanks_un_approved} links={links} />
+                </div>
+            </div>
+            <BlankDatatable blanks={blanks} />
+        </main>
     );
-  };
-
-  return (
-    <main className="space-y-2.5">
-      <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
-          <Combobox
-            datas={guarantors}
-            labelKey={"name"}
-            valueKey={"name"}
-            defaultValue={guarantorSelected}
-            placeholder={"Pilih Asuransi"}
-            className={"w-[210px]"}
-            onSelect={(value) => setGuarantor(value)}
-          />
-        </div>
-        <div className="flex gap-x-3">
-          <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Blangko" />
-          <BlankForm blanksUnApproved={blanks_un_approved} links={links} />
-        </div>
-      </div>
-      <BlankDatatable blanks={blanks} />
-    </main>
-  );
 };
 
 export default GuarantorPage;
 
 GuarantorPage.layout = (page: any) => {
-  const pagePropsData = page.props;
+    const pagePropsData = page.props;
 
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <BlankHeader title={pagePropsData?.page_settings?.title ?? "Blangko"} links={pagePropsData?.links} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route(pagePropsData?.links?.index)}>Kelola Blangko</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      {page}
-    </RoleBasedLayout>
-  );
+    return (
+        <RoleBasedLayout propsData={pagePropsData}>
+            <BlankHeader title={pagePropsData?.page_settings?.title ?? "Blangko"} links={pagePropsData?.links} />
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={route(pagePropsData?.links?.index)}>Kelola Blangko</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            {page}
+        </RoleBasedLayout>
+    );
 };
