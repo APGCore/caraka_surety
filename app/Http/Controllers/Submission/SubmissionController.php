@@ -331,7 +331,6 @@ class SubmissionController extends Controller
 
         $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
 
-
         // Hitung total skoring
         $totalScore = array_sum($analysis);
 
@@ -484,7 +483,6 @@ class SubmissionController extends Controller
             ->first();
 
         $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
-
 
         $submission->guarantor_address =
             ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
@@ -810,8 +808,6 @@ class SubmissionController extends Controller
         $submission->analysis = $analysis;
 
         $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
-
-
 
         // Hitung total skoring
         $totalScore = array_sum($analysis);
