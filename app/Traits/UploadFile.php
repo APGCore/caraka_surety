@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 trait UploadFile
@@ -22,7 +23,7 @@ trait UploadFile
         $fileDataString = base64_decode($base64String);
 
         // $fileData to UploadedFile
-        return UploadedFile::fake()->createWithContent('file.'.$extension, $fileDataString);
+        return UploadedFile::fake()->createWithContent('file.' . $extension, $fileDataString);
 
     }
 
@@ -35,9 +36,9 @@ trait UploadFile
             ? $file->getClientOriginalExtension()
             : 'pdf';
         $fileName = str_replace(' ', '_', $fileName);
-        $newFileName = time().'_'.$fileName.'.'.$extension;
+        $newFileName = time() . '_' . $fileName . '.' . $extension;
 
-        return $file->storeAs($path, $newFileName, config('filesystems.default'));
+        return Storage::disk(config('filesystems.default'))->putFileAs($path, $file, $newFileName);
     }
 
     /**
@@ -46,8 +47,13 @@ trait UploadFile
     public function deleteFile($pathAndFileName): void
     {
         $disk = config('filesystems.default');
+        Log::info("Checking file: " . $pathAndFileName);
+
         if (Storage::disk($disk)->exists($pathAndFileName)) {
+            Log::info("File exists, deleting: " . $pathAndFileName);
             Storage::disk($disk)->delete($pathAndFileName);
+        } else {
+            Log::warning("File not found: " . $pathAndFileName);
         }
     }
 }
