@@ -1,9 +1,9 @@
 import React from "react";
 
 interface GuarantorProps {
-  guarantors: any;
+    guarantors: any;
 }
 
 export type GuarantorPageProps = React.FC<GuarantorProps> & {
-  layout?: (page: any) => JSX.Element;
+    layout?: (page: any) => JSX.Element;
 };

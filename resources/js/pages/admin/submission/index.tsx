@@ -10,58 +10,58 @@ import { useState } from "react";
 import { SubmissionPageProps } from "./submission-page.type";
 
 const SubmissionPage: SubmissionPageProps = ({ submissions }) => {
-  const [search, setSearch] = useState("");
-  const [select, setSelect] = useState(10);
+    const [search, setSearch] = useState("");
+    const [select, setSelect] = useState(10);
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  };
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+    };
 
-  const handleSelect = (value: string) => {
-    setSelect(Number(value));
-  };
+    const handleSelect = (value: string) => {
+        setSelect(Number(value));
+    };
 
-  return (
-    <main className="space-y-2.5">
-      <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
-          <Button>Export</Button>
-          <Select onValueChange={handleSelect} defaultValue={String(select)}>
-            <SelectTrigger className="w-max">
-              <SelectValue placeholder="Items per page" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex gap-x-3">
-          <form onSubmit={handleSearch} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Pengajuan"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Button type="submit">Cari</Button>
-          </form>
-        </div>
-      </div>
-      <div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-0">#</TableHead>
-              <TableHead>Nama Pemohon</TableHead>
-              <TableHead>Tanggal Pengajuan</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          {/* <TableBody>
+    return (
+        <main className="space-y-2.5">
+            <div className="flex justify-between items-end">
+                <div className="flex gap-x-3">
+                    <Button>Export</Button>
+                    <Select onValueChange={handleSelect} defaultValue={String(select)}>
+                        <SelectTrigger className="w-max">
+                            <SelectValue placeholder="Items per page" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex gap-x-3">
+                    <form onSubmit={handleSearch} className="flex items-end gap-x-3">
+                        <Input
+                            className="h-full"
+                            placeholder="Cari Pengajuan"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <Button type="submit">Cari</Button>
+                    </form>
+                </div>
+            </div>
+            <div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-0">#</TableHead>
+                            <TableHead>Nama Pemohon</TableHead>
+                            <TableHead>Tanggal Pengajuan</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Aksi</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    {/* <TableBody>
             {submissions.length > 0 ? (
               submissions.map((submission, index) => (
                 <TableRow key={submission.id}>
@@ -135,54 +135,54 @@ const SubmissionPage: SubmissionPageProps = ({ submissions }) => {
               </TableRow>
             )}
           </TableBody> */}
-        </Table>
-      </div>
-      <div className="text-sm text-gray-500">
-        Menampilkan {submissions.length > 0 ? 1 : 0} sampai {submissions.length} dari {submissions.length} hasil
-      </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <Button variant="ghost" disabled>
-              Previous
-            </Button>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink as="button" size="icon" href="#">
-              1
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <Button variant="ghost" disabled>
-              Next
-            </Button>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    </main>
-  );
+                </Table>
+            </div>
+            <div className="text-sm text-gray-500">
+                Menampilkan {submissions.length > 0 ? 1 : 0} sampai {submissions.length} dari {submissions.length} hasil
+            </div>
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                        <Button variant="ghost" disabled>
+                            Previous
+                        </Button>
+                    </PaginationItem>
+                    <PaginationItem>
+                        <PaginationLink as="button" size="icon" href="#">
+                            1
+                        </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                        <Button variant="ghost" disabled>
+                            Next
+                        </Button>
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        </main>
+    );
 };
 
 export default SubmissionPage;
 
 SubmissionPage.layout = (page: any) => {
-  const pagePropsData = page.props;
+    const pagePropsData = page.props;
 
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            {/* <BreadcrumbLink href={route("pengajuan.index")}>Kelola Pengajuan</BreadcrumbLink> */}
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
-        <Button asChild>{/* <Link href={route("pengajuan.create")}>Tambah Pengajuan</Link> */}</Button>
-      </div>
-      {page}
-    </RoleBasedLayout>
-  );
+    return (
+        <RoleBasedLayout propsData={pagePropsData}>
+            <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        {/* <BreadcrumbLink href={route("pengajuan.index")}>Kelola Pengajuan</BreadcrumbLink> */}
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex items-center justify-between">
+                <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
+                <Button asChild>{/* <Link href={route("pengajuan.create")}>Tambah Pengajuan</Link> */}</Button>
+            </div>
+            {page}
+        </RoleBasedLayout>
+    );
 };

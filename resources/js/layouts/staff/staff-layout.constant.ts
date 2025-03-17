@@ -2,34 +2,34 @@ import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.ty
 import { Archive, Home } from "lucide-react";
 
 export const staffRoute: IAppSideBarMenu[] = [
-  {
-    title: "Dashboard",
-    route_name: "staff",
-    href: route("staff.index"),
-    icon: Home,
-    items: [],
-  },
+    {
+        title: "Dashboard",
+        route_name: "staff",
+        href: route("staff.index"),
+        icon: Home,
+        items: [],
+    },
 
-  {
-    title: "Kelola Pengajuan",
-    icon: Archive,
-    items: [
-      {
-        title: "Buat Pengajuan",
-        route_name: "staff-submission-create",
-        href: route("staff-submission-create.submission"),
-      },
-      {
-        title: "Riwayat Pengajuan",
-        route_name: "staff-submission-history",
-        href: route("staff-submission-history.submission"),
-      },
-      // {
-      //   title: "Draft Dokumen Pengajuan",
-      //   route_name: "staff-submission-document-draft",
-      //   href: route("staff-submission-document-draft.submission"),
-      //
-      // },
-    ],
-  },
+    {
+        title: "Kelola Pengajuan",
+        icon: Archive,
+        items: [
+            {
+                title: "Buat Pengajuan",
+                route_name: "staff-submission-create",
+                href: route("staff-submission-create.submission"),
+            },
+            {
+                title: "Riwayat Pengajuan",
+                route_name: "staff-submission-history",
+                href: route("staff-submission-history.submission"),
+            },
+            // {
+            //   title: "Draft Dokumen Pengajuan",
+            //   route_name: "staff-submission-document-draft",
+            //   href: route("staff-submission-document-draft.submission"),
+            //
+            // },
+        ],
+    },
 ];

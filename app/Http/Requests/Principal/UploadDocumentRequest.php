@@ -25,7 +25,7 @@ class UploadDocumentRequest extends FormRequest
     {
         return [
             'required_doc_id' => ['required', 'exists:'.RequiredDoc::class.',id'],
-            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:15360'],
         ];
     }
 }

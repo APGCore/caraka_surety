@@ -7,25 +7,25 @@ import { kepalaAgentPartnerRoute } from "./kepala-agent-partner-layout.constant"
 import { KepalaAgentPartnerLayoutPageProps } from "./kepala-agent-partner-layout.type";
 
 export const KepalaAgentPartnerLayoutPage: KepalaAgentPartnerLayoutPageProps = ({
-  children,
-  user,
-  roles,
-  guarantor,
+    children,
+    user,
+    roles,
+    guarantor,
 }) => {
-  useFlashMessageToast();
+    useFlashMessageToast();
 
-  return (
-    <SidebarProvider>
-      <AppSidebar user={user} routes={kepalaAgentPartnerRoute} roles={roles} />
-      <SidebarInset>
-        <Navbar guarantor={guarantor} />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
-          {children}
-        </div>
-      </SidebarInset>
-      <Toaster />
-    </SidebarProvider>
-  );
+    return (
+        <SidebarProvider>
+            <AppSidebar user={user} routes={kepalaAgentPartnerRoute} roles={roles} />
+            <SidebarInset>
+                <Navbar guarantor={guarantor} />
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+                    {children}
+                </div>
+            </SidebarInset>
+            <Toaster />
+        </SidebarProvider>
+    );
 };
 
 export default KepalaAgentPartnerLayoutPage;

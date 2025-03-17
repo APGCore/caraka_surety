@@ -8,52 +8,54 @@ import { Head } from "@inertiajs/react";
 import React from "react";
 
 const CreateDocumentFormatPage: EditDocumentFormatPageProps = ({
-  guarantors,
-  guarantorSelected,
-  products,
-  productSelected,
-  guarantorProductTypes,
-  guarantorProductTypeSelected,
-  documentFormat,
+    guarantors,
+    guarantorSelected,
+    products,
+    productSelected,
+    guarantorProductTypes,
+    guarantorProductTypeSelected,
+    documentFormat,
 }) => {
-  return (
-    <Card className="w-[800px] mx-auto">
-      <CardHeader>
-        <CardTitle>Editor Format Dokumen</CardTitle>
-        <CardDescription>Untuk edit data format dokumen</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <FormDocumentFormat
-          isEdit={true}
-          guarantors={guarantors}
-          guarantorSelected={guarantorSelected}
-          products={products}
-          productSelected={productSelected}
-          guarantorProductTypes={guarantorProductTypes}
-          guarantorProductTypeSelected={guarantorProductTypeSelected}
-          documentFormat={documentFormat}
-        />
-      </CardContent>
-    </Card>
-  );
+    return (
+        <Card className="w-[800px] mx-auto">
+            <CardHeader>
+                <CardTitle>Editor Format Dokumen</CardTitle>
+                <CardDescription>Untuk edit data format dokumen</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <FormDocumentFormat
+                    isEdit={true}
+                    guarantors={guarantors}
+                    guarantorSelected={guarantorSelected}
+                    products={products}
+                    productSelected={productSelected}
+                    guarantorProductTypes={guarantorProductTypes}
+                    guarantorProductTypeSelected={guarantorProductTypeSelected}
+                    documentFormat={documentFormat}
+                />
+            </CardContent>
+        </Card>
+    );
 };
 
 export default CreateDocumentFormatPage;
 
 CreateDocumentFormatPage.layout = (page: any) => {
-  const pagePropsData = page.props;
+    const pagePropsData = page.props;
 
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Membuat Format Dokumen"} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>Membuat Kelola Format Dokumen</BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      {page}
-    </RoleBasedLayout>
-  );
+    return (
+        <RoleBasedLayout propsData={pagePropsData}>
+            <Head title={pagePropsData?.page_settings?.title ?? "Membuat Format Dokumen"} />
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>
+                            Membuat Kelola Format Dokumen
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+            {page}
+        </RoleBasedLayout>
+    );
 };

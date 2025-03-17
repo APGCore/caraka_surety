@@ -1,4 +1,4 @@
 export enum JobTypeEnum {
-  CONDITIONAL = "Conditional",
-  UNCONDITIONAL = "Unconditional",
+    CONDITIONAL = "Conditional",
+    UNCONDITIONAL = "Unconditional",
 }

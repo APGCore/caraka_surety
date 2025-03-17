@@ -7,20 +7,20 @@ import { staffRoute } from "./staff-layout.constant";
 import { StaffLayoutPageProps } from "./staff-layout.type";
 
 export const StaffLayoutPage: StaffLayoutPageProps = ({ children, user, roles, guarantor }) => {
-  useFlashMessageToast();
+    useFlashMessageToast();
 
-  return (
-    <SidebarProvider>
-      <AppSidebar user={user} routes={staffRoute} roles={roles} />
-      <SidebarInset>
-        <Navbar guarantor={guarantor} />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
-          {children}
-        </div>
-      </SidebarInset>
-      <Toaster />
-    </SidebarProvider>
-  );
+    return (
+        <SidebarProvider>
+            <AppSidebar user={user} routes={staffRoute} roles={roles} />
+            <SidebarInset>
+                <Navbar guarantor={guarantor} />
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+                    {children}
+                </div>
+            </SidebarInset>
+            <Toaster />
+        </SidebarProvider>
+    );
 };
 
 export default StaffLayoutPage;
