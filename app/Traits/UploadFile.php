@@ -37,7 +37,7 @@ trait UploadFile
         $fileName = str_replace(' ', '_', $fileName);
         $newFileName = time().'_'.$fileName.'.'.$extension;
 
-        return $file->storeAs($path, $newFileName, 'public');
+        return $file->storeAs($path, $newFileName, config('filesystems.default'));
     }
 
     /**
@@ -45,8 +45,9 @@ trait UploadFile
      */
     public function deleteFile($pathAndFileName): void
     {
-        if (Storage::disk('public')->exists($pathAndFileName)) {
-            Storage::disk('public')->delete($pathAndFileName);
+        $disk = config('filesystems.default');
+        if (Storage::disk($disk)->exists($pathAndFileName)) {
+            Storage::disk($disk)->delete($pathAndFileName);
         }
     }
 }
