@@ -9,13 +9,10 @@ use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Product\Product;
-use App\Models\Product\ProductType;
 use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
-use App\Models\Submission\SourceOfFund;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionBlank;
 use App\Models\Submission\SubmissionCallback;
@@ -548,10 +545,10 @@ class SubmissionController extends Controller
         $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-            ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -786,10 +783,10 @@ class SubmissionController extends Controller
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-            ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -1006,10 +1003,10 @@ class SubmissionController extends Controller
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
         $submission->guarantor_address =
-            ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-            ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-            ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-            ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -1238,8 +1235,11 @@ class SubmissionController extends Controller
             ->where('guarantor_id', $this->guarantorId)
             ->where('staff_id', '=', $authId)
             ->when($search, function ($query) use ($search) {
-                $query->whereHas('principal', function ($query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%");
+                $query->where(function ($query) use ($search) {
+                    $query->where('no_guarantee', 'like', "%{$search}%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->when($perPage, function ($query) use ($perPage) {
@@ -1794,11 +1794,12 @@ class SubmissionController extends Controller
                 $submission->submissionDocs()->createMany($docData);
             }
 
+            $isRevision = $submission->getAttribute('submission_before_id') !== null;
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
             $messageSend = '';
             if ($hostToHost) {
-                $result = $this->sendToGuarantor($submission->getAttribute('id'));
+                $result = $this->sendToGuarantor($submission->getAttribute('id'), $isRevision);
                 if ($result['status'] == 'success') {
                     $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
                 } else {
@@ -1907,8 +1908,8 @@ class SubmissionController extends Controller
 
             return response()->json([
                 'message' => $submissionDoc->wasRecentlyCreated
-                    ? 'Dokumen berhasil dibuat.'
-                    : 'Dokumen berhasil diperbarui.',
+                  ? 'Dokumen berhasil dibuat.'
+                  : 'Dokumen berhasil diperbarui.',
                 'data' => $submissionDoc,
             ], 201);
         } catch (Exception $e) {
@@ -2045,7 +2046,9 @@ class SubmissionController extends Controller
 
     public function send($submissionId): JsonResponse
     {
-        $result = $this->sendToGuarantor($submissionId);
+        $submission = Submission::find($submissionId);
+        $isRevision = $submission->getAttribute('submission_before_id') !== null;
+        $result = $this->sendToGuarantor($submissionId, $isRevision);
 
         if ($result['status'] === 'success') {
             Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
@@ -2058,7 +2061,7 @@ class SubmissionController extends Controller
         return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
     }
 
-    private function sendToGuarantor($submissionId): array
+    private function sendToGuarantor($submissionId, $isRevision = false): array
     {
         $submission = Submission::query()
             ->with([
@@ -2095,22 +2098,17 @@ class SubmissionController extends Controller
         $jobRegency = $submission->getRelation('regency');
         $jobDistrict = $submission->getRelation('district');
         $sourceOfFound = $submission->getRelation('sourceOfFund');
-        $products = Product::get(['id', 'name']);
-        $productTypes = ProductType::get(['id', 'name']);
-        $sourceOfFounds = SourceOfFund::get(['id', 'name']);
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
+        $url = $isRevision ? $url.'/endrosment' : $url.'/submission';
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
         $result = [
             'submission_id' => $submission->getAttribute('id'),
-            //            'resources' => [
-            //                'project_group' => JobGroup::getValues(),
-            //                'project_type' => JobType::getValues(),
-            //                'product' => $products->toArray(),
-            //                'product_type' => $productTypes->toArray(),
-            //                'source_of_fund' => $sourceOfFounds->toArray(),
-            //            ],
+            ...($isRevision ? [
+                'previous_id' => $submission->getAttribute('submission_before_id'),
+                'remarks' => $submission->getAttribute('remarks'),
+            ] : []),
             'principal' => [
                 'id' => $principal->getAttribute('id'),
                 'name' => $principal->getAttribute('name'),
