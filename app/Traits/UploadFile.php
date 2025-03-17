@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -30,16 +31,29 @@ trait UploadFile
     /**
      * Upload file to the storage.
      */
-    public function uploadFile(UploadedFile $file, $path, $fileName): string
+    public function uploadFile(UploadedFile $file, string $path, string $fileName): string
     {
-        $extension = in_array($file->getClientOriginalExtension(), ['png', 'jpg', 'jpeg'])
+        // Ensure a valid extension (defaults to PDF if not image)
+        $allowedExtensions = ['png', 'jpg', 'jpeg'];
+        $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
             ? $file->getClientOriginalExtension()
             : 'pdf';
-        $fileName = str_replace(' ', '_', $fileName);
-        $newFileName = time() . '_' . $fileName . '.' . $extension;
-        $cleanPath = ltrim($path, '/');
 
-        return Storage::disk(config('filesystems.default'))->putFileAs($cleanPath, $file, $newFileName);
+        // Format file name
+        $sanitizedFileName = time() . '_' . str_replace(' ', '_', $fileName) . '.' . $extension;
+
+        // Ensure path does not have leading slashes
+        $cleanPath = trim($path, '/');
+
+        // Store file
+        $disk = Storage::disk(config('filesystems.default'));
+        $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+
+        if (!$storedPath) {
+            throw new Exception("File upload failed.");
+        }
+
+        return $storedPath;
     }
 
     /**
