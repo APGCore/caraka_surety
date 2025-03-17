@@ -37,8 +37,9 @@ trait UploadFile
             : 'pdf';
         $fileName = str_replace(' ', '_', $fileName);
         $newFileName = time() . '_' . $fileName . '.' . $extension;
+        $cleanPath = ltrim($path, '/');
 
-        return Storage::disk(config('filesystems.default'))->putFileAs($path, $file, $newFileName);
+        return Storage::disk(config('filesystems.default'))->putFileAs($cleanPath, $file, $newFileName);
     }
 
     /**
