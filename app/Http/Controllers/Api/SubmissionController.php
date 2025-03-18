@@ -31,7 +31,7 @@ class SubmissionController extends Controller
             $fileData = $this->base64ToFile($imageString);
             $submissionId = $request->get('submission_id');
             // save image to storage
-            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId . '-image-from-guarantor');
 
             $data = SubmissionCallback::query()->updateOrCreate(
                 ['submission_id' => $submissionId],
@@ -61,9 +61,9 @@ class SubmissionController extends Controller
             ->find($submissionId);
         $guarantor = $submission->getRelation('guarantor');
         $hostToHost = $guarantor->getRelation('hostToHost');
-        $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
+        $url = $hostToHost->getAttribute('guarantor_url_host') . '/status';
         $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+        $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
 
         $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
 
@@ -75,7 +75,7 @@ class SubmissionController extends Controller
                 // base64 to file
                 $fileData = $this->base64ToFile($imageString);
                 // save image to storage
-                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId . '-image-from-guarantor');
                 $submission->update(['has_send_to_guarantor' => true]);
                 SubmissionCallback::query()->updateOrCreate(
                     ['submission_id' => $submissionId],
@@ -102,8 +102,8 @@ class SubmissionController extends Controller
     {
         $submission = Submission::query()
             ->with([
-                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                'director_name,director_position,director_phone,commissioner,year_established,'.
+                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,' .
+                'director_name,director_position,director_phone,commissioner,year_established,' .
                 'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
@@ -142,7 +142,7 @@ class SubmissionController extends Controller
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
         $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+        $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
         $result = [
             'submission_id' => $submission->getAttribute('id'),
             'principal' => [
@@ -252,7 +252,7 @@ class SubmissionController extends Controller
     {
         try {
             $path = $request->get('path');
-            $file = $this->getFilePath($path);
+            $file = $this->getFileUrl($path);
 
             return response()->download($file);
         } catch (Exception $e) {
