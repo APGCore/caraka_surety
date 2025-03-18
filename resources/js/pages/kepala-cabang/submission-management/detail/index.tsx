@@ -196,7 +196,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         // Informasi Guarantor
         guarantor_name: submission.guarantor?.name || "",
         guarantor_address: submission.guarantor_address || "",
-        guarantor_pic: submission.guarantor?.pic || "",
+        guarantor_pic: submission.guarantor_pic || "",
         guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
         guarantor_city: submission.guarantor_city || "",
 
