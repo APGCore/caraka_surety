@@ -57,6 +57,21 @@ trait UploadFile
     }
 
     /**
+     * Get the file path from the storage.
+     */
+    public function getFilePath($pathAndFileName): string
+    {
+        $disk = config('filesystems.default');
+        $path = Storage::disk($disk)->path($pathAndFileName);
+
+        if (! file_exists($path)) {
+            throw new Exception('File not found.');
+        }
+
+        return $path;
+    }
+
+    /**
      * Delete file from the storage.
      */
     public function deleteFile($pathAndFileName): void
