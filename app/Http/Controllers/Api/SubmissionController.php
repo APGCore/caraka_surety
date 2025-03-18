@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
-use App\Http\Requests\Submission\GetFileRequest;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
 use App\Services\HostToHostService;
@@ -246,19 +245,5 @@ class SubmissionController extends Controller
         ];
 
         return $this->responseSuccess('Berhasil Mengambil Data', $result);
-    }
-
-    public function getFile(GetFileRequest $request)
-    {
-        try {
-            $path = $request->get('path');
-            $file = $this->getFileUrl($path);
-
-            return response()->download($file);
-        } catch (Exception $e) {
-            Log::error('Get File Error: ', ['message' => $e->getMessage()]);
-
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil File', $e->getMessage());
-        }
     }
 }
