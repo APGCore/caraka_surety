@@ -517,7 +517,6 @@ class SubmissionController extends Controller
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
         ]);
@@ -1952,15 +1951,16 @@ class SubmissionController extends Controller
                 // Generate nama file unik
                 $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
                 // Simpan file di folder dengan path berdasarkan submission_id
-                $spkmgrPath = $spkmgrFile->storeAs(
-                    "documents/spkmgr/{$submissionId}",
-                    $uniqueName,
-                    'public'
-                );
+                //                $spkmgrPath = $spkmgrFile->storeAs(
+                //                    "documents/spkmgr/{$submissionId}",
+                //                    $uniqueName,
+                //                    'public'
+                //                );
+                $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/{$submissionId}", $uniqueName);
                 $documents[] = [
                     'submission_id' => $submissionId,
                     'document_format_id' => null,
-                    'name' => $uniqueName,
+                    'name' => 'Surat Pernyataan Kesediaan Membayar Ganti Rugi (SPKMGR)',
                     'format_document' => null,
                     'url' => $spkmgrPath,
                 ];
@@ -1971,15 +1971,16 @@ class SubmissionController extends Controller
                 // Generate nama file unik
                 $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
                 // Simpan file di folder dengan path berdasarkan submission_id
-                $permohonanPath = $permohonanFile->storeAs(
-                    "documents/permohonan/{$submissionId}",
-                    $uniqueName,
-                    'public'
-                );
+                //                $permohonanPath = $permohonanFile->storeAs(
+                //                    "documents/permohonan/{$submissionId}",
+                //                    $uniqueName,
+                //                    'public'
+                //                );
+                $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/{$submissionId}", $uniqueName);
                 $documents[] = [
                     'submission_id' => $submissionId,
                     'document_format_id' => null,
-                    'name' => $uniqueName,
+                    'name' => 'Surat Permohonan',
                     'format_document' => null,
                     'url' => $permohonanPath,
                 ];
@@ -2082,6 +2083,7 @@ class SubmissionController extends Controller
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
                 'principal.district:id,code,name',
+                'principal.documents:id,principal_id,name,url',
                 'blanks',
                 'guarantor:id,code,name',
                 'guarantorBranch:id,code,name',
@@ -2096,7 +2098,7 @@ class SubmissionController extends Controller
                 'regency:id,code,name',
                 'district:id,code,name',
                 'sourceOfFund:id,name',
-                'submissionDocs:id,submission_id,name,format_document',
+                'submissionDocs:id,submission_id,name,format_document,url',
             ])->find($submissionId);
         $principal = $submission->getRelation('principal');
         $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
@@ -2109,6 +2111,9 @@ class SubmissionController extends Controller
         $jobRegency = $submission->getRelation('regency');
         $jobDistrict = $submission->getRelation('district');
         $sourceOfFound = $submission->getRelation('sourceOfFund');
+        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
+        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
+
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
         $url = $isRevision ? $url.'/endrosment' : $url.'/submission';
@@ -2146,6 +2151,12 @@ class SubmissionController extends Controller
                     'address' => $principal->getAttribute('address'),
                     'postal_code' => $principal->getAttribute('postal_code'),
                 ],
+                'docs' => $principal->getRelation('documents')->map(function ($doc) {
+                    return [
+                        'name' => $doc->getAttribute('name'),
+                        'url' => $doc->getAttribute('url'),
+                    ];
+                })->toArray(),
             ],
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
@@ -2200,10 +2211,16 @@ class SubmissionController extends Controller
                     ],
                 ],
             ],
-            'output' => $submission->getRelation('submissionDocs')->map(function ($doc) {
+            'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
                     'value' => $doc->getAttribute('format_document'),
+                ];
+            })->toArray(),
+            'final_output_file' => $submissionDocsFile->map(function ($doc) {
+                return [
+                    'name' => $doc->getAttribute('name'),
+                    'url' => $doc->getAttribute('url'),
                 ];
             })->toArray(),
         ];
