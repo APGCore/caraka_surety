@@ -13,9 +13,9 @@ class FileController extends Controller
     {
         try {
             $path = $request->get('path');
-            $file = $this->getFileUrl($path);
+            $url = $this->getFileUrl($path);
 
-            return response()->download($file);
+            return response()->redirectTo($url);
         } catch (Exception $e) {
             Log::error('Get File Error: ', ['message' => $e->getMessage()]);
 

@@ -59,16 +59,31 @@ trait UploadFile
     /**
      * Get the file path from the storage.
      */
-    public function getFileUrl($pathAndFileName): string
+    public function getFileUrl($path): string
     {
-        $disk = config('filesystems.default');
+        $disk = Storage::disk(config('filesystems.default'));
 
-        if (!Storage::disk($disk)->exists($pathAndFileName)) {
-            throw new Exception('File not found.');
+        // Jika bucket public, langsung return URL biasa
+        if ($disk->exists($path)) {
+            return $disk->url($path);
         }
 
-        return Storage::disk($disk)->path($pathAndFileName);
+        // Jika private, buat signed URL manual (valid 60 menit)
+        return $this->generateTemporaryUrl($path, 60);
     }
+
+    private function generateTemporaryUrl($path, $minutes): string
+    {
+        $bucket = env('AWS_BUCKET');
+        $endpoint = env('AWS_ENDPOINT');
+
+        // Generate timestamp untuk expired time
+        $expires = now()->addMinutes($minutes)->timestamp;
+
+        // Buat URL manual (tanpa signature)
+        return "{$endpoint}/{$bucket}/{$path}?expires={$expires}";
+    }
+
 
     /**
      * Delete file from the storage.
