@@ -254,6 +254,7 @@ interface SubmissionDetailProps {
         guarantor_address: string;
         terbilang: string;
         guarantor_city: string;
+        guarantor_pic: string;
     };
 
     submissionData: {

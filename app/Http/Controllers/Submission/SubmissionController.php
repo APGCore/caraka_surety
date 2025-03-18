@@ -454,6 +454,10 @@ class SubmissionController extends Controller
         $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
+        // get submission pic
+        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+
+
         return inertia('staff/submission-management/history/detail/index', [
             'submission' => fn () => $submission,
         ]);
@@ -684,6 +688,9 @@ class SubmissionController extends Controller
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+
+        // get submission pic
+        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
         return inertia('manager/submission-management/detail/index', [
             'submission' => fn () => $submission,
@@ -920,6 +927,8 @@ class SubmissionController extends Controller
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+        // get submission pic
+        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
         return inertia('direksi/submission-management/history/detail/index', [
             'submission' => $submission,
@@ -1147,6 +1156,8 @@ class SubmissionController extends Controller
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+        // get submission pic
+        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
         return inertia('kepala-cabang/submission-management/detail/index', [
             'submission' => fn () => $submission,
