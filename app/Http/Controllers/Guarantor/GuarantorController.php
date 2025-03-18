@@ -142,6 +142,8 @@ class GuarantorController extends Controller
                 }
                 $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
+            } else {
+                unset($requestValid['picture']);
             }
 
             $guarantor->update($requestValid);
