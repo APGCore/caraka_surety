@@ -6,5 +6,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(FileController::class)->prefix('file')->name('file.')->group(function () {
     Route::middleware(GetFileByTokenGuarantorMiddleware::class)
-        ->get('/', 'getFile')->name('index');
+        ->get('/', 'index')->name('index');
 });
