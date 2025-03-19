@@ -788,6 +788,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor }) => {
                                             <Fragment>
                                                 {/* STEPPER BULLET */}
                                                 <button
+                                                    type="button"
                                                     // onClick={(e) => {
                                                     //     e.preventDefault();
                                                     //     e.stopPropagation();
