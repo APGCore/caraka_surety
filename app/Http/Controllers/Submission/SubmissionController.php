@@ -1406,15 +1406,15 @@ class SubmissionController extends Controller
         $component = 'direksi/submission-management/list/index';
 
         $authId = auth()->id();
-        $staffs = User::query()
-            ->where('head_id', '=', $authId)
-            ->pluck('id');
+        //        $staffs = User::query()
+        //            ->where('head_id', '=', $authId)
+        //            ->pluck('id');
 
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
             ->where('checked_by', '!=', null)
             ->where('status', SubmissionStatus::PROCESS->value)
-            ->whereIn('checked_by', $staffs)
+//            ->whereIn('checked_by', $staffs)
             ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
             ->orderByDesc('created_at')
             ->get()
@@ -2171,7 +2171,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -2220,7 +2220,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),

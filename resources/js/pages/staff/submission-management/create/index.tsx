@@ -18,17 +18,6 @@ import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
@@ -661,14 +650,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                     return (
                       <Fragment>
                         {/* STEPPER BULLET */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleClickStep(step.name);
-                          }}
-                          className="flex items-center cursor-pointer flex-col justify-center">
+                        <button type="button" className="flex items-center cursor-default flex-col justify-center">
                           <div
                             className={cn(
                               "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 bg-gray-300 text-gray-700",
@@ -723,20 +705,20 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                     {...data.principal}
                     onChangePrincipal={(field: string, value: string | number) => {
                       if (field === "province_id") {
-                        setData("principal", {
+                        setData("principal" as any, {
                           ...data.principal,
                           regency_id: "",
                           district_id: "",
                           [field]: typeof value === "number" ? String(value) : value,
                         });
                       } else if (field === "regency_id") {
-                        setData("principal", {
+                        setData("principal" as any, {
                           ...data.principal,
                           district_id: "",
                           [field]: typeof value === "number" ? String(value) : value,
                         });
                       } else {
-                        setData("principal", {
+                        setData("principal" as any, {
                           ...data.principal,
                           [field]: typeof value === "number" ? String(value) : value,
                         });
