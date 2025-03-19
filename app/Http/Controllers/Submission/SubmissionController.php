@@ -265,7 +265,9 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    $doc->url = Storage::url($principalDoc->url);
+                    if ($doc->url) {
+                        $doc->url = Storage::url($principalDoc->url);
+                    }
                 }
 
                 return $doc;
@@ -506,7 +508,9 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    $doc->url = Storage::url($principalDoc->url);
+                    if ($doc->url) {
+                        $doc->url = Storage::url($principalDoc->url);
+                    }
                 }
 
                 return $doc;
@@ -742,7 +746,9 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    $doc->url = Storage::url($principalDoc->url);
+                    if ($doc->url) {
+                        $doc->url = Storage::url($principalDoc->url);
+                    }
                 }
 
                 return $doc;
@@ -765,7 +771,9 @@ class SubmissionController extends Controller
 
         // GET DOC
         $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
-            $docSig->url = Storage::url($docSig->url);
+            if ($docSig->url) {
+                $docSig->url = Storage::url($docSig->url);
+            }
 
             return $docSig;
         });
@@ -974,7 +982,9 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    $doc->url = Storage::url($principalDoc->url);
+                    if ($doc->url) {
+                        $doc->url = Storage::url($principalDoc->url);
+                    }
                 }
 
                 return $doc;
