@@ -43,13 +43,13 @@ class GuarantorController extends Controller
             ->appends($request->all());
 
         $resource = GuarantorResource::collection($guarantors);
-        $component = $request->path() . '/index';
+        $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Data Asuransi',
             ],
-            'guarantors' => fn() => $resource,
+            'guarantors' => fn () => $resource,
         ]);
     }
 
@@ -58,7 +58,7 @@ class GuarantorController extends Controller
      */
     public function create(): Response
     {
-        $component = request()->path() . '/index';
+        $component = request()->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -77,7 +77,7 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
                 $requestValid['picture'] = $path;
             }
@@ -116,13 +116,13 @@ class GuarantorController extends Controller
         $guarantor->setAttribute('picture', $picture);
         $guarantor->load('pattern');
 
-        $component = str_replace('/' . $guarantor->getAttribute('id'), '', request()->path()) . '/index';
+        $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Asuransi',
             ],
-            'guarantor' => fn() => $guarantor,
+            'guarantor' => fn () => $guarantor,
         ]);
     }
 
@@ -140,7 +140,7 @@ class GuarantorController extends Controller
                 if ($picture) {
                     $this->deleteFile($picture);
                 }
-                $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
+                $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             } else {
                 unset($requestValid['picture']);
@@ -211,8 +211,8 @@ class GuarantorController extends Controller
         $hostToHostId = $request->get('host_to_host_id');
 
         $guarantors = Guarantor::query()
-            ->when($isHead, fn($query) => $query->whereNull('headquarter_id'), fn($query) => $query->whereNotNull('headquarter_id'))
-            ->when($hostNotExist, fn($query) => $hostToHostId ? $query->whereDoesntHave('hostToHost', fn($query) => $query->whereNot('id', $hostToHostId)) : $query->doesntHave('hostToHost'))
+            ->when($isHead, fn ($query) => $query->whereNull('headquarter_id'), fn ($query) => $query->whereNotNull('headquarter_id'))
+            ->when($hostNotExist, fn ($query) => $hostToHostId ? $query->whereDoesntHave('hostToHost', fn ($query) => $query->whereNot('id', $hostToHostId)) : $query->doesntHave('hostToHost'))
             ->orderBy('name')
             ->get();
 
@@ -266,7 +266,7 @@ class GuarantorController extends Controller
             ->with('guarantorHead:id,headquarter_id,name')
             ->get(['guarantor_id']);
 
-        $guarantors = $guarantors->pluck('guarantorHead')->unique()->filter(fn($data) => $data != null)->values();
+        $guarantors = $guarantors->pluck('guarantorHead')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data penjamin', $guarantors);
     }
@@ -293,7 +293,7 @@ class GuarantorController extends Controller
             ->with('office:id,name', 'guarantor:id,name')
             ->get(['office_id', 'guarantor_id']);
 
-        $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique()->filter(fn($data) => $data != null)->values();
+        $guarantorBranch = $guarantorOffice->pluck('guarantor')->unique()->filter(fn ($data) => $data != null)->values();
 
         return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
     }

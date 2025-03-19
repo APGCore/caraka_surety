@@ -24,7 +24,7 @@ trait UploadFile
         $fileDataString = base64_decode($base64String);
 
         // $fileData to UploadedFile
-        return UploadedFile::fake()->createWithContent('file.' . $extension, $fileDataString);
+        return UploadedFile::fake()->createWithContent('file.'.$extension, $fileDataString);
 
     }
 
@@ -40,7 +40,7 @@ trait UploadFile
             : 'pdf';
 
         // Format file name
-        $sanitizedFileName = time() . '_' . str_replace(' ', '_', $fileName) . '.' . $extension;
+        $sanitizedFileName = time().'_'.str_replace(' ', '_', $fileName).'.'.$extension;
 
         // Ensure path does not have leading slashes
         $cleanPath = trim($path, '/');
@@ -49,7 +49,7 @@ trait UploadFile
         $disk = Storage::disk(config('filesystems.default'));
         $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
 
-        if (!$storedPath) {
+        if (! $storedPath) {
             throw new Exception('File upload failed.');
         }
 
@@ -84,20 +84,19 @@ trait UploadFile
         return "{$endpoint}/{$bucket}/{$path}?expires={$expires}";
     }
 
-
     /**
      * Delete file from the storage.
      */
     public function deleteFile($pathAndFileName): void
     {
         $disk = config('filesystems.default');
-        Log::info('Checking file: ' . $pathAndFileName);
+        Log::info('Checking file: '.$pathAndFileName);
 
         if (Storage::disk($disk)->exists($pathAndFileName)) {
-            Log::info('File exists, deleting: ' . $pathAndFileName);
+            Log::info('File exists, deleting: '.$pathAndFileName);
             Storage::disk($disk)->delete($pathAndFileName);
         } else {
-            Log::warning('File not found: ' . $pathAndFileName);
+            Log::warning('File not found: '.$pathAndFileName);
         }
     }
 }
