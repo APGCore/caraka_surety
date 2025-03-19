@@ -1819,7 +1819,8 @@ class SubmissionController extends Controller
             $hostToHost = $guarantor->getRelation('hostToHost');
             $messageSend = '';
             if ($hostToHost) {
-                $result = $this->sendToGuarantor($submission->getAttribute('id'), $isRevision);
+                $submissionIdForHost = $isRevision ? $submission->getAttribute('submission_before_id') : $submission->getAttribute('id');
+                $result = $this->sendToGuarantor($submissionIdForHost, $isRevision);
                 if ($result['status'] == 'success') {
                     $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
                 } else {
