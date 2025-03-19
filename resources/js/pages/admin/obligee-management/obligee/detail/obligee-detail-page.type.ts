@@ -1,9 +1,9 @@
 import React from "react";
 
 interface ObligeeDetailProps {
-    obligee: any;
+  obligee: any;
 }
 
 export type ObligeeDetailPageProps = React.FC<ObligeeDetailProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

@@ -1,9 +1,9 @@
 import React from "react";
 
 interface ObligeeManagementProps {
-    obligees: any;
+  obligees: any;
 }
 
 export type ObligeeManagementPageProps = React.FC<ObligeeManagementProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

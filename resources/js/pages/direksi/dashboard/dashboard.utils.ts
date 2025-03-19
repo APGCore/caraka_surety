@@ -1,5 +1,5 @@
 export const DashboardUtils = {
-    link: {
-        index: "direksi.index",
-    },
+  link: {
+    index: "direksi.index",
+  },
 };

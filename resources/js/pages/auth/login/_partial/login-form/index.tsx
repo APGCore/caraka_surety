@@ -19,44 +19,44 @@ import { greetingBasedOnDate } from "./login-form.util";
 // text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
-    guarantors: any[];
-    guarantorSelected: number;
-    className?: string;
-    setTab: (tab: string) => void;
+  guarantors: any[];
+  guarantorSelected: number;
+  className?: string;
+  setTab: (tab: string) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorSelected, setTab, ...props }) => {
-    const { data, errors, handleLogin, processing, setData } = useLoginForm();
-    const { post: deleteSession } = useForm();
+  const { data, errors, handleLogin, processing, setData } = useLoginForm();
+  const { post: deleteSession } = useForm();
 
-    const handleDeleteSession = () => {
-        deleteSession(route("onboarding.forget-guarantor"), {
-            onSuccess: () => {},
-        });
-    };
-    // const guarantor = guarantors.find((guarantor) => guarantor.id === guarantorSelected);
+  const handleDeleteSession = () => {
+    deleteSession(route("onboarding.forget-guarantor"), {
+      onSuccess: () => {},
+    });
+  };
+  // const guarantor = guarantors.find((guarantor) => guarantor.id === guarantorSelected);
 
-    // const handleSelectGuarantor = (guarantorId: number) => {
-    //   setData("guarantor_id", guarantorId);
-    //   router.get(route("login"), pickBy({ guarantor_id: guarantorId }), { preserveState: true, preserveScroll: true });
-    // };
+  // const handleSelectGuarantor = (guarantorId: number) => {
+  //   setData("guarantor_id", guarantorId);
+  //   router.get(route("login"), pickBy({ guarantor_id: guarantorId }), { preserveState: true, preserveScroll: true });
+  // };
 
-    // console.log(data);
-    // useEffect(() => {
-    //   setData("guarantor_id", 4);
-    // }, []);
+  // console.log(data);
+  // useEffect(() => {
+  //   setData("guarantor_id", 4);
+  // }, []);
 
-    return (
-        <div className={cn("flex flex-col gap-3", className)} {...props}>
-            <Card className="overflow-hidden rounded-none">
-                <CardContent className="grid p-0 h-[450px] md:grid-cols-2">
-                    <div className="relative hidden bg-muted md:flex md:justify-center md:items-center ">
-                        <img
-                            src="/bpr-jastan.png"
-                            alt="Image"
-                            className="absolute flex-shrink-0 inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                        />
-                        {/* <HoverCard openDelay={0}>
+  return (
+    <div className={cn("flex flex-col gap-3", className)} {...props}>
+      <Card className="overflow-hidden rounded-none">
+        <CardContent className="grid p-0 h-[450px] md:grid-cols-2">
+          <div className="relative hidden bg-muted md:flex md:justify-center md:items-center ">
+            <img
+              src="/bpr-jastan.png"
+              alt="Image"
+              className="absolute flex-shrink-0 inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            />
+            {/* <HoverCard openDelay={0}>
               <HoverCardTrigger asChild>
                 {guarantor?.picture ? (
                   <img
@@ -80,57 +80,57 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
                 />
               </HoverCardContent>
             </HoverCard> */}
-                    </div>
-                    <div className="w-[360px] border-l-[1.4px] border-blue-950">
-                        <form id="login-form" onSubmit={handleLogin} className="px-6 flex flex-col mt-[30px]">
-                            <div className="flex min-w-[260px] flex-col gap-7 pb-4">
-                                <div className="text-start">
-                                    <h1 className="text-2xl font-bold">Hello!</h1>
-                                    <p className="text-2xl font-bold text-red-700 ">{greetingBasedOnDate()}</p>
-                                </div>
-                                <div className="grid gap-2">
-                                    <InputField
-                                        id="username"
-                                        label="User ID"
-                                        name="username"
-                                        required
-                                        value={data.username}
-                                        onChange={(e) => {
-                                            setData("username", e.target.value);
-                                        }}
-                                    />
-                                    <InputError message={errors.username} className="mt-1" />
-                                </div>
-                                <div className="grid gap-2">
-                                    <PasswordInputField
-                                        id="password"
-                                        label="Password"
-                                        required
-                                        value={data.password}
-                                        onChange={(e) => setData("password", e.target.value)}
-                                    />
-                                    <InputError message={errors.password} className="mt-1" />
-                                </div>
-                                <div className="grid gap-2 mt-2">
-                                    <Button
-                                        form="login-form"
-                                        className="w-full uppercase  bg-red-700 hover:bg-red-500"
-                                        disabled={processing}>
-                                        <Loading isLoading={processing} className="mr-1 " /> Submit
-                                    </Button>
-                                    {/* <Button type="button" onClick={() => setTab("admin")}>
+          </div>
+          <div className="w-[360px] border-l-[1.4px] border-blue-950">
+            <form id="login-form" onSubmit={handleLogin} className="px-6 flex flex-col mt-[30px]">
+              <div className="flex min-w-[260px] flex-col gap-7 pb-4">
+                <div className="text-start">
+                  <h1 className="text-2xl font-bold">Hello!</h1>
+                  <p className="text-2xl font-bold text-red-700 ">{greetingBasedOnDate()}</p>
+                </div>
+                <div className="grid gap-2">
+                  <InputField
+                    id="username"
+                    label="User ID"
+                    name="username"
+                    required
+                    value={data.username}
+                    onChange={(e) => {
+                      setData("username", e.target.value);
+                    }}
+                  />
+                  <InputError message={errors.username} className="mt-1" />
+                </div>
+                <div className="grid gap-2">
+                  <PasswordInputField
+                    id="password"
+                    label="Password"
+                    required
+                    value={data.password}
+                    onChange={(e) => setData("password", e.target.value)}
+                  />
+                  <InputError message={errors.password} className="mt-1" />
+                </div>
+                <div className="grid gap-2 mt-2">
+                  <Button
+                    form="login-form"
+                    className="w-full uppercase  bg-red-700 hover:bg-red-500"
+                    disabled={processing}>
+                    <Loading isLoading={processing} className="mr-1 " /> Submit
+                  </Button>
+                  {/* <Button type="button" onClick={() => setTab("admin")}>
                     Login Admin
                   </Button> */}
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </CardContent>
-            </Card>
-            <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-red-700 [&_span]:underline [&_span]:underline-offset-4 hover:[&_span]:text-red-700 [&_span]:cursor-pointer">
-                Enter your credentials correctly. If you forget your password, please contact the{" "}
-                <Link href={route("login.adminn")}>Admin</Link>.
-                {/* or
+                </div>
+              </div>
+            </form>
+          </div>
+        </CardContent>
+      </Card>
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-red-700 [&_span]:underline [&_span]:underline-offset-4 hover:[&_span]:text-red-700 [&_span]:cursor-pointer">
+        Enter your credentials correctly. If you forget your password, please contact the{" "}
+        <Link href={route("login.adminn")}>Admin</Link>.
+        {/* or
         <span
           onClick={(e) => {
             e.preventDefault();
@@ -139,9 +139,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
           Reset the session
         </span>
         . */}
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default LoginForm;

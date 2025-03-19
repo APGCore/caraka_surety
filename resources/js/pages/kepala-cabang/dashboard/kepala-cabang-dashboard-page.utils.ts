@@ -1,5 +1,5 @@
 export const DashboardUtils = {
-    link: {
-        index: "kepala-cabang.index",
-    },
+  link: {
+    index: "kepala-cabang.index",
+  },
 };

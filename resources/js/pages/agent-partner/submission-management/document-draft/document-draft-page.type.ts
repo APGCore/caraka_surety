@@ -1,9 +1,9 @@
 import React from "react";
 
 interface SubmissionDocumentDraftProps {
-    submissions: any[];
+  submissions: any[];
 }
 
 export type SubmissionDocumentDraftPageProps = React.FC<SubmissionDocumentDraftProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

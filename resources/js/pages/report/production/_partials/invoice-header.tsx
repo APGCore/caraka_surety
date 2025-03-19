@@ -4,25 +4,25 @@ import { Head } from "@inertiajs/react";
 import React from "react";
 
 interface InvoiceHeaderProps {
-    title: string;
+  title: string;
 }
 
 const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ title }) => {
-    return (
-        <>
-            <Head title={title ?? "Invoice"} />
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href={route(InvoiceUtils.link.index)}>Laporan Invoice</BreadcrumbLink>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Invoice"}</h1>
-            </div>
-        </>
-    );
+  return (
+    <>
+      <Head title={title ?? "Invoice"} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={route(InvoiceUtils.link.index)}>Laporan Invoice</BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Invoice"}</h1>
+      </div>
+    </>
+  );
 };
 
 export default InvoiceHeader;

@@ -7,39 +7,39 @@ import { GuarantorUtils } from "@/pages/admin/guarantor-management/guarantor/gua
 import { Head } from "@inertiajs/react";
 
 const GuarantorEditPage: GuarantorEditPageProps = ({ guarantor }) => {
-    return (
-        <Card className="w-[800px] mx-auto">
-            <CardHeader>
-                <CardTitle>Mengubah Data Asuransi</CardTitle>
-                <CardDescription>Untuk mengubah data asuransi</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <GuarantorForm
-                    guarantor={guarantor}
-                    routeSubmit={route(GuarantorUtils.link.update, guarantor.id)}
-                    routeBack={route(GuarantorUtils.link.index)}
-                />
-            </CardContent>
-        </Card>
-    );
+  return (
+    <Card className="w-[800px] mx-auto">
+      <CardHeader>
+        <CardTitle>Mengubah Data Asuransi</CardTitle>
+        <CardDescription>Untuk mengubah data asuransi</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <GuarantorForm
+          guarantor={guarantor}
+          routeSubmit={route(GuarantorUtils.link.update, guarantor.id)}
+          routeBack={route(GuarantorUtils.link.index)}
+        />
+      </CardContent>
+    </Card>
+  );
 };
 
 export default GuarantorEditPage;
 
 GuarantorEditPage.layout = (page: any) => {
-    const pagePropsData = page.props;
+  const pagePropsData = page.props;
 
-    return (
-        <RoleBasedLayout propsData={pagePropsData}>
-            <Head title={pagePropsData?.page_settings?.title} />
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-            {page}
-        </RoleBasedLayout>
-    );
+  return (
+    <RoleBasedLayout propsData={pagePropsData}>
+      <Head title={pagePropsData?.page_settings?.title} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      {page}
+    </RoleBasedLayout>
+  );
 };

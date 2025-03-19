@@ -1,9 +1,9 @@
 import React from "react";
 
 interface AdminProductTypesProps {
-    productTypes: any;
+  productTypes: any;
 }
 
 export type AdminProductTypesPageProps = React.FC<AdminProductTypesProps> & {
-    layout?: (page: any) => JSX.Element;
+  layout?: (page: any) => JSX.Element;
 };

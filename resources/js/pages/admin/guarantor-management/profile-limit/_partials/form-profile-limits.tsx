@@ -1,13 +1,13 @@
 import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import {
-    AlertDialog,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Label } from "@/components/_shadcn-ui/label";
@@ -21,188 +21,183 @@ import React, { useState } from "react";
 import { FormProfileLimitsUtils } from "./form-profile-limits.utils";
 
 interface FormProfileLimitsProps {
-    isEdit?: boolean;
-    guarantorSelectedId: number;
-    guarantorProductId: number;
-    guarantorProductTypeId: number;
-    guarantorToProductTypeId: number;
-    jobGroupSelected: string;
-    jobTypeSelected: string;
-    profile?: any;
+  isEdit?: boolean;
+  guarantorSelectedId: number;
+  guarantorProductId: number;
+  guarantorProductTypeId: number;
+  guarantorToProductTypeId: number;
+  jobGroupSelected: string;
+  jobTypeSelected: string;
+  profile?: any;
 }
 
 const FormProfileLimits: React.FC<FormProfileLimitsProps> = ({
-    isEdit,
-    guarantorSelectedId,
-    guarantorProductId,
-    guarantorProductTypeId,
-    guarantorToProductTypeId,
-    jobGroupSelected,
-    jobTypeSelected,
-    profile,
+  isEdit,
+  guarantorSelectedId,
+  guarantorProductId,
+  guarantorProductTypeId,
+  guarantorToProductTypeId,
+  jobGroupSelected,
+  jobTypeSelected,
+  profile,
 }) => {
-    const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const defaultErrors = {
-        guarantor_id: null,
-        guarantor_to_product_type_id: null,
-        profile_id: null,
-        name: null,
-        limit: null,
-        limit_inherit: null,
-    };
-    const [errors, setErrors] = useState<{
-        guarantor_id: Array<number> | null;
-        guarantor_to_product_type_id: Array<number> | null;
-        profile_id: Array<number> | null;
-        name: Array<string> | null;
-        limit: Array<string> | null;
-        limit_inherit: Array<string> | null;
-    }>(defaultErrors);
+  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const defaultErrors = {
+    guarantor_id: null,
+    guarantor_to_product_type_id: null,
+    profile_id: null,
+    name: null,
+    limit: null,
+    limit_inherit: null,
+  };
+  const [errors, setErrors] = useState<{
+    guarantor_id: Array<number> | null;
+    guarantor_to_product_type_id: Array<number> | null;
+    profile_id: Array<number> | null;
+    name: Array<string> | null;
+    limit: Array<string> | null;
+    limit_inherit: Array<string> | null;
+  }>(defaultErrors);
 
-    const [dataForm, setDataForm] = useState<{
-        guarantor_id: number;
-        guarantor_to_product_type_id: number;
-        profile_id: number;
-        name: string;
-        limit: string | undefined;
-        limit_inherit: string | undefined;
-    }>({
-        guarantor_id: guarantorSelectedId,
-        guarantor_to_product_type_id: guarantorToProductTypeId,
-        profile_id: profile?.id ?? 0,
-        name: profile?.name ?? "",
-        limit: profile?.profile_limit?.limit ?? undefined,
-        limit_inherit: profile?.profile_limit?.limit_inherit ?? undefined,
-    });
+  const [dataForm, setDataForm] = useState<{
+    guarantor_id: number;
+    guarantor_to_product_type_id: number;
+    profile_id: number;
+    name: string;
+    limit: string | undefined;
+    limit_inherit: string | undefined;
+  }>({
+    guarantor_id: guarantorSelectedId,
+    guarantor_to_product_type_id: guarantorToProductTypeId,
+    profile_id: profile?.id ?? 0,
+    name: profile?.name ?? "",
+    limit: profile?.profile_limit?.limit ?? undefined,
+    limit_inherit: profile?.profile_limit?.limit_inherit ?? undefined,
+  });
 
-    const params = {
-        guarantor_id: guarantorSelectedId,
-        guarantor_product_id: guarantorProductId,
-        guarantor_product_type_id: guarantorProductTypeId,
-        job_group: jobGroupSelected,
-        job_type: jobTypeSelected,
-    };
+  const params = {
+    guarantor_id: guarantorSelectedId,
+    guarantor_product_id: guarantorProductId,
+    guarantor_product_type_id: guarantorProductTypeId,
+    job_group: jobGroupSelected,
+    job_type: jobTypeSelected,
+  };
 
-    const submit = () => {
-        setIsLoading(true);
+  const submit = () => {
+    setIsLoading(true);
 
-        if (isEdit) {
-            axios
-                .put(route(FormProfileLimitsUtils.edit.route, profile?.profile_limit?.id), { ...dataForm })
-                .then(() => {
-                    toast({
-                        ...FormProfileLimitsUtils.edit.toast_success,
-                    });
-                    setErrors(defaultErrors);
-                    setIsOpenForm(false);
-                    router.get(route(FormProfileLimitsUtils.redirect, params));
-                })
-                .catch((error) => {
-                    setErrors(error.response.data.errors);
-                    toast({
-                        ...FormProfileLimitsUtils.edit.toast_failed,
-                        variant: "destructive",
-                    });
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        } else {
-            axios
-                .post(route(FormProfileLimitsUtils.create.route), { ...dataForm })
-                .then(() => {
-                    toast({
-                        ...FormProfileLimitsUtils.create.toast_success,
-                    });
-                    setErrors(defaultErrors);
-                    setIsOpenForm(false);
-                    router.get(route(FormProfileLimitsUtils.redirect, params));
-                })
-                .catch((error) => {
-                    setErrors(error.response.data.errors);
-                    toast({
-                        title: "Gagal",
-                        description: error.response.data.data.message,
-                        variant: "destructive",
-                    });
-                })
-                .finally(() => {
-                    setIsLoading(false);
-                });
-        }
-    };
+    if (isEdit) {
+      axios
+        .put(route(FormProfileLimitsUtils.edit.route, profile?.profile_limit?.id), { ...dataForm })
+        .then(() => {
+          toast({
+            ...FormProfileLimitsUtils.edit.toast_success,
+          });
+          setErrors(defaultErrors);
+          setIsOpenForm(false);
+          router.get(route(FormProfileLimitsUtils.redirect, params));
+        })
+        .catch((error) => {
+          setErrors(error.response.data.errors);
+          toast({
+            ...FormProfileLimitsUtils.edit.toast_failed,
+            variant: "destructive",
+          });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      axios
+        .post(route(FormProfileLimitsUtils.create.route), { ...dataForm })
+        .then(() => {
+          toast({
+            ...FormProfileLimitsUtils.create.toast_success,
+          });
+          setErrors(defaultErrors);
+          setIsOpenForm(false);
+          router.get(route(FormProfileLimitsUtils.redirect, params));
+        })
+        .catch((error) => {
+          setErrors(error.response.data.errors);
+          toast({
+            title: "Gagal",
+            description: error.response.data.data.message,
+            variant: "destructive",
+          });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
 
-    const handleCloseForm = () => {
-        if (errors?.name || errors?.limit) {
-            setErrors(defaultErrors);
-        }
-        setIsOpenForm(false);
-    };
+  const handleCloseForm = () => {
+    if (errors?.name || errors?.limit) {
+      setErrors(defaultErrors);
+    }
+    setIsOpenForm(false);
+  };
 
-    return (
-        <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
-            <AlertDialogTrigger asChild>
-                <Button className={cn(FormProfileLimitsUtils.create.class_name)}>
-                    {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="w-[25%] space-y-3">
-                <AlertDialogHeader className="space-y-1">
-                    <AlertDialogTitle>
-                        {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}{" "}
-                        {dataForm.name}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                        {isEdit ? FormProfileLimitsUtils.edit.sub_title : FormProfileLimitsUtils.create.sub_title}
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        submit();
-                    }}
-                    id="profile-limit-form"
-                    className="grid gap-6">
-                    <div className="grid gap-[5px]">
-                        <Label htmlFor="limit">Batas Kewenangan Nilai Jaminan</Label>
-                        <InputCurrency
-                            value={dataForm.limit ?? ""}
-                            placeholder="Masukan limit pengajuan"
-                            onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
-                        />
-                        <RenderList
-                            of={errors?.limit ?? []}
-                            render={(error: string, index: number) => (
-                                <InputError key={index + 1} className="mt-1" message={error} />
-                            )}
-                        />
-                    </div>
-                    <div className="grid gap-[5px]">
-                        <Label htmlFor="limit_inherit">Batas Kewenangan Nilai Jaminan Turunan</Label>
-                        <InputCurrency
-                            value={dataForm.limit_inherit ?? ""}
-                            placeholder="Masukan limit pengajuan turunan"
-                            onChange={(limit_inherit) => setDataForm({ ...dataForm, limit_inherit: limit_inherit })}
-                        />
-                        <RenderList
-                            of={errors?.limit_inherit ?? []}
-                            render={(error: string, index: number) => (
-                                <InputError key={index + 1} className="mt-1" message={error} />
-                            )}
-                        />
-                    </div>
-                    <div className="flex justify-end gap-x-3">
-                        <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
-                        <Button form="profile-limit-form" className="w-max" disabled={isLoading}>
-                            {isLoading && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
-                            {isEdit ? FormProfileLimitsUtils.edit.btn_label : FormProfileLimitsUtils.create.btn_label}
-                        </Button>
-                    </div>
-                </form>
-            </AlertDialogContent>
-        </AlertDialog>
-    );
+  return (
+    <AlertDialog open={isOpenForm} onOpenChange={setIsOpenForm}>
+      <AlertDialogTrigger asChild>
+        <Button className={cn(FormProfileLimitsUtils.create.class_name)}>
+          {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="w-[25%] space-y-3">
+        <AlertDialogHeader className="space-y-1">
+          <AlertDialogTitle>
+            {isEdit ? FormProfileLimitsUtils.edit.title : FormProfileLimitsUtils.create.title} {dataForm.name}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {isEdit ? FormProfileLimitsUtils.edit.sub_title : FormProfileLimitsUtils.create.sub_title}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+          id="profile-limit-form"
+          className="grid gap-6">
+          <div className="grid gap-[5px]">
+            <Label htmlFor="limit">Batas Kewenangan Nilai Jaminan</Label>
+            <InputCurrency
+              value={dataForm.limit ?? ""}
+              placeholder="Masukan limit pengajuan"
+              onChange={(limit) => setDataForm({ ...dataForm, limit: limit })}
+            />
+            <RenderList
+              of={errors?.limit ?? []}
+              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+            />
+          </div>
+          <div className="grid gap-[5px]">
+            <Label htmlFor="limit_inherit">Batas Kewenangan Nilai Jaminan Turunan</Label>
+            <InputCurrency
+              value={dataForm.limit_inherit ?? ""}
+              placeholder="Masukan limit pengajuan turunan"
+              onChange={(limit_inherit) => setDataForm({ ...dataForm, limit_inherit: limit_inherit })}
+            />
+            <RenderList
+              of={errors?.limit_inherit ?? []}
+              render={(error: string, index: number) => <InputError key={index + 1} className="mt-1" message={error} />}
+            />
+          </div>
+          <div className="flex justify-end gap-x-3">
+            <AlertDialogCancel onClick={handleCloseForm}>Batal</AlertDialogCancel>
+            <Button form="profile-limit-form" className="w-max" disabled={isLoading}>
+              {isLoading && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
+              {isEdit ? FormProfileLimitsUtils.edit.btn_label : FormProfileLimitsUtils.create.btn_label}
+            </Button>
+          </div>
+        </form>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 };
 
 export default FormProfileLimits;
