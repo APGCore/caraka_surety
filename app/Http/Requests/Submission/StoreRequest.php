@@ -22,6 +22,7 @@ use App\Models\Scoring\ScoringQuestionCategory;
 use App\Models\Submission\SourceOfFund;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionScore;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -38,41 +39,11 @@ class StoreRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //            // principals
-            //            'principal' => ['required'],
-            //            'principal.province_id' => ['required', 'exists:'.Province::class.',id'],
-            //            'principal.regency_id' => ['required', 'exists:'.Regency::class.',id'],
-            //            'principal.district_id' => ['required', 'exists:'.District::class.',id'],
-            //            'principal.village' => ['nullable', 'string', 'max:255'],
-            //            'principal.name' => ['required', 'string', 'max:255'], // nama perusahaan
-            //            'principal.address' => ['required', 'string', 'max:255'], // alamat perusahaan
-            //            'principal.telephone' => ['required', 'string', 'max:255'], // telepon perusahaan
-            //            'principal.fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
-            //            'principal.postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
-            //            'principal.npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
-            //            'principal.nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
-            //            'principal.siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
-            //            'principal.head_name' => ['nullable', 'string', 'max:255'], // nama kepala perusahaan
-            //            'principal.director_name' => ['required', 'string', 'max:255'], // nama direktur perusahaan
-            //            'principal.director_position' => ['required', 'string', 'max:255'], // jabatan direktur perusahaan
-            //            'principal.director_phone' => ['required', 'string', 'max:255'], // telepon direktur perusahaan
-            //            'principal.commissioner' => ['nullable', 'string', 'max:255'], // komisaris perusahaan
-            //            'principal.year_established' => ['required', 'string', 'max:255'], // tahun berdiri perusahaan
-            //            'principal.est_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
-            //            'principal.last_deed' => ['nullable', 'string', 'max:255'], // akta terakhir perusahaan
-            //            'principal.business_fields' => ['nullable', 'string', 'max:255'], // bidang usaha perusahaan
-            //            // principal documents
-            //            'principal.documents' => ['nullable', 'array'],
-            //            'principal.documents.*.id' => ['nullable', 'exists:'.PrincipalDocument::class.',id,deleted_at,NULL'], // id dokumen perusahaan
-            //            'principal.documents.*.required_doc_id' => ['nullable', 'exists:'.RequiredDoc::class.',id,deleted_at,NULL'], // id dokumen wajib
-            //            'principal.documents.*.required_doc_name' => ['nullable', 'exists:'.RequiredDoc::class.',name,deleted_at,NULL'], // nama dokumen wajib
-            //            'principal.documents.*.file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,pdf', 'max:2048'], // file dokumen wajib
-
             // obligiee
             'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'],
             'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
@@ -119,7 +90,7 @@ class StoreRequest extends FormRequest
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
             'principal.ratios' => ['required', 'array', 'min:1'],
-            'principal.ratios.*.id' => ['nullable',  'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
+            'principal.ratios.*.id' => ['nullable', 'exists:'.PrincipalRatio::class.',id,deleted_at,NULL'], // id rasio
             'principal.ratios.*.liquidity_ratios' => ['required'], // rasio likuiditas
             'principal.ratios.*.profitability_ratios' => ['required'], // rasio profitabilitas
             'principal.ratios.*.solvency_ratios' => ['required'], // rasio solvabilitas
@@ -142,6 +113,64 @@ class StoreRequest extends FormRequest
             'scoring.scores.*.scoring_question_id' => ['required', 'exists:'.ScoringQuestion::class.',id,deleted_at,NULL'], // id pertanyaan skor
             'scoring.scores.*.scoring_option_id' => ['required', 'exists:'.ScoringOption::class.',id,deleted_at,NULL'], // id opsi skor
             'scoring.scores.*.point' => ['required', 'numeric'], // point skor
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'obligee.name.required_if' => 'Nama pemberi pekerjaan wajib diisi',
+            'obligee.pic.required_if' => 'Nama PIC wajib diisi',
+            'obligee.no_ppk.required_if' => 'Nomor PPK wajib diisi',
+            'obligee.telephone.required_if' => 'Nomor telepon wajib diisi',
+            'obligee.province_id.required_if' => 'Provinsi wajib diisi',
+            'obligee.regency_id.required_if' => 'Kabupaten/Kota wajib diisi',
+            'obligee.district_id.required_if' => 'Kecamatan wajib diisi',
+            'obligee.village.required_if' => 'Desa wajib diisi',
+            'obligee.address.required_if' => 'Alamat wajib diisi',
+            'obligee.postal_code.required_if' => 'Kode pos wajib diisi',
+
+            'submission.guarantor_id.required' => 'Penjamin wajib diisi',
+            'submission.guarantor_branch_id.required' => 'Cabang penjamin wajib diisi',
+            'submission.product_id.required' => 'Produk wajib diisi',
+            'submission.product_type_id.required' => 'Tipe produk wajib diisi',
+            'submission.job_group.required' => 'Kelompok pekerjaan wajib diisi',
+            'submission.job_type.required' => 'Jenis pekerjaan wajib diisi',
+            'submission.blank_id.required' => 'Blangko wajib diisi',
+            'submission.contract_doc_name.required' => 'Nama dokumen kontrak wajib diisi',
+            'submission.contract_doc_number.required' => 'Nomor dokumen kontrak wajib diisi',
+            'submission.contract_doc_date.required' => 'Tanggal dokumen kontrak wajib diisi',
+            'submission.contract_value.required' => 'Nilai kontrak wajib diisi',
+            'submission.guarantee_value.required' => 'Nilai jaminan wajib diisi',
+            'submission.time_period.required' => 'Jangka waktu wajib diisi',
+            'submission.start_date.required' => 'Tanggal mulai wajib diisi',
+            'submission.job_location_province_id.required' => 'Provinsi lokasi pekerjaan wajib diisi',
+            'submission.job_location_regency_id.required' => 'Kabupaten/Kota lokasi pekerjaan wajib diisi',
+            'submission.job_location_district_id.required' => 'Kecamatan lokasi pekerjaan wajib diisi',
+            'submission.job_location_village.required' => 'Desa lokasi pekerjaan wajib diisi',
+            'submission.job_location_address.required' => 'Alamat lokasi pekerjaan wajib diisi',
+            'submission.job_location_postal_code.required' => 'Kode pos lokasi pekerjaan wajib diisi',
+            'submission.source_of_fund_id.required' => 'Sumber dana wajib diisi',
+
+            'principal.id.required' => 'Principal wajib diisi',
+            'principal.ratios.required' => 'Rasio wajib diisi',
+            'principal.ratios.*.liquidity_ratios.required' => 'Rasio likuiditas wajib diisi',
+            'principal.ratios.*.profitability_ratios.required' => 'Rasio profitabilitas wajib diisi',
+            'principal.ratios.*.solvency_ratios.required' => 'Rasio solvabilitas wajib diisi',
+            'principal.ratios.*.current_assets.required' => 'Aktiva lancar wajib diisi',
+            'principal.ratios.*.current_debt.required' => 'Utang lancar wajib diisi',
+            'principal.ratios.*.total_debt.required' => 'Total utang wajib diisi',
+            'principal.ratios.*.total_assets.required' => 'Total aktiva wajib diisi',
+            'principal.ratios.*.revenue.required' => 'Pendapatan wajib diisi',
+            'principal.ratios.*.net_income.required' => 'Laba bersih wajib diisi',
+            'principal.ratios.*.year.required' => 'Tahun rasio wajib diisi',
+
+            'scoring.id.required' => 'Scoring wajib diisi',
+            'scoring.scores.required' => 'Skor wajib diisi',
+            'scoring.scores.*.scoring_question_category_id.required' => 'Kategori pertanyaan skor wajib diisi',
+            'scoring.scores.*.scoring_question_id.required' => 'Pertanyaan skor wajib diisi',
+            'scoring.scores.*.scoring_option_id.required' => 'Opsi skor wajib diisi',
+            'scoring.scores.*.point.required' => 'Point skor wajib diisi',
         ];
     }
 }

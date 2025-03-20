@@ -160,4 +160,9 @@ class Submission extends Model
     {
         return $this->hasOne(SubmissionCallback::class, 'submission_id', 'id');
     }
+
+    public function submissionBefore(): BelongsTo
+    {
+        return $this->belongsTo(Submission::class, 'submission_before_id', 'id');
+    }
 }

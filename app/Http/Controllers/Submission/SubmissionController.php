@@ -1814,13 +1814,13 @@ class SubmissionController extends Controller
                 $submission->submissionDocs()->createMany($docData);
             }
 
-            $isRevision = $submission->getAttribute('submission_before_id') !== null;
             $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             $hostToHost = $guarantor->getRelation('hostToHost');
             $messageSend = '';
             if ($hostToHost) {
-                $submissionIdForHost = $isRevision ? $submission->getAttribute('submission_before_id') : $submission->getAttribute('id');
-                $result = $this->sendToGuarantor($submissionIdForHost, $isRevision);
+                // if submission before id is exist, is revision submission
+                $submissionIdForHost = $submission->getAttribute('id');
+                $result = $this->sendToGuarantor($submissionIdForHost);
                 if ($result['status'] == 'success') {
                     $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
                 } else {
@@ -2070,8 +2070,7 @@ class SubmissionController extends Controller
     public function send($submissionId): JsonResponse
     {
         $submission = Submission::find($submissionId);
-        $isRevision = $submission->getAttribute('submission_before_id') !== null;
-        $result = $this->sendToGuarantor($submissionId, $isRevision);
+        $result = $this->sendToGuarantor($submissionId);
 
         if ($result['status'] === 'success') {
             Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
@@ -2084,7 +2083,7 @@ class SubmissionController extends Controller
         return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
     }
 
-    private function sendToGuarantor($submissionId, $isRevision = false): array
+    private function sendToGuarantor($submissionId): array
     {
         $submission = Submission::query()
             ->with([
@@ -2124,18 +2123,30 @@ class SubmissionController extends Controller
         $sourceOfFound = $submission->getRelation('sourceOfFund');
         $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
+        $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host');
-        $url = $isRevision ? $url.'/endrosment' : $url.'/submission';
+        $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-        $result = [
+        $dataRevision = [];
+        if ($submissionBeforeId) {
+            $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
+            if (! $submissionCallback) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
+                ];
+            }
+            $dataRevision = [
+                'previous_id' => $submissionBeforeId,
+                'remarks' => $submission->getAttribute('revised_note'),
+                'policyno' => $submissionCallback->getAttribute('no_policy'),
+            ];
+        }
+        $result = array_merge($dataRevision, [
             'submission_id' => $submission->getAttribute('id'),
-            ...($isRevision ? [
-                'previous_id' => $submission->getAttribute('submission_before_id'),
-                'remarks' => $submission->getAttribute('remarks'),
-            ] : []),
             'principal' => [
                 'id' => $principal->getAttribute('id'),
                 'name' => $principal->getAttribute('name'),
@@ -2234,7 +2245,7 @@ class SubmissionController extends Controller
                     'url' => $doc->getAttribute('url'),
                 ];
             })->toArray(),
-        ];
+        ]);
 
         Log::info('Data Send To Assurance', $result);
         $final = $this->hostToHostService->sendPostRequest($url, $token, $result);

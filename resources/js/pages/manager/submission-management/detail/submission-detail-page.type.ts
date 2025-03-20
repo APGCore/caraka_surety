@@ -160,6 +160,7 @@ interface SubmissionDetailProps {
   submission: {
     [key: string]: any;
     id: number;
+    submission_before_id: number | null;
     bank: Bank;
     bank_name: string;
     approved_by_direksi: boolean;
@@ -253,6 +254,7 @@ interface SubmissionDetailProps {
     submission_date: string;
     terbilang: string;
     guarantor_city: string;
+    note_scoring: string;
   };
 
   submissionData: {

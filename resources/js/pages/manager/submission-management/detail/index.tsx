@@ -86,117 +86,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       : isRejected
         ? "destructive"
         : "default";
-  const isApprovedByDireksi = submission.approved_by_direksi;
-
-  const generateNomorSurat = (createdAt: string): string => {
-    const date = new Date(createdAt);
-    if (isNaN(date.getTime())) return "Invalid date";
-
-    const bulan = date.getMonth() + 1;
-    const tahun = date.getFullYear();
-
-    return `/BPR/${bulan}/${tahun}`;
-  };
-
-  const created_at = submission.created_at;
-  const nomorSurat = generateNomorSurat(created_at);
-
-  function formatToIndonesianDate(dateString: string): string {
-    const months = [
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember",
-    ];
-
-    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
-    const date = new Date(dateString);
-
-    const dayOfWeek = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day} ${month} ${year}`;
-  }
-
-  const formattedDate = formatToIndonesianDate(submission.created_at);
-
-  console.log(submission);
-
-  interface Analysis {
-    character: number | string;
-    capacity: number | string;
-    capital: number | string;
-    condition: number | string;
-    collateral: number | string;
-  }
-
-  interface DataAnalyst {
-    analysis: Analysis;
-    scoring_result: number | string;
-  }
-
-  // Initialize analysis object
-  const analysis: Analysis = {
-    character: 0,
-    capacity: 0,
-    capital: 0,
-    condition: 0,
-    collateral: 0,
-  };
-
-  // Assuming 'submission.scores' contains the necessary data
-  const scoringResult = submission.scores.reduce((grouped: any, score: any) => {
-    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
-
-    // Group scores by scoring_question_category_id
-    if (!grouped[scoring_question_category_id]) {
-      grouped[scoring_question_category_id] = {
-        ...scoring_question_category,
-        items: [],
-      };
-    }
-    grouped[scoring_question_category_id].items.push(rest);
-
-    // Add points to the corresponding analysis category
-    if (scoring_question_category.name === "Character") {
-      analysis.character += score.point || 0;
-    } else if (scoring_question_category.name === "Capacity") {
-      analysis.capacity += score.point || 0;
-    } else if (scoring_question_category.name === "Capital") {
-      analysis.capital += score.point || 0;
-    } else if (scoring_question_category.name === "Condition") {
-      analysis.condition += score.point || 0;
-    } else if (scoring_question_category.name === "Collateral") {
-      analysis.collateral += score.point || 0;
-    }
-
-    return grouped;
-  }, {});
-
-  // Calculate total scoring result
-  const scoringResultTotal = Object.values(analysis).reduce(
-    (total, value) => total + (typeof value === "number" ? value : 0),
-    0,
-  );
-
-  // Create the dataAnalyst object
-  const dataAnalyst: DataAnalyst = {
-    analysis,
-    scoring_result: scoringResultTotal,
-  };
-
-  console.log(submission);
 
   const data = {
     principal: {
@@ -671,6 +560,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <AlertTitle>Pemberitahuan</AlertTitle>
             <AlertDescription>
               Pengajuan telah dikirim ke {submission.guarantor?.name} dan menunggu hasil dari asuransi
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Show>
+      <Show when={submission.submission_before_id !== null}>
+        <div className="fixed top-20 w-[73vw] z-[100]">
+          <Alert variant="info">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Revisi</AlertTitle>
+            <AlertDescription>
+              Pengajuan ini merupakan revisi dari pengajuan sebelumnya dengan nomor pengajuan {submission.no_guarantee}
             </AlertDescription>
           </Alert>
         </div>
@@ -1179,6 +1079,20 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tfoot>
               </table>
             </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-4 mt-10">Catatan Skoring</h2>
+              <textarea className="w-full" disabled>
+                {submission.note_scoring}
+              </textarea>
+            </div>
+            <Show when={submission.submission_before_id !== null}>
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-10">Catatan Revisi</h2>
+                <textarea className="w-full" disabled>
+                  {submission.revised_note}
+                </textarea>
+              </div>
+            </Show>
           </Show>
           <Show when={currentStep.name === "luaran"}>
             {submission.has_send_to_guarantor ? (
@@ -1440,7 +1354,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
@@ -1472,7 +1386,8 @@ SubmissionDetailPage.layout = (page: any) => {
           "mt-[7%]":
             pagePropsData?.submission.beyond_the_limit ||
             pagePropsData?.submission.has_send_to_guarantor ||
-            !pagePropsData?.submission.callback,
+            pagePropsData?.submission.callback ||
+            pagePropsData?.submission.submission_before_id,
         })}>
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}
