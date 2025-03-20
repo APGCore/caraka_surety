@@ -5,6 +5,7 @@ import { InputField } from "@/components/atoms/input-field";
 import Loading from "@/components/atoms/loading";
 import { PasswordInputField } from "@/components/atoms/password-input-field";
 import InputError from "@/components/molecules/input/error-input";
+import { Link } from "@inertiajs/react";
 import React from "react";
 import useLoginForm from "./login-form.hook";
 import { greetingBasedOnDate } from "./login-form.util";
@@ -71,9 +72,9 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
           </div>
         </CardContent>
       </Card>
-      {/* <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        Enter your credentials correctly. If you forget your password, please contact the Admin.
-      </div> */}
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-red-700 [&_span]:underline [&_span]:underline-offset-4 hover:[&_span]:text-red-700 [&_span]:cursor-pointer">
+        Plese click <Link href={route("login")}>here</Link> if you want to login another account.
+      </div>
     </div>
   );
 };
