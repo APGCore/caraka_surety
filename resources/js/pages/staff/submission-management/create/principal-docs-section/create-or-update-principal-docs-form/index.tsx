@@ -2,7 +2,6 @@ import { toast } from "@/common/hooks/general/use-toast";
 import { PRINCIPAL_QUERY_KEY, useCreateOrUpdatePrincipalDocs } from "@/common/hooks/react-query/principal";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Label } from "@/components/_shadcn-ui/label";
-import { FileInput } from "@/components/molecules/input/file-input";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import axios from "axios";
