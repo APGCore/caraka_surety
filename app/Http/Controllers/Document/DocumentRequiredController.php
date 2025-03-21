@@ -9,15 +9,25 @@ use App\Models\RelatedParties\Principal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class DocumentRequiredController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $requiredDocs = RequiredDoc::with('productType')->get();
+        $requiredDocs = RequiredDoc::with('productType')
+            ->when($request->exists('search'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%'.$request->search.'%');
+            })
+            ->when($request->exists('per_page'), function ($query) use ($request) {
+                return $query->limit($request->per_page);
+            }, function ($query) {
+                return $query->limit(10);
+            })
+            ->get();
 
         return inertia('admin/documents/general/index', [
             'reqDocs' => $requiredDocs,
@@ -43,7 +53,7 @@ class DocumentRequiredController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
         ]);
 
@@ -97,7 +107,7 @@ class DocumentRequiredController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
         ]);
 
@@ -134,7 +144,7 @@ class DocumentRequiredController extends Controller
                 ->causedBy(auth()->user())
                 ->log('Menghapus data required dokumen');
             Log::info('Produk Delete: '.json_encode($requiredDoc, JSON_PRETTY_PRINT));
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Required Document', 'Terjadi kesalahan saat menghapus document required', 'error');
             Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));

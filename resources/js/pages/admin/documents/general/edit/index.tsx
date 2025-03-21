@@ -83,7 +83,6 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
               <Label htmlFor="description">Deskripsi</Label>
               <Textarea
                 id="description"
-                required
                 value={data.description}
                 placeholder="Masukan deskripsi dokumen"
                 onChange={(e) => setData("description", e.target.value)}

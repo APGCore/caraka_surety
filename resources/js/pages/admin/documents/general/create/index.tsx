@@ -67,7 +67,6 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
                 id="description"
                 value={data.description}
                 onChange={(e) => setData("description", e.target.value)}
-                required
                 placeholder="Masukan deskripsi produk"
               />
               {errors.description && <InputError message={errors.description} />}

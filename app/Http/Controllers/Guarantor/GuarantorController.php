@@ -112,7 +112,7 @@ class GuarantorController extends Controller
     public function edit(Guarantor $guarantor)
     {
         $picture = $guarantor->getAttribute('picture') ?
-            Storage::url($guarantor->getAttribute('picture')) : '';
+          Storage::url($guarantor->getAttribute('picture')) : '';
         $guarantor->setAttribute('picture', $picture);
         $guarantor->load('pattern');
 
@@ -136,10 +136,8 @@ class GuarantorController extends Controller
 
             $requestValid = $request->validated();
             if ($request->hasFile('upload_picture')) {
-                $picture = $guarantor->getAttribute('upload_picture') ?? null;
-                if ($picture) {
-                    $this->deleteFile($picture);
-                }
+                $picture = $guarantor->getAttribute('picture') ?? null;
+                $this->deleteFile($picture);
                 $fileName = 'guarantor_'.str_replace(' ', '_', $requestValid['name']);
                 $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
             } else {

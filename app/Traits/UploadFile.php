@@ -36,11 +36,12 @@ trait UploadFile
         // Ensure a valid extension (defaults to PDF if not image)
         $allowedExtensions = ['png', 'jpg', 'jpeg'];
         $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
-            ? $file->getClientOriginalExtension()
-            : 'pdf';
+          ? $file->getClientOriginalExtension()
+          : 'pdf';
 
         // Format file name
-        $sanitizedFileName = time().'_'.str_replace(' ', '_', $fileName).'.'.$extension;
+        $sanitizedFileName = str_replace('.', '', date('ymd').'_'.str_replace(' ', '_', $fileName)
+            .'_'.date('Hi')).'.'.$extension;
 
         // Ensure path does not have leading slashes
         $cleanPath = trim($path, '/');
@@ -69,19 +70,7 @@ trait UploadFile
         }
 
         // Jika private, buat signed URL manual (valid 60 menit)
-        return $this->generateTemporaryUrl($path, 60);
-    }
-
-    private function generateTemporaryUrl($path, $minutes): string
-    {
-        $bucket = env('AWS_BUCKET');
-        $endpoint = env('AWS_ENDPOINT');
-
-        // Generate timestamp untuk expired time
-        $expires = now()->addMinutes($minutes)->timestamp;
-
-        // Buat URL manual (tanpa signature)
-        return "{$endpoint}/{$bucket}/{$path}?expires={$expires}";
+        return $disk->temporaryUrl($path, now()->addMinutes(60));
     }
 
     /**
@@ -90,7 +79,6 @@ trait UploadFile
     public function deleteFile($pathAndFileName): void
     {
         $disk = config('filesystems.default');
-        Log::info('Checking file: '.$pathAndFileName);
 
         if (Storage::disk($disk)->exists($pathAndFileName)) {
             Log::info('File exists, deleting: '.$pathAndFileName);

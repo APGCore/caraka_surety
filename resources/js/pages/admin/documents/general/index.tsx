@@ -25,7 +25,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { Head, Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
+import { pickBy } from "lodash";
+import React, { useState } from "react";
 import { DocumentGeneralPageProps } from "./documents-general-required.page.type";
 
 const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
@@ -34,10 +35,25 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    getData(String(select), search);
   };
 
   const handleSelect = (value: string) => {
     setSelect(Number(value));
+    getData(value, search);
+  };
+
+  const handleExport = () => {};
+
+  const getData = (perPage: string, search: string) => {
+    return router.get(
+      route("document.index"),
+      pickBy({
+        per_page: perPage,
+        search,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
   };
 
   const deleteData = (reqDoc: any) => {
@@ -48,7 +64,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
+          <Button onClick={handleExport}>Export</Button>
           <Select onValueChange={handleSelect} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Items per page" />
@@ -65,7 +81,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
           <form onSubmit={handleSearch} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Pengajuan"
+              placeholder="Cari Prasyarat Dokumen"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
