@@ -766,6 +766,16 @@ class SubmissionController extends Controller
     // get submission pic
     $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
+    }
+
     return inertia('manager/submission-management/detail/index', [
       'submission' => fn() => $submission,
     ]);
@@ -1008,6 +1018,16 @@ class SubmissionController extends Controller
     // get submission pic
     $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
+    }
+
     return inertia('direksi/submission-management/history/detail/index', [
       'submission' => $submission,
     ]);
@@ -1238,6 +1258,16 @@ class SubmissionController extends Controller
     $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
     // get submission pic
     $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
+    }
 
     return inertia('kepala-cabang/submission-management/detail/index', [
       'submission' => fn() => $submission,
