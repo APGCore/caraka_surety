@@ -10,7 +10,7 @@ import {
   CommandList,
 } from "@/components/_shadcn-ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronDown, ChevronsDown, ChevronsUpDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ComboboxItem {
@@ -21,24 +21,28 @@ interface ComboboxProps {
   data: ComboboxItem[];
   labelKey?: string;
   valueKey?: string;
+  filterKey?: string;
   placeholder?: string;
   searchPlaceholder?: string;
   notFoundText?: string;
   onSelect?: (item: ComboboxItem | null) => void;
   defaultValue?: string | number;
   isLoading?: boolean;
+  isDisabled?: boolean;
 }
 
 const NewCombobox: React.FC<ComboboxProps> = ({
   data,
   labelKey = "label",
   valueKey = "value",
+  filterKey,
   onSelect,
   defaultValue,
   placeholder,
   searchPlaceholder,
   notFoundText,
   isLoading,
+  isDisabled,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<ComboboxItem | null>(null);
@@ -53,6 +57,9 @@ const NewCombobox: React.FC<ComboboxProps> = ({
     if (defaultValue && data.length > 0) {
       const selectedItem = data.find((item) => String(item[valueKey]) === String(defaultValue)) || null;
       setValue(selectedItem);
+    } else if (!defaultValue) {
+      // Reset value jika defaultValue kosong atau undefined
+      setValue(null);
     }
   }, [defaultValue, data, valueKey]);
 
@@ -66,6 +73,14 @@ const NewCombobox: React.FC<ComboboxProps> = ({
     [valueKey],
   );
 
+  const getFilterKey = useCallback(
+    (item: ComboboxItem): boolean => {
+      if (!item || typeof item !== "object" || !filterKey) return false;
+      return Boolean(item[filterKey]);
+    },
+    [filterKey],
+  );
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -73,10 +88,10 @@ const NewCombobox: React.FC<ComboboxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          disabled={data.length === 0}
+          disabled={data.length === 0 || isDisabled}
           className="w-full justify-between">
-          {value ? getLabel(value) : comboboxPlaceholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {filterKey ? comboboxPlaceholder : value ? getLabel(value) : comboboxPlaceholder}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -99,18 +114,35 @@ const NewCombobox: React.FC<ComboboxProps> = ({
               ) : (
                 data.map((item) => (
                   <CommandItem
+                    className={cn("flex items-center justify-between", {
+                      "cursor-not-allowed": getFilterKey(item),
+                    })}
                     key={getValue(item)}
                     value={getValue(item)}
+                    disabled={getFilterKey(item)}
                     onSelect={(currentValue) => {
                       const selectedItem = data.find((i) => String(i[valueKey]) === currentValue) || null;
                       setValue(selectedItem);
                       setOpen(false);
                       if (onSelect) onSelect(selectedItem);
                     }}>
-                    <Check
-                      className={cn("mr-2 h-4 w-4", value?.[valueKey] === item[valueKey] ? "opacity-100" : "opacity-0")}
-                    />
-                    {getLabel(item)}
+                    <div className="flex items-center gap-2">
+                      {getFilterKey(item) ? (
+                        <Check className={cn("mr-2 h-4 w-4 opacity-100")} />
+                      ) : (
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value?.[valueKey] === item[valueKey] ? "opacity-100" : "opacity-0",
+                          )}
+                        />
+                      )}
+
+                      {getLabel(item)}
+                    </div>
+                    {getFilterKey(item) && (
+                      <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">Sudah Dipilih</span>
+                    )}
                   </CommandItem>
                 ))
               )}

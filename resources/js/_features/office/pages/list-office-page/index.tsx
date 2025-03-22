@@ -1,5 +1,3 @@
-import { cn } from "@/common/utils/cn";
-import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,68 +8,112 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/_shadcn-ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/_shadcn-ui/dialog";
+} from "@/_features/_common/components/_shadcn-ui/alert-dialog";
+import { Button, buttonVariants } from "@/_features/_common/components/_shadcn-ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/_features/_common/components/_shadcn-ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/_shadcn-ui/dropdown-menu";
-import { Input } from "@/components/_shadcn-ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
-import RenderList from "@/components/atoms/render-list";
-import Show from "@/components/atoms/show";
-import TableSkeleton from "@/components/atoms/skeleton/table";
-import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
-import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
-import HeaderPage from "@/components/molecules/header";
-import RoleBasedLayout from "@/layouts/role-based-layout";
-import { BranchOfficePageProps } from "@/pages/admin/office-management/branch-office/branch-office-page.type";
-import { Link, router } from "@inertiajs/react";
+} from "@/_features/_common/components/_shadcn-ui/dropdown-menu";
+import { Input } from "@/_features/_common/components/_shadcn-ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/_features/_common/components/_shadcn-ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/_features/_common/components/_shadcn-ui/table";
+import { Pagination } from "@/_features/_common/components/datatable/pagination";
+import RenderList from "@/_features/_common/components/render-list";
+import TableSkeleton from "@/_features/_common/components/skeleton/table";
+import { cn } from "@/_features/_common/utils/cn";
+import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { pickBy } from "lodash";
-import { useState } from "react";
+import { useQueryState } from "nuqs";
+import React, { useCallback } from "react";
+import { OfficeType, useGetOfficeByType } from "../../services/office-query";
 
-const BranchOfficePage: BranchOfficePageProps = (props) => {
-  const { data: profiles = [], meta = {} } = props.profiles || {};
+interface PaginationMeta {
+  current_page: number;
+  from: number;
+  to: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
 
-  const [select, setSelect] = useState(() =>
-    getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
-  );
-  const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
-  const handleSelect = (e: string) => {
-    setSelect(Number(e));
-    getData(e, search);
-  };
+interface OfficeResponse {
+  data: any[];
+  meta: PaginationMeta;
+}
 
-  const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    getData(String(select), search);
-  };
+const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
+  const [search, setSearch] = useQueryState("search", {
+    defaultValue: "",
+    history: "push",
+    parse: (value) => decodeURIComponent(value || ""),
+    serialize: (value) => encodeURIComponent(value || ""),
+  });
 
-  const getData = (perPage: string, search: string) => {
-    return router.get(
-      route("branch.index"),
-      pickBy({
-        per_page: perPage,
-        search,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
-  };
+  const [perPage, setPerPage] = useQueryState("per_page", {
+    defaultValue: "10",
+    history: "push",
+    parse: (value) => value || "10",
+    serialize: (value) => value,
+  });
 
-  const deleteData = (province: any) => {
-    router.delete(route("branch.destroy", province.id));
-  };
+  const [page, setPage] = useQueryState("page", {
+    defaultValue: "1",
+    history: "push",
+    parse: (value) => value || "1",
+    serialize: (value) => value,
+  });
+
+  const {
+    data: offices,
+    isLoading,
+    isSuccess,
+  } = useGetOfficeByType({
+    officeType,
+    perPage: Number(perPage),
+    search,
+    page: Number(page),
+  });
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  }, []);
+
+  const handlePerPageChange = useCallback((value: string) => {
+    setPerPage(value);
+    setPage("1");
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setPage(page.toString());
+  }, []);
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{props?.page_settings?.title}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">Cabang BPR</h1>
         <div className="flex gap-x-3">
           <Link
             className={cn(
@@ -88,10 +130,9 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
       </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
-          <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
+          <Select value={perPage} onValueChange={handlePerPageChange}>
             <SelectTrigger className="w-max">
-              <SelectValue placeholder="Theme" />
+              <SelectValue placeholder={perPage} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="10">10</SelectItem>
@@ -102,10 +143,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
           </Select>
         </div>
         <div className="flex gap-x-3">
-          <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Cabang" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <Button type="submit">Cari</Button>
-          </form>
+          <Input value={search || ""} onChange={handleSearchChange} placeholder="Cari Cabang BPR" />
         </div>
       </div>
       <div>
@@ -114,22 +152,25 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
             <TableRow>
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
-              <TableHead>Nama Cabang BPR</TableHead>
+              <TableHead>Nama</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Jumlah Pengguna</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <Show when={profiles.length > 0} fallback={<TableSkeleton colspan={5} />}>
+            {isLoading && <TableSkeleton colspan={6} />}
+            {isSuccess && (
               <RenderList
-                of={profiles}
-                render={(profile: any, index) => {
+                of={offices.data}
+                render={(office: any, index) => {
                   return (
-                    <TableRow key={profile.id}>
-                      <TableCell>{meta.from + index}</TableCell>
-                      <TableCell>{profile?.code}</TableCell>
-                      <TableCell>{profile?.name}</TableCell>
-                      <TableCell>{profile?.email ?? "Email Belum dimasukan"}</TableCell>
+                    <TableRow key={office.id}>
+                      <TableCell>{offices?.meta?.from + index}</TableCell>
+                      <TableCell>{office?.code}</TableCell>
+                      <TableCell>{office?.name}</TableCell>
+                      <TableCell>{office?.email ?? "-"}</TableCell>
+                      <TableCell>{office?.users_count === 0 ? "-" : Number(office?.users_count)}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -146,40 +187,40 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px]">
                                   <DialogHeader>
-                                    <DialogTitle>{profile?.name}</DialogTitle>
+                                    <DialogTitle>{office?.name}</DialogTitle>
                                   </DialogHeader>
                                   <div className="mt-4 grid gap-2">
                                     <div className="flex items-center justify-between">
                                       <span className="font-normal">Email</span>
-                                      <span>{profile?.email ?? "Email Belum Dimasukan"}</span>
+                                      <span>{office?.email ?? "Email Belum Dimasukan"}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-normal">No. Telepon</span>
-                                      <span>{profile?.phone}</span>
+                                      <span>{office?.phone}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span>Alamat</span>
-                                      <span>{profile?.address}</span>
+                                      <span>{office?.address}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-medium">Provinsi</span>
-                                      <span>{profile?.province}</span>
+                                      <span>{office?.province}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-medium">Kabupaten/Kota</span>
-                                      <span>{profile?.regency}</span>
+                                      <span>{office?.regency}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-medium">Kecamatan</span>
-                                      <span>{profile?.district}</span>
+                                      <span>{office?.district}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-medium">Kelurahan/Desa</span>
-                                      <span>{profile?.village}</span>
+                                      <span>{office?.village}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                       <span className="font-medium">Kode Pos</span>
-                                      <span>{profile?.postal_code}</span>
+                                      <span>{office?.postal_code}</span>
                                     </div>
                                   </div>
                                 </DialogContent>
@@ -188,7 +229,9 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
-                                href={route("branch.employee", profile.id)}
+                                href={route("branch.employee.index", {
+                                  office_id: office.id,
+                                })}
                                 className="bg-blue-500 text-destructive-foreground shadow-sm hover:bg-blue-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                                 Pengguna
                               </Link>
@@ -196,7 +239,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
                               <Link
-                                href={route("branch.edit", profile.id)}
+                                href={route("branch.edit", office.id)}
                                 className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                                 Edit
                               </Link>
@@ -211,14 +254,14 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Tindakan ini akan menghapus data Cabang {profile.name}?
+                                      Tindakan ini akan menghapus data Cabang {office.name}?
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Batal</AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() => {
-                                        deleteData(profile);
+                                        // deleteData(profile);
                                       }}
                                       className={buttonVariants({
                                         variant: "destructive",
@@ -236,25 +279,13 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
                   );
                 }}
               />
-            </Show>
+            )}
           </TableBody>
         </Table>
+        {isSuccess && <Pagination meta={offices?.meta} onPageChange={handlePageChange} />}
       </div>
-      <ShowingCountDatatable meta={meta} />
-      <PaginationDatatable meta={meta} />
     </main>
   );
 };
 
-export default BranchOfficePage;
-
-BranchOfficePage.layout = (page: any) => {
-  const pagePropsData = page.props;
-
-  return (
-    <RoleBasedLayout propsData={pagePropsData}>
-      <HeaderPage {...pagePropsData} />
-      {page}
-    </RoleBasedLayout>
-  );
-};
+export default ListOfficePage;
