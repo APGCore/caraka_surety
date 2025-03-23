@@ -8,6 +8,7 @@ use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Principal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -161,5 +162,28 @@ class DocumentRequiredController extends Controller
             'reqDocs' => $requiredDocs,
             'principal' => $principal,
         ]);
+    }
+
+    public function getFile()
+    {
+        $response = Http::withHeaders([
+            'token' => '03f7b0b2fbf076fec3f55b8d19615316',
+        ])->get('http://bprbonding.my.id/api/file', ['path' => 'principal/4-CV_RAFANDRA_PERDANA/documents/1742356147_Laporan_Keuangan_2023.pdf']);
+
+        // get file from response
+        $raw = $response->body();
+        // save to storage and delete after download
+        $directory = storage_path('app/public/temporary/');
+
+        // Cek apakah folder sudah ada, jika belum buat dulu
+        if (! file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }
+
+        // Simpan file
+        $path = $directory.'1742356147_Laporan_Keuangan_2023.pdf';
+        file_put_contents($path, $raw);
+
+        return response()->download($path);
     }
 }

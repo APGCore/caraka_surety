@@ -123,6 +123,7 @@ class SubmissionController extends Controller
             if ($submissionOld) {
                 $noGuarantee = $submissionOld->getAttribute('no_guarantee');
                 $submissionOld->update(['is_revised' => true]);
+                $submissionOld->blanks()->update(['is_revised' => true]);
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } else {
                 $noGuarantee = $this->generateNoGuarantee(
