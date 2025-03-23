@@ -19,62 +19,65 @@ use Laravel\Scout\Searchable;
 
 class Profile extends Model
 {
-    use HasFactory;
-    use Searchable;
-    use SoftDeletes;
+  use HasFactory;
+  use Searchable;
+  use SoftDeletes;
 
-    protected $guarded = [
-        'id',
-        'created_at',
-        'updated_at',
-        'deleted_at',
+  // exclude for fillable
+  protected $guarded = [
+    'id',
+    'created_at',
+    'updated_at',
+    'deleted_at',
+  ];
+
+  // include for fillable
+
+  public function toSearchableArray(): array
+  {
+    return [
+      'name' => $this->name,
+      'email' => $this->email,
     ];
+  }
 
-    public function toSearchableArray(): array
-    {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-        ];
-    }
+  public function users()
+  {
+    return $this->hasMany(User::class);
+  }
 
-    public function users()
-    {
-        return $this->hasMany(User::class);
-    }
+  public function province(): BelongsTo
+  {
+    return $this->belongsTo(Province::class);
+  }
 
-    public function province(): BelongsTo
-    {
-        return $this->belongsTo(Province::class);
-    }
+  public function regency(): BelongsTo
+  {
+    return $this->belongsTo(Regency::class);
+  }
 
-    public function regency(): BelongsTo
-    {
-        return $this->belongsTo(Regency::class);
-    }
+  public function district(): BelongsTo
+  {
+    return $this->belongsTo(District::class);
+  }
 
-    public function district(): BelongsTo
-    {
-        return $this->belongsTo(District::class);
-    }
+  public function guarantorLimit(): BelongsToMany
+  {
+    return $this->belongsToMany(Guarantor::class, ProfileLimit::class, 'profile_id', 'guarantor_id')->withPivot('limit');
+  }
 
-    public function guarantorLimit(): BelongsToMany
-    {
-        return $this->belongsToMany(Guarantor::class, ProfileLimit::class, 'profile_id', 'guarantor_id')->withPivot('limit');
-    }
+  public function profileLimit(): HasMany
+  {
+    return $this->hasMany(ProfileLimit::class, 'profile_id');
+  }
 
-    public function profileLimit(): HasMany
-    {
-        return $this->hasMany(ProfileLimit::class, 'profile_id');
-    }
+  public function guarantors(): BelongsToMany
+  {
+    return $this->belongsToMany(Guarantor::class, OfficePairing::class, 'office_id', 'guarantor_id');
+  }
 
-    public function guarantors(): BelongsToMany
-    {
-        return $this->belongsToMany(Guarantor::class, OfficePairing::class, 'office_id', 'guarantor_id');
-    }
-
-    public function profileRate(): HasMany
-    {
-        return $this->hasMany(ProfileRate::class, 'profile_id');
-    }
+  public function profileRate(): HasMany
+  {
+    return $this->hasMany(ProfileRate::class, 'profile_id');
+  }
 }
