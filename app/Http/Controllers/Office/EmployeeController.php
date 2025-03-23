@@ -23,332 +23,324 @@ use Illuminate\Support\Facades\Log;
  * Model: User
  * Model: Role
  */
-
 class EmployeeController extends Controller
 {
-  private function getRouteName(Profile $office): string
-  {
-    $officeType = $office->getAttribute('office_type');
+    private function getRouteName(Profile $office): string
+    {
+        $officeType = $office->getAttribute('office_type');
 
-
-    return match ($officeType) {
-      OfficeType::BRANCH->value => 'branch.employee',
-      OfficeType::AGENT_PARTNER->value => 'branch-mitra-agen.employee',
-      OfficeType::MARKETING_PARTNER->value => 'branch-mitra-pemasaran.employee',
-      default => 'employee'
-    };
-  }
-
-
-
-  private function getRoleByOfficeType($officeType): array
-  {
-    $data = [
-      OfficeType::HEADQUARTER->value => [
-        RoleEnum::Direksi->value,
-        RoleEnum::Manager->value,
-        RoleEnum::Staff->value,
-        RoleEnum::StaffTeknik->value,
-        RoleEnum::StaffOperasional->value,
-      ],
-      OfficeType::BRANCH->value => [
-        RoleEnum::KepalaCabang->value,
-        RoleEnum::Staff->value,
-        RoleEnum::StaffTeknik->value,
-        RoleEnum::StaffOperasional->value,
-      ],
-      OfficeType::AGENT_PARTNER->value => [
-        RoleEnum::KepalaAgentPartner->value,
-        RoleEnum::AgentPartner->value,
-      ],
-      OfficeType::MARKETING_PARTNER->value => [
-        RoleEnum::MarketingPartner->value,
-      ],
-    ];
-
-    return $data[$officeType];
-  }
-
-
-  public function getEmployeeByOffice(Request $request, Profile $office)
-  {
-
-    $profileId = $office->getAttribute('id');
-    // $roles = $this->getRoles($office);
-    $employees = User::query()->where('profile_id', $profileId)->get();
-
-
-
-
-    return EmployeeResource::collection($employees);
-  }
-
-  private function getRoles(Profile $office, ?Role $role = null): array
-  {
-    $officeType = $office->getAttribute('office_type');
-    $roles = [];
-    if ($role === null) {
-      return $roles;
-    }
-    if ($officeType === OfficeType::HEADQUARTER->value) {
-      switch ($role->getAttribute('name')) {
-        case RoleEnum::Manager->value:
-          $roles = [RoleEnum::Direksi->value];
-          break;
-        case RoleEnum::StaffOperasional->value:
-        case RoleEnum::StaffTeknik->value:
-        case RoleEnum::Staff->value:
-          $roles = [RoleEnum::Manager->value];
-          break;
-      }
-    } elseif ($officeType === OfficeType::BRANCH->value) {
-      switch ($role->getAttribute('name')) {
-        case RoleEnum::KepalaCabang->value:
-          $roles = [RoleEnum::Direksi->value];
-          break;
-        case RoleEnum::StaffOperasional->value:
-        case RoleEnum::StaffTeknik->value:
-        case RoleEnum::Staff->value:
-          $roles = [RoleEnum::KepalaCabang->value];
-          break;
-      }
-    } elseif ($officeType === OfficeType::AGENT_PARTNER->value) {
-      switch ($role->getAttribute('name')) {
-        case RoleEnum::AgentPartner->value:
-          $roles = [RoleEnum::KepalaAgentPartner->value];
-          break;
-        case RoleEnum::KepalaAgentPartner->value:
-          $roles = [RoleEnum::Direksi->value];
-          break;
-      }
-    } elseif ($officeType === OfficeType::MARKETING_PARTNER->value) {
-      if ($role->getAttribute('name') == RoleEnum::MarketingPartner->value) {
-        $roles = [RoleEnum::Direksi->value];
-      }
+        return match ($officeType) {
+            OfficeType::BRANCH->value => 'branch.employee',
+            OfficeType::AGENT_PARTNER->value => 'branch-mitra-agen.employee',
+            OfficeType::MARKETING_PARTNER->value => 'branch-mitra-pemasaran.employee',
+            default => 'employee'
+        };
     }
 
-    return $roles;
-  }
+    private function getRoleByOfficeType($officeType): array
+    {
+        $data = [
+            OfficeType::HEADQUARTER->value => [
+                RoleEnum::Direksi->value,
+                RoleEnum::Manager->value,
+                RoleEnum::Staff->value,
+                RoleEnum::StaffTeknik->value,
+                RoleEnum::StaffOperasional->value,
+            ],
+            OfficeType::BRANCH->value => [
+                RoleEnum::KepalaCabang->value,
+                RoleEnum::Staff->value,
+                RoleEnum::StaffTeknik->value,
+                RoleEnum::StaffOperasional->value,
+            ],
+            OfficeType::AGENT_PARTNER->value => [
+                RoleEnum::KepalaAgentPartner->value,
+                RoleEnum::AgentPartner->value,
+            ],
+            OfficeType::MARKETING_PARTNER->value => [
+                RoleEnum::MarketingPartner->value,
+            ],
+        ];
 
-  /**
-   * Display a listing of the resource.
-   */
-  public function index(Request $request)
-  {
-    $officeSelected = (int) $request->get('office_id', 1);
-    $office = Profile::query()->find($officeSelected) ?? Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
-    $routeName = $this->getRouteName($office);
-    $employees = User::search($request->get('search'))
-      ->query(function ($query) use ($officeSelected) {
-        $query->with('role')
-          ->where('role_id', '!=', 1)
-          ->where('profile_id', $officeSelected);
-      })
-      ->orderBy('name')
-      ->paginate($request->get('per_page') ?? 10)
-      ->appends('query', null)
-      ->appends($request->all());
-    $employeeResource = EmployeeResource::collection($employees);
-
-    $component = 'admin/office-management/employee/index';
-
-    return inertia($component, [
-      'page_settings' => [
-        'title' => 'Pengguna ' . $office->getAttribute('name'),
-      ],
-      'office_selected' => $officeSelected,
-      'employees' => fn() => $employeeResource,
-      'route_name' => $routeName,
-    ]);
-  }
-
-  /**
-   * Show the form for creating a new resource.
-   */
-  public function create(Request $request)
-  {
-    $request->validate([
-      'office_id' => 'required|exists:profiles,id',
-      'role_id' => 'nullable|exists:roles,id',
-    ]);
-    $officeSelected = (int) $request->get('office_id', 1);
-    $office = Profile::query()->find($officeSelected);
-    $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
-    $roles = Role::query()->whereIn('name', $roleNames)->get();
-    // for head role
-    $roleId = (int) $request->get('role_id');
-    $role = Role::query()->find($roleId);
-    $userRoles = $this->getRoles($office, $role);
-    $headers = User::query()
-      ->where('profile_id', $officeSelected)
-      ->with('role')
-      ->whereHas('role', function ($query) use ($userRoles) {
-        $query->whereIn('name', $userRoles);
-      })
-      ->get();
-
-    $routeName = $this->getRouteName($office);
-    $component = 'admin/office-management/employee/create/index';
-
-    return inertia($component, compact('officeSelected', 'role', 'roles', 'headers', 'routeName'));
-  }
-
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(Request $request)
-  {
-    $requestValid = $request->validate([
-      'name' => 'required|string',
-      'username' => 'required|string|unique:' . User::class . ',username',
-      'email' => 'nullable|email|unique:' . User::class . ',email',
-      'password' => 'required|string|min:8',
-      'password_confirmation' => 'required|same:password',
-      'phone' => 'nullable|string',
-      'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      'head_id' => 'nullable|exists:users,id',
-      'profile_id' => 'required|exists:profiles,id',
-      'role_id' => 'required|exists:roles,id',
-    ]);
-
-    try {
-      DB::beginTransaction();
-
-      $requestValid['password'] = Hash::make($requestValid['password']);
-      $user = User::query()
-        ->create($requestValid)->load('office');
-      $office = $user->getRelation('office');
-      $routeName = $this->getRouteName($office);
-      activity()
-        ->useLog('employee')
-        ->performedOn($user)
-        ->causedBy(auth()->user())
-        ->log('Menambahkan data pengguna');
-      flashMessage('Berhasil', 'Data pengguna berhasil ditambahkan');
-      DB::commit();
-
-      return redirect()->route($routeName . '.index', ['office_id' => $user->profile_id]);
-    } catch (\Exception $e) {
-      DB::rollBack();
-      Log::error("Error on EmployeeController@store: {$e->getMessage()}");
-
-      flashMessage('Gagal', 'Penambahan data pengguna gagal', 'error');
-
-      return back()->withErrors(['errors' => 'Gagal menambahkan data pengguna']);
+        return $data[$officeType];
     }
-  }
 
-  /**
-   * Show the form for editing the specified resource.
-   */
-  public function edit(Request $request, User $employee)
-  {
-    $employee = User::query()->with('office')->find($employee->getAttribute('id'));
-    $office = $employee->getRelation('office');
-    $officeSelected = $office->getAttribute('id');
-    $roleId = $request->get('role_id', $employee->getAttribute('role_id'));
-    $role = Role::query()->find($roleId);
-    $userRoles = $this->getRoles($office, $role);
-    $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
-    $roles = Role::query()->whereIn('name', $roleNames)->get();
-    $headers = User::query()
-      ->with('role')
-      ->whereHas('role', function ($query) use ($userRoles) {
-        $query->whereIn('name', $userRoles);
-      })
-      ->get();
-    $routeName = $this->getRouteName($office);
-    $component = 'admin/office-management/employee/edit/index';
+    public function getEmployeeByOffice(Request $request, Profile $office)
+    {
 
-    return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers', 'routeName'));
-  }
+        $profileId = $office->getAttribute('id');
+        // $roles = $this->getRoles($office);
+        $employees = User::query()->where('profile_id', $profileId)->get();
 
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(Request $request, User $employee)
-  {
-    $requestValid = $request->validate([
-      'name' => 'required|string',
-      'username' => 'required|string|unique:' . User::class . ',username,' . $employee->getAttribute('id'),
-      'email' => 'nullable|email|unique:' . User::class . ',email,' . $employee->getAttribute('id'),
-      'phone' => 'nullable|string',
-      'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      'head_id' => 'nullable|exists:users,id',
-      'profile_id' => 'required|exists:profiles,id',
-      'role_id' => 'required|exists:roles,id',
-      'password' => 'nullable|string|min:8',
-      'password_confirmation' => 'nullable|required_with:password|same:password',
-    ]);
-
-    // get $requestValid value not null
-    $requestValid['password'] = $requestValid['password'] ? Hash::make($requestValid['password']) : null;
-    $requestValid = array_filter($requestValid, fn($value) => $value !== null);
-    try {
-      DB::beginTransaction();
-
-      $user = User::query()->with('office')->find($employee->getAttribute('id'));
-      $office = $user->getRelation('office');
-      $routeName = $this->getRouteName($office);
-      $user->update($requestValid);
-      activity()
-        ->useLog('employee')
-        ->performedOn($user)
-        ->causedBy(auth()->user())
-        ->log('Mengubah data pengguna');
-      flashMessage('Berhasil', 'Perubahan data pengguna berhasil');
-      DB::commit();
-
-      return redirect()->route($routeName . '.index', ['office_id' => $user->profile_id]);
-    } catch (\Exception $e) {
-      DB::rollBack();
-      Log::error("Error on EmployeeController@update: {$e->getMessage()}");
-
-      flashMessage('Gagal', 'Perubahan data pengguna gagal', 'error');
-
-      return back()->withErrors(['errors' => 'Gagal mengubah data pengguna']);
+        return EmployeeResource::collection($employees);
     }
-  }
 
-  /**
-   * Remove the specified resource from storage.
-   */
-  public function destroy(User $employee)
-  {
-    try {
-      DB::beginTransaction();
+    private function getRoles(Profile $office, ?Role $role = null): array
+    {
+        $officeType = $office->getAttribute('office_type');
+        $roles = [];
+        if ($role === null) {
+            return $roles;
+        }
+        if ($officeType === OfficeType::HEADQUARTER->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::Manager->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+                case RoleEnum::StaffOperasional->value:
+                case RoleEnum::StaffTeknik->value:
+                case RoleEnum::Staff->value:
+                    $roles = [RoleEnum::Manager->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::BRANCH->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::KepalaCabang->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+                case RoleEnum::StaffOperasional->value:
+                case RoleEnum::StaffTeknik->value:
+                case RoleEnum::Staff->value:
+                    $roles = [RoleEnum::KepalaCabang->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::AGENT_PARTNER->value) {
+            switch ($role->getAttribute('name')) {
+                case RoleEnum::AgentPartner->value:
+                    $roles = [RoleEnum::KepalaAgentPartner->value];
+                    break;
+                case RoleEnum::KepalaAgentPartner->value:
+                    $roles = [RoleEnum::Direksi->value];
+                    break;
+            }
+        } elseif ($officeType === OfficeType::MARKETING_PARTNER->value) {
+            if ($role->getAttribute('name') == RoleEnum::MarketingPartner->value) {
+                $roles = [RoleEnum::Direksi->value];
+            }
+        }
 
-      if ($employee->getAttribute('role_id') === 1) {
-        flashMessage('Gagal Menghapus Pengguna', 'Pengguna tidak dapat dihapus', 'error');
+        return $roles;
+    }
 
-        return redirect()->back()->withErrors(['errors' => 'Pengguna tidak dapat dihapus']);
-      }
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $officeSelected = (int) $request->get('office_id', 1);
+        $office = Profile::query()->find($officeSelected) ?? Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
+        $routeName = $this->getRouteName($office);
+        $employees = User::search($request->get('search'))
+            ->query(function ($query) use ($officeSelected) {
+                $query->with('role')
+                    ->where('role_id', '!=', 1)
+                    ->where('profile_id', $officeSelected);
+            })
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $employeeResource = EmployeeResource::collection($employees);
 
-      if ($employee->exists) {
-        $employee->update([
-          'username' => $employee->getAttribute('username') . '_deleted_' . now()->timestamp,
-          'email' => $employee->getAttribute('email') . '_deleted_' . now()->timestamp,
-          'password' => Hash::make($employee->getAttribute('email')) . '_deleted_' . now()->timestamp,
+        $component = 'admin/office-management/employee/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Pengguna '.$office->getAttribute('name'),
+            ],
+            'office_selected' => $officeSelected,
+            'employees' => fn () => $employeeResource,
+            'route_name' => $routeName,
         ]);
-        $employee->delete();
-      } else {
-        throw new ThrottleRequestsException('Pengguna tidak ditemukan');
-      }
-      activity()
-        ->useLog('employee')
-        ->performedOn($employee)
-        ->causedBy(auth()->user())
-        ->log('Menghapus data pengguna');
-      flashMessage('Pengguna Dihapus', 'Pengguna berhasil dihapus');
-      DB::commit();
-
-      return redirect()->back();
-    } catch (\Exception $e) {
-      flashMessage('Gagal Menghapus Pengguna', 'Terjadi kesalahan saat menghapus pengguna', 'error');
-      Log::error("Error on EmployeeController@destroy: {$e->getMessage()}");
-      DB::rollBack();
-
-      return back()->withErrors(['errors' => 'Gagal menghapus data pengguna']);
     }
-  }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $request->validate([
+            'office_id' => 'required|exists:profiles,id',
+            'role_id' => 'nullable|exists:roles,id',
+        ]);
+        $officeSelected = (int) $request->get('office_id', 1);
+        $office = Profile::query()->find($officeSelected);
+        $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
+        $roles = Role::query()->whereIn('name', $roleNames)->get();
+        // for head role
+        $roleId = (int) $request->get('role_id');
+        $role = Role::query()->find($roleId);
+        $userRoles = $this->getRoles($office, $role);
+        $headers = User::query()
+            ->where('profile_id', $officeSelected)
+            ->with('role')
+            ->whereHas('role', function ($query) use ($userRoles) {
+                $query->whereIn('name', $userRoles);
+            })
+            ->get();
+
+        $routeName = $this->getRouteName($office);
+        $component = 'admin/office-management/employee/create/index';
+
+        return inertia($component, compact('officeSelected', 'role', 'roles', 'headers', 'routeName'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $requestValid = $request->validate([
+            'name' => 'required|string',
+            'username' => 'required|string|unique:'.User::class.',username',
+            'email' => 'nullable|email|unique:'.User::class.',email',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|same:password',
+            'phone' => 'nullable|string',
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'head_id' => 'nullable|exists:users,id',
+            'profile_id' => 'required|exists:profiles,id',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $requestValid['password'] = Hash::make($requestValid['password']);
+            $user = User::query()
+                ->create($requestValid)->load('office');
+            $office = $user->getRelation('office');
+            $routeName = $this->getRouteName($office);
+            activity()
+                ->useLog('employee')
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data pengguna');
+            flashMessage('Berhasil', 'Data pengguna berhasil ditambahkan');
+            DB::commit();
+
+            return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on EmployeeController@store: {$e->getMessage()}");
+
+            flashMessage('Gagal', 'Penambahan data pengguna gagal', 'error');
+
+            return back()->withErrors(['errors' => 'Gagal menambahkan data pengguna']);
+        }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Request $request, User $employee)
+    {
+        $employee = User::query()->with('office')->find($employee->getAttribute('id'));
+        $office = $employee->getRelation('office');
+        $officeSelected = $office->getAttribute('id');
+        $roleId = $request->get('role_id', $employee->getAttribute('role_id'));
+        $role = Role::query()->find($roleId);
+        $userRoles = $this->getRoles($office, $role);
+        $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
+        $roles = Role::query()->whereIn('name', $roleNames)->get();
+        $headers = User::query()
+            ->with('role')
+            ->whereHas('role', function ($query) use ($userRoles) {
+                $query->whereIn('name', $userRoles);
+            })
+            ->get();
+        $routeName = $this->getRouteName($office);
+        $component = 'admin/office-management/employee/edit/index';
+
+        return inertia($component, compact('officeSelected', 'roles', 'employee', 'headers', 'routeName'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, User $employee)
+    {
+        $requestValid = $request->validate([
+            'name' => 'required|string',
+            'username' => 'required|string|unique:'.User::class.',username,'.$employee->getAttribute('id'),
+            'email' => 'nullable|email|unique:'.User::class.',email,'.$employee->getAttribute('id'),
+            'phone' => 'nullable|string',
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'head_id' => 'nullable|exists:users,id',
+            'profile_id' => 'required|exists:profiles,id',
+            'role_id' => 'required|exists:roles,id',
+            'password' => 'nullable|string|min:8',
+            'password_confirmation' => 'nullable|required_with:password|same:password',
+        ]);
+
+        // get $requestValid value not null
+        $requestValid['password'] = $requestValid['password'] ? Hash::make($requestValid['password']) : null;
+        $requestValid = array_filter($requestValid, fn ($value) => $value !== null);
+        try {
+            DB::beginTransaction();
+
+            $user = User::query()->with('office')->find($employee->getAttribute('id'));
+            $office = $user->getRelation('office');
+            $routeName = $this->getRouteName($office);
+            $user->update($requestValid);
+            activity()
+                ->useLog('employee')
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data pengguna');
+            flashMessage('Berhasil', 'Perubahan data pengguna berhasil');
+            DB::commit();
+
+            return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error on EmployeeController@update: {$e->getMessage()}");
+
+            flashMessage('Gagal', 'Perubahan data pengguna gagal', 'error');
+
+            return back()->withErrors(['errors' => 'Gagal mengubah data pengguna']);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $employee)
+    {
+        try {
+            DB::beginTransaction();
+
+            if ($employee->getAttribute('role_id') === 1) {
+                flashMessage('Gagal Menghapus Pengguna', 'Pengguna tidak dapat dihapus', 'error');
+
+                return redirect()->back()->withErrors(['errors' => 'Pengguna tidak dapat dihapus']);
+            }
+
+            if ($employee->exists) {
+                $employee->update([
+                    'username' => $employee->getAttribute('username').'_deleted_'.now()->timestamp,
+                    'email' => $employee->getAttribute('email').'_deleted_'.now()->timestamp,
+                    'password' => Hash::make($employee->getAttribute('email')).'_deleted_'.now()->timestamp,
+                ]);
+                $employee->delete();
+            } else {
+                throw new ThrottleRequestsException('Pengguna tidak ditemukan');
+            }
+            activity()
+                ->useLog('employee')
+                ->performedOn($employee)
+                ->causedBy(auth()->user())
+                ->log('Menghapus data pengguna');
+            flashMessage('Pengguna Dihapus', 'Pengguna berhasil dihapus');
+            DB::commit();
+
+            return redirect()->back();
+        } catch (\Exception $e) {
+            flashMessage('Gagal Menghapus Pengguna', 'Terjadi kesalahan saat menghapus pengguna', 'error');
+            Log::error("Error on EmployeeController@destroy: {$e->getMessage()}");
+            DB::rollBack();
+
+            return back()->withErrors(['errors' => 'Gagal menghapus data pengguna']);
+        }
+    }
 }
