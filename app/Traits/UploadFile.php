@@ -52,11 +52,6 @@ trait UploadFile
       $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
 
       if (!$storedPath) {
-        Log::error('File upload failed: Unable to store file.', [
-          'file' => $file->getClientOriginalName(),
-          'path' => $cleanPath,
-          'sanitizedFileName' => $sanitizedFileName
-        ]);
         throw new Exception('File upload failed.');
       }
 
