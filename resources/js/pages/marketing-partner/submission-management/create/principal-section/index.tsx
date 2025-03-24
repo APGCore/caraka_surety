@@ -8,7 +8,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
 import { Combobox } from "@/components/molecules/combobox";
-import React, { useEffect } from "react";
+import React from "react";
 
 interface PrincipalSectionProps {
   province_id?: string;
@@ -18,15 +18,15 @@ interface PrincipalSectionProps {
   name: string;
   address: string;
   postal_code: string;
-  telephone: number | string | undefined;
+  telephone?: number | string | undefined;
   fax: string;
-  npwp: number | string | undefined;
-  nib: number | string | undefined;
+  npwp?: number | string | undefined;
+  nib?: number | string | undefined;
   siup_siujk: string;
   head_name: string;
   director_name: string;
   director_position: string;
-  director_phone: number | string | undefined;
+  director_phone?: number | string | undefined;
   commissioner: string;
   year_established?: number | string | undefined;
   est_deed: string;
@@ -130,9 +130,9 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
   ];
 
   const locationFieldsCombobox = [
-    { key: "province_id", name: "Provinsi", value: province_id },
-    { key: "regency_id", name: "Kabupaten", value: regency_id },
-    { key: "district_id", name: "Kecamatan", value: district_id },
+    { key: "province_id", name: "Provinsi", value: Number(province_id) },
+    { key: "regency_id", name: "Kabupaten", value: Number(regency_id) },
+    { key: "district_id", name: "Kecamatan", value: Number(district_id) },
   ];
 
   const locationFieldsInput = [

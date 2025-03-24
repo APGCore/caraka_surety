@@ -104,11 +104,11 @@ class DocumentFormatController extends Controller
     {
         // dd($request->all());
         $request->validate([
-            'guarantor_id' => 'required|integer',
+            'guarantor_id' => 'nullable|integer',
             'product_id' => 'required_with:guarantor_to_product_type_id|nullable|integer',
             'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
-            'format_document' => 'nullable|string',
+            'format_document' => 'required|string',
         ]);
 
         try {
@@ -185,11 +185,11 @@ class DocumentFormatController extends Controller
 
         // dd($request->all());
         $request->validate([
-            'guarantor_id' => 'required|integer',
+            'guarantor_id' => 'nullable|integer',
             'product_id' => 'nullable|integer',
             'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
-            'format_document' => 'nullable|string',
+            'format_document' => 'required|string',
         ]);
 
         try {

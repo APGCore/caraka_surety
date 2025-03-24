@@ -2,6 +2,7 @@ import React from "react";
 
 interface SubmissionCreateProps {
   guarantor: any;
+  submission?: SubmissionFormProps;
 }
 
 export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {
@@ -9,7 +10,7 @@ export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {
 };
 
 type Principal = {
-  id: string;
+  id: string | null;
   province_id?: string;
   regency_id?: string;
   district_id?: string;
@@ -17,15 +18,15 @@ type Principal = {
   name: string;
   address: string;
   postal_code: string;
-  telephone: number | string | undefined;
+  telephone?: number | string | undefined;
   fax: string;
-  npwp: number | string | undefined;
-  nib: number | string | undefined;
+  npwp?: number | string | undefined;
+  nib?: number | string | undefined;
   siup_siujk: string;
   head_name: string;
   director_name: string;
   director_position: string;
-  director_phone: number | string | undefined;
+  director_phone?: number | string | undefined;
   commissioner: string;
   year_established?: number | string | undefined;
   est_deed: string;
@@ -36,14 +37,15 @@ type Principal = {
 };
 
 type Submission = {
+  id?: number | string;
   guarantor_id: string;
-  guarantor_branch_id?: number | string | undefined;
-  product_id?: number | string | undefined;
-  product_type_id: string;
+  guarantor_branch_id?: number;
+  product_id?: number;
+  product_type_id: number | null;
   job_group: string;
   job_type: string;
-  obligee_id: string;
-  bank_id: string;
+  obligee_id?: number;
+  bank_id?: number;
   contract_doc_name: string;
   contract_doc_number: string;
   contract_doc_date?: Date;
@@ -53,15 +55,17 @@ type Submission = {
   start_date?: Date;
   end_date?: Date;
   job_name: string;
-  job_location_province_id: string;
-  job_location_regency_id: string;
-  job_location_district_id: string;
+  job_location_province_id?: number;
+  job_location_regency_id?: number;
+  job_location_district_id?: number;
   job_location_village: string;
   job_location_address: string;
   job_location_postal_code: string;
-  source_of_fund_id: string;
+  source_of_fund_id?: number;
   note: string;
   risk_mitigation: string;
+  blank_id?: number;
+  revised_note: string | null;
 };
 
 type Scoring = {
@@ -72,7 +76,7 @@ type Scoring = {
 };
 
 type Obligee = {
-  id?: number | string | undefined;
+  id?: number;
   name?: string;
   pic?: string;
   no_ppk?: string;

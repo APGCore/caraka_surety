@@ -67,31 +67,21 @@ interface UpdatePrincipalRequest {
   business_fields?: string;
 }
 
-export const useCreatePrincipal = (
-  mutationSetting: UseMutationOptions<unknown, Error, CreatePrincipalRequest, unknown> = {},
+export const useCreateOrUpdatePrincipal = (
+  isUpdate: boolean = false,
+  mutationSetting: UseMutationOptions<unknown, Error, CreatePrincipalRequest | UpdatePrincipalRequest, unknown> = {},
 ) => {
   return useMutation({
-    mutationKey: [PRINCIPAL_QUERY_KEY.CREATE_PRINCIPAL],
-    mutationFn: async (data: CreatePrincipalRequest) => {
-      const response = await axios.post(route("api.principal-management.principal.store"), data);
-      return response?.data?.data;
-    },
-    ...mutationSetting,
-  });
-};
-
-export const useUpdatePrincipal = (
-  mutationSetting: UseMutationOptions<unknown, Error, UpdatePrincipalRequest, unknown> = {},
-) => {
-  return useMutation({
-    mutationKey: [PRINCIPAL_QUERY_KEY.UPDATE_PRINCIPAL],
-    mutationFn: async (data: UpdatePrincipalRequest) => {
-      const response = await axios.put(
-        route("api.principal-management.principal.update", {
-          principal: data.principal_id,
-        }),
-        data,
-      );
+    mutationKey: [isUpdate ? PRINCIPAL_QUERY_KEY.UPDATE_PRINCIPAL : PRINCIPAL_QUERY_KEY.CREATE_PRINCIPAL],
+    mutationFn: async (data: CreatePrincipalRequest | UpdatePrincipalRequest) => {
+      const response = isUpdate
+        ? await axios.put(
+            route("api.principal-management.principal.update", {
+              principal: (data as UpdatePrincipalRequest).principal_id,
+            }),
+            data,
+          )
+        : await axios.post(route("api.principal-management.principal.store"), data);
       return response?.data?.data;
     },
     ...mutationSetting,
