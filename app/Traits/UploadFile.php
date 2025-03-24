@@ -56,7 +56,7 @@ trait UploadFile
         'path' => $cleanPath,
         'sanitizedFileName' => $sanitizedFileName,
         'disk' => config('filesystems.default'),
-        'error' => $disk->getDriver()->getLastError(),
+        'error' => $disk->getAdapter()
       ]);
       throw new Exception('File upload failed.');
     }
