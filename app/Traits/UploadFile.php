@@ -9,82 +9,96 @@ use Illuminate\Support\Facades\Storage;
 
 trait UploadFile
 {
-    public function base64ToFile($base64String): UploadedFile
-    {
-        if (str_starts_with($base64String, 'data:image')) {
-            preg_match('/data:image\/(\w+);base64,/', $base64String, $matches);
-            $extension = $matches[1];
+  public function base64ToFile($base64String): UploadedFile
+  {
+    if (str_starts_with($base64String, 'data:image')) {
+      preg_match('/data:image\/(\w+);base64,/', $base64String, $matches);
+      $extension = $matches[1];
 
-            $base64String = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
-        } else {
-            $extension = 'jpg'; // Default to jpg if no extension is found
-        }
-
-        // Decode the base64 string
-        $fileDataString = base64_decode($base64String);
-
-        // $fileData to UploadedFile
-        return UploadedFile::fake()->createWithContent('file.'.$extension, $fileDataString);
-
+      $base64String = preg_replace('/^data:image\/\w+;base64,/', '', $base64String);
+    } else {
+      $extension = 'jpg'; // Default to jpg if no extension is found
     }
 
-    /**
-     * Upload file to the storage.
-     */
-    public function uploadFile(UploadedFile $file, string $path, string $fileName): string
-    {
-        // Ensure a valid extension (defaults to PDF if not image)
-        $allowedExtensions = ['png', 'jpg', 'jpeg'];
-        $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
-          ? $file->getClientOriginalExtension()
-          : 'pdf';
+    // Decode the base64 string
+    $fileDataString = base64_decode($base64String);
 
-        // Format file name
-        $sanitizedFileName = str_replace('.', '', date('ymd').'_'.str_replace(' ', '_', $fileName)
-            .'_'.date('Hi')).'.'.$extension;
+    // $fileData to UploadedFile
+    return UploadedFile::fake()->createWithContent('file.' . $extension, $fileDataString);
 
-        // Ensure path does not have leading slashes
-        $cleanPath = trim($path, '/');
+  }
 
-        // Store file
-        $disk = Storage::disk(config('filesystems.default'));
-        $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+  /**
+   * Upload file to the storage.
+   */
+  public function uploadFile(UploadedFile $file, string $path, string $fileName): string
+  {
+    try {
+      // Ensure a valid extension (defaults to PDF if not image)
+      $allowedExtensions = ['png', 'jpg', 'jpeg'];
+      $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
+        ? $file->getClientOriginalExtension()
+        : 'pdf';
 
-        if (! $storedPath) {
-            throw new Exception('File upload failed.');
-        }
+      // Format file name
+      $sanitizedFileName = str_replace('.', '', date('ymd') . '_' . str_replace(' ', '_', $fileName)
+          . '_' . date('Hi')) . '.' . $extension;
 
-        return $storedPath;
+      // Ensure path does not have leading slashes
+      $cleanPath = trim($path, '/');
+
+      // Store file
+      $disk = Storage::disk(config('filesystems.default'));
+      $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+
+      if (!$storedPath) {
+        Log::error('File upload failed: Unable to store file.', [
+          'file' => $file->getClientOriginalName(),
+          'path' => $cleanPath,
+          'sanitizedFileName' => $sanitizedFileName
+        ]);
+        throw new Exception('File upload failed.');
+      }
+
+      return $storedPath;
+    } catch (Exception $e) {
+      Log::error('File upload encountered an error: ' . $e->getMessage(), [
+        'file' => $file->getClientOriginalName(),
+        'path' => $path,
+        'fileName' => $fileName
+      ]);
+      throw $e;
+    }
+  }
+
+  /**
+   * Get the file path from the storage.
+   */
+  public function getFileUrl($path): string
+  {
+    $disk = Storage::disk(config('filesystems.default'));
+
+    // Jika bucket public, langsung return URL biasa
+    if ($disk->exists($path)) {
+      return $disk->url($path);
     }
 
-    /**
-     * Get the file path from the storage.
-     */
-    public function getFileUrl($path): string
-    {
-        $disk = Storage::disk(config('filesystems.default'));
+    // Jika private, buat signed URL manual (valid 60 menit)
+    return $disk->temporaryUrl($path, now()->addMinutes(60));
+  }
 
-        // Jika bucket public, langsung return URL biasa
-        if ($disk->exists($path)) {
-            return $disk->url($path);
-        }
+  /**
+   * Delete file from the storage.
+   */
+  public function deleteFile($pathAndFileName): void
+  {
+    $disk = config('filesystems.default');
 
-        // Jika private, buat signed URL manual (valid 60 menit)
-        return $disk->temporaryUrl($path, now()->addMinutes(60));
+    if (Storage::disk($disk)->exists($pathAndFileName)) {
+      Log::info('File exists, deleting: ' . $pathAndFileName);
+      Storage::disk($disk)->delete($pathAndFileName);
+    } else {
+      Log::warning('File not found: ' . $pathAndFileName);
     }
-
-    /**
-     * Delete file from the storage.
-     */
-    public function deleteFile($pathAndFileName): void
-    {
-        $disk = config('filesystems.default');
-
-        if (Storage::disk($disk)->exists($pathAndFileName)) {
-            Log::info('File exists, deleting: '.$pathAndFileName);
-            Storage::disk($disk)->delete($pathAndFileName);
-        } else {
-            Log::warning('File not found: '.$pathAndFileName);
-        }
-    }
+  }
 }
