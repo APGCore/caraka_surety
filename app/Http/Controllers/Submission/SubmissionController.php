@@ -31,409 +31,410 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
-    use GeneratePattern;
+  use GeneratePattern;
 
-    protected HostToHostService $hostToHostService;
+  protected HostToHostService $hostToHostService;
 
-    protected int $guarantorId;
+  protected int $guarantorId;
 
-    public function __construct(
-        HostToHostService $hostToHostService
-    ) {
-        Carbon::setLocale('id');
-        $this->hostToHostService = $hostToHostService;
-        $this->guarantorId = config('guarantor.id');
+  public function __construct(
+    HostToHostService $hostToHostService
+  )
+  {
+    Carbon::setLocale('id');
+    $this->hostToHostService = $hostToHostService;
+    $this->guarantorId = config('guarantor.id');
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   */
+  public function store(StoreRequest $request)
+  {
+    $validated = $request->validated();
+
+    DB::beginTransaction();
+    try {
+      $principal = $validated['principal'];
+      $principalId = $principal['id'];
+      $principalRatios = $principal['ratios'];
+      $principalRatios = collect($principalRatios)->map(function ($ratio) {
+        $ratio['year'] = (int)$ratio['year'];
+        $ratio['current_assets'] = (float)$ratio['current_assets'];
+        $ratio['current_debt'] = (float)$ratio['current_debt'];
+        $ratio['total_debt'] = (float)$ratio['total_debt'];
+        $ratio['total_assets'] = (float)$ratio['total_assets'];
+        $ratio['revenue'] = (float)$ratio['revenue'];
+        $ratio['net_income'] = (float)$ratio['net_income'];
+        $ratio['liquidity_ratios'] = (float)$ratio['liquidity_ratios'];
+        $ratio['profitability_ratios'] = (float)$ratio['profitability_ratios'];
+        $ratio['solvency_ratios'] = (float)$ratio['solvency_ratios'];
+
+        return $ratio;
+      })->toArray();
+
+      $obligee = $validated['obligee'];
+      $submission = $validated['submission'];
+      $scoring = $validated['scoring'];
+
+      // get user staff
+      $staff = auth()->user();
+      $profile = Profile::query()
+        ->find($staff->profile_id);
+
+      // get blanks
+      $blank = Blank::query()
+        ->firstWhere('id', $submission['blank_id']);
+
+      // update blank
+      $blank->update(['is_used' => true]);
+
+      $principal = Principal::query()->firstWhere('id', $principalId);
+      // create principal ratios
+      foreach ($principalRatios as $principalRatio) {
+        $principal?->principalRatios()
+          ->updateOrCreate([
+            'year' => $principalRatio['year'],
+          ], $principalRatio);
+      }
+
+      // create or update obligee
+      $obligee = Obligee::query()
+        ->updateOrCreate([
+          'id' => $obligee['id'] ?? null,
+        ], $obligee);
+
+      // generate no guarantee
+      $guarantorHead = Guarantor::query()
+        ->with(['pattern', 'branch'])
+        ->find($submission['guarantor_id']);
+
+      $guarantorBranchId = $submission['guarantor_branch_id'];
+      $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
+        ->where('product_id', $submission['product_id'])
+        ->where('product_type_id', $submission['product_type_id'])
+        ->where('job_group', $submission['job_group'])
+        ->where('job_type', $submission['job_type'])
+        ->first();
+
+      // prepare create submission
+      $dataSubmission = collect($submission)->toArray();
+      $submissionId = $dataSubmission['id'] ?? null;
+      $submissionOld = Submission::query()->select(['id', 'no_guarantee'])->find($submissionId);
+      if ($submissionOld) {
+        $noGuarantee = $submissionOld->getAttribute('no_guarantee');
+        $submissionOld->update(['is_revised' => true]);
+        $submissionOld->blanks()->update(['is_revised' => true]);
+        $messageResponse = 'Berhasil merevisi pengajuan';
+      } else {
+        $noGuarantee = $this->generateNoGuarantee(
+          $guarantorHead,
+          $guarantorToProductType,
+          $guarantorBranchId,
+          $blank,
+          $profile);
+        $messageResponse = 'Berhasil membuat pengajuan';
+      }
+      $dataSubmission['submission_before_id'] = $submissionId;
+      $dataSubmission['no_guarantee'] = $noGuarantee;
+
+      $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
+      $dataSubmission['principal_id'] = $principalId;
+      $dataSubmission['staff_id'] = auth()->id();
+      $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
+      $dataSubmission['note_scoring'] = $scoring['note'];
+      $modelScoring = Scoring::query()->find($scoring['id']);
+      $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
+      $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
+      $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
+      $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
+      $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
+      $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
+      $scores = $scoring['scores'];
+
+      $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
+
+      // create submission blangko
+      SubmissionBlank::query()->create([
+        'submission_id' => $submission->getAttribute('id'),
+        'blank_id' => $blank->id,
+      ]);
+
+      // create submission scoring
+      foreach ($scores as &$score) {
+        $score['scoring_id'] = $scoring['id'];
+      }
+
+      $submission->scores()->createMany($scores);
+      activity()
+        ->useLog('submission')
+        ->performedOn($submission)
+        ->causedBy(auth()->user())
+        ->log('Membuat pengajuan');
+      flashMessage('success', $messageResponse);
+      DB::commit();
+
+      return redirect()->back()->with('success', $messageResponse);
+    } catch (Exception $e) {
+      DB::rollBack();
+      Log::error('SubmissionController@store: ', [
+        'message' => $e->getMessage(),
+        'line' => $e->getLine(),
+        'file' => $e->getFile(),
+      ]);
+
+      if (str_contains($e->getMessage(), 'Blangko')) {
+        flashMessage('Blangko Kosong', $e->getMessage(), 'error');
+
+        return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+      } else {
+        flashMessage('Error', 'Gagal membuat pengajuan', 'error');
+
+        return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
+      }
     }
+  }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreRequest $request)
-    {
-        $validated = $request->validated();
+  private function getSubmission($id): Submission
+  {
+    return Submission::with([
+      'principal' => function ($query) {
+        $query->withTrashed();
+      },
+      'principal.documents' => function ($query) {
+        $query->withTrashed();
+      },
+      'principal.principalRatios' => function ($query) {
+        $query->withTrashed();
+      },
+      'guarantor' => function ($query) {
+        $query->withTrashed();
+      },
+      'guarantorToProductType' => function ($query) {
+        $query->withTrashed();
+      },
+      'obligee' => function ($query) {
+        $query->withTrashed();
+      },
+      'obligee.province',
+      'obligee.regency',
+      'obligee.district',
+      'principal.province',
+      'principal.regency',
+      'principal.district',
+      'guarantor.province',
+      'guarantor.regency',
+      'guarantor.district',
 
-        DB::beginTransaction();
-        try {
-            $principal = $validated['principal'];
-            $principalId = $principal['id'];
-            $principalRatios = $principal['ratios'];
-            $principalRatios = collect($principalRatios)->map(function ($ratio) {
-                $ratio['year'] = (int) $ratio['year'];
-                $ratio['current_assets'] = (float) $ratio['current_assets'];
-                $ratio['current_debt'] = (float) $ratio['current_debt'];
-                $ratio['total_debt'] = (float) $ratio['total_debt'];
-                $ratio['total_assets'] = (float) $ratio['total_assets'];
-                $ratio['revenue'] = (float) $ratio['revenue'];
-                $ratio['net_income'] = (float) $ratio['net_income'];
-                $ratio['liquidity_ratios'] = (float) $ratio['liquidity_ratios'];
-                $ratio['profitability_ratios'] = (float) $ratio['profitability_ratios'];
-                $ratio['solvency_ratios'] = (float) $ratio['solvency_ratios'];
+      'district',
+      'province',
+      'regency',
+      'sourceOfFund' => function ($query) {
+        $query->withTrashed();
+      },
+      'submissionDocs',
+      'scores',
+      'scores.scoring' => function ($query) {
+        $query->withTrashed();
+      },
+      'scores.scoringQuestionCategory' => function ($query) {
+        $query->withTrashed();
+      },
+      'scores.scoringQuestion' => function ($query) {
+        $query->withTrashed();
+      },
+      'scores.scoringOption' => function ($query) {
+        $query->withTrashed();
+      },
+      'userChecked' => function ($query) {
+        $query->withTrashed();
+      },
+      'userApproved' => function ($query) {
+        $query->withTrashed();
+      },
+      'userRejected' => function ($query) {
+        $query->withTrashed();
+      },
+      'staff' => function ($query) {
+        $query->withTrashed();
+      },
+      'employeeLimit',
+      'guarantorProductTypeLimit',
+      'callback',
+    ])->findOrFail($id);
+  }
 
-                return $ratio;
-            })->toArray();
+  /**
+   * Display the specified resource.
+   */
+  public function revision($id)
+  {
+    $submission = $this->getSubmission($id);
+    $principal = $submission->principal->only([
+      'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
+      'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
+      'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
+    ]);
+    $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+    $principal = collect(array_merge($principal, [
+      'ratios' => $principalRatios,
+    ]));
 
-            $obligee = $validated['obligee'];
-            $submission = $validated['submission'];
-            $scoring = $validated['scoring'];
+    $obligee = $submission->obligee;
 
-            // get user staff
-            $staff = auth()->user();
-            $profile = Profile::query()
-                ->find($staff->profile_id);
+    $scoring = collect([
+      'id' => $submission->scores->first()->scoring_id,
+      'note' => $submission->note_scoring,
+      'scores' => $submission->scores,
+    ]);
 
-            // get blanks
-            $blank = Blank::query()
-                ->firstWhere('id', $submission['blank_id']);
+    $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+      'bank_id', 'contract_doc_name',
+      'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
+      'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
+      'job_location_regency_id', 'job_location_district_id', 'job_location_village',
+      'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
+      'note', 'risk_mitigation',
+    ]);
 
-            // update blank
-            $blank->update(['is_used' => true]);
+    $submission = array_merge($submissionArray,
+      $submission->guarantorToProductType->only(
+        'product_type_id', 'job_group', 'job_type',
+      ));
 
-            $principal = Principal::query()->firstWhere('id', $principalId);
-            // create principal ratios
-            foreach ($principalRatios as $principalRatio) {
-                $principal?->principalRatios()
-                    ->updateOrCreate([
-                        'year' => $principalRatio['year'],
-                    ], $principalRatio);
-            }
+    // new class
+    $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
 
-            // create or update obligee
-            $obligee = Obligee::query()
-                ->updateOrCreate([
-                    'id' => $obligee['id'] ?? null,
-                ], $obligee);
+    return inertia('staff/submission-management/create/index', [
+      'page_settings' => fn() => [
+        'title' => 'Revisi Pengajuan',
+      ],
+      'submission' => fn() => $data,
+    ]);
+  }
 
-            // generate no guarantee
-            $guarantorHead = Guarantor::query()
-                ->with(['pattern', 'branch'])
-                ->find($submission['guarantor_id']);
+  /**
+   * Display the specified resource.
+   */
+  public function showDetailSubmission($id)
+  {
+    $submission = $this->getSubmission($id);
+    $submission->mail_number = $this->generateNomorSurat($id);
 
-            $guarantorBranchId = $submission['guarantor_branch_id'];
-            $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
-                ->where('product_id', $submission['product_id'])
-                ->where('product_type_id', $submission['product_type_id'])
-                ->where('job_group', $submission['job_group'])
-                ->where('job_type', $submission['job_type'])
-                ->first();
+    $principalDocs = collect($submission->principal->documents);
 
-            // prepare create submission
-            $dataSubmission = collect($submission)->toArray();
-            $submissionId = $dataSubmission['id'] ?? null;
-            $submissionOld = Submission::query()->select(['id', 'no_guarantee'])->find($submissionId);
-            if ($submissionOld) {
-                $noGuarantee = $submissionOld->getAttribute('no_guarantee');
-                $submissionOld->update(['is_revised' => true]);
-                $submissionOld->blanks()->update(['is_revised' => true]);
-                $messageResponse = 'Berhasil merevisi pengajuan';
-            } else {
-                $noGuarantee = $this->generateNoGuarantee(
-                    $guarantorHead,
-                    $guarantorToProductType,
-                    $guarantorBranchId,
-                    $blank,
-                    $profile);
-                $messageResponse = 'Berhasil membuat pengajuan';
-            }
-            $dataSubmission['submission_before_id'] = $submissionId;
-            $dataSubmission['no_guarantee'] = $noGuarantee;
+    $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-            $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
-            $dataSubmission['principal_id'] = $principalId;
-            $dataSubmission['staff_id'] = auth()->id();
-            $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
-            $dataSubmission['note_scoring'] = $scoring['note'];
-            $modelScoring = Scoring::query()->find($scoring['id']);
-            $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
-            $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
-            $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
-            $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
-            $scores = $scoring['scores'];
-
-            $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
-
-            // create submission blangko
-            SubmissionBlank::query()->create([
-                'submission_id' => $submission->getAttribute('id'),
-                'blank_id' => $blank->id,
-            ]);
-
-            // create submission scoring
-            foreach ($scores as &$score) {
-                $score['scoring_id'] = $scoring['id'];
-            }
-
-            $submission->scores()->createMany($scores);
-            activity()
-                ->useLog('submission')
-                ->performedOn($submission)
-                ->causedBy(auth()->user())
-                ->log('Membuat pengajuan');
-            flashMessage('success', $messageResponse);
-            DB::commit();
-
-            return redirect()->back()->with('success', $messageResponse);
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('SubmissionController@store: ', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ]);
-
-            if (str_contains($e->getMessage(), 'Blangko')) {
-                flashMessage('Blangko Kosong', $e->getMessage(), 'error');
-
-                return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-            } else {
-                flashMessage('Error', 'Gagal membuat pengajuan', 'error');
-
-                return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
-            }
-        }
-    }
-
-    private function getSubmission($id): Submission
-    {
-        return Submission::with([
-            'principal' => function ($query) {
-                $query->withTrashed();
-            },
-            'principal.documents' => function ($query) {
-                $query->withTrashed();
-            },
-            'principal.principalRatios' => function ($query) {
-                $query->withTrashed();
-            },
-            'guarantor' => function ($query) {
-                $query->withTrashed();
-            },
-            'guarantorToProductType' => function ($query) {
-                $query->withTrashed();
-            },
-            'obligee' => function ($query) {
-                $query->withTrashed();
-            },
-            'obligee.province',
-            'obligee.regency',
-            'obligee.district',
-            'principal.province',
-            'principal.regency',
-            'principal.district',
-            'guarantor.province',
-            'guarantor.regency',
-            'guarantor.district',
-
-            'district',
-            'province',
-            'regency',
-            'sourceOfFund' => function ($query) {
-                $query->withTrashed();
-            },
-            'submissionDocs',
-            'scores',
-            'scores.scoring' => function ($query) {
-                $query->withTrashed();
-            },
-            'scores.scoringQuestionCategory' => function ($query) {
-                $query->withTrashed();
-            },
-            'scores.scoringQuestion' => function ($query) {
-                $query->withTrashed();
-            },
-            'scores.scoringOption' => function ($query) {
-                $query->withTrashed();
-            },
-            'userChecked' => function ($query) {
-                $query->withTrashed();
-            },
-            'userApproved' => function ($query) {
-                $query->withTrashed();
-            },
-            'userRejected' => function ($query) {
-                $query->withTrashed();
-            },
-            'staff' => function ($query) {
-                $query->withTrashed();
-            },
-            'employeeLimit',
-            'guarantorProductTypeLimit',
-            'callback',
-        ])->findOrFail($id);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function revision($id)
-    {
-        $submission = $this->getSubmission($id);
-        $principal = $submission->principal->only([
-            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
-            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
-            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
-        ]);
-        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
-        $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios,
-        ]));
-
-        $obligee = $submission->obligee;
-
-        $scoring = collect([
-            'id' => $submission->scores->first()->scoring_id,
-            'note' => $submission->note_scoring,
-            'scores' => $submission->scores,
-        ]);
-
-        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
-            'bank_id', 'contract_doc_name',
-            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
-            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
-            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
-            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
-            'note', 'risk_mitigation',
-        ]);
-
-        $submission = array_merge($submissionArray,
-            $submission->guarantorToProductType->only(
-                'product_type_id', 'job_group', 'job_type',
-            ));
-
-        // new class
-        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
-
-        return inertia('staff/submission-management/create/index', [
-            'page_settings' => fn () => [
-                'title' => 'Revisi Pengajuan',
-            ],
-            'submission' => fn () => $data,
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function showDetailSubmission($id)
-    {
-        $submission = $this->getSubmission($id);
-        $submission->mail_number = $this->generateNomorSurat($id);
-
-        $principalDocs = collect($submission->principal->documents);
-
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
-
-        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
-            ->map(function ($doc) use ($principalDocs) {
-                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
-                if ($principalDoc) {
-                    $doc->name = $principalDoc->name;
-                    if ($doc->url) {
-                        $doc->url = Storage::url($principalDoc->url);
-                    }
-                }
-
-                return $doc;
-            });
-
-        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
-
-        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-
-        $submission->analyst_name = $submission->staff->name;
-
-        $submission->scores->map(function ($score) {
-            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
-            $score->question_name = $score->scoringQuestion->name ?? '-';
-            $score->option_name = $score->scoringOption->name ?? '-';
-
-            return $score;
-        });
-
-        // SCORING RESULT
-        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
-
-        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
-            $categoryId = $score->scoring_question_category_id;
-            $category = $score->scoringQuestionCategory;
-
-            if (! isset($grouped[$categoryId])) {
-                $grouped[$categoryId] = [
-                    'id' => $categoryId,
-                    'name' => $category->name,
-                    'items' => [],
-                ];
-            }
-
-            $grouped[$categoryId]['items'][] = $score;
-
-            switch ($category->name) {
-                case 'Character':
-                    $analysis['character'] += $score->point ?? 0;
-                    break;
-                case 'Capacity':
-                    $analysis['capacity'] += $score->point ?? 0;
-                    break;
-                case 'Capital':
-                    $analysis['capital'] += $score->point ?? 0;
-                    break;
-                case 'Condition':
-                    $analysis['condition'] += $score->point ?? 0;
-                    break;
-                case 'Collateral':
-                    $analysis['collateral'] += $score->point ?? 0;
-                    break;
-            }
-
-            return $grouped;
-        }, []);
-
-        $submission->analysis = $analysis;
-
-        $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
-
-        // Hitung total skoring
-        $totalScore = array_sum($analysis);
-
-        // Tentukan notes dan recommendation
-        if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = 'Dipertimbangkan untuk disetujui';
-            $submission->recommendation = 'disetujui';
-        } elseif ($totalScore <= 60) {
-            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
-            $submission->recommendation = 'ditolak';
-        } else {
-            $submission->notes = 'Skoring tidak valid';
-            $submission->recommendation = 'ditolak';
+    $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+      ->map(function ($doc) use ($principalDocs) {
+        $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+        if ($principalDoc) {
+          $doc->name = $principalDoc->name;
+          if ($doc->url) {
+            $doc->url = Storage::url($principalDoc->url);
+          }
         }
 
-        // submissionDoc
+        return $doc;
+      });
 
-        $submission->total_score = $totalScore;
+    $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
 
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->principal_id)
-                    ->orWhere('obligee_id', $submission->obligee_id);
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
+    $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+    $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
-                return "<tr style='text-align: left;'>
+    $submission->analyst_name = $submission->staff->name;
+
+    $submission->scores->map(function ($score) {
+      $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+      $score->question_name = $score->scoringQuestion->name ?? '-';
+      $score->option_name = $score->scoringOption->name ?? '-';
+
+      return $score;
+    });
+
+    // SCORING RESULT
+    $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+    $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+      $categoryId = $score->scoring_question_category_id;
+      $category = $score->scoringQuestionCategory;
+
+      if (!isset($grouped[$categoryId])) {
+        $grouped[$categoryId] = [
+          'id' => $categoryId,
+          'name' => $category->name,
+          'items' => [],
+        ];
+      }
+
+      $grouped[$categoryId]['items'][] = $score;
+
+      switch ($category->name) {
+        case 'Character':
+          $analysis['character'] += $score->point ?? 0;
+          break;
+        case 'Capacity':
+          $analysis['capacity'] += $score->point ?? 0;
+          break;
+        case 'Capital':
+          $analysis['capital'] += $score->point ?? 0;
+          break;
+        case 'Condition':
+          $analysis['condition'] += $score->point ?? 0;
+          break;
+        case 'Collateral':
+          $analysis['collateral'] += $score->point ?? 0;
+          break;
+      }
+
+      return $grouped;
+    }, []);
+
+    $submission->analysis = $analysis;
+
+    $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
+
+    // Hitung total skoring
+    $totalScore = array_sum($analysis);
+
+    // Tentukan notes dan recommendation
+    if ($totalScore > 60 && $totalScore < 100) {
+      $submission->notes = 'Dipertimbangkan untuk disetujui';
+      $submission->recommendation = 'disetujui';
+    } elseif ($totalScore <= 60) {
+      $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+      $submission->recommendation = 'ditolak';
+    } else {
+      $submission->notes = 'Skoring tidak valid';
+      $submission->recommendation = 'ditolak';
+    }
+
+    // submissionDoc
+
+    $submission->total_score = $totalScore;
+
+    // GET EXPERIENCE
+    $approvedSubmissionsExp = Submission::where('status', 'approved')
+      ->where(function ($query) use ($submission) {
+        $query->where('principal_id', $submission->principal_id)
+          ->orWhere('obligee_id', $submission->obligee_id);
+      })
+      ->with(['obligee'])
+      ->get()
+      ->map(function ($submission) use (&$index) {
+        $index++;
+
+        return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
+                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
                         </tr>';
-            })->implode('');
+      })->implode('');
 
-        $submission->get_exp = "
+    $submission->get_exp = "
             <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
                 <tr>
                     <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
@@ -456,31 +457,31 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        // GET SUSUNAN PENGURUS
-        $principal = $submission->principal;
+    // GET SUSUNAN PENGURUS
+    $principal = $submission->principal;
 
-        $pengurus = collect();
+    $pengurus = collect();
 
-        if (! empty($principal->director_name)) {
-            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
-        }
+    if (!empty($principal->director_name)) {
+      $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+    }
+    if (!empty($principal->commissioner)) {
+      $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+    }
 
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
-        }
+    if (!empty($principal->head_name)) {
+      $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+    }
 
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+    $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+      return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
-        })->implode('');
+    })->implode('');
 
-        $submission->get_administators_principal = "
+    $submission->get_administators_principal = "
             <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
                 <tr>
                     <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
@@ -494,200 +495,200 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
-            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
-            ->with('obligee')
-            ->get();
+    $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+      ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+      ->with('obligee')
+      ->get();
 
-        // number surat
-        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
-        // tanggal pengajuan
-        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+    // number surat
+    $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+    // tanggal pengajuan
+    $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
-        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+    $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+    $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+    $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+    $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+    $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+      ->whereNull('product_id')
+      ->whereNull('guarantor_to_product_type_id')
+      ->first();
+    $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-        // get submission pic
-        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+    // get submission pic
+    $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        if ($submission->callback) {
-            $callback = collect([
-                'id' => $submission->callback->id,
-                'doc_url' => $submission->callback->doc_url,
-                'url' => Storage::url($submission->callback->url),
-            ]);
-            unset($submission->callback);
-            $submission->callback = $callback;
-        }
-
-        return inertia('staff/submission-management/history/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
     }
 
-    public function showDetailDocsSubmission($id)
-    {
-        $submission = Submission::with(['principal', 'guarantorToProductType'])
-            ->findOrFail($id);
+    return inertia('staff/submission-management/history/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        return inertia('staff/submission-management/document-draft/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
-    }
+  public function showDetailDocsSubmission($id)
+  {
+    $submission = Submission::with(['principal', 'guarantorToProductType'])
+      ->findOrFail($id);
 
-    public function showDetailSubmissionManager($id)
-    {
-        $submission = $this->getSubmission($id);
-        $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+    return inertia('staff/submission-management/document-draft/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
+  public function showDetailSubmissionManager($id)
+  {
+    $submission = $this->getSubmission($id);
+    $submission->mail_number = $this->generateNomorSurat($id);
+    $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
+    $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
 
-        $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
+    $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+      ->whereNull('product_id')
+      ->whereNull('guarantor_to_product_type_id')
+      ->first();
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+    $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
 
-        $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
+    $submission->guarantor_address =
+      ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+      ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+    $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
-        $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
-        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
-        $principalDocs = collect($submission->principal->documents);
-        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
-            ->map(function ($doc) use ($principalDocs) {
-                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
-                if ($principalDoc) {
-                    $doc->name = $principalDoc->name;
-                    if ($doc->url) {
-                        $doc->url = Storage::url($principalDoc->url);
-                    }
-                }
+    $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-                return $doc;
-            });
-        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
-        ($submission->principal->principalRatios);
-
-        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-        $submission->analyst_name = $submission->staff->name;
-
-        $submission->scores->map(function ($score) {
-            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
-            $score->question_name = $score->scoringQuestion->name ?? '-';
-            $score->option_name = $score->scoringOption->name ?? '-';
-
-            return $score;
-        });
-
-        // GET DOC FORMAT ANALYSIS
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-
-        // SCORING RESULT
-        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
-
-        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
-            $categoryId = $score->scoring_question_category_id;
-            $category = $score->scoringQuestionCategory;
-
-            if (! isset($grouped[$categoryId])) {
-                $grouped[$categoryId] = [
-                    'id' => $categoryId,
-                    'name' => $category->name,
-                    'items' => [],
-                ];
-            }
-
-            $grouped[$categoryId]['items'][] = $score;
-
-            switch ($category->name) {
-                case 'Character':
-                    $analysis['character'] += $score->point ?? 0;
-                    break;
-                case 'Capacity':
-                    $analysis['capacity'] += $score->point ?? 0;
-                    break;
-                case 'Capital':
-                    $analysis['capital'] += $score->point ?? 0;
-                    break;
-                case 'Condition':
-                    $analysis['condition'] += $score->point ?? 0;
-                    break;
-                case 'Collateral':
-                    $analysis['collateral'] += $score->point ?? 0;
-                    break;
-            }
-
-            return $grouped;
-        }, []);
-
-        $submission->analysis = $analysis;
-
-        // Hitung total skoring
-        $totalScore = array_sum($analysis);
-
-        // Tentukan notes dan recommendation
-        if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = 'Dipertimbangkan untuk disetujui';
-            $submission->recommendation = 'disetujui';
-        } elseif ($totalScore <= 60) {
-            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
-            $submission->recommendation = 'ditolak';
-        } else {
-            $submission->notes = 'Skoring tidak valid';
-            $submission->recommendation = 'ditolak';
+    $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
+    $submission->product_limit = $submission->guarantorProductTypeLimit;
+    $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
+    $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
+    $principalDocs = collect($submission->principal->documents);
+    $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+      ->map(function ($doc) use ($principalDocs) {
+        $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+        if ($principalDoc) {
+          $doc->name = $principalDoc->name;
+          if ($doc->url) {
+            $doc->url = Storage::url($principalDoc->url);
+          }
         }
 
-        $submission->total_score = $totalScore;
+        return $doc;
+      });
+    $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+    ($submission->principal->principalRatios);
 
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->principal_id)
-                    ->orWhere('obligee_id', $submission->obligee_id);
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
+    $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+    $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+    $submission->analyst_name = $submission->staff->name;
 
-                return "<tr style='text-align: left;'>
+    $submission->scores->map(function ($score) {
+      $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+      $score->question_name = $score->scoringQuestion->name ?? '-';
+      $score->option_name = $score->scoringOption->name ?? '-';
+
+      return $score;
+    });
+
+    // GET DOC FORMAT ANALYSIS
+    $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+      ->whereNull('product_id')
+      ->whereNull('guarantor_to_product_type_id')
+      ->first();
+
+    // SCORING RESULT
+    $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+    $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+      $categoryId = $score->scoring_question_category_id;
+      $category = $score->scoringQuestionCategory;
+
+      if (!isset($grouped[$categoryId])) {
+        $grouped[$categoryId] = [
+          'id' => $categoryId,
+          'name' => $category->name,
+          'items' => [],
+        ];
+      }
+
+      $grouped[$categoryId]['items'][] = $score;
+
+      switch ($category->name) {
+        case 'Character':
+          $analysis['character'] += $score->point ?? 0;
+          break;
+        case 'Capacity':
+          $analysis['capacity'] += $score->point ?? 0;
+          break;
+        case 'Capital':
+          $analysis['capital'] += $score->point ?? 0;
+          break;
+        case 'Condition':
+          $analysis['condition'] += $score->point ?? 0;
+          break;
+        case 'Collateral':
+          $analysis['collateral'] += $score->point ?? 0;
+          break;
+      }
+
+      return $grouped;
+    }, []);
+
+    $submission->analysis = $analysis;
+
+    // Hitung total skoring
+    $totalScore = array_sum($analysis);
+
+    // Tentukan notes dan recommendation
+    if ($totalScore > 60 && $totalScore < 100) {
+      $submission->notes = 'Dipertimbangkan untuk disetujui';
+      $submission->recommendation = 'disetujui';
+    } elseif ($totalScore <= 60) {
+      $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+      $submission->recommendation = 'ditolak';
+    } else {
+      $submission->notes = 'Skoring tidak valid';
+      $submission->recommendation = 'ditolak';
+    }
+
+    $submission->total_score = $totalScore;
+
+    // GET EXPERIENCE
+    $approvedSubmissionsExp = Submission::where('status', 'approved')
+      ->where(function ($query) use ($submission) {
+        $query->where('principal_id', $submission->principal_id)
+          ->orWhere('obligee_id', $submission->obligee_id);
+      })
+      ->with(['obligee'])
+      ->get()
+      ->map(function ($submission) use (&$index) {
+        $index++;
+
+        return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
+                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
                         </tr>';
-            })->implode('');
+      })->implode('');
 
-        $submission->get_exp = "
+    $submission->get_exp = "
             <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
                 <tr>
                     <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
@@ -710,31 +711,31 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        // GET SUSUNAN PENGURUS
-        $principal = $submission->principal;
+    // GET SUSUNAN PENGURUS
+    $principal = $submission->principal;
 
-        $pengurus = collect();
+    $pengurus = collect();
 
-        if (! empty($principal->director_name)) {
-            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
-        }
+    if (!empty($principal->director_name)) {
+      $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+    }
+    if (!empty($principal->commissioner)) {
+      $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+    }
 
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
-        }
+    if (!empty($principal->head_name)) {
+      $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+    }
 
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+    $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+      return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
-        })->implode('');
+    })->implode('');
 
-        $submission->get_administators_principal = "
+    $submission->get_administators_principal = "
             <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
                 <tr>
                     <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
@@ -748,200 +749,200 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
-            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
-            ->with('obligee')
-            ->get();
+    $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+      ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+      ->with('obligee')
+      ->get();
 
-        // number surat
-        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
-        // tanggal pengajuan
-        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+    // number surat
+    $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+    // tanggal pengajuan
+    $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
-        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+    $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+    $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+    $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+    $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
-        // get submission pic
-        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+    // get submission pic
+    $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        if ($submission->callback) {
-            $callback = collect([
-                'id' => $submission->callback->id,
-                'doc_url' => $submission->callback->doc_url,
-                'url' => Storage::url($submission->callback->url),
-            ]);
-            unset($submission->callback);
-            $submission->callback = $callback;
-        }
-
-        return inertia('manager/submission-management/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
     }
 
-    public function showDetailDocsSubmissionManager($id)
-    {
-        // $submissionDoc = SubmissionDoc::with(['requiredDoc', 'submission.principal'])
-        //     ->findOrFail($id);
+    return inertia('manager/submission-management/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        // $submission = [
-        //     'id' => $submissionDoc->submission->id,
-        //     'submission_date' => $submissionDoc->submission->created_at->translatedFormat('d F Y'),
-        //     'principal' => $submissionDoc->submission->principal,
-        //     'submissionDocs' => $submissionDoc->submission->submissionDocs->map(function ($doc) {
-        //         return [
-        //             'id' => $doc->id,
-        //             'name' => $doc->name,
-        //             'url' => $doc->url,
-        //             'requiredDoc' => $doc->requiredDoc,
-        //         ];
-        //     }),
-        // ];
+  public function showDetailDocsSubmissionManager($id)
+  {
+    // $submissionDoc = SubmissionDoc::with(['requiredDoc', 'submission.principal'])
+    //     ->findOrFail($id);
 
-        $submission = DocumentFormat::all()->toArray();
+    // $submission = [
+    //     'id' => $submissionDoc->submission->id,
+    //     'submission_date' => $submissionDoc->submission->created_at->translatedFormat('d F Y'),
+    //     'principal' => $submissionDoc->submission->principal,
+    //     'submissionDocs' => $submissionDoc->submission->submissionDocs->map(function ($doc) {
+    //         return [
+    //             'id' => $doc->id,
+    //             'name' => $doc->name,
+    //             'url' => $doc->url,
+    //             'requiredDoc' => $doc->requiredDoc,
+    //         ];
+    //     }),
+    // ];
 
-        return inertia('manager/submission-management/document-draft/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
-    }
+    $submission = DocumentFormat::all()->toArray();
 
-    public function showDetailSubmissionDireksi($id)
-    {
-        $submission = $this->getSubmission($id);
-        $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+    return inertia('manager/submission-management/document-draft/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+  public function showDetailSubmissionDireksi($id)
+  {
+    $submission = $this->getSubmission($id);
+    $submission->mail_number = $this->generateNomorSurat($id);
+    $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
+    $submission->guarantor_address =
+      ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+      ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
-        $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
-        $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
-        $principalDocs = collect($submission->principal->documents);
-        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
-            ->map(function ($doc) use ($principalDocs) {
-                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
-                if ($principalDoc) {
-                    $doc->name = $principalDoc->name;
-                    if ($doc->url) {
-                        $doc->url = Storage::url($principalDoc->url);
-                    }
-                }
+    $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
-                return $doc;
-            });
-        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
-        ($submission->principal->principalRatios);
-
-        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-        $submission->analyst_name = $submission->staff->name;
-        $submission->job_location = $submission->job_location_address.', '.$submission->job_location_village.', '.$submission->district->name.', '.$submission->regency->name.', '.$submission->province->name;
-
-        $submission->scores->map(function ($score) {
-            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
-            $score->question_name = $score->scoringQuestion->name ?? '-';
-            $score->option_name = $score->scoringOption->name ?? '-';
-
-            return $score;
-        });
-
-        // GET DOC
-        $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
-            if ($docSig->url) {
-                $docSig->url = Storage::url($docSig->url);
-            }
-
-            return $docSig;
-        });
-
-        // SCORING RESULT
-        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
-
-        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
-            $categoryId = $score->scoring_question_category_id;
-            $category = $score->scoringQuestionCategory;
-
-            if (! isset($grouped[$categoryId])) {
-                $grouped[$categoryId] = [
-                    'id' => $categoryId,
-                    'name' => $category->name,
-                    'items' => [],
-                ];
-            }
-
-            $grouped[$categoryId]['items'][] = $score;
-
-            switch ($category->name) {
-                case 'Character':
-                    $analysis['character'] += $score->point ?? 0;
-                    break;
-                case 'Capacity':
-                    $analysis['capacity'] += $score->point ?? 0;
-                    break;
-                case 'Capital':
-                    $analysis['capital'] += $score->point ?? 0;
-                    break;
-                case 'Condition':
-                    $analysis['condition'] += $score->point ?? 0;
-                    break;
-                case 'Collateral':
-                    $analysis['collateral'] += $score->point ?? 0;
-                    break;
-            }
-
-            return $grouped;
-        }, []);
-
-        $submission->analysis = $analysis;
-
-        $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
-
-        // Hitung total skoring
-        $totalScore = array_sum($analysis);
-
-        // Tentukan notes dan recommendation
-        if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = 'Dipertimbangkan untuk disetujui';
-            $submission->recommendation = 'disetujui';
-        } elseif ($totalScore <= 60) {
-            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
-            $submission->recommendation = 'ditolak';
-        } else {
-            $submission->notes = 'Skoring tidak valid';
-            $submission->recommendation = 'ditolak';
+    $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
+    $submission->product_limit = $submission->guarantorProductTypeLimit;
+    $submission->beyond_the_limit = ($submission->employee_limit?->limit ?? 0) < $submission->guarantee_value;
+    $principalDocs = collect($submission->principal->documents);
+    $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+      ->map(function ($doc) use ($principalDocs) {
+        $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+        if ($principalDoc) {
+          $doc->name = $principalDoc->name;
+          if ($doc->url) {
+            $doc->url = Storage::url($principalDoc->url);
+          }
         }
 
-        $submission->total_score = $totalScore;
+        return $doc;
+      });
+    $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+    ($submission->principal->principalRatios);
 
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->principal_id)
-                    ->orWhere('obligee_id', $submission->obligee_id);
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
+    $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+    $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+    $submission->analyst_name = $submission->staff->name;
+    $submission->job_location = $submission->job_location_address . ', ' . $submission->job_location_village . ', ' . $submission->district->name . ', ' . $submission->regency->name . ', ' . $submission->province->name;
 
-                return "<tr style='text-align: left;'>
+    $submission->scores->map(function ($score) {
+      $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+      $score->question_name = $score->scoringQuestion->name ?? '-';
+      $score->option_name = $score->scoringOption->name ?? '-';
+
+      return $score;
+    });
+
+    // GET DOC
+    $submission->submission_docs = $submission->submissionDocs->map(function ($docSig) {
+      if ($docSig->url) {
+        $docSig->url = Storage::url($docSig->url);
+      }
+
+      return $docSig;
+    });
+
+    // SCORING RESULT
+    $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+    $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+      $categoryId = $score->scoring_question_category_id;
+      $category = $score->scoringQuestionCategory;
+
+      if (!isset($grouped[$categoryId])) {
+        $grouped[$categoryId] = [
+          'id' => $categoryId,
+          'name' => $category->name,
+          'items' => [],
+        ];
+      }
+
+      $grouped[$categoryId]['items'][] = $score;
+
+      switch ($category->name) {
+        case 'Character':
+          $analysis['character'] += $score->point ?? 0;
+          break;
+        case 'Capacity':
+          $analysis['capacity'] += $score->point ?? 0;
+          break;
+        case 'Capital':
+          $analysis['capital'] += $score->point ?? 0;
+          break;
+        case 'Condition':
+          $analysis['condition'] += $score->point ?? 0;
+          break;
+        case 'Collateral':
+          $analysis['collateral'] += $score->point ?? 0;
+          break;
+      }
+
+      return $grouped;
+    }, []);
+
+    $submission->analysis = $analysis;
+
+    $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
+
+    // Hitung total skoring
+    $totalScore = array_sum($analysis);
+
+    // Tentukan notes dan recommendation
+    if ($totalScore > 60 && $totalScore < 100) {
+      $submission->notes = 'Dipertimbangkan untuk disetujui';
+      $submission->recommendation = 'disetujui';
+    } elseif ($totalScore <= 60) {
+      $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+      $submission->recommendation = 'ditolak';
+    } else {
+      $submission->notes = 'Skoring tidak valid';
+      $submission->recommendation = 'ditolak';
+    }
+
+    $submission->total_score = $totalScore;
+
+    // GET EXPERIENCE
+    $approvedSubmissionsExp = Submission::where('status', 'approved')
+      ->where(function ($query) use ($submission) {
+        $query->where('principal_id', $submission->principal_id)
+          ->orWhere('obligee_id', $submission->obligee_id);
+      })
+      ->with(['obligee'])
+      ->get()
+      ->map(function ($submission) use (&$index) {
+        $index++;
+
+        return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
+                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
                         </tr>';
-            })->implode('');
+      })->implode('');
 
-        $submission->get_exp = "
+    $submission->get_exp = "
             <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
                 <tr>
                     <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
@@ -964,30 +965,30 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        // GET SUSUNAN PENGURUS
-        $principal = $submission->principal;
+    // GET SUSUNAN PENGURUS
+    $principal = $submission->principal;
 
-        $pengurus = collect();
+    $pengurus = collect();
 
-        if (! empty($principal->director_name)) {
-            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
-        }
+    if (!empty($principal->director_name)) {
+      $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+    }
+    if (!empty($principal->commissioner)) {
+      $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+    }
 
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
-        }
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+    if (!empty($principal->head_name)) {
+      $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+    }
+    $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+      return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
-        })->implode('');
+    })->implode('');
 
-        $submission->get_administators_principal = "
+    $submission->get_administators_principal = "
             <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
                 <tr>
                     <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
@@ -1001,187 +1002,187 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
-            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
-            ->with('obligee')
-            ->get();
+    $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+      ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+      ->with('obligee')
+      ->get();
 
-        // number surat
-        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
-        // tanggal pengajuan
-        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+    // number surat
+    $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+    // tanggal pengajuan
+    $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
-        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
-        // get submission pic
-        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+    $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+    $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+    $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+    $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+    // get submission pic
+    $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        if ($submission->callback) {
-            $callback = collect([
-                'id' => $submission->callback->id,
-                'doc_url' => $submission->callback->doc_url,
-                'url' => Storage::url($submission->callback->url),
-            ]);
-            unset($submission->callback);
-            $submission->callback = $callback;
-        }
-
-        return inertia('direksi/submission-management/history/detail/index', [
-            'submission' => $submission,
-        ]);
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
     }
 
-    public function showDetailDocsSubmissionDireksi($id)
-    {
-        $submission = Submission::with(['principal', 'guarantorToProductType'])
-            ->findOrFail($id);
+    return inertia('direksi/submission-management/history/detail/index', [
+      'submission' => $submission,
+    ]);
+  }
 
-        return inertia('direksi/submission-management/document-draft/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
-    }
+  public function showDetailDocsSubmissionDireksi($id)
+  {
+    $submission = Submission::with(['principal', 'guarantorToProductType'])
+      ->findOrFail($id);
 
-    public function showDetailSubmissionKepalaCabang($id)
-    {
-        $submission = $this->getSubmission($id);
-        $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+    return inertia('direksi/submission-management/document-draft/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+  public function showDetailSubmissionKepalaCabang($id)
+  {
+    $submission = $this->getSubmission($id);
+    $submission->mail_number = $this->generateNomorSurat($id);
+    $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
+    $submission->guarantor_address =
+      ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '') . ', ' .
+      ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '') . ', ' .
+      ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-        $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
-        $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+    $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
-        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
-        $submission->product_limit = $submission->guarantorProductTypeLimit;
-        $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
-        $submission->limit = $employeeLimit;
-        $submission->beyond_the_limit = $employeeLimit < $submission->guarantee_value;
-        $principalDocs = collect($submission->principal->documents);
-        $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
-            ->map(function ($doc) use ($principalDocs) {
-                $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
-                if ($principalDoc) {
-                    $doc->name = $principalDoc->name;
-                    if ($doc->url) {
-                        $doc->url = Storage::url($principalDoc->url);
-                    }
-                }
+    $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+      ->whereNull('product_id')
+      ->whereNull('guarantor_to_product_type_id')
+      ->first();
+    $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
+    $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-                return $doc;
-            });
-        $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
-        ($submission->principal->principalRatios);
-
-        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-
-        $submission->scores->map(function ($score) {
-            $score->category_name = $score->scoringQuestionCategory->name ?? '-';
-            $score->question_name = $score->scoringQuestion->name ?? '-';
-            $score->option_name = $score->scoringOption->name ?? '-';
-
-            return $score;
-        });
-
-        // GET DOC FORMAT ANALYSIS
-        $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-
-        // SCORING RESULT
-        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
-
-        $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
-            $categoryId = $score->scoring_question_category_id;
-            $category = $score->scoringQuestionCategory;
-
-            if (! isset($grouped[$categoryId])) {
-                $grouped[$categoryId] = [
-                    'id' => $categoryId,
-                    'name' => $category->name,
-                    'items' => [],
-                ];
-            }
-
-            $grouped[$categoryId]['items'][] = $score;
-
-            switch ($category->name) {
-                case 'Character':
-                    $analysis['character'] += $score->point ?? 0;
-                    break;
-                case 'Capacity':
-                    $analysis['capacity'] += $score->point ?? 0;
-                    break;
-                case 'Capital':
-                    $analysis['capital'] += $score->point ?? 0;
-                    break;
-                case 'Condition':
-                    $analysis['condition'] += $score->point ?? 0;
-                    break;
-                case 'Collateral':
-                    $analysis['collateral'] += $score->point ?? 0;
-                    break;
-            }
-
-            return $grouped;
-        }, []);
-
-        $submission->analysis = $analysis;
-        $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
-
-        // Hitung total skoring
-        $totalScore = array_sum($analysis);
-
-        // Tentukan notes dan recommendation
-        if ($totalScore > 60 && $totalScore < 100) {
-            $submission->notes = 'Dipertimbangkan untuk disetujui';
-            $submission->recommendation = 'disetujui';
-        } elseif ($totalScore <= 60) {
-            $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
-            $submission->recommendation = 'ditolak';
-        } else {
-            $submission->notes = 'Skoring tidak valid';
-            $submission->recommendation = 'ditolak';
+    $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
+    $submission->product_limit = $submission->guarantorProductTypeLimit;
+    $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
+    $submission->limit = $employeeLimit;
+    $submission->beyond_the_limit = $employeeLimit < $submission->guarantee_value;
+    $principalDocs = collect($submission->principal->documents);
+    $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
+      ->map(function ($doc) use ($principalDocs) {
+        $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
+        if ($principalDoc) {
+          $doc->name = $principalDoc->name;
+          if ($doc->url) {
+            $doc->url = Storage::url($principalDoc->url);
+          }
         }
 
-        $submission->total_score = $totalScore;
+        return $doc;
+      });
+    $submission->principal->ratios = collect($submission->principal->principalRatios)->take(2);
+    ($submission->principal->principalRatios);
 
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->principal_id)
-                    ->orWhere('obligee_id', $submission->obligee_id);
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
+    $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+    $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
 
-                return "<tr style='text-align: left;'>
+    $submission->scores->map(function ($score) {
+      $score->category_name = $score->scoringQuestionCategory->name ?? '-';
+      $score->question_name = $score->scoringQuestion->name ?? '-';
+      $score->option_name = $score->scoringOption->name ?? '-';
+
+      return $score;
+    });
+
+    // GET DOC FORMAT ANALYSIS
+    $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
+      ->whereNull('product_id')
+      ->whereNull('guarantor_to_product_type_id')
+      ->first();
+
+    // SCORING RESULT
+    $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
+
+    $submission->scoring_result = $submission->scores->reduce(function ($grouped, $score) use (&$analysis) {
+      $categoryId = $score->scoring_question_category_id;
+      $category = $score->scoringQuestionCategory;
+
+      if (!isset($grouped[$categoryId])) {
+        $grouped[$categoryId] = [
+          'id' => $categoryId,
+          'name' => $category->name,
+          'items' => [],
+        ];
+      }
+
+      $grouped[$categoryId]['items'][] = $score;
+
+      switch ($category->name) {
+        case 'Character':
+          $analysis['character'] += $score->point ?? 0;
+          break;
+        case 'Capacity':
+          $analysis['capacity'] += $score->point ?? 0;
+          break;
+        case 'Capital':
+          $analysis['capital'] += $score->point ?? 0;
+          break;
+        case 'Condition':
+          $analysis['condition'] += $score->point ?? 0;
+          break;
+        case 'Collateral':
+          $analysis['collateral'] += $score->point ?? 0;
+          break;
+      }
+
+      return $grouped;
+    }, []);
+
+    $submission->analysis = $analysis;
+    $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
+
+    // Hitung total skoring
+    $totalScore = array_sum($analysis);
+
+    // Tentukan notes dan recommendation
+    if ($totalScore > 60 && $totalScore < 100) {
+      $submission->notes = 'Dipertimbangkan untuk disetujui';
+      $submission->recommendation = 'disetujui';
+    } elseif ($totalScore <= 60) {
+      $submission->notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
+      $submission->recommendation = 'ditolak';
+    } else {
+      $submission->notes = 'Skoring tidak valid';
+      $submission->recommendation = 'ditolak';
+    }
+
+    $submission->total_score = $totalScore;
+
+    // GET EXPERIENCE
+    $approvedSubmissionsExp = Submission::where('status', 'approved')
+      ->where(function ($query) use ($submission) {
+        $query->where('principal_id', $submission->principal_id)
+          ->orWhere('obligee_id', $submission->obligee_id);
+      })
+      ->with(['obligee'])
+      ->get()
+      ->map(function ($submission) use (&$index) {
+        $index++;
+
+        return "<tr style='text-align: left;'>
                             <td style='text-align: center;'>{$index}</td>
                             <td>{$submission->obligee->name}</td>
                             <td>{$submission->job_name}</td>
-                            <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                            <td>'.date('Y', strtotime($submission->approved_at)).'</td>
+                            <td>Rp. " . number_format($submission->contract_value, 0, ',', '.') . '</td>
+                            <td>' . date('Y', strtotime($submission->approved_at)) . '</td>
                         </tr>';
-            })->implode('');
+      })->implode('');
 
-        $submission->get_exp = "
+    $submission->get_exp = "
             <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
                 <tr>
                     <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
@@ -1204,31 +1205,31 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        // GET SUSUNAN PENGURUS
-        $principal = $submission->principal;
+    // GET SUSUNAN PENGURUS
+    $principal = $submission->principal;
 
-        $pengurus = collect();
+    $pengurus = collect();
 
-        if (! empty($principal->director_name)) {
-            $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
-        }
+    if (!empty($principal->director_name)) {
+      $pengurus->push(['nama' => $principal->director_name, 'jabatan' => 'Direktur']);
+    }
+    if (!empty($principal->commissioner)) {
+      $pengurus->push(['nama' => $principal->commissioner, 'jabatan' => 'Komisaris']);
+    }
 
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
-        }
+    if (!empty($principal->head_name)) {
+      $pengurus->push(['nama' => $principal->head_name, 'jabatan' => 'Kepala Cabang']);
+    }
 
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
+    $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
+      return "<tr>
+                        <td style='text-align: center; vertical-align: middle;'>" . ($index + 1) . "</td>
                         <td>{$pengurus['nama']}</td>
                         <td>{$pengurus['jabatan']}</td>
                     </tr>";
-        })->implode('');
+    })->implode('');
 
-        $submission->get_administators_principal = "
+    $submission->get_administators_principal = "
             <table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
                 <tr>
                     <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
@@ -1242,1098 +1243,1103 @@ class SubmissionController extends Controller
             </table>
         ";
 
-        $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
-            ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
-            ->with('obligee')
-            ->get();
+    $submission->principal->approved_submissions = $submission->principal->approvedSubmissions()
+      ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
+      ->with('obligee')
+      ->get();
 
-        // number surat
-        $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
-        // tanggal pengajuan
-        $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+    // number surat
+    $submission->mail_number_resume = $this->generateNomorSuratResume($submission->id, $submission->created_at);
+    // tanggal pengajuan
+    $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
 
-        $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
-        $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
-        $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
-        $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
-        // get submission pic
-        $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+    $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
+    $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
+    $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+    $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+    // get submission pic
+    $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        if ($submission->callback) {
-            $callback = collect([
-                'id' => $submission->callback->id,
-                'doc_url' => $submission->callback->doc_url,
-                'url' => Storage::url($submission->callback->url),
-            ]);
-            unset($submission->callback);
-            $submission->callback = $callback;
-        }
-
-        return inertia('kepala-cabang/submission-management/detail/index', [
-            'submission' => fn () => $submission,
-        ]);
+    if ($submission->callback) {
+      $callback = collect([
+        'id' => $submission->callback->id,
+        'doc_url' => $submission->callback->doc_url,
+        'url' => Storage::url($submission->callback->url),
+      ]);
+      unset($submission->callback);
+      $submission->callback = $callback;
     }
 
-    public function displayCreateByStaff()
-    {
-        $component = 'staff/submission-management/create/index';
+    return inertia('kepala-cabang/submission-management/detail/index', [
+      'submission' => fn() => $submission,
+    ]);
+  }
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Buat Pengajuan',
-            ],
-        ]);
-    }
+  public function displayCreateByStaff()
+  {
+    $component = 'staff/submission-management/create/index';
 
-    public function displayHistoryByStaff(Request $request)
-    {
-        $component = 'staff/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Buat Pengajuan',
+      ],
+    ]);
+  }
 
-        $authId = auth()->id();
-        $search = $request->search ?? null;
-        $perPage = $request->per_page ?? null;
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('staff_id', '=', $authId)
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('no_guarantee', 'like', "%{$search}%")
-                        ->orWhereHas('principal', function ($query) use ($search) {
-                            $query->where('name', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->when($perPage, function ($query) use ($perPage) {
-                $query->limit($perPage);
-            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
+  public function displayHistoryByStaff(Request $request)
+  {
+    $component = 'staff/submission-management/history/index';
 
-                return [
-                    ...$submission->toArray(),
-                    'created_at' => $date,
-                ];
+    $authId = auth()->id();
+    $search = $request->search ?? null;
+    $perPage = $request->per_page ?? null;
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where('staff_id', '=', $authId)
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->where('no_guarantee', 'like', "%{$search}%")
+            ->orWhereHas('principal', function ($query) use ($search) {
+              $query->where('name', 'like', "%{$search}%");
             });
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Histori Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
-
-    public function displayDocumentDraftByManager()
-    {
-        $component = 'manager/submission-management/document-draft/index';
-
-        $submissions = Submission::whereHas('submissionDocs')
-            ->with(['submissionDocs', 'principal'])
-            ->get();
-
-        $submissions->transform(function ($submission) {
-            $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
-
-            return $submission;
         });
+      })
+      ->when($perPage, function ($query) use ($perPage) {
+        $query->limit($perPage);
+      })
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Draft Dokumen Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
+        return [
+          ...$submission->toArray(),
+          'created_at' => $date,
+        ];
+      });
+
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Histori Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
+
+  public function displayDocumentDraftByManager()
+  {
+    $component = 'manager/submission-management/document-draft/index';
+
+    $submissions = Submission::whereHas('submissionDocs')
+      ->with(['submissionDocs', 'principal'])
+      ->get();
+
+    $submissions->transform(function ($submission) {
+      $submission->submission_date = Carbon::parse($submission->created_at)->translatedFormat('d F Y');
+
+      return $submission;
+    });
+
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Draft Dokumen Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
+
+  public function displaySubmissionByManager()
+  {
+    $component = 'manager/submission-management/list/index';
+
+    $authId = auth()->id();
+    $staffs = User::query()
+      ->where('head_id', $authId)
+      ->pluck('id');
+
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->whereIn('staff_id', $staffs)
+      ->where([
+        'checked_by' => null,
+        'approved_by' => null,
+        'rejected_by' => null,
+      ])
+      ->with([
+        'scores',
+        'principal',
+        'bank',
+        'obligee',
+        'sourceOfFund',
+        'guarantor',
+        'guarantorToProductType',
+        'employeeLimit',
+        'guarantorProductTypeLimit',
+      ])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
+
+        return array_merge($submission->toArray(), [
+          'manager_limit' => $managerLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displaySubmissionByManager()
-    {
-        $component = 'manager/submission-management/list/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Pengajuan Masuk',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $staffs = User::query()
-            ->where('head_id', $authId)
-            ->pluck('id');
+  public function displayHistoryByManager()
+  {
+    $component = 'manager/submission-management/history/index';
 
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->whereIn('staff_id', $staffs)
-            ->where([
-                'checked_by' => null,
-                'approved_by' => null,
-                'rejected_by' => null,
-            ])
-            ->with([
-                'scores',
-                'principal',
-                'bank',
-                'obligee',
-                'sourceOfFund',
-                'guarantor',
-                'guarantorToProductType',
-                'employeeLimit',
-                'guarantorProductTypeLimit',
-            ])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where(function ($query) use ($authId) {
+        $query->where('checked_by', '=', $authId)
+          ->orWhere('approved_by', '=', $authId)
+          ->orWhere('rejected_by', '=', $authId);
+      })
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+        $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
 
-                return array_merge($submission->toArray(), [
-                    'manager_limit' => $managerLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan Masuk',
-            ],
-            'submissions' => fn () => $submissions,
+        return array_merge($submission->toArray(), [
+          'manager_limit' => $managerLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displayHistoryByManager()
-    {
-        $component = 'manager/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Hasil Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where(function ($query) use ($authId) {
-                $query->where('checked_by', '=', $authId)
-                    ->orWhere('approved_by', '=', $authId)
-                    ->orWhere('rejected_by', '=', $authId);
-            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-                $managerLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+  public function displaySubmissionByDireksi()
+  {
+    $component = 'direksi/submission-management/list/index';
 
-                return array_merge($submission->toArray(), [
-                    'manager_limit' => $managerLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($managerLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
+    $authId = auth()->id();
+    //        $staffs = User::query()
+    //            ->where('head_id', '=', $authId)
+    //            ->pluck('id');
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Hasil Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
-
-    public function displaySubmissionByDireksi()
-    {
-        $component = 'direksi/submission-management/list/index';
-
-        $authId = auth()->id();
-        //        $staffs = User::query()
-        //            ->where('head_id', '=', $authId)
-        //            ->pluck('id');
-
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('checked_by', '!=', null)
-            ->where('status', SubmissionStatus::PROCESS->value)
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where('checked_by', '!=', null)
+      ->where('status', SubmissionStatus::PROCESS->value)
 //            ->whereIn('checked_by', $staffs)
-            ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
-                $office = $submission->staff->office;
+      ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
+        $office = $submission->staff->office;
 
-                return [
-                    'id' => $submission->id,
-                    'principal' => $submission->principal,
-                    'guarantor_to_product_type' => $submission->guarantorToProductType,
-                    'guarantee_value' => $submission->guarantee_value,
-                    'status' => $submission->status,
-                    'direksi_limit' => $direksiLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'office' => $office,
-                    'created_at' => $date,
-                ];
-            });
+        return [
+          'id' => $submission->id,
+          'principal' => $submission->principal,
+          'guarantor_to_product_type' => $submission->guarantorToProductType,
+          'guarantee_value' => $submission->guarantee_value,
+          'status' => $submission->status,
+          'direksi_limit' => $direksiLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
+          'office' => $office,
+          'created_at' => $date,
+        ];
+      });
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-    public function displayHistoryByDireksi()
-    {
-        $component = 'direksi/submission-management/history/index';
+  public function displayHistoryByDireksi()
+  {
+    $component = 'direksi/submission-management/history/index';
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
 //            ->where(function ($query) use ($authId) {
 //                $query->where('checked_by', '=', $authId)
 //                    ->orWhere('approved_by', '=', $authId)
 //                    ->orWhere('rejected_by', '=', $authId);
 //            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+      ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
 
-                return [
-                    ...$submission->toArray(),
-                    'direksi_limit' => $direksiLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ];
-            });
+        return [
+          ...$submission->toArray(),
+          'direksi_limit' => $direksiLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
+        ];
+      });
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Riwayat Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Riwayat Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
+
+  public function displaySubmissionByKepalaCabang()
+  {
+    $component = 'kepala-cabang/submission-management/list/index';
+
+    $authId = auth()->id();
+    $staffs = User::query()
+      ->where('head_id', '=', $authId)
+      ->pluck('id');
+
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->whereIn('staff_id', $staffs)
+      ->where([
+        'checked_by' => null,
+        'approved_by' => null,
+        'rejected_by' => null,
+      ])
+      ->with([
+        'scores',
+        'principal',
+        'bank',
+        'obligee',
+        'sourceOfFund',
+        'guarantor',
+        'guarantorToProductType',
+        'employeeLimit',
+        'guarantorProductTypeLimit',
+      ])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
+
+        return array_merge($submission->toArray(), [
+          'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displaySubmissionByKepalaCabang()
-    {
-        $component = 'kepala-cabang/submission-management/list/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Pengajuan Masuk',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $staffs = User::query()
-            ->where('head_id', '=', $authId)
-            ->pluck('id');
+  public function displayHistoryByKepalaCabang()
+  {
+    $component = 'kepala-cabang/submission-management/history/index';
 
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->whereIn('staff_id', $staffs)
-            ->where([
-                'checked_by' => null,
-                'approved_by' => null,
-                'rejected_by' => null,
-            ])
-            ->with([
-                'scores',
-                'principal',
-                'bank',
-                'obligee',
-                'sourceOfFund',
-                'guarantor',
-                'guarantorToProductType',
-                'employeeLimit',
-                'guarantorProductTypeLimit',
-            ])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where(function ($query) use ($authId) {
+        $query->where('checked_by', '=', $authId)
+          ->orWhere('approved_by', '=', $authId)
+          ->orWhere('rejected_by', '=', $authId);
+      })
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+        $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
 
-                return array_merge($submission->toArray(), [
-                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan Masuk',
-            ],
-            'submissions' => fn () => $submissions,
+        return array_merge($submission->toArray(), [
+          'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displayHistoryByKepalaCabang()
-    {
-        $component = 'kepala-cabang/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Hasil Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where(function ($query) use ($authId) {
-                $query->where('checked_by', '=', $authId)
-                    ->orWhere('approved_by', '=', $authId)
-                    ->orWhere('rejected_by', '=', $authId);
-            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+  public function displaySubmissionByKepalaAgentPartner()
+  {
+    $component = 'kepala-agent-partner/submission-management/list/index';
 
-                return array_merge($submission->toArray(), [
-                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
+    $authId = auth()->id();
+    $staffs = User::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where('head_id', '=', $authId)
+      ->pluck('id');
+    $submissions = Submission::query()
+      ->with([
+        'scores',
+        'principal',
+        'bank',
+        'obligee',
+        'sourceOfFund',
+        'guarantor',
+        'guarantorToProductType',
+        'employeeLimit',
+        'guarantorProductTypeLimit',
+      ])
+      ->whereIn('staff_id', $staffs)
+      ->where([
+        'checked_by' => null,
+        'approved_by' => null,
+        'rejected_by' => null,
+      ])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Hasil Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
+        return array_merge($submission->toArray(), [
+          'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displaySubmissionByKepalaAgentPartner()
-    {
-        $component = 'kepala-agent-partner/submission-management/list/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Pengajuan Masuk',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $staffs = User::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('head_id', '=', $authId)
-            ->pluck('id');
-        $submissions = Submission::query()
-            ->with([
-                'scores',
-                'principal',
-                'bank',
-                'obligee',
-                'sourceOfFund',
-                'guarantor',
-                'guarantorToProductType',
-                'employeeLimit',
-                'guarantorProductTypeLimit',
-            ])
-            ->whereIn('staff_id', $staffs)
-            ->where([
-                'checked_by' => null,
-                'approved_by' => null,
-                'rejected_by' => null,
-            ])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+  public function displayHistoryByKepalaAgentPartner()
+  {
+    $component = 'kepala-agent-partner/submission-management/history/index';
 
-                return array_merge($submission->toArray(), [
-                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where(function ($query) use ($authId) {
+        $query->where('checked_by', '=', $authId)
+          ->orWhere('approved_by', '=', $authId)
+          ->orWhere('rejected_by', '=', $authId);
+      })
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) use ($authId) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
+        $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
+        $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
+        $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
+        $productLimit = $submission->guarantorProductTypeLimit;
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan Masuk',
-            ],
-            'submissions' => fn () => $submissions,
+        return array_merge($submission->toArray(), [
+          'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
+          'product_limit' => $productLimit?->limit ?? 0,
+          'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+          'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
+          'created_at' => $date,
         ]);
-    }
+      });
 
-    public function displayHistoryByKepalaAgentPartner()
-    {
-        $component = 'kepala-agent-partner/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'List Hasil Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where(function ($query) use ($authId) {
-                $query->where('checked_by', '=', $authId)
-                    ->orWhere('approved_by', '=', $authId)
-                    ->orWhere('rejected_by', '=', $authId);
-            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
-                $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-                $kepalaCabangLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+  public function displayCreateByAgentPartner()
+  {
+    $component = 'agent-partner/submission-management/create/index';
 
-                return array_merge($submission->toArray(), [
-                    'kepala_cabang_limit' => $kepalaCabangLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($kepalaCabangLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ]);
-            });
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Buat Pengajuan',
+      ],
+    ]);
+  }
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Hasil Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+  public function displayHistoryByAgentPartner()
+  {
+    $component = 'agent-partner/submission-management/history/index';
 
-    public function displayCreateByAgentPartner()
-    {
-        $component = 'agent-partner/submission-management/create/index';
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where('staff_id', '=', $authId)
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Buat Pengajuan',
-            ],
-        ]);
-    }
+        return [
+          ...$submission->toArray(),
+          'created_at' => $date,
+        ];
+      });
 
-    public function displayHistoryByAgentPartner()
-    {
-        $component = 'agent-partner/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Histori Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('staff_id', '=', $authId)
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
+  public function displayDocumentDraftByAgentPartner()
+  {
+    $component = 'agent-partner/submission-management/document-draft/index';
 
-                return [
-                    ...$submission->toArray(),
-                    'created_at' => $date,
-                ];
-            });
+    $submissions = Submission::with('principal')->get();
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Histori Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Draft Dokumen Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-    public function displayDocumentDraftByAgentPartner()
-    {
-        $component = 'agent-partner/submission-management/document-draft/index';
+  public function displayCreateByMarketingPartner()
+  {
+    $component = 'marketing-partner/submission-management/create/index';
 
-        $submissions = Submission::with('principal')->get();
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Buat Pengajuan',
+      ],
+    ]);
+  }
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Draft Dokumen Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+  public function displayHistoryByMarketingPartner()
+  {
+    $component = 'marketing-partner/submission-management/history/index';
 
-    public function displayCreateByMarketingPartner()
-    {
-        $component = 'marketing-partner/submission-management/create/index';
+    $authId = auth()->id();
+    $submissions = Submission::query()
+      ->where('guarantor_id', $this->guarantorId)
+      ->where('staff_id', '=', $authId)
+      ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
+      ->orderByDesc('created_at')
+      ->get()
+      ->map(function ($submission) {
+        $date = Carbon::parse($submission->created_at)
+          ->translatedFormat('d F Y');
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Buat Pengajuan',
-            ],
-        ]);
-    }
+        return [
+          ...$submission->toArray(),
+          'created_at' => $date,
+        ];
+      });
 
-    public function displayHistoryByMarketingPartner()
-    {
-        $component = 'marketing-partner/submission-management/history/index';
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Histori Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('staff_id', '=', $authId)
-            ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
+  public function displayDocumentDraftByMarketingPartner()
+  {
+    $component = 'marketing-partner/submission-management/document-draft/index';
 
-                return [
-                    ...$submission->toArray(),
-                    'created_at' => $date,
-                ];
-            });
+    $submissions = Submission::with('principal')->get();
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Histori Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+    return inertia($component, [
+      'page_settings' => fn() => [
+        'title' => 'Draft Dokumen Pengajuan',
+      ],
+      'submissions' => fn() => $submissions,
+    ]);
+  }
 
-    public function displayDocumentDraftByMarketingPartner()
-    {
-        $component = 'marketing-partner/submission-management/document-draft/index';
+  public function approve(Request $request, Submission $submission): void
+  {
+    DB::beginTransaction();
+    try {
+      $dateNow = now()->format('Y-m-d H:i:s');
 
-        $submissions = Submission::with('principal')->get();
+      $checkedBy = $submission->getAttribute('checked_by');
+      $checkedAt = $submission->getAttribute('checked_at');
+      $updated = $submission->update([
+        'checked_by' => $checkedBy ?? auth()->id(),
+        'checked_at' => $checkedAt ?? $dateNow,
+        'approved_by' => auth()->id(),
+        'approved_at' => $dateNow,
+        'status' => SubmissionStatus::APPROVED->value,
+      ]);
 
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Draft Dokumen Pengajuan',
-            ],
-            'submissions' => fn () => $submissions,
-        ]);
-    }
+      if (!$updated) {
+        flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
 
-    public function approve(Request $request, Submission $submission): void
-    {
-        DB::beginTransaction();
+        return;
+      }
+
+      $documents = $request->input('documents', []);
+      if (count($documents) > 0) {
+        $submission->submissionDocs()->delete();
+        $docData = collect($documents)->map(fn($doc) => [
+          'document_format_id' => $doc['id'] ?? null,
+          'name' => $doc['name'] ?? null,
+          'format_document' => $doc['content'],
+          'url' => $doc['url'] ?? null,
+        ])->toArray();
+        $submission->submissionDocs()->createMany($docData);
+      }
+
+      $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
+      $hostToHost = $guarantor->getRelation('hostToHost');
+      $messageSend = '';
+      if ($hostToHost) {
+        // if submission before id is exist, is revision submission
+        $submissionIdForHost = $submission->getAttribute('id');
         try {
-            $dateNow = now()->format('Y-m-d H:i:s');
-
-            $checkedBy = $submission->getAttribute('checked_by');
-            $checkedAt = $submission->getAttribute('checked_at');
-            $updated = $submission->update([
-                'checked_by' => $checkedBy ?? auth()->id(),
-                'checked_at' => $checkedAt ?? $dateNow,
-                'approved_by' => auth()->id(),
-                'approved_at' => $dateNow,
-                'status' => SubmissionStatus::APPROVED->value,
-            ]);
-
-            if (! $updated) {
-                flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
-
-                return;
-            }
-
-            $documents = $request->input('documents', []);
-            if (count($documents) > 0) {
-                $submission->submissionDocs()->delete();
-                $docData = collect($documents)->map(fn ($doc) => [
-                    'document_format_id' => $doc['id'] ?? null,
-                    'name' => $doc['name'] ?? null,
-                    'format_document' => $doc['content'],
-                    'url' => $doc['url'] ?? null,
-                ])->toArray();
-                $submission->submissionDocs()->createMany($docData);
-            }
-
-            $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
-            $hostToHost = $guarantor->getRelation('hostToHost');
-            $messageSend = '';
-            if ($hostToHost) {
-                // if submission before id is exist, is revision submission
-                $submissionIdForHost = $submission->getAttribute('id');
-                $result = $this->sendToGuarantor($submissionIdForHost);
-                if ($result['status'] == 'success') {
-                    $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
-                } else {
-                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
-                }
-            }
-            Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
-            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, '.$messageSend);
-            DB::commit();
+          $result = @$this->sendToGuarantor($submissionIdForHost);
+          if ($result['status'] == 'success') {
+            $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
+          } else {
+            $messageSend = 'Gagal mengirimkan data ke pihak asuransi: ' . $result['message'];
+          }
         } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to approve submission', ['error' => $e->getMessage()]);
-            flashMessage('error', 'Terjadi kesalahan saat menyetujui pengajuan', 'error');
+          Log::error('Failed to send data to insurance', ['error' => $e->getMessage()]);
+          $messageSend = 'Gagal mengirimkan data ke pihak asuransi';
         }
+      }
+      Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
+      flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen, ' . $messageSend);
+      DB::commit();
+    } catch (Exception $e) {
+      DB::rollBack();
+      Log::error('Failed to approve submission', ['error' => $e->getMessage()]);
+      flashMessage('error', 'Terjadi kesalahan saat menyetujui pengajuan', 'error');
     }
+  }
 
-    public function reject(Submission $submission): void
-    {
-        DB::beginTransaction();
-        try {
-            $dateNow = now()->format('Y-m-d H:i:s');
+  public function reject(Submission $submission): void
+  {
+    DB::beginTransaction();
+    try {
+      $dateNow = now()->format('Y-m-d H:i:s');
 
-            $checkedBy = $submission->getAttribute('checked_by');
-            $checkedAt = $submission->getAttribute('checked_at');
-            $updated = $submission->update([
-                'checked_by' => $checkedBy ?? auth()->id(),
-                'checked_at' => $checkedAt ?? $dateNow,
-                'rejected_by' => auth()->id(),
-                'rejected_at' => $dateNow,
-                'status' => SubmissionStatus::REJECTED->value,
-            ]);
+      $checkedBy = $submission->getAttribute('checked_by');
+      $checkedAt = $submission->getAttribute('checked_at');
+      $updated = $submission->update([
+        'checked_by' => $checkedBy ?? auth()->id(),
+        'checked_at' => $checkedAt ?? $dateNow,
+        'rejected_by' => auth()->id(),
+        'rejected_at' => $dateNow,
+        'status' => SubmissionStatus::REJECTED->value,
+      ]);
 
-            if (! $updated) {
-                DB::rollBack();
-                flashMessage('error', 'Gagal menolak pengajuan', 'error');
-            } else {
-                DB::commit();
-                flashMessage('success', 'Berhasil menolak pengajuan');
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to reject submission', ['error' => $e->getMessage()]);
-            flashMessage('error', 'Terjadi kesalahan saat menolak pengajuan', 'error');
-        }
+      if (!$updated) {
+        DB::rollBack();
+        flashMessage('error', 'Gagal menolak pengajuan', 'error');
+      } else {
+        DB::commit();
+        flashMessage('success', 'Berhasil menolak pengajuan');
+      }
+    } catch (Exception $e) {
+      DB::rollBack();
+      Log::error('Failed to reject submission', ['error' => $e->getMessage()]);
+      flashMessage('error', 'Terjadi kesalahan saat menolak pengajuan', 'error');
     }
+  }
 
-    // check status
-    public function check(Request $request, Submission $submission): void
-    {
-        DB::beginTransaction();
-        try {
-            $dateNow = now()->format('Y-m-d H:i:s');
-            $updated = $submission->update([
-                'checked_by' => auth()->id(),
-                'checked_at' => $dateNow,
-            ]);
+  // check status
+  public function check(Request $request, Submission $submission): void
+  {
+    DB::beginTransaction();
+    try {
+      $dateNow = now()->format('Y-m-d H:i:s');
+      $updated = $submission->update([
+        'checked_by' => auth()->id(),
+        'checked_at' => $dateNow,
+      ]);
 
-            if (! $updated) {
-                DB::rollBack();
-                flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
-            } else {
-                $documents = $request->input('documents', []);
-                $submission->submissionDocs()->delete();
-                $docData = collect($documents)->map(fn ($doc) => [
-                    'document_format_id' => $doc['id'] ?? null,
-                    'name' => $doc['name'] ?? null,
-                    'format_document' => $doc['content'],
-                    'url' => $doc['url'] ?? null,
-                ])->toArray();
-                $submission->submissionDocs()->createMany($docData);
+      if (!$updated) {
+        DB::rollBack();
+        flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
+      } else {
+        $documents = $request->input('documents', []);
+        $submission->submissionDocs()->delete();
+        $docData = collect($documents)->map(fn($doc) => [
+          'document_format_id' => $doc['id'] ?? null,
+          'name' => $doc['name'] ?? null,
+          'format_document' => $doc['content'],
+          'url' => $doc['url'] ?? null,
+        ])->toArray();
+        $submission->submissionDocs()->createMany($docData);
 
-                DB::commit();
-                flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
-            }
-        } catch (Exception $e) {
-            DB::rollBack();
-            flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
-            Log::error('Failed to check submission', ['error' => $e->getMessage()]);
-        }
+        DB::commit();
+        flashMessage('success', 'Berhasil kirim ke direksi pengajuan');
+      }
+    } catch (Exception $e) {
+      DB::rollBack();
+      flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
+      Log::error('Failed to check submission', ['error' => $e->getMessage()]);
     }
+  }
 
-    // save content tinymce
-    public function saveDocument(Request $request)
-    {
-        $validated = $request->validate([
-            'submission_id' => 'required|integer|exists:submissions,id',
-            'document_format_id' => 'nullable|integer|exists:document_formats,id',
-            'name' => 'nullable|string|max:255',
-            'format_document' => 'required|string',
-        ]);
+  // save content tinymce
+  public function saveDocument(Request $request)
+  {
+    $validated = $request->validate([
+      'submission_id' => 'required|integer|exists:submissions,id',
+      'document_format_id' => 'nullable|integer|exists:document_formats,id',
+      'name' => 'nullable|string|max:255',
+      'format_document' => 'required|string',
+    ]);
 
-        DB::beginTransaction();
-        try {
-            $submissionDoc = SubmissionDoc::updateOrCreate(
-                [
-                    'submission_id' => $validated['submission_id'],
-                    'name' => $validated['name'],
-                ],
-                [
-                    'document_format_id' => $validated['document_format_id'] ?? null,
-                    'format_document' => $validated['format_document'], // Data yang diperbarui
-                ]
-            );
-
-            DB::commit();
-
-            return response()->json([
-                'message' => $submissionDoc->wasRecentlyCreated
-                  ? 'Dokumen berhasil dibuat.'
-                  : 'Dokumen berhasil diperbarui.',
-                'data' => $submissionDoc,
-            ], 201);
-        } catch (Exception $e) {
-            // Error handling
-            DB::rollBack();
-
-            return response()->json([
-                'message' => 'Gagal menyimpan dokumen.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function saveDocSignatured(Request $request)
-    {
-        $request->validate([
-            'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
-            'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
-            'submission_id' => 'required|exists:submissions,id',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submissionId = $request->input('submission_id');
-            $documents = [];
-
-            if ($request->hasFile('spkmgr_file')) {
-                $spkmgrFile = $request->file('spkmgr_file');
-                // Generate nama file unik
-                $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
-                // Simpan file di folder dengan path berdasarkan submission_id
-                //                $spkmgrPath = $spkmgrFile->storeAs(
-                //                    "documents/spkmgr/{$submissionId}",
-                //                    $uniqueName,
-                //                    'public'
-                //                );
-                $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/{$submissionId}", $uniqueName);
-                $documents[] = [
-                    'submission_id' => $submissionId,
-                    'document_format_id' => null,
-                    'name' => 'Surat Pernyataan Kesediaan Membayar Ganti Rugi (SPKMGR)',
-                    'format_document' => null,
-                    'url' => $spkmgrPath,
-                ];
-            }
-
-            if ($request->hasFile('permohonan_file')) {
-                $permohonanFile = $request->file('permohonan_file');
-                // Generate nama file unik
-                $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
-                // Simpan file di folder dengan path berdasarkan submission_id
-                //                $permohonanPath = $permohonanFile->storeAs(
-                //                    "documents/permohonan/{$submissionId}",
-                //                    $uniqueName,
-                //                    'public'
-                //                );
-                $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/{$submissionId}", $uniqueName);
-                $documents[] = [
-                    'submission_id' => $submissionId,
-                    'document_format_id' => null,
-                    'name' => 'Surat Permohonan',
-                    'format_document' => null,
-                    'url' => $permohonanPath,
-                ];
-            }
-
-            foreach ($documents as $document) {
-                SubmissionDoc::updateOrCreate(
-                    ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
-                    $document
-                );
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'File berhasil diunggah dan disimpan.',
-                'data' => $documents,
-            ]);
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'message' => 'Gagal mengunggah file.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function generateNomorSurat($submissionId)
-    {
-        $submission = Submission::find($submissionId);
-
-        if (! $submission) {
-            return null;
-        }
-
-        $submissionId = $submission->id;
-        $guarantorCode = $submission->guarantor->code;
-        $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
-
-        return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
-    }
-
-    private function generateNomorSuratResume($id, $createdAt)
-    {
-        return "{$id}/BPR/".Carbon::parse($createdAt)->format('m/Y');
-    }
-
-    private function formatCurrency($value): string
-    {
-        return 'Rp. '.number_format($value, 2, ',', '.');
-    }
-
-    public function updateDocument(Request $request, SubmissionDoc $submissionDoc)
-    {
-        $validated = $request->validate([
-            'format' => 'required|string',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submissionDoc->update([
-                'format_document' => $validated['format'],
-            ]);
-
-            DB::commit();
-
-            return $this->responseSuccess('Berhasil mengubah format dokumen');
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            return $this->responseError('Gagal mengubah format dokumen', ['message' => $e->getMessage()]);
-        }
-    }
-
-    public function send($submissionId): JsonResponse
-    {
-        $submission = Submission::find($submissionId);
-        $result = $this->sendToGuarantor($submissionId);
-
-        if ($result['status'] === 'success') {
-            Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
-
-            return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
-        }
-
-        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
-
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
-    }
-
-    private function sendToGuarantor($submissionId): array
-    {
-        $submission = Submission::query()
-            ->with([
-                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                'director_name,director_position,director_phone,commissioner,year_established,'.
-                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
-                'principal.province:id,code,name',
-                'principal.regency:id,code,name',
-                'principal.district:id,code,name',
-                'principal.documents:id,principal_id,name,url',
-                'blanks',
-                'guarantor:id,code,name',
-                'guarantorBranch:id,code,name',
-                'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
-                'product:id,name',
-                'guarantorToProductType:id,product_type_id,name,job_group,job_type',
-                'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
-                'obligee.province:id,code,name',
-                'obligee.regency:id,code,name',
-                'obligee.district:id,code,name',
-                'province:id,code,name',
-                'regency:id,code,name',
-                'district:id,code,name',
-                'sourceOfFund:id,name',
-                'submissionDocs:id,submission_id,name,format_document,url',
-            ])->find($submissionId);
-        $principal = $submission->getRelation('principal');
-        $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
-        $guarantor = $submission->getRelation('guarantor');
-        $guarantorBranch = $submission->getRelation('guarantorBranch');
-        $product = $submission->getRelation('product');
-        $guarantorToProductType = $submission->getRelation('guarantorToProductType');
-        $obligee = $submission->getRelation('obligee');
-        $jobProvince = $submission->getRelation('province');
-        $jobRegency = $submission->getRelation('regency');
-        $jobDistrict = $submission->getRelation('district');
-        $sourceOfFound = $submission->getRelation('sourceOfFund');
-        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
-        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
-        $submissionBeforeId = $submission->getAttribute('submission_before_id');
-
-        $hostToHost = $guarantor->getRelation('hostToHost');
-        $url = $hostToHost->getAttribute('guarantor_url_host');
-        $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
-        $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-        $dataRevision = [];
-        if ($submissionBeforeId) {
-            $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
-            if (! $submissionCallback) {
-                return [
-                    'status' => 'error',
-                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
-                ];
-            }
-            $dataRevision = [
-                'previous_id' => $submissionBeforeId,
-                'remarks' => $submission->getAttribute('revised_note'),
-                'policyno' => $submissionCallback->getAttribute('no_policy'),
-            ];
-        }
-        $result = array_merge($dataRevision, [
-            'submission_id' => $submission->getAttribute('id'),
-            'principal' => [
-                'id' => $principal->getAttribute('id'),
-                'name' => $principal->getAttribute('name'),
-                'telephone' => $principal->getAttribute('telephone'),
-                'pic' => $principal->getAttribute('pic'),
-                'npwp' => $principal->getAttribute('npwp'),
-                'nib' => $principal->getAttribute('nib'),
-                'siup_siujk' => $principal->getAttribute('siup_siujk'),
-                'head_name' => $principal->getAttribute('head_name'),
-                'business_fields' => $principal->getAttribute('business_fields'),
-                'director' => [
-                    'name' => $principal->getAttribute('director_name'),
-                    'position' => $principal->getAttribute('director_position'),
-                    'phone' => $principal->getAttribute('director_phone'),
-                    'commissioner' => $principal->getAttribute('commissioner'),
-                ],
-                'year_established' => $principal->getAttribute('year_established'),
-                'last_legality' => $principal->getAttribute('last_deed'),
-                'location' => [
-                    'province' => $principal->province?->only(['code', 'name']),
-                    'regency' => $principal->regency?->only(['code', 'name']),
-                    'district' => $principal->district?->only(['code', 'name']),
-                    'village' => $principal->getAttribute('village'),
-                    'address' => $principal->getAttribute('address'),
-                    'postal_code' => $principal->getAttribute('postal_code'),
-                ],
-                'docs' => $principal->getRelation('documents')->map(function ($doc) {
-                    return [
-                        'name' => $doc->getAttribute('name'),
-                        'url' => $doc->getAttribute('url'),
-                    ];
-                })->toArray(),
-            ],
-            'guarantee' => [
-                'no' => $submission->getAttribute('no_guarantee'),
-                'value' => $submission->getAttribute('guarantee_value'),
+    DB::beginTransaction();
+    try {
+      $submissionDoc = SubmissionDoc::updateOrCreate(
+        [
+          'submission_id' => $validated['submission_id'],
+          'name' => $validated['name'],
         ],
-            'contract' => [
-                'blank' => $blank?->number,
-                'value' => $submission->getAttribute('contract_value'),
-                'document' => [
-                    'name' => $submission->getAttribute('contract_doc_name'),
-                    'number' => $submission->getAttribute('contract_doc_number'),
-                    'date' => $submission->getAttribute('contract_doc_date'),
-                ],
-                'guarantor' => [
-                    ...$guarantor->only(['id', 'code', 'name']),
-                    'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
-                ],
-                'product' => $product->only(['id', 'name']),
-                'product_type' => [
-                    'id' => $guarantorToProductType->getAttribute('product_type_id'),
-                    'name' => $guarantorToProductType->getAttribute('name'),
-                ],
-                'obligee' => [
-                    'name' => $obligee->getAttribute('name'),
-                    'telephone' => $obligee->getAttribute('telephone'),
-                    'pic' => $obligee->getAttribute('pic'),
-                    'no_ppk' => $obligee->getAttribute('npwp'),
-                    'location' => [
-                        'province' => $obligee->province?->only(['code', 'name']),
-                        'regency' => $obligee->regency?->only(['code', 'name']),
-                        'district' => $obligee->district?->only(['code', 'name']),
-                        'village' => $obligee->getAttribute('village'),
-                        'address' => $obligee->getAttribute('address'),
-                        'postal_code' => $obligee->getAttribute('postal_code'),
-                    ],
-                ],
-                'project' => [
-                    'name' => $submission->getAttribute('job_name'),
-                    'group' => $guarantorToProductType->getAttribute('job_group'),
-                    'type' => $guarantorToProductType->getAttribute('job_type'),
-                    'time_period' => $submission->getAttribute('time_period'),
-                    'start_date' => $submission->getAttribute('start_date'),
-                    'end_date' => $submission->getAttribute('end_date'),
-                    'source_of_fund' => $sourceOfFound->only(['id', 'name']),
-                    'location' => [
-                        'province' => $jobProvince->only(['code', 'name']),
-                        'regency' => $jobRegency->only(['code', 'name']),
-                        'district' => $jobDistrict->only(['code', 'name']),
-                        'village' => $submission->getAttribute('job_location_village'),
-                        'address' => $submission->getAttribute('job_location_address'),
-                        'postal_code' => $submission->getAttribute('job_location_postal_code'),
-                    ],
-                ],
+        [
+          'document_format_id' => $validated['document_format_id'] ?? null,
+          'format_document' => $validated['format_document'], // Data yang diperbarui
+        ]
+      );
+
+      DB::commit();
+
+      return response()->json([
+        'message' => $submissionDoc->wasRecentlyCreated
+          ? 'Dokumen berhasil dibuat.'
+          : 'Dokumen berhasil diperbarui.',
+        'data' => $submissionDoc,
+      ], 201);
+    } catch (Exception $e) {
+      // Error handling
+      DB::rollBack();
+
+      return response()->json([
+        'message' => 'Gagal menyimpan dokumen.',
+        'error' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
+  public function saveDocSignatured(Request $request)
+  {
+    $request->validate([
+      'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+      'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+      'submission_id' => 'required|exists:submissions,id',
+    ]);
+
+    DB::beginTransaction();
+    try {
+      $submissionId = $request->input('submission_id');
+      $documents = [];
+
+      if ($request->hasFile('spkmgr_file')) {
+        $spkmgrFile = $request->file('spkmgr_file');
+        // Generate nama file unik
+        $uniqueName = uniqid('spkmgr_', true) . '.' . $spkmgrFile->getClientOriginalExtension();
+        // Simpan file di folder dengan path berdasarkan submission_id
+        //                $spkmgrPath = $spkmgrFile->storeAs(
+        //                    "documents/spkmgr/{$submissionId}",
+        //                    $uniqueName,
+        //                    'public'
+        //                );
+        $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/{$submissionId}", $uniqueName);
+        $documents[] = [
+          'submission_id' => $submissionId,
+          'document_format_id' => null,
+          'name' => 'Surat Pernyataan Kesediaan Membayar Ganti Rugi (SPKMGR)',
+          'format_document' => null,
+          'url' => $spkmgrPath,
+        ];
+      }
+
+      if ($request->hasFile('permohonan_file')) {
+        $permohonanFile = $request->file('permohonan_file');
+        // Generate nama file unik
+        $uniqueName = uniqid('permohonan_', true) . '.' . $permohonanFile->getClientOriginalExtension();
+        // Simpan file di folder dengan path berdasarkan submission_id
+        //                $permohonanPath = $permohonanFile->storeAs(
+        //                    "documents/permohonan/{$submissionId}",
+        //                    $uniqueName,
+        //                    'public'
+        //                );
+        $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/{$submissionId}", $uniqueName);
+        $documents[] = [
+          'submission_id' => $submissionId,
+          'document_format_id' => null,
+          'name' => 'Surat Permohonan',
+          'format_document' => null,
+          'url' => $permohonanPath,
+        ];
+      }
+
+      foreach ($documents as $document) {
+        SubmissionDoc::updateOrCreate(
+          ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
+          $document
+        );
+      }
+
+      DB::commit();
+
+      return response()->json([
+        'message' => 'File berhasil diunggah dan disimpan.',
+        'data' => $documents,
+      ]);
+    } catch (Exception $e) {
+      DB::rollBack();
+
+      return response()->json([
+        'message' => 'Gagal mengunggah file.',
+        'error' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
+  public function generateNomorSurat($submissionId)
+  {
+    $submission = Submission::find($submissionId);
+
+    if (!$submission) {
+      return null;
+    }
+
+    $submissionId = $submission->id;
+    $guarantorCode = $submission->guarantor->code;
+    $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
+
+    return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
+  }
+
+  private function generateNomorSuratResume($id, $createdAt)
+  {
+    return "{$id}/BPR/" . Carbon::parse($createdAt)->format('m/Y');
+  }
+
+  private function formatCurrency($value): string
+  {
+    return 'Rp. ' . number_format($value, 2, ',', '.');
+  }
+
+  public function updateDocument(Request $request, SubmissionDoc $submissionDoc)
+  {
+    $validated = $request->validate([
+      'format' => 'required|string',
+    ]);
+
+    DB::beginTransaction();
+    try {
+      $submissionDoc->update([
+        'format_document' => $validated['format'],
+      ]);
+
+      DB::commit();
+
+      return $this->responseSuccess('Berhasil mengubah format dokumen');
+    } catch (Exception $e) {
+      DB::rollBack();
+
+      return $this->responseError('Gagal mengubah format dokumen', ['message' => $e->getMessage()]);
+    }
+  }
+
+  public function send($submissionId): JsonResponse
+  {
+    $submission = Submission::find($submissionId);
+    $result = $this->sendToGuarantor($submissionId);
+
+    if ($result['status'] === 'success') {
+      Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
+
+      return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
+    }
+
+    Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
+
+    return $this->responseError('Gagal mengirimkan data ke pihak asuransi: ' . $result['message']);
+  }
+
+  private function sendToGuarantor($submissionId): array
+  {
+    $submission = Submission::query()
+      ->with([
+        'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,' .
+        'director_name,director_position,director_phone,commissioner,year_established,' .
+        'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+        'principal.province:id,code,name',
+        'principal.regency:id,code,name',
+        'principal.district:id,code,name',
+        'principal.documents:id,principal_id,name,url',
+        'blanks',
+        'guarantor:id,code,name',
+        'guarantorBranch:id,code,name',
+        'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
+        'product:id,name',
+        'guarantorToProductType:id,product_type_id,name,job_group,job_type',
+        'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
+        'obligee.province:id,code,name',
+        'obligee.regency:id,code,name',
+        'obligee.district:id,code,name',
+        'province:id,code,name',
+        'regency:id,code,name',
+        'district:id,code,name',
+        'sourceOfFund:id,name',
+        'submissionDocs:id,submission_id,name,format_document,url',
+      ])->find($submissionId);
+    $principal = $submission->getRelation('principal');
+    $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
+    $guarantor = $submission->getRelation('guarantor');
+    $guarantorBranch = $submission->getRelation('guarantorBranch');
+    $product = $submission->getRelation('product');
+    $guarantorToProductType = $submission->getRelation('guarantorToProductType');
+    $obligee = $submission->getRelation('obligee');
+    $jobProvince = $submission->getRelation('province');
+    $jobRegency = $submission->getRelation('regency');
+    $jobDistrict = $submission->getRelation('district');
+    $sourceOfFound = $submission->getRelation('sourceOfFund');
+    $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
+    $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
+    $submissionBeforeId = $submission->getAttribute('submission_before_id');
+
+    $hostToHost = $guarantor->getRelation('hostToHost');
+    $url = $hostToHost->getAttribute('guarantor_url_host');
+    $url = $submissionBeforeId ? $url . '/endorsement' : $url . '/submission';
+    $prefix = $hostToHost->getAttribute('auth_prefix');
+    $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
+    $dataRevision = [];
+    if ($submissionBeforeId) {
+      $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
+      if (!$submissionCallback) {
+        return [
+          'status' => 'error',
+          'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
+        ];
+      }
+      $dataRevision = [
+        'previous_id' => $submissionBeforeId,
+        'remarks' => $submission->getAttribute('revised_note'),
+        'policyno' => $submissionCallback->getAttribute('no_policy'),
+      ];
+    }
+    $result = array_merge($dataRevision, [
+      'submission_id' => $submission->getAttribute('id'),
+      'principal' => [
+        'id' => $principal->getAttribute('id'),
+        'name' => $principal->getAttribute('name'),
+        'telephone' => $principal->getAttribute('telephone'),
+        'pic' => $principal->getAttribute('pic'),
+        'npwp' => $principal->getAttribute('npwp'),
+        'nib' => $principal->getAttribute('nib'),
+        'siup_siujk' => $principal->getAttribute('siup_siujk'),
+        'head_name' => $principal->getAttribute('head_name'),
+        'business_fields' => $principal->getAttribute('business_fields'),
+        'director' => [
+          'name' => $principal->getAttribute('director_name'),
+          'position' => $principal->getAttribute('director_position'),
+          'phone' => $principal->getAttribute('director_phone'),
+          'commissioner' => $principal->getAttribute('commissioner'),
         ],
-            'output' => $submissionDocs->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'value' => $doc->getAttribute('format_document'),
-                ];
-            })->toArray(),
-            'final_output_file' => $submissionDocsFile->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'url' => $doc->getAttribute('url'),
-                ];
-            })->toArray(),
-        ]);
+        'year_established' => $principal->getAttribute('year_established'),
+        'last_legality' => $principal->getAttribute('last_deed'),
+        'location' => [
+          'province' => $principal->province?->only(['code', 'name']),
+          'regency' => $principal->regency?->only(['code', 'name']),
+          'district' => $principal->district?->only(['code', 'name']),
+          'village' => $principal->getAttribute('village'),
+          'address' => $principal->getAttribute('address'),
+          'postal_code' => $principal->getAttribute('postal_code'),
+        ],
+        'docs' => $principal->getRelation('documents')->map(function ($doc) {
+          return [
+            'name' => $doc->getAttribute('name'),
+            'url' => $doc->getAttribute('url'),
+          ];
+        })->toArray(),
+      ],
+      'guarantee' => [
+        'no' => $submission->getAttribute('no_guarantee'),
+        'value' => $submission->getAttribute('guarantee_value'),
+      ],
+      'contract' => [
+        'blank' => $blank?->number,
+        'value' => $submission->getAttribute('contract_value'),
+        'document' => [
+          'name' => $submission->getAttribute('contract_doc_name'),
+          'number' => $submission->getAttribute('contract_doc_number'),
+          'date' => $submission->getAttribute('contract_doc_date'),
+        ],
+        'guarantor' => [
+          ...$guarantor->only(['id', 'code', 'name']),
+          'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
+        ],
+        'product' => $product->only(['id', 'name']),
+        'product_type' => [
+          'id' => $guarantorToProductType->getAttribute('product_type_id'),
+          'name' => $guarantorToProductType->getAttribute('name'),
+        ],
+        'obligee' => [
+          'name' => $obligee->getAttribute('name'),
+          'telephone' => $obligee->getAttribute('telephone'),
+          'pic' => $obligee->getAttribute('pic'),
+          'no_ppk' => $obligee->getAttribute('npwp'),
+          'location' => [
+            'province' => $obligee->province?->only(['code', 'name']),
+            'regency' => $obligee->regency?->only(['code', 'name']),
+            'district' => $obligee->district?->only(['code', 'name']),
+            'village' => $obligee->getAttribute('village'),
+            'address' => $obligee->getAttribute('address'),
+            'postal_code' => $obligee->getAttribute('postal_code'),
+          ],
+        ],
+        'project' => [
+          'name' => $submission->getAttribute('job_name'),
+          'group' => $guarantorToProductType->getAttribute('job_group'),
+          'type' => $guarantorToProductType->getAttribute('job_type'),
+          'time_period' => $submission->getAttribute('time_period'),
+          'start_date' => $submission->getAttribute('start_date'),
+          'end_date' => $submission->getAttribute('end_date'),
+          'source_of_fund' => $sourceOfFound->only(['id', 'name']),
+          'location' => [
+            'province' => $jobProvince->only(['code', 'name']),
+            'regency' => $jobRegency->only(['code', 'name']),
+            'district' => $jobDistrict->only(['code', 'name']),
+            'village' => $submission->getAttribute('job_location_village'),
+            'address' => $submission->getAttribute('job_location_address'),
+            'postal_code' => $submission->getAttribute('job_location_postal_code'),
+          ],
+        ],
+      ],
+      'output' => $submissionDocs->map(function ($doc) {
+        return [
+          'name' => $doc->getAttribute('name'),
+          'value' => $doc->getAttribute('format_document'),
+        ];
+      })->toArray(),
+      'final_output_file' => $submissionDocsFile->map(function ($doc) {
+        return [
+          'name' => $doc->getAttribute('name'),
+          'url' => $doc->getAttribute('url'),
+        ];
+      })->toArray(),
+    ]);
 
-        Log::info('Data Send To Assurance', $result);
-        $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
-        if ($final['status'] == 'success') {
-            $submission->update(['has_send_to_guarantor' => true]);
+    Log::info('Data Send To Assurance', $result);
+    $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
+    if ($final['status'] == 'success') {
+      $submission->update(['has_send_to_guarantor' => true]);
 
-            return $final;
-        }
-
-        return $final;
+      return $final;
     }
 
-    public function postToGetCallback(Submission $submission): JsonResponse
-    {
-        $submission->load(['guarantor', 'guarantor.hostToHost']);
-        $guarantor = $submission->getRelation('guarantor');
-        $hostToHost = $guarantor->getRelation('hostToHost');
-        $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
-        $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+    return $final;
+  }
 
-        $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submission->id]);
+  public function postToGetCallback(Submission $submission): JsonResponse
+  {
+    $submission->load(['guarantor', 'guarantor.hostToHost']);
+    $guarantor = $submission->getRelation('guarantor');
+    $hostToHost = $guarantor->getRelation('hostToHost');
+    $url = $hostToHost->getAttribute('guarantor_url_host') . '/status';
+    $prefix = $hostToHost->getAttribute('auth_prefix');
+    $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
 
-        if ($result['status'] === 'success') {
-            $data = $result['message'];
-            // image is base64
-            $imageString = $data['image'];
-            // base64 to file
-            $fileData = $this->base64ToFile($imageString);
-            // save image to storage
-            $url = $this->uploadFile($fileData, 'submission/callback', $submission->id.'-image-from-guarantor');
-            $submission->update(['has_send_to_guarantor' => true]);
-            SubmissionCallback::query()->updateOrCreate(
-                ['submission_id' => $submission->id],
-                [
-                    'submission_id' => $submission->id,
-                    'doc_url' => $data['doc_url'],
-                    'url' => $url,
-                    'no_policy' => $data['policyno'],
-                ]
-            );
+    $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submission->id]);
 
-            return $this->responseSuccess('Berhasil Mengambil Data', $data);
-        } else {
-            Log::error('Error Callback: ', ['message' => $result['message']]);
+    if ($result['status'] === 'success') {
+      $data = $result['message'];
+      // image is base64
+      $imageString = $data['image'];
+      // base64 to file
+      $fileData = $this->base64ToFile($imageString);
+      // save image to storage
+      $url = $this->uploadFile($fileData, 'submission/callback', $submission->id . '-image-from-guarantor');
+      $submission->update(['has_send_to_guarantor' => true]);
+      SubmissionCallback::query()->updateOrCreate(
+        ['submission_id' => $submission->id],
+        [
+          'submission_id' => $submission->id,
+          'doc_url' => $data['doc_url'],
+          'url' => $url,
+          'no_policy' => $data['policyno'],
+        ]
+      );
 
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $result['message']);
-        }
+      return $this->responseSuccess('Berhasil Mengambil Data', $data);
+    } else {
+      Log::error('Error Callback: ', ['message' => $result['message']]);
+
+      return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $result['message']);
     }
+  }
 }
