@@ -47,19 +47,21 @@ trait UploadFile
     $cleanPath = trim($path, '/');
 
     // Store file
-    try {
-      $disk = Storage::disk(config('filesystems.default'));
-      return $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
-    } catch (Exception $e) {
+    $disk = Storage::disk(config('filesystems.default'));
+    $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+
+    if (!$storedPath) {
       Log::error('File upload failed: Unable to store file on S3.', [
-        'exception' => $e,
-        'path' => $path,
-        'fileName' => $fileName,
-        'exceptionMessage' => $e->getMessage(),
+        'file' => $file->getClientOriginalName(),
+        'path' => $cleanPath,
+        'sanitizedFileName' => $sanitizedFileName,
+        'disk' => config('filesystems.default'),
+        'error' => $disk->getAdapter()
       ]);
       throw new Exception('File upload failed.');
     }
 
+    return $storedPath;
   }
 
   /**
