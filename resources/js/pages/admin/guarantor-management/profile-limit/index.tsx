@@ -122,13 +122,24 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
 
   return (
     <main className="space-y-2.5">
-      <div className="flex items-center gap-x-2">
-        <span className="text-sm text-gray-400">Batas Kewenangan Nilai Jaminan:</span>
-        {limit?.limit ? (
-          <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
-        ) : (
-          <span className="text-sm text-gray-400">Belum Di setting</span>
-        )}
+      <div className="flex flex-col gap-x-2">
+        <div>
+          <span className="text-sm text-gray-400">Batas Kewenangan Nilai Jaminan: </span>
+          {limit?.limit ? (
+            <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit)}</span>
+          ) : (
+            <span className="text-sm text-gray-400">Belum Di setting</span>
+          )}
+        </div>
+
+        <div>
+          <span className="text-sm text-gray-400">Batas Kewenangan Nilai Jaminan Turunan: </span>
+          {limit?.limit_inherit ? (
+            <span className="text-sm text-gray-600">Rp. {textCurrency(limit?.limit_inherit)}</span>
+          ) : (
+            <span className="text-sm text-gray-400">Belum Di setting</span>
+          )}
+        </div>
       </div>
       <div className="flex justify-between items-end">
         <SelectLengthDatatable defaultValue={select} onChange={handleSelectProfileLimitLength} />

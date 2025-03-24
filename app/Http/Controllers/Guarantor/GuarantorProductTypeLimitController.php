@@ -9,6 +9,7 @@ use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -87,14 +88,15 @@ class GuarantorProductTypeLimitController extends Controller
             DB::beginTransaction();
             $limit = (float) str_replace('.', '', $request->get('limit'));
             $limitInherit = $request->get('limit_inherit')
-                ? (float) str_replace('.', '', $request->get('limit_inherit'))
-                : $limit;
-            GuarantorProductTypeLimit::create([
+              ? (float) str_replace('.', '', $request->get('limit_inherit'))
+              : $limit;
+            $guarantorProductTypeLimit = GuarantorProductTypeLimit::create([
                 'guarantor_id' => $request->get('guarantor_id'),
                 'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
                 'limit' => $limit,
                 'limit_inherit' => $limitInherit,
             ]);
+            $guarantorProductType = $guarantorProductTypeLimit->guarantorToProductType;
 
             activity()
                 ->useLog('guarantor-product-type-limit')
@@ -105,10 +107,11 @@ class GuarantorProductTypeLimitController extends Controller
             DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
-                'guarantor_id' => $request->get('guarantor_id'),
-                'product_id' => $request->get('product_id'),
+                'guarantor_id' => $guarantorProductType->getAttribute('guarantor_id'),
+                'product_id' => $guarantorProductType->getAttribute('product_id'),
+                'job_group' => $guarantorProductType->getAttribute('job_group'),
             ])->with('success', 'Limit berhasil disimpan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Limit gagal disimpan', 'error');
             Log::error('Error store limit: ', [
@@ -134,12 +137,13 @@ class GuarantorProductTypeLimitController extends Controller
             DB::beginTransaction();
             $limit = (float) str_replace('.', '', $request->get('limit'));
             $limitInherit = $request->get('limit_inherit')
-                ? (float) str_replace('.', '', $request->get('limit_inherit'))
-                : $limit;
+              ? (float) str_replace('.', '', $request->get('limit_inherit'))
+              : $limit;
             $guarantorProductTypeLimit->update([
                 'limit' => $limit,
                 'limit_inherit' => $limitInherit,
             ]);
+            $guarantorProductType = $guarantorProductTypeLimit->guarantorToProductType;
             activity()
                 ->useLog('guarantor-product-type-limit')
                 ->performedOn($guarantorProductTypeLimit)
@@ -149,10 +153,11 @@ class GuarantorProductTypeLimitController extends Controller
             DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
-                'guarantor_id' => $request->get('guarantor_id'),
-                'product_id' => $request->get('product_id'),
+                'guarantor_id' => $guarantorProductType->getAttribute('guarantor_id'),
+                'product_id' => $guarantorProductType->getAttribute('product_id'),
+                'job_group' => $guarantorProductType->getAttribute('job_group'),
             ])->with('success', 'Limit berhasil diubah');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Limit gagal diubah', 'error');
             Log::error('Error update limit: ', [
@@ -174,7 +179,7 @@ class GuarantorProductTypeLimitController extends Controller
             flashMessage('success', 'Limit berhasil dihapus');
 
             return redirect()->back()->with('success', 'Limit berhasil dihapus');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             flashMessage('error', 'Limit gagal dihapus', 'error');
             Log::error('Error delete limit: ', [
                 'message' => $e->getMessage(),

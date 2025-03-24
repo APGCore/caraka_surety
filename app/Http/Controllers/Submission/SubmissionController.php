@@ -329,7 +329,7 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    if ($doc->url) {
+                    if ($principalDoc->url) {
                         $doc->url = Storage::url($principalDoc->url);
                     }
                 }
@@ -586,7 +586,7 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    if ($doc->url) {
+                    if ($principalDoc->url) {
                         $doc->url = Storage::url($principalDoc->url);
                     }
                 }
@@ -836,7 +836,7 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    if ($doc->url) {
+                    if ($principalDoc->url) {
                         $doc->url = Storage::url($principalDoc->url);
                     }
                 }
@@ -1085,7 +1085,7 @@ class SubmissionController extends Controller
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
                 if ($principalDoc) {
                     $doc->name = $principalDoc->name;
-                    if ($doc->url) {
+                    if ($principalDoc->url) {
                         $doc->url = Storage::url($principalDoc->url);
                     }
                 }
@@ -1870,11 +1870,16 @@ class SubmissionController extends Controller
             if ($hostToHost) {
                 // if submission before id is exist, is revision submission
                 $submissionIdForHost = $submission->getAttribute('id');
-                $result = $this->sendToGuarantor($submissionIdForHost);
-                if ($result['status'] == 'success') {
-                    $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
-                } else {
-                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
+                try {
+                    $result = $this->sendToGuarantor($submissionIdForHost);
+                    if ($result['status'] == 'success') {
+                        $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
+                    } else {
+                        $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
+                    }
+                } catch (Exception $e) {
+                    Log::error('Failed to send data to insurance', ['error' => $e->getMessage()]);
+                    $messageSend = 'Gagal mengirimkan data ke pihak asuransi';
                 }
             }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);

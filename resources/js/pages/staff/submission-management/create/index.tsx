@@ -11,7 +11,11 @@ import {
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
-import { PRINCIPAL_QUERY_KEY, useGetAllPrincipal, useUpdatePrincipal } from "@/common/hooks/react-query/principal";
+import {
+  PRINCIPAL_QUERY_KEY,
+  useCreateOrUpdatePrincipal,
+  useGetAllPrincipal,
+} from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 import { cn } from "@/common/utils/cn";
@@ -58,7 +62,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
   const dataDefault = {
     principal: {
-      id: "",
+      id: null,
       village: "",
       name: "",
       address: "",
@@ -452,57 +456,56 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
   const { data: blanks } = useGetAllBlank();
 
-  const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useUpdatePrincipal({
-    onSuccess: async (data: any) => {
-      setIsPrincipalFetch(true);
-      toast({
-        title: "Berhasil Mengupdate Principal!",
-        description: "Data berhasil diupdate",
-      });
-      await queryClient.invalidateQueries({
-        queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-        refetchType: "active",
-      });
-      // SETTING PRINCIPAL DATA
-      const ratios = await fetchPrincipalRatios(data.id);
-      setData("principal", {
-        ...data?.principal,
-        id: data?.id,
-        province_id: data?.province_id,
-        regency_id: data?.regency_id,
-        district_id: data?.district_id,
-        village: data?.village,
-        name: data?.name,
-        address: data?.address,
-        telephone: data?.telephone,
-        postal_code: data?.postal_code,
-        fax: data?.fax,
-        npwp: data?.npwp,
-        nib: data?.nib,
-        siup_siujk: data?.siup_siujk,
-        head_name: data?.head_name,
-        business_fields: data?.business_fields,
-        director_name: data?.director_name,
-        director_position: data?.director_position,
-        director_phone: data?.director_phone,
-        commissioner: data?.commissioner,
-        year_established: data?.year_established,
-        est_deed: data?.est_deed,
-        last_deed: data?.last_deed,
-        ratios: ratios.slice(0, 2),
-      });
+  const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useCreateOrUpdatePrincipal(
+    !!data.principal.id,
+    {
+      onSuccess: async (data: any) => {
+        setIsPrincipalFetch(true);
+        await queryClient.invalidateQueries({
+          queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+          refetchType: "active",
+        });
+        // SETTING PRINCIPAL DATA
+        const ratios = await fetchPrincipalRatios(data.id);
+        setData("principal", {
+          ...data?.principal,
+          id: data?.id,
+          province_id: data?.province_id,
+          regency_id: data?.regency_id,
+          district_id: data?.district_id,
+          village: data?.village,
+          name: data?.name,
+          address: data?.address,
+          telephone: data?.telephone,
+          postal_code: data?.postal_code,
+          fax: data?.fax,
+          npwp: data?.npwp,
+          nib: data?.nib,
+          siup_siujk: data?.siup_siujk,
+          head_name: data?.head_name,
+          business_fields: data?.business_fields,
+          director_name: data?.director_name,
+          director_position: data?.director_position,
+          director_phone: data?.director_phone,
+          commissioner: data?.commissioner,
+          year_established: data?.year_established,
+          est_deed: data?.est_deed,
+          last_deed: data?.last_deed,
+          ratios: ratios.slice(0, 2),
+        });
 
-      handleClickStep("docs");
+        handleClickStep("docs");
+      },
+      onError: (error) => {
+        console.log(error);
+        toast({
+          title: "Gagal Mengupdate atau Membuat Principal!",
+          description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
+          variant: "destructive",
+        });
+      },
     },
-    onError: (error) => {
-      console.log(error);
-      toast({
-        title: "Gagal Mengupdate Principal!",
-        description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
-        variant: "destructive",
-      });
-    },
-  });
+  );
 
   const handleUpdatePrincipal = () => {
     if (!data.principal.province_id || !data.principal.regency_id || !data.principal.district_id) {

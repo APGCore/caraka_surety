@@ -58,6 +58,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 404);
             }
 
-            return redirect()->route('home');
+            return redirect()->route('login');
         });
     })->create();

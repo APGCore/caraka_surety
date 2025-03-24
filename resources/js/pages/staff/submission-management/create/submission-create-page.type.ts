@@ -10,7 +10,7 @@ export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {
 };
 
 type Principal = {
-  id: string;
+  id: string | null;
   province_id?: string;
   regency_id?: string;
   district_id?: string;
