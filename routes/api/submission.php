@@ -18,14 +18,3 @@ Route::controller(\App\Http\Controllers\Submission\SubmissionController::class)
     Route::middleware(HandleSubmissionAccess::class)
       ->post('send/{submissionId}', 'send')->name('send');
   });
-
-Route::get('/upload-testing', function () {
-  try {
-    Storage::disk('s3')->put('test.txt', 'Isi file dari Laravel');
-    \Illuminate\Support\Facades\Log::info('File berhasil diupload ke S3');
-    return response()->json(['message' => 'File berhasil diupload ke S3']);
-  } catch (Exception $e) {
-    \Illuminate\Support\Facades\Log::error('File gagal diupload ke S3', ['error' => $e->getMessage()]);
-    return response()->json(['message' => 'File gagal diupload ke S3', 'error' => $e->getMessage()]);
-  }
-})->name('example.upload-testing');
