@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Aws\S3\Exception\S3Exception;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
@@ -34,39 +33,34 @@ trait UploadFile
    */
   public function uploadFile(UploadedFile $file, string $path, string $fileName): string
   {
-    try {
-      $allowedExtensions = ['png', 'jpg', 'jpeg'];
-      $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
-        ? $file->getClientOriginalExtension()
-        : 'pdf';
+    // Ensure a valid extension (defaults to PDF if not image)
+    $allowedExtensions = ['png', 'jpg', 'jpeg'];
+    $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
+      ? $file->getClientOriginalExtension()
+      : 'pdf';
 
-      $sanitizedFileName = str_replace('.', '', date('ymd') . '_' . str_replace(' ', '_', $fileName)
-          . '_' . date('Hi')) . '.' . $extension;
+    // Format file name
+    $sanitizedFileName = str_replace('.', '', date('ymd') . '_' . str_replace(' ', '_', $fileName)
+        . '_' . date('Hi')) . '.' . $extension;
 
-      $cleanPath = trim($path, '/');
+    // Ensure path does not have leading slashes
+    $cleanPath = trim($path, '/');
 
-      // Pastikan menggunakan disk S3
-      $disk = Storage::disk('s3');
-      $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+    // Store file
+    $disk = Storage::disk(config('filesystems.default'));
+    $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
 
-      if (!$storedPath) {
-        throw new Exception('File upload failed: Unable to store file on S3.');
-      }
-
-      return $storedPath;
-
-    } catch (S3Exception $e) {  // Tangkap error dari AWS SDK
-      Log::error('S3 Upload Error:', [
-        'message' => $e->getMessage(),
-        'aws_error_type' => $e->getAwsErrorType(),
-        'aws_error_code' => $e->getAwsErrorCode(),
-        'aws_request_id' => $e->getAwsRequestId(),
-        'aws_details' => $e->toArray(), // Ini berisi detail error dari AWS
-        'trace' => $e->getTraceAsString(),
+    if (!$storedPath) {
+      Log::error('File upload failed: Unable to store file on S3.', [
+        'file' => $file->getClientOriginalName(),
+        'path' => $cleanPath,
+        'sanitizedFileName' => $sanitizedFileName,
+        'disk' => config('filesystems.default'),
       ]);
-
-      throw new Exception('File upload failed: Unable to store file on S3.');
+      throw new Exception('File upload failed.');
     }
+
+    return $storedPath;
   }
 
   /**
