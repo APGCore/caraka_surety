@@ -87,7 +87,7 @@ trait UploadFile
     $disk = config('filesystems.default');
 
     try {
-      if (Storage::disk($disk)->exists($pathAndFileName)) {
+      if ($pathAndFileName && Storage::disk($disk)->exists($pathAndFileName)) {
         Log::info('File exists, deleting: ' . $pathAndFileName);
         Storage::disk($disk)->delete($pathAndFileName);
       } else {
