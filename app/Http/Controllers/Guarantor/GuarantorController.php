@@ -78,24 +78,8 @@ class GuarantorController extends Controller
       $requestValid = $request->validated();
       if ($request->hasFile('upload_picture')) {
         $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
-        $file = $request->file('upload_picture');
-        $path = 'guarantors';
-        // Ensure a valid extension (defaults to PDF if not image)
-        $allowedExtensions = ['png', 'jpg', 'jpeg'];
-        $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
-          ? $file->getClientOriginalExtension()
-          : 'pdf';
-
-        // Format file name
-        $sanitizedFileName = str_replace('.', '', date('ymd') . '_' . str_replace(' ', '_', $fileName)
-            . '_' . date('Hi')) . '.' . $extension;
-
-        // Ensure path does not have leading slashes
-        $cleanPath = trim($path, '/');
-
-        // Store file
-        $disk = Storage::disk(config('filesystems.default'));
-        $requestValid['picture'] = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+        $path = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
+        $requestValid['picture'] = $path;
       }
 
       $guarantor = Guarantor::query()
@@ -155,24 +139,7 @@ class GuarantorController extends Controller
         $picture = $guarantor->getAttribute('picture') ?? null;
         $this->deleteFile($picture);
         $fileName = 'guarantor_' . str_replace(' ', '_', $requestValid['name']);
-        $file = $request->file('upload_picture');
-        $path = 'guarantors';
-        // Ensure a valid extension (defaults to PDF if not image)
-        $allowedExtensions = ['png', 'jpg', 'jpeg'];
-        $extension = in_array($file->getClientOriginalExtension(), $allowedExtensions)
-          ? $file->getClientOriginalExtension()
-          : 'pdf';
-
-        // Format file name
-        $sanitizedFileName = str_replace('.', '', date('ymd') . '_' . str_replace(' ', '_', $fileName)
-            . '_' . date('Hi')) . '.' . $extension;
-
-        // Ensure path does not have leading slashes
-        $cleanPath = trim($path, '/');
-
-        // Store file
-        $disk = Storage::disk(config('filesystems.default'));
-        $requestValid['picture'] = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
+        $requestValid['picture'] = $this->uploadFile($request->file('upload_picture'), 'guarantors', $fileName);
       } else {
         unset($requestValid['picture']);
       }
