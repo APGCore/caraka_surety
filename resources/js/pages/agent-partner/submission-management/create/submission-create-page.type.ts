@@ -48,12 +48,12 @@ type Submission = {
   bank_id?: number;
   contract_doc_name: string;
   contract_doc_number: string;
-  contract_doc_date?: Date;
+  contract_doc_date?: string | Date | undefined;
   contract_value?: string;
   guarantee_value?: string;
   time_period: string;
-  start_date?: Date;
-  end_date?: Date;
+  start_date?: string | Date | undefined;
+  end_date?: string | Date | undefined;
   job_name: string;
   job_location_province_id?: number;
   job_location_regency_id?: number;

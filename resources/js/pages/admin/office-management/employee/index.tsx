@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/_features/_common/components/button/primary-button";
 import { cn } from "@/common/utils/cn";
 import {
   AlertDialog,
@@ -43,21 +44,16 @@ const EmployeePage: EmployeePageProps = ({ office_selected, ...props }) => {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">Pengguna</h1>
         <div className="flex gap-x-3">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: "default",
-              }),
-            )}
-            href={route(`${props.route_name || ""}.create`) + `?office_id=${office_selected}`}>
-            Tambah Pengguna
-          </Link>
+          <PrimaryButton asChild>
+            <Link href={route(`${props.route_name || ""}.create`) + `?office_id=${office_selected}`}>
+              Tambah Pengguna
+            </Link>
+          </PrimaryButton>
         </div>
       </div>
 
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
           <Select onValueChange={(e) => handlePerpage(e)} defaultValue={perpage}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Theme" />
@@ -72,8 +68,13 @@ const EmployeePage: EmployeePageProps = ({ office_selected, ...props }) => {
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={handleSearchSubmit} className="flex items-end gap-x-3">
-            <Input placeholder="Cari Pengguna" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <Button type="submit">Cari</Button>
+            <Input
+              className="h-full"
+              placeholder="Cari Pengguna"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <PrimaryButton type="submit">Cari</PrimaryButton>
           </form>
         </div>
       </div>

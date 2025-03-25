@@ -59,14 +59,15 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
       setUploadProgress(0);
 
       try {
+        const formData = new FormData();
+        formData.append("required_doc_id", id.toString());
+        formData.append("file", file);
+
         const response = await axios.post(
           route("api.principal-management.document.upload", {
             principal: principalId,
           }),
-          {
-            required_doc_id: id,
-            file: file,
-          },
+          formData,
           {
             headers: {
               "Content-Type": "multipart/form-data",

@@ -106,12 +106,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       blank_id: undefined,
       contract_doc_name: "",
       contract_doc_number: "",
-      contract_doc_date: new Date(),
+      contract_doc_date: dayjs().format("YYYY-MM-DD"),
       contract_value: "",
       guarantee_value: "",
       time_period: "",
-      start_date: new Date(),
-      end_date: new Date(),
+      start_date: dayjs().format("YYYY-MM-DD"),
+      end_date: dayjs().format("YYYY-MM-DD"),
       job_name: "",
       job_location_province_id: undefined,
       job_location_regency_id: undefined,
@@ -563,6 +563,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       handleClickStep("contract");
     }
   };
+
+  console.log(data.submission);
+
   return (
     <>
       <Show when={profileLimit.limit !== 0}>
@@ -1339,10 +1342,19 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Tanggal Dasar Dokumen</Label>
                         <CalendarPicker
+                          dateFormat="YYYY-MM-DD"
+                          disabled={{
+                            before: subDays(new Date(), 90),
+                          }}
+                          initialDate={
+                            data?.submission?.contract_doc_date
+                              ? dayjs(data?.submission?.contract_doc_date).toDate()
+                              : dayjs().toDate()
+                          }
                           onPickDate={(d) => {
                             setData("submission", {
                               ...data.submission,
-                              contract_doc_date: d,
+                              contract_doc_date: dayjs(d).format("YYYY-MM-DD"),
                             });
                           }}
                         />
@@ -1388,7 +1400,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                             setData("submission", {
                               ...data.submission,
                               time_period: e.target.value,
-                              end_date: dayjs(data.submission.start_date).add(Number(e.target.value), "day").toDate(),
+                              end_date: dayjs(data.submission.start_date)
+                                .add(Number(e.target.value), "day")
+                                .format("YYYY-MM-DD"),
                             })
                           }
                         />
@@ -1396,15 +1410,21 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Tanggal Awal Jaminan</Label>
                         <CalendarPicker
+                          dateFormat="YYYY-MM-DD"
                           disabled={{
                             before: subDays(new Date(), 90),
                           }}
+                          initialDate={
+                            data?.submission?.start_date
+                              ? dayjs(data?.submission?.start_date).toDate()
+                              : dayjs().toDate()
+                          }
                           onPickDate={(d) => {
                             setData("submission", {
                               ...data.submission,
-                              start_date: d,
+                              start_date: dayjs(d).format("YYYY-MM-DD"),
                               time_period: "0",
-                              end_date: d,
+                              end_date: dayjs(d).format("YYYY-MM-DD"),
                             });
                           }}
                         />
@@ -1412,14 +1432,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Tanggal Akhir Jaminan</Label>
                         <CalendarPicker
+                          dateFormat="YYYY-MM-DD"
                           initialDate={
-                            data?.submission?.end_date ??
-                            dayjs().add(Number(data?.submission?.time_period), "day").toDate()
+                            data?.submission?.end_date ? dayjs(data?.submission?.end_date).toDate() : dayjs().toDate()
                           }
                           onPickDate={(e) => {
                             setData("submission", {
                               ...data.submission,
-                              end_date: e,
+                              end_date: dayjs(e).format("YYYY-MM-DD"),
                               time_period: dayjs(e)
                                 .startOf("day")
                                 .diff(dayjs(data.submission.start_date).startOf("day"), "day")
