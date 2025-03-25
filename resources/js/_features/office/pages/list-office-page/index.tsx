@@ -40,92 +40,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/_features/_common/components/_shadcn-ui/table";
+import { PrimaryButton } from "@/_features/_common/components/button/primary-button";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
-import { cn } from "@/_features/_common/utils/cn";
 import { Link } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { useQueryState } from "nuqs";
-import React, { useCallback } from "react";
-import { OfficeType, useGetOfficeByType } from "../../services/office-query";
-
-interface PaginationMeta {
-  current_page: number;
-  from: number;
-  to: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-}
-
-interface OfficeResponse {
-  data: any[];
-  meta: PaginationMeta;
-}
+import useOffice from "../../hooks/use-office";
+import { OfficeData, OfficeType } from "../../services/office-query";
 
 const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
-  const [search, setSearch] = useQueryState("search", {
-    defaultValue: "",
-    history: "push",
-    parse: (value) => decodeURIComponent(value || ""),
-    serialize: (value) => encodeURIComponent(value || ""),
-  });
-
-  const [perPage, setPerPage] = useQueryState("per_page", {
-    defaultValue: "10",
-    history: "push",
-    parse: (value) => value || "10",
-    serialize: (value) => value,
-  });
-
-  const [page, setPage] = useQueryState("page", {
-    defaultValue: "1",
-    history: "push",
-    parse: (value) => value || "1",
-    serialize: (value) => value,
-  });
-
   const {
-    data: offices,
-    isLoading,
-    isSuccess,
-  } = useGetOfficeByType({
-    officeType,
-    perPage: Number(perPage),
+    offices,
+    isLoadingOffice,
+    isSuccessOffice,
+    handleSearchChange,
+    handlePerPageChange,
+    handlePageChange,
+    perPage,
+    meta,
     search,
-    page: Number(page),
+  } = useOffice({
+    officeType,
   });
-
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  }, []);
-
-  const handlePerPageChange = useCallback((value: string) => {
-    setPerPage(value);
-    setPage("1");
-  }, []);
-
-  const handlePageChange = useCallback((page: number) => {
-    setPage(page.toString());
-  }, []);
 
   return (
     <main className="space-y-2.5">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">Cabang BPR</h1>
         <div className="flex gap-x-3">
-          <Link
-            className={cn(
-              buttonVariants({
-                variant: "default",
-              }),
-            )}
-            href={route("branch.create", {
-              type: "branch",
-            })}>
-            Tambah Cabang BPR
-          </Link>
+          <PrimaryButton asChild>
+            <Link
+              href={route("branch.create", {
+                type: "branch",
+              })}>
+              Tambah Cabang BPR
+            </Link>
+          </PrimaryButton>
         </div>
       </div>
       <div className="flex justify-between items-end">
@@ -159,14 +110,14 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && <TableSkeleton colspan={6} />}
-            {isSuccess && (
+            {isLoadingOffice && <TableSkeleton colspan={6} />}
+            {isSuccessOffice && offices && (
               <RenderList
-                of={offices.data}
-                render={(office: any, index) => {
+                of={offices}
+                render={(office: OfficeData, index) => {
                   return (
                     <TableRow key={office.id}>
-                      <TableCell>{offices?.meta?.from + index}</TableCell>
+                      <TableCell>{(meta?.from ?? 0) + index}</TableCell>
                       <TableCell>{office?.code}</TableCell>
                       <TableCell>{office?.name}</TableCell>
                       <TableCell>{office?.email ?? "-"}</TableCell>
@@ -282,7 +233,7 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
             )}
           </TableBody>
         </Table>
-        {isSuccess && <Pagination meta={offices?.meta} onPageChange={handlePageChange} />}
+        {isSuccessOffice && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
     </main>
   );

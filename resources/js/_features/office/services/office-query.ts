@@ -15,11 +15,18 @@ export interface OfficeByTypeParams {
   page?: number;
 }
 
-interface OfficeData {
+export interface OfficeData {
   id: number;
   code: string;
   name: string;
-  email: string | null;
+  email: string;
+  phone: string;
+  address: string;
+  province: string;
+  regency: string;
+  district: string;
+  village: string;
+  postal_code: string;
   users_count: number;
 }
 

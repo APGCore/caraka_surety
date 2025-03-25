@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/_features/_common/components/button/primary-button";
 import { cn } from "@/common/utils/cn";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
@@ -88,7 +89,7 @@ const BranchOfficePage: BranchOfficePageProps = (props) => {
       </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
+          <PrimaryButton>Export</PrimaryButton>
           <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Theme" />
