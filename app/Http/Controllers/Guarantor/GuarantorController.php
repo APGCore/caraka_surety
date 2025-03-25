@@ -69,7 +69,6 @@ class GuarantorController extends Controller
 
   /**
    * Store a newly created resource in storage.
-   * @throws Exception
    */
   public function store(StoreRequest $request): void
   {
@@ -104,7 +103,6 @@ class GuarantorController extends Controller
       DB::rollBack();
       flashMessage('Gagal', 'Penambahan data asuransi gagal', 'error');
       Log::error('GuarantorController@store: ', ['message' => $e->getMessage()]);
-      throw $e;
     }
   }
 
@@ -130,7 +128,6 @@ class GuarantorController extends Controller
 
   /**
    * Update the specified resource in storage.
-   * @throws Exception
    */
   public function update(UpdateRequest $request, Guarantor $guarantor): void
   {
@@ -173,7 +170,6 @@ class GuarantorController extends Controller
       DB::rollBack();
       Log::error('GuarantorController@update: ', ['message' => $e->getMessage()]);
       flashMessage('Gagal', 'Perubahan data asuransi gagal', 'error');
-      throw $e;
     }
   }
 
