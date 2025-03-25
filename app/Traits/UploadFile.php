@@ -47,7 +47,7 @@ trait UploadFile
     $cleanPath = trim($path, '/');
 
     // Store file
-    $disk = Storage::disk('s3');
+    $disk = Storage::disk(config('filesystems.default'));
     $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
 
     if (!$storedPath) {
@@ -55,7 +55,7 @@ trait UploadFile
         'file' => $file->getClientOriginalName(),
         'path' => $cleanPath,
         'sanitizedFileName' => $sanitizedFileName,
-        'disk' => 's3',
+        'disk' => config('filesystems.default'),
       ]);
       throw new Exception('File upload failed.');
     }
@@ -68,7 +68,7 @@ trait UploadFile
    */
   public function getFileUrl($path): string
   {
-    $disk = Storage::disk('s3');
+    $disk = Storage::disk(config('filesystems.default'));
 
     // Jika bucket public, langsung return URL biasa
     if ($disk->exists($path)) {
@@ -84,7 +84,7 @@ trait UploadFile
    */
   public function deleteFile($pathAndFileName): void
   {
-    $disk = 's3';
+    $disk = config('filesystems.default');
 
     try {
       if ($pathAndFileName && Storage::disk($disk)->exists($pathAndFileName)) {
