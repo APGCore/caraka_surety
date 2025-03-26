@@ -57,7 +57,6 @@ return [
       'throw' => true,
       'options' => [
         'debug' => true, // Aktifkan debugging
-        'verify' => false, // Nonaktifkan SSL verification
       ],
     ],
 

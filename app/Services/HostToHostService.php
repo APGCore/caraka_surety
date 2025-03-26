@@ -12,7 +12,7 @@ class HostToHostService
     $response = Http::withHeaders([
       'Content-Type' => 'application/json',
       'Authorization' => $token,
-    ])->withoutVerifying()->post($url, $data);
+    ])->post($url, $data);
 
     $responseJson = $response->json();
     if ($response->successful()) {
