@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\PrincipalController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware('auth')->group(function () {
 Route::prefix('principal-management')
     ->name('api.principal-management.')
     ->group(function () {
@@ -34,4 +35,5 @@ Route::prefix('principal-management')
                         Route::post('uploads/{principal}', 'uploadDocument')->name('upload');
                     });
             });
-    });
+        });
+});
