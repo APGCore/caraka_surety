@@ -47,7 +47,7 @@ trait UploadFile
     $cleanPath = trim($path, '/');
 
     // Store file
-    $disk = Storage::disk(config('filesystems.default'));
+    $disk = Storage::disk('s3');
     $storedPath = $disk->putFileAs($cleanPath, $file, $sanitizedFileName);
 
     if (!$storedPath) {
@@ -68,7 +68,7 @@ trait UploadFile
    */
   public function getFileUrl($path): string
   {
-    $disk = Storage::disk(config('filesystems.default'));
+    $disk = Storage::disk('s3');
 
     // Jika bucket public, langsung return URL biasa
     if ($disk->exists($path)) {

@@ -31,7 +31,7 @@ Route::prefix('principal-management')
                     ->name('document.')
                     ->group(function () {
                         // api.principal-management.document.upload
-                        Route::post('upload/{principal}', 'uploadDocument')->name('upload');
+                        Route::post('uploads/{principal}', 'uploadDocument')->name('upload');
                     });
             });
     });
