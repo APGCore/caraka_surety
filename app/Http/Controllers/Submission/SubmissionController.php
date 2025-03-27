@@ -568,8 +568,6 @@ class SubmissionController extends Controller
         //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
         $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
-
-
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
         $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
@@ -824,7 +822,6 @@ class SubmissionController extends Controller
         //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
         $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
-
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
@@ -1062,7 +1059,6 @@ class SubmissionController extends Controller
         //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
 
         $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
-
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -2238,7 +2234,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -2287,7 +2283,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
