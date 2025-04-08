@@ -1,3 +1,4 @@
+import { useGetAllProvince, useSearchProvinces } from "@/_features/location/services/location-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
@@ -35,6 +36,18 @@ import { FormEventHandler, useState } from "react";
 
 const ProvincePage: React.FC<ProvincePageProps> & { layout?: any } = (props) => {
   const { data: provinces, meta } = props.provinces;
+
+  const {
+    data: provincess,
+    isLoading: isLoadingProvinces,
+    isSuccess: isSuccessProvinces,
+  } = useSearchProvinces({
+    perPage: 10,
+    search: "",
+    page: 1,
+  });
+
+  console.log(provincess);
 
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
