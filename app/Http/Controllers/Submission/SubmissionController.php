@@ -516,6 +516,7 @@ class SubmissionController extends Controller
         $submission->document_format_guarantor = $submission->guarantor->documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
+        $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
@@ -560,11 +561,12 @@ class SubmissionController extends Controller
 
         $submission->terbilang = $submission->guarantee_value ? ucwords(Terbilang::make($submission->guarantee_value, ' Rupiah')) : '';
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        // $submission->guarantor_address =
+        //   ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        //   ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -813,11 +815,12 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        // $submission->guarantor_address =
+        //   ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        //   ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -1049,11 +1052,13 @@ class SubmissionController extends Controller
         $submission->mail_number = $this->generateNomorSurat($id);
         $submission->blank = $submission->blanks->firstWhere('is_used', 1);
 
-        $submission->guarantor_address =
-          ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
-          ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
-          ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
-          ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+        // $submission->guarantor_address =
+        //   ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
+        //   ($submission->guarantorBranch?->district?->name ?? $submission->guarantor->district?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '').', '.
+        //   ($submission->guarantorBranch?->province?->name ?? $submission->guarantor->province?->name ?? '');
+
+        $submission->guarantor_address = $submission->guarantorBranch->address ?? $submission->guarantor->address ?? '';
 
         $submission->guarantor_city = $submission->guarantorBranch?->regency?->name ?? $submission->guarantor->regency?->name ?? '';
 
@@ -2229,7 +2234,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -2278,7 +2283,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
