@@ -114,10 +114,8 @@ class GuarantorProductTypeLimitController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Limit gagal disimpan', 'error');
-            Log::error('Error store limit: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store limit: ', $error);
 
             return redirect()->back()->with('error', 'Limit gagal disimpan');
         }
@@ -160,10 +158,8 @@ class GuarantorProductTypeLimitController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Limit gagal diubah', 'error');
-            Log::error('Error update limit: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update limit: ', $error);
 
             return redirect()->back()->with('error', 'Limit gagal diubah');
         }
@@ -181,10 +177,8 @@ class GuarantorProductTypeLimitController extends Controller
             return redirect()->back()->with('success', 'Limit berhasil dihapus');
         } catch (Exception $e) {
             flashMessage('error', 'Limit gagal dihapus', 'error');
-            Log::error('Error delete limit: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error delete limit: ', $error);
 
             return redirect()->back()->with('error', 'Limit gagal dihapus');
         }

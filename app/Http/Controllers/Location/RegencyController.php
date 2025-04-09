@@ -6,18 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\RegencyResource;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Response;
 
 class RegencyController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Inertia\Response
+    public function index(Request $request): Response
     {
         $provinces = Province::all();
         $regencies = Regency::search($request->get('search'))
@@ -82,10 +84,11 @@ class RegencyController extends Controller
                 ->log('Menambahkan Kabupaten');
             flashMessage('Kabupaten Ditambahkan', 'Kabupaten berhasil ditambahkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Kabupaten', 'Terjadi kesalahan saat menambahkan kabupaten', 'error');
-            Log::error('Kabupaten Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Kabupaten Store: ', $error);
         } finally {
             return redirect()->route('regency.index');
         }
@@ -119,10 +122,11 @@ class RegencyController extends Controller
 
             flashMessage('Kabupaten Diperbarui', 'Kabupaten berhasil diperbarui');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kabupaten', 'Terjadi kesalahan saat memperbarui kabupaten', 'error');
-            Log::error('Kabupaten Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Kabupaten Update: ', $error);
         } finally {
             return redirect()->route('regency.index');
         }
@@ -144,10 +148,11 @@ class RegencyController extends Controller
 
             flashMessage('Kabupaten Dihapus', 'Kabupaten berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kabupaten', 'Terjadi kesalahan saat menghapus kabupaten', 'error');
-            Log::error('Kabupaten Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Kabupaten Delete: ', $error);
         } finally {
             return redirect()->route('regency.index');
         }
@@ -188,10 +193,11 @@ class RegencyController extends Controller
 
             flashMessage('Kabupaten Disinkronkan', 'Kabupaten berhasil disinkronkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal Menyinkronkan Kabupaten', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
-            Log::error('Kabupaten Sync: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            flashMessage('Gagal Menyinkronkan Kabupaten', json_encode($e->getMessage(), JSON_PRETTY_PRINT), 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Kabupaten Sync: ', $error);
         }
     }
 

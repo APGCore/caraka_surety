@@ -9,6 +9,7 @@ use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringOption;
 use App\Models\Scoring\ScoringQuestion;
 use App\Models\Scoring\ScoringQuestionCategory;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -116,13 +117,12 @@ class ScoringQuestionController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Pertanyaan Skoring berhasil ditambah!');
-        } catch (\Throwable $e) {
-
-            Log::error('Scoring Question Store: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Store: ', $error);
             DB::rollBack();
 
-            return $this->responseError('Pertanyaan Skoring gagal ditambahkan', [$e->getMessage()]);
+            return $this->responseError('Pertanyaan Skoring gagal ditambahkan', $error);
         }
     }
 
@@ -198,13 +198,12 @@ class ScoringQuestionController extends Controller
             } else {
                 throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan!');
             }
-        } catch (\Throwable $e) {
-
-            Log::error('Scoring Question Edit: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Edit: ', $error);
             DB::rollBack();
 
-            return $this->responseError('Pertanyaan Skoring gagal diedit!', [$e->getMessage()]);
+            return $this->responseError('Pertanyaan Skoring gagal diedit!', $error);
         }
     }
 
@@ -229,10 +228,11 @@ class ScoringQuestionController extends Controller
             } else {
                 throw new ThrottleRequestsException('Pertanyaan Skoring tidak ditemukan');
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Delete: ', $error);
         } finally {
             return redirect()->back();
         }
@@ -306,13 +306,14 @@ class ScoringQuestionController extends Controller
             } else {
                 throw new ThrottleRequestsException('Pilihan Pertanyaan tidak ditemukan');
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Update: ', $error);
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -346,13 +347,14 @@ class ScoringQuestionController extends Controller
             return redirect()->route('scoring-question.edit-options', [
                 'scoringQuestion' => $scoringQuestion->id,
             ]);
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Memperbarui Pilihan Pertanyaan', 'Terjadi kesalahan saat memperbarui pilihan pertanyaan', 'error');
-            Log::error('Scoring Question Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Update: ', $error);
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

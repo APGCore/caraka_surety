@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Location;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Location\Province;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,10 +64,11 @@ class ProvinceController extends Controller
                 ->log('menambahkan data provinsi');
             flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Provinsi', 'Terjadi kesalahan saat menambahkan provinsi', 'error');
-            Log::error('Provinsi Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Store: ', $error);
         } finally {
             return redirect()->route('province.index');
         }
@@ -100,10 +102,11 @@ class ProvinceController extends Controller
                 ->log('memperbarui data provinsi');
             flashMessage('Provinsi Diperbarui', 'Provinsi berhasil diperbarui');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Provinsi', 'Terjadi kesalahan saat memperbarui provinsi', 'error');
-            Log::error('Provinsi Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Update: ', $error);
         } finally {
             return redirect()->route('province.index');
         }
@@ -141,10 +144,11 @@ class ProvinceController extends Controller
                 ->log('menghapus data provinsi');
             flashMessage('Provinsi Dihapus', 'Provinsi berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Provinsi', 'Terjadi kesalahan saat menghapus provinsi', 'error');
-            Log::error('Provinsi Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Delete: ', $error);
         } finally {
             return redirect()->route('province.index');
         }
@@ -172,10 +176,11 @@ class ProvinceController extends Controller
 
             flashMessage('Provinsi Tersinkron', 'Provinsi berhasil disinkronisasi');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
-            Log::error('Provinsi Synchronized: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Synchronized: ', $error);
         }
     }
 

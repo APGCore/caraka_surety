@@ -10,16 +10,18 @@ use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorRate;
 use App\Models\Guarantor\GuarantorToProductType;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Response;
 
 class GuarantorRateController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Inertia\Response
+    public function index(Request $request): Response
     {
         $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
@@ -81,7 +83,7 @@ class GuarantorRateController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request): \Inertia\Response
+    public function create(Request $request): Response
     {
         $request->validate([
             'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
@@ -152,10 +154,11 @@ class GuarantorRateController extends Controller
                 'product_id' => $guarantorRate->getAttribute('product_id'),
                 'job_group' => $guarantorRate->getAttribute('job_group'),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
-            Log::error('Error store guarantor rate', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store guarantor rate', $error);
 
             return back()->with('error', 'Gagal menyimpan data');
         }

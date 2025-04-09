@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringQuestionCategoryResource;
 use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringQuestionCategory;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ScoringQuestionCategoryController extends Controller
 {
@@ -93,9 +95,9 @@ class ScoringQuestionCategoryController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Kategori Pertanyaan Skoring berhasil ditambahkan!');
-        } catch (\Throwable $e) {
-            Log::error('Scoring Question Category Store: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Throwable $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Category Store: ', $error);
             DB::rollBack();
 
             return $this->responseError('Kategori Pertanyaan Skoring gagal ditambahkan', [$e->getMessage()]);
@@ -160,13 +162,12 @@ class ScoringQuestionCategoryController extends Controller
             } else {
                 throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
             }
-        } catch (\Throwable $e) {
-
-            Log::error('Scoring Question Category Update: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Throwable $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Category Update: ', $error);
             DB::rollBack();
 
-            return $this->responseError('Kategori Pertanyaan Skoring gagal ditambahkan', [$e->getMessage()]);
+            return $this->responseError('Kategori Pertanyaan Skoring gagal ditambahkan', $error);
         }
     }
 
@@ -191,10 +192,11 @@ class ScoringQuestionCategoryController extends Controller
             } else {
                 throw new ThrottleRequestsException('Kategori Pertanyaan Skoring tidak ditemukan');
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kategori Pertanyaan Skoring', 'Terjadi kesalahan saat menghapus Kategori Pertanyaan Skoring', 'error');
-            Log::error('Scoring Question Category Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Question Category Delete: ', $error);
         } finally {
             return redirect()->back();
         }

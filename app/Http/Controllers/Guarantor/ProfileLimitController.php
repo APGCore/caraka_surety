@@ -10,6 +10,7 @@ use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile\Profile;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -130,7 +131,7 @@ class ProfileLimitController extends Controller
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
             if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
-                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+                throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
             ProfileLimit::query()->create(
@@ -151,11 +152,12 @@ class ProfileLimitController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Berhasil menambahkan limit kantor');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error store profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store profile limit', $error);
 
-            return $this->responseError('Gagal menambahkan limit kantor', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal menambahkan limit kantor', $error);
         }
     }
 
@@ -190,7 +192,7 @@ class ProfileLimitController extends Controller
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
             if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
-                throw new \Exception('Limit yang diberikan melebihi limit yang tersedia');
+                throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
             $updated = $profileLimit->update(
@@ -200,7 +202,7 @@ class ProfileLimitController extends Controller
                 ]
             );
             if (! $updated) {
-                throw new \Exception('Gagal mengubah limit kantor');
+                throw new Exception('Gagal mengubah limit kantor');
             }
             activity()
                 ->useLog('profile')
@@ -211,11 +213,12 @@ class ProfileLimitController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Berhasil mengubah limit kantor');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error update profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update profile limit', $error);
 
-            return $this->responseError('Gagal mengubah limit kantor', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal mengubah limit kantor', $error);
         }
     }
 
@@ -229,7 +232,7 @@ class ProfileLimitController extends Controller
 
             $deleted = $profileLimit->delete();
             if (! $deleted) {
-                throw new \Exception('Gagal menghapus limit kantor');
+                throw new Exception('Gagal menghapus limit kantor');
             }
             activity()
                 ->useLog('profile')
@@ -237,9 +240,10 @@ class ProfileLimitController extends Controller
                 ->causedBy(auth()->user())
                 ->log('Menghapus limit kantor');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error delete profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error delete profile limit', $error);
         }
     }
 }

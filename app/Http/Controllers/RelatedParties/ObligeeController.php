@@ -7,6 +7,7 @@ use App\Http\Requests\Obligee\StoreRequest;
 use App\Http\Requests\Obligee\UpdateRequest;
 use App\Http\Resources\Obligee\ObligeeResource;
 use App\Models\RelatedParties\Obligee;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,10 +78,11 @@ class ObligeeController extends Controller
                 ->log('Menambahkan data obligee');
             flashMessage('Berhasil', 'Penambahan data obligee berhasil');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data obligee gagal', 'error');
-            Log::error('ObligeeController@store: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('ObligeeController@store: ', $error);
         } finally {
             return redirect()->route('obligee.index');
         }
@@ -141,10 +143,11 @@ class ObligeeController extends Controller
                 ->log('Mengubah data obligee');
             flashMessage('Berhasil', 'Perubahan data obligee berhasil');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Perubahan data obligee gagal', 'error');
-            Log::error('ObligeeController@update: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('ObligeeController@update: ', $error);
         } finally {
             return redirect()->route('obligee.index');
         }
@@ -172,10 +175,11 @@ class ObligeeController extends Controller
                 ->log('Menghapus data obligee');
             flashMessage('Data Obligee Dihapus', 'Data Obligee dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Destroy: ', $error);
         } finally {
             return redirect()->back();
         }

@@ -9,6 +9,8 @@ use App\Http\Resources\Guarantor\BlankResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -45,24 +47,24 @@ class DistributionOfBlankController extends Controller
         $isAddBlank = $request->get('is_add_blank') === 'true';
 
         $blanks = $offices->isNotEmpty()
-            ? Blank::search($request->get('search'))
-                ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
-                    $query
-                        ->with('fromProfile')
-                        ->where('guarantor_id', $guarantorSelected)
-                        ->when($isAddBlank, function ($query) {
-                            $query->whereNull('profile_id')
-                                ->where('is_used', false);
-                        })
-                        ->when(! $isAddBlank, function ($query) use ($officeSelected) {
-                            $query->where('profile_id', $officeSelected);
-                        });
-                })
-                ->orderBy('id')
-                ->paginate($request->get('per_page') ?? 10)
-                ->appends('query', null)
-                ->appends($request->all())
-            : collect();
+          ? Blank::search($request->get('search'))
+              ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
+                  $query
+                      ->with('fromProfile')
+                      ->where('guarantor_id', $guarantorSelected)
+                      ->when($isAddBlank, function ($query) {
+                          $query->whereNull('profile_id')
+                              ->where('is_used', false);
+                      })
+                      ->when(! $isAddBlank, function ($query) use ($officeSelected) {
+                          $query->where('profile_id', $officeSelected);
+                      });
+              })
+              ->orderBy('id')
+              ->paginate($request->get('per_page') ?? 10)
+              ->appends('query', null)
+              ->appends($request->all())
+          : collect();
         $blankResource = BlankResource::collection($blanks);
 
         return inertia($component, [
@@ -109,9 +111,10 @@ class DistributionOfBlankController extends Controller
             DB::commit();
 
             return redirect()->route('blank-management.distribution-of-blank.index', ['office_id', $requestValid['office_id']]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error on DistributionOfBlankController@store: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on DistributionOfBlankController@store: ', $error);
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
 
             return back()->withErrors(['errors' => 'Gagal menyimpan data']);
@@ -143,16 +146,17 @@ class DistributionOfBlankController extends Controller
                 'guarantor_id' => $guarantorId,
                 'office_id' => $profileId,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error on DistributionOfBlankController@destroy: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on DistributionOfBlankController@destroy: ', $error);
             flashMessage('Gagal', 'Gagal menghapus data', 'error');
 
             return back()->withErrors(['errors' => 'Gagal menghapus data']);
         }
     }
 
-    public function getBlankDistributed(Request $request): \Illuminate\Http\JsonResponse
+    public function getBlankDistributed(Request $request): JsonResponse
     {
         $blanks = Blank::query()
             ->where('guarantor_id', $request->get('guarantor_id'))
@@ -164,7 +168,7 @@ class DistributionOfBlankController extends Controller
         return $this->responseSuccess('Data berhasil diambil', $blanks);
     }
 
-    public function getBlankRange(Request $request): \Illuminate\Http\JsonResponse
+    public function getBlankRange(Request $request): JsonResponse
     {
         $blanks = Blank::query()
             ->whereNull('profile_id')
@@ -206,9 +210,10 @@ class DistributionOfBlankController extends Controller
             DB::commit();
 
             return back();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error on DistributionOfBlankController@storeTransfer: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on DistributionOfBlankController@storeTransfer: ', $error);
             flashMessage('Gagal', 'Gagal transfer data', 'error');
 
             return back()->withErrors(['errors' => 'Gagal transfer data']);

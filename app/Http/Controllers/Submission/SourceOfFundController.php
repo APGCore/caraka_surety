@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Submission;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Submission\SourceOfFundsResource;
 use App\Models\Submission\SourceOfFund;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -48,13 +49,10 @@ class SourceOfFundController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Sumber Dana berhasil ditambahkan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('SourceOfFundController@store: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'line' => $e->getLine(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('SourceOfFundController@store: ', $error);
 
             return $this->responseError('Sumber Dana gagal ditambahkan');
         }
@@ -77,13 +75,10 @@ class SourceOfFundController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Sumber Dana berhasil diubah');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('SourceOfFundController@update: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'line' => $e->getLine(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('SourceOfFundController@update: ', $error);
 
             return $this->responseError('Sumber Dana gagal diubah');
         }
@@ -101,14 +96,11 @@ class SourceOfFundController extends Controller
                 ->log('Menghapus sumber dana');
             flashMessage('Success', 'Sumber Dana berhasil dihapus');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Error', 'Sumber Dana gagal dihapus', 'error');
-            Log::error('SourceOfFundController@destroy: ', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'line' => $e->getLine(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('SourceOfFundController@destroy: ', $error);
         }
     }
 

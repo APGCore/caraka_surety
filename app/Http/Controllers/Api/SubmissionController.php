@@ -46,9 +46,10 @@ class SubmissionController extends Controller
 
             return $this->responseSuccess('Berhasil Mengirimkan data');
         } catch (Exception $e) {
-            Log::error('Callback Error: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Callback Error: ', $error);
 
-            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
+            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $error);
         }
     }
 
@@ -180,7 +181,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -229,7 +230,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),

@@ -176,11 +176,8 @@ class SubmissionController extends Controller
             return redirect()->back()->with('success', $messageResponse);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('SubmissionController@store: ', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('SubmissionController@store: ', $error);
 
             if (str_contains($e->getMessage(), 'Blangko')) {
                 flashMessage('Blangko Kosong', $e->getMessage(), 'error');
@@ -1874,7 +1871,8 @@ class SubmissionController extends Controller
                         $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
                     }
                 } catch (Exception $e) {
-                    Log::error('Failed to send data to insurance', ['error' => $e->getMessage()]);
+                    $error = $this->handleErrorMessage($e);
+                    Log::error('Failed to send data to insurance', $error);
                     $messageSend = 'Gagal mengirimkan data ke pihak asuransi';
                 }
             }
@@ -1883,7 +1881,8 @@ class SubmissionController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to approve submission', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to approve submission', $error);
             flashMessage('error', 'Terjadi kesalahan saat menyetujui pengajuan', 'error');
         }
     }
@@ -1913,7 +1912,8 @@ class SubmissionController extends Controller
             }
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to reject submission', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to reject submission', $error);
             flashMessage('error', 'Terjadi kesalahan saat menolak pengajuan', 'error');
         }
     }
@@ -1949,7 +1949,8 @@ class SubmissionController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
-            Log::error('Failed to check submission', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to check submission', $error);
         }
     }
 
@@ -2120,7 +2121,6 @@ class SubmissionController extends Controller
 
     public function send($submissionId): JsonResponse
     {
-        $submission = Submission::find($submissionId);
         $result = $this->sendToGuarantor($submissionId);
 
         if ($result['status'] === 'success') {
@@ -2128,7 +2128,6 @@ class SubmissionController extends Controller
 
             return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
         }
-
         Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
 
         return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
@@ -2234,7 +2233,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -2283,7 +2282,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),

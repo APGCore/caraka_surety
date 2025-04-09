@@ -102,7 +102,8 @@ class GuarantorController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data asuransi gagal', 'error');
-            Log::error('GuarantorController@store: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@store: ', $error);
         }
     }
 
@@ -168,7 +169,8 @@ class GuarantorController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('GuarantorController@update: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@update: ', $error);
             flashMessage('Gagal', 'Perubahan data asuransi gagal', 'error');
         }
     }
@@ -196,7 +198,8 @@ class GuarantorController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Data asuransi gagal dihapus', 'error');
-            Log::error('GuarantorController@destroy: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@destroy: ', $error);
 
             return back()->withErrors($e->getMessage());
         }

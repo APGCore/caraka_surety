@@ -141,7 +141,8 @@ class DocumentFormatController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
-            Log::error('Error store format document', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store format document', $error);
 
             return redirect()->back()->withErrors('Gagal menyimpan data');
         }
@@ -219,7 +220,8 @@ class DocumentFormatController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
-            Log::error('Error update format document', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update format document', $error);
 
             return redirect()->back()->withErrors('Gagal menyimpan data');
         }
@@ -242,7 +244,8 @@ class DocumentFormatController extends Controller
             return redirect()->back()->with('success', 'Berhasil menghapus data');
         } catch (Exception $e) {
             flashMessage('Gagal', 'Gagal menghapus data', 'error');
-            Log::error('Error delete format document', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error delete format document', $error);
 
             return redirect()->back()->withErrors('Gagal menghapus data');
         }

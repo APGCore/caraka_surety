@@ -10,6 +10,7 @@ use App\Http\Resources\Office\ProfileResource;
 use App\Models\OfficePairing;
 use App\Models\Profile\Profile;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -227,9 +228,10 @@ class ProfileController extends Controller
 
             flashMessage('Berhasil', 'Berhasil ditambahkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Menambahkan', 'Terjadi kesalahan saat menambahkan', 'error');
-            Log::error('Profil Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Store: ', $error);
             DB::rollBack();
         }
     }
@@ -296,15 +298,11 @@ class ProfileController extends Controller
             DB::commit();
 
             // return redirect()->route($redirectRoute);
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Diperbarui', 'Terjadi kesalahan saat memperbarui', 'error');
-            Log::error('Profil Update: '.json_encode([
-                'message' => $th->getMessage(),
-                'line' => $th->getLine(),
-            ], JSON_PRETTY_PRINT));
-
-            dd($th);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Update: ', $error);
 
             // return redirect()->back()->withErrors($th->getMessage());
         }
@@ -327,10 +325,11 @@ class ProfileController extends Controller
                 ->log('Menghapus Kantor Cabang');
             flashMessage('Hapus', 'Berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus', 'Terjadi kesalahan saat menghapus', 'error');
-            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Destroy: ', $error);
         } finally {
             return redirect()->back();
         }

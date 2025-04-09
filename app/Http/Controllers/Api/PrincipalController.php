@@ -10,6 +10,7 @@ use App\Http\Resources\Principal\PrincipalDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,11 +36,12 @@ class PrincipalController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Data Principal Berhasil Ditambahkan', new PrincipalResource($principal));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('PrincipalController@store: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@store: ', $error);
 
-            return $this->responseError('Data Principal Gagal Ditambahkan', $e->getMessage());
+            return $this->responseError('Data Principal Gagal Ditambahkan', $error);
         }
     }
 
@@ -61,11 +63,12 @@ class PrincipalController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Data Principal Berhasil Diubah', new PrincipalResource($principal));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('PrincipalController@update: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@update: ', $error);
 
-            return $this->responseError('Data Principal Gagal Diubah', $e->getMessage());
+            return $this->responseError('Data Principal Gagal Diubah', $error);
         }
     }
 
@@ -122,8 +125,8 @@ class PrincipalController extends Controller
             $requiredDoc = RequiredDoc::query()->firstWhere('id', $requiredDocId);
 
             $principalName = $principal->getAttribute('name')
-                ? str_replace(' ', '_', $principal->getAttribute('name'))
-                : 'principal';
+              ? str_replace(' ', '_', $principal->getAttribute('name'))
+              : 'principal';
             $path = "principal/{$principal->getAttribute('id')}-{$principalName}/documents";
 
             $url = $this->uploadFile(
@@ -145,11 +148,12 @@ class PrincipalController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Dokumen berhasil diunggah', $document);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('PrincipalController@uploadDocument: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@uploadDocument: ', $error);
 
-            return $this->responseError('Gagal mengunggah dokumen', $e->getMessage());
+            return $this->responseError('Gagal mengunggah dokumen', $error);
         }
     }
 }

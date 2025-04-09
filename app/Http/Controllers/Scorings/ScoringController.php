@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Scorings;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Scoring\ScoringResource;
 use App\Models\Scoring\Scoring;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -81,12 +82,12 @@ class ScoringController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Skoring berhasil ditambahkan');
-        } catch (\Throwable $e) {
-            Log::error('Scoring Store: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Exception $e) {
             DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Store: ', $error);
 
-            return $this->responseError('Skoring gagal ditambahkan', [$e->getMessage()]);
+            return $this->responseError('Skoring gagal ditambahkan', $error);
         }
     }
 
@@ -149,13 +150,12 @@ class ScoringController extends Controller
             } else {
                 throw new ThrottleRequestsException('Skoring tidak ditemukan');
             }
-        } catch (\Throwable $e) {
-
-            Log::error('Scoring Update: '.json_encode($e->getMessage(), JSON_PRETTY_PRINT));
-
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Update: ', $error);
             DB::rollBack();
 
-            return $this->responseError('Skoring gagal diedit', [$e->getMessage()]);
+            return $this->responseError('Skoring gagal diedit', $error);
         }
     }
 
@@ -180,10 +180,11 @@ class ScoringController extends Controller
             } else {
                 throw new ThrottleRequestsException('Skoring tidak ditemukan');
             }
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Skoring', 'Terjadi kesalahan saat menghapus Skoring', 'error');
-            Log::error('Scoring Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Scoring Delete: ', $error);
         } finally {
             return redirect()->back();
         }

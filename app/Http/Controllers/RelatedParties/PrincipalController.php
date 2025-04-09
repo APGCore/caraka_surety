@@ -13,6 +13,7 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\RelatedParties\Principal;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -151,10 +152,11 @@ class PrincipalController extends Controller
                 ->log('update data principal');
             flashMessage('Berhasil', 'Perubahan data principal berhasil');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Perubahan data principal gagal', 'error');
-            Log::error('PrincipalController@update: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@update: ', $error);
         } finally {
             return redirect()->route('principal.index');
         }
@@ -180,10 +182,11 @@ class PrincipalController extends Controller
                 ->log('Menghapus data obligee');
             flashMessage('Data Obligee Dihapus', 'Data Obligee dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
-            Log::error('Profil Destroy: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Destroy: ', $error);
         } finally {
             return redirect()->back();
         }
