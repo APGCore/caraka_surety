@@ -1,3 +1,5 @@
+import { FetchParams } from "@/_features/_common/types/fetch";
+import { QuerySetting } from "@/_features/_common/types/react-query";
 import { QueryOptions, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -5,6 +7,26 @@ export const LOCATION_QUERY_KEY = {
   PROVINCE: "province",
   REGENCY_BY_PROVINCE_ID: "regencyByProvinceId",
   DISTRICT_BY_REGENCY_ID: "districtByRegencyId",
+};
+
+export const useSearchProvinces = <TResponse = unknown>(
+  params: FetchParams,
+  querySetting?: QuerySetting<TResponse>,
+) => {
+  return useQuery({
+    queryKey: [LOCATION_QUERY_KEY.PROVINCE, params?.perPage, params?.search, params?.page],
+    queryFn: async () => {
+      const response = await axios.get(
+        route("api.location-management.province.search", {
+          per_page: params?.perPage,
+          search: params?.search,
+          page: params?.page,
+        }),
+      );
+      return response.data as TResponse;
+    },
+    ...querySetting,
+  });
 };
 
 export const useGetAllProvince = (querySetting?: QueryOptions) => {
