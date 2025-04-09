@@ -148,7 +148,6 @@ class OfficeRateController extends Controller
             ];
 
             $guarantorRate = ProfileRate::query()
-                ->with('profile')
                 ->updateOrCreate(
                     [
                         'profile_id' => $requestValid['profile_id'],
@@ -158,7 +157,7 @@ class OfficeRateController extends Controller
                     ],
                     $data
                 );
-            $officeTypeSelected = $guarantorRate->getRelation('profile')?->office_type;
+            $officeTypeSelected = $guarantorRate->load('profile')->getRelation('profile')?->office_type;
             $officeType = OfficeType::getNameOfValue()[$officeTypeSelected];
             activity()
                 ->useLog('office-rate')
