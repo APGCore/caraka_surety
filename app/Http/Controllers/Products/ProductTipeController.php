@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductTypeResource;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\ProductType;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,9 +85,10 @@ class ProductTipeController extends Controller
                 ->log('Menambahkan Jenis Produk');
             flashMessage('Jenis Produk Ditambahkan', 'Jenis Produk berhasil ditambahkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Menambahkan Jenis Produk', 'Terjadi kesalahan saat menambahkan jenis produk', 'error');
-            Log::error('Jenis Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Jenis Produk Store: ', $error);
             DB::rollBack();
         } finally {
             return redirect()->route('product-types.index');
@@ -150,10 +152,11 @@ class ProductTipeController extends Controller
                 ->log('Mengubah Jenis Produk');
             flashMessage('Jenis Produk Diperbarui', 'Jenis Produk berhasil diperbarui');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Jenis Produk', 'Terjadi kesalahan saat memperbarui Jenis Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Produk Update: ', $error);
         } finally {
             return redirect()->route('product-types.index');
         }
@@ -181,10 +184,11 @@ class ProductTipeController extends Controller
                 ->log('Menghapus Jenis Produk');
             flashMessage('Jenis Produk Dihapus', 'Jenis Produk berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Jenis Produk', 'Terjadi kesalahan saat menghapus Jenis Produk', 'error');
-            Log::error('Jenis Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Jenis Produk Delete: ', $error);
         } finally {
             return redirect()->back();
         }

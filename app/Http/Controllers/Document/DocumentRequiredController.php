@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Document\RequiredDoc;
 use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Principal;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class DocumentRequiredController extends Controller
 {
@@ -145,10 +145,11 @@ class DocumentRequiredController extends Controller
                 ->causedBy(auth()->user())
                 ->log('Menghapus data required dokumen');
             Log::info('Produk Delete: '.json_encode($requiredDoc, JSON_PRETTY_PRINT));
-        } catch (Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Required Document', 'Terjadi kesalahan saat menghapus document required', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Produk Delete: ', $error);
         } finally {
             return redirect()->back();
         }

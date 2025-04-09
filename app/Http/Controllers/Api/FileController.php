@@ -17,9 +17,10 @@ class FileController extends Controller
 
             return response()->redirectTo($url);
         } catch (Exception $e) {
-            Log::error('Get File Error: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Get File Error: ', $error);
 
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil File', $e->getMessage());
+            return $this->responseError('Terjadi Kesalahan Saat Mengambil File', $error);
         }
     }
 }

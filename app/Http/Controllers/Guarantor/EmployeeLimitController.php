@@ -160,9 +160,10 @@ class EmployeeLimitController extends Controller
             return $this->responseSuccess('Berhasil menambahkan limit pengguna');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error store profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store profile limit', $error);
 
-            return $this->responseError('Gagal menambahkan limit pengguna', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal menambahkan limit pengguna', $error);
         }
     }
 
@@ -204,9 +205,10 @@ class EmployeeLimitController extends Controller
             return $this->responseSuccess('Berhasil mengubah limit pengguna');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error update profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update profile limit', $error);
 
-            return $this->responseError('Gagal mengubah limit pengguna', ['message' => $e->getMessage()]);
+            return $this->responseError('Gagal mengubah limit pengguna', $error);
         }
     }
 
@@ -226,7 +228,8 @@ class EmployeeLimitController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error delete profile limit', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error delete profile limit', $error);
         }
     }
 }

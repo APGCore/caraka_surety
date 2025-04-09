@@ -6,6 +6,7 @@ use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Http\Requests\Auth\ProfileUpdateRequest;
 use App\Models\Profile\Profile;
+use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,10 +14,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function edit(Request $request): \Inertia\Response
+    public function edit(Request $request): Response
     {
         $profile = Profile::query()
             ->where('office_type', OfficeType::HEADQUARTER->value)
@@ -63,9 +65,10 @@ class UserController extends Controller
             DB::commit();
 
             return redirect()->route('profile.edit');
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Memperbarui Kantor Cabang', 'Terjadi kesalahan saat memperbarui kantor cabang', 'error');
-            Log::error('Profil Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Profil Update: ', $error);
             DB::rollBack();
 
             return redirect()->back();

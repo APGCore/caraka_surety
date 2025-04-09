@@ -9,6 +9,8 @@
   "license": "MIT",
   "require": {
     "php": "^8.2",
+    "ext-curl": "*",
+    "aws/aws-sdk-php": "^3.342",
     "inertiajs/inertia-laravel": "^1.0",
     "laravel/framework": "^11.9",
     "laravel/sanctum": "^4.0",
@@ -19,8 +21,7 @@
     "riskihajar/terbilang": "^2.0",
     "spatie/laravel-activitylog": "^4.9",
     "tecnickcom/tcpdf": "^6.8",
-    "tightenco/ziggy": "^2.3",
-    "ext-curl": "*"
+    "tightenco/ziggy": "^2.3"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.14",

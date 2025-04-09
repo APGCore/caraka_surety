@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Products;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product\Product;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,13 +100,14 @@ class ProductController extends Controller
             DB::commit();
 
             return redirect()->route('products.index');
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             flashMessage('Gagal Menambahkan Produk', 'Terjadi kesalahan saat menambahkan produk', 'error');
-            Log::error('Produk Store: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Produk Store: ', $error);
 
             DB::rollBack();
 
-            return redirect()->back()->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -187,10 +189,11 @@ class ProductController extends Controller
                 ->log('Mengubah data produk');
             flashMessage('Produk Diperbarui', 'Produk berhasil diperbarui');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Produk', 'Terjadi kesalahan saat memperbarui Produk', 'error');
-            Log::error('Produk Update: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Produk Update: ', $error);
         } finally {
             return redirect()->route('products.index');
         }
@@ -217,10 +220,11 @@ class ProductController extends Controller
                 ->log('Menghapus data produk');
             flashMessage('Produk Dihapus', 'Produk berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Produk', 'Terjadi kesalahan saat menghapus Produk', 'error');
-            Log::error('Produk Delete: '.json_encode($th->getMessage(), JSON_PRETTY_PRINT));
+            $error = $this->handleErrorMessage($e);
+            Log::error('Produk Delete: ', $error);
         } finally {
             return redirect()->back();
         }

@@ -9,6 +9,7 @@ use App\Http\Requests\Guarantor\Product\StoreRequest;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -90,15 +91,12 @@ class GuarantorToProductTypeController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Data produk asuransi berhasil disimpan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error store guarantor to product type', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store guarantor to product type', $error);
 
-            return $this->responseError('Data produk asuransi gagal disimpan', $e->getMessage());
+            return $this->responseError('Data produk asuransi gagal disimpan', $error);
         }
     }
 
@@ -118,15 +116,12 @@ class GuarantorToProductTypeController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Data produk asuransi berhasil dihapus');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error destroy guarantor to product type', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error destroy guarantor to product type', $error);
 
-            return $this->responseError('Data produk asuransi gagal dihapus', $e->getMessage());
+            return $this->responseError('Data produk asuransi gagal dihapus', $error);
         }
     }
 }

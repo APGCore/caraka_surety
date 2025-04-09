@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\HostToHostResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\HostToHost;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -84,11 +85,9 @@ class HostToHostController extends Controller
                 ->log('Menambahkan data host to host');
             flashMessage('success', 'Data Host To Host Berhasil Ditambahkan');
             DB::commit();
-        } catch (\Exception $e) {
-            Log::error('HostToHostController@store: ', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-            ]);
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('HostToHostController@store: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Ditambahkan');
             DB::rollBack();
         } finally {
@@ -131,11 +130,9 @@ class HostToHostController extends Controller
                 ->log('Mengubah data host to host');
             flashMessage('success', 'Data Host To Host Berhasil Diubah');
             DB::commit();
-        } catch (\Exception $e) {
-            Log::error('HostToHostController@update: ', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-            ]);
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('HostToHostController@update: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Diubah');
             DB::rollBack();
         } finally {
@@ -160,11 +157,9 @@ class HostToHostController extends Controller
                 flashMessage('success', 'Data Host To Host Berhasil Dihapus');
             }
             DB::commit();
-        } catch (\Exception $e) {
-            Log::error('HostToHostController@destroy: ', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-            ]);
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('HostToHostController@destroy: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Dihapus');
             DB::rollBack();
         } finally {

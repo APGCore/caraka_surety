@@ -12,16 +12,18 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Profile\Profile;
 use App\Models\Profile\ProfileRate;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Response;
 
 class OfficeRateController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Inertia\Response
+    public function index(Request $request): Response
     {
         $officeTypes = OfficeType::getName();
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
@@ -92,7 +94,7 @@ class OfficeRateController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request): \Inertia\Response
+    public function create(Request $request): Response
     {
         $request->validate([
             'profile_id' => 'required|exists:'.Profile::class.',id,deleted_at,NULL',
@@ -146,7 +148,6 @@ class OfficeRateController extends Controller
             ];
 
             $guarantorRate = ProfileRate::query()
-                ->with('profile')
                 ->updateOrCreate(
                     [
                         'profile_id' => $requestValid['profile_id'],
@@ -156,7 +157,7 @@ class OfficeRateController extends Controller
                     ],
                     $data
                 );
-            $officeTypeSelected = $guarantorRate->getRelation('profile')?->office_type;
+            $officeTypeSelected = $guarantorRate->load('profile')->getRelation('profile')?->office_type;
             $officeType = OfficeType::getNameOfValue()[$officeTypeSelected];
             activity()
                 ->useLog('office-rate')
@@ -175,10 +176,11 @@ class OfficeRateController extends Controller
                 'product_id' => $guarantorRate->getAttribute('product_id'),
                 'job_group' => $guarantorRate->getAttribute('job_group'),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Gagal menyimpan data', 'error');
-            Log::error('Error store guarantor rate', ['error' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store office rate', $error);
 
             return back()->with('error', 'Gagal menyimpan data');
         }

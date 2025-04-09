@@ -46,9 +46,10 @@ class SubmissionController extends Controller
 
             return $this->responseSuccess('Berhasil Mengirimkan data');
         } catch (Exception $e) {
-            Log::error('Callback Error: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Callback Error: ', $error);
 
-            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $e->getMessage());
+            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $error);
         }
     }
 

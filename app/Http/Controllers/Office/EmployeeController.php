@@ -9,6 +9,7 @@ use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Profile\Profile;
 use App\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -220,9 +221,10 @@ class EmployeeController extends Controller
             DB::commit();
 
             return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error on EmployeeController@store: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on EmployeeController@store: ', $error);
 
             flashMessage('Gagal', 'Penambahan data pengguna gagal', 'error');
 
@@ -292,9 +294,10 @@ class EmployeeController extends Controller
             DB::commit();
 
             return redirect()->route($routeName.'.index', ['office_id' => $user->profile_id]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error("Error on EmployeeController@update: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on EmployeeController@update: ', $error);
 
             flashMessage('Gagal', 'Perubahan data pengguna gagal', 'error');
 
@@ -335,9 +338,10 @@ class EmployeeController extends Controller
             DB::commit();
 
             return redirect()->back();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             flashMessage('Gagal Menghapus Pengguna', 'Terjadi kesalahan saat menghapus pengguna', 'error');
-            Log::error("Error on EmployeeController@destroy: {$e->getMessage()}");
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on EmployeeController@destroy: ', $error);
             DB::rollBack();
 
             return back()->withErrors(['errors' => 'Gagal menghapus data pengguna']);

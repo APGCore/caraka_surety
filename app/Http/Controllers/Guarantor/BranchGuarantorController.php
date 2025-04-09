@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Guarantor\Branch\StoreRequest;
 use App\Http\Resources\Guarantor\GuarantorResource;
 use App\Models\Guarantor\Guarantor;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Response;
 
 class BranchGuarantorController extends Controller
 {
@@ -56,7 +58,7 @@ class BranchGuarantorController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Guarantor $guarantor): \Inertia\Response
+    public function create(Guarantor $guarantor): Response
     {
         $component = $this->component.'create/index';
 
@@ -93,20 +95,21 @@ class BranchGuarantorController extends Controller
                 ->log('Menambahkan data cabang asuransi');
             flashMessage('Berhasil', 'Penambahan data cabang asuransi berhasil');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data cabang asuransi gagal', 'error');
-            Log::error('GuarantorController@store: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@store: ', $error);
         }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Guarantor $branchGuarantor): \Inertia\Response
+    public function edit(Guarantor $branchGuarantor): Response
     {
         $picture = $branchGuarantor->getAttribute('picture') ?
-            Storage::url($branchGuarantor->getAttribute('picture')) : '';
+          Storage::url($branchGuarantor->getAttribute('picture')) : '';
         $branchGuarantor->setAttribute('picture', $picture);
         $branchGuarantor->load(['pattern', 'head']);
 
@@ -148,9 +151,10 @@ class BranchGuarantorController extends Controller
                 ->log('Mengubah data cabang asuransi');
             flashMessage('Berhasil', 'Perubahan data cabang asuransi berhasil');
             DB::commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::error('GuarantorController@update: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@update: ', $error);
             flashMessage('Gagal', 'Perubahan data cabang asuransi gagal', 'error');
         }
     }
@@ -175,10 +179,11 @@ class BranchGuarantorController extends Controller
             DB::commit();
 
             return back();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             flashMessage('Gagal', 'Data cabang asuransi gagal dihapus', 'error');
-            Log::error('GuarantorController@destroy: ', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('GuarantorController@destroy: ', $error);
 
             return back()->withErrors($e->getMessage());
         }

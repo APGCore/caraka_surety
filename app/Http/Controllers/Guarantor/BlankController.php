@@ -95,10 +95,11 @@ class BlankController extends Controller
 
             return $this->responseSuccess('Blangko berhasil ditambahkan');
         } catch (Exception $e) {
-            Log::error('Error store blank', [$e->getMessage()]);
             DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store blank', $error);
 
-            return $this->responseError('Blangko gagal ditambahkan', [$e->getMessage()]);
+            return $this->responseError('Blangko gagal ditambahkan', $error);
         }
     }
 
@@ -136,10 +137,11 @@ class BlankController extends Controller
 
             return $this->responseSuccess('Blangko berhasil ditambahkan', 'Blangko berhasil ditambahkan');
         } catch (Exception $e) {
-            Log::error('Error store multi blank', [$e->getMessage()]);
             DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store multi blank', $error);
 
-            return $this->responseError('Blangko gagal ditambahkan', [$e->getMessage()]);
+            return $this->responseError('Blangko gagal ditambahkan', $error);
         }
     }
 
@@ -165,13 +167,14 @@ class BlankController extends Controller
 
             return $this->responseSuccess('Blangko berhasil diubah');
         } catch (Exception $e) {
-            Log::error('Error update blank', [$e->getMessage()]);
             DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update blank', $error);
 
             if ($e->getCode() === 400) {
-                return $this->responseError($e->getMessage(), ['errors' => $e->getMessage()]);
+                return $this->responseError($e->getMessage(), $error);
             } else {
-                return $this->responseError('Blangko gagal diubah', ['errors' => $e->getMessage()]);
+                return $this->responseError('Blangko gagal diubah', $error);
             }
         }
     }
@@ -197,7 +200,8 @@ class BlankController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error destroy blank', [$e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error destroy blank', $error);
             if ($e->getCode() === 400) {
                 flashMessage('Gagal', $e->getMessage(), 'error');
             } else {
@@ -271,10 +275,11 @@ class BlankController extends Controller
 
             return $this->responseSuccess('Blangko berhasil diterima');
         } catch (Exception $e) {
-            Log::error('Error acc blanks', [$e->getMessage()]);
             DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error acc blanks', $error);
 
-            return $this->responseError('Blangko gagal diterima', [$e->getMessage()]);
+            return $this->responseError('Blangko gagal diterima', $error);
         }
     }
 
