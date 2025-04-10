@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Submission;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
+use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Product\Product;
 use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
@@ -43,6 +45,76 @@ class SubmissionController extends Controller
         Carbon::setLocale('id');
         $this->hostToHostService = $hostToHostService;
         $this->guarantorId = config('guarantor.id');
+    }
+
+    public function index(Request $request)
+    {
+        $date = collect($request->get('date') ?? [
+            now()->subDays(7)->toDateString().' 00:00:00',
+            now()->toDateString().' 23:59:59',
+        ])->values();
+        $guarantors = Guarantor::query()
+            ->whereNull('headquarter_id')
+            ->with('guarantorToProductTypes')
+            ->get(['id', 'name']);
+        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->getAttribute('id'));
+        $products = Product::query()
+            ->with('productType')
+            ->get(['id', 'name']);
+        $productSelected = $request->get('product_id');
+        $product = $products->firstWhere('id', $productSelected);
+        $productTypes = $product ? $product->productType : [];
+        $productTypeSelected = $request->get('product_type_id');
+        $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
+            ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
+
+        $submissions = Submission::search($request->get('search'))
+            ->query(function ($query) use ($date, $guarantorSelected, $productSelected, $guarantorToProductType) {
+                return $query->when($date->isNotEmpty(), function ($query) use ($date) {
+                    $query->whereBetween('created_at', $date);
+                })->when($guarantorSelected !== null, function ($query) use ($guarantorSelected) {
+                    $query->where('guarantor_id', $guarantorSelected);
+                })->when($productSelected !== null, function ($query) use ($productSelected) {
+                    $query->where('product_id', $productSelected);
+                })->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
+                    $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
+                })
+                    ->with([
+                        'guarantor:id,name,code',
+                        'guarantorBranch:id,name,code',
+                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                        'guarantor.guarantorRate',
+                        'product:id,name',
+                        'guarantorToProductType:id,code_product,code,name',
+                        'blanks:id,number,is_broken',
+                        'principal:id,name',
+                        'obligee:id,name',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name,code,office_type',
+                        'staff.office.profileRate',
+                    ]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+
+        $resource = SubmissionResource::collection($submissions);
+        $component = 'admin/submission-management/list/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Daftar Pengajuan',
+            ],
+            'submissions' => fn () => $resource,
+            'guarantors' => $guarantors->map->only('id', 'name'),
+            'guarantorSelected' => $guarantorSelected,
+            'products' => $products,
+            'productSelected' => (int) $productSelected,
+            'productTypes' => $productTypes,
+            'productTypeSelected' => (int) $productTypeSelected,
+        ]);
+
     }
 
     /**
