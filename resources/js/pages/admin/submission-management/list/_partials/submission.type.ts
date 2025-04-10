@@ -1,17 +1,13 @@
 import React from "react";
 
-interface Document {
-  name: string;
-}
-
-interface ScoringQuestion {
-  name: string;
-  // Tambahkan properti lain jika ada
-}
-
 interface SubmissionProps {
   submissions: any;
-  scoringQuestions?: ScoringQuestion;
+  guarantors: any;
+  guarantorSelected: number;
+  products: any;
+  productSelected: number;
+  productTypes: any;
+  productTypeSelected: number;
 }
 
 export type SubmissionPageProps = React.FC<SubmissionProps> & {

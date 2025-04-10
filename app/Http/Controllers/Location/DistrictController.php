@@ -52,8 +52,7 @@ class DistrictController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-
-        $request->validate([
+        $reqValidated = $request->validate([
             'regency_id' => 'required|exists:regencies,id',
             'code' => 'required|string|unique:districts,code',
             'name' => 'required|string|unique:districts,name',
@@ -80,7 +79,7 @@ class DistrictController extends Controller
             if (! $regency) {
                 flashMessage('Gagal Menambahkan Kecamatan', 'Kecamatan sudah ada', 'error');
 
-                return redirect()->back()->withErrors($validatedData->errors());
+                return redirect()->back()->withInput($reqValidated);
             }
             activity()
                 ->useLog('district')
@@ -89,7 +88,7 @@ class DistrictController extends Controller
                 ->log('Menambahkan Kecamatan');
             flashMessage('Kecamatan Ditambahkan', 'Kecamatan berhasil ditambahkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menambahkan Kecamatan', 'Terjadi kesalahan saat menambahkan kecamatan', 'error');
             $error = $this->handleErrorMessage($e);
@@ -117,7 +116,7 @@ class DistrictController extends Controller
 
             flashMessage('Kecamatan Diperbarui', 'Kecamatan berhasil diperbarui');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Memperbarui Kecamatan', 'Terjadi kesalahan saat memperbarui kecamatan', 'error');
             $error = $this->handleErrorMessage($e);
@@ -143,7 +142,7 @@ class DistrictController extends Controller
 
             flashMessage('Kecamatan Dihapus', 'Kecamatan berhasil dihapus');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             DB::rollBack();
             flashMessage('Gagal Menghapus Kecamatan', 'Terjadi kesalahan saat menghapus kecamatan', 'error');
             $error = $this->handleErrorMessage($e);
@@ -189,9 +188,9 @@ class DistrictController extends Controller
 
             flashMessage('Kecamatan Disinkronkan', 'Kecamatan berhasil disinkronkan');
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($th->getMessage(), JSON_PRETTY_PRINT), 'error');
+            flashMessage('Gagal Menyinkronkan Kecamatan', json_encode($e->getMessage(), JSON_PRETTY_PRINT), 'error');
             $error = $this->handleErrorMessage($e);
             Log::error('Kecamatan Sync: ', $error);
         }
