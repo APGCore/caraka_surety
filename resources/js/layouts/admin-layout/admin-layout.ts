@@ -166,6 +166,11 @@ export const adminRoute: IAppSideBarMenu[] = [
     icon: Building,
     items: [
       {
+        title: "Principal",
+        route_name: "principal",
+        href: route("principal.index"),
+      },
+      {
         title: "Obligee",
         route_name: "obligee",
         href: route("obligee.index"),
@@ -213,14 +218,14 @@ export const adminRoute: IAppSideBarMenu[] = [
         href: route("source-of-funds.index"),
       },
       {
-        title: "Daftar Pengajuan",
-        route_name: "submission",
-        href: route("submission.index"),
-      },
-      {
         title: "Format Dokumen",
         route_name: "document-format",
         href: route("document-format.index"),
+      },
+      {
+        title: "Daftar Pengajuan",
+        route_name: "submission",
+        href: route("submission.index"),
       },
     ],
   },

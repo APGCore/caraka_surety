@@ -1,4 +1,5 @@
 import { formatCurrency } from "@/common/utils/format-currency";
+import { Badge } from "@/components/_shadcn-ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
@@ -33,7 +34,12 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                 <TableRow key={submission.id}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
-                  <TableCell>{submission.blank?.number}</TableCell>
+                  <TableCell className={"text-center"}>
+                    <h3>{submission.blank?.number}</h3>
+                    {submission.submission_before && (
+                      <Badge>Revisi Dari Brangko {submission.submission_before.blank.number}</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
