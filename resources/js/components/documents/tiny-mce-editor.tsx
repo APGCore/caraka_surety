@@ -76,7 +76,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
       const converted = window.htmlDocx.asBlob(editorContent);
 
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(converted);
+      link.href = URL.createObjectURL(converted);9
       link.download = `${id}-document.docx`;
       document.body.appendChild(link);
       link.click();

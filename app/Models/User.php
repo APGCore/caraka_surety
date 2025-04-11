@@ -91,4 +91,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'head_id');
     }
+
+    public function head(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'head_id');
+    }
+
 }

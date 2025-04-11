@@ -575,6 +575,7 @@ class SubmissionController extends Controller
         $submission->start_date = Carbon::parse($submission->start_date)->translatedFormat('d F Y');
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
+        $submission->contract_doc_date = Carbon::parse($submission->contract_doc_date)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
 
         $submission->document_format_analysis = DocumentFormat::whereNull('guarantor_id')
@@ -832,9 +833,13 @@ class SubmissionController extends Controller
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+        $submission->contract_doc_date = Carbon::parse($submission->contract_doc_date)->translatedFormat('d F Y');
+
 
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+
+        $submission->manager_technique_name = $submission->user->head->name ?? '-';
 
         if ($submission->callback) {
             $callback = collect([
@@ -1086,8 +1091,12 @@ class SubmissionController extends Controller
         $submission->end_date = Carbon::parse($submission->end_date)->translatedFormat('d F Y');
         $submission->guarantee_issue_date = Carbon::parse($submission->approved_at)->translatedFormat('d F Y');
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
+        $submission->contract_doc_date = Carbon::parse($submission->contract_doc_date)->translatedFormat('d F Y');
+
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+
 
         if ($submission->callback) {
             $callback = collect([
@@ -1098,6 +1107,8 @@ class SubmissionController extends Controller
             unset($submission->callback);
             $submission->callback = $callback;
         }
+
+
 
         return inertia('direksi/submission-management/history/detail/index', [
             'submission' => $submission,
@@ -1331,6 +1342,8 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
+        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+
 
         if ($submission->callback) {
             $callback = collect([

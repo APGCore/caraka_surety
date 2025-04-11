@@ -354,7 +354,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     recommendation: submission.recommendation,
     notes: submission.notes,
     analyst_name: submission.analyst_name || "",
-    manager_technique_name: submission.principal?.commissioner || "",
+    manager_technique_name: submission.manager_technique_name || "",
 
     // Informasi Tambahan
     branch_manager: submission.principal?.director_name || "",
