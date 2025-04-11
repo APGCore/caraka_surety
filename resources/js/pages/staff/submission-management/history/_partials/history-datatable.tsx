@@ -85,7 +85,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                       </Button>
                     </Show>
                     <Show when={submission.status === "approved" && submission.is_revised}>
-                      <Button variant="outline" size="sm">
+                      <Button variant="secondary" size="sm">
                         Di Revisi
                       </Button>
                     </Show>

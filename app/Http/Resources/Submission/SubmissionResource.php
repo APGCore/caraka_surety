@@ -72,6 +72,12 @@ class SubmissionResource extends JsonResource
             'central_office_rate' => $this->resource->central_office_rate,
             'branch_office_rate' => $this->resource->branch_office_rate,
             'guarantor_rate' => $this->resource->guarantor_rate,
+            'submission_before' => $this->whenLoaded('submissionBefore', function () {
+                return [
+                    'id' => $this->resource->submissionBefore->id,
+                    'blank' => $this->resource->submissionBefore->blanks->select(['number'])->firstWhere('is_broken', false),
+                ];
+            }),
         ];
     }
 }

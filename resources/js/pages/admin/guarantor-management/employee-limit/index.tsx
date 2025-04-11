@@ -102,6 +102,8 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
       guarantor_product_type_id: guarantorProductTypeId,
       office_type: officeTypeSelected,
       profile_id: profileSelected,
+      job_group: jobGroupSelected,
+      job_type: jobTypeSelected,
     };
     getData(data);
   };

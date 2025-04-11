@@ -92,6 +92,8 @@ class SubmissionController extends Controller
                         'staff:id,name,profile_id',
                         'staff.office:id,name,code,office_type',
                         'staff.office.profileRate',
+                        'submissionBefore:id,no_guarantee',
+                        'submissionBefore.blanks',
                     ]);
             })
             ->orderBy('created_at', 'desc')
@@ -156,9 +158,6 @@ class SubmissionController extends Controller
             // get blanks
             $blank = Blank::query()
                 ->firstWhere('id', $submission['blank_id']);
-
-            // update blank
-            $blank->update(['is_used' => true]);
 
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
@@ -1912,11 +1911,11 @@ class SubmissionController extends Controller
             ]);
 
             if (! $updated) {
-                flashMessage('error', 'Gagal menyetujui pengajuan', 'error');
-
-                return;
+                throw new Exception('Failed to approve submission');
             }
-
+            $submission->load('blanks');
+            $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
+            $blank->update(['is_used' => true]);
             $documents = $request->input('documents', []);
             if (count($documents) > 0) {
                 $submission->submissionDocs()->delete();

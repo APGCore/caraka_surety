@@ -40,15 +40,20 @@ const InvoicePage: InvoicePageProps = ({
     getData({ searchValue: search });
   };
 
+  const convertDate = (date: DateRange | undefined) => {
+    if (date?.from && date?.to) {
+      return {
+        from: date.from.toLocaleDateString("en-CA") + " 00:00:00",
+        to: date.to.toLocaleDateString("en-CA") + " 23:59:59",
+      };
+    }
+    return undefined;
+  };
+
   const handleChangeDate = (dateRange: DateRange | undefined) => {
     setFilterDate(dateRange);
     if (dateRange?.from && dateRange?.to) {
-      const dates = {
-        from:
-          (dateRange?.from?.toLocaleDateString("en-CA") || subDays(new Date(), 7).toLocaleDateString("en-CA")) +
-          " 00:00:00",
-        to: (dateRange?.to?.toLocaleDateString("en-CA") || new Date().toLocaleDateString("en-CA")) + " 23:59:59",
-      };
+      const dates = convertDate(dateRange);
       getData({ date: dates });
     }
   };
@@ -68,14 +73,14 @@ const InvoicePage: InvoicePageProps = ({
   const getData = ({
     per_page = perPage,
     searchValue = search,
-    date,
+    date = convertDate(filterDate),
     guarantor_id = guarantorSelected,
     product_id = productSelected,
     product_type_id = productTypeSelected,
   }: {
     per_page?: string;
     searchValue?: string;
-    date?: { from: string; to: string };
+    date?: { from: string; to: string } | undefined;
     guarantor_id?: number;
     product_id?: number | null;
     product_type_id?: number | null;
