@@ -134,15 +134,13 @@ class ProfileLimitController extends Controller
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
-            ProfileLimit::query()->create(
-                [
-                    'guarantor_id' => $requestValid['guarantor_id'],
-                    'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
-                    'profile_id' => $requestValid['profile_id'],
-                    'limit' => $limit,
-                    'limit_inherit' => $limitInherit,
-                ]
-            );
+            ProfileLimit::query()->create([
+                'guarantor_id' => $requestValid['guarantor_id'],
+                'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
+                'profile_id' => $requestValid['profile_id'],
+                'limit' => $limit,
+                'limit_inherit' => $limitInherit,
+            ]);
             activity()
                 ->useLog('profile')
                 ->performedOn(new ProfileLimit)
