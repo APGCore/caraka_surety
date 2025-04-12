@@ -64,7 +64,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                     className="bg-white text-black shadow-sm hover:bg-white px-2 py-1.5 text-sm w-full rounded-sm text-start"
                     onClick={(e) => {
                       e.preventDefault();
-                      router.visit(route("kepala-cabang-submission.detail", submission.id));
+                      router.visit(route("kepala-cabang-submission-detail.submission", submission.id));
                     }}>
                     Detail
                   </Button>
