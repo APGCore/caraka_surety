@@ -19,9 +19,11 @@ export const Pagination: React.FC<PaginationProps> = ({ meta, onPageChange }) =>
   return (
     <div className=" flex gap-5 mt-5 flex-col items-center">
       {/* Pagination buttons */}
-      <div className="flex gap-10">
+      <div className="flex gap-8">
         <Button
-          className=" flex text-sm items-center font-bold"
+          className={cn("flex text-sm items-center font-bold", {
+            "cursor-not-allowed pointer-events-none": meta.current_page === 1,
+          })}
           variant="outline"
           disabled={meta.current_page === 1}
           onClick={() => onPageChange(meta.current_page - 1)}>
@@ -29,18 +31,20 @@ export const Pagination: React.FC<PaginationProps> = ({ meta, onPageChange }) =>
         </Button>
 
         {/* Generate page numbers */}
-        {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((page) => (
-          <Button
-            variant="outline"
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={cn(
-              page === meta.current_page ? "bg-black text-white hover:bg-black/80 hover:text-white" : "",
-              "flex text-sm items-center font-bold",
-            )}>
-            {page}
-          </Button>
-        ))}
+        <div className="flex gap-2">
+          {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((page) => (
+            <Button
+              variant="outline"
+              key={page}
+              onClick={() => onPageChange(page)}
+              className={cn(
+                page === meta.current_page ? "bg-black text-white hover:bg-black/80 hover:text-white" : "",
+                "flex text-sm items-center font-bold",
+              )}>
+              {page}
+            </Button>
+          ))}
+        </div>
 
         <Button
           variant="outline"

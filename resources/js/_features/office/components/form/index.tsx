@@ -4,11 +4,14 @@ import { Textarea } from "@/_features/_common/components/_shadcn-ui/textarea";
 import NewCombobox from "@/_features/_common/components/combobox";
 import Loading from "@/_features/_common/components/loading";
 import { useGetAllBranchGuarantor } from "@/_features/insurance/services/insurance-query";
-import {
-  useGetAllProvince,
-  useGetDistrictByRegencyId,
-  useGetRegencyByProvinceId,
-} from "@/_features/location/services/location-query";
+import { useGetDistrictByRegencyId } from "@/_features/location/services/district-location-query";
+import { useGetRegencyByProvinceId } from "@/_features/location/services/regency-location-query";
+import { useGetAllProvince } from "@/common/hooks/react-query/location";
+// import {
+//   useGetAllProvince,
+//   useGetDistrictByRegencyId,
+//   useGetRegencyByProvinceId,
+// } from "@/_features/location/services/location-query";
 import { Button } from "@/components/_shadcn-ui/button";
 import InputError from "@/components/molecules/input/error-input";
 import { OfficeTypeEnum } from "@/types/office-type-enum";
