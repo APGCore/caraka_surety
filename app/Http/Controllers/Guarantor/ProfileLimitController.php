@@ -130,7 +130,7 @@ class ProfileLimitController extends Controller
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit_inherit')) {
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
@@ -191,7 +191,7 @@ class ProfileLimitController extends Controller
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit_inherit')) {
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 

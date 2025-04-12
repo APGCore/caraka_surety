@@ -15,204 +15,202 @@ use Illuminate\Support\Facades\Log;
 
 class ProvinceController extends Controller
 {
+    protected $provinceService;
 
-  protected $provinceService;
-
-  public function __construct(ProvinceService $provinceService)
-  {
-    $this->provinceService = $provinceService;
-  }
-
-
-  public function apiSearch(Request $request): JsonResponse
-  {
-    $search = $request->get('search') ?? '';
-    $perPage = $request->get('per_page') ?? 10;
-    $page = $request->get('page') ?? 1;
-
-    $result = $this->provinceService->searchProvinces($search, $perPage, $page);
-    $msg = "Berhasil mengambil data provinsi!";
-
-    return $this->responseSuccess($msg, $result);
-  }
-
-  /**
-   * Display a listing of the resource.
-   */
-  public function index(Request $request)
-  {
-    $provinces = Province::search($request->get('search'))
-      ->orderBy('name')
-      ->paginate($request->get('per_page') ?? 10)
-      ->appends('query', null)
-      ->appends($request->all());
-    $provincesResource = ProvinceResource::collection($provinces);
-
-    $component = $request->path() . '/index';
-
-    return inertia($component, [
-      'page_settings' => [
-        'title' => 'Provinsi',
-      ],
-      'provinces' => fn() => $provincesResource,
-    ]);
-  }
-
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(Request $request)
-  {
-    $request->validate([
-      'code' => 'required|string|unique:provinces,code',
-      'name' => 'required|string|unique:provinces,name',
-    ], [
-      'code.required' => 'Kode Provinsi wajib diisi',
-      'code.string' => 'Kode Provinsi harus berupa string',
-      'code.unique' => 'Kode Provinsi sudah ada',
-      'name.required' => 'Nama Provinsi wajib diisi',
-      'name.string' => 'Nama Provinsi harus berupa string',
-      'name.unique' => 'Nama Provinsi sudah ada',
-    ]);
-
-    try {
-      DB::beginTransaction();
-      Province::query()
-        ->create($request->only('code', 'name'));
-      activity()
-        ->useLog('province')
-        ->performedOn(new Province)
-        ->causedBy(auth()->user())
-        ->log('menambahkan data provinsi');
-      flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
-      DB::commit();
-    } catch (Exception $e) {
-      DB::rollBack();
-      flashMessage('Gagal Menambahkan Provinsi', 'Terjadi kesalahan saat menambahkan provinsi', 'error');
-      $error = $this->handleErrorMessage($e);
-      Log::error('Provinsi Store: ', $error);
-    } finally {
-      return redirect()->route('province.index');
+    public function __construct(ProvinceService $provinceService)
+    {
+        $this->provinceService = $provinceService;
     }
-  }
 
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(Request $request, Province $province)
-  {
-    $request->validate([
-      'code' => 'required|string|unique:provinces,code,' . $province->getAttribute('id') . ',id',
-      'name' => 'required|string|unique:provinces,name,' . $province->getAttribute('id') . ',id',
-    ], [
-      'code.required' => 'Kode Provinsi wajib diisi',
-      'code.string' => 'Kode Provinsi harus berupa string',
-      'code.unique' => 'Kode Provinsi sudah ada',
-      'name.required' => 'Nama Provinsi wajib diisi',
-      'name.string' => 'Nama Provinsi harus berupa string',
-      'name.unique' => 'Nama Provinsi sudah ada',
-    ]);
+    public function apiSearch(Request $request): JsonResponse
+    {
+        $search = $request->get('search') ?? '';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
 
-    try {
-      DB::beginTransaction();
+        $result = $this->provinceService->searchProvinces($search, $perPage, $page);
+        $msg = 'Berhasil mengambil data provinsi!';
 
-      $province->update($request->only('code', 'name'));
-      activity()
-        ->useLog('province')
-        ->performedOn($province)
-        ->causedBy(auth()->user())
-        ->log('memperbarui data provinsi');
-      flashMessage('Provinsi Diperbarui', 'Provinsi berhasil diperbarui');
-      DB::commit();
-    } catch (Exception $e) {
-      DB::rollBack();
-      flashMessage('Gagal Memperbarui Provinsi', 'Terjadi kesalahan saat memperbarui provinsi', 'error');
-      $error = $this->handleErrorMessage($e);
-      Log::error('Provinsi Update: ', $error);
-    } finally {
-      return redirect()->route('province.index');
+        return $this->responseSuccess($msg, $result);
     }
-  }
 
-  /**
-   * Remove the specified resource from storage.
-   */
-  public function destroy(Province $province)
-  {
-    try {
-      DB::beginTransaction();
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $provinces = Province::search($request->get('search'))
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $provincesResource = ProvinceResource::collection($provinces);
 
-      // tambahkan kondisi jika provinsi memiliki relasi jangan di hapus
-      if ($province->regency()->count() > 0) {
-        flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kabupaten', 'error');
+        $component = $request->path().'/index';
 
-        return redirect()->route('province.index');
-      }
-      if ($province->profile()->count() > 0) {
-        flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kantor cabang', 'error');
-
-        return redirect()->route('province.index');
-      }
-
-      if ($province->exists) {
-        $province->delete();
-      } else {
-        throw new ThrottleRequestsException('Provinsi tidak ditemukan');
-      }
-      activity()
-        ->useLog('province')
-        ->performedOn($province)
-        ->causedBy(auth()->user())
-        ->log('menghapus data provinsi');
-      flashMessage('Provinsi Dihapus', 'Provinsi berhasil dihapus');
-      DB::commit();
-    } catch (Exception $e) {
-      DB::rollBack();
-      flashMessage('Gagal Menghapus Provinsi', 'Terjadi kesalahan saat menghapus provinsi', 'error');
-      $error = $this->handleErrorMessage($e);
-      Log::error('Provinsi Delete: ', $error);
-    } finally {
-      return redirect()->route('province.index');
-    }
-  }
-
-  /**
-   * Synchronize the provinces data from the external API.
-   */
-  public function synchronize(): void
-  {
-    try {
-      DB::beginTransaction();
-      $responses = $this->syncApi('provinsi');
-
-      // Ambil hasil dari permintaan
-      $provinces = (object) $responses[0]->json();
-
-      foreach ($provinces->value as $province) {
-        Province::query()->updateOrCreate([
-          'code' => $province['id'],
-        ], [
-          'name' => $province['name'],
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Provinsi',
+            ],
+            'provinces' => fn () => $provincesResource,
         ]);
-      }
-
-      flashMessage('Provinsi Tersinkron', 'Provinsi berhasil disinkronisasi');
-      DB::commit();
-    } catch (Exception $e) {
-      DB::rollBack();
-      flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
-      $error = $this->handleErrorMessage($e);
-      Log::error('Provinsi Synchronized: ', $error);
     }
-  }
 
-  public function all(): JsonResponse
-  {
-    if (Province::query()->count() === 0) {
-      $this->synchronize();
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|unique:provinces,code',
+            'name' => 'required|string|unique:provinces,name',
+        ], [
+            'code.required' => 'Kode Provinsi wajib diisi',
+            'code.string' => 'Kode Provinsi harus berupa string',
+            'code.unique' => 'Kode Provinsi sudah ada',
+            'name.required' => 'Nama Provinsi wajib diisi',
+            'name.string' => 'Nama Provinsi harus berupa string',
+            'name.unique' => 'Nama Provinsi sudah ada',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            Province::query()
+                ->create($request->only('code', 'name'));
+            activity()
+                ->useLog('province')
+                ->performedOn(new Province)
+                ->causedBy(auth()->user())
+                ->log('menambahkan data provinsi');
+            flashMessage('Provinsi Ditambahkan', 'Provinsi berhasil ditambahkan');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Menambahkan Provinsi', 'Terjadi kesalahan saat menambahkan provinsi', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Store: ', $error);
+        } finally {
+            return redirect()->route('province.index');
+        }
     }
-    $provinces = Province::all();
 
-    return response()->json($provinces);
-  }
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Province $province)
+    {
+        $request->validate([
+            'code' => 'required|string|unique:provinces,code,'.$province->getAttribute('id').',id',
+            'name' => 'required|string|unique:provinces,name,'.$province->getAttribute('id').',id',
+        ], [
+            'code.required' => 'Kode Provinsi wajib diisi',
+            'code.string' => 'Kode Provinsi harus berupa string',
+            'code.unique' => 'Kode Provinsi sudah ada',
+            'name.required' => 'Nama Provinsi wajib diisi',
+            'name.string' => 'Nama Provinsi harus berupa string',
+            'name.unique' => 'Nama Provinsi sudah ada',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $province->update($request->only('code', 'name'));
+            activity()
+                ->useLog('province')
+                ->performedOn($province)
+                ->causedBy(auth()->user())
+                ->log('memperbarui data provinsi');
+            flashMessage('Provinsi Diperbarui', 'Provinsi berhasil diperbarui');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Memperbarui Provinsi', 'Terjadi kesalahan saat memperbarui provinsi', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Update: ', $error);
+        } finally {
+            return redirect()->route('province.index');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Province $province)
+    {
+        try {
+            DB::beginTransaction();
+
+            // tambahkan kondisi jika provinsi memiliki relasi jangan di hapus
+            if ($province->regency()->count() > 0) {
+                flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kabupaten', 'error');
+
+                return redirect()->route('province.index');
+            }
+            if ($province->profile()->count() > 0) {
+                flashMessage('Gagal Menghapus Provinsi', 'Provinsi memiliki relasi dengan kantor cabang', 'error');
+
+                return redirect()->route('province.index');
+            }
+
+            if ($province->exists) {
+                $province->delete();
+            } else {
+                throw new ThrottleRequestsException('Provinsi tidak ditemukan');
+            }
+            activity()
+                ->useLog('province')
+                ->performedOn($province)
+                ->causedBy(auth()->user())
+                ->log('menghapus data provinsi');
+            flashMessage('Provinsi Dihapus', 'Provinsi berhasil dihapus');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Provinsi', 'Terjadi kesalahan saat menghapus provinsi', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Delete: ', $error);
+        } finally {
+            return redirect()->route('province.index');
+        }
+    }
+
+    /**
+     * Synchronize the provinces data from the external API.
+     */
+    public function synchronize(): void
+    {
+        try {
+            DB::beginTransaction();
+            $responses = $this->syncApi('provinsi');
+
+            // Ambil hasil dari permintaan
+            $provinces = (object) $responses[0]->json();
+
+            foreach ($provinces->value as $province) {
+                Province::query()->updateOrCreate([
+                    'code' => $province['id'],
+                ], [
+                    'name' => $province['name'],
+                ]);
+            }
+
+            flashMessage('Provinsi Tersinkron', 'Provinsi berhasil disinkronisasi');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Menyinkronkan Provinsi', 'Terjadi kesalahan saat menyinkronkan provinsi', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Provinsi Synchronized: ', $error);
+        }
+    }
+
+    public function all(): JsonResponse
+    {
+        if (Province::query()->count() === 0) {
+            $this->synchronize();
+        }
+        $provinces = Province::all();
+
+        return response()->json($provinces);
+    }
 }

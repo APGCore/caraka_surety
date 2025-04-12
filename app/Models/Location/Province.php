@@ -10,29 +10,29 @@ use Laravel\Scout\Searchable;
 
 class Province extends Model
 {
-  use HasFactory;
-  use Searchable;
+    use HasFactory;
+    use Searchable;
 
-  protected $fillable = [
-    'code',
-    'name',
-  ];
-
-  public function toSearchableArray(): array
-  {
-    return [
-      'name' => $this->name,
+    protected $fillable = [
+        'code',
+        'name',
     ];
-  }
 
-  // is relation
-  public function regency(): HasMany
-  {
-    return $this->hasMany(Regency::class);
-  }
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+        ];
+    }
 
-  public function profile(): HasMany
-  {
-    return $this->hasMany(Profile::class);
-  }
+    // is relation
+    public function regency(): HasMany
+    {
+        return $this->hasMany(Regency::class);
+    }
+
+    public function profile(): HasMany
+    {
+        return $this->hasMany(Profile::class);
+    }
 }

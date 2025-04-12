@@ -13,8 +13,8 @@ trait HandleErrorMessage
         $errorFile = $e->getFile();
         $errorLine = $e->getLine();
 
-        if ($errorCode === 0) {
-            $errorMessage = 'Terjadi kesalahan pada sistem, silakan coba lagi.';
+        if (str_contains($errorMessage, 'SQL') || str_contains($errorMessage, 'sql')) {
+            $errorMessage = 'Terjadi kesalahan pada database, silakan hubungi administrator.';
         }
 
         return [

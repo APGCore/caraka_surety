@@ -11,35 +11,35 @@ use Laravel\Scout\Searchable;
 
 class Regency extends Model
 {
-  use HasFactory;
-  use Searchable;
+    use HasFactory;
+    use Searchable;
 
-  protected $fillable = [
-    'province_id',
-    'code',
-    'name',
-  ];
-
-  public function toSearchableArray(): array
-  {
-    return [
-      'name' => $this->name,
+    protected $fillable = [
+        'province_id',
+        'code',
+        'name',
     ];
-  }
 
-  // relationship
-  public function province(): BelongsTo
-  {
-    return $this->belongsTo(Province::class, 'province_id');
-  }
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+        ];
+    }
 
-  public function district(): HasMany
-  {
-    return $this->hasMany(District::class);
-  }
+    // relationship
+    public function province(): BelongsTo
+    {
+        return $this->belongsTo(Province::class, 'province_id');
+    }
 
-  public function profile(): HasMany
-  {
-    return $this->hasMany(Profile::class);
-  }
+    public function district(): HasMany
+    {
+        return $this->hasMany(District::class);
+    }
+
+    public function profile(): HasMany
+    {
+        return $this->hasMany(Profile::class);
+    }
 }
