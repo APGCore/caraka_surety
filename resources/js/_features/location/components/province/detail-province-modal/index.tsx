@@ -16,8 +16,6 @@ interface DetailProvinceModalProps {
 }
 
 const DetailProvinceModal = ({ open, handleOpen, province }: DetailProvinceModalProps) => {
-  console.log(province);
-
   if (!open) {
     return null;
   }

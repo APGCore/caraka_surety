@@ -1,3 +1,4 @@
+import ListRegencyPage from "@/_features/location/pages/list-regency-page";
 import { useSearchRegencies } from "@/_features/location/services/regency-location-query";
 import {
   AlertDialog,
@@ -128,6 +129,8 @@ const regencyPage: React.FC<RegencyPageProps> & { layout?: any } = (props) => {
   const deleteData = (regency: any) => {
     router.delete(route("regency.destroy", regency.id));
   };
+
+  return <ListRegencyPage />;
 
   return (
     <main className="space-y-2.5">

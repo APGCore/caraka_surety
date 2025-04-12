@@ -35,7 +35,7 @@ export const useSearchRegencies = <TResponse = unknown>(
           province_id: params?.province_id,
         }),
       );
-      return response.data as TResponse;
+      return response.data.data as TResponse;
     },
     ...querySetting,
   });

@@ -144,7 +144,7 @@ const CreateUpdateProvinceModal = ({ open, handleOpen, province }: CreateUpdateP
             </Button>
             <Button type={"submit"} disabled={processing}>
               {processing && <RotateCw className="animate-spin mr-2" />}
-              Submit
+              {province ? "Update Data" : "Simpan Data"}
             </Button>
           </div>
         </form>

@@ -17,12 +17,22 @@ import { Link } from "@inertiajs/react";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import { useState } from "react";
 import CreateUpdateRegencyModal from "../../components/regency/create-update-regency-modal";
+import DetailRegencyModal from "../../components/regency/detail-regency-modal";
 import useListRegency from "../../hooks/use-list-regency";
+import useRegencyModal from "../../hooks/use-regency-modal";
 
 const ListRegencyPage = () => {
-  const [isOpenCreateRegency, setIsOpenCreateRegency] = useState<boolean>(false);
-  const [isOpenUpdateRegency, setIsOpenUpdateRegency] = useState<boolean>(false);
-  const [isOpenDeleteRegency, setIsOpenDeleteRegency] = useState<boolean>(false);
+  const {
+    isOpenCreateRegency,
+    handleOpenCreateRegency,
+    isOpenUpdateRegency,
+    handleOpenUpdateRegency,
+    isOpenDeleteRegency,
+    handleOpenDeleteRegency,
+    isOpenDetailRegency,
+    handleOpenDetailRegency,
+    selectedRegency,
+  } = useRegencyModal();
 
   const {
     regencies,
@@ -50,13 +60,8 @@ const ListRegencyPage = () => {
               className="h-10 pl-10"
             />
           </div>
-          <PrimaryButton asChild>
-            <Link
-              href={route("branch.create", {
-                type: "branch",
-              })}>
-              <Plus /> <span>Tambah Kabupaten/Kota</span>
-            </Link>
+          <PrimaryButton onClick={() => handleOpenCreateRegency(true)}>
+            <Plus /> <span>Tambah Kabupaten/Kota</span>
           </PrimaryButton>
         </div>
       </div>
@@ -82,7 +87,7 @@ const ListRegencyPage = () => {
               <TableHead className="w-0">No</TableHead>
               <TableHead>Kode Kabupaten/Kota</TableHead>
               <TableHead>Nama Kabupaten/Kota</TableHead>
-              <TableHead>Aksi</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,15 +101,21 @@ const ListRegencyPage = () => {
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
                       <TableCell>{province.code}</TableCell>
                       <TableCell>{province.name}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="flex justify-end">
                         <div className="flex gap-x-2">
-                          <Button variant="outline" size="icon">
+                          <Button variant="outline" size="icon" onClick={() => handleOpenDetailRegency(true, province)}>
                             <Eye className="w-4 h-4 text-black" />
                           </Button>
-                          <Button className="bg-yellow-300 hover:bg-yellow-400" size="icon">
+                          <Button
+                            className="bg-yellow-300 hover:bg-yellow-400"
+                            size="icon"
+                            onClick={() => handleOpenUpdateRegency(true, province)}>
                             <Pencil className="w-4 h-4 text-black" />
                           </Button>
-                          <Button variant="destructive" size="icon">
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleOpenDeleteRegency(true, province)}>
                             <Trash className="w-4 h-4 text-black" />
                           </Button>
                         </div>
@@ -120,11 +131,24 @@ const ListRegencyPage = () => {
       </div>
 
       {/* Create Regency Modal */}
-      <CreateUpdateRegencyModal open={isOpenCreateRegency} handleOpen={setIsOpenCreateRegency} />
+      <CreateUpdateRegencyModal open={isOpenCreateRegency} handleOpen={handleOpenCreateRegency} />
 
       {/* Update Regency Modal */}
+      <CreateUpdateRegencyModal
+        open={isOpenUpdateRegency}
+        handleOpen={handleOpenUpdateRegency}
+        regency={selectedRegency}
+      />
 
       {/* Delete Regency Modal */}
+      <CreateUpdateRegencyModal
+        open={isOpenDeleteRegency}
+        handleOpen={handleOpenDeleteRegency}
+        regency={selectedRegency}
+      />
+
+      {/* Detail Regency Modal */}
+      <DetailRegencyModal open={isOpenDetailRegency} handleOpen={handleOpenDetailRegency} regency={selectedRegency} />
     </main>
   );
 };

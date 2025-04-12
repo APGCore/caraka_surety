@@ -7,9 +7,9 @@ import {
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
-import { PROVINCE_LOCATION_QUERY_KEY, useGetAllProvince } from "@/_features/location/services/province-location-query";
+import { useGetAllProvince } from "@/_features/location/services/province-location-query";
 import { REGENCY_LOCATION_QUERY_KEY } from "@/_features/location/services/regency-location-query";
-import { Combobox } from "@/components/molecules/combobox";
+import NewCombobox from "@/components/atoms/new-combobox";
 import InputError from "@/components/molecules/input/error-input";
 import InputLabel from "@/components/molecules/input/label-input";
 import TextInput from "@/components/molecules/input/text-input";
@@ -31,7 +31,7 @@ const CreateUpdateRegencyModal = ({ open, handleOpen, regency }: CreateUpdateReg
     name: "",
   });
 
-  const { data: provinces, isLoading: isLoadingProvinces, isSuccess: isSuccessProvinces } = useGetAllProvince();
+  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvince();
 
   useEffect(() => {
     if (regency && typeof regency === "object") {
@@ -117,15 +117,19 @@ const CreateUpdateRegencyModal = ({ open, handleOpen, regency }: CreateUpdateReg
         <form onSubmit={handleFormSubmit} className="mt-6 space-y-6">
           <div>
             <InputLabel htmlFor="province_id" value="Pilih Provinsi" />
-
-            <Combobox
-              id="province_id"
-              datas={Array.isArray(provinces) ? provinces : []}
-              labelKey={"name"}
-              valueKey={"name"}
-              placeholder={"Pilih Provinsi"}
-              onSelect={(value) => setData("province_id", value.id)}
-              className="mt-1 w-full"
+            <NewCombobox
+              data={Array.isArray(provinces) ? provinces : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingProvinces}
+              placeholder="Pilih Provinsi"
+              defaultValue={data?.province_id}
+              onSelect={(val: any) => {
+                setData({
+                  ...data,
+                  province_id: val.id,
+                });
+              }}
             />
 
             <InputError message={errors.province_id} className="mt-2" />

@@ -16,6 +16,42 @@ interface PaginationProps {
 
 // Contoh penggunaan di komponen
 export const Pagination: React.FC<PaginationProps> = ({ meta, onPageChange }) => {
+  const generatePageNumbers = () => {
+    const pages = [];
+    const currentPage = meta.current_page;
+    const lastPage = meta.last_page;
+    const delta = 2; // Number of pages to show before and after current page
+
+    // Always show first page
+    pages.push(1);
+
+    // Calculate range around current page
+    let start = Math.max(2, currentPage - delta);
+    let end = Math.min(lastPage - 1, currentPage + delta);
+
+    // Add ellipsis after first page if needed
+    if (start > 2) {
+      pages.push("...");
+    }
+
+    // Add page numbers around current page
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    // Add ellipsis before last page if needed
+    if (end < lastPage - 1) {
+      pages.push("...");
+    }
+
+    // Always show last page if there is more than one page
+    if (lastPage > 1) {
+      pages.push(lastPage);
+    }
+
+    return pages;
+  };
+
   return (
     <div className=" flex gap-5 mt-5 flex-col items-center">
       {/* Pagination buttons */}
@@ -32,18 +68,24 @@ export const Pagination: React.FC<PaginationProps> = ({ meta, onPageChange }) =>
 
         {/* Generate page numbers */}
         <div className="flex gap-2">
-          {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((page) => (
-            <Button
-              variant="outline"
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={cn(
-                page === meta.current_page ? "bg-black text-white hover:bg-black/80 hover:text-white" : "",
-                "flex text-sm items-center font-bold",
-              )}>
-              {page}
-            </Button>
-          ))}
+          {generatePageNumbers().map((page, index) =>
+            page === "..." ? (
+              <span key={`ellipsis-${index}`} className="flex items-center px-2">
+                ...
+              </span>
+            ) : (
+              <Button
+                variant="outline"
+                key={page}
+                onClick={() => onPageChange(page as number)}
+                className={cn(
+                  page === meta.current_page ? "bg-black text-white hover:bg-black/80 hover:text-white" : "",
+                  "flex text-sm items-center font-bold",
+                )}>
+                {page}
+              </Button>
+            ),
+          )}
         </div>
 
         <Button
