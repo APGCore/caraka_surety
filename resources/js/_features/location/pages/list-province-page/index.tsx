@@ -65,9 +65,9 @@ const ListProvincePage = () => {
         </div>
       </div>
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
+        <div className="flex gap-x-3 items-end">
           <Select value={perPage} onValueChange={handlePerPageChange}>
-            <SelectTrigger className="w-max h-12">
+            <SelectTrigger className="w-max">
               <SelectValue placeholder={perPage} />
             </SelectTrigger>
             <SelectContent>

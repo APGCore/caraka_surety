@@ -96,6 +96,7 @@ const useListRegency = () => {
     provinces,
     isLoadingProvinces,
     isSuccessProvinces,
+    provinceId,
   };
 };
 

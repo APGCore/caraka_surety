@@ -173,7 +173,7 @@ const CreateUpdateRegencyModal = ({ open, handleOpen, regency }: CreateUpdateReg
               Batal
             </Button>
             <Button type={"submit"} disabled={processing}>
-              Submit
+              {regency ? "Update Data" : "Simpan Data"}
             </Button>
           </div>
         </form>

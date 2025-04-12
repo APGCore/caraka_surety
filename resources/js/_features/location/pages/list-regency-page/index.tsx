@@ -1,5 +1,6 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Input } from "@/_features/_common/components/_shadcn-ui/input";
+import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import {
   Select,
   SelectContent,
@@ -13,10 +14,11 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { TableBody, TableCell, TableHead, TableHeader } from "@/components/_shadcn-ui/table";
-import { Link } from "@inertiajs/react";
+import NewCombobox from "@/components/atoms/new-combobox";
+import { data } from "@/pages/admin/dashboard/admin-dashboard-page.utils";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
-import { useState } from "react";
 import CreateUpdateRegencyModal from "../../components/regency/create-update-regency-modal";
+import DeleteRegencyModal from "../../components/regency/delete-regency-modal";
 import DetailRegencyModal from "../../components/regency/detail-regency-modal";
 import useListRegency from "../../hooks/use-list-regency";
 import useRegencyModal from "../../hooks/use-regency-modal";
@@ -44,6 +46,11 @@ const ListRegencyPage = () => {
     handleSearchChange,
     handlePerPageChange,
     handlePageChange,
+    handleProvinceChange,
+    provinces,
+    isLoadingProvinces,
+    isSuccessProvinces,
+    provinceId,
   } = useListRegency();
 
   return (
@@ -66,9 +73,9 @@ const ListRegencyPage = () => {
         </div>
       </div>
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
+        <div className="flex gap-x-3 items-end">
           <Select value={perPage} onValueChange={handlePerPageChange}>
-            <SelectTrigger className="w-max h-12">
+            <SelectTrigger className="w-max">
               <SelectValue placeholder={perPage} />
             </SelectTrigger>
             <SelectContent>
@@ -78,6 +85,23 @@ const ListRegencyPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+              Filter Provinsi
+            </Label>
+            <NewCombobox
+              className=""
+              data={Array.isArray(provinces) ? provinces : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingProvinces}
+              placeholder="Pilih Provinsi"
+              defaultValue={provinceId}
+              onSelect={(val: any) => {
+                handleProvinceChange(val.id);
+              }}
+            />
+          </div>
         </div>
       </div>
       <div>
@@ -141,11 +165,7 @@ const ListRegencyPage = () => {
       />
 
       {/* Delete Regency Modal */}
-      <CreateUpdateRegencyModal
-        open={isOpenDeleteRegency}
-        handleOpen={handleOpenDeleteRegency}
-        regency={selectedRegency}
-      />
+      <DeleteRegencyModal open={isOpenDeleteRegency} handleOpen={handleOpenDeleteRegency} regency={selectedRegency} />
 
       {/* Detail Regency Modal */}
       <DetailRegencyModal open={isOpenDetailRegency} handleOpen={handleOpenDetailRegency} regency={selectedRegency} />
