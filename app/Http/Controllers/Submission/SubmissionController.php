@@ -1135,7 +1135,7 @@ class SubmissionController extends Controller
         $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
+        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id())?->limit ?? 0;
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
         $submission->limit = $employeeLimit;
