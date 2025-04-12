@@ -36,7 +36,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         </TableHeader>
         <TableBody>
           <RenderList
-            of={submissions}
+            of={submissions.data}
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{index + 1}</TableCell>
@@ -75,8 +75,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={submissions?.meta} />
-      <PaginationDatatable meta={submissions?.meta} only={["submissions"]} />
+      <ShowingCountDatatable meta={submissions.meta} />
+      <PaginationDatatable meta={submissions.meta} />
     </>
   );
 };

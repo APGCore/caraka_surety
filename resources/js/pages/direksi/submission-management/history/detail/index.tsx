@@ -357,7 +357,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
                 <tr className="border-b">
-                  <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
+                  <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
                   <td className="p-2 ">: {submission.blank?.number}</td>
                 </tr>
                 <tr className="border-b">
@@ -762,10 +762,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             />
             <Show
               when={
-                submission.status === SubmissionStatus.PROCESS &&
-                !submission.beyond_the_limit &&
-                !submission.approved_at &&
-                !submission.rejected_at
+                submission.status === SubmissionStatus.PROCESS && !submission.approved_at && !submission.rejected_at
               }>
               <div className="flex gap-2">
                 <AlertDialog>

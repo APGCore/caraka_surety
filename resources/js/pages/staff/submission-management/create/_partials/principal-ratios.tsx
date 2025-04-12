@@ -235,7 +235,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={firstRatio?.revenue ?? ""}
               placeholder="Pendapatan"
               onChange={(value) => {
-                const profitability = calculateRatios(value ?? "", firstRatio?.net_income ?? "");
+                const profitability = calculateRatios(firstRatio?.net_income ?? "", value ?? "");
                 const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                 const dataRatios = firstRatio
                   ? {
@@ -253,7 +253,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={firstRatio?.net_income ?? ""}
               placeholder="Laba Bersih"
               onChange={(value) => {
-                const profitability = calculateRatios(firstRatio?.revenue ?? "", value ?? "");
+                const profitability = calculateRatios(value ?? "", firstRatio?.revenue ?? "");
                 const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                 const dataRatios = firstRatio
                   ? {
@@ -348,7 +348,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={secondRatio?.revenue ?? ""}
               placeholder="Pendapatan"
               onChange={(value) => {
-                const profitability = calculateRatios(value ?? "", secondRatio?.net_income ?? "");
+                const profitability = calculateRatios(secondRatio?.net_income ?? "", value ?? "");
                 const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                 const dataRatios = secondRatio
                   ? {
@@ -366,7 +366,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={secondRatio?.net_income ?? ""}
               placeholder="Laba Bersih"
               onChange={(value) => {
-                const profitability = calculateRatios(secondRatio?.revenue ?? "", value ?? "");
+                const profitability = calculateRatios(value ?? "", secondRatio?.revenue ?? "");
                 const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
                 const dataRatios = secondRatio
                   ? {
