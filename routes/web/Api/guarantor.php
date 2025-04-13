@@ -19,7 +19,7 @@ Route::prefix('guarantor-management')
                 Route::get('branch', 'getAllBranch')->name('all-branch');
 
                 // api.guarantor-management.guarantor.branch-from-headquarter
-                Route::get('branch/{headquarterId}', 'getByHeadquarteId')->name('branch-from-headquarter');
+                Route::get('branch/{guarantor}', 'getGuarantorBranchByHeadIsPairing')->name('branch-from-headquarter');
 
                 // api.guarantor-management.guarantor.by-product
                 Route::get('/{product}', 'getGuarantorByProductId')->name('by-product');
