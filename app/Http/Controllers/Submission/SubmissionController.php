@@ -2160,7 +2160,7 @@ class SubmissionController extends Controller
         return ProfileLimit::query()
             ->where('guarantor_id', $guarantorId)
             ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
-            ->where('employee_id', $profileId)
+            ->where('profile_id', $profileId)
             ->first();
     }
 
