@@ -33,7 +33,7 @@ export default EmployeeCreatePage;
 
 EmployeeCreatePage.layout = (page: any) => {
   const pagePropsData = page.props;
-
+  console.log("page pengguna", pagePropsData);
   return (
     <RoleBasedLayout propsData={pagePropsData}>
       <Head title={pagePropsData?.page_settings?.title} />

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Submission\SubmissionController;
+use Illuminate\Support\Facades\Route;
 
 Route::controller(SubmissionController::class)
     ->prefix('submission-management')
