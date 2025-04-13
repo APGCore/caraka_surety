@@ -35,7 +35,8 @@ export const useSearchDistricts = <TResponse = unknown>(
           regency_id: params?.regency_id,
         }),
       );
-      return response.data as TResponse;
+
+      return response.data.data as TResponse;
     },
     ...querySetting,
   });

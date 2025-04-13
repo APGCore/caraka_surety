@@ -15,9 +15,22 @@ import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { TableBody, TableCell, TableHead, TableHeader } from "@/components/_shadcn-ui/table";
 import { Link } from "@inertiajs/react";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
+import useDistrictModal from "../../hooks/use-district-modal";
 import useListDistrict from "../../hooks/use-list-district";
 
 const ListDistrictPage = () => {
+  const {
+    handleOpenCreateDistrict,
+    isOpenCreateDistrict,
+    handleOpenDeleteDistrict,
+    handleOpenDetailDistrict,
+    handleOpenUpdateDistrict,
+    isOpenDeleteDistrict,
+    isOpenUpdateDistrict,
+    isOpenDetailDistrict,
+    selectedDistrict,
+  } = useDistrictModal();
+
   const {
     districts,
     isLoadingDistricts,
@@ -44,20 +57,15 @@ const ListDistrictPage = () => {
               className="h-10 pl-10"
             />
           </div>
-          <PrimaryButton asChild>
-            <Link
-              href={route("branch.create", {
-                type: "branch",
-              })}>
-              <Plus /> <span>Tambah Kecamatan</span>
-            </Link>
+          <PrimaryButton onClick={() => handleOpenCreateDistrict(true)}>
+            <Plus /> <span>Tambah Kecamatan</span>
           </PrimaryButton>
         </div>
       </div>
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <Select value={perPage} onValueChange={handlePerPageChange}>
-            <SelectTrigger className="w-max h-12">
+            <SelectTrigger className="w-max">
               <SelectValue placeholder={perPage} />
             </SelectTrigger>
             <SelectContent>
@@ -76,7 +84,7 @@ const ListDistrictPage = () => {
               <TableHead className="w-0">No</TableHead>
               <TableHead>Kode Kecamatan</TableHead>
               <TableHead>Nama Kecamatan</TableHead>
-              <TableHead>Aksi</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -84,21 +92,30 @@ const ListDistrictPage = () => {
             {isSuccessDistricts && districts && (
               <RenderList
                 of={districts}
-                render={(province: any, index) => {
+                render={(district: any, index) => {
                   return (
-                    <TableRow key={province.id}>
+                    <TableRow key={district.id}>
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
-                      <TableCell>{province.code}</TableCell>
-                      <TableCell>{province.name}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>{district.code}</TableCell>
+                      <TableCell>{district.name}</TableCell>
+                      <TableCell className="flex justify-end">
                         <div className="flex gap-x-2">
-                          <Button variant="outline" size="icon">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleOpenDetailDistrict(true, district)}>
                             <Eye className="w-4 h-4 text-black" />
                           </Button>
-                          <Button className="bg-yellow-300 hover:bg-yellow-400" size="icon">
+                          <Button
+                            className="bg-yellow-300 hover:bg-yellow-400"
+                            size="icon"
+                            onClick={() => handleOpenUpdateDistrict(true, district)}>
                             <Pencil className="w-4 h-4 text-black" />
                           </Button>
-                          <Button variant="destructive" size="icon">
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleOpenDeleteDistrict(true, district)}>
                             <Trash className="w-4 h-4 text-black" />
                           </Button>
                         </div>
