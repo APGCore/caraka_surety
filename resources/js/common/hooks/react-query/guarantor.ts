@@ -49,7 +49,7 @@ export const useGetBranchGuarantorByHeadquarter = (headquarterId?: string, query
     queryKey: [GUARANTOR_QUERY_KEY.BRANCH_GUARANTOR_BY_HEADQUARTER, headquarterId],
     queryFn: async () => {
       const response = await axios.get(
-        route("api.guarantor-management.guarantor.branch-from-headquarter", { headquarterId }),
+        route("api.guarantor-management.guarantor.branch-from-headquarter", { guarantor: headquarterId }),
       );
       return response.data.data;
     },

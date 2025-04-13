@@ -11,12 +11,14 @@ import StaffTeknikLayoutPage from "../pusat-layout/staff-teknik";
 
 interface IRoleBasedLayout extends React.PropsWithChildren {
   propsData?: any;
+
   [key: string]: unknown;
 }
 
 const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
-  const { auth, roles, guarantor } = propsData;
+  const { auth, roles_names, guarantor } = propsData;
   const user = auth?.user;
+  const roles = roles_names;
   switch (user.role.name) {
     case roles.Admin:
       return (

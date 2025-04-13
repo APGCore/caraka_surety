@@ -1,3 +1,4 @@
+import ListDistrictPage from "@/_features/location/pages/list-district-page";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -127,6 +128,8 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
   const deleteData = (district: any) => {
     router.delete(route("district.destroy", district.id));
   };
+
+  return <ListDistrictPage />;
 
   return (
     <main className="space-y-2.5">

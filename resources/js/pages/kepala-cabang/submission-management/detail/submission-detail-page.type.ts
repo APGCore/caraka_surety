@@ -158,7 +158,9 @@ interface User {
 
 interface SubmissionDetailProps {
   submission: {
+    [key: string]: any;
     id: number;
+    submission_before_id: number | null;
     bank: Bank;
     bank_name: string;
     approved_by_direksi: boolean;
@@ -190,7 +192,7 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
-    beyond_the_limit: boolean;
+    beyond_the_limit: boolean | null;
     document_format_analysis: {
       id: number;
       name: string;
@@ -250,11 +252,9 @@ interface SubmissionDetailProps {
     get_administators_principal: string;
     day_name: string;
     submission_date: string;
-    limit: string;
-    guarantor_address: string;
     terbilang: string;
     guarantor_city: string;
-    guarantor_pic: string;
+    note_scoring: string;
   };
 
   submissionData: {

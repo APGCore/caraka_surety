@@ -10,6 +10,7 @@ use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\ProfileLimit;
 use App\Models\Product\Product;
 use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
@@ -162,7 +163,7 @@ class SubmissionController extends Controller
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
             foreach ($principalRatios as $principalRatio) {
-                $principal?->principalRatios()
+                $principal->principalRatios()
                     ->updateOrCreate([
                         'year' => $principalRatio['year'],
                     ], $principalRatio);
@@ -262,6 +263,55 @@ class SubmissionController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function revision($id)
+    {
+        $submission = $this->getSubmission($id);
+        $principal = $submission->principal->only([
+            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
+            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
+            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
+        ]);
+        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+        $principal = collect(array_merge($principal, [
+            'ratios' => $principalRatios,
+        ]));
+
+        $obligee = $submission->obligee;
+
+        $scoring = collect([
+            'id' => $submission->scores->first()->scoring_id,
+            'note' => $submission->note_scoring,
+            'scores' => $submission->scores,
+        ]);
+
+        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+            'bank_id', 'contract_doc_name',
+            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
+            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
+            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
+            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
+            'note', 'risk_mitigation',
+        ]);
+
+        $submission = array_merge($submissionArray,
+            $submission->guarantorToProductType->only(
+                'product_type_id', 'job_group', 'job_type',
+            ));
+
+        // new class
+        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+
+        return inertia('staff/submission-management/create/index', [
+            'page_settings' => fn () => [
+                'title' => 'Revisi Pengajuan',
+            ],
+            'submission' => fn () => $data,
+        ]);
+    }
+
     private function getSubmission($id): Submission
     {
         return Submission::with([
@@ -334,63 +384,12 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function revision($id)
-    {
-        $submission = $this->getSubmission($id);
-        $principal = $submission->principal->only([
-            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
-            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
-            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
-        ]);
-        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
-        $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios,
-        ]));
-
-        $obligee = $submission->obligee;
-
-        $scoring = collect([
-            'id' => $submission->scores->first()->scoring_id,
-            'note' => $submission->note_scoring,
-            'scores' => $submission->scores,
-        ]);
-
-        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
-            'bank_id', 'contract_doc_name',
-            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
-            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
-            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
-            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
-            'note', 'risk_mitigation',
-        ]);
-
-        $submission = array_merge($submissionArray,
-            $submission->guarantorToProductType->only(
-                'product_type_id', 'job_group', 'job_type',
-            ));
-
-        // new class
-        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
-
-        return inertia('staff/submission-management/create/index', [
-            'page_settings' => fn () => [
-                'title' => 'Revisi Pengajuan',
-            ],
-            'submission' => fn () => $data,
-        ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function showDetailSubmission($id)
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
-
         $principalDocs = collect($submission->principal->documents);
-
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+        $submission->blank = $submission->blanks->first();
 
         $submission->required_docs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
@@ -409,7 +408,6 @@ class SubmissionController extends Controller
 
         $submission->contract_value_formatted = $this->formatCurrency($submission->contract_value);
         $submission->guarantee_value_formatted = $this->formatCurrency($submission->guarantee_value);
-
         $submission->analyst_name = $submission->staff->name;
 
         $submission->scores->map(function ($score) {
@@ -478,7 +476,6 @@ class SubmissionController extends Controller
         }
 
         // submissionDoc
-
         $submission->total_score = $totalScore;
 
         // GET EXPERIENCE
@@ -605,6 +602,31 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function generateNomorSurat($submissionId)
+    {
+        $submission = Submission::find($submissionId);
+
+        if (! $submission) {
+            return null;
+        }
+
+        $submissionId = $submission->id;
+        $guarantorCode = $submission->guarantor->code;
+        $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
+
+        return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
+    }
+
+    private function formatCurrency($value): string
+    {
+        return 'Rp. '.number_format($value, 2, ',', '.');
+    }
+
+    private function generateNomorSuratResume($id, $createdAt)
+    {
+        return "{$id}/BPR/".Carbon::parse($createdAt)->format('m/Y');
+    }
+
     public function showDetailDocsSubmission($id)
     {
         $submission = Submission::with(['principal', 'guarantorToProductType'])
@@ -619,7 +641,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+        $submission->blank = $submission->blanks->first();
 
         $submission->employee_limit = $submission->employeeLimit->firstWhere('employee_id', auth()->id());
 
@@ -886,7 +908,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+        $submission->blank = $submission->blanks->first();
 
         // $submission->guarantor_address =
         //   ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
@@ -1129,7 +1151,7 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         $submission->mail_number = $this->generateNomorSurat($id);
-        $submission->blank = $submission->blanks->firstWhere('is_used', 1);
+        $submission->blank = $submission->blanks->first();
 
         // $submission->guarantor_address =
         //   ($submission->guarantorBranch?->address ?? $submission->guarantor->address ?? '').', '.
@@ -1149,7 +1171,7 @@ class SubmissionController extends Controller
         $submission->document_format_product = $submission->guarantor->documentFormats->where('product_id', $submission->product_id)->whereNull('guarantor_to_product_type_id')->values();
         $submission->document_format_type_guarantee = $submission->guarantor->documentFormats->where('guarantor_to_product_type_id', $submission->guarantor_to_product_type_id)->values();
 
-        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id()) ?? 0;
+        $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', auth()->id())?->limit ?? 0;
         $submission->product_limit = $submission->guarantorProductTypeLimit;
         $submission->approved_by_direksi = $submission->userApproved && $submission->userApproved->role->name === 'direksi';
         $submission->limit = $employeeLimit;
@@ -1246,7 +1268,8 @@ class SubmissionController extends Controller
         $submission->total_score = $totalScore;
 
         // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::where('status', 'approved')
+        $approvedSubmissionsExp = Submission::query()
+            ->where('status', 'approved')
             ->where(function ($query) use ($submission) {
                 $query->where('principal_id', $submission->principal_id)
                     ->orWhere('obligee_id', $submission->obligee_id);
@@ -1265,7 +1288,7 @@ class SubmissionController extends Controller
                         </tr>';
             })->implode('');
 
-        $submission->get_exp = "
+        $submission->setAttribute('get_exp', "
             <table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
                 <tr>
                     <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
@@ -1286,7 +1309,7 @@ class SubmissionController extends Controller
                 </tr>
                 {$approvedSubmissionsExp}
             </table>
-        ";
+        ");
 
         // GET SUSUNAN PENGURUS
         $principal = $submission->principal;
@@ -1575,42 +1598,28 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function displayHistoryByDireksi()
+    public function displayHistoryByDireksi(Request $request)
     {
         $component = 'direksi/submission-management/history/index';
 
-        $authId = auth()->id();
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-//            ->where(function ($query) use ($authId) {
-//                $query->where('checked_by', '=', $authId)
-//                    ->orWhere('approved_by', '=', $authId)
-//                    ->orWhere('rejected_by', '=', $authId);
-//            })
-            ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit'])
+        $submissions = Submission::search($request->get('search'))
+            ->query(
+                function ($query) {
+                    $query->where('guarantor_id', $this->guarantorId)
+                        ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit']);
+                }
+            )
             ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) use ($authId) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $direksiLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
-
-                return [
-                    ...$submission->toArray(),
-                    'direksi_limit' => $direksiLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $submission->guarantee_value,
-                    'created_at' => $date,
-                ];
-            });
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
+        $resource = SubmissionResource::collection($submissions);
 
         return inertia($component, [
             'page_settings' => fn () => [
                 'title' => 'Riwayat Pengajuan',
             ],
-            'submissions' => fn () => $submissions,
+            'submissions' => fn () => $resource,
         ]);
     }
 
@@ -1893,6 +1902,8 @@ class SubmissionController extends Controller
         ]);
     }
 
+    // check status
+
     public function displayDocumentDraftByMarketingPartner()
     {
         $component = 'marketing-partner/submission-management/document-draft/index';
@@ -1906,6 +1917,8 @@ class SubmissionController extends Controller
             'submissions' => fn () => $submissions,
         ]);
     }
+
+    // save content tinymce
 
     public function approve(Request $request, Submission $submission): void
     {
@@ -1971,6 +1984,199 @@ class SubmissionController extends Controller
         }
     }
 
+    private function sendToGuarantor($submissionId): array
+    {
+        $submission = Submission::query()
+            ->with([
+                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
+                'director_name,director_position,director_phone,commissioner,year_established,'.
+                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                'principal.province:id,code,name',
+                'principal.regency:id,code,name',
+                'principal.district:id,code,name',
+                'principal.documents:id,principal_id,name,url',
+                'blanks',
+                'guarantor:id,code,name',
+                'guarantorBranch:id,code,name',
+                'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
+                'product:id,name',
+                'guarantorToProductType:id,product_type_id,name,job_group,job_type',
+                'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
+                'obligee.province:id,code,name',
+                'obligee.regency:id,code,name',
+                'obligee.district:id,code,name',
+                'province:id,code,name',
+                'regency:id,code,name',
+                'district:id,code,name',
+                'sourceOfFund:id,name',
+                'submissionDocs:id,submission_id,name,format_document,url',
+                'staff:id,head_id,profile_id',
+            ])->find($submissionId);
+        $principal = $submission->getRelation('principal');
+        $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
+        $guarantor = $submission->getRelation('guarantor');
+        $guarantorBranch = $submission->getRelation('guarantorBranch');
+        $product = $submission->getRelation('product');
+        $guarantorToProductType = $submission->getRelation('guarantorToProductType');
+        $obligee = $submission->getRelation('obligee');
+        $jobProvince = $submission->getRelation('province');
+        $jobRegency = $submission->getRelation('regency');
+        $jobDistrict = $submission->getRelation('district');
+        $sourceOfFound = $submission->getRelation('sourceOfFund');
+        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
+        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
+        $submissionBeforeId = $submission->getAttribute('submission_before_id');
+
+        $hostToHost = $guarantor->getRelation('hostToHost');
+        $url = $hostToHost->getAttribute('guarantor_url_host');
+        $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
+        $prefix = $hostToHost->getAttribute('auth_prefix');
+        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+
+        $profileLimit = $this->getProfileLimit(
+            $submission->guarantor_id,
+            $submission->guarantor_product_type_id,
+            $submission->getRelation('staff')->getAttribute('profile_id'))
+            ?->getAttribute('limit') ?? 0;
+        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
+
+        $dataRevision = [];
+        if ($submissionBeforeId) {
+            $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
+            if (! $submissionCallback) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
+                ];
+            }
+            $dataRevision = [
+                'previous_id' => $submissionBeforeId,
+                'remarks' => $submission->getAttribute('revised_note'),
+                'policyno' => $submissionCallback->getAttribute('no_policy'),
+            ];
+        }
+        $result = array_merge($dataRevision, [
+            'submission_id' => $submission->getAttribute('id'),
+            'principal' => [
+                'id' => $principal->getAttribute('id'),
+                'name' => $principal->getAttribute('name'),
+                'telephone' => $principal->getAttribute('telephone'),
+                'pic' => $principal->getAttribute('pic'),
+                'npwp' => $principal->getAttribute('npwp'),
+                'nib' => $principal->getAttribute('nib'),
+                'siup_siujk' => $principal->getAttribute('siup_siujk'),
+                'head_name' => $principal->getAttribute('head_name'),
+                'business_fields' => $principal->getAttribute('business_fields'),
+                'director' => [
+                    'name' => $principal->getAttribute('director_name'),
+                    'position' => $principal->getAttribute('director_position'),
+                    'phone' => $principal->getAttribute('director_phone'),
+                    'commissioner' => $principal->getAttribute('commissioner'),
+                ],
+                'year_established' => $principal->getAttribute('year_established'),
+                'last_legality' => $principal->getAttribute('last_deed'),
+                'location' => [
+                    'province' => $principal->province?->only(['code', 'name']),
+                    'regency' => $principal->regency?->only(['code', 'name']),
+                    'district' => $principal->district?->only(['code', 'name']),
+                    'village' => $principal->getAttribute('village'),
+                    'address' => $principal->getAttribute('address'),
+                    'postal_code' => $principal->getAttribute('postal_code'),
+                ],
+                'docs' => $beyondTheLimit ? $principal->getRelation('documents')->map(function ($doc) {
+                    return [
+                        'name' => $doc->getAttribute('name'),
+                        'url' => $doc->getAttribute('url'),
+                    ];
+                })->toArray() : [],
+            ],
+            'guarantee' => [
+                'no' => $submission->getAttribute('no_guarantee'),
+                'value' => $submission->getAttribute('guarantee_value'),
+            ],
+            'contract' => [
+                'blank' => $blank?->number,
+                'value' => $submission->getAttribute('contract_value'),
+                'document' => [
+                    'name' => $submission->getAttribute('contract_doc_name'),
+                    'number' => $submission->getAttribute('contract_doc_number'),
+                    'date' => $submission->getAttribute('contract_doc_date'),
+                ],
+                'guarantor' => [
+                    ...$guarantor->only(['id', 'code', 'name']),
+                    'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
+                ],
+                'product' => $product->only(['id', 'name']),
+                'product_type' => [
+                    'id' => $guarantorToProductType->getAttribute('product_type_id'),
+                    'name' => $guarantorToProductType->getAttribute('name'),
+                ],
+                'obligee' => [
+                    'name' => $obligee->getAttribute('name'),
+                    'telephone' => $obligee->getAttribute('telephone'),
+                    'pic' => $obligee->getAttribute('pic'),
+                    'no_ppk' => $obligee->getAttribute('npwp'),
+                    'location' => [
+                        'province' => $obligee->province?->only(['code', 'name']),
+                        'regency' => $obligee->regency?->only(['code', 'name']),
+                        'district' => $obligee->district?->only(['code', 'name']),
+                        'village' => $obligee->getAttribute('village'),
+                        'address' => $obligee->getAttribute('address'),
+                        'postal_code' => $obligee->getAttribute('postal_code'),
+                    ],
+                ],
+                'project' => [
+                    'name' => $submission->getAttribute('job_name'),
+                    'group' => $guarantorToProductType->getAttribute('job_group'),
+                    'type' => $guarantorToProductType->getAttribute('job_type'),
+                    'time_period' => $submission->getAttribute('time_period'),
+                    'start_date' => $submission->getAttribute('start_date'),
+                    'end_date' => $submission->getAttribute('end_date'),
+                    'source_of_fund' => $sourceOfFound->only(['id', 'name']),
+                    'location' => [
+                        'province' => $jobProvince->only(['code', 'name']),
+                        'regency' => $jobRegency->only(['code', 'name']),
+                        'district' => $jobDistrict->only(['code', 'name']),
+                        'village' => $submission->getAttribute('job_location_village'),
+                        'address' => $submission->getAttribute('job_location_address'),
+                        'postal_code' => $submission->getAttribute('job_location_postal_code'),
+                    ],
+                ],
+            ],
+            'output' => $submissionDocs->map(function ($doc) {
+                return [
+                    'name' => $doc->getAttribute('name'),
+                    'value' => $doc->getAttribute('format_document'),
+                ];
+            })->toArray(),
+            'final_output_file' => $submissionDocsFile->map(function ($doc) {
+                return [
+                    'name' => $doc->getAttribute('name'),
+                    'url' => $doc->getAttribute('url'),
+                ];
+            })->toArray(),
+        ]);
+
+        Log::info('Data Send To Assurance', $result);
+        $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
+        if ($final['status'] == 'success') {
+            $submission->update(['has_send_to_guarantor' => true]);
+
+            return $final;
+        }
+
+        return $final;
+    }
+
+    private function getProfileLimit($guarantorId, $guarantorProductTypeId, $profileId)
+    {
+        return ProfileLimit::query()
+            ->where('guarantor_id', $guarantorId)
+            ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
+            ->where('profile_id', $profileId)
+            ->first();
+    }
+
     public function reject(Submission $submission): void
     {
         DB::beginTransaction();
@@ -2002,7 +2208,6 @@ class SubmissionController extends Controller
         }
     }
 
-    // check status
     public function check(Request $request, Submission $submission): void
     {
         DB::beginTransaction();
@@ -2038,7 +2243,6 @@ class SubmissionController extends Controller
         }
     }
 
-    // save content tinymce
     public function saveDocument(Request $request)
     {
         $validated = $request->validate([
@@ -2156,31 +2360,6 @@ class SubmissionController extends Controller
         }
     }
 
-    public function generateNomorSurat($submissionId)
-    {
-        $submission = Submission::find($submissionId);
-
-        if (! $submission) {
-            return null;
-        }
-
-        $submissionId = $submission->id;
-        $guarantorCode = $submission->guarantor->code;
-        $createdAt = Carbon::parse($submission->created_at)->format('Y'); // Format tanggal YYYMMDD
-
-        return strtoupper("{$guarantorCode}/{$submissionId}/{$createdAt}");
-    }
-
-    private function generateNomorSuratResume($id, $createdAt)
-    {
-        return "{$id}/BPR/".Carbon::parse($createdAt)->format('m/Y');
-    }
-
-    private function formatCurrency($value): string
-    {
-        return 'Rp. '.number_format($value, 2, ',', '.');
-    }
-
     public function updateDocument(Request $request, SubmissionDoc $submissionDoc)
     {
         $validated = $request->validate([
@@ -2215,181 +2394,6 @@ class SubmissionController extends Controller
         Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
 
         return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
-    }
-
-    private function sendToGuarantor($submissionId): array
-    {
-        $submission = Submission::query()
-            ->with([
-                'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                'director_name,director_position,director_phone,commissioner,year_established,'.
-                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
-                'principal.province:id,code,name',
-                'principal.regency:id,code,name',
-                'principal.district:id,code,name',
-                'principal.documents:id,principal_id,name,url',
-                'blanks',
-                'guarantor:id,code,name',
-                'guarantorBranch:id,code,name',
-                'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
-                'product:id,name',
-                'guarantorToProductType:id,product_type_id,name,job_group,job_type',
-                'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
-                'obligee.province:id,code,name',
-                'obligee.regency:id,code,name',
-                'obligee.district:id,code,name',
-                'province:id,code,name',
-                'regency:id,code,name',
-                'district:id,code,name',
-                'sourceOfFund:id,name',
-                'submissionDocs:id,submission_id,name,format_document,url',
-            ])->find($submissionId);
-        $principal = $submission->getRelation('principal');
-        $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
-        $guarantor = $submission->getRelation('guarantor');
-        $guarantorBranch = $submission->getRelation('guarantorBranch');
-        $product = $submission->getRelation('product');
-        $guarantorToProductType = $submission->getRelation('guarantorToProductType');
-        $obligee = $submission->getRelation('obligee');
-        $jobProvince = $submission->getRelation('province');
-        $jobRegency = $submission->getRelation('regency');
-        $jobDistrict = $submission->getRelation('district');
-        $sourceOfFound = $submission->getRelation('sourceOfFund');
-        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
-        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
-        $submissionBeforeId = $submission->getAttribute('submission_before_id');
-
-        $hostToHost = $guarantor->getRelation('hostToHost');
-        $url = $hostToHost->getAttribute('guarantor_url_host');
-        $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
-        $prefix = $hostToHost->getAttribute('auth_prefix');
-        $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-        $dataRevision = [];
-        if ($submissionBeforeId) {
-            $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
-            if (! $submissionCallback) {
-                return [
-                    'status' => 'error',
-                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
-                ];
-            }
-            $dataRevision = [
-                'previous_id' => $submissionBeforeId,
-                'remarks' => $submission->getAttribute('revised_note'),
-                'policyno' => $submissionCallback->getAttribute('no_policy'),
-            ];
-        }
-        $result = array_merge($dataRevision, [
-            'submission_id' => $submission->getAttribute('id'),
-            'principal' => [
-                'id' => $principal->getAttribute('id'),
-                'name' => $principal->getAttribute('name'),
-                'telephone' => $principal->getAttribute('telephone'),
-                'pic' => $principal->getAttribute('pic'),
-                'npwp' => $principal->getAttribute('npwp'),
-                'nib' => $principal->getAttribute('nib'),
-                'siup_siujk' => $principal->getAttribute('siup_siujk'),
-                'head_name' => $principal->getAttribute('head_name'),
-                'business_fields' => $principal->getAttribute('business_fields'),
-                'director' => [
-                    'name' => $principal->getAttribute('director_name'),
-                    'position' => $principal->getAttribute('director_position'),
-                    'phone' => $principal->getAttribute('director_phone'),
-                    'commissioner' => $principal->getAttribute('commissioner'),
-                ],
-                'year_established' => $principal->getAttribute('year_established'),
-                'last_legality' => $principal->getAttribute('last_deed'),
-                'location' => [
-                    'province' => $principal->province?->only(['code', 'name']),
-                    'regency' => $principal->regency?->only(['code', 'name']),
-                    'district' => $principal->district?->only(['code', 'name']),
-                    'village' => $principal->getAttribute('village'),
-                    'address' => $principal->getAttribute('address'),
-                    'postal_code' => $principal->getAttribute('postal_code'),
-                ],
-                'docs' => $principal->getRelation('documents')->map(function ($doc) {
-                    return [
-                        'name' => $doc->getAttribute('name'),
-                        'url' => $doc->getAttribute('url'),
-                    ];
-                })->toArray(),
-            ],
-            'guarantee' => [
-                'no' => $submission->getAttribute('no_guarantee'),
-                'value' => $submission->getAttribute('guarantee_value'),
-        ],
-            'contract' => [
-                'blank' => $blank?->number,
-                'value' => $submission->getAttribute('contract_value'),
-                'document' => [
-                    'name' => $submission->getAttribute('contract_doc_name'),
-                    'number' => $submission->getAttribute('contract_doc_number'),
-                    'date' => $submission->getAttribute('contract_doc_date'),
-                ],
-                'guarantor' => [
-                    ...$guarantor->only(['id', 'code', 'name']),
-                    'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
-                ],
-                'product' => $product->only(['id', 'name']),
-                'product_type' => [
-                    'id' => $guarantorToProductType->getAttribute('product_type_id'),
-                    'name' => $guarantorToProductType->getAttribute('name'),
-                ],
-                'obligee' => [
-                    'name' => $obligee->getAttribute('name'),
-                    'telephone' => $obligee->getAttribute('telephone'),
-                    'pic' => $obligee->getAttribute('pic'),
-                    'no_ppk' => $obligee->getAttribute('npwp'),
-                    'location' => [
-                        'province' => $obligee->province?->only(['code', 'name']),
-                        'regency' => $obligee->regency?->only(['code', 'name']),
-                        'district' => $obligee->district?->only(['code', 'name']),
-                        'village' => $obligee->getAttribute('village'),
-                        'address' => $obligee->getAttribute('address'),
-                        'postal_code' => $obligee->getAttribute('postal_code'),
-                    ],
-                ],
-                'project' => [
-                    'name' => $submission->getAttribute('job_name'),
-                    'group' => $guarantorToProductType->getAttribute('job_group'),
-                    'type' => $guarantorToProductType->getAttribute('job_type'),
-                    'time_period' => $submission->getAttribute('time_period'),
-                    'start_date' => $submission->getAttribute('start_date'),
-                    'end_date' => $submission->getAttribute('end_date'),
-                    'source_of_fund' => $sourceOfFound->only(['id', 'name']),
-                    'location' => [
-                        'province' => $jobProvince->only(['code', 'name']),
-                        'regency' => $jobRegency->only(['code', 'name']),
-                        'district' => $jobDistrict->only(['code', 'name']),
-                        'village' => $submission->getAttribute('job_location_village'),
-                        'address' => $submission->getAttribute('job_location_address'),
-                        'postal_code' => $submission->getAttribute('job_location_postal_code'),
-                    ],
-                ],
-        ],
-            'output' => $submissionDocs->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'value' => $doc->getAttribute('format_document'),
-                ];
-            })->toArray(),
-            'final_output_file' => $submissionDocsFile->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'url' => $doc->getAttribute('url'),
-                ];
-            })->toArray(),
-        ]);
-
-        Log::info('Data Send To Assurance', $result);
-        $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
-        if ($final['status'] == 'success') {
-            $submission->update(['has_send_to_guarantor' => true]);
-
-            return $final;
-        }
-
-        return $final;
     }
 
     public function postToGetCallback(Submission $submission): JsonResponse

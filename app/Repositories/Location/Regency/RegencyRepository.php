@@ -24,10 +24,13 @@ class RegencyRepository implements RegencyRepositoryInterface
     /**
      * Search regencies with pagination
      */
-    public function search(string $search = '', int $perPage = 10, int $page = 1): LengthAwarePaginator
+    public function search(string $search = '', int $perPage = 10, int $page = 1, ?int $provinceId = null): LengthAwarePaginator
     {
         return $this->model
             ->search($search)
+            ->when($provinceId, function ($query) use ($provinceId) {
+                $query->where('province_id', $provinceId);
+            })
             ->orderBy('name')
             ->paginate(
                 perPage: $perPage,
@@ -42,6 +45,13 @@ class RegencyRepository implements RegencyRepositoryInterface
     {
         return $this->model
             ->where('province_id', $provinceId)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getAllRegency(): Collection
+    {
+        return $this->model
             ->orderBy('name')
             ->get();
     }

@@ -724,7 +724,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
                 <tr className="border-b">
-                  <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
+                  <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
                   <td className="p-2 ">: {submission.blank?.number}</td>
                 </tr>
                 <tr className="border-b">

@@ -20,10 +20,9 @@ class District extends Model
         'name',
     ];
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
         return [
-            'code' => $this->code,
             'name' => $this->name,
         ];
     }

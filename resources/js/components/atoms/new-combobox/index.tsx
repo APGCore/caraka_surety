@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { cn } from "@/common/utils/cn";
-import { Button } from "@/components/_shadcn-ui/button";
+import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import {
   Command,
   CommandEmpty,
@@ -8,8 +7,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/_shadcn-ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
+} from "@/_features/_common/components/_shadcn-ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/_features/_common/components/_shadcn-ui/popover";
+import { cn } from "@/_features/_common/utils/cn";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -27,6 +27,7 @@ interface ComboboxProps {
   onSelect?: (item: ComboboxItem | null) => void;
   defaultValue?: string | number;
   isLoading?: boolean;
+  className?: string;
 }
 
 const NewCombobox: React.FC<ComboboxProps> = ({
@@ -39,6 +40,7 @@ const NewCombobox: React.FC<ComboboxProps> = ({
   searchPlaceholder,
   notFoundText,
   isLoading,
+  className,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<ComboboxItem | null>(null);
@@ -74,7 +76,7 @@ const NewCombobox: React.FC<ComboboxProps> = ({
           role="combobox"
           aria-expanded={open}
           disabled={data.length === 0}
-          className="w-full justify-between">
+          className={cn("w-full justify-between", className)}>
           {value ? getLabel(value) : comboboxPlaceholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

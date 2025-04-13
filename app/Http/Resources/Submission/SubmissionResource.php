@@ -15,15 +15,14 @@ class SubmissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $direksiLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
+        $productLimit = $this->resource->guarantorProductTypeLimit;
+
         return [
-            'id' => $this->resource->id,
-            'no_guarantee' => $this->resource->no_guarantee,
-            'job_name' => $this->resource->job_name,
-            'guarantee_value' => $this->resource->guarantee_value,
-            'start_date' => Carbon::parse($this->resource->start_date)->format('d F Y'),
-            'end_date' => Carbon::parse($this->resource->end_date)->format('d F Y'),
-            'time_period' => $this->resource->time_period,
-            'created_at' => $this->resource->created_at->format('d F Y'),
+            ...parent::toArray($request),
+            'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
+            'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
+            'created_at' => $this->resource->created_at?->format('d F Y H:i:s') ?? null,
             'blank' => $this->resource->blank ?? $this->resource->blanks->firstWhere('is_broken', false),
             'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
             'principal' => $this->whenLoaded('principal', function () {
@@ -69,15 +68,16 @@ class SubmissionResource extends JsonResource
                     'office' => $this->resource->staff->office->name,
                 ];
             }),
-            'central_office_rate' => $this->resource->central_office_rate,
-            'branch_office_rate' => $this->resource->branch_office_rate,
-            'guarantor_rate' => $this->resource->guarantor_rate,
             'submission_before' => $this->whenLoaded('submissionBefore', function () {
                 return [
                     'id' => $this->resource->submissionBefore->id,
                     'blank' => $this->resource->submissionBefore->blanks->select(['number'])->firstWhere('is_broken', false),
                 ];
             }),
+            'direksi_limit' => $direksiLimit?->limit ?? 0,
+            'product_limit' => $productLimit?->limit ?? 0,
+            'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
+            'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $this->resource->guarantee_value,
         ];
     }
 }

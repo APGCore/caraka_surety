@@ -54,20 +54,6 @@ class GuarantorController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        $component = request()->path().'/index';
-
-        return inertia($component, [
-            'page_settings' => [
-                'title' => 'Tambah Asuransi',
-            ],
-        ]);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreRequest $request): void
@@ -105,6 +91,20 @@ class GuarantorController extends Controller
             $error = $this->handleErrorMessage($e);
             Log::error('GuarantorController@store: ', $error);
         }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        $component = request()->path().'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Tambah Asuransi',
+            ],
+        ]);
     }
 
     /**
@@ -230,16 +230,6 @@ class GuarantorController extends Controller
         return $this->responseSuccess('Berhasil mengambil data semua cabang', $guarantors);
     }
 
-    public function getByHeadquarteId($headquarterId)
-    {
-        $guarantors = Guarantor::query()
-            ->where('headquarter_id', $headquarterId)
-            ->orderBy('name')
-            ->get();
-
-        return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantors);
-    }
-
     public function product(Guarantor $guarantor)
     {
         $guarantor->load('product:id,name');
@@ -277,16 +267,13 @@ class GuarantorController extends Controller
         $season = auth()->user();
         $staff = User::query()->with('office')->firstWhere('id', $season->getAuthIdentifier());
 
-        if ($staff->office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
-            $guarantorBranch = Guarantor::query()
-                ->where('headquarter_id', $guarantor->getAttribute('id'))
-                ->orderBy('name')
-                ->get();
+        $guarantor->load('branch');
+        $guarantorBranch = $guarantor->getRelation('branch');
 
-            return $this->responseSuccess('Berhasil mengambil data cabang penjamin', $guarantorBranch);
+        if ($staff->office->getAttribute('office_type') === OfficeType::HEADQUARTER->value) {
+            return $this->responseSuccess('Berhasil mengambil data cabang penjamin pairing pusat', $guarantorBranch);
         }
 
-        $guarantor->load('branch');
         $guarantorBranchIds = $guarantor->getRelation('branch')->pluck('id');
         $guarantorOffice = OfficePairing::query()
             ->where('office_id', $staff->getAttribute('profile_id'))

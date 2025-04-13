@@ -17,6 +17,7 @@ import {
 } from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
@@ -26,6 +27,7 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
+import { StringToBoolean } from "class-variance-authority/types";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
@@ -77,10 +79,133 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const isProcess = submission.status == SubmissionStatus.PROCESS;
   const isApproved = submission.status == SubmissionStatus.APPROVED;
   const isRejected = submission.status == SubmissionStatus.REJECTED;
-  const colorAlert = isProcess ? "warning" : isApproved ? "success" : isRejected ? "destructive" : "default";
-  const isApprovedByDireksi = submission.approved_by_direksi === true;
+  const colorAlert: StringToBoolean<any> = isProcess
+    ? "warning"
+    : isApproved
+      ? "success"
+      : isRejected
+        ? "destructive"
+        : "default";
 
-  //   DOCUMENTS FORMAT
+  const data = {
+    principal: {
+      name: submission.principal?.name || "",
+      address: submission.principal?.address || "",
+      npwp: submission.principal?.npwp || "",
+      nib: submission.principal?.nib || "",
+      //   signer_name: submission.principal?.signer_name || "",
+      telephone: submission.principal?.telephone || "",
+      director_name: submission.principal?.director_name || "",
+      director_phone: submission.principal?.director_phone || "",
+      pic: submission.principal?.pic || "",
+      director_position: submission.principal?.director_position || "",
+      location:
+        submission.principal?.address +
+        ", " +
+        submission.principal?.district?.name +
+        ", " +
+        submission.principal?.regency?.name +
+        ", " +
+        submission.principal?.province?.name,
+    },
+    obligee: {
+      name: submission.obligee?.name || "",
+      address: submission.obligee?.address || "",
+      source_of_fund: submission.source_of_fund?.name || "",
+      ppk_name: submission.obligee?.pic || "",
+      city: submission.obligee?.district?.name,
+      location: (
+        submission.obligee?.address ||
+        "" +
+          ", " +
+          (submission.obligee?.district?.name || "") +
+          ", " +
+          (submission.obligee?.regency?.name || "") +
+          ", " +
+          (submission.obligee?.province?.name || "")
+      ).trim(),
+    },
+    guarantor: {
+      name: submission.guarantor?.name || "",
+      address: submission.guarantor?.address || "",
+      pic: submission.guarantor?.pic || "",
+      location:
+        submission.guarantor?.address +
+        ", " +
+        submission.guarantor?.district?.name +
+        ", " +
+        submission.guarantor?.regency?.name +
+        ", " +
+        submission.guarantor?.province?.name,
+    },
+    guarantor_address: submission.guarantor_address || "",
+    source_of_fund: {
+      name: submission.source_of_fund.name,
+    },
+    contract_value: submission.contract_value || 0,
+    guarantee_value: submission.guarantee_value || 0,
+    guarantee_type: submission.guarantor_to_product_type?.name || "",
+    time_period: submission.time_period || "",
+    job_name: submission.job_name || "",
+    job_location_village: submission.job_location_village || "",
+    contract_doc_name: submission.contract_doc_name || "",
+    contract_doc_number: submission.contract_doc_number || "",
+    contract_doc_date: submission.contract_doc_date || "",
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.created_at || "",
+    // letter_date: submission.letter_date || "",
+    // letter_number: submission.letter_number || "",
+    analysis: {
+      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
+      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
+      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
+      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
+      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
+    },
+    scoring_result: submission.scores || "",
+    // description: submission.description || "",
+    date: submission.created_at || "",
+    analyst_name: submission.analyst_name || "",
+    manager_name: submission.principal?.commissioner || "",
+    branch_manager: submission.principal?.director_name || "",
+    job_location:
+      submission.job_location_village +
+      ", " +
+      submission.district?.name +
+      ", " +
+      submission.regency?.name +
+      ", " +
+      submission.province?.name,
+    job_group: submission.guarantor_to_product_type?.job_group,
+    no: submission.id,
+    city: submission.regency?.name,
+  };
+
+  const calculateTotalPoint = (scores: any) => {
+    return scores.reduce((total: number, score: any) => total + score.point, 0);
+  };
+
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
+
+  //   const handleApprove = (submissionId: number) => {
+  //     setIsLoading(true);
+  //     axios
+  //       .post(route("kepala-cabang-submission-approve", submissionId))
+  //       .then((response) => {
+  //         console.log("success approve submission", response);
+  //         router.reload();
+  //       })
+  //       .catch((error) => {
+  //         console.log("error approve submission", error);
+  //       })
+  //       .finally(() => {
+  //         setIsLoading(false);
+  //       });
+  //   };
+
+  // DOCUMENT FORMAT
   interface SubmissionData {
     principal_name: string;
     location: string;
@@ -138,8 +263,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     total_score: string | number | undefined;
     recommendation: string | undefined;
     notes: string | undefined;
-    analyst_name: string | undefined;
-    manager_technique_name: string | undefined;
+    analyst_name: string;
+    manager_technique_name: string;
 
     branch_manager: string;
     job_location: string;
@@ -244,33 +369,39 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     terbilang: submission?.terbilang || "",
   };
 
-  const calculateTotalPoint = (scores: any) => {
-    return scores.reduce((total: number, score: any) => total + score.point, 0);
+  const documentFormat = () => {
+    return Object.keys(editorRefs.current).map((key) => {
+      const allDocuments = [
+        ...(Array.isArray(submission.document_format_guarantor) ? submission.document_format_guarantor : []),
+        ...(Array.isArray(submission.document_format_product) ? submission.document_format_product : []),
+        ...(Array.isArray(submission.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
+      ];
+
+      if (key === "hasil-analisis") {
+        return {
+          id: submission.document_format_analysis?.id || "hasil-analisis",
+          name: "Resume Analisa Penjaminan",
+          content: editorRefs.current[key].getContent(),
+        };
+      }
+
+      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
+
+      return {
+        id: doc ? doc.id : key,
+        name: doc ? doc.name : key,
+        content: editorRefs.current[key].getContent(),
+      };
+    });
   };
-
-  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
-
-  //   const handleApprove = (submissionId: number) => {
-  //     setIsLoading(true);
-  //     axios
-  //       .post(route("manager-submission-approve", submissionId))
-  //       .then((response) => {
-  //         console.log("success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.log("error approve submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
 
   const handleApprove = (submissionId: number): void => {
     setIsLoading(true);
 
+    const documents = documentFormat();
+
     axios
-      .post(route("kepala-cabang.submission.approve", { id: submissionId }))
+      .post(route("kepala-cabang-submission-approve", { id: submissionId }), { documents })
       .then((response) => {
         console.log("Success approve submission", response);
         router.reload();
@@ -285,8 +416,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const handleReject = (submissionId: number) => {
     setIsLoading(true);
+    const documents = documentFormat();
+
     axios
-      .post(route("kepala-cabang.submission.reject", submissionId))
+      .post(route("kepala-cabang-submission-reject", submissionId), { documents })
       .then((response) => {
         console.log("success reject submission", response);
         router.reload();
@@ -302,8 +435,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // handle check status
   const handleCheck = (submissionId: number) => {
     setIsLoading(true);
+    const documents = documentFormat();
+
     axios
-      .post(route("kepala-cabang.submission.check", submissionId))
+      .post(route("kepala-cabang-submission-check", submissionId), { documents })
       .then((response) => {
         console.log("success check submission", response);
         router.reload();
@@ -313,6 +448,43 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       })
       .finally(() => {
         setIsLoading(false);
+      });
+  };
+
+  const handleSendGuarantor = (submissionId: number) => {
+    setIsLoading(true);
+    axios
+      .post(route("api.submission-management.send", { id: submissionId }))
+      .then((response) => {
+        console.log("Success Send To Guarantor", response);
+        toast({
+          title: "Sukses",
+          description: "Pengajuan berhasil dikirim ke asuransi",
+        });
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error Send To Guarantor", error);
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    axios
+      .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
+      .then((response) => {
+        console.log("Success Get Callback From Guarantor", response);
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error Get Callback From Guarantor", error);
       });
   };
 
@@ -333,13 +505,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     if (submission.id) formData.append("submission_id", String(submission.id));
 
     axios
-      .post(route("manager-submission-save-permohonan-doc.submission"), formData, {
+      .post(route("kepala-cabang-submission-save-permohonan-doc.submission"), formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
 
       .then((response) => {
+        console.log("Success submit submission", response);
         toast({
           title: "Dokumen berhasil diunggah!",
           description: "Dokumen berhasil diunggah.",
@@ -366,27 +539,38 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [isFileUploaded, setIsFileUploaded] = useState<boolean>(false);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadedFile(file);
-      setIsFileUploaded(true);
-    }
-  };
-
   return (
     <>
-      <Show when={submission.beyond_the_limit === true}>
-        <div className="fixed top-20 w-[81%] z-[100]">
+      <Show when={submission.beyond_the_limit}>
+        <div className="fixed top-20 w-[73vw] z-[100]">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Nilai Jaminan {submission.guarantee_value_formatted} Pengajuan Melebihi Batas Kewenangan yaitu Rp.{" "}
-              {textCurrency(submission.limit)}.
+              Pengajuan Melebihi Batas Kewenangan Nilai Jaminan Rp. {textCurrency(submission.guarantee_value)}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Show>
+      {/* has_send_to_guarantor */}
+      <Show when={(submission.has_send_to_guarantor as boolean) && (!submission.callback as boolean)}>
+        <div className="fixed top-20 w-[73vw] z-[100]">
+          <Alert variant="warning">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Pemberitahuan</AlertTitle>
+            <AlertDescription>
+              Pengajuan telah dikirim ke {submission.guarantor?.name} dan menunggu hasil dari asuransi
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Show>
+      <Show when={submission.submission_before_id !== null}>
+        <div className="fixed top-20 w-[73vw] z-[100]">
+          <Alert variant="info">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Revisi</AlertTitle>
+            <AlertDescription>
+              Pengajuan ini merupakan revisi dari pengajuan sebelumnya dengan nomor pengajuan {submission.no_guarantee}
             </AlertDescription>
           </Alert>
         </div>
@@ -446,7 +630,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         <div className="border rounded-sm p-4 space-y-6 bg-white">
           {/* STATUS */}
           <div>
-            <Alert variant={colorAlert as any}>
+            <Alert variant={colorAlert}>
               <AlertTitle>Status</AlertTitle>
               <AlertDescription>
                 <Show when={isProcess}>
@@ -540,7 +724,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
                 <tr className="border-b">
-                  <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
+                  <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
                   <td className="p-2 ">: {submission.blank?.number}</td>
                 </tr>
                 <tr className="border-b">
@@ -620,7 +804,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Lokasi Proyek</td>
-                  <td className="p-2">: {submission.job_location}</td>
+                  <td className="p-2">: {data?.job_location}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Sumber Dana</td>
@@ -796,7 +980,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       )}
                     </td>
                     <RenderList
-                      of={submission.principal?.ratios}
+                      of={submission.principal?.ratios as Array<any>}
                       render={(ratio: any) => {
                         return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
                       }}
@@ -895,8 +1079,45 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tfoot>
               </table>
             </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-4 mt-10">Catatan Skoring</h2>
+              <textarea className="w-full" disabled>
+                {submission.note_scoring}
+              </textarea>
+            </div>
+            <Show when={submission.submission_before_id !== null}>
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-10">Catatan Revisi</h2>
+                <textarea className="w-full" disabled>
+                  {submission.revised_note}
+                </textarea>
+              </div>
+            </Show>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            {submission.has_send_to_guarantor ? (
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">
+                  Dokumen Terverifikasi Dari {submission.guarantor?.name}
+                </h2>
+                <Card className="w-auto">
+                  <CardContent className="p-0">
+                    <div className="flex flex-col items-center justify-center py-4">
+                      {submission.callback ? (
+                        <>
+                          <img src={submission.callback.url} alt="Code QR" />
+                          <Button onClick={() => window.open(submission.callback.doc_url, "_blank")}>
+                            Dokumen Pendukung
+                          </Button>
+                        </>
+                      ) : (
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : null}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -933,7 +1154,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </thead>
                 <tbody>
                   <RenderList
-                    of={submission.submission_docs}
+                    of={submission.submission_docs as Array<any>}
                     render={(docSig) => (
                       <tr key={docSig.id} className="border-b">
                         <td className="p-2" title={docSig.name}>
@@ -964,10 +1185,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 />
               </div>
             </div>
+
             <div>
               <div>
                 {(() => {
                   const documentsToDisplay: JSX.Element[] = [];
+
                   // Untuk document_format_guarantor
                   if (submission.document_format_guarantor?.length) {
                     submission.document_format_guarantor.forEach((doc: any) => {
@@ -1001,7 +1224,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   }
 
                   // Untuk document_format_type_guarantee
-                  if (isApproved && submission.document_format_type_guarantee?.length) {
+                  if (submission.document_format_type_guarantee?.length) {
                     submission.document_format_type_guarantee.forEach((doc: any) => {
                       documentsToDisplay.push(
                         <div key={doc.id} style={{ marginBottom: "20px" }}>
@@ -1024,170 +1247,101 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 })()}
               </div>
             </div>
-
-            {/* {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("bank") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Surat Permohonan</p>
-                <TinyMCEEditor
-                  id="surat-permohonan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-permohonan"] = editor)}
-                  initialContent={replacePlaceholders(templateBankGaransi, dataTemplate)}
-                />
+            <Show
+              when={
+                submission.status === SubmissionStatus.PROCESS &&
+                !submission.beyond_the_limit &&
+                !submission.checked_at &&
+                !submission.approved_at &&
+                !submission.rejected_at
+              }>
+              <div className="flex gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Reject
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-600 hover:bg-red-400"
+                        onClick={() => submission.id && handleReject(submission.id)}>
+                        Tolak
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Approve
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-green-600 hover:bg-green-400"
+                        onClick={() => submission.id && handleApprove(submission.id)}>
+                        Setujui
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-            )}
-            {submission.guarantor_to_product_type?.full_name.toLowerCase().includes("surety bond") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Draft Surety Bond</p>
-                <TinyMCEEditor
-                  id="draft-surety"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety"] = editor)}
-                  initialContent={replacePlaceholders(templateDraftSurety, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Bumida</p>
-                <TinyMCEEditor
-                  id="draft-surety-bumida"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-bumida"] = editor)}
-                  initialContent={replacePlaceholders(templateBumida, dataTemplate)}
-                />
-              </div>
-            )}
-            {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jastan atau Jasa Tania</p>
-                <TinyMCEEditor
-                  id="draft-surety-jastan"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-jastan"] = editor)}
-                  initialContent={replacePlaceholders(templateJastan, dataTemplate)}
-                />
-              </div>
-            ) : null}
-
-            {submission.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Videi</p>
-                <TinyMCEEditor
-                  id="draft-surety-videi"
-                  onInit={(evt, editor) => (editorRefs.current["draft-surety-videi"] = editor)}
-                  initialContent={replacePlaceholders(templateVidei, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {submission.guarantor?.name.toLowerCase().includes("bumida") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR BUMIDA</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-bumida"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-bumida"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrBumida, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {submission.guarantor?.name.toLowerCase().includes("jastan") ||
-            submission.guarantor?.name.toLowerCase().includes("jasa tania") ? (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR JASTAN</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrJastan, dataTemplate)}
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {submission.guarantor?.name.toLowerCase().includes("videi") && (
-              <div>
-                <h2 className="text-lg font-semibold mb-4 mt-5">SPKMGR VIDEI</h2>
-                <div>
-                  <TinyMCEEditor
-                    id="spkmgr-videi"
-                    onInit={(evt, editor) => (editorRefs.current["spkmgr-videi"] = editor)}
-                    initialContent={replacePlaceholders(templateSpkmgrVidei, dataTemplate)}
-                  />
-                </div>
-              </div>
-            )} */}
-
-            {/* OUTPUT SURAT JAMINAN  */}
-
-            {/* {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pemeliharaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pemeliharaan</p>
-                <TinyMCEEditor
-                  id="surat-pemeliharaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pemeliharaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePemeliharaan, dataTemplate)}
-                />
-              </div>
-            )}
-
-            {isApproved &&
-              (submission.guarantor?.name.toLowerCase().includes("jastan") ||
-                submission.guarantor?.name.toLowerCase().includes("jasa tania")) && (
-                <div>
-                  <p className="text-xl font-semibold mb-4 mt-5">Jaminan Uang Muka Jastan</p>
-                  <TinyMCEEditor
-                    id="uang-muka-jastan"
-                    onInit={(evt, editor) => (editorRefs.current["uang-muka-jastan"] = editor)}
-                    initialContent={replacePlaceholders(templateUangMuka, dataTemplate)}
-                  />
-                </div>
-              )}
-
-            {isApproved && submission.guarantor_to_product_type?.full_name.toLowerCase().includes("pelaksanaan") && (
-              <div>
-                <p className="text-xl font-semibold mb-4 mt-5">Jaminan Pelaksanaan</p>
-                <TinyMCEEditor
-                  id="surat-pelaksanaan"
-                  onInit={(evt, editor) => (editorRefs.current["surat-pelaksanaan"] = editor)}
-                  initialContent={replacePlaceholders(templatePelaksanaan, dataTemplate)}
-                />
-              </div>
-            )} */}
-          </Show>
-
-          <Show
-            when={
-              submission.status === SubmissionStatus.PROCESS &&
-              !submission.beyond_the_limit &&
-              !submission.approved_at &&
-              !submission.rejected_at
-            }>
-            <div className="flex gap-2">
+            </Show>
+            <Show
+              when={
+                submission.status === SubmissionStatus.PROCESS &&
+                submission.beyond_the_limit &&
+                !submission.checked_at &&
+                !submission.approved_at &&
+                !submission.rejected_at
+              }>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="default"
                     disabled={isLoading}
-                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                     {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Reject
+                    Kirim Ke Direksi
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke direksi?</AlertDialogTitle>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
                     <AlertDialogAction
-                      className="bg-red-600 hover:bg-red-400"
-                      onClick={() => submission.id && handleReject(submission.id)}>
-                      Tolak
+                      className="bg-yellow-600 hover:bg-yellow-200"
+                      onClick={() => submission.id && handleCheck(submission.id)}>
+                      Kirim
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+            </Show>
+            <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -1195,126 +1349,24 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     disabled={isLoading}
                     className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                     {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Approve
+                    Kirim Ke {submission.guarantor?.name}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-green-600 hover:bg-green-400"
-                      onClick={() => submission.id && handleApprove(submission.id)}>
-                      Setujui
+                      onClick={() => handleSendGuarantor(submission.id)}>
+                      Kirim
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </div>
-          </Show>
-          {/* <Show
-            when={
-              submission.status === SubmissionStatus.PROCESS &&
-              !submission.beyond_the_limit &&
-              !submission.approved_at &&
-              !submission.rejected_at
-            }>
-            <div className="flex gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Reject
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-600 hover:bg-red-400"
-                      onClick={() => submission.id && handleReject(submission.id)}>
-                      Tolak
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Approve
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin menyetujui pengajuan ini?</AlertDialogTitle>
-                    <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700">Upload Dokumen Pendukung</label>
-                      <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      {!isFileUploaded && (
-                        <p className="text-red-500 text-sm mt-2">File wajib diunggah sebelum menyetujui.</p>
-                      )}
-                    </div>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className={`bg-green-600 hover:bg-green-400 ${!isFileUploaded ? "opacity-50 cursor-not-allowed" : ""}`}
-                      onClick={handleApproveClick}
-                      disabled={!isFileUploaded}>
-                      Setujui
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </Show> */}
-          <Show
-            when={
-              submission.status === SubmissionStatus.PROCESS && submission.beyond_the_limit && !submission.checked_at
-            }>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="default"
-                  disabled={isLoading}
-                  className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                  Kirim Ke Direksi
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke direksi?</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Batal</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-yellow-600 hover:bg-yellow-200"
-                    disabled={isLoading}
-                    onClick={() => submission.id && handleCheck(submission.id)}>
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            </Show>
           </Show>
         </div>
       </main>
@@ -1331,7 +1383,11 @@ SubmissionDetailPage.layout = (page: any) => {
     <RoleBasedLayout propsData={pagePropsData}>
       <div
         className={cn({
-          "mt-[7%]": pagePropsData?.submission.beyond_the_limit,
+          "mt-[7%]":
+            pagePropsData?.submission.beyond_the_limit ||
+            pagePropsData?.submission.has_send_to_guarantor ||
+            pagePropsData?.submission.callback ||
+            pagePropsData?.submission.submission_before_id,
         })}>
         <SubmissionDetailHeader title={"Detail Pengajuan"} />
         {page}

@@ -1,9 +1,10 @@
+import { FetchParams } from "@/_features/_common/types/fetch";
 import { PaginationMeta } from "@/_features/_common/types/pagination";
 import { useQueryState } from "nuqs";
 import React, { useCallback } from "react";
-import { useSearchProvinces } from "../services/location-query";
+import { useSearchDistricts } from "../services/district-location-query";
 
-interface Province {
+interface District {
   id: number;
   code: string;
   name: string;
@@ -11,7 +12,12 @@ interface Province {
   updated_at: string;
 }
 
-const useProvince = () => {
+export interface DistrictResponse {
+  data: District[];
+  meta: PaginationMeta;
+}
+
+const useListDistrict = () => {
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
     history: "push",
@@ -33,11 +39,13 @@ const useProvince = () => {
     serialize: (value) => value,
   });
 
+  // const { data: regencies, isLoading: isLoadingRegencies, isSuccess: isSuccessRegencies } = useGetAllRegency();
+
   const {
-    data: provinces,
-    isLoading: isLoadingProvinces,
-    isSuccess: isSuccessProvinces,
-  } = useSearchProvinces<{ data: Province[]; meta: PaginationMeta }>({
+    data: districts,
+    isLoading: isLoadingDistricts,
+    isSuccess: isSuccessDistricts,
+  } = useSearchDistricts<DistrictResponse>({
     perPage: Number(perPage),
     search,
     page: Number(page),
@@ -45,6 +53,10 @@ const useProvince = () => {
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
+
+    if (search?.length > 0) {
+      setPage("1");
+    }
   }, []);
 
   const handlePerPageChange = useCallback((value: string) => {
@@ -57,10 +69,10 @@ const useProvince = () => {
   }, []);
 
   return {
-    provinces: provinces?.data,
-    meta: provinces?.meta,
-    isLoadingProvinces,
-    isSuccessProvinces,
+    districts: districts?.data,
+    meta: districts?.meta,
+    isLoadingDistricts,
+    isSuccessDistricts,
     handleSearchChange,
     handlePerPageChange,
     handlePageChange,
@@ -70,4 +82,4 @@ const useProvince = () => {
   };
 };
 
-export default useProvince;
+export default useListDistrict;

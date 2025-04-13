@@ -130,19 +130,17 @@ class ProfileLimitController extends Controller
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit_inherit')) {
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
-            ProfileLimit::query()->create(
-                [
-                    'guarantor_id' => $requestValid['guarantor_id'],
-                    'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
-                    'profile_id' => $requestValid['profile_id'],
-                    'limit' => $limit,
-                    'limit_inherit' => $limitInherit,
-                ]
-            );
+            ProfileLimit::query()->create([
+                'guarantor_id' => $requestValid['guarantor_id'],
+                'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
+                'profile_id' => $requestValid['profile_id'],
+                'limit' => $limit,
+                'limit_inherit' => $limitInherit,
+            ]);
             activity()
                 ->useLog('profile')
                 ->performedOn(new ProfileLimit)
@@ -191,7 +189,7 @@ class ProfileLimitController extends Controller
             $limit = (int) str_replace('.', '', $requestValid['limit']);
             $limitInherit = (int) str_replace('.', '', $requestValid['limit_inherit']);
 
-            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit')) {
+            if ($limit > $guarantorProductLimit->getAttribute('limit') || $limitInherit > $guarantorProductLimit->getAttribute('limit_inherit')) {
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 

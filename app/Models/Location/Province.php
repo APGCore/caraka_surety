@@ -18,6 +18,13 @@ class Province extends Model
         'name',
     ];
 
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+        ];
+    }
+
     // is relation
     public function regency(): HasMany
     {

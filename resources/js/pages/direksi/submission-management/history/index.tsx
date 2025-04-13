@@ -2,6 +2,8 @@ import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RoleBasedLayout from "@/layouts/role-based-layout";
+import { router } from "@inertiajs/react";
+import { pickBy } from "lodash";
 import { useState } from "react";
 import SubmissionHistoryDatatable from "./_partials/history-datatable";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
@@ -13,10 +15,23 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions }) => {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    relaodData();
   };
 
   const handleSelect = (value: string) => {
     setSelect(Number(value));
+    relaodData();
+  };
+
+  const relaodData = () => {
+    router.get(
+      route("direksi-submission-history.submission"),
+      pickBy({
+        search: search,
+        per_page: select,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
   };
 
   return (

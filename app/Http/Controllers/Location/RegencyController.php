@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\RegencyResource;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
+use App\Services\Location\RegencyService;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,26 @@ use Inertia\Response;
 
 class RegencyController extends Controller
 {
+    protected $regencyService;
+
+    public function __construct(RegencyService $regencyService)
+    {
+        $this->regencyService = $regencyService;
+    }
+
+    public function apiSearch(Request $request): JsonResponse
+    {
+        $search = $request->get('search') ?? '';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+        $provinceId = $request->get('province_id') ? (int) $request->get('province_id') : null;
+
+        $result = $this->regencyService->searchRegencies($search, $perPage, $page, $provinceId);
+        $msg = 'Berhasil mengambil data kabupaten!';
+
+        return $this->responseSuccess($msg, $result);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -92,7 +113,6 @@ class RegencyController extends Controller
         } finally {
             return redirect()->route('regency.index');
         }
-
     }
 
     /**

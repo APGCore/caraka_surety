@@ -9,7 +9,7 @@ interface RegencyRepositoryInterface
     /**
      * Search regencies with pagination
      */
-    public function search(string $search = '', int $perPage = 10, int $page = 1): LengthAwarePaginator;
+    public function search(string $search = '', int $perPage = 10, int $page = 1, ?int $provinceId = null): LengthAwarePaginator;
 
     /**
      * Get regencies by province ID
@@ -17,4 +17,11 @@ interface RegencyRepositoryInterface
      * @return mixed
      */
     public function getByProvince(int $provinceId);
+
+    /**
+     * Get all regencies
+     *
+     * @return mixed
+     */
+    public function getAllRegency();
 }

@@ -41,7 +41,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => fn () => [
                 'user' => $request->user()?->load('role'),
             ],
-            'roles' => fn () => (object) RoleEnum::getKeyValue(),
+            'roles_names' => fn () => (object) RoleEnum::getKeyValue(),
             'guarantor' => Guarantor::select(['id', 'name', 'picture'])->firstWhere('id', session('guarantor_id', config('guarantor.id'))),
             'location' => fn () => $request->url(),
             'flash_message' => fn () => [

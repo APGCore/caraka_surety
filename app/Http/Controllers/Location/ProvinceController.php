@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Location;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\ProvinceResource;
 use App\Models\Location\Province;
+use App\Services\Location\ProvinceService;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +15,25 @@ use Illuminate\Support\Facades\Log;
 
 class ProvinceController extends Controller
 {
+    protected $provinceService;
+
+    public function __construct(ProvinceService $provinceService)
+    {
+        $this->provinceService = $provinceService;
+    }
+
+    public function apiSearch(Request $request): JsonResponse
+    {
+        $search = $request->get('search') ?? '';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        $result = $this->provinceService->searchProvinces($search, $perPage, $page);
+        $msg = 'Berhasil mengambil data provinsi!';
+
+        return $this->responseSuccess($msg, $result);
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -232,7 +232,7 @@ class BlankController extends Controller
 
         $blankPage = Blank::search($request->get('search'))
             ->query(function ($query) use ($guarantorId, $profileId) {
-                return $query->with('profile')
+                return $query->with(['profile', 'fromProfile'])
                     ->where('guarantor_id', $guarantorId)
                     ->where('profile_id', $profileId);
             })

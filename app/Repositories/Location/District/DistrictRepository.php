@@ -24,10 +24,13 @@ class DistrictRepository implements DistrictRepositoryInterface
     /**
      * Search districts with pagination
      */
-    public function search(string $search = '', int $perPage = 10, int $page = 1): LengthAwarePaginator
+    public function search(string $search = '', int $perPage = 10, int $page = 1, ?int $regencyId = null): LengthAwarePaginator
     {
         return $this->model
             ->search($search)
+            ->when($regencyId, function ($query) use ($regencyId) {
+                $query->where('regency_id', $regencyId);
+            })
             ->orderBy('name')
             ->paginate(
                 perPage: $perPage,
@@ -42,6 +45,13 @@ class DistrictRepository implements DistrictRepositoryInterface
     {
         return $this->model
             ->where('regency_id', $regencyId)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function getAllDistrict(): Collection
+    {
+        return $this->model
             ->orderBy('name')
             ->get();
     }

@@ -17,7 +17,7 @@ class DistrictResource extends JsonResource
         return [
             ...parent::toArray($request),
             'regency' => $this->resource->regency?->name,
-            'created_at' => $this->resource->created_at->format('d F Y'),
+            // 'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }
 }

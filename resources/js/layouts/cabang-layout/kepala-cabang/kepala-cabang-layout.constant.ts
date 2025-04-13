@@ -26,13 +26,13 @@ export const kepalaCabangRoute: IAppSideBarMenu[] = [
     items: [
       {
         title: "List Pengajuan Masuk",
-        route_name: "kepala-cabang-submission.list",
-        href: route("kepala-cabang-submission.list.index"),
+        route_name: "kepala-cabang-submission-list",
+        href: route("kepala-cabang-submission-list.submission"),
       },
       {
         title: "List Hasil Pengajuan",
-        route_name: "kepala-cabang-submission.history",
-        href: route("kepala-cabang-submission.history.index"),
+        route_name: "kepala-cabang-submission-history",
+        href: route("kepala-cabang-submission-history.submission"),
       },
     ],
   },

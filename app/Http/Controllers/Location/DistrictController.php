@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Location\DistrictResource;
 use App\Models\Location\District;
 use App\Models\Location\Regency;
+use App\Services\Location\DistrictService;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,26 @@ use Illuminate\Validation\ValidationException;
 
 class DistrictController extends Controller
 {
+    protected $districtService;
+
+    public function __construct(DistrictService $districtService)
+    {
+        $this->districtService = $districtService;
+    }
+
+    public function apiSearch(Request $request): JsonResponse
+    {
+        $search = $request->get('search') ?? '';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+        $regencyId = $request->get('regency_id') ? (int) $request->get('regency_id') : null;
+
+        $result = $this->districtService->searchDistricts($search, $perPage, $page, $regencyId);
+        $msg = 'Berhasil mengambil data kecamatan!';
+
+        return $this->responseSuccess($msg, $result);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -71,9 +92,9 @@ class DistrictController extends Controller
             DB::beginTransaction();
             $regency = District::query()
                 ->create([
-                    'regency_id' => $reqValidated['regency_id'],
-                    'code' => $reqValidated['code'],
-                    'name' => $reqValidated['name'],
+                    'regency_id' => $request->get('regency_id'),
+                    'code' => $request->get('code'),
+                    'name' => $request->get('name'),
                 ]);
 
             if (! $regency) {

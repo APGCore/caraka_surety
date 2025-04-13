@@ -15,8 +15,9 @@ Route::prefix('location-management')
             ->group(function () {
                 // api.location-management.province.all
                 Route::get('all', 'all')->name('all');
+
                 // api.location-management.province.search
-                Route::get('search', 'apiSearch')->name('search');
+                Route::get('search-province', 'apiSearch')->name('search');
             });
 
         Route::controller(RegencyController::class)
@@ -25,6 +26,9 @@ Route::prefix('location-management')
             ->group(function () {
                 // api.location-management.regency.all
                 Route::get('by-province/{province_id}', 'getByProvince')->name('by-province');
+
+                // api.location-management.regency.search
+                Route::get('search-regency', 'apiSearch')->name('search');
             });
 
         Route::controller(DistrictController::class)
@@ -33,5 +37,8 @@ Route::prefix('location-management')
             ->group(function () {
                 // api.location-management.district.all
                 Route::get('by-regency/{regency_id}', 'getByRegency')->name('by-regency');
+
+                // api.location-management.district.search
+                Route::get('search-district', 'apiSearch')->name('search');
             });
     });

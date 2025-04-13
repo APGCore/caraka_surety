@@ -4,6 +4,7 @@ namespace App\Repositories\Location\Province;
 
 use App\Models\Location\Province;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProvinceRepository implements ProvinceRepositoryInterface
 {
@@ -25,12 +26,19 @@ class ProvinceRepository implements ProvinceRepositoryInterface
      */
     public function search(string $search = '', int $perPage = 10, int $page = 1): LengthAwarePaginator
     {
-        return $this->model
-            ->search($search)
+
+        return $this->model::search($search)
             ->orderBy('name')
             ->paginate(
                 perPage: $perPage,
                 page: $page
             );
+    }
+
+    public function getAllProvince(): Collection
+    {
+        return $this->model
+            ->orderBy('name')
+            ->get();
     }
 }
