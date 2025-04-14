@@ -57,13 +57,11 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
-                  {(submission.checked_by !== null || submission.status === SubmissionStatus.APPROVED) && (
                     <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
                       <Button variant="outline" size="sm">
                         Detail
                       </Button>
                     </Link>
-                  )}
                 </TableCell>
               </TableRow>
             )}
