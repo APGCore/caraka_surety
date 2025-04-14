@@ -150,6 +150,7 @@ class SubmissionController extends Controller
             $obligee = $validated['obligee'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
+            $isEdit = $submission['is_edit'] ?? false;
 
             // get user staff
             $staff = auth()->user();
@@ -191,12 +192,17 @@ class SubmissionController extends Controller
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
             $submissionId = $dataSubmission['id'] ?? null;
+
             $submissionOld = Submission::query()->select(['id', 'no_guarantee'])->find($submissionId);
             if ($submissionOld) {
                 $noGuarantee = $submissionOld->getAttribute('no_guarantee');
-                $submissionOld->update(['is_revised' => true]);
-                $submissionOld->blanks()->update(['is_revised' => true]);
-                $messageResponse = 'Berhasil merevisi pengajuan';
+                if($isEdit) {
+                    $messageResponse = 'Berhasil memperbarui pengajuan';
+                } else {
+                    $submissionOld->update(['is_revised' => true]);
+                    $submissionOld->blanks()->update(['is_revised' => true]);
+                    $messageResponse = 'Berhasil merevisi pengajuan';
+                }
             } else {
                 $noGuarantee = $this->generateNoGuarantee(
                     $guarantorHead,
@@ -223,10 +229,16 @@ class SubmissionController extends Controller
             $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
             $scores = $scoring['scores'];
 
-            $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
+            if($isEdit){
+                $submission = $submissionOld->load(['scores']);
+                $submissionOld->scores()->delete();
+                $submissionOld->update($dataSubmission);
+            } else {
+              $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
+            }
 
-            // create submission blangko
-            SubmissionBlank::query()->create([
+            // update or create submission blangko
+            SubmissionBlank::query()->updateOrCreate([
                 'submission_id' => $submission->getAttribute('id'),
                 'blank_id' => $blank->id,
             ]);
@@ -263,54 +275,58 @@ class SubmissionController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function revision($id)
-    {
-        $submission = $this->getSubmission($id);
-        $principal = $submission->principal->only([
-            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
-            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
-            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
-        ]);
-        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
-        $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios,
-        ]));
-
-        $obligee = $submission->obligee;
-
-        $scoring = collect([
-            'id' => $submission->scores->first()->scoring_id,
-            'note' => $submission->note_scoring,
-            'scores' => $submission->scores,
-        ]);
-
-        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
-            'bank_id', 'contract_doc_name',
-            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
-            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
-            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
-            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
-            'note', 'risk_mitigation',
-        ]);
-
-        $submission = array_merge($submissionArray,
-            $submission->guarantorToProductType->only(
-                'product_type_id', 'job_group', 'job_type',
-            ));
-
-        // new class
-        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
-
-        return inertia('staff/submission-management/create/index', [
-            'page_settings' => fn () => [
-                'title' => 'Revisi Pengajuan',
-            ],
-            'submission' => fn () => $data,
-        ]);
+  /**
+   * Display the specified resource.
+   */
+  public function edit($id)
+  {
+    $submission = $this->getSubmission($id);
+    if($submission->status !== SubmissionStatus::PROCESS->value){
+      flashMessage('Gagal', 'Pengajuan tidak dapat diubah', 'error');
+      return redirect()->back();
     }
+    $principal = $submission->principal->only([
+      'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
+      'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
+      'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
+    ]);
+    $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+    $principal = collect(array_merge($principal, [
+      'ratios' => $principalRatios,
+    ]));
+
+    $obligee = $submission->obligee;
+
+    $scoring = collect([
+      'id' => $submission->scores->first()->scoring_id,
+      'note' => $submission->note_scoring,
+      'scores' => $submission->scores,
+    ]);
+
+    $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+      'bank_id', 'contract_doc_name',
+      'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
+      'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
+      'job_location_regency_id', 'job_location_district_id', 'job_location_village',
+      'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
+      'note', 'risk_mitigation',
+    ]);
+
+    $submission = array_merge($submissionArray,
+      $submission->guarantorToProductType->only(
+        'product_type_id', 'job_group', 'job_type',
+      ),['is_edit' => true, 'blank_id' => $submission->blanks->first()?->id]);
+
+    // new class
+    $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+
+    return inertia('staff/submission-management/create/index', [
+      'page_settings' => fn () => [
+        'title' => 'Ubah Pengajuan',
+      ],
+      'submission' => fn () => $data,
+    ]);
+  }
 
     private function getSubmission($id): Submission
     {
@@ -379,6 +395,55 @@ class SubmissionController extends Controller
             'guarantorProductTypeLimit',
             'callback',
         ])->findOrFail($id);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function revision($id)
+    {
+        $submission = $this->getSubmission($id);
+        $principal = $submission->principal->only([
+            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
+            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
+            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
+        ]);
+        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+        $principal = collect(array_merge($principal, [
+            'ratios' => $principalRatios,
+        ]));
+
+        $obligee = $submission->obligee;
+
+        $scoring = collect([
+            'id' => $submission->scores->first()->scoring_id,
+            'note' => $submission->note_scoring,
+            'scores' => $submission->scores,
+        ]);
+
+        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+            'bank_id', 'contract_doc_name',
+            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
+            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
+            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
+            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
+            'note', 'risk_mitigation',
+        ]);
+
+        $submission = array_merge($submissionArray,
+            $submission->guarantorToProductType->only(
+                'product_type_id', 'job_group', 'job_type',
+            ));
+
+        // new class
+        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+
+        return inertia('staff/submission-management/create/index', [
+            'page_settings' => fn () => [
+                'title' => 'Revisi Pengajuan',
+            ],
+            'submission' => fn () => $data,
+        ]);
     }
 
     /**

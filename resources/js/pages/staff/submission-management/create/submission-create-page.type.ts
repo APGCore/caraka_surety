@@ -66,6 +66,7 @@ type Submission = {
   risk_mitigation: string;
   blank_id?: number;
   revised_note: string | null;
+  is_edit?: boolean;
 };
 
 type Scoring = {

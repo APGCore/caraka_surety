@@ -4,7 +4,7 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
+  BreadcrumbSeparator
 } from "@/components/_shadcn-ui/breadcrumb";
 import { Head } from "@inertiajs/react";
 import React from "react";
@@ -24,7 +24,7 @@ const SubmissionCreateHeader: React.FC<SubmissionCreateHeaderProps> = ({ title }
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Buat Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage> { title ?? 'Buat Pengajuan' }</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
