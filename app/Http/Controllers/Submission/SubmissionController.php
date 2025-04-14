@@ -861,7 +861,7 @@ class SubmissionController extends Controller
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
         if ($submission->callback) {
             $callback = collect([
@@ -1117,7 +1117,7 @@ class SubmissionController extends Controller
 
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
 
         if ($submission->callback) {
@@ -1365,7 +1365,7 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
 
         if ($submission->callback) {
