@@ -1,3 +1,6 @@
+import { useSearchGuarantors } from "@/_features/guarantor/services/guarantor-query";
+import { useGetAllJobGroup } from "@/_features/job-group/services/job-group-query";
+import { useSearchProduct } from "@/_features/product/services/product-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   Select,
@@ -16,8 +19,9 @@ import GuarantorProductTypeRateDatatable from "@/pages/admin/guarantor-managemen
 import GuarantorProductTypeRateHeader from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/guarantor-product-type-rate-header";
 import { GuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/guarantor-product-type-rate.utils";
 import { router } from "@inertiajs/react";
+import axios from "axios";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GuarantorProductTypeRatePageProps } from "./guarantor-product-type-rate.type";
 
 const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
@@ -31,6 +35,20 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
   jobTypeSelected,
   guarantorProductTypes,
 }) => {
+  // const { data: productss } = useSearchProduct({
+  //   perPage: 10,
+  //   search: "",
+  //   page: 1,
+  //   guarantorId: guarantorSelected,
+  //   isPageAble: "false",
+  // });
+
+  // console.log(productss);
+
+  const { data: jobGroupss } = useGetAllJobGroup();
+
+  console.log(jobGroupss);
+
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
 
