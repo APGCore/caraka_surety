@@ -11,7 +11,7 @@ function formatRupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 0
   }).format(value);
 }
 
@@ -57,11 +57,13 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
-                  <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
-                    <Button variant="outline" size="sm">
-                      Detail
-                    </Button>
-                  </Link>
+                  {(submission.checked_by !== null || submission.status === SubmissionStatus.APPROVED) && (
+                    <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
+                      <Button variant="outline" size="sm">
+                        Detail
+                      </Button>
+                    </Link>
+                  )}
                 </TableCell>
               </TableRow>
             )}
