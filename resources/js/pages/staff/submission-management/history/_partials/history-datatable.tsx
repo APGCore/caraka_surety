@@ -14,7 +14,7 @@ function formatRupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 0
   }).format(value);
 }
 
@@ -63,7 +63,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     <Link href={route("staff-submission-detail.submission", { id: submission.id })}>
                       <Button variant="outline" size="sm">
                         Detail
@@ -71,20 +71,30 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     </Link>
                     <Show
                       when={
-                        submission.status === "approved" && !submission.is_revised && !submission.submission_before_id
+                        submission.status === SubmissionStatus.PROCESS
+                      }>
+                      <Link href={route("staff-submission-edit", { id: submission.id })}>
+                        <Button variant="outline" size="sm">
+                          Edit
+                        </Button>
+                      </Link>
+                    </Show>
+                    <Show
+                      when={
+                        submission.status === SubmissionStatus.APPROVED && !submission.is_revised && !submission.submission_before_id
                       }>
                       <Button asChild>
                         <Link
                           type="button"
                           className="ml-2"
                           href={route("staff-submission-revision", {
-                            id: submission.id,
+                            id: submission.id
                           })}>
                           Revisi
                         </Link>
                       </Button>
                     </Show>
-                    <Show when={submission.status === "approved" && submission.is_revised}>
+                    <Show when={submission.status === SubmissionStatus.APPROVED && submission.is_revised}>
                       <Button variant="secondary" size="sm">
                         Di Revisi
                       </Button>

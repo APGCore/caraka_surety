@@ -1,4 +1,5 @@
-import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor
+  from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -8,13 +9,13 @@ import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/g
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
-  useGetRegencyByProvinceId,
+  useGetRegencyByProvinceId
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import {
   PRINCIPAL_QUERY_KEY,
   useCreateOrUpdatePrincipal,
-  useGetAllPrincipal,
+  useGetAllPrincipal
 } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
@@ -447,8 +448,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
         });
       },
       onSuccess: () => {
-        console.log("success");
-        handleReset();
+        if(submission){
+          window.history.back();
+        } else {
+          handleReset();
+        }
       },
     });
   };
@@ -1674,7 +1678,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                           })
                         }
                       />
-                      <Show when={!!submission}>
+                      <Show when={!!submission && !submission?.submission?.is_edit}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"

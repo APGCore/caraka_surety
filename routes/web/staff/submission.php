@@ -11,6 +11,7 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/history', 'displayHistoryByStaff')->name('history.submission');
             Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
             Route::post('/store', 'store')->name('form.store');
+            Route::get('/edit/{id}', 'edit')->name('edit');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
             Route::get('/revision/{id}', 'revision')->name('revision');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmission')->name('docs.submission');
