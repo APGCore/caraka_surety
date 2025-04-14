@@ -861,7 +861,7 @@ class SubmissionController extends Controller
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
         if ($submission->callback) {
             $callback = collect([
@@ -1117,7 +1117,7 @@ class SubmissionController extends Controller
 
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
 
         if ($submission->callback) {
@@ -1365,7 +1365,7 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
-        $submission->manager_technique_name = $submission->user->head->name ?? '-';
+        $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
 
         if ($submission->callback) {
@@ -1518,6 +1518,7 @@ class SubmissionController extends Controller
         $authId = auth()->id();
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
+            ->whereNot('status', SubmissionStatus::PROCESS->value)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1606,6 +1607,7 @@ class SubmissionController extends Controller
             ->query(
                 function ($query) {
                     $query->where('guarantor_id', $this->guarantorId)
+                        ->whereNot('status', SubmissionStatus::PROCESS->value)
                         ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit']);
                 }
             )
@@ -1683,6 +1685,7 @@ class SubmissionController extends Controller
         $authId = auth()->id();
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
+            ->whereNot('status', SubmissionStatus::PROCESS->value)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1775,6 +1778,7 @@ class SubmissionController extends Controller
         $authId = auth()->id();
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
+            ->whereNot('status', SubmissionStatus::PROCESS->value)
             ->where(function ($query) use ($authId) {
                 $query->where('checked_by', '=', $authId)
                     ->orWhere('approved_by', '=', $authId)
@@ -1827,6 +1831,7 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
             ->where('staff_id', '=', $authId)
+            ->whereNot('status', SubmissionStatus::PROCESS->value)
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
             ->get()
@@ -1880,6 +1885,7 @@ class SubmissionController extends Controller
         $authId = auth()->id();
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
+            ->whereNot('status', SubmissionStatus::PROCESS->value)
             ->where('staff_id', '=', $authId)
             ->with(['scores', 'principal', 'bank', 'obligee', 'sourceOfFund', 'guarantor', 'guarantorToProductType'])
             ->orderByDesc('created_at')
