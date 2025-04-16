@@ -64,22 +64,18 @@ const SubmissionPage: SubmissionPageProps = ({
   };
 
   const handleSelectOfficeType = (officeType: string) => {
-    officeSelected = 0;
-    getData({ office_type: officeType });
+    getData({ office_type: officeType, office_id: 0 });
   };
 
   const handleSelectOffice = (officeId: number) => {
     getData({ office_id: officeId });
   };
 
-  const handleReset = () => {
-    setPerPage("10");
-    setSearch("");
-    setFilterDate({
-      from: subDays(new Date(), 7),
-      to: new Date(),
+  const handleResetFilterOffice = () => {
+    getData({
+      office_type: "",
+      office_id: 0,
     });
-    getData({});
   };
 
   const handleSelectGuarantor = (guarantorId: number) => {
@@ -153,7 +149,7 @@ const SubmissionPage: SubmissionPageProps = ({
             officeSelected={officeSelected}
             handleSelectOfficeType={handleSelectOfficeType}
             handleSelectOffice={handleSelectOffice}
-            handleReset={handleReset}
+            handleReset={handleResetFilterOffice}
           />
         </div>
         <Combobox

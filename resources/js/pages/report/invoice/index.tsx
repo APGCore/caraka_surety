@@ -64,8 +64,7 @@ const InvoicePage: InvoicePageProps = ({
   };
 
   const handleSelectOfficeType = (officeType: string) => {
-    officeSelected = 0;
-    getData({ office_type: officeType, office_id: undefined });
+    getData({ office_type: officeType, office_id: 0 });
   };
 
   const handleSelectOffice = (officeId: number) => {
@@ -84,14 +83,11 @@ const InvoicePage: InvoicePageProps = ({
     getData({ product_type_id: productTypeId });
   };
 
-  const handleReset = () => {
-    setPerPage("10");
-    setSearch("");
-    setFilterDate({
-      from: subDays(new Date(), 7),
-      to: new Date(),
+  const handleResetFilterOffice = () => {
+    getData({
+      office_type: "",
+      office_id: 0,
     });
-    getData({});
   };
 
   const getData = ({
@@ -153,7 +149,7 @@ const InvoicePage: InvoicePageProps = ({
             officeSelected={officeSelected}
             handleSelectOfficeType={handleSelectOfficeType}
             handleSelectOffice={handleSelectOffice}
-            handleReset={handleReset}
+            handleReset={handleResetFilterOffice}
           />
         </div>
         <Combobox
