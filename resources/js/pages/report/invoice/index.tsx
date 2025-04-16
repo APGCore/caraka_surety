@@ -1,3 +1,4 @@
+import FilterOffice from "@/_features/_common/components/filter-office";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
 import { Combobox } from "@/components/molecules/combobox";
@@ -17,6 +18,10 @@ import { InvoicePageProps } from "./_partials/invoice.type";
 
 const InvoicePage: InvoicePageProps = ({
   submissions,
+  offices,
+  officeTypes,
+  officeSelected,
+  officeTypeSelected,
   guarantors,
   guarantorSelected,
   products,
@@ -58,6 +63,15 @@ const InvoicePage: InvoicePageProps = ({
     }
   };
 
+  const handleSelectOfficeType = (officeType: string) => {
+    officeSelected = 0;
+    getData({ office_type: officeType, office_id: undefined });
+  };
+
+  const handleSelectOffice = (officeId: number) => {
+    getData({ office_id: officeId });
+  };
+
   const handleSelectGuarantor = (guarantorId: number) => {
     getData({ guarantor_id: guarantorId });
   };
@@ -70,10 +84,22 @@ const InvoicePage: InvoicePageProps = ({
     getData({ product_type_id: productTypeId });
   };
 
+  const handleReset = () => {
+    setPerPage("10");
+    setSearch("");
+    setFilterDate({
+      from: subDays(new Date(), 7),
+      to: new Date(),
+    });
+    getData({});
+  };
+
   const getData = ({
     per_page = perPage,
     searchValue = search,
     date = convertDate(filterDate),
+    office_type = officeTypeSelected,
+    office_id = officeSelected,
     guarantor_id = guarantorSelected,
     product_id = productSelected,
     product_type_id = productTypeSelected,
@@ -81,6 +107,8 @@ const InvoicePage: InvoicePageProps = ({
     per_page?: string;
     searchValue?: string;
     date?: { from: string; to: string } | undefined;
+    office_type?: string;
+    office_id?: number;
     guarantor_id?: number;
     product_id?: number | null;
     product_type_id?: number | null;
@@ -91,6 +119,8 @@ const InvoicePage: InvoicePageProps = ({
         per_page,
         search: searchValue,
         date,
+        office_type,
+        office_id,
         guarantor_id,
         product_id,
         product_type_id,
@@ -115,6 +145,17 @@ const InvoicePage: InvoicePageProps = ({
         />
       </div>
       <div className="flex gap-x-3">
+        <div className="flex gap-x-3">
+          <FilterOffice
+            offices={offices}
+            officeTypes={officeTypes}
+            officeTypeSelected={officeTypeSelected}
+            officeSelected={officeSelected}
+            handleSelectOfficeType={handleSelectOfficeType}
+            handleSelectOffice={handleSelectOffice}
+            handleReset={handleReset}
+          />
+        </div>
         <Combobox
           datas={guarantors}
           labelKey={"name"}

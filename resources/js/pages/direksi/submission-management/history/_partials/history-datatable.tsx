@@ -11,7 +11,7 @@ function formatRupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-    minimumFractionDigits: 0
+    minimumFractionDigits: 0,
   }).format(value);
 }
 
@@ -30,6 +30,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -40,9 +41,9 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{submission?.principal?.name}</TableCell>
-                <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
-                <TableCell>{formatRupiah(submission?.guarantee_value)}</TableCell>
+                <TableCell>{submission.principal?.name}</TableCell>
+                <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
+                <TableCell>{formatRupiah(submission.guarantee_value)}</TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
@@ -55,19 +56,20 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     {submission.status}
                   </span>
                 </TableCell>
-                <TableCell>{submission?.created_at}</TableCell>
+                <TableCell>{submission.staff.office}</TableCell>
+                <TableCell>{submission.created_at}</TableCell>
                 <TableCell className="text-right">
-                    <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
-                      <Button variant="outline" size="sm">
-                        Detail
-                      </Button>
-                    </Link>
+                  <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>
+                    <Button variant="outline" size="sm">
+                      Detail
+                    </Button>
+                  </Link>
                 </TableCell>
               </TableRow>
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={8} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

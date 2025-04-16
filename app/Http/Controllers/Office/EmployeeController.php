@@ -258,12 +258,12 @@ class EmployeeController extends Controller
                 $query->whereIn('name', $userRoles);
             })
             ->get();
-        if($officeType !== OfficeType::HEADQUARTER->value && $headers->count() === 0) {
-          $headers = User::query()
-            ->whereHas('role', function ($query) use ($userRoles) {
-              $query->whereIn('name', [RoleEnum::Manager->value]);
-            })
-            ->get();
+        if ($officeType !== OfficeType::HEADQUARTER->value && $headers->count() === 0) {
+            $headers = User::query()
+                ->whereHas('role', function ($query) {
+                    $query->whereIn('name', [RoleEnum::Manager->value]);
+                })
+                ->get();
         }
         $routeName = $this->getRouteName($office);
         $component = 'admin/office-management/employee/edit/index';

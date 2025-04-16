@@ -30,7 +30,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Dari Unit Bisnis</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -41,10 +41,10 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             render={(submission: any, index: number) => (
               <TableRow key={submission.id} className={submission?.beyond_the_limit ? "bg-amber-300" : ""}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{submission?.principal?.name}</TableCell>
-                <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
+                <TableCell>{submission.principal?.name}</TableCell>
+                <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission?.guarantee_value)} limit {formatRupiah(submission?.direksi_limit)}
+                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.direksi_limit)}
                 </TableCell>
                 <TableCell>
                   <span
@@ -58,8 +58,8 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                     {submission.status}
                   </span>
                 </TableCell>
-                <TableCell>{submission?.office?.name}</TableCell>
-                <TableCell>{submission?.created_at}</TableCell>
+                <TableCell>{submission.office?.name}</TableCell>
+                <TableCell>{submission.created_at}</TableCell>
                 <TableCell>
                   <Button
                     variant="default"
@@ -75,7 +75,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
+                <TableCell colSpan={8} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

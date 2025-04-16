@@ -1,13 +1,22 @@
+import FilterOffice from "@/_features/_common/components/filter-office";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { useState } from "react";
+import { router } from "@inertiajs/react";
+import { pickBy } from "lodash";
+import React, { useState } from "react";
 import SubmissionListDatatable from "./_partials/list-datatable";
 import SubmissionListHeader from "./_partials/list-page-header";
 import { SubmissionListPageProps } from "./list-page.type";
 
-const SubmissionListPage: SubmissionListPageProps = ({ submissions }) => {
+const SubmissionListPage: SubmissionListPageProps = ({
+  submissions,
+  offices,
+  officeTypes,
+  officeSelected,
+  officeTypeSelected,
+}) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
 
@@ -17,6 +26,38 @@ const SubmissionListPage: SubmissionListPageProps = ({ submissions }) => {
 
   const handleSelect = (value: string) => {
     setSelect(Number(value));
+  };
+
+  const handleSelectOfficeType = (officeType: string) => {
+    getData(select, search, officeType, undefined);
+  };
+
+  const handleSelectOffice = (officeId: number) => {
+    getData(select, search, officeTypeSelected, officeId);
+  };
+
+  const handleReset = () => {
+    setSelect(10);
+    setSearch("");
+    getData(10, "", undefined, undefined);
+  };
+
+  const getData = (
+    select: number,
+    search: string,
+    officeTypeSelected: string | undefined,
+    officeSelected: number | undefined,
+  ) => {
+    router.get(
+      route("direksi-submission-list.submission"),
+      pickBy({
+        search: search,
+        per_page: select,
+        office_type: officeTypeSelected,
+        office_id: officeSelected,
+      }),
+      { preserveState: true, preserveScroll: true },
+    );
   };
 
   return (
@@ -34,6 +75,15 @@ const SubmissionListPage: SubmissionListPageProps = ({ submissions }) => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <FilterOffice
+            offices={offices}
+            officeTypes={officeTypes}
+            officeTypeSelected={officeTypeSelected}
+            officeSelected={officeSelected}
+            handleSelectOfficeType={handleSelectOfficeType}
+            handleSelectOffice={handleSelectOffice}
+            handleReset={handleReset}
+          />
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={handleSearch} className="flex items-end gap-x-3">

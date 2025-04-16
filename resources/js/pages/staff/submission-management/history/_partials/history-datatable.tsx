@@ -14,7 +14,7 @@ function formatRupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-    minimumFractionDigits: 0
+    minimumFractionDigits: 0,
   }).format(value);
 }
 
@@ -69,10 +69,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                         Detail
                       </Button>
                     </Link>
-                    <Show
-                      when={
-                        submission.status === SubmissionStatus.PROCESS
-                      }>
+                    <Show when={submission.status === SubmissionStatus.PROCESS}>
                       <Link href={route("staff-submission-edit", { id: submission.id })}>
                         <Button variant="outline" size="sm">
                           Edit
@@ -81,14 +78,16 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     </Show>
                     <Show
                       when={
-                        submission.status === SubmissionStatus.APPROVED && !submission.is_revised && !submission.submission_before_id
+                        submission.status === SubmissionStatus.APPROVED &&
+                        !submission.is_revised &&
+                        !submission.submission_before_id
                       }>
                       <Button asChild>
                         <Link
                           type="button"
                           className="ml-2"
                           href={route("staff-submission-revision", {
-                            id: submission.id
+                            id: submission.id,
                           })}>
                           Revisi
                         </Link>

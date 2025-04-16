@@ -2,6 +2,10 @@ import React from "react";
 
 interface SubmissionProps {
   submissions: any;
+  offices: any;
+  officeTypes: any;
+  officeSelected: number;
+  officeTypeSelected: string;
   guarantors: any;
   guarantorSelected: number;
   products: any;

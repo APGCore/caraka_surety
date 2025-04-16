@@ -22,6 +22,7 @@ use App\Models\Submission\SubmissionCallback;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use App\Services\HostToHostService;
+use App\Traits\FilterOffice;
 use App\Traits\GeneratePattern;
 use Carbon\Carbon;
 use Exception;
@@ -34,7 +35,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
-    use GeneratePattern;
+    use FilterOffice, GeneratePattern;
 
     protected HostToHostService $hostToHostService;
 
@@ -54,6 +55,11 @@ class SubmissionController extends Controller
             now()->subDays(7)->toDateString().' 00:00:00',
             now()->toDateString().' 23:59:59',
         ])->values();
+        $officeFilter = $this->filterOffice($request);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')
             ->with('guarantorToProductTypes')
@@ -70,16 +76,25 @@ class SubmissionController extends Controller
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
 
         $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                return $query->when($date->isNotEmpty(), function ($query) use ($date) {
-                    $query->whereBetween('created_at', $date);
-                })->when($guarantorSelected !== null, function ($query) use ($guarantorSelected) {
-                    $query->where('guarantor_id', $guarantorSelected);
-                })->when($productSelected !== null, function ($query) use ($productSelected) {
-                    $query->where('product_id', $productSelected);
-                })->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
-                    $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-                })
+            ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
+                return $query
+                    ->when($date->isNotEmpty(), function ($query) use ($date) {
+                        $query->whereBetween('created_at', $date);
+                    })
+                    ->when($officeSelected, function ($query) use ($officeSelected) {
+                        $query->whereHas('staff', function ($query) use ($officeSelected) {
+                            $query->where('profile_id', $officeSelected);
+                        });
+                    })
+                    ->when($guarantorSelected !== null, function ($query) use ($guarantorSelected) {
+                        $query->where('guarantor_id', $guarantorSelected);
+                    })
+                    ->when($productSelected !== null, function ($query) use ($productSelected) {
+                        $query->where('product_id', $productSelected);
+                    })
+                    ->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
+                        $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
+                    })
                     ->with([
                         'guarantor:id,name,code',
                         'guarantorBranch:id,name,code',
@@ -110,6 +125,10 @@ class SubmissionController extends Controller
                 'title' => 'Daftar Pengajuan',
             ],
             'submissions' => fn () => $resource,
+            'offices' => $offices,
+            'officeTypes' => $officeTypes,
+            'officeSelected' => (int) $officeSelected,
+            'officeTypeSelected' => $officeTypeSelected,
             'guarantors' => $guarantors->map->only('id', 'name'),
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,
@@ -196,7 +215,7 @@ class SubmissionController extends Controller
             $submissionOld = Submission::query()->select(['id', 'no_guarantee'])->find($submissionId);
             if ($submissionOld) {
                 $noGuarantee = $submissionOld->getAttribute('no_guarantee');
-                if($isEdit) {
+                if ($isEdit) {
                     $messageResponse = 'Berhasil memperbarui pengajuan';
                 } else {
                     $submissionOld->update(['is_revised' => true]);
@@ -229,12 +248,12 @@ class SubmissionController extends Controller
             $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
             $scores = $scoring['scores'];
 
-            if($isEdit){
+            if ($isEdit) {
                 $submission = $submissionOld->load(['scores']);
                 $submissionOld->scores()->delete();
                 $submissionOld->update($dataSubmission);
             } else {
-              $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
+                $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
             }
 
             // update or create submission blangko
@@ -275,58 +294,59 @@ class SubmissionController extends Controller
         }
     }
 
-  /**
-   * Display the specified resource.
-   */
-  public function edit($id)
-  {
-    $submission = $this->getSubmission($id);
-    if($submission->status !== SubmissionStatus::PROCESS->value){
-      flashMessage('Gagal', 'Pengajuan tidak dapat diubah', 'error');
-      return redirect()->back();
+    /**
+     * Display the specified resource.
+     */
+    public function edit($id)
+    {
+        $submission = $this->getSubmission($id);
+        if ($submission->status !== SubmissionStatus::PROCESS->value) {
+            flashMessage('Gagal', 'Pengajuan tidak dapat diubah', 'error');
+
+            return redirect()->back();
+        }
+        $principal = $submission->principal->only([
+            'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
+            'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
+            'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
+        ]);
+        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+        $principal = collect(array_merge($principal, [
+            'ratios' => $principalRatios,
+        ]));
+
+        $obligee = $submission->obligee;
+
+        $scoring = collect([
+            'id' => $submission->scores->first()->scoring_id,
+            'note' => $submission->note_scoring,
+            'scores' => $submission->scores,
+        ]);
+
+        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+            'bank_id', 'contract_doc_name',
+            'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
+            'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
+            'job_location_regency_id', 'job_location_district_id', 'job_location_village',
+            'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
+            'note', 'risk_mitigation',
+        ]);
+
+        $submission = array_merge($submissionArray,
+            $submission->guarantorToProductType->only(
+                'product_type_id', 'job_group', 'job_type',
+            ), ['is_edit' => true, 'blank_id' => $submission->blanks->first()?->id]);
+
+        // new class
+        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+
+        return inertia('staff/submission-management/create/index', [
+            'page_settings' => fn () => [
+                'title' => 'Ubah Pengajuan',
+            ],
+            'submission' => fn () => $data,
+        ]);
     }
-    $principal = $submission->principal->only([
-      'id', 'province_id', 'regency_id', 'district_id', 'village', 'name', 'address', 'telephone',
-      'fax', 'postal_code', 'npwp', 'nib', 'siup_siujk', 'head_name', 'director_name', 'director_position',
-      'director_phone', 'commissioner', 'year_established', 'est_deed', 'last_deed', 'business_fields',
-    ]);
-    $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
-    $principal = collect(array_merge($principal, [
-      'ratios' => $principalRatios,
-    ]));
-
-    $obligee = $submission->obligee;
-
-    $scoring = collect([
-      'id' => $submission->scores->first()->scoring_id,
-      'note' => $submission->note_scoring,
-      'scores' => $submission->scores,
-    ]);
-
-    $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
-      'bank_id', 'contract_doc_name',
-      'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
-      'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
-      'job_location_regency_id', 'job_location_district_id', 'job_location_village',
-      'job_location_address', 'job_location_postal_code', 'source_of_fund_id',
-      'note', 'risk_mitigation',
-    ]);
-
-    $submission = array_merge($submissionArray,
-      $submission->guarantorToProductType->only(
-        'product_type_id', 'job_group', 'job_type',
-      ),['is_edit' => true, 'blank_id' => $submission->blanks->first()?->id]);
-
-    // new class
-    $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
-
-    return inertia('staff/submission-management/create/index', [
-      'page_settings' => fn () => [
-        'title' => 'Ubah Pengajuan',
-      ],
-      'submission' => fn () => $data,
-    ]);
-  }
 
     private function getSubmission($id): Submission
     {
@@ -922,7 +942,6 @@ class SubmissionController extends Controller
         $submission->day_name = Carbon::parse($submission->approved_at)->translatedFormat('l');
         $submission->contract_doc_date = Carbon::parse($submission->contract_doc_date)->translatedFormat('d F Y');
 
-
         // get submission pic
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
 
@@ -1184,7 +1203,6 @@ class SubmissionController extends Controller
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
         $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
-
         if ($submission->callback) {
             $callback = collect([
                 'id' => $submission->callback->id,
@@ -1194,8 +1212,6 @@ class SubmissionController extends Controller
             unset($submission->callback);
             $submission->callback = $callback;
         }
-
-
 
         return inertia('direksi/submission-management/history/detail/index', [
             'submission' => $submission,
@@ -1432,7 +1448,6 @@ class SubmissionController extends Controller
         $submission->guarantor_pic = $submission->guarantorBranch?->pic ?? $submission->guarantor->pic;
         $submission->manager_technique_name = $submission->staff->head->name ?? '-';
 
-
         if ($submission->callback) {
             $callback = collect([
                 'id' => $submission->callback->id,
@@ -1617,8 +1632,14 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function displaySubmissionByDireksi()
+    public function displaySubmissionByDireksi(Request $request)
     {
+        $officeFilter = $this->filterOffice($request);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
+
         $component = 'direksi/submission-management/list/index';
 
         $authId = auth()->id();
@@ -1630,6 +1651,11 @@ class SubmissionController extends Controller
             ->where('guarantor_id', $this->guarantorId)
             ->where('checked_by', '!=', null)
             ->where('status', SubmissionStatus::PROCESS->value)
+            ->when($officeSelected, function ($query) use ($officeSelected) {
+                $query->whereHas('staff', function ($query) use ($officeSelected) {
+                    $query->where('profile_id', $officeSelected);
+                });
+            })
 //            ->whereIn('checked_by', $staffs)
             ->with(['principal', 'guarantorToProductType', 'employeeLimit', 'guarantorProductTypeLimit', 'staff.office'])
             ->orderByDesc('created_at')
@@ -1661,19 +1687,36 @@ class SubmissionController extends Controller
                 'title' => 'List Pengajuan',
             ],
             'submissions' => fn () => $submissions,
+            'officeTypes' => $officeTypes,
+            'offices' => $offices,
+            'officeTypeSelected' => $officeTypeSelected,
+            'officeSelected' => $officeSelected,
         ]);
     }
 
     public function displayHistoryByDireksi(Request $request)
     {
+        $officeFilter = $this->filterOffice($request);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
+
         $component = 'direksi/submission-management/history/index';
 
         $submissions = Submission::search($request->get('search'))
             ->query(
-                function ($query) {
+                function ($query) use ($officeSelected) {
                     $query->where('guarantor_id', $this->guarantorId)
                         ->whereNot('status', SubmissionStatus::PROCESS->value)
-                        ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit', 'sourceOfFund', 'guarantor', 'guarantorToProductType', 'guarantorProductTypeLimit']);
+                        ->when($officeSelected, function ($query) use ($officeSelected) {
+                            $query->whereHas('staff', function ($query) use ($officeSelected) {
+                                $query->where('profile_id', $officeSelected);
+                            });
+                        })
+                        ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit',
+                            'sourceOfFund', 'guarantor', 'guarantorToProductType',
+                            'guarantorProductTypeLimit', 'staff.office']);
                 }
             )
             ->orderByDesc('created_at')
@@ -1687,6 +1730,10 @@ class SubmissionController extends Controller
                 'title' => 'Riwayat Pengajuan',
             ],
             'submissions' => fn () => $resource,
+            'officeTypes' => $officeTypes,
+            'offices' => $offices,
+            'officeTypeSelected' => $officeTypeSelected,
+            'officeSelected' => $officeSelected,
         ]);
     }
 
@@ -2164,7 +2211,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -2213,7 +2260,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
