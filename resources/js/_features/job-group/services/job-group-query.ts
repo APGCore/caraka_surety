@@ -6,6 +6,11 @@ export const JOB_GROUP_QUERY_KEY = {
   GET_ALL_JOB_GROUP: "getAllJobGroup",
 };
 
+export interface JobGroup {
+  id?: string;
+  name?: string;
+}
+
 export const useGetAllJobGroup = <TResponse = unknown>(querySetting?: QuerySetting<TResponse>) => {
   return useQuery({
     queryKey: [JOB_GROUP_QUERY_KEY.GET_ALL_JOB_GROUP],

@@ -1,5 +1,6 @@
 import { useSearchGuarantors } from "@/_features/guarantor/services/guarantor-query";
 import { useGetAllJobGroup } from "@/_features/job-group/services/job-group-query";
+import LimitProductTypePage from "@/_features/limit/pages/limit-product-type-page";
 import { useSearchProduct } from "@/_features/product/services/product-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
@@ -98,6 +99,8 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
       { preserveState: true, preserveScroll: true },
     );
   };
+
+  return <LimitProductTypePage />;
 
   return (
     <main className="space-y-2.5">
