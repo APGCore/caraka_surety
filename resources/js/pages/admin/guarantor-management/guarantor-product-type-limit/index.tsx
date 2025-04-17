@@ -100,7 +100,7 @@ const GuarantorRatePage: GuarantorProductTypeRatePageProps = ({
     );
   };
 
-  return <LimitProductTypePage />;
+  return <LimitProductTypePage initialProductId={productSelected} initialJobGroup={jobGroupSelected} />;
 
   return (
     <main className="space-y-2.5">

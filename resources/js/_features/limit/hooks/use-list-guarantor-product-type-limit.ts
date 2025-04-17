@@ -2,7 +2,7 @@ import { PaginationMeta } from "@/_features/_common/types/pagination";
 import { JobGroup, useGetAllJobGroup } from "@/_features/job-group/services/job-group-query";
 import { useGetAllProduct } from "@/_features/product/services/product-query";
 import { useQueryState } from "nuqs";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useSearchProductTypeLimit } from "../services/guarantor-product-type-limit-query";
 
 interface ProductTypeLimit {
@@ -16,7 +16,12 @@ interface ProductTypeLimit {
   job_type: string;
   created_at: string;
   updated_at: string;
-  limit: number | null;
+  limit: {
+    id: number;
+    guarantor_to_product_type_id: number;
+    limit: number | null;
+    limit_inherit: number | null;
+  } | null;
 }
 
 export interface ProductTypeLimitResponse {
@@ -24,7 +29,13 @@ export interface ProductTypeLimitResponse {
   meta: PaginationMeta;
 }
 
-const useListProductTypeLimit = () => {
+const useListProductTypeLimit = ({
+  initialProductId,
+  initialJobGroup,
+}: {
+  initialProductId: string;
+  initialJobGroup: string;
+}) => {
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
     history: "push",
@@ -47,14 +58,14 @@ const useListProductTypeLimit = () => {
   });
 
   const [productId, setProductId] = useQueryState("product_id", {
-    defaultValue: "",
+    defaultValue: initialProductId,
     history: "push",
     parse: (value) => value || "",
     serialize: (value) => value,
   });
 
   const [jobGroup, setJobGroup] = useQueryState("job_group", {
-    defaultValue: "",
+    defaultValue: initialJobGroup,
     history: "push",
     parse: (value) => value || "",
     serialize: (value) => value,
@@ -68,20 +79,6 @@ const useListProductTypeLimit = () => {
 
   const { data: products, isLoading: isLoadingProducts, isSuccess: isSuccessProducts } = useGetAllProduct(1);
 
-  const initialized = React.useRef(false);
-
-  useEffect(() => {
-    if (isSuccessProducts && isSuccessJobGroups && !initialized.current) {
-      setProductId((products as { id: number }[])[0].id.toString());
-      const firstJobGroup = jobGroups?.[0];
-      console.log(firstJobGroup);
-      if (firstJobGroup?.id) {
-        setJobGroup(firstJobGroup.id.toString());
-      }
-      initialized.current = true;
-    }
-  }, [isSuccessProducts, products, isSuccessJobGroups, jobGroups]);
-
   const {
     data: productTypeLimits,
     isLoading: isLoadingProductTypeLimits,
@@ -90,8 +87,8 @@ const useListProductTypeLimit = () => {
     search,
     perPage: parseInt(perPage),
     page: parseInt(page),
-    productId: "1",
-    jobGroup: "Konstruksi",
+    productId,
+    jobGroup,
     isPageAble: "true",
   });
 
@@ -121,9 +118,15 @@ const useListProductTypeLimit = () => {
     setPage("1");
   }, []);
 
+  const handleJobGroupChange = useCallback((value: string) => {
+    setJobGroup(value);
+    setPage("1");
+  }, []);
+
   return {
     productTypeLimits: productTypeLimits?.data,
     meta: productTypeLimits?.meta,
+    jobGroupSelected: jobGroup,
     jobGroups,
     products,
     isLoadingJobGroups,
@@ -140,6 +143,7 @@ const useListProductTypeLimit = () => {
     handlePerPageChange,
     handlePageChange,
     handleProductIdChange,
+    handleJobGroupChange,
   };
 };
 

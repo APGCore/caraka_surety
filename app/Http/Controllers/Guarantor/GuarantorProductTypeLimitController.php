@@ -26,16 +26,6 @@ class GuarantorProductTypeLimitController extends Controller
     $perPage = $request->get('per_page') ?? 10;
     $page = $request->get('page') ?? 1;
 
-
-    // dd([
-    //   'product_id' => $product_id,
-    //   'job_group' => $job_group,
-    //   'search' => $search,
-    //   'isPageAble' => $isPageAble,
-    //   'perPage' => $perPage,
-    //   'page' => $page,
-    // ]);
-
     // Selected Guarantor
     $guarantor = Guarantor::first();
     $guarantor_id = $guarantor ? $guarantor->id : null;
@@ -50,6 +40,8 @@ class GuarantorProductTypeLimitController extends Controller
           ->select('id', 'guarantor_id', 'no', 'code', 'full_name', 'name', 'job_group', 'job_type', 'created_at', 'updated_at');
       })
       ->orderBy('no');
+
+
 
     // if is page able is true, then paginate the data
     $guarantorProductTypes = $isPageAble !== "false"
