@@ -3,7 +3,7 @@ import { JobGroup, useGetAllJobGroup } from "@/_features/job-group/services/job-
 import { useGetAllProduct } from "@/_features/product/services/product-query";
 import { useQueryState } from "nuqs";
 import React, { useCallback } from "react";
-import { useSearchProductTypeLimit } from "../services/guarantor-product-type-limit-query";
+import { useSearchProductTypeLimit } from "../services/product-type-limit-query";
 
 interface ProductTypeLimit {
   id: number;

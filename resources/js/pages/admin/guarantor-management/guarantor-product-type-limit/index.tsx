@@ -1,6 +1,6 @@
 import { useSearchGuarantors } from "@/_features/guarantor/services/guarantor-query";
 import { useGetAllJobGroup } from "@/_features/job-group/services/job-group-query";
-import LimitProductTypePage from "@/_features/limit/pages/limit-product-type-page";
+import LimitProductTypePage from "@/_features/limit/pages/list-product-type-limit-page";
 import { useSearchProduct } from "@/_features/product/services/product-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {

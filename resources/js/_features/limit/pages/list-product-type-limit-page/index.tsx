@@ -25,8 +25,8 @@ import { textCurrency } from "@/_features/_common/utils/text-currency";
 import { SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import { JobTypeEnum } from "@/types/job-type-enum";
-import { Eye, Pencil, Search, Trash } from "lucide-react";
-import useListProductTypeLimit from "../../hooks/use-list-guarantor-product-type-limit";
+import { Pencil, Search } from "lucide-react";
+import useListProductTypeLimit from "../../hooks/use-list-product-type-limit";
 
 interface LimitProductTypePageProps {
   initialProductId: string;
@@ -74,8 +74,8 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="product_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+          <div className="flex flex-col gap-[2px]">
+            <Label htmlFor="product_id" className=" pl-1 text-sm font-semibold text-gray-400">
               Produk
             </Label>
             <NewCombobox
@@ -90,8 +90,8 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
               }}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="job_group" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+          <div className="flex flex-col gap-[2px]">
+            <Label htmlFor="job_group" className=" pl-1 text-sm font-semibold text-gray-400">
               Kelompok Pekerjaan
             </Label>
             <Select onValueChange={handleJobGroupChange} defaultValue={jobGroupSelected}>
