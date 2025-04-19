@@ -49,7 +49,7 @@ class ProductController extends Controller
     $productResource = ProductResource::collection($products);
 
     // if is page able is true, then return the resource, otherwise return the data
-    $datas = $isPageAble === 'true' ? [
+    $datas = $isPageAble !== 'false' ? [
       'data' => $productResource,
       'meta' => [
         'current_page' => $products->currentPage(),

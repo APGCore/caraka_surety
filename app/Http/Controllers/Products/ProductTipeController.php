@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Product\ProductTypeResource;
+use App\Http\Resources\_Refactor\Api\Product\ProductTypeCollection;
+use App\Http\Resources\_Refactor\Api\Product\ProductTypeResource;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\ProductType;
 use Exception;
@@ -22,6 +23,7 @@ class ProductTipeController extends Controller
     $isPageAble = $request->get('is_page_able') ?? "false";
     $perPage = $request->get('per_page') ?? 10;
     $page = $request->get('page') ?? 1;
+    $formattedCreatedAt = $request->get('formatted_created_at') ?? "false";
 
     // search query
     $query = ProductType::search($search)

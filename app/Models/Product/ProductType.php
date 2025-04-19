@@ -13,43 +13,42 @@ use Laravel\Scout\Searchable;
 
 class ProductType extends Model
 {
-    use HasFactory, Searchable, SoftDeletes;
+  use HasFactory, Searchable, SoftDeletes;
 
-    protected $guarded = [
-        'id',
-        'created_at',
-        'updated_at',
-        'deleted_at',
+  protected $guarded = [
+    'id',
+    'updated_at',
+    'deleted_at',
+  ];
+
+  public function toSearchableArray()
+  {
+    return [
+      'name' => $this->name,
     ];
+  }
 
-    public function toSearchableArray()
-    {
-        return [
-            'name' => $this->name,
-        ];
-    }
+  public function product(): BelongsToMany
+  {
+    $productTypeToProduk = new ProductTypeToProduct;
 
-    public function product(): BelongsToMany
-    {
-        $productTypeToProduk = new ProductTypeToProduct;
+    return $this->belongsToMany(Product::class, $productTypeToProduk->getTable(), 'product_type_id', 'product_id');
+  }
 
-        return $this->belongsToMany(Product::class, $productTypeToProduk->getTable(), 'product_type_id', 'product_id');
-    }
+  public function guarantor(): BelongsToMany
+  {
+    $guarantorToProductType = new GuarantorToProductType;
 
-    public function guarantor(): BelongsToMany
-    {
-        $guarantorToProductType = new GuarantorToProductType;
+    return $this->belongsToMany(Guarantor::class, $guarantorToProductType->getTable(), 'product_type_id', 'guarantor_id')->withPivot([
+      'code',
+      'name',
+      'job_group',
+      'full_name',
+    ]);
+  }
 
-        return $this->belongsToMany(Guarantor::class, $guarantorToProductType->getTable(), 'product_type_id', 'guarantor_id')->withPivot([
-            'code',
-            'name',
-            'job_group',
-            'full_name',
-        ]);
-    }
-
-    public function guarantorToProductType(): HasMany
-    {
-        return $this->hasMany(GuarantorToProductType::class, 'product_type_id');
-    }
+  public function guarantorToProductType(): HasMany
+  {
+    return $this->hasMany(GuarantorToProductType::class, 'product_type_id');
+  }
 }
