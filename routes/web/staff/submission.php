@@ -13,6 +13,7 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/edit/{id}', 'edit')->name('edit');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
             Route::get('/revision/{id}', 'revision')->name('revision');
+            Route::get('/broken/{submission}', 'broken')->name('broken');
             Route::post('/save-content', 'saveDocument')->name('save.content');
         });
 });

@@ -1184,7 +1184,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -1233,7 +1233,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
@@ -1266,6 +1266,21 @@ class SubmissionController extends Controller
             ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
             ->where('profile_id', $profileId)
             ->first();
+    }
+
+    public function broken(Submission $submission): void
+    {
+        DB::beginTransaction();
+        try {
+            $submission->update(['status' => SubmissionStatus::BROKEN->value]);
+            $submission->blanks()->update(['is_broken' => true]);
+            DB::commit();
+            flashMessage('success', 'Berhasil menandai pengajuan sebagai broken');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to mark submission as broken', ['error' => $e->getMessage()]);
+            flashMessage('error', 'Terjadi kesalahan saat menandai pengajuan sebagai broken', 'error');
+        }
     }
 
     public function reject(Submission $submission): void

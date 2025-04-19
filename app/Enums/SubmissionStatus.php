@@ -10,12 +10,15 @@ enum SubmissionStatus: string
 
     case REJECTED = 'rejected';
 
+    case BROKEN = 'broken';
+
     public static function getValues(): array
     {
         return [
             self::PROCESS->value,
             self::APPROVED->value,
             self::REJECTED->value,
+            self::BROKEN->value,
         ];
     }
 }
