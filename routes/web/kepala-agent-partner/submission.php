@@ -7,8 +7,8 @@ Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
         ->name('kepala-agent-partner-submission.')
         ->group(function () {
-            Route::get('/list', 'displaySubmissionByKepalaAgentPartner')->name('list.index');
-            Route::get('/history', 'displayHistoryByKepalaAgentPartner')->name('history.index');
+            Route::get('/list', 'displaySubmission')->name('list.index');
+            Route::get('/history', 'displayHistory')->name('history.index');
             Route::get('/draft', 'displayDocumentDraftByKepalaAgentPartner')->name('document-draft');
 
             Route::post('/approve/{submission}', 'approve')->name('approve');

@@ -8,15 +8,14 @@ Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
         ->name('manager-submission-')
         ->group(function () {
-            Route::get('/list', 'displaySubmissionByManager')->name('list.submission');
-            Route::get('/history', 'displayHistoryByManager')->name('history.submission');
-            Route::get('/draft', 'displayDocumentDraftByManager')->name('document-draft.submission');
+            Route::get('/list', 'displaySubmission')->name('list.submission');
+            Route::get('/history', 'displayHistory')->name('history.submission');
 
             Route::post('/approve/{submission}', 'approve')->name('approve');
             Route::post('/reject/{submission}', 'reject')->name('reject');
             Route::post('/check/{submission}', 'check')->name('check');
 
-            Route::get('/detail/{id}', 'showDetailSubmissionManager')->name('detail.submission');
+            Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
             // Route::get('/detail-doc/{id}', 'showDetailDocsSubmissionManager')->name('detail.submission');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionManager')->name('docs.submission');
 

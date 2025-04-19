@@ -44,7 +44,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                 <TableCell>{submission.principal?.name}</TableCell>
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.direksi_limit)}
+                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.employee_limit)}
                 </TableCell>
                 <TableCell>
                   <span

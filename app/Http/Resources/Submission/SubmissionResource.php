@@ -15,7 +15,7 @@ class SubmissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $direksiLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
+        $employeeLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
         $productLimit = $this->resource->guarantorProductTypeLimit;
 
         return [
@@ -74,10 +74,10 @@ class SubmissionResource extends JsonResource
                     'blank' => $this->resource->submissionBefore->blanks->select(['number'])->firstWhere('is_broken', false),
                 ];
             }),
-            'direksi_limit' => $direksiLimit?->limit ?? 0,
+            'employee_limit' => $employeeLimit?->limit ?? 0,
             'product_limit' => $productLimit?->limit ?? 0,
             'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-            'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $this->resource->guarantee_value,
+            'beyond_the_limit' => ($employeeLimit?->limit ?? 0) < $this->resource->guarantee_value,
         ];
     }
 }

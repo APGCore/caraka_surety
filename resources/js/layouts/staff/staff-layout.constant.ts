@@ -24,12 +24,6 @@ export const staffRoute: IAppSideBarMenu[] = [
         route_name: "staff-submission-history",
         href: route("staff-submission-history.submission"),
       },
-      // {
-      //   title: "Draft Dokumen Pengajuan",
-      //   route_name: "staff-submission-document-draft",
-      //   href: route("staff-submission-document-draft.submission"),
-      //
-      // },
     ],
   },
 ];

@@ -7,20 +7,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductTypeResource extends JsonResource
 {
-  /**
-   * Transform the resource into an array.
-   *
-   * @return array<string, mixed>
-   */
-  public function toArray(Request $request): array
-  {
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
 
-
-    return [
-      ...parent::toArray($request),
-      'isChoosed' => (bool) $this->resource->product,
-      // 'guarantor_to_product_type' => $this->whenLoaded('guarantorToProductType', $this->resource->guarantorToProductType->first()),
-      // 'created_at' => $this->resource->created_at->format('d F Y'),
-    ];
-  }
+        return [
+            ...parent::toArray($request),
+            'isChoosed' => (bool) $this->resource->product,
+            // 'guarantor_to_product_type' => $this->whenLoaded('guarantorToProductType', $this->resource->guarantorToProductType->first()),
+            // 'created_at' => $this->resource->created_at->format('d F Y'),
+        ];
+    }
 }
