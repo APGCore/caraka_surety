@@ -41,8 +41,6 @@ class GuarantorProductTypeLimitController extends Controller
       })
       ->orderBy('no');
 
-
-
     // if is page able is true, then paginate the data
     $guarantorProductTypes = $isPageAble !== "false"
       ? $query->paginate(

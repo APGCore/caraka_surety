@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Guarantor\EmployeeLimitController;
 use App\Http\Controllers\Guarantor\GuarantorProductTypeLimitController;
 use App\Http\Controllers\Guarantor\ProfileLimitController;
 use Illuminate\Support\Facades\Route;
@@ -24,5 +25,14 @@ Route::prefix('limit-management')
         // api.limit-management.profile-limit.search-profile-limit
         Route::get('search-profile-limit', 'apiSearch')
           ->name('search-profile-limit');
+      });
+
+    Route::controller(EmployeeLimitController::class)
+      ->prefix('employee-limit')
+      ->name('employee-limit.')->group(function () {
+
+        // api.limit-management.employee-limit.search-employee-limit
+        Route::get('search-employee-limit', 'apiSearch')
+          ->name('search-employee-limit');
       });
   });

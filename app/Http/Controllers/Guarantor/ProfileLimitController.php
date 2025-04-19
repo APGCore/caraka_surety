@@ -66,6 +66,7 @@ class ProfileLimitController extends Controller
       ->first();
 
 
+    // profiles
     $profiles = Profile::search($search)
       ->query(function (Builder $query) use ($guarantor_id, $guarantorProductTypeId, $selectedOfficeType) {
         return $query->when($guarantor_id, function ($query) use ($guarantor_id, $guarantorProductTypeId, $selectedOfficeType) {
@@ -81,6 +82,7 @@ class ProfileLimitController extends Controller
       })
       ->orderBy('created_at', 'desc');
 
+    // if is page able is true, then paginate the data
     $profiles = $isPageAble !== "false"
       ? $profiles->paginate(
         perPage: $perPage,
@@ -88,6 +90,7 @@ class ProfileLimitController extends Controller
       )
       : $profiles->get();
 
+    // if is page able is true, then return the resource, otherwise return the data
     $profileResource = ProfileResource::collection($profiles);
 
 
