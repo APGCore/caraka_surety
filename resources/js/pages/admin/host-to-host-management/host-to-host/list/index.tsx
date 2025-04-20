@@ -1,3 +1,5 @@
+import ListHostToHostPage from "@/_features/host-to-host/pages/list-host-to-host-page";
+import { useSearchHostToHost } from "@/_features/host-to-host/services/host-to-host-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   AlertDialog,
@@ -31,6 +33,15 @@ import { ListHostToHostPageProps } from "./list-host-to-host-page.type";
 const ListHostToHost: ListHostToHostPageProps = (props) => {
   const { data: hostToHosts, meta } = props.hostToHosts;
 
+  const { data: hostToHostss } = useSearchHostToHost({
+    perPage: 10,
+    search: "",
+    page: 1,
+    isPageAble: "true",
+  });
+
+  console.log(hostToHostss);
+
   const [select, setSelect] = useState(() =>
     getQueryParameter("per_page") ? Number(getQueryParameter("per_page")) : 10,
   );
@@ -59,6 +70,8 @@ const ListHostToHost: ListHostToHostPageProps = (props) => {
   const deleteData = (hostToHost: any) => {
     router.delete(route(HostToHostUtils.link.destroy, hostToHost.id));
   };
+
+  return <ListHostToHostPage />;
 
   return (
     <main className="space-y-2.5">
