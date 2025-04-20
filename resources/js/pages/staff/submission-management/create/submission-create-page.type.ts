@@ -38,6 +38,7 @@ type Principal = {
 
 type Submission = {
   id?: number | string;
+  submission_inherit_id?: number;
   guarantor_id: string;
   guarantor_branch_id?: number;
   product_id?: number;
