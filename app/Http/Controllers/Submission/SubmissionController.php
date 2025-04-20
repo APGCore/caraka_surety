@@ -686,7 +686,8 @@ class SubmissionController extends Controller
             $callback = collect([
                 'id' => $callbackRelation->getAttribute('id'),
                 'doc_url' => $callbackRelation->getAttribute('doc_url'),
-                'url' => Storage::url($submission->getAttribute('url')),
+                // 'url' => Storage::url($submission->getAttribute('url')),
+                'url' => $urlPath ? Storage::url($urlPath) : null,
             ]);
             $submission->setAttribute('callback', $callback);
         }
