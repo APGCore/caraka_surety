@@ -40,8 +40,8 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                     <Show when={submission.blank?.is_broken}>
                       <Badge className="bg-red-500">Rusak</Badge>
                     </Show>
-                    <Show when={submission.submission_before?.blank != null}>
-                      <Badge>Revisi Dari Brangko {submission.submission_before.blank.number}</Badge>
+                    <Show when={submission.submission_before != null}>
+                      <Badge>Revisi Dari Brangko {submission.submission_before?.blank?.number}</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
