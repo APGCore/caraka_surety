@@ -3,6 +3,7 @@
 namespace App\Models\Submission;
 
 use App\Models\Document\RequiredDoc;
+use App\Models\Document\DocumentFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,4 +39,10 @@ class SubmissionDoc extends Model
     {
         return $this->belongsTo(RequiredDoc::class);
     }
+
+    public function documentFormat()
+    {
+        return $this->belongsTo(DocumentFormat::class, 'document_format_id', 'id');
+    }
+
 }

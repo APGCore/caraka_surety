@@ -29,7 +29,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         height: 500,
         plugins: "link image code",
         toolbar:
-          "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord exportToPDF printDocument",
+          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code | exportToWord exportToPDF printDocument",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
@@ -54,6 +54,16 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
             text: "Print Document",
             onAction: () => printDocument(editor),
           });
+
+          editor.ui.registry.addButton("embedImageFromLink", {
+            text: "Embed Image",
+            onAction: () => {
+              const imageUrl = prompt("Enter image URL:");
+              if (imageUrl) {
+                editor.insertContent(`<img src="${imageUrl}" alt="Embedded Image" style="max-width: 100%;" />`);
+              }
+            },
+          });
         },
       });
     };
@@ -66,18 +76,72 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     document.body.appendChild(tinymceScript);
   };
 
+  // const exportToWord = (editor: any) => {
+  //   try {
+  //     if (!window.htmlDocx) {
+  //       throw new Error("htmlDocx is not loaded.");
+  //     }
+
+  //     const editorContent = editor.getContent();
+  //     const converted = window.htmlDocx.asBlob(editorContent);
+
+  //     const link = document.createElement("a");
+  //     link.href = URL.createObjectURL(converted);
+  //     9;
+  //     link.download = `${id}-document.docx`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (error) {
+  //     console.error("Export to Word failed:", error);
+  //   }
+  // };
+
   const exportToWord = (editor: any) => {
     try {
       if (!window.htmlDocx) {
         throw new Error("htmlDocx is not loaded.");
       }
 
-      const editorContent = editor.getContent();
-      const converted = window.htmlDocx.asBlob(editorContent);
+      const content = editor.getContent({ format: "html" });
 
+      // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
+      const styles = Array.from(document.styleSheets)
+        .map((sheet: any) => {
+          try {
+            return Array.from(sheet.cssRules || [])
+              .map((rule: any) => rule.cssText)
+              .join("\n");
+          } catch (e) {
+            return ""; // skip stylesheets with CORS issues
+          }
+        })
+        .join("\n");
+
+      const fullHTML = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+              }
+              ${styles}
+            </style>
+          </head>
+          <body>
+            ${content}
+          </body>
+        </html>
+      `;
+
+      const converted = window.htmlDocx.asBlob(fullHTML);
       const link = document.createElement("a");
       link.href = URL.createObjectURL(converted);
-      9;
       link.download = `${id}-document.docx`;
       document.body.appendChild(link);
       link.click();

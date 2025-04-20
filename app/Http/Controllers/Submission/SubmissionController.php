@@ -724,6 +724,9 @@ class SubmissionController extends Controller
             'guarantor_pic' => $guarantorPic,
         ]);
 
+        $submission->submission_callback = $submission->getRelation('callback');
+
+
         // check role
         $checkRole = $this->checkRole();
         $isStaff = $checkRole['isStaff'];
@@ -1544,4 +1547,114 @@ class SubmissionController extends Controller
             return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $result['message']);
         }
     }
+
+
+    // public function embedQrCodeToDocs(Submission $submission): void
+    // {
+    //     $submission->load([
+    //         'callback',
+    //         'submissionDocs.documentFormat',
+    //     ]);
+
+    //     $qrUrl = optional($submission->callback)['url']; // Mengambil QR URL dari array callback
+    //     $targetTypeId = $submission->guarantorToProductType->id;
+
+    //     // Debug: Pastikan QR URL ada
+    //     Log::debug('QR URL:', [$qrUrl]);
+
+    //     // Debug: Pastikan callback sudah dimuat dengan benar
+    //     Log::debug('Callback Data:', [$targetTypeId]);
+
+    //     if (empty($qrUrl)) {
+    //         Log::info("No QR code available for submission ID: {$submission->id}");
+    //         return;
+    //     }
+
+    //     // Loop untuk meng-update submissionDocs
+    //     foreach ($submission->submissionDocs as $doc) {
+    //         // Debug: Periksa data submissionDoc dan documentFormat
+    //         Log::debug('Processing submissionDoc ID:', [$doc->id]);
+    //         Log::debug('Document Format ID:', [optional($doc->documentFormat)->id]);
+
+    //         $docTypeId = optional($doc->documentFormat->guarantorToProductType)->id;
+    //         Log::debug("doc {$docTypeId} vs target {$targetTypeId}");
+
+    //         // Pastikan tipe dokumen cocok
+    //         if ($docTypeId !== $targetTypeId) {
+    //             continue;
+    //         }
+
+    //         // Ambil konten HTML dokumen
+    //         $html = $doc->html ?? '';
+    //         Log::debug('Original HTML:', [$html]);
+
+    //         // HTML untuk QR Code
+    //         $qrHtml = '<div style="margin-top:40px;text-align:center;">';
+    //         $qrHtml .= '<img src="' . e($qrUrl) . '" alt="QR Code" style="width:150px;height:150px;"><br>';
+    //         $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
+    //         $qrHtml .= '</div>';
+
+    //         // Menambahkan QR Code ke dalam konten HTML
+    //         if (str_contains($html, '</body>')) {
+    //             $html = str_replace('</body>', $qrHtml . '</body>', $html);
+    //         } else {
+    //             $html .= $qrHtml;
+    //         }
+
+    //         // Debug: Periksa HTML yang sudah diperbarui
+    //         Log::debug('Updated HTML:', [$html]);
+
+    //         // Simpan perubahan HTML ke dokumen
+    //         $doc->html = $html;
+    //         $doc->save();
+    //         Log::info("Updated document {$doc->id} with QR code.");
+    //     }
+    // }
+
+    public function embedQrCodeToDocs(Submission $submission): void
+    {
+        $submission->load([
+            'callback',
+            'submissionDocs.documentFormat.guarantorToProductType',
+        ]);
+
+        $qrPath = optional($submission->callback)['url'];
+        $qrUrl =Storage::url($qrPath);
+        $targetTypeId = optional($submission->guarantorToProductType)->id;
+
+        $matchingDocs = $submission->submissionDocs->filter(function ($doc) use ($targetTypeId) {
+            return optional(optional($doc->documentFormat)->guarantorToProductType)->id === $targetTypeId;
+        });
+
+        Log::debug("qr : {$qrUrl}");
+
+
+        if ($matchingDocs->isEmpty()) {
+            Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->id}");
+            return;
+        }
+
+        foreach ($matchingDocs as $doc) {
+            $html = $doc->format_document ?? '';
+
+            $qrHtml = '<div style="margin-top:40px;text-align:center;">';
+            $qrHtml .= '<img src="' . e($qrUrl) . '" alt="QR Code" style="width:150px;height:150px;"><br>';
+            $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
+            $qrHtml .= '</div>';
+
+            if (str_contains($html, '</body>')) {
+                $html = str_replace('</body>', $qrHtml . '</body>', $html);
+            } else {
+                $html .= $qrHtml;
+            }
+
+            $doc->format_document = $html;
+            $doc->save();
+
+            Log::info("QR code embedded ke doc ID: {$doc->id}");
+        }
+    }
+
+
+
 }

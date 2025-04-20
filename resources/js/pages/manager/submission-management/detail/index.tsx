@@ -539,6 +539,35 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
+  const handleEmbedQr = () => {
+    setIsLoading(true);
+    router.post(
+      route("manager-submission-submissions.embedQr", { submission: submission.id }),
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          setIsLoading(false);
+          toast({
+            title: "Pembubuhan Berhasil",
+            description: "Dokumen Berhasil Dibubuhkan QR Code",
+            variant: "default",
+          });
+        },
+        onError: () => {
+          setIsLoading(false);
+          toast({
+            title: "Gagal Pembubuhan Dokumen",
+            description: "Dokumen gagal dibubuhkan QR Code",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
+  console.log("submission", submission);
+
   return (
     <>
       <Show when={submission.beyond_the_limit}>
@@ -1099,6 +1128,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       ) : (
                         <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
                       )}
+                    </div>
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <div className="mt-4">
+                        <Button onClick={handleEmbedQr} disabled={isLoading}>
+                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
