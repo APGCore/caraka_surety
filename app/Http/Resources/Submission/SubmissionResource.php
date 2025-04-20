@@ -23,7 +23,7 @@ class SubmissionResource extends JsonResource
             'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
             'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
             'created_at' => $this->resource->created_at?->format('d F Y H:i:s') ?? null,
-            'blank' => $this->resource->blank ?? $this->resource->blanks->firstWhere('is_broken', false),
+            'blank' => $this->resource->blank ?? $this->resource->blanks->first(),
             'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
             'principal' => $this->whenLoaded('principal', function () {
                 return [

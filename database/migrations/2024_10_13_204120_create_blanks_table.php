@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('from_profile_id')->nullable()->references('id')
                 ->on('profiles')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('number');
+            $table->boolean('is_picked')->default(false);
             $table->boolean('is_used')->default(false);
             $table->boolean('is_broken')->default(false);
             $table->boolean('is_revised')->default(false);

@@ -179,7 +179,12 @@ class SubmissionController extends Controller
 
             // get blanks
             $blank = Blank::query()
+                ->where('is_picked', false)
                 ->firstWhere('id', $submission['blank_id']);
+            if (! $blank) {
+                throw new Exception('Blangko Sudah Digunakan');
+            }
+            $blank->update(['is_picked' => true]);
 
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
