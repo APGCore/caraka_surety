@@ -1,9 +1,10 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { QueryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
 export const OFFICE_QUERY_KEY = {
   OFFICE: "office",
   OFFICE_BY_TYPE: "office-by-type",
+  OFFICE_TYPES: "office-types",
 };
 
 export type OfficeType = "headquarter" | "branch" | "agent_partner" | "marketing_partner";
@@ -67,5 +68,16 @@ export const useGetOfficeByType = (
     },
     ...querySetting,
     enabled: !!params?.officeType,
+  });
+};
+
+export const useGetOfficeTypes = <TResponse = unknown>(querySetting?: QueryOptions<TResponse>) => {
+  return useQuery({
+    queryKey: [OFFICE_QUERY_KEY.OFFICE_TYPES],
+    queryFn: async () => {
+      const response = await axios.get(route("api.office-management.office.get-office-types"));
+      return response.data.data as TResponse;
+    },
+    ...querySetting,
   });
 };
