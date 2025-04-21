@@ -11,9 +11,11 @@ import { Input } from "@/_features/_common/components/_shadcn-ui/input";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import { Textarea } from "@/_features/_common/components/_shadcn-ui/textarea";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
+import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { useForm } from "@inertiajs/react";
-import { CircleAlertIcon, RotateCw } from "lucide-react";
+import { CircleAlertIcon, LoaderCircle } from "lucide-react";
 import { FormEvent, useEffect, useId } from "react";
+import { HOST_TO_HOST_QUERY_KEY } from "../../services/host-to-host-query";
 
 interface CreateUpdateHostToHostModalProps {
   open: boolean;
@@ -51,9 +53,44 @@ export default function CreateUpdateHostToHostModal({
     }
   }, [hostToHost]);
 
-  const createHostToHost = () => {};
+  const createHostToHost = () => {
+    post(route("host-to-host.store"), {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [HOST_TO_HOST_QUERY_KEY.SEARCH_HOST_TO_HOST],
+            refetchType: "active",
+          }),
+        ]);
+        reset();
+        handleOpen?.(false);
+      },
+    });
+  };
 
-  const updateHostToHost = () => {};
+  const updateHostToHost = () => {
+    put(
+      route("host-to-host.update", {
+        id: data.id,
+      }),
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: async () => {
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [HOST_TO_HOST_QUERY_KEY.SEARCH_HOST_TO_HOST],
+              refetchType: "active",
+            }),
+          ]);
+          reset();
+          handleOpen?.(false);
+        },
+      },
+    );
+  };
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -132,8 +169,8 @@ export default function CreateUpdateHostToHostModal({
             }}>
             Batal
           </Button>
-          <Button type={"submit"} disabled={processing} className="flex-1">
-            {processing && <RotateCw className="animate-spin mr-2" />}
+          <Button form={`form`} type={"submit"} disabled={processing} className="flex-1">
+            {processing && <LoaderCircle className="animate-spin mr-1" />}
             {hostToHost ? "Update Data" : "Simpan Data"}
           </Button>
         </AlertDialogFooter>

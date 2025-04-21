@@ -7,10 +7,13 @@ import {
   AlertDialogTitle,
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
-import { Table, TableBody, TableCell, TableRow } from "@/_features/_common/components/_shadcn-ui/table";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
+import { queryClient } from "@/components/organisms/provider/react-query-provider";
+import { router } from "@inertiajs/react";
+import axios from "axios";
 import { CircleAlertIcon, LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import { HOST_TO_HOST_QUERY_KEY } from "../../services/host-to-host-query";
 
 interface DeleteHostToHostModalProps {
   open: boolean;
@@ -24,10 +27,49 @@ export default function DeleteHostToHostModal({ open, handleOpen, hostToHost }: 
   const handleDelete = () => {
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      handleOpen?.(false);
-    }, 1000);
+    // axios
+    //   .delete(
+    //     route("host-to-host.delete", {
+    //       id: hostToHost.id,
+    //     }),
+    //   )
+    //   .then(async (res) => {
+    //     await Promise.all([
+    //       queryClient.invalidateQueries({
+    //         queryKey: [HOST_TO_HOST_QUERY_KEY.SEARCH_HOST_TO_HOST],
+    //         refetchType: "active",
+    //       }),
+    //     ]);
+    //     handleOpen?.(false);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   })
+    //   .finally(() => {
+    //     setIsLoading(false);
+    //   });
+
+    router.delete(
+      route("host-to-host.delete", {
+        id: hostToHost.id,
+      }),
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: async () => {
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [HOST_TO_HOST_QUERY_KEY.SEARCH_HOST_TO_HOST],
+              refetchType: "active",
+            }),
+          ]);
+          handleOpen?.(false);
+        },
+        onFinish: () => {
+          setIsLoading(false);
+        },
+      },
+    );
   };
 
   if (!open) return null;
