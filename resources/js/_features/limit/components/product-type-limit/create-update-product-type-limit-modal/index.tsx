@@ -4,7 +4,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
@@ -15,7 +15,7 @@ import InputError from "@/components/molecules/input/error-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { useForm } from "@inertiajs/react";
 import { CircleAlertIcon, LoaderCircle } from "lucide-react";
-import { FormEvent, useEffect, useId } from "react";
+import { FormEvent, useEffect } from "react";
 
 interface CreateUpdateProductTypeLimitModalProps {
   open: boolean;
@@ -94,7 +94,7 @@ export default function CreateUpdateProductTypeLimitModal({
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (guarantorProductType) {
+    if (guarantorProductType.limit) {
       updateProductTypeLimit();
     } else {
       createProductTypeLimit();
@@ -112,10 +112,10 @@ export default function CreateUpdateProductTypeLimitModal({
           </div>
           <AlertDialogHeader>
             <AlertDialogTitle className="sm:text-center">
-              {guarantorProductType ? "Update Batas Kewenangan Nilai" : "Tambah Batas Kewenangan Nilai"}
+              {guarantorProductType.limit ? "Update Batas Kewenangan Nilai" : "Tambah Batas Kewenangan Nilai"}
             </AlertDialogTitle>
             <AlertDialogDescription className="sm:text-center">
-              {guarantorProductType
+              {guarantorProductType.limit
                 ? "Anda akan mengupdate batas kewenangan nilai jaminan."
                 : "Anda akan menambahkan batas kewenangan nilai jaminan."}
             </AlertDialogDescription>
@@ -161,7 +161,7 @@ export default function CreateUpdateProductTypeLimitModal({
             disabled={processing}
             className="flex-1">
             {processing && <LoaderCircle className="animate-spin mr-1" />}
-            {guarantorProductType ? "Update Data" : "Simpan Data"}
+            {guarantorProductType.limit ? "Update Data" : "Simpan Data"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
