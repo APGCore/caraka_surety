@@ -30,28 +30,29 @@ export default function DeleteProductTypeLimitModal({
   const handleDelete = () => {
     setIsLoading(true);
 
-    console.log(route("guarantor-product-type-limit.destroy", { id: guarantorProductType.id }));
-    router.delete(
-      route("guarantor-product-type-limit.destroy", {
-        id: guarantorProductType.id,
-      }),
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: async () => {
-          await Promise.all([
-            queryClient.invalidateQueries({
-              queryKey: [GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY.GUARANTOR_PRODUCT_TYPE_LIMIT],
-              refetchType: "active",
-            }),
-          ]);
-          handleOpen?.(false);
+    if (guarantorProductType?.limit?.id) {
+      router.delete(
+        route("guarantor-product-type-limit.destroy", {
+          id: guarantorProductType.limit.id,
+        }),
+        {
+          preserveState: true,
+          preserveScroll: true,
+          onSuccess: async () => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: [GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY.GUARANTOR_PRODUCT_TYPE_LIMIT],
+                refetchType: "active",
+              }),
+            ]);
+            handleOpen?.(false);
+          },
+          onFinish: () => {
+            setIsLoading(false);
+          },
         },
-        onFinish: () => {
-          setIsLoading(false);
-        },
-      },
-    );
+      );
+    }
   };
 
   if (!open) return null;

@@ -4,7 +4,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
@@ -45,7 +45,7 @@ export default function CreateUpdateProductTypeLimitModal({
   useEffect(() => {
     if (guarantorProductType && typeof guarantorProductType === "object") {
       setData({
-        id: guarantorProductType?.id,
+        id: guarantorProductType?.limit?.id,
         guarantor_id: guarantorProductType?.guarantor_id,
         guarantor_to_product_type_id: guarantorProductType?.id,
         limit: guarantorProductType?.limit?.limit ?? "",
@@ -94,7 +94,7 @@ export default function CreateUpdateProductTypeLimitModal({
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (guarantorProductType.limit) {
+    if (guarantorProductType?.limit) {
       updateProductTypeLimit();
     } else {
       createProductTypeLimit();
