@@ -4,8 +4,8 @@ use App\Enums\RoleEnum;
 use App\Http\Middleware\HandleRoleUsers;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', HandleRoleUsers::class . ':' . RoleEnum::Admin->value])->prefix('admin')->group(function () {
-  foreach (glob(__DIR__ . '/*.php') as $file) {
-    require_once $file;
-  }
+Route::middleware(['auth', HandleRoleUsers::class.':'.RoleEnum::Admin->value])->prefix('admin')->group(function () {
+    foreach (glob(__DIR__.'/*.php') as $file) {
+        require_once $file;
+    }
 });
