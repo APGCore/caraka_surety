@@ -25,8 +25,11 @@ import { textCurrency } from "@/_features/_common/utils/text-currency";
 import { SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import { JobTypeEnum } from "@/types/job-type-enum";
-import { Pencil, Search } from "lucide-react";
+import { Pencil, Search, Trash } from "lucide-react";
+import CreateUpdateProductTypeLimitModal from "../../components/product-type-limit/create-update-product-type-limit-modal";
+import DeleteProductTypeLimitModal from "../../components/product-type-limit/delete-product-type-limit-modal";
 import useListProductTypeLimit from "../../hooks/use-list-product-type-limit";
+import useProductTypeLimitModal from "../../hooks/use-product-type-limit-modal";
 
 interface LimitProductTypePageProps {
   initialProductId: string;
@@ -34,6 +37,16 @@ interface LimitProductTypePageProps {
 }
 
 const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProductTypePageProps) => {
+  const {
+    isOpenUpdateProductTypeLimit,
+    handleOpenUpdateProductTypeLimit,
+    isOpenDeleteProductTypeLimit,
+    handleOpenDeleteProductTypeLimit,
+    isOpenCreateProductTypeLimit,
+    handleOpenCreateProductTypeLimit,
+    selectedProductTypeLimit,
+  } = useProductTypeLimitModal();
+
   const {
     productTypeLimits,
     isLoadingProductTypeLimits,
@@ -139,7 +152,7 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
             {isSuccessProductTypeLimits && productTypeLimits && (
               <RenderList
                 of={productTypeLimits}
-                render={(productType, index) => {
+                render={(productType: any, index) => {
                   return (
                     <TableRow key={productType.id}>
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
@@ -164,9 +177,14 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
                           <Button
                             className="bg-yellow-300 hover:bg-yellow-400"
                             size="icon"
-                            // onClick={() => handleOpenUpdateDistrict(true, district)}
-                          >
+                            onClick={() => handleOpenUpdateProductTypeLimit(true, productType)}>
                             <Pencil className="w-4 h-4 text-black" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleOpenDeleteProductTypeLimit(true, productType)}>
+                            <Trash className="w-4 h-4 text-black" />
                           </Button>
                         </div>
                       </TableCell>
@@ -179,6 +197,26 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
         </Table>
         {isSuccessProductTypeLimits && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
+
+      {/* Create Update Product Type Limit Modal */}
+      <CreateUpdateProductTypeLimitModal
+        open={isOpenCreateProductTypeLimit}
+        handleOpen={handleOpenCreateProductTypeLimit}
+      />
+
+      {/* Update Product Type Limit Modal */}
+      <CreateUpdateProductTypeLimitModal
+        open={isOpenUpdateProductTypeLimit}
+        handleOpen={handleOpenUpdateProductTypeLimit}
+        guarantorProductType={selectedProductTypeLimit}
+      />
+
+      {/* Delete Product Type Limit Modal */}
+      <DeleteProductTypeLimitModal
+        open={isOpenDeleteProductTypeLimit}
+        handleOpen={handleOpenDeleteProductTypeLimit}
+        guarantorProductType={selectedProductTypeLimit}
+      />
     </main>
   );
 };

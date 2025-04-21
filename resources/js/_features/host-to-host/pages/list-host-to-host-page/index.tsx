@@ -148,11 +148,6 @@ const ListHostToHostPage = () => {
       />
 
       {/* Delete Host to Host Modal */}
-      {/* <DeleteProvinceModal
-        open={isOpenDeleteProvince}
-        handleOpen={handleOpenDeleteProvince}
-        province={selectedProvince}
-      /> */}
       <DeleteHostToHostModal
         open={isOpenDeleteHostToHost}
         handleOpen={handleOpenDeleteHostToHost}
@@ -165,11 +160,6 @@ const ListHostToHostPage = () => {
         handleOpen={handleOpenDetailHostToHost}
         hostToHost={selectedHostToHost}
       />
-      {/* <DetailProvinceModal
-          open={isOpenDetailProvince}
-          handleOpen={handleOpenDetailProvince}
-          province={selectedProvince}
-        /> */}
     </main>
   );
 };
