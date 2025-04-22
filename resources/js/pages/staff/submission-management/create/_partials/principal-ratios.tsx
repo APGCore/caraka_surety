@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import InputCurrency from "@/components/molecules/input/currency-input";
@@ -96,19 +96,6 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             )}
           </div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
-            Rasio Profitabilitas
-            {comparisonRatios.profitability_ratios == true && (
-              <Badge variant="success" className="flex-shrink-0 h-6">
-                Naik
-              </Badge>
-            )}
-            {comparisonRatios.profitability_ratios == false && (
-              <Badge variant="destructive" className="flex-shrink-0 h-6">
-                Turun
-              </Badge>
-            )}
-          </div>
-          <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Solvabilitas
             {comparisonRatios.solvency_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
@@ -116,6 +103,19 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               </Badge>
             )}
             {comparisonRatios.solvency_ratios == false && (
+              <Badge variant="destructive" className="flex-shrink-0 h-6">
+                Turun
+              </Badge>
+            )}
+          </div>
+          <div className="pt-2 text-black h-[45px] flex justify-between">
+            Rasio Profitabilitas
+            {comparisonRatios.profitability_ratios == true && (
+              <Badge variant="success" className="flex-shrink-0 h-6">
+                Naik
+              </Badge>
+            )}
+            {comparisonRatios.profitability_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>
@@ -349,7 +349,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Pendapatan"
               onChange={(value) => {
                 const profitability = calculateRatios(secondRatio?.net_income ?? "", value ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? (Number(profitability) * 100) : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
@@ -367,7 +367,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Laba Bersih"
               onChange={(value) => {
                 const profitability = calculateRatios(value ?? "", secondRatio?.revenue ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? (Number(profitability) * 100) : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
