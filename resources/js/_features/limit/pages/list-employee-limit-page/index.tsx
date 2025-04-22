@@ -1,5 +1,4 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
-import { Input } from "@/_features/_common/components/_shadcn-ui/input";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import {
   Select,
@@ -21,11 +20,11 @@ import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
-import { Pencil, Search, Trash } from "lucide-react";
-import CreateUpdateOfficeLimitModal from "../../components/office-limit/create-update-office-limit-modal";
-import DeleteOfficeLimitModal from "../../components/office-limit/delete-office-limit-modal";
-import useOfficeLimit from "../../hooks/use-list-office-limit";
-import useOfficeLimitModal from "../../hooks/use-office-limit-modal";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Pencil, Search } from "lucide-react";
+import CreateUpdateEmployeeLimitModal from "../../components/employee-limit/create-update-employee-limit-modal";
+import useEmployeeLimitModal from "../../hooks/use-employee-limit-modal";
+import useListEmployeeLimit from "../../hooks/use-list-employee-limit";
 
 const formatRupiah = (value: number | string | null | undefined) => {
   if (!value) return "Belum diatur";
@@ -38,77 +37,102 @@ const formatRupiah = (value: number | string | null | undefined) => {
   }).format(num);
 };
 
-const ListOfficeLimitPage = () => {
+type OfficeType = "Kantor Pusat" | "Kantor Cabang" | "Mitra Agen" | "Mitra Pemasaran";
+
+const ListEmployeeLimitPage = () => {
   const {
-    isOpenUpdateOfficeLimit,
-    handleOpenUpdateOfficeLimit,
-    isOpenDeleteOfficeLimit,
-    handleOpenDeleteOfficeLimit,
-    selectedOfficeLimit,
-    handleOpenCreateOfficeLimit,
-    isOpenCreateOfficeLimit,
-  } = useOfficeLimitModal();
+    isOpenCreateEmployeeLimit,
+    handleOpenCreateEmployeeLimit,
+    isOpenUpdateEmployeeLimit,
+    handleOpenUpdateEmployeeLimit,
+    selectedEmployeeLimit,
+  } = useEmployeeLimitModal();
 
   const {
-    officeLimits,
-    isLoadingOfficeLimits,
-    isSuccessOfficeLimits,
-    meta,
-    handlePageChange,
-    productId,
-    productTypeId,
-    officeType,
-    products,
-    productTypes,
-    jobGroups,
+    // Employee Limit
+    employeeLimits,
+    isLoadingEmployeeLimits,
+    isSuccessEmployeeLimits,
+
+    // Search
     search,
+    handleSearchChange,
     perPage,
     handlePerPageChange,
-    handleSearchChange,
-    isLoadingJobGroups,
+    handlePageChange,
+
+    // Product
+    productId,
+    products,
     isLoadingProducts,
+    isSuccessProducts,
+    handleProductIdChange,
+
+    // Product type id
+    productTypeId,
+    productTypes,
     isLoadingProductTypes,
     isSuccessProductTypes,
-    isSuccessProducts,
-    isSuccessJobGroups,
-    jobGroup,
-    handleJobGroupChange,
-    handleProductIdChange,
     handleProductTypeIdChange,
-    handleOfficeTypeChange,
+
+    // Job group
+    jobGroup,
+    jobGroups,
+    isLoadingJobGroups,
+    isSuccessJobGroups,
+    handleJobGroupChange,
+
+    // Office type
+    officeType,
     officeTypes,
     isLoadingOfficeTypes,
     isSuccessOfficeTypes,
-  } = useOfficeLimit({
+    handleOfficeTypeChange,
+
+    // Office id
+    officeId,
+    offices,
+    isLoadingOffices,
+    isSuccessOffices,
+    handleOfficeIdChange,
+
+    // Meta
+    meta,
+  } = useListEmployeeLimit({
     initialProductId: "1",
     initialProductTypeId: "1",
     initialJobGroup: "Konstruksi",
     initialOfficeType: "Kantor Pusat",
+    initialOfficeId: "1",
   });
 
   return (
     <main className="space-y-5">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Limit Unit Kantor</h1>
+          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Limit Karyawan</h1>
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <span className="w-48 text-sm font-medium text-muted-foreground">Jenis Produk</span>
               <span className="text-sm">:</span>
               <span className="text-sm font-bold">
-                {officeLimits?.guarantorProductTypeLimit?.product_type_name || "Belum diatur"}
+                {employeeLimits?.profileLimit?.product_type_name || "Belum diatur"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Total</span>
-              <span className="text-sm">:</span>
-              <span className="text-sm font-bold">{formatRupiah(officeLimits?.guarantorProductTypeLimit?.limit)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Turunan Total</span>
+              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Total Kantor</span>
               <span className="text-sm">:</span>
               <span className="text-sm font-bold">
-                {formatRupiah(officeLimits?.guarantorProductTypeLimit?.limit_inherit)}
+                {employeeLimits?.profileLimit ? formatRupiah(employeeLimits?.profileLimit?.limit) : "Belum diatur"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Total Turunan Kantor</span>
+              <span className="text-sm">:</span>
+              <span className="text-sm font-bold">
+                {employeeLimits?.profileLimit
+                  ? formatRupiah(employeeLimits?.profileLimit?.limit_inherit)
+                  : "Belum diatur"}
               </span>
             </div>
           </div>
@@ -192,7 +216,16 @@ const ListOfficeLimitPage = () => {
             <Label htmlFor="office_type" className=" pl-1 text-sm font-semibold text-gray-400">
               Jenis Kantor
             </Label>
-            <Select onValueChange={handleOfficeTypeChange} defaultValue={officeType} disabled={isLoadingOfficeTypes}>
+            <Select
+              onValueChange={(e) => {
+                if (e === "Kantor Pusat") {
+                  handleOfficeIdChange("1");
+                }
+
+                handleOfficeTypeChange(e as OfficeType);
+              }}
+              defaultValue={officeType}
+              disabled={isLoadingOfficeTypes}>
               <SelectTrigger className="min-w-[152px]">
                 <SelectValue placeholder="Pilih Jenis Kantor" />
               </SelectTrigger>
@@ -206,6 +239,25 @@ const ListOfficeLimitPage = () => {
               </SelectContent>
             </Select>
           </div>
+          {officeType !== "Kantor Pusat" && (
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="office_id" className=" pl-1 text-sm font-semibold text-gray-400">
+                Kantor
+              </Label>
+              <NewCombobox
+                className="min-w-[152px]"
+                data={Array.isArray(offices) ? offices : []}
+                valueKey="id"
+                labelKey="name"
+                isLoading={isLoadingOffices}
+                placeholder="Pilih Kantor"
+                defaultValue={officeId}
+                onSelect={(val: any) => {
+                  handleOfficeIdChange(val.id);
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
       <div>
@@ -213,30 +265,30 @@ const ListOfficeLimitPage = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">No</TableHead>
-              <TableHead>Kantor</TableHead>
+              <TableHead>Nama Karyawan</TableHead>
               <TableHead>Limit</TableHead>
-              <TableHead>Limit Turunan</TableHead>
+              <TableHead>Kelompok Pekerjaan</TableHead>
               <TableHead>Jenis Produk</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoadingOfficeLimits && <TableSkeleton colspan={6} />}
-            {isSuccessOfficeLimits && officeLimits?.profiles && (
+            {isLoadingEmployeeLimits && <TableSkeleton colspan={6} />}
+            {isSuccessEmployeeLimits && (
               <RenderList
-                of={officeLimits.profiles}
-                render={(office: any, index) => {
+                of={employeeLimits?.employees}
+                render={(employee: any, index) => {
                   return (
-                    <TableRow key={office.id}>
+                    <TableRow key={index + 1}>
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
-                      <TableCell>{office?.office_name || "Belum diatur"}</TableCell>
-                      <TableCell>{office?.limit ? formatRupiah(office?.limit) : "Belum diatur"}</TableCell>
+                      <TableCell>{employee?.name || "Belum diatur"}</TableCell>
                       <TableCell>
-                        {office?.limit_inherit ? formatRupiah(office?.limit_inherit) : "Belum diatur"}
+                        {employee?.employee_limit?.limit
+                          ? formatRupiah(employee?.employee_limit?.limit)
+                          : "Belum diatur"}
                       </TableCell>
-                      <TableCell>
-                        {officeLimits?.guarantorProductTypeLimit?.product_type_name || "Belum diatur"}
-                      </TableCell>
+                      <TableCell>{jobGroup || "Belum diatur"}</TableCell>
+                      <TableCell>{employeeLimits?.profileLimit?.product_type_name || "Belum diatur"}</TableCell>
                       <TableCell className="flex justify-end">
                         <div className="flex gap-x-2">
                           <Button
@@ -244,26 +296,26 @@ const ListOfficeLimitPage = () => {
                             size="icon"
                             onClick={() => {
                               const concatData = {
-                                ...(officeLimits ? officeLimits?.guarantorProductTypeLimit : {}),
-                                ...office,
+                                // ...(employeeLimits?.profileLimit ? employeeLimits?.profileLimit : {}),
+                                // ...employee,
+                                employee_limit_id: employee?.employee_limit?.id || null,
+                                product_id: productId,
+                                product_type_id: productTypeId,
+                                job_group: jobGroup,
+                                office_id: officeId,
+                                employee_id: employee?.id,
+                                limit: employee?.employee_limit?.limit || 0,
                               };
 
-                              handleOpenUpdateOfficeLimit(true, concatData);
+                              console.log({
+                                ...employeeLimits?.profileLimit,
+                                ...employee,
+                              });
+
+                              handleOpenUpdateEmployeeLimit(true, concatData);
                             }}>
                             <Pencil className="w-4 h-4 text-black" />
                           </Button>
-                          {/* <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => {
-                              const concatData = {
-                                ...(officeLimits ? officeLimits?.guarantorProductTypeLimit : {}),
-                                ...office,
-                              };
-                              handleOpenDeleteOfficeLimit(true, concatData);
-                            }}>
-                            <Trash className="w-4 h-4 text-black" />
-                          </Button> */}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -273,27 +325,22 @@ const ListOfficeLimitPage = () => {
             )}
           </TableBody>
         </Table>
-        {isSuccessOfficeLimits && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
+        {isSuccessEmployeeLimits && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
 
-      {/* Create Office Limit Modal */}
-      <CreateUpdateOfficeLimitModal open={isOpenCreateOfficeLimit} handleOpen={handleOpenCreateOfficeLimit} />
-
       {/* Update Office Limit Modal */}
-      <CreateUpdateOfficeLimitModal
-        open={isOpenUpdateOfficeLimit}
-        handleOpen={handleOpenUpdateOfficeLimit}
-        officeLimit={selectedOfficeLimit}
+      <CreateUpdateEmployeeLimitModal
+        open={isOpenUpdateEmployeeLimit}
+        handleOpen={handleOpenUpdateEmployeeLimit}
+        employeeLimit={selectedEmployeeLimit}
       />
-
-      {/* Delete Office Limit Modal */}
-      <DeleteOfficeLimitModal
-        open={isOpenDeleteOfficeLimit}
-        handleOpen={handleOpenDeleteOfficeLimit}
-        officeLimit={selectedOfficeLimit}
-      />
+      {/* <CreateUpdateOfficeLimitModal
+      open={isOpenUpdateOfficeLimit}
+      handleOpen={handleOpenUpdateOfficeLimit}
+      officeLimit={selectedOfficeLimit}
+    /> */}
     </main>
   );
 };
 
-export default ListOfficeLimitPage;
+export default ListEmployeeLimitPage;

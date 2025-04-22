@@ -1,56 +1,33 @@
 import { PaginationMeta } from "@/_features/_common/types/pagination";
 import { useGetAllJobGroup } from "@/_features/job-group/services/job-group-query";
-import { useGetOfficeTypes } from "@/_features/office/services/office-query";
+import { useGetOfficeTypes, useSearchOffice } from "@/_features/office/services/office-query";
 import { useSearchProductType } from "@/_features/product-type/services/product-type-query";
-import { useGetAllProduct } from "@/_features/product/services/product-query";
+import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useQueryState } from "nuqs";
 import React, { useCallback } from "react";
-import { useSearchOfficeLimit } from "../services/office-limit-query";
-
-type Office = {
-  id: number;
-  name: string;
-  office_name: string;
-  limit: number;
-  limit_inherit: number;
-  profile_limit_id?: number;
-  product_type: string;
-  created_at: string; // You could use `Date` if it's parsed
-};
-
-type GuarantorProductTypeLimit = {
-  id: number;
-  guarantor_id: number;
-  guarantor_to_product_type_id: number;
-  limit: number;
-  limit_inherit: number;
-  created_at: string; // or Date if parsed
-  updated_at: string; // or Date if parsed
-  product_type_name: string;
-};
-
-export interface OfficeLimitResponse {
-  data: {
-    profiles: Office[];
-    guarantorProductTypeLimit: GuarantorProductTypeLimit;
-  };
-  meta: PaginationMeta;
-}
+import { useSearchEmployeeLimit } from "../services/employee-limit-query";
 
 type OfficeType = "Kantor Pusat" | "Kantor Cabang" | "Mitra Agen" | "Mitra Pemasaran";
 
 type JobGroup = "Konstruksi" | "Non Konstruksi";
 
-const useOfficeLimit = ({
+export interface EmployeeLimitResponse {
+  data: any;
+  meta: PaginationMeta;
+}
+
+const useListEmployeeLimit = ({
   initialProductId,
   initialProductTypeId,
   initialJobGroup,
   initialOfficeType,
+  initialOfficeId,
 }: {
   initialProductId: string;
   initialProductTypeId: string;
   initialJobGroup: string;
   initialOfficeType: OfficeType;
+  initialOfficeId: string;
 }) => {
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
@@ -101,6 +78,13 @@ const useOfficeLimit = ({
     serialize: (value) => value,
   });
 
+  const [officeId, setOfficeId] = useQueryState("office_id", {
+    defaultValue: initialOfficeId,
+    history: "push",
+    parse: (value) => value || "",
+    serialize: (value) => value,
+  });
+
   const {
     data: jobGroups,
     isLoading: isLoadingJobGroups,
@@ -130,10 +114,24 @@ const useOfficeLimit = ({
   } = useGetOfficeTypes<OfficeType[]>();
 
   const {
-    data: officeLimits,
-    isLoading: isLoadingOfficeLimits,
-    isSuccess: isSuccessOfficeLimits,
-  } = useSearchOfficeLimit<OfficeLimitResponse>({
+    data: offices,
+    isLoading: isLoadingOffices,
+    isSuccess: isSuccessOffices,
+  } = useSearchOffice(
+    {
+      officeType: officeType as OfficeType,
+      isPageAble: "false",
+    },
+    {
+      enabled: !!officeType,
+    },
+  );
+
+  const {
+    data: employeeLimits,
+    isLoading: isLoadingEmployeeLimits,
+    isSuccess: isSuccessEmployeeLimits,
+  } = useSearchEmployeeLimit<EmployeeLimitResponse>({
     search,
     perPage: parseInt(perPage),
     page: parseInt(page),
@@ -141,6 +139,8 @@ const useOfficeLimit = ({
     productTypeId,
     officeType,
     jobGroup,
+    officeId,
+    isPageAble: "true",
   });
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,38 +182,63 @@ const useOfficeLimit = ({
     setPage("1");
   }, []);
 
+  const handleOfficeIdChange = useCallback((value: string) => {
+    setOfficeId(value);
+    setPage("1");
+  }, []);
+
   return {
-    officeLimits: officeLimits?.data,
-    meta: officeLimits?.meta,
-    isLoadingOfficeLimits,
-    isSuccessOfficeLimits,
+    // employee limits
+    employeeLimits: employeeLimits?.data,
+    meta: employeeLimits?.meta,
+    isLoadingEmployeeLimits,
+    isSuccessEmployeeLimits,
+
+    // job groups
+    jobGroup,
     jobGroups,
     isLoadingJobGroups,
     isSuccessJobGroups,
+
+    // products
+    productId,
     products,
     isLoadingProducts,
     isSuccessProducts,
+
+    // product types
+    productTypeId,
     productTypes,
     isLoadingProductTypes,
     isSuccessProductTypes,
+
+    // search
     search,
     perPage,
     page,
-    productId,
-    productTypeId,
-    officeType,
-    jobGroup,
     handleSearchChange,
     handlePerPageChange,
     handlePageChange,
+
+    // handle product id change
     handleProductIdChange,
     handleProductTypeIdChange,
-    handleOfficeTypeChange,
     handleJobGroupChange,
+
+    // office types
+    officeType,
     officeTypes,
     isLoadingOfficeTypes,
     isSuccessOfficeTypes,
+    handleOfficeTypeChange,
+
+    // offices
+    officeId,
+    offices,
+    isLoadingOffices,
+    isSuccessOffices,
+    handleOfficeIdChange,
   };
 };
 
-export default useOfficeLimit;
+export default useListEmployeeLimit;
