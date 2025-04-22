@@ -683,19 +683,11 @@ class SubmissionController extends Controller
     // get submission pic
     $guarantorPic = $guarantorBranch->getAttribute('pic') ?? $guarantor->getAttribute('pic');
 
-    $callbackRelation = $submission->getRelation('callback');
-    if ($callbackRelation) {
-      $callback = collect([
-        'id' => $callbackRelation->getAttribute('id'),
-        'doc_url' => $callbackRelation->getAttribute('doc_url'),
-        // 'url' => Storage::url($submission->getAttribute('url')),
-        'url' => $submission->getAttribute('url')
-          ? Storage::url($submission->getAttribute('url'))
-          : null,
-
-      ]);
-      $submission->setAttribute('callback', $callback);
-    }
+    $callback = $submission->getRelation('callback');
+    $submission->getRelation('callback')->setAttribute('url',
+      $callback->getAttribute('url')
+      ? Storage::url($callback->getAttribute('url'))
+      : null);
 
     $submission->setRawAttributes([
       ...$submission->attributesToArray(),
