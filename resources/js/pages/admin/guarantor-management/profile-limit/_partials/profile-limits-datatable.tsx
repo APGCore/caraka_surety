@@ -48,6 +48,8 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
   jobTypeSelected,
   onDelete,
 }) => {
+  console.log(profiles);
+
   return (
     <>
       <Table>
@@ -68,13 +70,9 @@ const ProfileLimitsDatatable: React.FC<ProfileLimitsDatatableProps> = ({
               <TableRow key={profile.id}>
                 <TableCell>{profiles.meta?.from + index}</TableCell>
                 <TableCell>{profile.name}</TableCell>
+                <TableCell>{profile.limit ? "Rp. " + textCurrency(profile.limit) : "Belum Di setting"}</TableCell>
                 <TableCell>
-                  {profile.profile_limit ? "Rp. " + textCurrency(profile.profile_limit.limit) : "Belum Di setting"}
-                </TableCell>
-                <TableCell>
-                  {profile.profile_limit
-                    ? "Rp. " + textCurrency(profile.profile_limit.limit_inherit)
-                    : "Belum Di setting"}
+                  {profile.limit_inherit ? "Rp. " + textCurrency(profile.limit_inherit) : "Belum Di setting"}
                 </TableCell>
                 <TableCell>{profile.created_at}</TableCell>
                 <TableCell className="text-right">

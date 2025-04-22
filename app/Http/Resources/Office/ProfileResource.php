@@ -20,8 +20,8 @@ class ProfileResource extends JsonResource
       'id' => $this->id,
       'name' => $this->name,
       'office_name' => $this->name,
-      'limit' => $limit ? $limit->limit : 0,
-      'limit_inherit' => $limit ? $limit->limit_inherit : 0,
+      'limit' => $limit ? $limit->limit : 'Belum diatur',
+      'limit_inherit' => $limit ? $limit->limit_inherit : 'Belum diatur',
       'product_type' => $limit?->guarantorToProductType?->productType?->name ?? 'Belum diatur',
       'created_at' => $this->created_at->format('d-m-Y'),
     ];

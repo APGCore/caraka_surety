@@ -285,6 +285,7 @@ class ProfileLimitController extends Controller
       ]
     );
 
+
     try {
       DB::beginTransaction();
 
@@ -318,10 +319,10 @@ class ProfileLimitController extends Controller
       DB::commit();
 
 
-      flashMessage('success', 'Limit Kantor berhasil diubah');
-      return back();
+      // flashMessage('success', 'Limit Kantor berhasil diubah');
+      // return back();
 
-      // return $this->responseSuccess('Berhasil mengubah limit kantor');
+      return $this->responseSuccess('Berhasil mengubah limit kantor');
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);
@@ -351,8 +352,8 @@ class ProfileLimitController extends Controller
 
       DB::commit();
 
-      flashMessage('success', 'Limit Kantor berhasil dihapus');
-      return back();
+      // flashMessage('success', 'Limit Kantor berhasil dihapus');
+      // return back();
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);

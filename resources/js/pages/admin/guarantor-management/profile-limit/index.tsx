@@ -274,7 +274,7 @@ export default ProfileLimitsPage;
 ProfileLimitsPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
-  const title = "";
+  const title = "Batas Kewenangan Nilai Jaminan Unit Kantor";
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
