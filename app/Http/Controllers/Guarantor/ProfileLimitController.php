@@ -268,7 +268,7 @@ class ProfileLimitController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  public function update(Request $request, ProfileLimit $profileLimit): JsonResponse
+  public function update(Request $request, ProfileLimit $profileLimit)
   {
     $requestValid = $request->validate(
       [
@@ -317,7 +317,11 @@ class ProfileLimitController extends Controller
         ->log('Mengubah limit kantor');
       DB::commit();
 
-      return $this->responseSuccess('Berhasil mengubah limit kantor');
+
+      flashMessage('success', 'Limit Kantor berhasil diubah');
+      return back();
+
+      // return $this->responseSuccess('Berhasil mengubah limit kantor');
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);
@@ -344,7 +348,11 @@ class ProfileLimitController extends Controller
         ->performedOn($profileLimit)
         ->causedBy(auth()->user())
         ->log('Menghapus limit kantor');
+
       DB::commit();
+
+      flashMessage('success', 'Limit Kantor berhasil dihapus');
+      return back();
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);

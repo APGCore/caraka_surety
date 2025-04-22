@@ -153,7 +153,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     router.delete(route(ProfileLimitsUtils.link.destroy, profileLimit.id));
   };
 
-  return <ListOfficeLimitPage />;
+  // return <ListOfficeLimitPage />;
 
   return (
     <main className="space-y-2.5">

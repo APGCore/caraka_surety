@@ -22,9 +22,24 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { Pencil, Search, Trash } from "lucide-react";
+import CreateUpdateOfficeLimitModal from "../../components/office-limit/create-update-office-limit-modal";
+import DeleteOfficeLimitModal from "../../components/office-limit/delete-office-limit-modal";
 import useOfficeLimit from "../../hooks/use-list-office-limit";
+import useOfficeLimitModal from "../../hooks/use-office-limit-modal";
 
 const ListOfficeLimitPage = () => {
+  const {
+    isOpenUpdateOfficeLimit,
+    handleOpenUpdateOfficeLimit,
+    isOpenDeleteOfficeLimit,
+    handleOpenDeleteOfficeLimit,
+    selectedOfficeLimit,
+    handleOpenCreateOfficeLimit,
+    isOpenCreateOfficeLimit,
+    handleOpenDetailOfficeLimit,
+    isOpenDetailOfficeLimit,
+  } = useOfficeLimitModal();
+
   const {
     officeLimits,
     isLoadingOfficeLimits,
@@ -186,10 +201,28 @@ const ListOfficeLimitPage = () => {
                       <TableCell>{office?.limit_inherit || "-"}</TableCell>
                       <TableCell className="flex justify-end">
                         <div className="flex gap-x-2">
-                          <Button className="bg-yellow-300 hover:bg-yellow-400" size="icon" onClick={() => {}}>
+                          <Button
+                            className="bg-yellow-300 hover:bg-yellow-400"
+                            size="icon"
+                            onClick={() => {
+                              const concatData = {
+                                ...(officeLimits ? officeLimits?.guarantorProductTypeLimit : {}),
+                                ...office,
+                              };
+                              handleOpenUpdateOfficeLimit(true, concatData);
+                            }}>
                             <Pencil className="w-4 h-4 text-black" />
                           </Button>
-                          <Button variant="destructive" size="icon" onClick={() => {}}>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              const concatData = {
+                                ...(officeLimits ? officeLimits?.guarantorProductTypeLimit : {}),
+                                ...office,
+                              };
+                              handleOpenDeleteOfficeLimit(true, concatData);
+                            }}>
                             <Trash className="w-4 h-4 text-black" />
                           </Button>
                         </div>
@@ -204,21 +237,21 @@ const ListOfficeLimitPage = () => {
         {isSuccessOfficeLimits && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
 
-      {/* Create Host to Host Modal */}
-      {/* <CreateUpdateHostToHostModal open={isOpenCreateHostToHost} handleOpen={handleOpenCreateHostToHost} /> */}
+      {/* Create Office Limit Modal */}
+      <CreateUpdateOfficeLimitModal open={isOpenCreateOfficeLimit} handleOpen={handleOpenCreateOfficeLimit} />
 
-      {/* Update Host to Host Modal */}
-      {/* <CreateUpdateHostToHostModal
-        open={isOpenUpdateHostToHost}
-        handleOpen={handleOpenUpdateHostToHost}
-        hostToHost={selectedHostToHost}
-      /> */}
+      {/* Update Office Limit Modal */}
+      <CreateUpdateOfficeLimitModal
+        open={isOpenUpdateOfficeLimit}
+        handleOpen={handleOpenUpdateOfficeLimit}
+        officeLimit={selectedOfficeLimit}
+      />
 
-      {/* Delete Host to Host Modal */}
-      {/* <DeleteHostToHostModal
-        open={isOpenDeleteHostToHost}
-        handleOpen={handleOpenDeleteHostToHost}
-        hostToHost={selectedHostToHost}
+      {/* Delete Office Limit Modal */}
+      {/* <DeleteOfficeLimitModal
+        open={isOpenDeleteOfficeLimit}
+        handleOpen={handleOpenDeleteOfficeLimit}
+        officeLimit={selectedOfficeLimit}
       /> */}
 
       {/* Detail Host to Host Modal */}
