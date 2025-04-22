@@ -153,7 +153,7 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     router.delete(route(ProfileLimitsUtils.link.destroy, profileLimit.id));
   };
 
-  // return <ListOfficeLimitPage />;
+  return <ListOfficeLimitPage />;
 
   return (
     <main className="space-y-2.5">
@@ -274,7 +274,7 @@ export default ProfileLimitsPage;
 ProfileLimitsPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
-  const title = "Batas Kewenangan Nilai Jaminan Unit Kantor";
+  const title = "";
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>

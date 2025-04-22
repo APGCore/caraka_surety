@@ -10,7 +10,6 @@ import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
 import { OFFICE_LIMIT_QUERY_KEY } from "@/_features/limit/services/office-limit-query";
-import { GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY } from "@/_features/limit/services/product-type-limit-query";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
@@ -58,36 +57,51 @@ export default function CreateUpdateOfficeLimitModal({
     }
   }, [officeLimit]);
 
-  console.log({
-    ...data,
-  });
-
-  const createOfficeLimit = () => {};
+  const createOfficeLimit = () => {
+    post(route("profile-limit.store"), {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [OFFICE_LIMIT_QUERY_KEY.SEARCH],
+            refetchType: "active",
+          }),
+        ]);
+        reset();
+        handleOpen?.(false);
+      },
+    });
+  };
 
   const updateOfficeLimit = () => {
-    if (data.profile_id) {
-      console.log(route("profile-limit.update", { id: data.profile_id }));
-      put(route("profile-limit.update", { id: data.profile_id }), {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: async () => {
-          await Promise.all([
-            queryClient.invalidateQueries({
-              queryKey: [OFFICE_LIMIT_QUERY_KEY.SEARCH],
-              refetchType: "active",
-            }),
-          ]);
-          reset();
-          handleOpen?.(false);
+    if (officeLimit.profile_limit_id) {
+      put(
+        route("profile-limit.update", {
+          id: officeLimit.profile_limit_id,
+        }),
+        {
+          preserveState: true,
+          preserveScroll: true,
+          onSuccess: async () => {
+            await Promise.all([
+              queryClient.invalidateQueries({
+                queryKey: [OFFICE_LIMIT_QUERY_KEY.SEARCH],
+                refetchType: "active",
+              }),
+            ]);
+            reset();
+            handleOpen?.(false);
+          },
         },
-      });
+      );
     }
   };
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (data.profile_id) {
+    if (officeLimit.profile_limit_id) {
       updateOfficeLimit();
     } else {
       createOfficeLimit();
@@ -105,10 +119,12 @@ export default function CreateUpdateOfficeLimitModal({
           </div>
           <AlertDialogHeader>
             <AlertDialogTitle className="sm:text-center">
-              {officeLimit.limit ? "Update Batas Kewenangan Nilai Kantor" : "Tambah Batas Kewenangan Nilai Kantor"}
+              {officeLimit.profile_limit_id
+                ? "Update Batas Kewenangan Nilai Kantor"
+                : "Tambah Batas Kewenangan Nilai Kantor"}
             </AlertDialogTitle>
             <AlertDialogDescription className="sm:text-center">
-              {officeLimit.limit
+              {officeLimit.profile_limit_id
                 ? "Anda akan mengupdate batas kewenangan nilai kantor."
                 : "Anda akan menambahkan batas kewenangan nilai kantor."}
             </AlertDialogDescription>
@@ -150,7 +166,7 @@ export default function CreateUpdateOfficeLimitModal({
           </Button>
           <Button form={`form-create-update-office-limit`} type={"submit"} disabled={processing} className="flex-1">
             {processing && <LoaderCircle className="animate-spin mr-1" />}
-            {officeLimit.limit ? "Update Data" : "Simpan Data"}
+            {officeLimit.profile_limit_id ? "Update Data" : "Simpan Data"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

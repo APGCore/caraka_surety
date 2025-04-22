@@ -8,6 +8,7 @@ import {
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
+import { OFFICE_LIMIT_QUERY_KEY } from "@/_features/limit/services/office-limit-query";
 import { GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY } from "@/_features/limit/services/product-type-limit-query";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { router } from "@inertiajs/react";
@@ -17,23 +18,23 @@ import { useState } from "react";
 interface DeleteProductTypeLimitModalProps {
   open: boolean;
   handleOpen?: (open: boolean) => void;
-  guarantorProductType?: any;
+  officeLimit?: any;
 }
 
 export default function DeleteProductTypeLimitModal({
   open,
   handleOpen,
-  guarantorProductType,
+  officeLimit,
 }: DeleteProductTypeLimitModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = () => {
     setIsLoading(true);
 
-    if (guarantorProductType?.limit?.id) {
+    if (officeLimit?.profile_limit_id) {
       router.delete(
-        route("guarantor-product-type-limit.destroy", {
-          id: guarantorProductType.limit.id,
+        route("profile-limit.destroy", {
+          id: officeLimit.profile_limit_id,
         }),
         {
           preserveState: true,
@@ -41,7 +42,7 @@ export default function DeleteProductTypeLimitModal({
           onSuccess: async () => {
             await Promise.all([
               queryClient.invalidateQueries({
-                queryKey: [GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY.GUARANTOR_PRODUCT_TYPE_LIMIT],
+                queryKey: [OFFICE_LIMIT_QUERY_KEY.SEARCH],
                 refetchType: "active",
               }),
             ]);

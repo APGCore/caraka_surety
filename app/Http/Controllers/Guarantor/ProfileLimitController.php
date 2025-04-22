@@ -206,7 +206,7 @@ class ProfileLimitController extends Controller
   /**
    * Store a newly created resource in storage.
    */
-  public function store(Request $request): JsonResponse
+  public function store(Request $request)
   {
     $requestValid = $request->validate(
       [
@@ -255,7 +255,8 @@ class ProfileLimitController extends Controller
         ->log('Menambahkan limit kantor');
       DB::commit();
 
-      return $this->responseSuccess('Berhasil menambahkan limit kantor');
+      flashMessage('success', 'Limit Kantor berhasil ditambahkan');
+      return redirect()->route('profile-limit.index');
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);
@@ -284,7 +285,6 @@ class ProfileLimitController extends Controller
         'limit_inherit.required' => 'Batas Kewenangan Turunan wajib diisi',
       ]
     );
-
 
     try {
       DB::beginTransaction();
@@ -319,10 +319,10 @@ class ProfileLimitController extends Controller
       DB::commit();
 
 
-      // flashMessage('success', 'Limit Kantor berhasil diubah');
-      // return back();
+      flashMessage('success', 'Limit Kantor berhasil diubah');
+      return redirect()->route('profile-limit.index');
 
-      return $this->responseSuccess('Berhasil mengubah limit kantor');
+      // return $this->responseSuccess('Berhasil mengubah limit kantor');
     } catch (Exception $e) {
       DB::rollBack();
       $error = $this->handleErrorMessage($e);
@@ -352,7 +352,10 @@ class ProfileLimitController extends Controller
 
       DB::commit();
 
-      // flashMessage('success', 'Limit Kantor berhasil dihapus');
+      // return redirect()->route('profile-limit.index');
+
+      flashMessage('success', 'Limit Kantor berhasil dihapus');
+      return redirect()->route('profile-limit.index');
       // return back();
     } catch (Exception $e) {
       DB::rollBack();

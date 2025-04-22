@@ -27,6 +27,17 @@ import DeleteOfficeLimitModal from "../../components/office-limit/delete-office-
 import useOfficeLimit from "../../hooks/use-list-office-limit";
 import useOfficeLimitModal from "../../hooks/use-office-limit-modal";
 
+const formatRupiah = (value: number | string | null | undefined) => {
+  if (!value) return "Belum diatur";
+  const num = typeof value === "string" ? parseFloat(value) : value;
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(num);
+};
+
 const ListOfficeLimitPage = () => {
   const {
     isOpenUpdateOfficeLimit,
@@ -36,8 +47,6 @@ const ListOfficeLimitPage = () => {
     selectedOfficeLimit,
     handleOpenCreateOfficeLimit,
     isOpenCreateOfficeLimit,
-    handleOpenDetailOfficeLimit,
-    isOpenDetailOfficeLimit,
   } = useOfficeLimitModal();
 
   const {
@@ -78,9 +87,32 @@ const ListOfficeLimitPage = () => {
   });
 
   return (
-    <main className="space-y-2.5">
+    <main className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">Limit Unit Kantor</h1>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Limit Unit Kantor</h1>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-48 text-sm font-medium text-muted-foreground">Jenis Produk</span>
+              <span className="text-sm">:</span>
+              <span className="text-sm font-bold">
+                {officeLimits?.guarantorProductTypeLimit?.product_type_name || "Belum diatur"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Total</span>
+              <span className="text-sm">:</span>
+              <span className="text-sm font-bold">{formatRupiah(officeLimits?.guarantorProductTypeLimit?.limit)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-48 text-sm font-medium text-muted-foreground">Limit Turunan Total</span>
+              <span className="text-sm">:</span>
+              <span className="text-sm font-bold">
+                {formatRupiah(officeLimits?.guarantorProductTypeLimit?.limit_inherit)}
+              </span>
+            </div>
+          </div>
+        </div>
         <div className="flex gap-x-3">
           <div className="flex items-center gap-x-2 relative">
             <Search className="w-4 h-4 absolute left-3" />
@@ -184,11 +216,12 @@ const ListOfficeLimitPage = () => {
               <TableHead>Kantor</TableHead>
               <TableHead>Limit</TableHead>
               <TableHead>Limit Turunan</TableHead>
+              <TableHead>Jenis Produk</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoadingOfficeLimits && <TableSkeleton colspan={5} />}
+            {isLoadingOfficeLimits && <TableSkeleton colspan={6} />}
             {isSuccessOfficeLimits && officeLimits?.profiles && (
               <RenderList
                 of={officeLimits.profiles}
@@ -196,9 +229,14 @@ const ListOfficeLimitPage = () => {
                   return (
                     <TableRow key={office.id}>
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
-                      <TableCell>{office?.office_name || "-"}</TableCell>
-                      <TableCell>{office?.limit || "-"}</TableCell>
-                      <TableCell>{office?.limit_inherit || "-"}</TableCell>
+                      <TableCell>{office?.office_name || "Belum diatur"}</TableCell>
+                      <TableCell>{office?.limit ? formatRupiah(office?.limit) : "Belum diatur"}</TableCell>
+                      <TableCell>
+                        {office?.limit_inherit ? formatRupiah(office?.limit_inherit) : "Belum diatur"}
+                      </TableCell>
+                      <TableCell>
+                        {officeLimits?.guarantorProductTypeLimit?.product_type_name || "Belum diatur"}
+                      </TableCell>
                       <TableCell className="flex justify-end">
                         <div className="flex gap-x-2">
                           <Button
@@ -209,11 +247,12 @@ const ListOfficeLimitPage = () => {
                                 ...(officeLimits ? officeLimits?.guarantorProductTypeLimit : {}),
                                 ...office,
                               };
+
                               handleOpenUpdateOfficeLimit(true, concatData);
                             }}>
                             <Pencil className="w-4 h-4 text-black" />
                           </Button>
-                          <Button
+                          {/* <Button
                             variant="destructive"
                             size="icon"
                             onClick={() => {
@@ -224,7 +263,7 @@ const ListOfficeLimitPage = () => {
                               handleOpenDeleteOfficeLimit(true, concatData);
                             }}>
                             <Trash className="w-4 h-4 text-black" />
-                          </Button>
+                          </Button> */}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -248,18 +287,11 @@ const ListOfficeLimitPage = () => {
       />
 
       {/* Delete Office Limit Modal */}
-      {/* <DeleteOfficeLimitModal
+      <DeleteOfficeLimitModal
         open={isOpenDeleteOfficeLimit}
         handleOpen={handleOpenDeleteOfficeLimit}
         officeLimit={selectedOfficeLimit}
-      /> */}
-
-      {/* Detail Host to Host Modal */}
-      {/* <DetailHostToHostModal
-        open={isOpenDetailHostToHost}
-        handleOpen={handleOpenDetailHostToHost}
-        hostToHost={selectedHostToHost}
-      /> */}
+      />
     </main>
   );
 };

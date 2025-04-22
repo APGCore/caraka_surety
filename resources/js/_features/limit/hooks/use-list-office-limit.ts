@@ -13,6 +13,7 @@ type Office = {
   office_name: string;
   limit: number;
   limit_inherit: number;
+  profile_limit_id?: number;
   product_type: string;
   created_at: string; // You could use `Date` if it's parsed
 };
@@ -128,8 +129,6 @@ const useOfficeLimit = ({
     isSuccess: isSuccessOfficeTypes,
   } = useGetOfficeTypes<OfficeType[]>();
 
-  console.log(officeTypes);
-
   const {
     data: officeLimits,
     isLoading: isLoadingOfficeLimits,
@@ -142,6 +141,10 @@ const useOfficeLimit = ({
     productTypeId,
     officeType,
     jobGroup,
+  });
+
+  console.log({
+    officeLimits,
   });
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
