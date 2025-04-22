@@ -26,9 +26,9 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
 
   const calculateRatios = (value1: string, value2: string) => {
-    const result = (Number(value1) / Number(value2)).toFixed(2);
+    const result = (Number(value1) / Number(value2)).toString();
 
-    return result === "Infinity" ? undefined : isNaN(Number(result)) ? undefined : result;
+    return result === "Infinity" ? "" : isNaN(Number(result)) ? "" : result;
   };
   const defaultRatio: Ratio = {
     year: dayjs().year(),
@@ -152,9 +152,9 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                 <SelectGroup>
                   <SelectLabel>Tahun</SelectLabel>
                   <RenderList
-                    of={years}
+                    of={years as any[]}
                     render={(year) => {
-                      return <SelectItem value={year.toString()}>{year}</SelectItem>;
+                      return <SelectItem value={year.toString()}>{year.toString()}</SelectItem>;
                     }}
                   />
                 </SelectGroup>
@@ -236,7 +236,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Pendapatan"
               onChange={(value) => {
                 const profitability = calculateRatios(firstRatio?.net_income ?? "", value ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -254,7 +254,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Laba Bersih"
               onChange={(value) => {
                 const profitability = calculateRatios(value ?? "", firstRatio?.revenue ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -349,7 +349,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Pendapatan"
               onChange={(value) => {
                 const profitability = calculateRatios(secondRatio?.net_income ?? "", value ?? "");
-                const profit = profitability ? (Number(profitability) * 100) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
@@ -367,7 +367,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Laba Bersih"
               onChange={(value) => {
                 const profitability = calculateRatios(value ?? "", secondRatio?.revenue ?? "");
-                const profit = profitability ? (Number(profitability) * 100) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
