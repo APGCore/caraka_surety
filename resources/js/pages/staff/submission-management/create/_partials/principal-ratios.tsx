@@ -267,10 +267,10 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.liquidity_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {firstRatio?.profitability_ratios !== undefined ? firstRatio?.profitability_ratios.toString() + "%" : "??"}{" "}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
         </div>
         {/* Second Ratio */}
         <div className="grid gap-3 w-full">
@@ -380,12 +380,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.liquidity_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {secondRatio?.profitability_ratios !== undefined
               ? secondRatio?.profitability_ratios.toString() + "%"
               : "??"}{" "}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
         </div>
       </div>
     </>
