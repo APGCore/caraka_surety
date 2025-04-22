@@ -1771,7 +1771,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                   </Button>
                 </Show>
               </div>
-              ;
             </>
           </Show>
         </form>

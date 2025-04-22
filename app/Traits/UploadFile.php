@@ -28,10 +28,11 @@ trait UploadFile
 
     }
 
-  /**
-   * Upload file to the storage.
-   * @throws Exception
-   */
+    /**
+     * Upload file to the storage.
+     *
+     * @throws Exception
+     */
     public function uploadFile(UploadedFile $file, string $path, string $fileName): string
     {
         // Ensure a valid extension (defaults to PDF if not image)
