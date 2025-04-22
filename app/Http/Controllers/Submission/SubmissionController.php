@@ -491,8 +491,8 @@ class SubmissionController extends Controller
         $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
-                $doc->setAttribute('name', $principalDoc->getAttribute('name') ?? $doc->name);
-                $doc->setAttribute('url', $principalDoc->getAttribute('url') ? Storage::url($principalDoc->url) : null);
+                $doc->setAttribute('name', $principalDoc?->getAttribute('name') ?? $doc->name);
+                $doc->setAttribute('url', $principalDoc?->getAttribute('url') ? Storage::url($principalDoc->url) : null);
 
                 return $doc->only(['id', 'name', 'description', 'url']);
             });
