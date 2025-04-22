@@ -25,11 +25,11 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
 
-  const calculateRatios = (value1: string, value2: string) => {
-    const result = (Number(value1) / Number(value2)).toString();
+const calculateRatios = (value1: string, value2: string) => {
+  const result = Number(value1) / Number(value2);
 
-    return result === "Infinity" ? "" : isNaN(Number(result)) ? "" : result;
-  };
+  return result === Infinity || isNaN(result) ? "" : result.toFixed(2);
+};
   const defaultRatio: Ratio = {
     year: dayjs().year(),
     current_assets: "",
