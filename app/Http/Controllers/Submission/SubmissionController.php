@@ -1513,41 +1513,48 @@ class SubmissionController extends Controller
     return $this->responseError('Gagal mengirimkan data ke pihak asuransi: ' . $result['message']);
   }
 
+  /**
+   * @throws Exception
+   */
   public function postToGetCallback(Submission $submission): JsonResponse
   {
-    $submission->load(['guarantor', 'guarantor.hostToHost']);
-    $guarantor = $submission->getRelation('guarantor');
-    $hostToHost = $guarantor->getRelation('hostToHost');
-    $url = $hostToHost->getAttribute('guarantor_url_host') . '/status';
-    $prefix = $hostToHost->getAttribute('auth_prefix');
-    $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
+    try {
+      $submission->load(['guarantor', 'guarantor.hostToHost']);
+      $guarantor = $submission->getRelation('guarantor');
+      $hostToHost = $guarantor->getRelation('hostToHost');
+      $url = $hostToHost->getAttribute('guarantor_url_host') . '/status';
+      $prefix = $hostToHost->getAttribute('auth_prefix');
+      $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
 
-    $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submission->id]);
+      $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submission->id]);
 
-    if ($result['status'] === 'success') {
-      $data = $result['message'];
-      // image is base64
-      $imageString = $data['image'];
-      // base64 to file
-      $fileData = $this->base64ToFile($imageString);
-      // save image to storage
-      $url = $this->uploadFile($fileData, 'submission/callback', $submission->id . '-image-from-guarantor');
-      $submission->update(['has_send_to_guarantor' => true]);
-      SubmissionCallback::query()->updateOrCreate(
-        ['submission_id' => $submission->id],
-        [
-          'submission_id' => $submission->id,
-          'doc_url' => $data['doc_url'],
-          'url' => $url,
-          'no_policy' => $data['policyno'],
-        ]
-      );
+      if ($result['status'] === 'success') {
+        $data = $result['message'];
+        // image is base64
+        $imageString = $data['image'];
+        // base64 to file
+        $fileData = $this->base64ToFile($imageString);
+        // save image to storage
+        $url = $this->uploadFile($fileData, 'submission/callback', $submission->id . '-image-from-guarantor');
+        $submission->update(['has_send_to_guarantor' => true]);
+        SubmissionCallback::query()->updateOrCreate(
+          ['submission_id' => $submission->id],
+          [
+            'submission_id' => $submission->id,
+            'doc_url' => $data['doc_url'],
+            'url' => $url,
+            'no_policy' => $data['policyno'],
+          ]
+        );
 
-      return $this->responseSuccess('Berhasil Mengambil Data', $data);
-    } else {
-      Log::error('Error Callback: ', ['message' => $result['message']]);
+        return $this->responseSuccess('Berhasil Mengambil Data', $data);
+      } else {
+        throw new Exception('Gagal mengambil data dari pihak asuransi: ' . $result['message']);
+      }
+    } catch (Exception $e) {
+      Log::error('Error decoding JSON: ', ['message' => $e->getMessage()]);
 
-      return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $result['message']);
+      return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', 'Gagal mendekode data dari pihak asuransi');
     }
   }
 
