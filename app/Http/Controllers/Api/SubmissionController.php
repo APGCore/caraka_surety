@@ -90,6 +90,12 @@ class SubmissionController extends Controller
                 );
             }
 
+            if(isset($data['error'])) {
+                Log::error('Error Callback: ', ['message' => $data['error']]);
+
+                return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $data['error']);
+            }
+
             Log::info('Callback Success: ', $data);
 
             return $this->responseSuccess('Berhasil Mengambil Data', $data);
