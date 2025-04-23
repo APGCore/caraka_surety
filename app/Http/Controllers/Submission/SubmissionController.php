@@ -692,7 +692,7 @@ class SubmissionController extends Controller
         $employeeLimit = $submission->getRelation('employeeLimit')
             ?->firstWhere('employee_id', auth()->id())
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-        $productLimitValue = $submission->getRelation('guarantorProductTypeLimit')
+        $productLimit = $submission->getRelation('guarantorProductTypeLimit')
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
@@ -755,7 +755,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('guarantor_address', $guarantorAddress);
         $submission->setAttribute('guarantor_pic', $guarantorPic);
         $submission->setAttribute('employee_limit', $employeeLimit);
-        $submission->setAttribute('product_limit', $productLimitValue);
+        $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
 
         return inertia($component, [
@@ -974,17 +974,21 @@ class SubmissionController extends Controller
             ])
             ->orderByDesc('created_at')
             ->get()
-            ->map(function ($submission) use ($authId) {
+            ->map(function ($submission) {
                 $date = Carbon::parse($submission->created_at)
                     ->translatedFormat('d F Y');
-                $employeeLimit = $submission->employeeLimit->firstWhere('employee_id', $authId);
-                $productLimit = $submission->guarantorProductTypeLimit;
+                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
+                $employeeLimit = $submission->getRelation('employeeLimit')
+                    ?->firstWhere('employee_id', auth()->id())
+                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
+                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
                 return array_merge($submission->toArray(), [
-                    'employee_limit' => $employeeLimit?->limit ?? 0,
-                    'product_limit' => $productLimit?->limit ?? 0,
-                    'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-                    'beyond_the_limit' => ($employeeLimit?->limit ?? 0) < $submission->guarantee_value,
+                    'employee_limit' => $employeeLimit,
+                    'product_limit' => $productLimit,
+                    'beyond_the_limit' => $beyondTheLimit,
                     'created_at' => $date,
                 ]);
             });
@@ -1426,7 +1430,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -1475,7 +1479,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),

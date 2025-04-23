@@ -6,7 +6,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/_features/_common/components/_shadcn-ui/select";
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/_features/_common/components/_shadcn-ui/table";
 import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
@@ -40,11 +40,7 @@ const formatRupiah = (value: number | string | null | undefined) => {
 type OfficeType = "Kantor Pusat" | "Kantor Cabang" | "Mitra Agen" | "Mitra Pemasaran";
 
 const ListEmployeeLimitPage = () => {
-  const {
-    isOpenUpdateEmployeeLimit,
-    handleOpenUpdateEmployeeLimit,
-    selectedEmployeeLimit,
-  } = useEmployeeLimitModal();
+  const { isOpenUpdateEmployeeLimit, handleOpenUpdateEmployeeLimit, selectedEmployeeLimit } = useEmployeeLimitModal();
 
   const {
     // Employee Limit
