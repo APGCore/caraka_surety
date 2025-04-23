@@ -830,7 +830,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     ) : (
                       <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
                         {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                        Refresh
+                        Cek Respon Dari Asuransi
                       </Button>
                     )}
                   </div>
