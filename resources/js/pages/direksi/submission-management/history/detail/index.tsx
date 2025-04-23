@@ -160,9 +160,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
+        toast({
+          title: "Sukses",
+          description: "Berhasil mendapatkan callback dari asuransi",
+        });
         router.reload();
       })
       .catch((error) => {
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
         console.error("Error Get Callback From Guarantor", error);
       })
       .finally(() => {
@@ -732,7 +741,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       ) : (
                         <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
                           {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                          Refresh
+                          Cek Respon Dari Asuransi
                         </Button>
                       )}
                     </div>
