@@ -692,7 +692,7 @@ class SubmissionController extends Controller
         $employeeLimit = $employeeLimit?->limit ?? 0;
         $productLimitValue = $productLimit?->limit ?? 0;
         $productLimitInherit = $productLimit?->limit_inherit ?? 0;
-        $beyondTheLimit = ($employeeLimit?->limit ?? 0) < $submission->getAttribute('guarantee_value');
+        $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
         // check role
         $checkRole = $this->checkRole();
