@@ -28,9 +28,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: "link image code exportpdf exportword",
+        plugins: "exportpdf exportword",
         toolbar:
-          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code | exportToWord exportToPDF printDocument",
+          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code ",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
