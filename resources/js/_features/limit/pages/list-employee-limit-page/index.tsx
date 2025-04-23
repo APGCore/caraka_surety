@@ -6,7 +6,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/_features/_common/components/_shadcn-ui/select";
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/_features/_common/components/_shadcn-ui/table";
 import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
@@ -305,6 +305,7 @@ const ListEmployeeLimitPage = () => {
                                 office_id: officeId,
                                 employee_id: employee?.id,
                                 limit: employee?.employee_limit?.limit || 0,
+                                limit_inherit: employee?.employee_limit?.limit_inherit || 0,
                               };
 
                               console.log({
