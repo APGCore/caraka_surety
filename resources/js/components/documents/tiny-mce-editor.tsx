@@ -24,13 +24,71 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     htmlDocxScript.async = true;
 
     const setupEditor = () => {
+      window.tinymce.PluginManager.add("exportToWord", function (editor: any, url: any) {
+        editor.ui.registry.addButton("exportToWord", {
+          text: "Export to Word",
+          onAction: () => {
+            try {
+              if (!window.htmlDocx) {
+                throw new Error("htmlDocx is not loaded.");
+              }
+
+              const content = editor.getContent({ format: "html" });
+
+              const styles = Array.from(document.styleSheets)
+                .map((sheet: any) => {
+                  try {
+                    return Array.from(sheet.cssRules || [])
+                      .map((rule: any) => rule.cssText)
+                      .join("\n");
+                  } catch (e) {
+                    return "";
+                  }
+                })
+                .join("\n");
+
+              const fullHTML = `
+                <html>
+                  <head>
+                    <meta charset="utf-8">
+                    <style>
+                      body {
+                        font-family: Verdana, sans-serif;
+                        font-size: 8px;
+                      }
+                      img {
+                        max-width: 100%;
+                        height: auto;
+                      }
+                      ${styles}
+                    </style>
+                  </head>
+                  <body>
+                    ${content}
+                  </body>
+                </html>
+              `;
+
+              const converted = window.htmlDocx.asBlob(fullHTML);
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(converted);
+              link.download = `${editor.id}-document.docx`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } catch (error) {
+              console.error("Export to Word failed:", error);
+            }
+          },
+        });
+      });
+
       window.tinymce.init({
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
         plugins: "exportpdf exportword",
-        toolbar:
-          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code ",
+        toolbar: "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code ",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
