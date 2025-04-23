@@ -16,7 +16,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     editorRef.current = true;
 
     const tinymceScript = document.createElement("script");
-    // tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    tinymceScript.src = "/js/tinymce/tinymce.min.js";
     // tinymceScript.src =
     //   "https://cdn.tiny.cloud/1/u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt/tinymce/6/tinymce.min.js";
 
@@ -90,9 +90,8 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: "exportpdf exportword",
-        toolbar:
-          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code exportToWord printDocument",
+        plugins: "export ",
+        toolbar: "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code ",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
