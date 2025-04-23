@@ -170,7 +170,7 @@ class SubmissionController extends Controller
             $obligee = $validated['obligee'];
             $submission = $validated['submission'];
             $scoring = $validated['scoring'];
-            $isEdit = $submission['is_edit'] ?? false;
+            $isEdit = isset($submission['id']);
 
             // get user staff
             $staff = auth()->user();
@@ -179,7 +179,7 @@ class SubmissionController extends Controller
 
             // get blanks
             $blank = Blank::query()
-                ->where('is_picked', false)
+                ->where('is_picked', $isEdit)
                 ->firstWhere('id', $submission['blank_id']);
             if (! $blank) {
                 throw new Exception('Blangko Sudah Digunakan');
@@ -216,17 +216,16 @@ class SubmissionController extends Controller
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
-            $submissionId = $dataSubmission['id'] ?? null;
-            unset($dataSubmission['id']);
+            $submissionBeforeId = $dataSubmission['submission_before_id'] ?? null;
 
-            $submissionOld = Submission::query()->select(['id', 'no_guarantee'])->find($submissionId);
-            if ($submissionOld) {
-                $noGuarantee = $submissionOld->getAttribute('no_guarantee');
+            $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
+            if ($submissionForRevision) {
+                $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
                 if ($isEdit) {
                     $messageResponse = 'Berhasil memperbarui pengajuan';
                 } else {
-                    $submissionOld->update(['is_revised' => true]);
-                    $submissionOld->blanks()->update(['is_revised' => true]);
+                    $submissionForRevision->update(['is_revised' => true]);
+                    $submissionForRevision->blanks()->update(['is_revised' => true]);
                     $messageResponse = 'Berhasil merevisi pengajuan';
                 }
             } else {
@@ -238,7 +237,7 @@ class SubmissionController extends Controller
                     $profile);
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
-            $dataSubmission['submission_before_id'] = $submissionId;
+            $dataSubmission['submission_before_id'] = $submissionBeforeId;
             $dataSubmission['no_guarantee'] = $noGuarantee;
 
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
@@ -256,9 +255,9 @@ class SubmissionController extends Controller
             $scores = $scoring['scores'];
 
             if ($isEdit) {
-                $submission = $submissionOld->load(['scores']);
-                $submissionOld->scores()->delete();
-                $submissionOld->update($dataSubmission);
+                $submission = Submission::query()->with(['blanks', 'scores'])->find($submission['id']);
+                $submission->scores()->delete();
+                $submission->update($dataSubmission);
             } else {
                 $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
             }
@@ -342,7 +341,7 @@ class SubmissionController extends Controller
         $submission = array_merge($submissionArray,
             $submission->guarantorToProductType->only(
                 'product_type_id', 'job_group', 'job_type',
-            ), ['is_edit' => true, 'blank_id' => $submission->blanks->first()?->id]);
+            ), ['blank_id' => $submission->blanks->first()?->id]);
 
         // new class
         $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
@@ -453,7 +452,7 @@ class SubmissionController extends Controller
             'scores' => $submission->getRelation('scores'),
         ]);
 
-        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+        $submissionArray = $submission->only(['guarantor_id', 'guarantor_branch_id', 'product_id',
             'bank_id', 'contract_doc_name',
             'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
             'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
@@ -462,10 +461,11 @@ class SubmissionController extends Controller
             'note', 'risk_mitigation',
         ]);
 
-        $submission = array_merge($submissionArray,
-            $submission->getRelation('guarantorToProductType')->only(
-                'product_type_id', 'job_group', 'job_type',
-            ));
+        $submission = array_merge($submissionArray, [
+            'submission_before_id' => $id,
+        ], $submission->getRelation('guarantorToProductType')->only(
+            'product_type_id', 'job_group', 'job_type',
+        ));
 
         // new class
         $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
@@ -687,11 +687,13 @@ class SubmissionController extends Controller
               ? Storage::url($callback->getAttribute('url'))
               : null);
         }
-        $employeeLimit = $submission->getRelation('employeeLimit')->firstWhere('employee_id', auth()->id());
-        $productLimit = $submission->getRelation('guarantorProductTypeLimit');
-        $employeeLimit = $employeeLimit?->limit ?? 0;
-        $productLimitValue = $productLimit?->limit ?? 0;
-        $productLimitInherit = $productLimit?->limit_inherit ?? 0;
+
+        $submissionInheritId = $submission->getAttribute('submission_inherit_id');
+        $employeeLimit = $submission->getRelation('employeeLimit')
+            ?->firstWhere('employee_id', auth()->id())
+            ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+        $productLimitValue = $submission->getRelation('guarantorProductTypeLimit')
+            ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
         // check role
@@ -754,7 +756,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('guarantor_pic', $guarantorPic);
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('product_limit', $productLimitValue);
-        $submission->setAttribute('product_limit_inherit', $productLimitInherit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
 
         return inertia($component, [

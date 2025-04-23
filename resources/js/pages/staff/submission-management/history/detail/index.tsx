@@ -484,14 +484,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Tanggal Dokumen</td>
-                <td className="p-2">
-                  :{" "}
-                  {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </td>
+                <td className="p-2">: {submission.contract_doc_date}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nilai Kontrak</td>
@@ -523,15 +516,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
-                <td className="p-2">
-                  :{" "}
-                  {submission.guarantee_issue_date &&
-                    new Date(submission.guarantee_issue_date).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                </td>
+                <td className="p-2">: {submission.guarantee_issue_date}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Lokasi Proyek</td>
@@ -550,25 +535,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Mulai Tanggal</td>
-                <td className="p-2">
-                  :{" "}
-                  {new Date(submission.start_date).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </td>
+                <td className="p-2">: {submission.start_date}</td>
               </tr>
               <tr>
                 <td className="p-2 font-semibold">Selesai Tanggal</td>
-                <td className="p-2">
-                  :{" "}
-                  {new Date(submission.end_date).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </td>
+                <td className="p-2">: {submission.end_date}</td>
               </tr>
             </tbody>
           </table>

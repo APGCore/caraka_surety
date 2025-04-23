@@ -10,7 +10,6 @@ import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
 import { EMPLOYEE_LIMIT_QUERY_KEY } from "@/_features/limit/services/employee-limit-query";
-import { OFFICE_LIMIT_QUERY_KEY } from "@/_features/limit/services/office-limit-query";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
@@ -37,6 +36,7 @@ export default function CreateUpdateEmployeeLimitModal({
     office_id: number;
     employee_id: number;
     limit: string | number | undefined;
+    limit_inherit?: string | number | undefined;
   }>({
     employee_limit_id: employeeLimit?.employee_limit_id,
     product_id: employeeLimit?.product_id,
@@ -45,6 +45,7 @@ export default function CreateUpdateEmployeeLimitModal({
     office_id: employeeLimit?.office_id,
     employee_id: employeeLimit?.employee_id,
     limit: employeeLimit?.limit ?? 0,
+    limit_inherit: employeeLimit?.limit_inherit ?? 0,
   });
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function CreateUpdateEmployeeLimitModal({
         office_id: employeeLimit?.office_id,
         employee_id: employeeLimit?.employee_id,
         limit: employeeLimit?.limit ?? 0,
+        limit_inherit: employeeLimit?.limit_inherit ?? 0,
       });
     }
   }, [employeeLimit]);
@@ -147,7 +149,7 @@ export default function CreateUpdateEmployeeLimitModal({
             <InputError message={errors?.limit} />
           </div>
           {/* LIMIT INHERIT */}
-          {/* <div>
+          <div>
             <Label htmlFor={`limit-inherit`}>Batas Kewenangan Turunan</Label>
             <InputCurrency
               value={data.limit_inherit ? data.limit_inherit?.toString() : ""}
@@ -155,11 +157,11 @@ export default function CreateUpdateEmployeeLimitModal({
               onChange={(e) => setData({ ...data, limit_inherit: e || "" })}
             />
             <InputError message={errors?.limit_inherit} />
-          </div> */}
+          </div>
         </form>
         <AlertDialogFooter className="flex gap-2">
           <Button
-            variant={"outline"}
+            variant="outline"
             type="button"
             className="flex-1"
             onClick={(e) => {

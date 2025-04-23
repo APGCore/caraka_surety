@@ -1713,7 +1713,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                           })
                         }
                       />
-                      <Show when={!!submission && !submission?.submission?.is_edit}>
+                      <Show when={!!submission && !submission?.submission?.id}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"

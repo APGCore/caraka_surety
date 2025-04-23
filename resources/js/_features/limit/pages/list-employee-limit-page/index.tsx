@@ -6,7 +6,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/_features/_common/components/_shadcn-ui/select";
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/_features/_common/components/_shadcn-ui/table";
 import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
@@ -41,8 +41,6 @@ type OfficeType = "Kantor Pusat" | "Kantor Cabang" | "Mitra Agen" | "Mitra Pemas
 
 const ListEmployeeLimitPage = () => {
   const {
-    isOpenCreateEmployeeLimit,
-    handleOpenCreateEmployeeLimit,
     isOpenUpdateEmployeeLimit,
     handleOpenUpdateEmployeeLimit,
     selectedEmployeeLimit,
@@ -205,7 +203,7 @@ const ListEmployeeLimitPage = () => {
               <SelectContent>
                 <SelectGroup>
                   <RenderList
-                    of={jobGroups ?? []}
+                    of={jobGroups as any[]}
                     render={(jobGroup: any) => <SelectItem value={jobGroup.id}>{jobGroup.name}</SelectItem>}
                   />
                 </SelectGroup>
@@ -232,7 +230,7 @@ const ListEmployeeLimitPage = () => {
               <SelectContent>
                 <SelectGroup>
                   <RenderList
-                    of={officeTypes ?? []}
+                    of={officeTypes as any[]}
                     render={(officeType: any, idx) => <SelectItem value={officeType}>{officeType}</SelectItem>}
                   />
                 </SelectGroup>
@@ -267,6 +265,7 @@ const ListEmployeeLimitPage = () => {
               <TableHead className="w-0">No</TableHead>
               <TableHead>Nama Karyawan</TableHead>
               <TableHead>Limit</TableHead>
+              <TableHead>Limit Turunan</TableHead>
               <TableHead>Kelompok Pekerjaan</TableHead>
               <TableHead>Jenis Produk</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
@@ -285,6 +284,11 @@ const ListEmployeeLimitPage = () => {
                       <TableCell>
                         {employee?.employee_limit?.limit
                           ? formatRupiah(employee?.employee_limit?.limit)
+                          : "Belum diatur"}
+                      </TableCell>
+                      <TableCell>
+                        {employee?.employee_limit?.limit_inherit
+                          ? formatRupiah(employee?.employee_limit?.limit_inherit)
                           : "Belum diatur"}
                       </TableCell>
                       <TableCell>{jobGroup || "Belum diatur"}</TableCell>

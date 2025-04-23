@@ -283,8 +283,9 @@ class BlankController extends Controller
         }
     }
 
-    public function apiGetBlank(): JsonResponse
+    public function apiGetBlank(Request $request): JsonResponse
     {
+        $forSubmissionEdit = $request->get('for_submission_edit', false);
         $guarantorId = session('guarantor_id', config('guarantor.id'));
         $user = auth()->user();
 
@@ -292,12 +293,14 @@ class BlankController extends Controller
             ->where([
                 'guarantor_id' => $guarantorId,
                 'profile_id' => $user?->profile_id,
-                'is_picked' => false,
                 'is_used' => false,
                 'is_revised' => false,
                 'is_broken' => false,
                 'is_approved' => true,
             ])
+            ->when($forSubmissionEdit, function ($query) use ($forSubmissionEdit) {
+                return $query->where('is_picked', $forSubmissionEdit);
+            })
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
 
         return $this->responseSuccess('Berhasil mengambil data blangko', $blanks);

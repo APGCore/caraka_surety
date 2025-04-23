@@ -90,10 +90,10 @@ class SubmissionController extends Controller
                 );
             }
 
-            if(isset($data['error'])) {
+            if (isset($data['error'])) {
                 Log::error('Error Callback: ', ['message' => $data['error']]);
 
-                return $this->responseError( $data['error']['message'] ?? 'Data Belum Diterima Dari Asuransi', $data['error']);
+                return $this->responseError($data['error']['message'] ?? 'Data Belum Diterima Dari Asuransi', $data['error']);
             }
 
             Log::info('Callback Success: ', $data);
@@ -189,7 +189,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -238,7 +238,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
@@ -277,13 +277,13 @@ class SubmissionController extends Controller
                 $query->where('job_group', $jobGroup)
                     ->where('job_type', $jobType);
             })->get([
-              'id',
-              'job_name',
-              'principal_id',
-              'guarantor_id',
-              'product_id',
-              'guarantor_to_product_type_id',
-      ]);
+                'id',
+                'job_name',
+                'principal_id',
+                'guarantor_id',
+                'product_id',
+                'guarantor_to_product_type_id',
+            ]);
 
         if ($submissions->count() > 0) {
             $guarantorToProductType = GuarantorToProductType::query()

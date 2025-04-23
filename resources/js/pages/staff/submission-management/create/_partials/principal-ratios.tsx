@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import InputCurrency from "@/components/molecules/input/currency-input";
@@ -25,11 +25,11 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
 
-const calculateRatios = (value1: string, value2: string) => {
-  const number = Number(value1) / Number(value2);
+  const calculateRatios = (value1: string, value2: string) => {
+    const number = Number(value1) / Number(value2);
 
-  return number === Infinity || isNaN(number) ? '0' : number.toString();
-};
+    return number === Infinity || isNaN(number) ? "0" : number.toString();
+  };
 
   const defaultRatio: Ratio = {
     year: dayjs().year(),

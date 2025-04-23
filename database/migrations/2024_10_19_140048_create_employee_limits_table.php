@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignIdFor(Profile::class, 'profile_id')->constrained()->cascadeOnDelete();
             $table->foreignId('employee_id')->constrained()->on('users')->cascadeOnDelete();
             $table->float('limit');
+            $table->float('limit_inherit');
             $table->timestamps();
         });
     }
