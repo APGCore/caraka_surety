@@ -280,7 +280,14 @@ class EmployeeLimitController extends Controller
 
             flashMessage('success', 'Limit pengguna berhasil ditambahkan');
 
-            return redirect()->route('employee-limit.index');
+            $params = $this->setParams(
+                $product_id,
+                $product_type_id,
+                $job_group,
+                $profile_id
+            );
+
+            return redirect()->route('employee-limit.index', $params);
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
@@ -288,6 +295,32 @@ class EmployeeLimitController extends Controller
 
             return redirect()->back()->withErrors($error);
         }
+    }
+
+    private function setParams(
+        ?int $productSelected,
+        ?int $productTypeSelected,
+        ?string $jobGroupSelected,
+        ?int $officeSelected,
+    ): array {
+        $office = Profile::query()
+            ->where('id', $officeSelected)
+            ->first();
+        $officeTypeSelected = $office->office_type ?? null;
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+
+        return [
+            'product_id' => $productSelected,
+            'product_type_id' => $productTypeSelected,
+            'job_group' => $jobGroupSelected,
+            'office_type' => $officeType,
+            'office_id' => $officeSelected,
+        ];
     }
 
     /**
@@ -306,37 +339,36 @@ class EmployeeLimitController extends Controller
 
             // Selected Guarantor
             $guarantor = Guarantor::first();
-            $guarantor_id = $guarantor ? $guarantor->id : null;
-            $job_type = JobType::UNCONDITIONAL->value;
+            $guarantorId = $guarantor ? $guarantor->id : null;
+            $jobType = JobType::UNCONDITIONAL->value;
 
             // filter for guarantor product type limit
-            $product_id = $request->get('product_id') ?? null;
-            $product_type_id = $request->get('product_type_id') ?? null;
-            $job_group = $request->get('job_group') ?? null;
-            $profile_id = $request->get('office_id') ?? null;
-            // $employee_id = $request->get('employee_id') ?? null;
-            $request_limit = $request->get('limit') ?? null;
-            $request_limit_inherit = $request->get('limit_inherit') ?? null;
+            $productId = $request->get('product_id') ?? null;
+            $productTypeId = $request->get('product_type_id') ?? null;
+            $jobGroup = $request->get('job_group') ?? null;
+            $profileId = $request->get('office_id') ?? null;
+            $requestLimit = $request->get('limit') ?? null;
+            $requestLimitInherit = $request->get('limit_inherit') ?? null;
 
             $guarantorProductType = GuarantorToProductType::query()
                 ->with(['productType'])
-                ->where('guarantor_id', $guarantor_id)
-                ->where('product_id', $product_id)
-                ->where('product_type_id', $product_type_id)
-                ->where('job_group', $job_group)
-                ->where('job_type', $job_type)
+                ->where('guarantor_id', $guarantorId)
+                ->where('product_id', $productId)
+                ->where('product_type_id', $productTypeId)
+                ->where('job_group', $jobGroup)
+                ->where('job_type', $jobType)
                 ->first();
 
             $guarantorProductTypeId = $guarantorProductType?->id;
 
             $profileLimit = ProfileLimit::query()
-                ->where('guarantor_id', $guarantor_id)
+                ->where('guarantor_id', $guarantorId)
                 ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
-                ->where('profile_id', $profile_id)
+                ->where('profile_id', $profileId)
                 ->first();
 
-            $limit = (int) str_replace('.', '', $request_limit);
-            $limit_inherit = (int) str_replace('.', '', $request_limit_inherit);
+            $limit = (int) str_replace('.', '', $requestLimit);
+            $limit_inherit = (int) str_replace('.', '', $requestLimitInherit);
 
             if ($limit > $profileLimit->getAttribute('limit') || $limit_inherit > $profileLimit->getAttribute('limit_inherit')) {
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
@@ -361,7 +393,14 @@ class EmployeeLimitController extends Controller
 
             flashMessage('success', 'Limit pengguna berhasil diubah');
 
-            return redirect()->route('employee-limit.index');
+            $params = $this->setParams(
+                $productId,
+                $productTypeId,
+                $jobGroup,
+                $profileId
+            );
+
+            return redirect()->route('employee-limit.index', $params);
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);

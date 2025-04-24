@@ -159,7 +159,6 @@ class GuarantorProductTypeLimitController extends Controller
             DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
-                'guarantor_id' => $guarantorProductType->getAttribute('guarantor_id'),
                 'product_id' => $guarantorProductType->getAttribute('product_id'),
                 'job_group' => $guarantorProductType->getAttribute('job_group'),
             ])->with('success', 'Limit berhasil disimpan');
@@ -202,7 +201,6 @@ class GuarantorProductTypeLimitController extends Controller
             DB::commit();
 
             return redirect()->route('guarantor-product-type-limit.index', [
-                'guarantor_id' => $guarantorProductType->getAttribute('guarantor_id'),
                 'product_id' => $guarantorProductType->getAttribute('product_id'),
                 'job_group' => $guarantorProductType->getAttribute('job_group'),
             ])->with('success', 'Limit berhasil diubah');

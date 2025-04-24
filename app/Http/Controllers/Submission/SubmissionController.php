@@ -329,7 +329,7 @@ class SubmissionController extends Controller
             'scores' => $submission->scores,
         ]);
 
-        $submissionArray = $submission->only(['id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
+        $submissionArray = $submission->only(['id', 'submission_inherit_id', 'guarantor_id', 'guarantor_branch_id', 'product_id',
             'bank_id', 'contract_doc_name',
             'contract_doc_number', 'contract_doc_date', 'contract_value', 'guarantee_value',
             'time_period', 'start_date', 'end_date', 'job_name', 'job_location_province_id',
