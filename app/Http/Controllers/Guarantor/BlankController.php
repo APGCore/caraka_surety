@@ -285,7 +285,7 @@ class BlankController extends Controller
 
     public function apiGetBlank(Request $request): JsonResponse
     {
-        $forSubmissionEdit = $request->get('for_submission_edit', false);
+        $exceptBlankId = $request->get('blank_id_for_edit');
         $guarantorId = session('guarantor_id', config('guarantor.id'));
         $user = auth()->user();
 
@@ -298,8 +298,11 @@ class BlankController extends Controller
                 'is_broken' => false,
                 'is_approved' => true,
             ])
-            ->when($forSubmissionEdit, function ($query) use ($forSubmissionEdit) {
-                return $query->where('is_picked', $forSubmissionEdit);
+            ->where(function ($query) use ($exceptBlankId) {
+                $query->where('is_picked', false)
+                    ->when($exceptBlankId != null, function ($query) use ($exceptBlankId) {
+                        return $query->orWhere('id', $exceptBlankId);
+                    });
             })
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
 

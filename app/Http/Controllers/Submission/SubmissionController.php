@@ -1648,7 +1648,7 @@ class SubmissionController extends Controller
             $html = $doc->format_document ?? '';
 
             $qrHtml = '<div style="margin-top:40px;text-align:center;">';
-            $qrHtml .= '<img src="'.e($qrUrl).'" alt="QR Code" style="width:150px;height:150px;"><br>';
+            $qrHtml .= '<img src="'.e($qrUrl).'" alt="QR Code" style="width:100px;height:100px;"><br>';
             $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
             $qrHtml .= '</div>';
 

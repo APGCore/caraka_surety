@@ -5,13 +5,12 @@ export const BLANK_QUERY_KEY = {
   GET_ALL_BLANK: "get-all-blank",
 };
 
-export const useGetAllBlank = (forSubmissionEdit: boolean = false, querySetting?: QueryOptions) => {
+export const useGetAllBlank = (blankIdForEdit: number | undefined = undefined, querySetting?: QueryOptions) => {
   return useQuery({
-    queryKey: [BLANK_QUERY_KEY.GET_ALL_BLANK, forSubmissionEdit],
+    queryKey: [BLANK_QUERY_KEY.GET_ALL_BLANK, blankIdForEdit],
     queryFn: async () => {
-      const response = await axios.get(
-        route("api.blank-management.blank.all", { for_submission_edit: forSubmissionEdit }),
-      );
+      const params = blankIdForEdit ? { blank_id_for_edit: blankIdForEdit } : {};
+      const response = await axios.get(route("api.blank-management.blank.all", params));
       return response.data.data;
     },
     ...querySetting,
