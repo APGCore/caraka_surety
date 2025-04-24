@@ -482,7 +482,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
   const [isPrincipalFetch, setIsPrincipalFetch] = useState(false);
 
-  const { data: blanks } = useGetAllBlank();
+  const { data: blanks } = useGetAllBlank(submission?.submission?.id != undefined, {});
 
   const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useCreateOrUpdatePrincipal(
     !!data.principal.id,

@@ -298,7 +298,7 @@ class BlankController extends Controller
                 'is_broken' => false,
                 'is_approved' => true,
             ])
-            ->when($forSubmissionEdit, function ($query) use ($forSubmissionEdit) {
+            ->when($forSubmissionEdit == false, function ($query) use ($forSubmissionEdit) {
                 return $query->where('is_picked', $forSubmissionEdit);
             })
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
