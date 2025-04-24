@@ -20,6 +20,12 @@ interface PrincipalRatiosProps {
   setRatio: (ratios: Ratio[]) => void;
 }
 
+const cleanNumber = (str: string) => {
+  const num = parseFloat(str);
+  const rounded = num.toFixed(3); // keep up to 3 decimals
+  return parseFloat(rounded).toString(); // remove trailing zeros if any
+};
+
 const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) => {
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
@@ -53,6 +59,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
       year: firstRatio?.year ? firstRatio?.year - 1 : dayjs().year() - 1,
     };
     if (first) {
+      console.log(ratio);
       setFirstRatio(ratio);
       handleComparisonRatios([ratio, secondRatio ?? secondDefRatio]);
       setRatio([ratio, secondRatio ?? secondDefRatio]);
@@ -242,7 +249,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...firstRatio,
                       revenue: value ?? "",
-                      profitability_ratios: profit.toString(),
+                      profitability_ratios: cleanNumber(profit.toString()),
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, true);
@@ -260,9 +267,10 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...firstRatio,
                       net_income: value ?? "",
-                      profitability_ratios: profit.toString(),
+                      profitability_ratios: cleanNumber(profit.toString()),
                     }
                   : defaultRatio;
+
                 setHandleAndRatios(dataRatios, true);
               }}
             />
@@ -355,7 +363,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       revenue: value ?? "",
-                      profitability_ratios: profit.toString(),
+                      profitability_ratios: cleanNumber(profit.toString()),
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
@@ -373,7 +381,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       net_income: value ?? "",
-                      profitability_ratios: profit.toString(),
+                      profitability_ratios: cleanNumber(profit.toString()),
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
