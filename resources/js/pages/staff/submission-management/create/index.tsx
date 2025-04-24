@@ -918,18 +918,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-5">
-                      <NewCombobox
-                        data={Array.isArray(submissionBefore) ? submissionBefore : []}
-                        labelKey="name"
-                        valueKey="id"
-                        defaultValue={data.submission.submission_inherit_id}
-                        placeholder={"Pilih Pengajuan Sebelumnya"}
-                        className={"min-w-[160px]"}
-                        onSelect={(value) => handleSelectSubmissionBefore(value?.id)}
-                        onReset={handleResetSubmissionBefore}
-                      />
-                    </div>
+                    {/*<div className="flex gap-5">*/}
+                    {/*  <NewCombobox*/}
+                    {/*    data={Array.isArray(submissionBefore) ? submissionBefore : []}*/}
+                    {/*    labelKey="name"*/}
+                    {/*    valueKey="id"*/}
+                    {/*    defaultValue={data.submission.submission_inherit_id}*/}
+                    {/*    placeholder={"Pilih Pengajuan Sebelumnya"}*/}
+                    {/*    className={"min-w-[160px]"}*/}
+                    {/*    onSelect={(value) => handleSelectSubmissionBefore(value?.id)}*/}
+                    {/*    onReset={handleResetSubmissionBefore}*/}
+                    {/*  />*/}
+                    {/*</div>*/}
                     <div
                       className={cn("flex gap-5 items-end", {
                         "items-start": data?.obligee?.id || isAddNewObligee,

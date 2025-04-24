@@ -239,13 +239,14 @@ class ProfileLimitController extends Controller
                 throw new Exception('Limit yang diberikan melebihi limit yang tersedia');
             }
 
-            ProfileLimit::query()->create([
+            $profileLimit = ProfileLimit::query()->create([
                 'guarantor_id' => $requestValid['guarantor_id'],
                 'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
                 'profile_id' => $requestValid['profile_id'],
                 'limit' => $limit,
                 'limit_inherit' => $limitInherit,
             ]);
+            $profileLimit->load('guarantorToProductType');
             activity()
                 ->useLog('profile')
                 ->performedOn(new ProfileLimit)
@@ -256,14 +257,46 @@ class ProfileLimitController extends Controller
 
             flashMessage('success', 'Limit Kantor berhasil ditambahkan');
 
-            return redirect()->route('profile-limit.index');
+            $guarantorToProductType = $profileLimit->getRelation('guarantorToProductType');
+            $params = $this->setParams(
+                $guarantorToProductType->getAttribute('product_id'),
+                $guarantorToProductType->getAttribute('product_type_id'),
+                $guarantorToProductType->getAttribute('job_group'),
+                $profileLimit->getAttribute('profile_id'),
+            );
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Error store profile limit', $error);
-
-            return $this->responseError('Gagal menambahkan limit kantor', $error);
         }
+
+        return redirect()->route('profile-limit.index', $params ?? []);
+    }
+
+    private function setParams(
+        ?int $productSelected,
+        ?int $productTypeSelected,
+        ?string $jobGroupSelected,
+        ?int $officeSelected,
+    ): array {
+        $office = Profile::query()
+            ->where('id', $officeSelected)
+            ->first();
+        $officeTypeSelected = $office->office_type ?? null;
+        $officeType = match ($officeTypeSelected) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+
+        return [
+            'product_id' => $productSelected,
+            'product_type_id' => $productTypeSelected,
+            'job_group' => $jobGroupSelected,
+            'office_type' => $officeType,
+            'office_id' => $officeSelected,
+        ];
     }
 
     /**
@@ -320,16 +353,22 @@ class ProfileLimitController extends Controller
 
             flashMessage('success', 'Limit Kantor berhasil diubah');
 
-            return redirect()->route('profile-limit.index');
-
-            // return $this->responseSuccess('Berhasil mengubah limit kantor');
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Error update profile limit', $error);
-
-            return $this->responseError('Gagal mengubah limit kantor', $error);
         }
+
+        $profileLimit->load('guarantorToProductType');
+        $guarantorToProductType = $profileLimit->getRelation('guarantorToProductType');
+        $params = $this->setParams(
+            $guarantorToProductType->getAttribute('product_id'),
+            $guarantorToProductType->getAttribute('product_type_id'),
+            $guarantorToProductType->getAttribute('job_group'),
+            $profileLimit->getAttribute('profile_id'),
+        );
+
+        return redirect()->route('profile-limit.index', $params);
     }
 
     /**
@@ -352,16 +391,14 @@ class ProfileLimitController extends Controller
 
             DB::commit();
 
-            // return redirect()->route('profile-limit.index');
-
             flashMessage('success', 'Limit Kantor berhasil dihapus');
-
-            return redirect()->route('profile-limit.index');
-            // return back();
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Error delete profile limit', $error);
+
         }
+
+        return redirect()->route('profile-limit.index');
     }
 }
