@@ -1130,28 +1130,32 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </h2>
                 <Card className="w-auto">
                   <CardContent className="p-0">
-                    <div className="flex flex-col items-center justify-center py-4">
-                      {submission.callback ? (
-                        <>
-                          <img src={submission.callback.url} alt="Code QR" />
-                          <Button onClick={() => window.open(submission.callback.doc_url, "_blank")}>
-                            Dokumen Pendukung
-                          </Button>
-                        </>
-                      ) : (
+                    {submission.callback ? (
+                      <>
+                        <div className="flex flex-col items-center justify-center py-4">
+                          <>
+                            <img src={submission.callback.url} alt="Code QR" />
+                            <Button onClick={() => window.open(submission.callback.doc_url, "_blank")}>
+                              Dokumen Pendukung
+                            </Button>
+                          </>
+                        </div>
+                        <div className="flex flex-col items-center justify-center py-4">
+                          <div className="mt-4">
+                            <Button onClick={handleEmbedQr} disabled={isLoading}>
+                              {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-4">
                         <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
                           {isLoading && <LoaderCircle className="animate-spin mr-1" />}
                           Cek Respon Dari Asuransi
                         </Button>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-center justify-center py-4">
-                      <div className="mt-4">
-                        <Button onClick={handleEmbedQr} disabled={isLoading}>
-                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
-                        </Button>
                       </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
