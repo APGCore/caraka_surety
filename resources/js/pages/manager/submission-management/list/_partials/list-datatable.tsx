@@ -46,14 +46,15 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>{submission.no_guarantee}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.manager_limit)}
+                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.employee_limit)}
                 </TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
                       submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
-                        : submission.status === SubmissionStatus.REJECTED
+                        : submission.status === SubmissionStatus.REJECTED ||
+                            submission.status === SubmissionStatus.BROKEN
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}>

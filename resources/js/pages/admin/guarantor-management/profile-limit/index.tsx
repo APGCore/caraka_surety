@@ -1,3 +1,6 @@
+import useOfficeLimit from "@/_features/limit/hooks/use-list-office-limit";
+import ListOfficeLimitPage from "@/_features/limit/pages/list-office-limit-page";
+import { useSearchOfficeLimit } from "@/_features/limit/services/office-limit-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { textCurrency } from "@/common/utils/text-currency";
 import {
@@ -40,6 +43,36 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
+
+  // const { data: officeLimits } = useSearchOfficeLimit({
+  //   search: "",
+  //   jobGroup: "Konstruksi",
+  //   officeType: "Kantor Cabang",
+  //   productId: "1",
+  //   productTypeId: "1",
+  // });
+
+  // const {
+  //   officeLimits,
+  //   productId,
+  //   productTypeId,
+  //   officeType,
+  //   products,
+  //   productTypes,
+  //   jobGroups: j,
+  // } = useOfficeLimit({
+  //   initialProductId: "1",
+  //   initialProductTypeId: "1",
+  //   initialJobGroup: "Konstruksi",
+  //   initialOfficeType: "Kantor Cabang",
+  // });
+
+  // console.log({
+  //   officeLimits,
+  //   products,
+  //   productTypes,
+  //   jobGroups: j,
+  // });
 
   const handleSelectProfileLimitLength = (per_page: string) => {
     setSelect(per_page);
@@ -119,6 +152,8 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
   const deleteProfileLimit = (profileLimit: any) => {
     router.delete(route(ProfileLimitsUtils.link.destroy, profileLimit.id));
   };
+
+  return <ListOfficeLimitPage />;
 
   return (
     <main className="space-y-2.5">
@@ -239,9 +274,11 @@ export default ProfileLimitsPage;
 ProfileLimitsPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
+  const title = "";
+
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <ProfileLimitsHeader title={pagePropsData?.page_settings?.title} />
+      <ProfileLimitsHeader title={title} />
       {page}
     </RoleBasedLayout>
   );

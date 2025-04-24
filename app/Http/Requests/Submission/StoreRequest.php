@@ -60,6 +60,7 @@ class StoreRequest extends FormRequest
             // submission
             'submission' => ['required'],
             'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
+            'submission.submission_inherit_id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
             'submission.guarantor_branch_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin cabang
             'submission.product_id' => ['required', 'exists:'.Product::class.',id,deleted_at,NULL'], // id produk

@@ -1,3 +1,4 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_features/_common/components/_shadcn-ui/tooltip";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
@@ -8,6 +9,7 @@ import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Textarea } from "@/components/_shadcn-ui/textarea";
 import { Combobox } from "@/components/molecules/combobox";
+import { InfoIcon } from "lucide-react";
 import React from "react";
 
 interface PrincipalSectionProps {
@@ -107,14 +109,14 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       fields: [
         { key: "director_name", name: "Nama Direktur", value: director_name },
         { key: "director_phone", name: "Nomor Telepon Direktur", value: director_phone },
-        { key: "director_position", name: "Posisi Direktur", value: director_position },
+        { key: "director_position", name: "Jabatan", value: director_position },
       ],
     },
     {
       key: "commissioner",
       name: "Komisioner",
       fields: [
-        { key: "commissioner", name: "Nama Penanggung Jawab", value: commissioner },
+        { key: "commissioner", name: "Nama Komisaris", value: commissioner },
         { key: "business_fields", name: "Bidang Usaha", value: business_fields },
       ],
     },
@@ -123,7 +125,12 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       name: "Dokumen Akta",
       fields: [
         { key: "year_established", name: "Tahun Perusahaan Berdiri", value: year_established },
-        { key: "est_deed", name: "Akte Pendirian", value: est_deed },
+        {
+          key: "est_deed",
+          name: "Akte Pendirian",
+          value: est_deed,
+          tooltip: "Isi dengan format Nomor {Angka} Tahun {Angka}",
+        },
         { key: "last_deed", name: "Akte Perubahan Terakhir", value: last_deed },
       ],
     },
@@ -159,9 +166,22 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       {biodatafields.map((item) =>
         item?.fields ? (
           <div key={item.key} className="flex gap-5">
-            {item.fields.map(({ key, name, value }) => (
+            {item.fields.map(({ key, name, value, ...props }) => (
               <div key={key} className="grid w-full gap-1">
-                <Label className="text-sm">{name}</Label>
+                <Label className="text-sm flex items-center gap-1">
+                  {name}
+                  {props?.tooltip && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <InfoIcon className="w-4 h-4" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{props.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </Label>
+
                 <Input
                   className="text-md"
                   placeholder={`Masukan ${name}`}

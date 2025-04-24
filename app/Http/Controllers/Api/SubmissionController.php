@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
+use App\Http\Requests\Submission\GetSubmissionRequest;
+use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
 use App\Services\HostToHostService;
@@ -86,6 +88,12 @@ class SubmissionController extends Controller
                         'no_policy' => $data['policyno'],
                     ]
                 );
+            }
+
+            if (isset($data['error'])) {
+                Log::error('Error Callback: ', ['message' => $data['error']]);
+
+                return $this->responseError($data['error']['message'] ?? 'Data Belum Diterima Dari Asuransi', $data['error']);
             }
 
             Log::info('Callback Success: ', $data);
@@ -181,7 +189,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -230,7 +238,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
@@ -246,5 +254,67 @@ class SubmissionController extends Controller
         ];
 
         return $this->responseSuccess('Berhasil Mengambil Data', $result);
+    }
+
+    public function getByPrincipalAndBeforeProductType(GetSubmissionRequest $request): JsonResponse
+    {
+        $principalId = $request->get('principal_id');
+        $guarantorId = $request->get('guarantor_id');
+        $productTypeId = $request->get('product_type_id');
+        $jobGroup = $request->get('job_group');
+        $jobType = $request->get('job_type');
+
+        $submissions = Submission::query()
+            ->with([
+                'principal:id,name',
+                'guarantor:id,name',
+                'product:id,name',
+                'guarantorToProductType:id,product_type_id,full_name,no,job_group,job_type',
+            ])
+            ->where('principal_id', $principalId)
+            ->where('guarantor_id', $guarantorId)
+            ->whereHas('guarantorToProductType', function ($query) use ($jobGroup, $jobType) {
+                $query->where('job_group', $jobGroup)
+                    ->where('job_type', $jobType);
+            })->get([
+                'id',
+                'job_name',
+                'principal_id',
+                'guarantor_id',
+                'product_id',
+                'guarantor_to_product_type_id',
+            ]);
+
+        if ($submissions->count() > 0) {
+            $guarantorToProductType = GuarantorToProductType::query()
+                ->where('guarantor_id', $guarantorId)
+                ->where('product_type_id', $productTypeId)
+                ->where('job_group', $jobGroup)
+                ->where('job_type', $jobType)
+                ->first(['id', 'guarantor_id', 'product_type_id', 'job_group', 'job_type', 'no']);
+            $noProductType = $guarantorToProductType->getAttribute('no', 0);
+            $noBefore = $noProductType - 1;
+
+            $submissions = $submissions
+                ->filter(function ($submission) use ($noBefore) {
+                    $guarantorToProductType = $submission->getRelation('guarantorToProductType');
+
+                    return $guarantorToProductType->getAttribute('no') === $noBefore;
+                })
+                ->map(function ($submission) {
+                    $name = $submission->getAttribute('job_name')
+                      .' - '.$submission->getRelation('principal')->getAttribute('name')
+                      .' - '.$submission->getRelation('product')->getAttribute('name')
+                      .' - '.$submission->getRelation('guarantorToProductType')->getAttribute('full_name');
+
+                    return [
+                        'id' => $submission->getAttribute('id'),
+                        'name' => $name,
+                    ];
+                })->values();
+
+        }
+
+        return $this->responseSuccess('Berhasil Mengambil Data', $submissions);
     }
 }

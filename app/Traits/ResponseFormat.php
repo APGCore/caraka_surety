@@ -7,11 +7,12 @@ trait ResponseFormat
     /**
      * Format the response success.
      */
-    public function responseSuccess($message, $data = null, $code = 200)
+    public function responseSuccess($message, $data = null, $code = 200, $meta = null)
     {
         return response()->json([
             'message' => $message,
             'data' => $data,
+            'meta' => $meta,
         ], $code);
     }
 

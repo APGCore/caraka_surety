@@ -7,15 +7,13 @@ Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
         ->name('staff-submission-')
         ->group(function () {
-            Route::get('/create', 'displayCreateByStaff')->name('create.submission');
-            Route::get('/history', 'displayHistoryByStaff')->name('history.submission');
-            Route::get('/draft', 'displayDocumentDraftByStaff')->name('document-draft.submission');
+            Route::get('/create', 'displayCreate')->name('create.submission');
+            Route::get('/history', 'displayHistory')->name('history.submission');
             Route::post('/store', 'store')->name('form.store');
             Route::get('/edit/{id}', 'edit')->name('edit');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
             Route::get('/revision/{id}', 'revision')->name('revision');
-            Route::get('/draft-doc/{id}', 'showDetailDocsSubmission')->name('docs.submission');
+            Route::get('/broken/{submission}', 'broken')->name('broken');
             Route::post('/save-content', 'saveDocument')->name('save.content');
-
         });
 });

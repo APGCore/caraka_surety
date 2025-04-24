@@ -18,6 +18,7 @@ interface ComboboxItem {
 }
 
 interface ComboboxProps {
+  className?: string;
   data: ComboboxItem[];
   labelKey?: string;
   valueKey?: string;
@@ -33,6 +34,7 @@ interface ComboboxProps {
 
 const NewCombobox: React.FC<ComboboxProps> = ({
   data,
+  className,
   labelKey = "label",
   valueKey = "value",
   filterKey,
@@ -89,7 +91,7 @@ const NewCombobox: React.FC<ComboboxProps> = ({
           role="combobox"
           aria-expanded={open}
           disabled={data.length === 0 || isDisabled}
-          className="w-full justify-between">
+          className={cn("w-full justify-between", className)}>
           {filterKey ? comboboxPlaceholder : value ? getLabel(value) : comboboxPlaceholder}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

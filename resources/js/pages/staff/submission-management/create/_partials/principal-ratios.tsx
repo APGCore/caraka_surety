@@ -26,10 +26,11 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
 
   const calculateRatios = (value1: string, value2: string) => {
-    const result = (Number(value1) / Number(value2)).toFixed(2);
+    const number = Number(value1) / Number(value2);
 
-    return result === "Infinity" ? undefined : isNaN(Number(result)) ? undefined : result;
+    return number === Infinity || isNaN(number) ? "0" : number.toString();
   };
+
   const defaultRatio: Ratio = {
     year: dayjs().year(),
     current_assets: "",
@@ -96,19 +97,6 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             )}
           </div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
-            Rasio Profitabilitas
-            {comparisonRatios.profitability_ratios == true && (
-              <Badge variant="success" className="flex-shrink-0 h-6">
-                Naik
-              </Badge>
-            )}
-            {comparisonRatios.profitability_ratios == false && (
-              <Badge variant="destructive" className="flex-shrink-0 h-6">
-                Turun
-              </Badge>
-            )}
-          </div>
-          <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Solvabilitas
             {comparisonRatios.solvency_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
@@ -116,6 +104,19 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               </Badge>
             )}
             {comparisonRatios.solvency_ratios == false && (
+              <Badge variant="destructive" className="flex-shrink-0 h-6">
+                Turun
+              </Badge>
+            )}
+          </div>
+          <div className="pt-2 text-black h-[45px] flex justify-between">
+            Rasio Profitabilitas
+            {comparisonRatios.profitability_ratios == true && (
+              <Badge variant="success" className="flex-shrink-0 h-6">
+                Naik
+              </Badge>
+            )}
+            {comparisonRatios.profitability_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>
@@ -152,9 +153,9 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                 <SelectGroup>
                   <SelectLabel>Tahun</SelectLabel>
                   <RenderList
-                    of={years}
+                    of={years as any[]}
                     render={(year) => {
-                      return <SelectItem value={year.toString()}>{year}</SelectItem>;
+                      return <SelectItem value={year.toString()}>{year.toString()}</SelectItem>;
                     }}
                   />
                 </SelectGroup>
@@ -236,7 +237,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Pendapatan"
               onChange={(value) => {
                 const profitability = calculateRatios(firstRatio?.net_income ?? "", value ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -254,7 +255,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Laba Bersih"
               onChange={(value) => {
                 const profitability = calculateRatios(value ?? "", firstRatio?.revenue ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -267,10 +268,10 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.liquidity_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {firstRatio?.profitability_ratios !== undefined ? firstRatio?.profitability_ratios.toString() + "%" : "??"}{" "}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
         </div>
         {/* Second Ratio */}
         <div className="grid gap-3 w-full">
@@ -349,7 +350,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Pendapatan"
               onChange={(value) => {
                 const profitability = calculateRatios(secondRatio?.net_income ?? "", value ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
@@ -367,7 +368,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               placeholder="Laba Bersih"
               onChange={(value) => {
                 const profitability = calculateRatios(value ?? "", secondRatio?.revenue ?? "");
-                const profit = profitability ? (Number(profitability) * 100).toFixed(2) : 0;
+                const profit = profitability ? Number(profitability) * 100 : 0;
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
@@ -380,12 +381,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.liquidity_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {secondRatio?.profitability_ratios !== undefined
               ? secondRatio?.profitability_ratios.toString() + "%"
               : "??"}{" "}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
         </div>
       </div>
     </>

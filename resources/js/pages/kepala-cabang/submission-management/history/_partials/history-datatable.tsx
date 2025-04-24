@@ -29,7 +29,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         </TableHeader>
         <TableBody>
           <RenderList
-            of={submissions}
+            of={submissions.data}
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{index + 1}</TableCell>
@@ -41,7 +41,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
                       submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
-                        : submission.status === SubmissionStatus.REJECTED
+                        : submission.status === SubmissionStatus.REJECTED ||
+                            submission.status === SubmissionStatus.BROKEN
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
@@ -69,7 +70,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         </TableBody>
       </Table>
       <ShowingCountDatatable meta={submissions?.meta} />
-      <PaginationDatatable meta={submissions?.meta} only={["submissions"]} />
+      <PaginationDatatable meta={submissions?.meta} />
     </>
   );
 };

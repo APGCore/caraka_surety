@@ -24,12 +24,6 @@ export const marketingPartnerRoute: IAppSideBarMenu[] = [
         route_name: "marketing-partner-submission.history",
         href: route("marketing-partner-submission.history.index"),
       },
-      // {
-      //   title: "Draft Dokumen Pengajuan",
-      //   route_name: "staff-submission-document-draft",
-      //   href: route("staff-submission-document-draft.submission"),
-      //
-      // },
     ],
   },
 ];

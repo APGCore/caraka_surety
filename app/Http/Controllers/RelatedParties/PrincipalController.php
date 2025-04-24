@@ -22,6 +22,46 @@ use Inertia\Response;
 
 class PrincipalController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // request
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // query
+        $query = Principal::search($search)
+            ->orderBy('created_at');
+
+        // if is page able is true, then paginate the data
+        $principal = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $principalResource = PrincipalResource::collection($principal);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $principalResource,
+            'meta' => [
+                'current_page' => $principal->currentPage(),
+                'from' => $principal->firstItem(),
+                'to' => $principal->lastItem(),
+                'last_page' => $principal->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $principal->total(),
+            ],
+        ] : $principalResource;
+
+        // return response
+        return $this->responseSuccess('Sukses get All Principal', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */

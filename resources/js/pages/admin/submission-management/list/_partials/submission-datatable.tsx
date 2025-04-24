@@ -1,3 +1,4 @@
+import Show from "@/_features/_common/components/show";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
@@ -36,9 +37,12 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell>{submission.created_at}</TableCell>
                   <TableCell className={"text-center"}>
                     <h3>{submission.blank?.number}</h3>
-                    {submission.submission_before && (
-                      <Badge>Revisi Dari Brangko {submission.submission_before.blank.number}</Badge>
-                    )}
+                    <Show when={submission.blank?.is_broken}>
+                      <Badge className="bg-red-500">Rusak</Badge>
+                    </Show>
+                    <Show when={submission.submission_before != null}>
+                      <Badge>Revisi Dari Brangko {submission.submission_before?.blank?.number}</Badge>
+                    </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name}</TableCell>

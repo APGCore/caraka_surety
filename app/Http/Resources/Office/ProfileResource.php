@@ -14,12 +14,17 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $limit = $this->profileLimit->first();
+
         return [
-            ...parent::toArray($request),
-            'profile_limit' => $this->whenLoaded('profileLimit', function () {
-                return $this->resource->profileLimit->first();
-            }),
-            'created_at' => $this->resource->created_at->format('d F Y'),
+            'id' => $this->id,
+            'name' => $this->name,
+            'office_name' => $this->name,
+            'profile_limit_id' => $limit ? $limit->id : null,
+            'limit' => $limit ? $limit->limit : 0,
+            'limit_inherit' => $limit ? $limit->limit_inherit : 0,
+            'product_type' => $limit?->guarantorToProductType?->productType?->name ?? 'Belum diatur',
+            'created_at' => $this->created_at->format('d-m-Y'),
         ];
     }
 }

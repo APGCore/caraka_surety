@@ -1,3 +1,7 @@
+import useListEmployeeLimit, { EmployeeLimitResponse } from "@/_features/limit/hooks/use-list-employee-limit";
+import ListEmployeeLimitPage from "@/_features/limit/pages/list-employee-limit-page";
+import { useSearchEmployeeLimit } from "@/_features/limit/services/employee-limit-query";
+import { useSearchOffice } from "@/_features/office/services/office-query";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import { textCurrency } from "@/common/utils/text-currency";
 import {
@@ -43,6 +47,14 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
+
+  // console.log({
+  //   guarantorProductSelected,
+  //   guarantorProductTypeSelected,
+  //   officeTypeSelected,
+  //   jobGroupSelected,
+  //   profileSelected,
+  // });
 
   const handleSelectProfileLimitLength = (per_page: string) => {
     setSelect(per_page);
@@ -153,6 +165,8 @@ const ProfileLimitsPage: EmployeeLimitsPageProps = ({
   const deleteProfileLimit = (profileLimit: any) => {
     router.delete(route(EmployeeLimitsUtils.link.destroy, profileLimit.id));
   };
+
+  return <ListEmployeeLimitPage />;
 
   return (
     <main className="space-y-2.5">
@@ -279,9 +293,11 @@ export default ProfileLimitsPage;
 ProfileLimitsPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
+  const title = "";
+
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <EmployeeLimitsHeader title={pagePropsData?.page_settings?.title} />
+      <EmployeeLimitsHeader title={title} />
       {page}
     </RoleBasedLayout>
   );

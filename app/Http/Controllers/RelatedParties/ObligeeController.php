@@ -16,6 +16,46 @@ use Inertia\Response;
 
 class ObligeeController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // request
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // query
+        $query = Obligee::search($search)
+            ->orderBy('created_at');
+
+        // if is page able is true, then paginate the data
+        $obligee = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $obligeeResource = ObligeeResource::collection($obligee);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $obligeeResource,
+            'meta' => [
+                'current_page' => $obligee->currentPage(),
+                'from' => $obligee->firstItem(),
+                'to' => $obligee->lastItem(),
+                'last_page' => $obligee->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $obligee->total(),
+            ],
+        ] : $obligeeResource;
+
+        // return response
+        return $this->responseSuccess('Sukses get All Obligee', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */

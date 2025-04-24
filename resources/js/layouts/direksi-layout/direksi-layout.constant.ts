@@ -34,12 +34,6 @@ export const direksiRoute: IAppSideBarMenu[] = [
         route_name: "direksi-submission-history",
         href: route("direksi-submission-history.submission"),
       },
-      // {
-      //   title: "Draft Dokumen Pengajuan",
-      //   route_name: "direksi-submission-document-draft",
-      //   href: route("direksi-submission-document-draft.submission"),
-      //
-      // },
     ],
   },
 ];

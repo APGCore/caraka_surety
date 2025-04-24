@@ -16,6 +16,46 @@ use Inertia\Response;
 
 class BankController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // request
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // query
+        $query = Bank::search($search)
+            ->orderBy('created_at');
+
+        // if is page able is true, then paginate the data
+        $bank = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $bankResource = BankResource::collection($bank);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $bankResource,
+            'meta' => [
+                'current_page' => $bank->currentPage(),
+                'from' => $bank->firstItem(),
+                'to' => $bank->lastItem(),
+                'last_page' => $bank->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $bank->total(),
+            ],
+        ] : $bankResource;
+
+        // return response
+        return $this->responseSuccess('Sukses get All Bank', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */

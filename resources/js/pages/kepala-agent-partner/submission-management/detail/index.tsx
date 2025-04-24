@@ -785,13 +785,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   return (
     <>
-      <Show when={submission?.beyond_the_limit}>
+      <Show when={submission.beyond_the_limit}>
         <div className="fixed top-20 w-[81%] z-[100]">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Nilai Jaminan {submission.guarantee_value_formatted} Pengajuan Melebihi Batas Kewenangan yaitu Rp.{" "}
+              Nilai Jaminan {submission.guarantee_value_formatted} dan Pengajuan Melebihi Batas Kewenangan yaitu Rp.{" "}
               {textCurrency(submission.limit)}.
             </AlertDescription>
           </Alert>

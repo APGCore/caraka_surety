@@ -17,7 +17,6 @@ class ProductType extends Model
 
     protected $guarded = [
         'id',
-        'created_at',
         'updated_at',
         'deleted_at',
     ];

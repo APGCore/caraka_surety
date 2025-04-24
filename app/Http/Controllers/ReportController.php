@@ -11,13 +11,14 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
+use App\Traits\FilterOffice;
 use App\Traits\GeneratePattern;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-    use CalculateInvoice, GeneratePattern;
+    use CalculateInvoice, FilterOffice, GeneratePattern;
 
     public function invoice(Request $request)
     {
@@ -25,6 +26,11 @@ class ReportController extends Controller
             now()->subDays(7)->toDateString().' 00:00:00',
             now()->toDateString().' 23:59:59',
         ])->values();
+        $officeFilter = $this->filterOffice($request);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')
             ->with('guarantorToProductTypes')
@@ -41,30 +47,39 @@ class ReportController extends Controller
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
 
         $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                return $query->when($date->isNotEmpty(), function ($query) use ($date) {
-                    $query->whereBetween('created_at', $date);
-                })->when($guarantorSelected, function ($query) use ($guarantorSelected) {
-                    $query->where('guarantor_id', $guarantorSelected);
-                })->when($productSelected, function ($query) use ($productSelected) {
-                    $query->where('product_id', $productSelected);
-                })->when($guarantorToProductType, function ($query) use ($guarantorToProductType) {
-                    $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-                })
+            ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
+                return $query
+                    ->when($date->isNotEmpty(), function ($query) use ($date) {
+                        $query->whereBetween('created_at', $date);
+                    })
+                    ->when($officeSelected, function ($query) use ($officeSelected) {
+                        $query->whereHas('staff', function ($query) use ($officeSelected) {
+                            $query->where('profile_id', $officeSelected);
+                        });
+                    })
+                    ->when($guarantorSelected, function ($query) use ($guarantorSelected) {
+                        $query->where('guarantor_id', $guarantorSelected);
+                    })
+                    ->when($productSelected, function ($query) use ($productSelected) {
+                        $query->where('product_id', $productSelected);
+                    })
+                    ->when($guarantorToProductType, function ($query) use ($guarantorToProductType) {
+                        $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
+                    })
                     ->with([
-                        'guarantor:id,name,code',
-                        'guarantorBranch:id,name,code',
-                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                        'guarantor.guarantorRate',
-                        'product:id,name',
-                        'guarantorToProductType:id,code_product,code,name',
-                        'blanks:id,number,is_broken',
-                        'principal:id,name',
-                        'obligee:id,name',
-                        'staff:id,name,profile_id',
-                        'staff.office:id,name,code,office_type',
-                        'staff.office.profileRate',
-                    ]);
+                            'guarantor:id,name,code',
+                            'guarantorBranch:id,name,code',
+                            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                            'guarantor.guarantorRate',
+                            'product:id,name',
+                            'guarantorToProductType:id,code_product,code,name',
+                            'blanks:id,number,is_broken',
+                            'principal:id,name',
+                            'obligee:id,name',
+                            'staff:id,name,profile_id',
+                            'staff.office:id,name,code,office_type',
+                            'staff.office.profileRate',
+                        ]);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
@@ -119,6 +134,14 @@ class ReportController extends Controller
                 'title' => 'Laporan Invoice',
             ],
             'submissions' => fn () => $resource,
+            'date' => [
+                'start' => $date->first(),
+                'end' => $date->last(),
+            ],
+            'offices' => $offices,
+            'officeTypes' => $officeTypes,
+            'officeTypeSelected' => $officeTypeSelected,
+            'officeSelected' => $officeSelected,
             'guarantors' => $guarantors->map->only('id', 'name'),
             'guarantorSelected' => $guarantorSelected,
             'products' => $products,

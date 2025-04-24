@@ -4,6 +4,7 @@ import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { createRoot } from "react-dom/client";
+import { TooltipProvider } from "./_features/_common/components/_shadcn-ui/tooltip";
 import ReactQueryProvider from "./components/organisms/provider/react-query-provider";
 
 const appName = import.meta.env.VITE_APP_NAME === "Laravel" ? "APG-Core-System" : import.meta.env.VITE_APP_NAME;
@@ -17,7 +18,9 @@ createInertiaApp({
     root.render(
       <ReactQueryProvider>
         <NuqsAdapter>
-          <App {...props} />
+          <TooltipProvider delayDuration={0}>
+            <App {...props} />
+          </TooltipProvider>
         </NuqsAdapter>
       </ReactQueryProvider>,
     );

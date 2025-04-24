@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Product\ProductTypeResource;
+use App\Http\Resources\_Refactor\Api\Product\ProductTypeResource;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\ProductType;
 use Exception;
@@ -14,6 +14,53 @@ use Illuminate\Support\Facades\Log;
 
 class ProductTipeController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // request parameters
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+        $productId = $request->get('product_id') ?? null;
+
+        // search query
+        $query = ProductType::search($search)
+            ->query(function ($query) use ($productId) {
+                if ($productId) {
+                    $query->whereHas('product', function ($query) use ($productId) {
+                        $query->where('product_id', $productId);
+                    });
+                }
+            })
+            ->orderBy('created_at');
+
+        // if is page able is true, then paginate the data, otherwise get the data
+        $productTypes = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // product type resource
+        $productTypeResource = ProductTypeResource::collection($productTypes);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $productTypeResource,
+            'meta' => [
+                'current_page' => $productTypes->currentPage(),
+                'from' => $productTypes->firstItem(),
+                'to' => $productTypes->lastItem(),
+                'last_page' => $productTypes->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $productTypes->total(),
+            ],
+        ] : $productTypeResource;
+
+        return $this->responseSuccess('Berhasil mengambil data jenis produk', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Guarantor;
 
+use App\Enums\JobType;
 use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\ProfileResource;
@@ -12,13 +13,115 @@ use App\Models\Guarantor\ProfileLimit;
 use App\Models\Profile\Profile;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProfileLimitController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+
+        // office types
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+
+        // Selected Guarantor
+        $guarantor = Guarantor::first();
+        $guarantor_id = $guarantor ? $guarantor->id : null;
+
+        // default job type Jastan to unconditional
+        $job_type = JobType::UNCONDITIONAL->value;
+
+        // request
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'true';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // filter for guarantor product type limit
+        $product_id = $request->get('product_id') ?? null;
+        $product_type_id = $request->get('product_type_id') ?? null;
+        $office_type = $request->get('office_type') ?? $officeTypes[0];
+        $job_group = $request->get('job_group') ?? null;
+
+        // selected office type
+        $selectedOfficeType = match ($office_type) {
+            'Kantor Cabang' => OfficeType::BRANCH->value,
+            'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+            'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+            default => OfficeType::HEADQUARTER->value,
+        };
+
+        // selected guarantor product type
+        $guarantorProductType = GuarantorToProductType::query()
+            ->with(['productType'])
+            ->where('guarantor_id', $guarantor_id)
+            ->where('product_id', $product_id)
+            ->where('product_type_id', $product_type_id)
+            ->where('job_group', $job_group)
+            ->where('job_type', $job_type)
+            ->first();
+
+        $guarantorProductTypeId = $guarantorProductType?->id;
+        $productTypeName = $guarantorProductType?->productType?->name;
+
+        // selected guarantor product type limit
+        $guarantorProductTypeLimit = GuarantorProductTypeLimit::query()
+            ->where('guarantor_id', $guarantor_id)
+            ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
+            ->first();
+
+        // profiles
+        $profiles = Profile::search($search)
+            ->query(function (Builder $query) use ($guarantor_id, $guarantorProductTypeId, $selectedOfficeType) {
+                return $query->when($guarantor_id, function ($query) use ($guarantor_id, $guarantorProductTypeId, $selectedOfficeType) {
+                    $query->with(['profileLimit' => function ($query) use ($guarantor_id, $guarantorProductTypeId) {
+                        $query->where('guarantor_id', $guarantor_id)
+                            ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
+                            ->with(['guarantorToProductType.productType']);
+                    }])
+                        ->when($selectedOfficeType, function ($query) use ($selectedOfficeType) {
+                            $query->where('office_type', $selectedOfficeType);
+                        });
+                });
+            })
+            ->orderBy('created_at', 'desc');
+
+        // if is page able is true, then paginate the data
+        $profiles = $isPageAble !== 'false'
+          ? $profiles->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $profiles->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $profileResource = ProfileResource::collection($profiles);
+
+        $datas = [
+            'profiles' => $profileResource,
+            'guarantorProductTypeLimit' => [
+                ...($guarantorProductTypeLimit?->toArray() ?? []),
+                'product_type_name' => $productTypeName,
+            ],
+        ];
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $datas,
+            'meta' => [
+                'current_page' => $profiles->currentPage(),
+                'from' => $profiles->firstItem(),
+                'to' => $profiles->lastItem(),
+                'last_page' => $profiles->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $profiles->total(),
+            ],
+        ] : $datas;
+
+        return $this->responseSuccess('Berhasil mengambil data limit kantor', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -51,6 +154,8 @@ class ProfileLimitController extends Controller
             'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
             default => OfficeType::HEADQUARTER->value,
         };
+
+        // limit
         $limit = GuarantorProductTypeLimit::query()
             ->where('guarantor_id', $guarantorSelected)
             ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
@@ -100,7 +205,7 @@ class ProfileLimitController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $requestValid = $request->validate(
             [
@@ -149,7 +254,9 @@ class ProfileLimitController extends Controller
                 ->log('Menambahkan limit kantor');
             DB::commit();
 
-            return $this->responseSuccess('Berhasil menambahkan limit kantor');
+            flashMessage('success', 'Limit Kantor berhasil ditambahkan');
+
+            return redirect()->route('profile-limit.index');
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
@@ -162,7 +269,7 @@ class ProfileLimitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ProfileLimit $profileLimit): JsonResponse
+    public function update(Request $request, ProfileLimit $profileLimit)
     {
         $requestValid = $request->validate(
             [
@@ -176,7 +283,8 @@ class ProfileLimitController extends Controller
                 'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
                 'limit.required' => 'Batas Kewenangan wajib diisi',
                 'limit_inherit.required' => 'Batas Kewenangan Turunan wajib diisi',
-            ]);
+            ]
+        );
 
         try {
             DB::beginTransaction();
@@ -210,7 +318,11 @@ class ProfileLimitController extends Controller
                 ->log('Mengubah limit kantor');
             DB::commit();
 
-            return $this->responseSuccess('Berhasil mengubah limit kantor');
+            flashMessage('success', 'Limit Kantor berhasil diubah');
+
+            return redirect()->route('profile-limit.index');
+
+            // return $this->responseSuccess('Berhasil mengubah limit kantor');
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
@@ -237,7 +349,15 @@ class ProfileLimitController extends Controller
                 ->performedOn($profileLimit)
                 ->causedBy(auth()->user())
                 ->log('Menghapus limit kantor');
+
             DB::commit();
+
+            // return redirect()->route('profile-limit.index');
+
+            flashMessage('success', 'Limit Kantor berhasil dihapus');
+
+            return redirect()->route('profile-limit.index');
+            // return back();
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);

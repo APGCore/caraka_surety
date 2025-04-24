@@ -1,5 +1,4 @@
-import useGetProductTypesByProductAndGuarantor
-  from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -9,16 +8,17 @@ import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/g
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
-  useGetRegencyByProvinceId
+  useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
 import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
 import {
   PRINCIPAL_QUERY_KEY,
   useCreateOrUpdatePrincipal,
-  useGetAllPrincipal
+  useGetAllPrincipal,
 } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
+import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
 import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { textCurrency } from "@/common/utils/text-currency";
@@ -246,6 +246,29 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
   );
   const [isResetProductType, setIsResetProductType] = useState(false);
 
+  // submission before
+  const { data: submissionBefore } = useGetBeforeSubmission({
+    principal_id: String(data.principal.id),
+    guarantor_id: String(selectedGuarantor),
+    product_type_id: String(data.submission.product_type_id),
+    job_group: String(data.submission.job_group),
+    job_type: String(data.submission.job_type),
+  });
+
+  const handleSelectSubmissionBefore = (submissionId: number) => {
+    setData("submission", {
+      ...data.submission,
+      submission_inherit_id: submissionId,
+    });
+  };
+
+  const handleResetSubmissionBefore = () => {
+    setData("submission", {
+      ...data.submission,
+      submission_inherit_id: undefined,
+    });
+  };
+
   // profile limit
   const { profileLimit } = useGetProfileLimit({
     guarantor_id: Number(selectedGuarantor),
@@ -448,7 +471,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
         });
       },
       onSuccess: () => {
-        if(submission){
+        if (submission) {
           window.history.back();
         } else {
           handleReset();
@@ -657,7 +680,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
               {/* STEPPER INDICATOR */}
               <div className="flex items-start">
                 <RenderList
-                  of={steps}
+                  of={steps as any[]}
                   render={(step, index) => {
                     return (
                       <Fragment>
@@ -894,6 +917,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                           </Select>
                         </div>
                       )}
+                    </div>
+                    <div className="flex gap-5">
+                      <NewCombobox
+                        data={Array.isArray(submissionBefore) ? submissionBefore : []}
+                        labelKey="name"
+                        valueKey="id"
+                        defaultValue={data.submission.submission_inherit_id}
+                        placeholder={"Pilih Pengajuan Sebelumnya"}
+                        className={"min-w-[160px]"}
+                        onSelect={(value) => handleSelectSubmissionBefore(value?.id)}
+                        onReset={handleResetSubmissionBefore}
+                      />
                     </div>
                     <div
                       className={cn("flex gap-5 items-end", {
@@ -1678,7 +1713,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                           })
                         }
                       />
-                      <Show when={!!submission && !submission?.submission?.is_edit}>
+                      <Show when={!!submission && !submission?.submission?.id}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"
@@ -1736,7 +1771,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                   </Button>
                 </Show>
               </div>
-              ;
             </>
           </Show>
         </form>

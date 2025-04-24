@@ -10,7 +10,12 @@ Route::prefix('bank-management')
             ->prefix('bank')
             ->name('bank.')
             ->group(function () {
-                // api.bank-management.bank.all
+                // NAME: api.bank-management.bank.all
+                // PATH: /bank-management/bank/all
                 Route::get('/all', 'apiGetAllBank')->name('all');
+
+                // NAME: api.bank-management.bank.search
+                // PATH: /bank-management/bank/search-bank
+                Route::get('/search-bank', 'apiSearch')->name('search');
             });
     });

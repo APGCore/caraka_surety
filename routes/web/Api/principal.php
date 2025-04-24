@@ -12,26 +12,32 @@ Route::middleware('auth')->group(function () {
                     Route::prefix('principal')
                         ->name('principal.')
                         ->group(function () {
-                            // api.principal-management.principal.all
+                            // NAME: api.principal-management.principal.all
+                            // PATH: /principal-management/principal/all
                             Route::get('all', 'getAll')->name('all');
 
-                            // api.principal-management.principal.documents
+                            // NAME: api.principal-management.principal.documents
+                            // PATH: /principal-management/principal/document
                             Route::get('document', 'getDocument')->name('documents');
 
-                            // api.principal-management.principal.ratios
+                            // NAME: api.principal-management.principal.ratios
+                            // PATH: /principal-management/principal/ratios/{principal}
                             Route::get('ratios/{principal}', 'getRatios')->name('ratios');
 
-                            // api.principal-management.principal.store
+                            // NAME: api.principal-management.principal.store
+                            // PATH: /principal-management/principal/store
                             Route::post('store', 'store')->name('store');
 
-                            // api.principal-management.principal.update
+                            // NAME: api.principal-management.principal.update
+                            // PATH: /principal-management/principal/update/{principal}
                             Route::put('update/{principal}', 'update')->name('update');
                         });
 
                     Route::prefix('document')
                         ->name('document.')
                         ->group(function () {
-                            // api.principal-management.document.upload
+                            // NAME: api.principal-management.document.upload
+                            // PATH: /principal-management/document/uploads/{principal}
                             Route::post('uploads/{principal}', 'uploadDocument')->name('upload');
                         });
                 });

@@ -2,6 +2,7 @@
 
 namespace App\Models\Submission;
 
+use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,5 +38,10 @@ class SubmissionDoc extends Model
     public function requiredDoc()
     {
         return $this->belongsTo(RequiredDoc::class);
+    }
+
+    public function documentFormat()
+    {
+        return $this->belongsTo(DocumentFormat::class, 'document_format_id', 'id');
     }
 }

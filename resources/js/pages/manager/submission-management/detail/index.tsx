@@ -477,14 +477,27 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    setIsLoading(true);
     axios
       .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
+        toast({
+          title: "Sukses",
+          description: "Berhasil mendapatkan callback dari asuransi",
+        });
         router.reload();
       })
       .catch((error) => {
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
         console.error("Error Get Callback From Guarantor", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -539,6 +552,35 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
+  const handleEmbedQr = () => {
+    setIsLoading(true);
+    router.post(
+      route("manager-submission-submissions.embedQr", { submission: submission.id }),
+      {},
+      {
+        preserveScroll: true,
+        onSuccess: () => {
+          setIsLoading(false);
+          toast({
+            title: "Pembubuhan Berhasil",
+            description: "Dokumen Berhasil Dibubuhkan QR Code",
+            variant: "default",
+          });
+        },
+        onError: () => {
+          setIsLoading(false);
+          toast({
+            title: "Gagal Pembubuhan Dokumen",
+            description: "Dokumen gagal dibubuhkan QR Code",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
+  console.log("submission", submission);
+
   return (
     <>
       <Show when={submission.beyond_the_limit}>
@@ -547,7 +589,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Pengajuan Melebihi Batas Kewenangan Nilai Jaminan Rp. {textCurrency(submission.guarantee_value)}
+              Pengajuan Melebihi Batas Kewenangan. Nilai Jaminan Rp. {textCurrency(submission.guarantee_value)}
             </AlertDescription>
           </Alert>
         </div>
@@ -816,25 +858,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Mulai Tanggal</td>
-                  <td className="p-2">
-                    :{" "}
-                    {new Date(submission.start_date).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </td>
+                  <td className="p-2">: {submission.start_date}</td>
                 </tr>
                 <tr>
                   <td className="p-2 font-semibold">Selesai Tanggal</td>
-                  <td className="p-2">
-                    :{" "}
-                    {new Date(submission.end_date).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </td>
+                  <td className="p-2">: {submission.end_date}</td>
                 </tr>
               </tbody>
             </table>
@@ -1111,8 +1139,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           </Button>
                         </>
                       ) : (
-                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
+                          {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                          Cek Respon Dari Asuransi
+                        </Button>
                       )}
+                    </div>
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <div className="mt-4">
+                        <Button onClick={handleEmbedQr} disabled={isLoading}>
+                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

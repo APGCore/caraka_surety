@@ -74,12 +74,6 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
           {children}
         </MarketingPartnerLayoutPage>
       );
-    // case roles.StaffCabang:
-    //   return (
-    //     <StaffCabangLayoutPage user={user} {...props}>
-    //       {children}
-    //     </StaffCabangLayoutPage>
-    //   );
     default:
       return (
         <StaffLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>

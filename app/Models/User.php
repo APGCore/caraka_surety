@@ -96,5 +96,4 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'head_id');
     }
-
 }

@@ -12,7 +12,12 @@ Route::prefix('obligee-management')
             ->name('obligee.')
             ->group(function () {
 
-                // api.obligee-management.obligee.all
+                // NAME: api.obligee-management.obligee.all
+                // PATH: /obligee-management/obligee/all
                 Route::get('/all', 'getObligee')->name('all');
+
+                // NAME: api.obligee-management.obligee.search
+                // PATH: /obligee-management/obligee/search-obligee
+                Route::get('search-obligee', 'apiSearch')->name('search');
             });
     });

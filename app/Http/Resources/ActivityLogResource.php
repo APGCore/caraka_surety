@@ -16,7 +16,7 @@ class ActivityLogResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'username' => $this->username ?? 'Unknown',
+            'username' => $this->causer?->name ?? 'Unknown',
             'judul' => $this->log_name,
             'description' => $this->description,
             'subject_type' => $this->subject_type,
@@ -25,6 +25,7 @@ class ActivityLogResource extends JsonResource
             'causer_type' => $this->causer_type,
             'causer_id' => $this->causer_id,
             'properties' => $this->properties,
+            'created_at' => $this->created_at->translatedFormat('d F Y, H:i'),
         ];
     }
 }

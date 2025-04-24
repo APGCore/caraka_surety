@@ -15,15 +15,17 @@ class SubmissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $direksiLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
+        $employeeLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
         $productLimit = $this->resource->guarantorProductTypeLimit;
+        $employeeLimit = $employeeLimit ? ($this->resource->submission_inherit_id ? $employeeLimit->limit_inherit : $employeeLimit->limit) : 0;
+        $productLimit = $productLimit ? ($this->resource->submission_inherit_id ? $productLimit->limit_inherit : $productLimit->limit) : 0;
 
         return [
             ...parent::toArray($request),
             'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
             'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
             'created_at' => $this->resource->created_at?->format('d F Y H:i:s') ?? null,
-            'blank' => $this->resource->blank ?? $this->resource->blanks->firstWhere('is_broken', false),
+            'blank' => $this->resource->blank ?? $this->resource->blanks->first(),
             'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
             'principal' => $this->whenLoaded('principal', function () {
                 return [
@@ -74,10 +76,9 @@ class SubmissionResource extends JsonResource
                     'blank' => $this->resource->submissionBefore->blanks->select(['number'])->firstWhere('is_broken', false),
                 ];
             }),
-            'direksi_limit' => $direksiLimit?->limit ?? 0,
-            'product_limit' => $productLimit?->limit ?? 0,
-            'product_limit_inherit' => $productLimit?->limit_inherit ?? 0,
-            'beyond_the_limit' => ($direksiLimit?->limit ?? 0) < $this->resource->guarantee_value,
+            'employee_limit' => $employeeLimit,
+            'product_limit' => $productLimit,
+            'beyond_the_limit' => $employeeLimit < $this->resource->guarantee_value,
         ];
     }
 }

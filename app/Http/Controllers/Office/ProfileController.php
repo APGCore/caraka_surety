@@ -20,6 +20,85 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // get request parameters
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+        $office_type = $request->get('office_type') ?? '';
+
+        // selected office type
+        $selectedOfficeType = null;
+
+        // get selected office type
+        if ($office_type !== '') {
+            $selectedOfficeType = match ($office_type) {
+                'Kantor Cabang' => OfficeType::BRANCH->value,
+                'Mitra Agen' => OfficeType::AGENT_PARTNER->value,
+                'Mitra Pemasaran' => OfficeType::MARKETING_PARTNER->value,
+                default => OfficeType::HEADQUARTER->value,
+            };
+        }
+
+        // get offices
+        $offices = Profile::search($search)
+            ->query(function ($query) use ($selectedOfficeType) {
+                if ($selectedOfficeType !== null) {
+                    $query->where('office_type', $selectedOfficeType);
+                }
+            })
+            ->orderBy('id');
+
+        // if is page able is true, then paginate the data
+        $offices = $isPageAble !== 'false'
+          ? $offices->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $offices->get();
+
+        // get profile ids
+        $profileIds = collect($offices)->pluck('id');
+
+        // get user counts
+        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
+            ->whereIn('profile_id', $profileIds)
+            ->groupBy('profile_id')
+            ->pluck('users_count', 'profile_id');
+
+        // Assign user counts to profiles
+        collect($offices)->each(function ($office) use ($userCounts) {
+            $office->users_count = $userCounts[$office->id] ?? 0;
+        });
+
+        // Return the profile resource
+        $officeResource = ProfileResource::collection($offices);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $officeResource,
+            'meta' => [
+                'current_page' => $offices->currentPage(),
+                'from' => $offices->firstItem(),
+                'to' => $offices->lastItem(),
+                'last_page' => $offices->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $offices->total(),
+            ],
+        ] : $officeResource;
+
+        return $this->responseSuccess('Berhasil mengambil data kantor', $response);
+    }
+
+    public function apiGetOfficeTypes(Request $request)
+    {
+        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+
+        return $this->responseSuccess('Berhasil mengambil data tipe kantor', $officeTypes);
+    }
+
     /**
      * Display the user's profile.
      */

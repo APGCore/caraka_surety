@@ -21,30 +21,57 @@ class HostToHostController extends Controller
         ];
     }
 
+    public function apiSearch(Request $request)
+    {
+        // request
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // query
+        $query = HostToHost::search($search)
+            ->orderBy('created_at');
+
+        // if is page able is true, then paginate the data
+        $hostToHost = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $hostToHostResource = HostToHostResource::collection($hostToHost);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $response = $isPageAble !== 'false' ? [
+            'data' => $hostToHostResource,
+            'meta' => [
+                'current_page' => $hostToHost->currentPage(),
+                'from' => $hostToHost->firstItem(),
+                'to' => $hostToHost->lastItem(),
+                'last_page' => $hostToHost->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $hostToHost->total(),
+            ],
+        ] : $hostToHostResource;
+
+        // return response
+        return $this->responseSuccess('Sukses get All Host To Host', $response);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $hostToHost = HostToHost::search($request->get('search'))
-            ->query(function ($query) {
-                return $query
-                    ->with([
-                        'guarantor',
-                    ]);
-            })
-            ->orderBy('guarantor_name')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
 
-        $resource = HostToHostResource::collection($hostToHost);
         $inertiaProps = [
             'page_settings' => [
                 'title' => 'Host To Host',
             ],
 
-            'hostToHosts' => fn () => $resource,
         ];
 
         return inertia($this->components->list, $inertiaProps);
@@ -56,19 +83,24 @@ class HostToHostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
             'guarantor_url_host' => 'required|string',
             'auth_prefix' => 'nullable|string',
             'token' => 'nullable|string',
         ]);
 
+        // Selected Guarantor
+        $guarantor = Guarantor::first();
+        $guarantor_id = $guarantor ? $guarantor->id : null;
+
         DB::beginTransaction();
         try {
-            $guarantor = Guarantor::query()->find($request->get('guarantor_id'), ['name']);
             HostToHost::query()->create(
                 array_merge(
+                    [
+                        'guarantor_id' => $guarantor_id,
+                    ],
                     $request->only([
-                        'guarantor_id',
+                        // 'guarantor_id',
                         'guarantor_url_host',
                         'auth_prefix',
                         'token',
@@ -85,13 +117,13 @@ class HostToHostController extends Controller
                 ->log('Menambahkan data host to host');
             flashMessage('success', 'Data Host To Host Berhasil Ditambahkan');
             DB::commit();
+
+            return redirect()->route('host-to-host.index');
         } catch (Exception $e) {
             $error = $this->handleErrorMessage($e);
             Log::error('HostToHostController@store: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Ditambahkan');
             DB::rollBack();
-        } finally {
-            return $this->index($request);
         }
     }
 
@@ -101,19 +133,23 @@ class HostToHostController extends Controller
     public function update(Request $request, HostToHost $hostToHost)
     {
         $request->validate([
-            'guarantor_id' => 'required:exists:'.Guarantor::class.',id',
             'guarantor_url_host' => 'required|string',
             'auth_prefix' => 'nullable|string',
             'token' => 'nullable|string',
         ]);
 
+        // Selected Guarantor
+        $guarantor = Guarantor::first();
+        $guarantor_id = $guarantor ? $guarantor->id : null;
+
         DB::beginTransaction();
         try {
-            $guarantor = Guarantor::query()->find($request->get('guarantor_id'), ['name']);
             $hostToHost->update(
                 array_merge(
+                    [
+                        'guarantor_id' => $guarantor_id,
+                    ],
                     $request->only([
-                        'guarantor_id',
                         'guarantor_url_host',
                         'auth_prefix',
                         'token',
@@ -128,15 +164,16 @@ class HostToHostController extends Controller
                 ->performedOn($hostToHost)
                 ->causedBy(auth()->user())
                 ->log('Mengubah data host to host');
+
             flashMessage('success', 'Data Host To Host Berhasil Diubah');
             DB::commit();
+
+            return redirect()->route('host-to-host.index');
         } catch (Exception $e) {
             $error = $this->handleErrorMessage($e);
             Log::error('HostToHostController@update: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Diubah');
             DB::rollBack();
-        } finally {
-            return $this->index($request);
         }
     }
 
@@ -157,13 +194,13 @@ class HostToHostController extends Controller
                 flashMessage('success', 'Data Host To Host Berhasil Dihapus');
             }
             DB::commit();
+
+            return redirect()->route('host-to-host.index');
         } catch (Exception $e) {
             $error = $this->handleErrorMessage($e);
             Log::error('HostToHostController@destroy: ', $error);
             flashMessage('error', 'Data Host To Host Gagal Dihapus');
             DB::rollBack();
-        } finally {
-            return $this->index(request());
         }
     }
 }

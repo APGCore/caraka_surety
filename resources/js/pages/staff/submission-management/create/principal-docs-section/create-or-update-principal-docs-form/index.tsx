@@ -22,7 +22,7 @@ interface CreateOrUpdatePrincipalDocFormProps {
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 const validation = ["image/jpeg", "image/png", "application/pdf"];
-const limit = 15 * 1024 * 1024;
+const limit = 100 * 1024 * 1024;
 
 const toMB = (size: number) => (size / (1024 * 1024)).toFixed(2);
 

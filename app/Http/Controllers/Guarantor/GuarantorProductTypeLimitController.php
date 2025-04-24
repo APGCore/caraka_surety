@@ -16,6 +16,58 @@ use Illuminate\Support\Facades\Log;
 
 class GuarantorProductTypeLimitController extends Controller
 {
+    public function apiSearch(Request $request)
+    {
+        // get request parameters
+        $product_id = $request->get('product_id') ?? null;
+        $job_group = $request->get('job_group') ?? null;
+        $search = $request->get('search') ?? '';
+        $isPageAble = $request->get('is_page_able') ?? 'false';
+        $perPage = $request->get('per_page') ?? 10;
+        $page = $request->get('page') ?? 1;
+
+        // Selected Guarantor
+        $guarantor = Guarantor::first();
+        $guarantor_id = $guarantor ? $guarantor->id : null;
+
+        // query to get guarantor product type limits
+        $query = GuarantorToProductType::search($search)
+            ->query(function ($query) use ($guarantor_id, $product_id, $job_group) {
+                $query->with('limit')
+                    ->where('guarantor_id', $guarantor_id)
+                    ->where('product_id', $product_id)
+                    ->where('job_group', $job_group)
+                    ->select('id', 'guarantor_id', 'no', 'code', 'full_name', 'name', 'job_group', 'job_type', 'created_at', 'updated_at');
+            })
+            ->orderBy('no');
+
+        // if is page able is true, then paginate the data
+        $guarantorProductTypes = $isPageAble !== 'false'
+          ? $query->paginate(
+              perPage: $perPage,
+              page: $page
+          )
+          : $query->get();
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $guarantorResource = GuarantorToProductTypeResource::collection($guarantorProductTypes);
+
+        // if is page able is true, then return the resource, otherwise return the data
+        $datas = $isPageAble !== 'false' ? [
+            'data' => $guarantorResource,
+            'meta' => [
+                'current_page' => $guarantorProductTypes->currentPage(),
+                'from' => $guarantorProductTypes->firstItem(),
+                'to' => $guarantorProductTypes->lastItem(),
+                'last_page' => $guarantorProductTypes->lastPage(),
+                'per_page' => (int) $perPage,
+                'total' => $guarantorProductTypes->total(),
+            ],
+        ] : $guarantorResource;
+
+        return $this->responseSuccess('Berhasil mengambil data limit produk asuransi', $datas);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -43,9 +95,9 @@ class GuarantorProductTypeLimitController extends Controller
                     ->when($jobGroupSelected, function ($query) use ($jobGroupSelected) {
                         $query->where('job_group', $jobGroupSelected);
                     })
-//                    ->when($jobTypeSelected, function ($query) use ($jobTypeSelected) {
-//                        $query->where('job_type', $jobTypeSelected);
-//                    })
+                  //                    ->when($jobTypeSelected, function ($query) use ($jobTypeSelected) {
+                  //                        $query->where('job_type', $jobTypeSelected);
+                  //                    })
                     ->select('id', 'guarantor_id', 'no', 'code', 'full_name', 'name', 'job_group', 'job_type', 'created_at', 'updated_at');
             })
             ->orderBy('no')
@@ -119,7 +171,6 @@ class GuarantorProductTypeLimitController extends Controller
 
             return redirect()->back()->with('error', 'Limit gagal disimpan');
         }
-
     }
 
     /**

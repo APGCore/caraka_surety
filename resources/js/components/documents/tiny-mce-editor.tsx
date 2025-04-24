@@ -17,6 +17,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
 
     const tinymceScript = document.createElement("script");
     tinymceScript.src = "/js/tinymce/tinymce.min.js";
+    // tinymceScript.src =
+    //   "https://cdn.tiny.cloud/1/u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt/tinymce/6/tinymce.min.js";
+
     tinymceScript.async = true;
 
     const htmlDocxScript = document.createElement("script");
@@ -24,12 +27,72 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     htmlDocxScript.async = true;
 
     const setupEditor = () => {
+      window.tinymce.PluginManager.add("exportToWord", function (editor: any, url: any) {
+        editor.ui.registry.addButton("exportToWord", {
+          text: "Export to Word",
+          onAction: () => {
+            try {
+              if (!window.htmlDocx) {
+                throw new Error("htmlDocx is not loaded.");
+              }
+
+              const content = editor.getContent({ format: "html" });
+
+              const styles = Array.from(document.styleSheets)
+                .map((sheet: any) => {
+                  try {
+                    return Array.from(sheet.cssRules || [])
+                      .map((rule: any) => rule.cssText)
+                      .join("\n");
+                  } catch (e) {
+                    return "";
+                  }
+                })
+                .join("\n");
+
+              const fullHTML = `
+                <html>
+                  <head>
+                    <meta charset="utf-8">
+                    <style>
+                      body {
+                        font-family: Verdana, sans-serif;
+                        font-size: 8px;
+                      }
+                      img {
+                        max-width: 100%;
+                        height: auto;
+                      }
+                      ${styles}
+                    </style>
+                  </head>
+                  <body>
+                    ${content}
+                  </body>
+                </html>
+              `;
+
+              const converted = window.htmlDocx.asBlob(fullHTML);
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(converted);
+              link.download = `${editor.id}-document.docx`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } catch (error) {
+              console.error("Export to Word failed:", error);
+            }
+          },
+        });
+      });
+
       window.tinymce.init({
         selector: `#${id}`,
+        apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: "link image code",
+        plugins: "export ",
         toolbar:
-          "undo redo | bold italic | alignleft aligncenter alignright | code | exportToWord exportToPDF printDocument",
+          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code exportToWord printDocument",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
@@ -54,6 +117,16 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
             text: "Print Document",
             onAction: () => printDocument(editor),
           });
+
+          editor.ui.registry.addButton("embedImageFromLink", {
+            text: "Embed Image",
+            onAction: () => {
+              const imageUrl = prompt("Enter image URL:");
+              if (imageUrl) {
+                editor.insertContent(`<img src="${imageUrl}" alt="Embedded Image" style="max-width: 100%;" />`);
+              }
+            },
+          });
         },
       });
     };
@@ -66,17 +139,72 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
     document.body.appendChild(tinymceScript);
   };
 
+  // const exportToWord = (editor: any) => {
+  //   try {
+  //     if (!window.htmlDocx) {
+  //       throw new Error("htmlDocx is not loaded.");
+  //     }
+
+  //     const editorContent = editor.getContent();
+  //     const converted = window.htmlDocx.asBlob(editorContent);
+
+  //     const link = document.createElement("a");
+  //     link.href = URL.createObjectURL(converted);
+  //     9;
+  //     link.download = `${id}-document.docx`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (error) {
+  //     console.error("Export to Word failed:", error);
+  //   }
+  // };
+
   const exportToWord = (editor: any) => {
     try {
       if (!window.htmlDocx) {
         throw new Error("htmlDocx is not loaded.");
       }
 
-      const editorContent = editor.getContent();
-      const converted = window.htmlDocx.asBlob(editorContent);
+      const content = editor.getContent({ format: "html" });
 
+      // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
+      const styles = Array.from(document.styleSheets)
+        .map((sheet: any) => {
+          try {
+            return Array.from(sheet.cssRules || [])
+              .map((rule: any) => rule.cssText)
+              .join("\n");
+          } catch (e) {
+            return ""; // skip stylesheets with CORS issues
+          }
+        })
+        .join("\n");
+
+      const fullHTML = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+              }
+              ${styles}
+            </style>
+          </head>
+          <body>
+            ${content}
+          </body>
+        </html>
+      `;
+
+      const converted = window.htmlDocx.asBlob(fullHTML);
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(converted);9
+      link.href = URL.createObjectURL(converted);
       link.download = `${id}-document.docx`;
       document.body.appendChild(link);
       link.click();

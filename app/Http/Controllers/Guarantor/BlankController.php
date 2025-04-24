@@ -146,40 +146,6 @@ class BlankController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateRequest $request, Blank $blank): JsonResponse
-    {
-        $requestValidated = $request->validated();
-        DB::beginTransaction();
-        try {
-            if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
-                throw new Exception('Blangko sudah digunakan', 400);
-            }
-            $blank->update($requestValidated);
-
-            activity()
-                ->useLog('blank')
-                ->performedOn($blank)
-                ->causedBy(auth()->user())
-                ->log('Mengubah blangko');
-            DB::commit();
-
-            return $this->responseSuccess('Blangko berhasil diubah');
-        } catch (Exception $e) {
-            DB::rollBack();
-            $error = $this->handleErrorMessage($e);
-            Log::error('Error update blank', $error);
-
-            if ($e->getCode() === 400) {
-                return $this->responseError($e->getMessage(), $error);
-            } else {
-                return $this->responseError('Blangko gagal diubah', $error);
-            }
-        }
-    }
-
-    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Blank $blank): void
@@ -283,8 +249,43 @@ class BlankController extends Controller
         }
     }
 
-    public function apiGetBlank(): JsonResponse
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateRequest $request, Blank $blank): JsonResponse
     {
+        $requestValidated = $request->validated();
+        DB::beginTransaction();
+        try {
+            if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
+                throw new Exception('Blangko sudah digunakan', 400);
+            }
+            $blank->update($requestValidated);
+
+            activity()
+                ->useLog('blank')
+                ->performedOn($blank)
+                ->causedBy(auth()->user())
+                ->log('Mengubah blangko');
+            DB::commit();
+
+            return $this->responseSuccess('Blangko berhasil diubah');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error update blank', $error);
+
+            if ($e->getCode() === 400) {
+                return $this->responseError($e->getMessage(), $error);
+            } else {
+                return $this->responseError('Blangko gagal diubah', $error);
+            }
+        }
+    }
+
+    public function apiGetBlank(Request $request): JsonResponse
+    {
+        $forSubmissionEdit = $request->get('for_submission_edit', false);
         $guarantorId = session('guarantor_id', config('guarantor.id'));
         $user = auth()->user();
 
@@ -293,9 +294,13 @@ class BlankController extends Controller
                 'guarantor_id' => $guarantorId,
                 'profile_id' => $user?->profile_id,
                 'is_used' => false,
+                'is_revised' => false,
                 'is_broken' => false,
                 'is_approved' => true,
             ])
+            ->when($forSubmissionEdit, function ($query) use ($forSubmissionEdit) {
+                return $query->where('is_picked', $forSubmissionEdit);
+            })
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
 
         return $this->responseSuccess('Berhasil mengambil data blangko', $blanks);

@@ -38,6 +38,8 @@ type Principal = {
 
 type Submission = {
   id?: number | string;
+  submission_before_id?: number;
+  submission_inherit_id?: number;
   guarantor_id: string;
   guarantor_branch_id?: number;
   product_id?: number;
@@ -66,7 +68,6 @@ type Submission = {
   risk_mitigation: string;
   blank_id?: number;
   revised_note: string | null;
-  is_edit?: boolean;
 };
 
 type Scoring = {
