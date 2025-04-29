@@ -15,5 +15,6 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/revision/{id}', 'revision')->name('revision');
             Route::get('/broken/{submission}', 'broken')->name('broken');
             Route::post('/save-content', 'saveDocument')->name('save.content');
+            Route::post('/{submission}/embed-qr', 'embedQrCodeToDocs')->name('embedQr');
         });
 });
