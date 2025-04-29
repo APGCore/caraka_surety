@@ -341,8 +341,8 @@ class EmployeeController extends Controller
 
     $requestValid = $request->validate([
       'name' => 'required|string',
-      'username' => 'required|string|unique:users,username,' . $employee->id . ',id,deleted_at,NULL',
-      'email' => 'nullable|email|unique:users,email,' . $employee->id . ',id,deleted_at,NULL',
+      'username' => 'required|string|unique:' . User::class . ',username,' . $employee->getAttribute('id') . ',deleted_at,NULL',
+      'email' => 'nullable|email|unique:' . User::class . ',email,' . $employee->getAttribute('id') . ',deleted_at,NULL',
       'phone' => 'nullable|string',
       'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
       'head_id' => 'nullable|exists:users,id',
