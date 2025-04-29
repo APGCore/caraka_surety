@@ -392,11 +392,10 @@ class ProfileController extends Controller
         try {
             DB::beginTransaction();
 
-            if ($profile->exists) {
-                $profile->delete();
-            } else {
-                throw new ThrottleRequestsException('Data tidak ditemukan');
-            }
+            $profile->users()->delete();
+            $profile->profileLimit()->delete();
+            $profile->profileRate()->delete();
+            $profile->delete();
             activity()
                 ->useLog('profile')
                 ->performedOn($profile)
