@@ -20,8 +20,6 @@ Route::prefix('submission-management')->group(function () {
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionManager')->name('docs.submission');
 
             Route::post('/save-doc', 'saveDocSignatured')->name('save-permohonan-doc.submission');
-            Route::post('/submissions/{submission}/embed-qr', 'embedQrCodeToDocs')->name('submissions.embedQr');
-
         });
 });
 
