@@ -822,17 +822,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                   <div className="flex flex-col items-center justify-center py-4">
                     {submission.callback ? (
                       <>
-                        <div>
-                          <img src={submission.callback.url} alt="Code QR"/>
-                          <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
-                            Dokumen Pendukung
-                          </Button>
-                        </div>
-                        <div className="mt-4">
-                          <Button onClick={handleEmbedQr} disabled={isLoading}>
-                            {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
-                          </Button>
-                        </div>
+                        <img src={submission.callback.url} alt="Code QR"/>
+                        <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
+                          Dokumen Pendukung
+                        </Button>
+                        <Button className="mt-4" onClick={handleEmbedQr} disabled={isLoading}>
+                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                        </Button>
                       </>
                     ) : (
                       <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
