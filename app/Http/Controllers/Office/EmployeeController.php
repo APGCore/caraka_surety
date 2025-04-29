@@ -87,8 +87,8 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:'.User::class.',username',
-            'email' => 'nullable|email|unique:'.User::class.',email',
+            'username' => 'required|string|unique:users,username,NULL,id,deleted_at,NULL',
+            'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
             'password' => 'required|string|min:8',
             'password_confirmation' => 'required|same:password',
             'phone' => 'nullable|string',
@@ -328,8 +328,8 @@ class EmployeeController extends Controller
     {
         $requestValid = $request->validate([
             'name' => 'required|string',
-            'username' => 'required|string|unique:'.User::class.',username,'.$employee->getAttribute('id'),
-            'email' => 'nullable|email|unique:'.User::class.',email,'.$employee->getAttribute('id'),
+            'username' => 'required|string|unique:'.User::class.',username,'.$employee->getAttribute('id') . ',deleted_at,NULL',
+            'email' => 'nullable|email|unique:'.User::class.',email,'.$employee->getAttribute('id') . ',deleted_at,NULL',
             'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'head_id' => 'nullable|exists:users,id',
