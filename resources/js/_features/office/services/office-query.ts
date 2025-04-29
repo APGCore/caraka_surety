@@ -1,5 +1,6 @@
 import { FetchParams } from "@/_features/_common/types/fetch";
 import { QuerySetting } from "@/_features/_common/types/react-query";
+import { User } from "@/types";
 import { QueryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -31,7 +32,7 @@ export interface OfficeData {
   district: string;
   village: string;
   postal_code: string;
-  users_count: number;
+  users: User[];
 }
 
 interface PaginationMeta {
@@ -55,7 +56,7 @@ export const useGetOfficeByType = (
   return useQuery<OfficeResponse, Error>({
     queryKey: [OFFICE_QUERY_KEY.OFFICE_BY_TYPE, params?.officeType, params?.perPage, params?.search, params?.page],
     queryFn: async (): Promise<OfficeResponse> => {
-      const response = await axios.get<{ data: { data: OfficeData[]; meta: PaginationMeta } }>(
+      const response = await axios.get<{ data: OfficeData[]; meta: PaginationMeta }>(
         route("api.office-management.office.get-by-type", {
           office_type: params.officeType,
           per_page: params.perPage,
@@ -65,8 +66,8 @@ export const useGetOfficeByType = (
       );
 
       return {
-        data: response.data.data.data,
-        meta: response.data.data.meta,
+        data: response.data.data,
+        meta: response.data.meta,
       };
     },
     ...querySetting,

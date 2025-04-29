@@ -15,6 +15,7 @@ use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
 
@@ -112,12 +113,15 @@ class ProfileController extends Controller
 
         // Validate the office type
         if (! OfficeType::tryFrom($officeType)) {
-            return $this->responseError('Tipe kantor tidak valid!.', null, 400);
+            return $this->responseError('Tipe kantor tidak valid!.');
         }
 
         // Get the offices
         $offices = Profile::search($search)
-            ->where('office_type', $officeType)
+            ->query(function ($query) use ($officeType) {
+                $query->where('office_type', $officeType)
+                    ->with(['users', 'profileLimit', 'profileLimit.guarantorToProductType', 'profileLimit.guarantorToProductType.productType']);
+            })
             ->orderBy('name')
             ->paginate(
                 perPage: $perPage,
@@ -125,34 +129,18 @@ class ProfileController extends Controller
             )
             ->appends($request->except('page'));
 
-        // Get the profile IDs
-        $profileIds = collect($offices->items())->pluck('id');
-
-        // Fetch all user counts in one query
-        $userCounts = User::select('profile_id', DB::raw('COUNT(*) as users_count'))
-            ->whereIn('profile_id', $profileIds)
-            ->groupBy('profile_id')
-            ->pluck('users_count', 'profile_id');
-
-        // Assign user counts to profiles
-        collect($offices->items())->each(function ($office) use ($userCounts) {
-            $office->users_count = $userCounts[$office->id] ?? 0;
-        });
-
         // Return the profile resource
         $officeResource = ProfileResource::collection($offices);
+        $meta = [
+            'current_page' => $offices->currentPage(),
+            'from' => $offices->firstItem(),
+            'to' => $offices->lastItem(),
+            'last_page' => $offices->lastPage(),
+            'per_page' => (int) $perPage,
+            'total' => $offices->total(),
+        ];
 
-        return $this->responseSuccess('Berhasil mengambil data profiles! ', [
-            'data' => $officeResource,
-            'meta' => [
-                'current_page' => $offices->currentPage(),
-                'from' => $offices->firstItem(),
-                'to' => $offices->lastItem(),
-                'last_page' => $offices->lastPage(),
-                'per_page' => (int) $perPage,
-                'total' => $offices->total(),
-            ],
-        ]);
+        return $this->responseSuccess('Berhasil mengambil data profiles! ', data: $officeResource, meta: $meta);
     }
 
     public function index()
@@ -392,7 +380,15 @@ class ProfileController extends Controller
         try {
             DB::beginTransaction();
 
-            $profile->users()->delete();
+            $users = $profile->users();
+            $users->each(function ($user) {
+                $user->update([
+                    'username' => $user->getAttribute('username').'_deleted_'.now()->timestamp,
+                    'email' => $user->getAttribute('email').'_deleted_'.now()->timestamp,
+                    'password' => Hash::make($user->getAttribute('email')).'_deleted_'.now()->timestamp,
+                ]);
+            });
+            $users->delete();
             $profile->profileLimit()->delete();
             $profile->profileRate()->delete();
             $profile->delete();

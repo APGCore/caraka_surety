@@ -1,25 +1,25 @@
-import {useCompareRatios} from "@/common/hooks/general/use-compare-ratios";
+import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
-import {cn} from "@/common/utils/cn";
-import {formatCurrency} from "@/common/utils/format-currency";
-import {Alert, AlertDescription, AlertTitle} from "@/components/_shadcn-ui/alert";
-import {Badge} from "@/components/_shadcn-ui/badge";
-import {Button} from "@/components/_shadcn-ui/button";
-import {Card, CardContent} from "@/components/_shadcn-ui/card";
+import { toast } from "@/common/hooks/general/use-toast";
+import { cn } from "@/common/utils/cn";
+import { formatCurrency } from "@/common/utils/format-currency";
+import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
+import { Badge } from "@/components/_shadcn-ui/badge";
+import { Button } from "@/components/_shadcn-ui/button";
+import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
-import {PreviewFile} from "@/components/molecules/preview-file";
+import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import {SubmissionStatus} from "@/types/submission-status";
-import {router} from "@inertiajs/react";
+import { SubmissionStatus } from "@/types/submission-status";
+import { router } from "@inertiajs/react";
 import axios from "axios";
-import {StringToBoolean} from "class-variance-authority/types";
-import {LoaderCircle} from "lucide-react";
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import { StringToBoolean } from "class-variance-authority/types";
+import { LoaderCircle } from "lucide-react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/create-page-header";
-import {SubmissionDetailPageProps} from "./submission-detail-page.type";
-import {toast} from "@/common/hooks/general/use-toast";
+import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
 type TFormDetailStepperIndicator = {
@@ -56,7 +56,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
   }, []);
@@ -75,9 +75,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
 
   const filteredSubmission = isApproved ? initialSteps : initialSteps.slice(0, 4);
 
-  const {currentStep, steps, gotoStep} = useStepper(filteredSubmission);
+  const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
 
-  const {comparisonRatios, handleComparisonRatios} = useCompareRatios();
+  const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
@@ -292,7 +292,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoading(true);
     axios
-      .get(route("api.submission.post-to-get-callback", {submission_id: submissionId}))
+      .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
         router.reload();
@@ -308,7 +308,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
   const handleEmbedQr = () => {
     setIsLoading(true);
     router.post(
-      route("staff-submission-embedQr", {submission: submission.id}),
+      route("staff-submission-embedQr", { submission: submission.id }),
       {},
       {
         preserveScroll: true,
@@ -411,42 +411,42 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
           <div>
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
-              <tr className="border-b">
-                <td className="p-2 font-semibold w-1/2">Nama Perusahaan</td>
-                <td className="p-2">: {submission.principal?.name}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Alamat Perusahaan</td>
-                <td className="p-2">: {submission.principal?.address}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">NPWP</td>
-                <td className="p-2">: {submission.principal?.npwp}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">No Telp Perusahaan</td>
-                <td className="p-2">: {submission.principal?.telephone}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">NIB</td>
-                <td className="p-2">: {submission.principal?.nib}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Nama Direksi</td>
-                <td className="p-2">: {submission.principal?.director_name}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Jabatan</td>
-                <td className="p-2">: {submission.principal?.director_position}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Nomor Handphone</td>
-                <td className="p-2">: {submission.principal?.director_phone}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Komisaris</td>
-                <td className="p-2">: {submission.principal?.commissioner}</td>
-              </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold w-1/2">Nama Perusahaan</td>
+                  <td className="p-2">: {submission.principal?.name}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">Alamat Perusahaan</td>
+                  <td className="p-2">: {submission.principal?.address}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">NPWP</td>
+                  <td className="p-2">: {submission.principal?.npwp}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">No Telp Perusahaan</td>
+                  <td className="p-2">: {submission.principal?.telephone}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">NIB</td>
+                  <td className="p-2">: {submission.principal?.nib}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">Nama Direksi</td>
+                  <td className="p-2">: {submission.principal?.director_name}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">Jabatan</td>
+                  <td className="p-2">: {submission.principal?.director_position}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">Nomor Handphone</td>
+                  <td className="p-2">: {submission.principal?.director_phone}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold">Komisaris</td>
+                  <td className="p-2">: {submission.principal?.commissioner}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -455,25 +455,25 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
           {submission.required_docs && submission.required_docs.length > 0 ? (
             <table className="table-fixed w-full border border-gray-300">
               <thead>
-              <tr className="border-b bg-gray-100">
-                <th className="p-2 text-left">Nama Dokumen</th>
-                <th className="p-2 text-left">Deskripsi</th>
-                <th className="p-2 text-left">Aksi</th>
-              </tr>
+                <tr className="border-b bg-gray-100">
+                  <th className="p-2 text-left">Nama Dokumen</th>
+                  <th className="p-2 text-left">Deskripsi</th>
+                  <th className="p-2 text-left">Aksi</th>
+                </tr>
               </thead>
               <tbody>
-              <RenderList
-                of={submission.required_docs as Array<any>}
-                render={(doc) => {
-                  return (
-                    <tr key={doc.id} className="border-b">
-                      <td className="p-2">{doc.name}</td>
-                      <td className="p-2">{doc.description || "-"}</td>
-                      <td className="p-2">{doc?.url ? <PreviewFile preview={doc.url}/> : "File Belum Diunggah"}</td>
-                    </tr>
-                  );
-                }}
-              />
+                <RenderList
+                  of={submission.required_docs as Array<any>}
+                  render={(doc) => {
+                    return (
+                      <tr key={doc.id} className="border-b">
+                        <td className="p-2">{doc.name}</td>
+                        <td className="p-2">{doc.description || "-"}</td>
+                        <td className="p-2">{doc?.url ? <PreviewFile preview={doc.url} /> : "File Belum Diunggah"}</td>
+                      </tr>
+                    );
+                  }}
+                />
               </tbody>
             </table>
           ) : (
@@ -483,93 +483,93 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
         <Show when={currentStep.name === "contract"}>
           <table className="table-fixed w-full border border-gray-300">
             <tbody>
-            <tr className="border-b">
-              <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
-              <td className="p-2 ">: {submission.blank?.number}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold w-1/2">Produk</td>
-              <td className="p-2 ">: {submission.guarantor_to_product_type?.name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Jenis Jaminan</td>
-              <td className="p-2">: {submission.guarantor_to_product_type?.full_name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Nama Obligee</td>
-              <td className="p-2">: {submission.obligee?.name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Alamat Obligee</td>
-              <td className="p-2">: {submission.obligee?.address}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Jenis Dokumen</td>
-              <td className="p-2">: {submission.contract_doc_name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Nomor Dokumen</td>
-              <td className="p-2">: {submission.contract_doc_number}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Tanggal Dokumen</td>
-              <td className="p-2">: {submission.contract_doc_date}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Nilai Kontrak</td>
-              <td className="p-2">
-                :{" "}
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                }).format(submission.contract_value)}
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Nilai Jaminan</td>
-              <td className="p-2">
-                :{" "}
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                }).format(submission.guarantee_value)}
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Jangka Waktu</td>
-              <td className="p-2">: {submission.time_period} hari</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Nama Pekerjaan</td>
-              <td className="p-2">: {submission.job_name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
-              <td className="p-2">: {submission.guarantee_issue_date}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Lokasi Proyek</td>
-              <td className="p-2">
-                : {submission.job_location_village}, {submission.district?.name}, {submission.regency?.name},{" "}
-                {submission.province?.name}
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Sumber Dana</td>
-              <td className="p-2">: {submission.source_of_fund?.name}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Kelompok Pekerjaan</td>
-              <td className="p-2">: {submission.guarantor_to_product_type?.job_group}</td>
-            </tr>
-            <tr className="border-b">
-              <td className="p-2 font-semibold">Mulai Tanggal</td>
-              <td className="p-2">: {submission.start_date}</td>
-            </tr>
-            <tr>
-              <td className="p-2 font-semibold">Selesai Tanggal</td>
-              <td className="p-2">: {submission.end_date}</td>
-            </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
+                <td className="p-2 ">: {submission.blank?.number}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold w-1/2">Produk</td>
+                <td className="p-2 ">: {submission.guarantor_to_product_type?.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Jenis Jaminan</td>
+                <td className="p-2">: {submission.guarantor_to_product_type?.full_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Nama Obligee</td>
+                <td className="p-2">: {submission.obligee?.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Alamat Obligee</td>
+                <td className="p-2">: {submission.obligee?.address}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Jenis Dokumen</td>
+                <td className="p-2">: {submission.contract_doc_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Nomor Dokumen</td>
+                <td className="p-2">: {submission.contract_doc_number}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Tanggal Dokumen</td>
+                <td className="p-2">: {submission.contract_doc_date}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Nilai Kontrak</td>
+                <td className="p-2">
+                  :{" "}
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                  }).format(submission.contract_value)}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Nilai Jaminan</td>
+                <td className="p-2">
+                  :{" "}
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                  }).format(submission.guarantee_value)}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Jangka Waktu</td>
+                <td className="p-2">: {submission.time_period} hari</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Nama Pekerjaan</td>
+                <td className="p-2">: {submission.job_name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
+                <td className="p-2">: {submission.guarantee_issue_date}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Lokasi Proyek</td>
+                <td className="p-2">
+                  : {submission.job_location_village}, {submission.district?.name}, {submission.regency?.name},{" "}
+                  {submission.province?.name}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Sumber Dana</td>
+                <td className="p-2">: {submission.source_of_fund?.name}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Kelompok Pekerjaan</td>
+                <td className="p-2">: {submission.guarantor_to_product_type?.job_group}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 font-semibold">Mulai Tanggal</td>
+                <td className="p-2">: {submission.start_date}</td>
+              </tr>
+              <tr>
+                <td className="p-2 font-semibold">Selesai Tanggal</td>
+                <td className="p-2">: {submission.end_date}</td>
+              </tr>
             </tbody>
           </table>
         </Show>
@@ -579,145 +579,145 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
 
             <table className="table-fixed border w-full border-gray-300">
               <thead>
-              <tr className="border-b bg-gray-100">
-                <th className="p-2 font-semibold text-left w-1">Rasio</th>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return <th className="p-2 font-semibold text-center w-1">{ratio.year}</th>;
-                  }}
-                />
-              </tr>
+                <tr className="border-b bg-gray-100">
+                  <th className="p-2 font-semibold text-left w-1">Rasio</th>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <th className="p-2 font-semibold text-center w-1">{ratio.year}</th>;
+                    }}
+                  />
+                </tr>
               </thead>
               <tbody>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1">Aktiva Lancar</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return (
-                      <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.current_assets)}</td>
-                    );
-                  }}
-                />
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return (
-                      <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.current_debt)}</td>
-                    );
-                  }}
-                />
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return (
-                      <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_debt)}</td>
-                    );
-                  }}
-                />
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return (
-                      <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_assets)}</td>
-                    );
-                  }}
-                />
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.revenue)}</td>;
-                  }}
-                />
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return (
-                      <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.net_income)}</td>
-                    );
-                  }}
-                />
-              </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1">Aktiva Lancar</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return (
+                        <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.current_assets)}</td>
+                      );
+                    }}
+                  />
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1/2">Utang Lancar</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return (
+                        <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.current_debt)}</td>
+                      );
+                    }}
+                  />
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1/2">Total Utang</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return (
+                        <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_debt)}</td>
+                      );
+                    }}
+                  />
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1/2">Total Aktiva</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return (
+                        <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.total_assets)}</td>
+                      );
+                    }}
+                  />
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1/2">Pendapatan</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.revenue)}</td>;
+                    }}
+                  />
+                </tr>
+                <tr className="border-b">
+                  <td className="p-2 font-semibold text-left w-1/2">Laba Bersih</td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return (
+                        <td className="p-2 font-semibold text-center w-1/2">{formatCurrency(ratio.net_income)}</td>
+                      );
+                    }}
+                  />
+                </tr>
 
-              <tr className="border-b bg-gray-100">
-                <td className="p-2 font-semibold text-left">
-                  Rasio Likuiditas
-                  {comparisonRatios.liquidity_ratios == true && (
-                    <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                      Naik
-                    </Badge>
-                  )}
-                  {comparisonRatios.liquidity_ratios == false && (
-                    <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                      Turun
-                    </Badge>
-                  )}
-                </td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
-                  }}
-                />
-              </tr>
-              <tr className="border-b bg-gray-100">
-                <td className="p-2 font-semibold text-left">
-                  Rasio Solvabilitas
-                  {comparisonRatios.solvency_ratios == true && (
-                    <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                      Naik
-                    </Badge>
-                  )}
-                  {comparisonRatios.solvency_ratios == false && (
-                    <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                      Turun
-                    </Badge>
-                  )}
-                </td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
-                  }}
-                />
-              </tr>
-              <tr className="border-b bg-gray-100">
-                <td className="p-2 font-semibold text-left">
-                  Rasio Profitabilitas
-                  {comparisonRatios.profitability_ratios == true && (
-                    <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
-                      Naik
-                    </Badge>
-                  )}
-                  {comparisonRatios.profitability_ratios == false && (
-                    <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
-                      Turun
-                    </Badge>
-                  )}
-                </td>
-                <RenderList
-                  of={submission.principal?.ratios as Array<any>}
-                  render={(ratio: any) => {
-                    return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
-                  }}
-                />
-              </tr>
+                <tr className="border-b bg-gray-100">
+                  <td className="p-2 font-semibold text-left">
+                    Rasio Likuiditas
+                    {comparisonRatios.liquidity_ratios == true && (
+                      <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                        Naik
+                      </Badge>
+                    )}
+                    {comparisonRatios.liquidity_ratios == false && (
+                      <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                        Turun
+                      </Badge>
+                    )}
+                  </td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <td className="p-2 font-semibold text-center">{ratio.liquidity_ratios}</td>;
+                    }}
+                  />
+                </tr>
+                <tr className="border-b bg-gray-100">
+                  <td className="p-2 font-semibold text-left">
+                    Rasio Solvabilitas
+                    {comparisonRatios.solvency_ratios == true && (
+                      <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                        Naik
+                      </Badge>
+                    )}
+                    {comparisonRatios.solvency_ratios == false && (
+                      <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                        Turun
+                      </Badge>
+                    )}
+                  </td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <td className="p-2 font-semibold text-center">{ratio.solvency_ratios}</td>;
+                    }}
+                  />
+                </tr>
+                <tr className="border-b bg-gray-100">
+                  <td className="p-2 font-semibold text-left">
+                    Rasio Profitabilitas
+                    {comparisonRatios.profitability_ratios == true && (
+                      <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
+                        Naik
+                      </Badge>
+                    )}
+                    {comparisonRatios.profitability_ratios == false && (
+                      <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
+                        Turun
+                      </Badge>
+                    )}
+                  </td>
+                  <RenderList
+                    of={submission.principal?.ratios as Array<any>}
+                    render={(ratio: any) => {
+                      return <td className="p-2 font-semibold text-center">{ratio.profitability_ratios}%</td>;
+                    }}
+                  />
+                </tr>
               </tbody>
             </table>
           </div>
@@ -725,88 +725,88 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
             <h2 className="text-lg font-semibold mb-4 mt-10">Hasil Skoring</h2>
             <table className="table-fixed w-full border border-gray-300">
               <thead>
-              <tr className="border-b bg-gray-300">
-                <th className="p-2 font-semibold text-left w-[150pt]">Kategori Pertanyaan</th>
-                <th className="p-2 font-semibold text-left">Pertanyaan</th>
-                <th className="p-2 font-semibold text-left">Jawaban</th>
-                <th className="p-2 font-semibold text-center w-2/12">Point</th>
-              </tr>
+                <tr className="border-b bg-gray-300">
+                  <th className="p-2 font-semibold text-left w-[150pt]">Kategori Pertanyaan</th>
+                  <th className="p-2 font-semibold text-left">Pertanyaan</th>
+                  <th className="p-2 font-semibold text-left">Jawaban</th>
+                  <th className="p-2 font-semibold text-center w-2/12">Point</th>
+                </tr>
               </thead>
               <tbody>
-              {Object.entries(
-                submission.scores.reduce((grouped: any, score: any) => {
-                  const {scoring_question_category_id, scoring_question_category, ...rest} = score;
-                  if (!grouped[scoring_question_category_id]) {
-                    grouped[scoring_question_category_id] = {
-                      ...scoring_question_category,
-                      items: [],
-                    };
-                  }
-                  grouped[scoring_question_category_id].items.push(rest);
-                  return grouped;
-                }, {}),
-              ).map(([id, scores]: [any, any]) => {
-                console.log("scores", scores.items);
-                return (
-                  <React.Fragment key={id}>
-                    <tr className="border-b bg-gray-100">
-                      <td colSpan={4} className="p-2 font-bold">
-                        {scores.name} ({scores.max_point})
-                      </td>
-                    </tr>
-                    {scores.items.map((score: any) => (
-                      <tr key={score.id} className="border-b">
-                        <td className="p-2 text-left"></td>
-                        <td className="p-2 text-left">{score.question_name}</td>
-                        <td className="p-2 text-left">{score.scoring_option.name}</td>
-                        <td className="p-2 text-center">{score.point}</td>
+                {Object.entries(
+                  submission.scores.reduce((grouped: any, score: any) => {
+                    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
+                    if (!grouped[scoring_question_category_id]) {
+                      grouped[scoring_question_category_id] = {
+                        ...scoring_question_category,
+                        items: [],
+                      };
+                    }
+                    grouped[scoring_question_category_id].items.push(rest);
+                    return grouped;
+                  }, {}),
+                ).map(([id, scores]: [any, any]) => {
+                  console.log("scores", scores.items);
+                  return (
+                    <React.Fragment key={id}>
+                      <tr className="border-b bg-gray-100">
+                        <td colSpan={4} className="p-2 font-bold">
+                          {scores.name} ({scores.max_point})
+                        </td>
                       </tr>
-                    ))}
-                    <tr className="bg-gray-50">
-                      <td className="p-2" colSpan={3}>
-                        Sub Total:
-                      </td>
-                      <td className="p-2 text-center">
-                        {scores.items.reduce((total: number, score: any) => total + score.point, 0)}
-                      </td>
-                    </tr>
-                  </React.Fragment>
-                );
-              })}
+                      {scores.items.map((score: any) => (
+                        <tr key={score.id} className="border-b">
+                          <td className="p-2 text-left"></td>
+                          <td className="p-2 text-left">{score.question_name}</td>
+                          <td className="p-2 text-left">{score.scoring_option.name}</td>
+                          <td className="p-2 text-center">{score.point}</td>
+                        </tr>
+                      ))}
+                      <tr className="bg-gray-50">
+                        <td className="p-2" colSpan={3}>
+                          Sub Total:
+                        </td>
+                        <td className="p-2 text-center">
+                          {scores.items.reduce((total: number, score: any) => total + score.point, 0)}
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
 
               <tfoot>
-              <tr className="border-b bg-gray-300">
-                <td className="p-2 font-semibold" colSpan={3}>
-                  Total:
-                </td>
-                <td className="p-2 text-center">{submission.total_score}</td>
-              </tr>
-              <tr>
-                <td
-                  colSpan={4}
-                  className={cn({
-                    "p-2 text-center": true,
-                    "bg-green-300": submission.scores?.[0]?.scoring?.min_point < submission.total_score,
-                    "bg-red-300": submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
-                  })}>
-                  <span className="pr-1">Disarankan Untuk</span>
-                  {submission.scores?.[0]?.scoring?.min_point < submission.total_score ? (
-                    <span className="text-green-800">
+                <tr className="border-b bg-gray-300">
+                  <td className="p-2 font-semibold" colSpan={3}>
+                    Total:
+                  </td>
+                  <td className="p-2 text-center">{submission.total_score}</td>
+                </tr>
+                <tr>
+                  <td
+                    colSpan={4}
+                    className={cn({
+                      "p-2 text-center": true,
+                      "bg-green-300": submission.scores?.[0]?.scoring?.min_point < submission.total_score,
+                      "bg-red-300": submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
+                    })}>
+                    <span className="pr-1">Disarankan Untuk</span>
+                    {submission.scores?.[0]?.scoring?.min_point < submission.total_score ? (
+                      <span className="text-green-800">
                         Disetujui Karena Nilai {submission.total_score} Lebih Dari{" "}
-                      {submission.scores?.[0]?.scoring?.min_point}
+                        {submission.scores?.[0]?.scoring?.min_point}
                       </span>
-                  ) : (
-                    <span className="text-red-800">
+                    ) : (
+                      <span className="text-red-800">
                         Ditolak Karena
-                      {" Nilai " +
-                        submission.total_score +
-                        " Kurang Dari " +
-                        submission.scores?.[0]?.scoring?.min_point}
+                        {" Nilai " +
+                          submission.total_score +
+                          " Kurang Dari " +
+                          submission.scores?.[0]?.scoring?.min_point}
                       </span>
-                  )}
-                </td>
-              </tr>
+                    )}
+                  </td>
+                </tr>
               </tfoot>
             </table>
           </div>
@@ -822,7 +822,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                   <div className="flex flex-col items-center justify-center py-4">
                     {submission.callback ? (
                       <>
-                        <img src={submission.callback.url} alt="Code QR"/>
+                        <img src={submission.callback.url} alt="Code QR" />
                         <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
                           Dokumen Pendukung
                         </Button>
@@ -832,7 +832,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                       </>
                     ) : (
                       <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
-                        {isLoading && <LoaderCircle className="animate-spin mr-1"/>}
+                        {isLoading && <LoaderCircle className="animate-spin mr-1" />}
                         Cek Respon Dari Asuransi
                       </Button>
                     )}
@@ -885,7 +885,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                     if (submission.document_format_guarantor?.length) {
                       submission.document_format_guarantor.forEach((doc: any) => {
                         documentsToDisplay.push(
-                          <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <div key={doc.id} style={{ marginBottom: "20px" }}>
                             <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                             <TinyMCEEditor
                               id={doc.name.replace(/\s+/g, "-").toLowerCase()}
@@ -901,7 +901,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                     if (submission.document_format_product?.length) {
                       submission.document_format_product.forEach((doc: any) => {
                         documentsToDisplay.push(
-                          <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <div key={doc.id} style={{ marginBottom: "20px" }}>
                             <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                             <TinyMCEEditor
                               id={doc.name.replace(/\s+/g, "-").toLowerCase()}
@@ -917,7 +917,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                     if (submission.document_format_type_guarantee?.length) {
                       submission.document_format_type_guarantee.forEach((doc: any) => {
                         documentsToDisplay.push(
-                          <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <div key={doc.id} style={{ marginBottom: "20px" }}>
                             <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                             <TinyMCEEditor
                               id={doc.name.replace(/\s+/g, "-").toLowerCase()}
@@ -952,7 +952,7 @@ SubmissionDetailPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionDetailHeader title={"Detail Pengajuan"}/>
+      <SubmissionDetailHeader title={"Detail Pengajuan"} />
       {page}
     </RoleBasedLayout>
   );

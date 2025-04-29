@@ -67,19 +67,19 @@ class ReportController extends Controller
                         $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
                     })
                     ->with([
-                            'guarantor:id,name,code',
-                            'guarantorBranch:id,name,code',
-                            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                            'guarantor.guarantorRate',
-                            'product:id,name',
-                            'guarantorToProductType:id,code_product,code,name',
-                            'blanks:id,number,is_broken',
-                            'principal:id,name',
-                            'obligee:id,name',
-                            'staff:id,name,profile_id',
-                            'staff.office:id,name,code,office_type',
-                            'staff.office.profileRate',
-                        ]);
+                        'guarantor:id,name,code',
+                        'guarantorBranch:id,name,code',
+                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                        'guarantor.guarantorRate',
+                        'product:id,name',
+                        'guarantorToProductType:id,code_product,code,name',
+                        'blanks:id,number,is_broken',
+                        'principal:id,name',
+                        'obligee:id,name',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name,code,office_type',
+                        'staff.office.profileRate',
+                    ]);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)

@@ -44,10 +44,13 @@ import { PrimaryButton } from "@/_features/_common/components/button/primary-but
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
-import { Link } from "@inertiajs/react";
+import {Link, router} from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import useOffice from "../../hooks/use-office";
-import { OfficeData, OfficeType } from "../../services/office-query";
+import {OFFICE_QUERY_KEY, OfficeData, OfficeType} from "../../services/office-query";
+import {queryClient} from "@/components/organisms/provider/react-query-provider";
+import {useState} from "react";
+import {Loader} from "lucide-react";
 
 const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
   const {
@@ -63,6 +66,29 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
   } = useOffice({
     officeType,
   });
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleDelete = (id: number)=> {
+  setIsLoading(true);
+  router.delete(
+    route("branch.destroy", { profile: id }),
+    {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [OFFICE_QUERY_KEY.OFFICE_BY_TYPE],
+            refetchType: "active",
+          }),
+        ]);
+      },
+      onFinish: () => {
+        setIsLoading(false);
+      },
+    },
+  );
+  }
 
   return (
     <main className="space-y-2.5">
@@ -121,7 +147,7 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                       <TableCell>{office?.code}</TableCell>
                       <TableCell>{office?.name}</TableCell>
                       <TableCell>{office?.email ?? "-"}</TableCell>
-                      <TableCell>{office?.users_count === 0 ? "-" : Number(office?.users_count)}</TableCell>
+                      <TableCell>{office?.users?.length}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -210,15 +236,17 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction
+                                    <Button
                                       onClick={() => {
-                                        // deleteData(profile);
+                                        handleDelete(office.id);
                                       }}
                                       className={buttonVariants({
                                         variant: "destructive",
-                                      })}>
+                                      })}
+                                    >
+                                      {isLoading && <Loader/>}
                                       Lanjutkan Hapus
-                                    </AlertDialogAction>
+                                    </Button>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
