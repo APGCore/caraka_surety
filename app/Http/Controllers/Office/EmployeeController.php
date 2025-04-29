@@ -85,20 +85,25 @@ class EmployeeController extends Controller
    */
   public function store(Request $request)
   {
-    $requestValid = $request->validate([
-      'name' => 'required|string',
-      'username' => 'required|string|unique:users,username,NULL,id,deleted_at,NULL',
-      'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
-      'password' => 'required|string|min:8',
-      'password_confirmation' => 'required|same:password',
-      'phone' => 'nullable|string',
-      'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      'head_id' => 'nullable|exists:users,id',
-      'profile_id' => 'required|exists:profiles,id',
-      'role_id' => 'required|exists:roles,id',
-    ]);
+    // $requestValid = $request->validate([
+    //   'name' => 'required|string',
+    //   'username' => 'required|string|unique:users,username,NULL,id,deleted_at,NULL',
+    //   'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
+    //   'password' => 'required|string|min:8',
+    //   'password_confirmation' => 'required|same:password',
+    //   'phone' => 'nullable|string',
+    //   'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //   'head_id' => 'nullable|exists:users,id',
+    //   'profile_id' => 'required|exists:profiles,id',
+    //   'role_id' => 'required|exists:roles,id',
+    // ]);
+
+
 
     try {
+
+      $requestValid = $request->all();
+
       DB::beginTransaction();
 
       $requestValid['password'] = Hash::make($requestValid['password']);
@@ -339,24 +344,28 @@ class EmployeeController extends Controller
     //     'password_confirmation' => 'nullable|required_with:password|same:password',
     // ]);
 
-    $requestValid = $request->validate([
-      'name' => 'required|string',
-      'username' => 'required|string|unique:' . User::class . ',username,' . $employee->getAttribute('id') . ',deleted_at,NULL',
-      'email' => 'nullable|email|unique:' . User::class . ',email,' . $employee->getAttribute('id') . ',deleted_at,NULL',
-      'phone' => 'nullable|string',
-      'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      'head_id' => 'nullable|exists:users,id',
-      'profile_id' => 'required|exists:profiles,id',
-      'role_id' => 'required|exists:roles,id',
-      'password' => 'nullable|string|min:8',
-      'password_confirmation' => 'nullable|required_with:password|same:password',
-    ]);
+    // $requestValid = $request->validate([
+    //   'name' => 'required|string',
+    //   'username' => 'required|string|unique:' . User::class . ',username,' . $employee->getAttribute('id') . ',deleted_at,NULL',
+    //   'email' => 'nullable|email|unique:' . User::class . ',email,' . $employee->getAttribute('id') . ',deleted_at,NULL',
+    //   'phone' => 'nullable|string',
+    //   'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //   'head_id' => 'nullable|exists:users,id',
+    //   'profile_id' => 'required|exists:profiles,id',
+    //   'role_id' => 'required|exists:roles,id',
+    //   'password' => 'nullable|string|min:8',
+    //   'password_confirmation' => 'nullable|required_with:password|same:password',
+    // ]);
 
 
-    // get $requestValid value not null
-    $requestValid['password'] = $requestValid['password'] ? Hash::make($requestValid['password']) : null;
-    $requestValid = array_filter($requestValid, fn($value) => $value !== null);
+
     try {
+      $requestValid = $request->all();
+
+      // get $requestValid value not null
+      $requestValid['password'] = $requestValid['password'] ? Hash::make($requestValid['password']) : null;
+      $requestValid = array_filter($requestValid, fn($value) => $value !== null);
+
       DB::beginTransaction();
 
       $user = User::query()->with('office')->find($employee->getAttribute('id'));
