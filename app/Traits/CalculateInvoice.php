@@ -20,7 +20,7 @@ trait CalculateInvoice
 
         $managementFee = (float) ($profileRate?->getAttribute('management_fee') ?? 0) / 100;
         $minimum = (float) $profileRate?->getAttribute('minimum_management_fee') ?? 0;
-        $serviceChargeCentral = (float) $timePeriode > 90 ? ($guaranteeValue * $managementFee * $timePeriode / 90) : ($guaranteeValue * $managementFee);
+        $serviceChargeCentral = (float) $timePeriode > 90 ? (($guaranteeValue * $managementFee * ($timePeriode + 1)) / 90) : ($guaranteeValue * $managementFee);
         $totalCentral = max($serviceChargeCentral, $minimum);
 
         return collect([
