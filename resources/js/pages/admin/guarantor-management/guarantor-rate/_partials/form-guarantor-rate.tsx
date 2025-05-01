@@ -31,6 +31,8 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
     stamp_duty?: string;
     broken_rate?: string;
     revised_rate?: string;
+    commission?: number;
+    pph?: number;
   }>({
     guarantor_id: guarantorId,
     guarantor_branch_id: guarantorBranchId ?? undefined,
@@ -41,6 +43,8 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
     stamp_duty: rate?.stamp_duty?.toString() ?? "",
     broken_rate: rate?.broken_rate?.toString() ?? "",
     revised_rate: rate?.revised_rate?.toString() ?? "",
+    commission: rate?.commission ?? "",
+    pph: rate?.pph ?? "",
   });
 
   const submit = () => {
@@ -155,6 +159,46 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
             </div>
 
             <InputError message={errors?.revised_rate} />
+          </div>
+        </div>
+        <div className="p-0">
+          <div className="space-y-2">
+            <label htmlFor="commission" className="block text-sm font-medium text-gray-700">
+              Komisi
+            </label>
+            <div className="flex items-center space-x-4">
+              <Input
+                type="number"
+                id="commission"
+                name="commission"
+                value={data.commission}
+                step="0.00001"
+                min="0"
+                onChange={(e) => setData({ ...data, commission: Number(e.currentTarget.value) })}
+              />
+              <span className="text-gray-900 text-sm">%</span>
+            </div>
+
+            <InputError message={errors?.commission} />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="pph" className="block text-sm font-medium text-gray-700">
+              PPH 23
+            </label>
+            <div className="flex items-center space-x-4">
+              <Input
+                type="number"
+                id="pph"
+                name="pph"
+                value={data.pph}
+                step="0.00001"
+                min="0"
+                onChange={(e) => setData({ ...data, pph: Number(e.currentTarget.value) })}
+              />
+              <span className="text-gray-900 text-sm">%</span>
+            </div>
+
+            <InputError message={errors?.pph} />
           </div>
         </div>
       </div>

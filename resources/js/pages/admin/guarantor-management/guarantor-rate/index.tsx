@@ -104,16 +104,16 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           className={"min-w-[160px]"}
           onSelect={(value) => handleSelectGuarantor(value.id)}
         />
-        <Combobox
-          datas={guarantorBranches}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValueId={guarantorBranchSelected}
-          placeholder={"Pilih Cabang Asuransi"}
-          className={"min-w-[160px]"}
-          isSelectFirst={!guarantorBranchSelected}
-          onSelect={(value) => handleSelectGuarantorBranch(value.id)}
-        />
+        {/*<Combobox*/}
+        {/*  datas={guarantorBranches}*/}
+        {/*  labelKey={"name"}*/}
+        {/*  valueKey={"name"}*/}
+        {/*  defaultValueId={guarantorBranchSelected}*/}
+        {/*  placeholder={"Pilih Cabang Asuransi"}*/}
+        {/*  className={"min-w-[160px]"}*/}
+        {/*  isSelectFirst={!guarantorBranchSelected}*/}
+        {/*  onSelect={(value) => handleSelectGuarantorBranch(value.id)}*/}
+        {/*/>*/}
         <Combobox
           datas={products}
           labelKey={"name"}
@@ -124,19 +124,21 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
           shortValue={true}
           onSelect={(value) => handleSelectProduct(value.id)}
         />
-        <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
-          <SelectTrigger>
-            <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <RenderList
-                of={jobGroups}
-                render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
-              />
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <div>
+          <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih Kelompok Pekarjaan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <RenderList
+                  of={jobGroups}
+                  render={(jobGroup: string) => <SelectItem value={jobGroup}>{jobGroup}</SelectItem>}
+                />
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <GuarantorRateDatatable
         guarantorId={guarantorSelected}

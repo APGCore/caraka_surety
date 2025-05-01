@@ -145,6 +145,8 @@ class OfficeRateController extends Controller
                 'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
                 'management_fee' => $requestValid['management_fee'],
                 'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
+                'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
+                'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
             ];
 
             $guarantorRate = ProfileRate::query()
