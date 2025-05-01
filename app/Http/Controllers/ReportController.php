@@ -67,17 +67,37 @@ class ReportController extends Controller
                         $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
                     })
                     ->with([
-                        'guarantor:id,name,code',
-                        'guarantorBranch:id,name,code',
-                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                        'guarantor' => function ($query) {
+                            $query->select(['id', 'name', 'code'])->withTrashed();
+                        },
+                        'guarantorBranch' => function ($query) {
+                            $query->select(['id', 'name', 'code'])->withTrashed();
+                        },
+                        'guarantor.pattern' => function ($query) {
+                            $query->select(['id', 'guarantor_id', 'prefix', 'content', 'suffix']);
+                        },
                         'guarantor.guarantorRate',
-                        'product:id,name',
-                        'guarantorToProductType:id,code_product,code,name',
-                        'blanks:id,number,is_broken',
-                        'principal:id,name',
-                        'obligee:id,name',
-                        'staff:id,name,profile_id',
-                        'staff.office:id,name,code,office_type',
+                        'product' => function ($query) {
+                            $query->select(['id', 'name'])->withTrashed();
+                        },
+                        'guarantorToProductType' => function ($query) {
+                            $query->select(['id', 'code_product', 'code', 'name'])->withTrashed();
+                        },
+                        'blanks' => function ($query) {
+                            $query->select(['blanks.id', 'blanks.number', 'blanks.is_broken'])->withTrashed();
+                        },
+                        'principal' => function ($query) {
+                            $query->select(['id', 'name'])->withTrashed();
+                        },
+                        'obligee' => function ($query) {
+                            $query->select(['id', 'name'])->withTrashed();
+                        },
+                        'staff' => function ($query) {
+                            $query->select(['id', 'name', 'profile_id'])->withTrashed();
+                        },
+                        'staff.office' => function ($query) {
+                            $query->select(['id', 'name', 'code', 'office_type'])->withTrashed();
+                        },
                         'staff.office.profileRate',
                     ]);
             })
@@ -97,34 +117,42 @@ class ReportController extends Controller
                 $submission->save();
             }
             $submission->blank = $blank;
-            $calculateCentralOffice = $this->calculateForCentralOffice($submission);
-            $calculateGuarantor = $this->calculateForGuarantor($submission);
-            $submission->central_office_rate = [
-                'minimum' => $calculateCentralOffice->get('minimum'),
-                'management_fee' => $calculateCentralOffice->get('management_fee') * 100,
-                'service_charge' => $calculateCentralOffice->get('service_charge_central'),
-                'total' => $calculateCentralOffice->get('total_central'),
+            // get invoice
+            $officeRate = $this->calculateOffice($submission);
+            $guarantorRate = $this->calculateGuarantor($submission);
+            $submission->rate = (object) [
+                'office_rate' => $officeRate,
+                'guarantor_rate' => $guarantorRate,
+                'difference' => $officeRate['total'] - $guarantorRate['total'],
             ];
-            if ($submission->staff?->office?->office_type === OfficeType::BRANCH->value) {
-                $calculateOffice = $this->calculateForBranchOffice($submission);
-                $submission->branch_office_rate = [
-                    'minimum_bill' => $calculateOffice->get('minimum_bill'),
-                    'selling_rate' => $calculateOffice->get('selling_rate') * 100,
-                    'sales_administration' => $calculateOffice->get('sales_administration'),
-                    'service_charge' => $calculateOffice->get('service_charge_branch'),
-                    'total' => $calculateOffice->get('total_branch'),
-                ];
-            }
-            $submission->guarantor_rate = [
-                'minimum_payment' => $calculateGuarantor->get('minimum_payment'),
-                'pay_rate' => $calculateGuarantor->get('pay_rate') * 100,
-                'payment_administration' => $calculateGuarantor->get('payment_administration'),
-                'stamp_duty' => $calculateGuarantor->get('stamp_duty'),
-                'broken_rate' => $calculateGuarantor->get('broken_rate'),
-                'revised_rate' => $calculateGuarantor->get('revised_rate'),
-                'service_charge' => $calculateGuarantor->get('service_charge'),
-                'total' => $calculateGuarantor->get('total'),
-            ];
+            //            $calculateCentralOffice = $this->calculateForCentralOffice($submission);
+            //            $calculateGuarantor = $this->calculateForGuarantor($submission);
+            //            $submission->central_office_rate = [
+            //                'minimum' => $calculateCentralOffice->get('minimum'),
+            //                'rate' => $calculateCentralOffice->get('rate') * 100,
+            //                'service_charge' => $calculateCentralOffice->get('service_charge_central'),
+            //                'total' => $calculateCentralOffice->get('total_central'),
+            //            ];
+            //            if ($submission->staff?->office?->office_type === OfficeType::BRANCH->value) {
+            //                $calculateOffice = $this->calculateForBranchOffice($submission);
+            //                $submission->branch_office_rate = [
+            //                    'minimum_bill' => $calculateOffice->get('minimum_bill'),
+            //                    'selling_rate' => $calculateOffice->get('selling_rate') * 100,
+            //                    'sales_administration' => $calculateOffice->get('sales_administration'),
+            //                    'service_charge' => $calculateOffice->get('service_charge_branch'),
+            //                    'total' => $calculateOffice->get('total_branch'),
+            //                ];
+            //            }
+            //            $submission->guarantor_rate = [
+            //                'minimum_payment' => $calculateGuarantor->get('minimum_payment'),
+            //                'pay_rate' => $calculateGuarantor->get('pay_rate') * 100,
+            //                'payment_administration' => $calculateGuarantor->get('payment_administration'),
+            //                'stamp_duty' => $calculateGuarantor->get('stamp_duty'),
+            //                'broken_rate' => $calculateGuarantor->get('broken_rate'),
+            //                'revised_rate' => $calculateGuarantor->get('revised_rate'),
+            //                'service_charge' => $calculateGuarantor->get('service_charge'),
+            //                'total' => $calculateGuarantor->get('total'),
+            //            ];
         }
 
         $resource = SubmissionResource::collection($submissions);

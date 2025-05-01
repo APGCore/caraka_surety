@@ -129,6 +129,8 @@ class GuarantorRateController extends Controller
                 'stamp_duty' => $this->currencyConvert($requestValid['stamp_duty']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
+                'commission' => $requestValid['commission'],
+                'pph' => $requestValid['pph'],
             ];
 
             $guarantorRate = GuarantorRate::query()

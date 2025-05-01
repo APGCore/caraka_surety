@@ -32,6 +32,8 @@ class StoreRequest extends FormRequest
             'stamp_duty' => ['required', 'string'],
             'broken_rate' => ['required', 'string'],
             'revised_rate' => ['required', 'string'],
+            'commission' => ['required', 'numeric'],
+            'pph' => ['required', 'numeric'],
         ];
     }
 }

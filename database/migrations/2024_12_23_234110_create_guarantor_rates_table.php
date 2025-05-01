@@ -25,6 +25,8 @@ return new class extends Migration
             $table->float('stamp_duty', 5)->default(0);
             $table->float('broken_rate', 5)->default(0);
             $table->float('revised_rate', 5)->default(0);
+            $table->float('commission', 5)->default(0);
+            $table->float('pph', 5)->default(0);
             $table->timestamps();
         });
     }

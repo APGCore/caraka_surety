@@ -34,16 +34,20 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
     sales_administration?: string;
     management_fee?: number;
     minimum_management_fee?: string;
+    broken_rate?: string;
+    revised_rate?: string;
   }>({
     profile_id: profileId,
     guarantor_id: guarantorId,
     guarantor_branch_id: guarantorBranchId ?? undefined,
     guarantor_to_product_type_id: guarantorToProductTypeId,
-    minimum_bill: textCurrency(rate?.minimum_bill),
+    minimum_bill: rate?.minimum_bill?.toString() ?? "",
     selling_rate: rate?.selling_rate,
-    sales_administration: textCurrency(rate?.sales_administration),
+    sales_administration: rate?.sales_administration?.toString() ?? "",
     management_fee: rate?.management_fee,
-    minimum_management_fee: textCurrency(rate?.minimum_management_fee),
+    minimum_management_fee: rate?.minimum_management_fee?.toString() ?? "",
+    broken_rate: rate?.broken_rate?.toString() ?? "",
+    revised_rate: rate?.revised_rate?.toString() ?? "",
   });
 
   const submit = () => {
@@ -126,38 +130,65 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
         </Show>
         <div className="p-0">
           <div className="space-y-2">
-            <label htmlFor="management_fee" className="block text-sm font-medium text-gray-700">
-              Management Fee
-            </label>
-            <div className="flex items-center space-x-4">
-              <Input
-                type="number"
-                id="management_fee"
-                name="management_fee"
-                value={data.management_fee}
-                step="0.00001"
-                min="0"
-                onChange={(e) => setData({ ...data, management_fee: Number(e.currentTarget.value) })}
-              />
-              <span className="text-gray-900 text-sm">%</span>
-            </div>
-
-            <InputError message={errors?.management_fee} />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="minimum_management_fee" className="block text-sm font-medium text-gray-700">
-              Minimum Management Fee
+            <label htmlFor="broken_rate" className="block text-sm font-medium text-gray-700">
+              Tarif Blangko Rusak
             </label>
             <div className="flex items-center space-x-4">
               <InputCurrency
-                value={data.minimum_management_fee?.toString() ?? ""}
-                onChange={(e) => setData({ ...data, minimum_management_fee: e })}
+                value={data.broken_rate?.toString() ?? ""}
+                onChange={(e) => setData({ ...data, broken_rate: e })}
               />
             </div>
 
-            <InputError message={errors?.minimum_management_fee} />
+            <InputError message={errors?.broken_rate} />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="revised_rate" className="block text-sm font-medium text-gray-700">
+              Tarif blangko Revisi
+            </label>
+            <div className="flex items-center space-x-4">
+              <InputCurrency
+                value={data.revised_rate?.toString() ?? ""}
+                onChange={(e) => setData({ ...data, revised_rate: e })}
+              />
+            </div>
+
+            <InputError message={errors?.revised_rate} />
           </div>
         </div>
+        {/*  <div className="space-y-2">*/}
+        {/*    <label htmlFor="management_fee" className="block text-sm font-medium text-gray-700">*/}
+        {/*      Management Fee*/}
+        {/*    </label>*/}
+        {/*    <div className="flex items-center space-x-4">*/}
+        {/*      <Input*/}
+        {/*        type="number"*/}
+        {/*        id="management_fee"*/}
+        {/*        name="management_fee"*/}
+        {/*        value={data.management_fee}*/}
+        {/*        step="0.00001"*/}
+        {/*        min="0"*/}
+        {/*        onChange={(e) => setData({ ...data, management_fee: Number(e.currentTarget.value) })}*/}
+        {/*      />*/}
+        {/*      <span className="text-gray-900 text-sm">%</span>*/}
+        {/*    </div>*/}
+
+        {/*    <InputError message={errors?.management_fee} />*/}
+        {/*  </div>*/}
+        {/*  <div className="space-y-2">*/}
+        {/*    <label htmlFor="minimum_management_fee" className="block text-sm font-medium text-gray-700">*/}
+        {/*      Minimum Management Fee*/}
+        {/*    </label>*/}
+        {/*    <div className="flex items-center space-x-4">*/}
+        {/*      <InputCurrency*/}
+        {/*        value={data.minimum_management_fee?.toString() ?? ""}*/}
+        {/*        onChange={(e) => setData({ ...data, minimum_management_fee: e })}*/}
+        {/*      />*/}
+        {/*    </div>*/}
+
+        {/*    <InputError message={errors?.minimum_management_fee} />*/}
+        {/*  </div>*/}
+        {/*</div>*/}
       </div>
       <div className="flex justify-end gap-x-3">
         <Button type="reset" onClick={handleBack}>

@@ -32,6 +32,8 @@ class StoreRequest extends FormRequest
             'sales_administration' => ['required', 'string'],
             'management_fee' => ['required', 'numeric'],
             'minimum_management_fee' => ['required', 'string'],
+            'broken_rate' => ['required', 'string'],
+            'revised_rate' => ['required', 'string'],
         ];
     }
 }

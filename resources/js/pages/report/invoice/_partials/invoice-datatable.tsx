@@ -7,6 +7,8 @@ import { PaginationDatatable } from "@/components/molecules/datatable/pagination
 import InvoiceCentralOffice from "@/pages/report/invoice/_partials/invoice-central-office";
 import InvoiceDetailDatatable from "@/pages/report/invoice/_partials/invoice-detail-datatable";
 import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";
+import InvoiceOffice from "@/pages/report/invoice/_partials/invoice-office";
+import { difference } from "lodash";
 import React, { useState } from "react";
 import InvoiceBranchOffice from "./invoice-branch-office";
 
@@ -63,24 +65,26 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                   </TableRow>
                   <TableRow key={"detail-invoice-" + submission.id}>
                     <TableCell colSpan={11} className="p-0">
-                      <div className="flex align-center w-full">
-                        <div className="bg-orange-300 hover:bg-orange-300 p-2 w-full">
-                          <InvoiceCentralOffice centralOfficeRate={submission.central_office_rate} />
-                        </div>
-                        <Show when={submission.branch_office_rate}>
-                          <div className="bg-blue-300 hover:bg-blue-300 p-2 w-full">
-                            <InvoiceBranchOffice
-                              branchName={submission.staff.office}
-                              branchOfficeRate={submission.branch_office_rate}
-                            />
-                          </div>
-                        </Show>
-                        <div className="bg-green-300 hover:bg-green-300 p-2 w-full">
-                          <InvoiceGuarantor
-                            guarantorName={submission.guarantor?.name}
-                            guarantorRate={submission.guarantor_rate}
-                          />
-                        </div>
+                      <div className="w-full">
+                        <Table>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell align="center" className="align-top bg-blue-300 hover:bg-blue-300 p-2 w-[50%]">
+                                <InvoiceOffice officeRate={submission.rate.office_rate} />
+                              </TableCell>
+                              <TableCell className="bg-orange-300 hover:bg-orange-300 p-2 w-[50%]">
+                                <InvoiceGuarantor
+                                  guarantorName={submission.guarantor?.name}
+                                  guarantorRate={submission.rate.guarantor_rate}
+                                />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow className="bg-green-300 hover:bg-green-300 p-2">
+                              <TableCell>Selisih Total</TableCell>
+                              <TableCell>: {formatCurrency(submission.rate.difference)}</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -89,7 +93,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={11} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

@@ -44,13 +44,13 @@ import { PrimaryButton } from "@/_features/_common/components/button/primary-but
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
-import {Link, router} from "@inertiajs/react";
+import { queryClient } from "@/components/organisms/provider/react-query-provider";
+import { Link, router } from "@inertiajs/react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Loader } from "lucide-react";
+import { useState } from "react";
 import useOffice from "../../hooks/use-office";
-import {OFFICE_QUERY_KEY, OfficeData, OfficeType} from "../../services/office-query";
-import {queryClient} from "@/components/organisms/provider/react-query-provider";
-import {useState} from "react";
-import {Loader} from "lucide-react";
+import { OFFICE_QUERY_KEY, OfficeData, OfficeType } from "../../services/office-query";
 
 const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
   const {
@@ -66,13 +66,11 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
   } = useOffice({
     officeType,
   });
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleDelete = (id: number)=> {
-  setIsLoading(true);
-  router.delete(
-    route("branch.destroy", { profile: id }),
-    {
+  const handleDelete = (id: number) => {
+    setIsLoading(true);
+    router.delete(route("branch.destroy", { profile: id }), {
       preserveState: true,
       preserveScroll: true,
       onSuccess: async () => {
@@ -86,9 +84,8 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
       onFinish: () => {
         setIsLoading(false);
       },
-    },
-  );
-  }
+    });
+  };
 
   return (
     <main className="space-y-2.5">
@@ -242,9 +239,8 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                                       }}
                                       className={buttonVariants({
                                         variant: "destructive",
-                                      })}
-                                    >
-                                      {isLoading && <Loader/>}
+                                      })}>
+                                      {isLoading && <Loader />}
                                       Lanjutkan Hapus
                                     </Button>
                                   </AlertDialogFooter>
