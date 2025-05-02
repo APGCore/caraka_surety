@@ -143,8 +143,8 @@ class OfficeRateController extends Controller
                 'minimum_bill' => $this->currencyConvert($requestValid['minimum_bill']),
                 'selling_rate' => $requestValid['selling_rate'],
                 'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
-                'management_fee' => $requestValid['management_fee'],
-                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
+//                'management_fee' => $requestValid['management_fee'],
+//                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
             ];
