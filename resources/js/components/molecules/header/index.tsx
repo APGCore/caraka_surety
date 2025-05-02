@@ -22,12 +22,13 @@ const HeaderPage: React.FC<IHeaderPage> = (props) => {
         <BreadcrumbList>
           <RenderList
             of={props?.page_settings?.breadcrumb}
-            render={(item: { title: string }, index) => {
+            render={(item: { title: string; link: string }, index) => {
               return (
                 <>
                   <BreadcrumbItem>
                     <Show when={index !== props?.page_settings?.breadcrumb?.length - 1}>
-                      <BreadcrumbLink href={route("products.index")}>{item?.title}</BreadcrumbLink>
+                      {/*<BreadcrumbLink href={route(item.link)}>{item?.title}</BreadcrumbLink>*/}
+                      <BreadcrumbPage>{item?.title}</BreadcrumbPage>
                     </Show>
                     <Show when={index === props?.page_settings?.breadcrumb?.length - 1}>
                       <BreadcrumbPage>{item?.title}</BreadcrumbPage>

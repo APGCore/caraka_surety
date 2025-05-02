@@ -54,7 +54,7 @@ class DistributionOfBlankController extends Controller
                       ->where('guarantor_id', $guarantorSelected)
                       ->when($isAddBlank, function ($query) {
                           $query->whereNull('profile_id')
-                              ->where('is_used', false);
+                              ->where('is_picked', false);
                       })
                       ->when(! $isAddBlank, function ($query) use ($officeSelected) {
                           $query->where('profile_id', $officeSelected);
@@ -130,7 +130,7 @@ class DistributionOfBlankController extends Controller
             DB::beginTransaction();
             $guarantorId = $blank->getAttribute('guarantor_id');
             $profileId = $blank->getAttribute('profile_id');
-            if ($blank->getAttribute('is_used')) {
+            if ($blank->getAttribute('is_picked')) {
                 flashMessage('Gagal', 'Blangko sudah digunakan', 'error');
 
                 return back()->withErrors(['errors' => 'Blangko sudah digunakan']);
@@ -161,7 +161,7 @@ class DistributionOfBlankController extends Controller
         $blanks = Blank::query()
             ->where('guarantor_id', $request->get('guarantor_id'))
             ->where('profile_id', $request->get('profile_id'))
-            ->where('is_used', false)
+            ->where('is_picked', false)
             ->orderBy('number')
             ->get();
 
@@ -172,7 +172,7 @@ class DistributionOfBlankController extends Controller
     {
         $blanks = Blank::query()
             ->whereNull('profile_id')
-            ->where('is_used', false)
+            ->where('is_picked', false)
             ->when($request->get('guarantor_id'), function ($query) use ($request) {
                 $query->where('guarantor_id', $request->get('guarantor_id'));
             })

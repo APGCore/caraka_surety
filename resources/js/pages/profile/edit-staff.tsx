@@ -10,7 +10,7 @@ export default function Edit({
   status,
   auth,
   roles,
-  roles_names
+  roles_names,
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
@@ -23,7 +23,7 @@ export default function Edit({
     status,
     auth,
     roles,
-    roles_names
+    roles_names,
   };
   return (
     <RoleBasedLayout propsData={propsData}>
