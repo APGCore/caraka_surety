@@ -306,7 +306,7 @@ const Form: React.FC<Props> = ({ branchOffice, routeSubmit, routeBack, type }) =
       />
 
       <div className="flex items-center gap-4 justify-end">
-        <Button variant={"destructive"} onClick={cancel}>
+        <Button variant={"destructive"} type="button" onClick={cancel}>
           Batal
         </Button>
         <Button disabled={processing}>
