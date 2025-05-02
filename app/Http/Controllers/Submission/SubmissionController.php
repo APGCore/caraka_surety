@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Submission;
 
+use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
@@ -172,10 +173,8 @@ class SubmissionController extends Controller
             $scoring = $validated['scoring'];
             $isEdit = isset($submission['id']);
 
-            // get user staff
-            $staff = auth()->user();
-            $profile = Profile::query()
-                ->find($staff->profile_id);
+            // get profile
+            $profile = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
 
             // get blanks
             $blank = Blank::query()
