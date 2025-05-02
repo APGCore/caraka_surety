@@ -107,8 +107,8 @@ const OfficeForm = ({ office }: OfficeFormProps) => {
   }, [office]);
 
   const handleBack = () => {
-    router.get(route('branch.index'));
-  }
+    router.get(route("branch.index"));
+  };
 
   const handleSubmitForm = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -320,7 +320,9 @@ const OfficeForm = ({ office }: OfficeFormProps) => {
       </div>
 
       <div className="flex items-center gap-4 justify-end">
-        <Button variant={"destructive"} type="button" onClick={handleBack}>Batal</Button>
+        <Button variant={"destructive"} type="button" onClick={handleBack}>
+          Batal
+        </Button>
         <Button disabled={processing} type="submit">
           <Loading isLoading={processing} className="mr-1" /> Simpan
         </Button>

@@ -104,19 +104,6 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             )}
           </div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
-            Rasio Solvabilitas
-            {comparisonRatios.solvency_ratios == true && (
-              <Badge variant="success" className="flex-shrink-0 h-6">
-                Naik
-              </Badge>
-            )}
-            {comparisonRatios.solvency_ratios == false && (
-              <Badge variant="destructive" className="flex-shrink-0 h-6">
-                Turun
-              </Badge>
-            )}
-          </div>
-          <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Profitabilitas
             {comparisonRatios.profitability_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
@@ -124,6 +111,19 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               </Badge>
             )}
             {comparisonRatios.profitability_ratios == false && (
+              <Badge variant="destructive" className="flex-shrink-0 h-6">
+                Turun
+              </Badge>
+            )}
+          </div>
+          <div className="pt-2 text-black h-[45px] flex justify-between">
+            Rasio Solvabilitas
+            {comparisonRatios.solvency_ratios == true && (
+              <Badge variant="success" className="flex-shrink-0 h-6">
+                Naik
+              </Badge>
+            )}
+            {comparisonRatios.solvency_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>
@@ -276,10 +276,10 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.liquidity_ratios ?? "??"}</div>
-          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {firstRatio?.profitability_ratios !== undefined ? firstRatio?.profitability_ratios.toString() + "%" : "??"}{" "}
           </div>
+          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
         </div>
         {/* Second Ratio */}
         <div className="grid gap-3 w-full">
@@ -389,12 +389,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
             />
           </div>
           <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.liquidity_ratios ?? "??"}</div>
-          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
             {secondRatio?.profitability_ratios !== undefined
               ? secondRatio?.profitability_ratios.toString() + "%"
               : "??"}{" "}
           </div>
+          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
         </div>
       </div>
     </>

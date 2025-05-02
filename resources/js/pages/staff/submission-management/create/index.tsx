@@ -1604,7 +1604,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                             <Label className="text-sm">Kode Pos</Label>
                             <Input
                               className="text-md"
-                              placeholder="Masukan nama Desa"
+                              placeholder="Masukan kode pos"
                               value={data.submission.job_location_postal_code}
                               onChange={(e) =>
                                 setData("submission", {
