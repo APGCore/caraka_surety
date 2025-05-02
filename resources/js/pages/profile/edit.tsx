@@ -13,18 +13,21 @@ export default function Edit({
   auth,
   profile,
   roles,
+  roles_names,
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
   auth: object;
   profile: object;
   roles: Roles;
+  roles_names: object;
 }>) {
   const propsData = {
     mustVerifyEmail,
     status,
     auth,
     profile,
+    roles_names,
     roles,
   };
   return (

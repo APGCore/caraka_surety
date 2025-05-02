@@ -1114,7 +1114,7 @@ class SubmissionController extends Controller
                 'is_used' => null,
                 'is_broken' => null,
                 'is_revised' => null,
-                'is_approved' => null
+                'is_approved' => null,
             ]);
             $updated = $submission->update([
                 'checked_by' => $checkedBy ?? auth()->id(),

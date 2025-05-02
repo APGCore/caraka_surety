@@ -22,7 +22,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
   };
   page_settings: {
     title: string;
-    breadcrumb: { title: string }[];
+    breadcrumb: { title: string; link: string }[];
   };
   ziggy?: Config & { location: string };
   flash_message?: FlashMessageProps;
