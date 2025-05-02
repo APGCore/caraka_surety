@@ -1110,6 +1110,13 @@ class SubmissionController extends Controller
 
             $checkedBy = $submission->getAttribute('checked_by');
             $checkedAt = $submission->getAttribute('checked_at');
+            $submission->blanks()->update([
+                'is_picked' => null,
+                'is_used' => null,
+                'is_broken' => null,
+                'is_revised' => null,
+                'is_approved' => null
+            ]);
             $updated = $submission->update([
                 'checked_by' => $checkedBy ?? auth()->id(),
                 'checked_at' => $checkedAt ?? $dateNow,
