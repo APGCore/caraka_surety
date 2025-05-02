@@ -10,17 +10,20 @@ export default function Edit({
   status,
   auth,
   roles,
+  roles_names
 }: PageProps<{
   mustVerifyEmail: boolean;
   status?: string;
   auth: object;
   roles: Roles;
+  roles_names: object;
 }>) {
   const propsData = {
     mustVerifyEmail,
     status,
     auth,
     roles,
+    roles_names
   };
   return (
     <RoleBasedLayout propsData={propsData}>
