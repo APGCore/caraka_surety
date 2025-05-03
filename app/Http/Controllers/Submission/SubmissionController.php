@@ -853,10 +853,12 @@ class SubmissionController extends Controller
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
         $officeSelected = $officeFilter->officeSelected;
+        $status = SubmissionStatus::getValues();
+        $statusSelected = $request['status_selected'] ?? null;
 
         $submissions = Submission::search($request->get('search'))
             ->query(
-                function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $officeSelected) {
+                function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $officeSelected, $statusSelected) {
                     $query->where('guarantor_id', $this->guarantorId)
                         ->when($isStaff, function ($query) use ($authId) {
                             $query->where('staff_id', '=', $authId);
@@ -870,10 +872,13 @@ class SubmissionController extends Controller
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
-                        ->when($officeSelected, function ($query) use ($officeSelected) {
+                        ->when($officeSelected && ! $isStaff, function ($query) use ($officeSelected) {
                             $query->whereHas('staff', function ($query) use ($officeSelected) {
                                 $query->where('profile_id', $officeSelected);
                             });
+                        })
+                        ->when($statusSelected, function ($query) use ($statusSelected) {
+                            $query->where('status', $statusSelected);
                         })
                         ->with(['scores', 'principal', 'bank', 'obligee', 'employeeLimit',
                             'sourceOfFund', 'guarantor', 'guarantorToProductType',
@@ -913,6 +918,8 @@ class SubmissionController extends Controller
             'offices' => $offices,
             'officeTypeSelected' => $officeTypeSelected,
             'officeSelected' => $officeSelected,
+            'status' => $status,
+            'statusSelected' => $statusSelected,
         ]);
     }
 
