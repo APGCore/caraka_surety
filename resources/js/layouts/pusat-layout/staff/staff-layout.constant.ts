@@ -20,7 +20,7 @@ export const staffRoute: IAppSideBarMenu[] = [
         href: route("staff-submission-create.submission"),
       },
       {
-        title: "Riwayat Pengajuan",
+        title: "List Pengajuan",
         route_name: "staff-submission-history",
         href: route("staff-submission-history.submission"),
       },

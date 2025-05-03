@@ -16,16 +16,16 @@ interface SubmissionHistoryHeaderProps {
 const SubmissionHistoryHeader: React.FC<SubmissionHistoryHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "History Pengajuan"} />
+      <Head title={"List Pengajuan"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Kelola Histori Pengajuan</BreadcrumbPage>
+            <BreadcrumbPage>List Pengajuan</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "History Pengajuan"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">List Pengajuan</h1>
       </div>
     </>
   );
