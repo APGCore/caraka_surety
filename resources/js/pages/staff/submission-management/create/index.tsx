@@ -1417,6 +1417,25 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         />
                       </div>
                       <div className="grid gap-1 w-full">
+                        <Label className="text-md">Selisih Waktu</Label>
+                        <Select
+                          onValueChange={(value) => {
+                            setData("submission", {
+                              ...data.submission,
+                              difference_time_period: value,
+                            });
+                          }}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih Selisih Waktu" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="-1">-1</SelectItem>
+                            <SelectItem value="0">0</SelectItem>
+                            <SelectItem value="1">1</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-1 w-full">
                         <Label className="text-md">Tanggal Awal Jaminan</Label>
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"

@@ -53,6 +53,7 @@ type Submission = {
   contract_doc_date?: string | Date | undefined;
   contract_value?: string;
   guarantee_value?: string;
+  difference_time_period?: string;
   time_period: string;
   start_date?: string | Date | undefined;
   end_date?: string | Date | undefined;
