@@ -165,4 +165,9 @@ class Submission extends Model
     {
         return $this->belongsTo(Submission::class, 'submission_before_id', 'id');
     }
+
+    public function supportDocs(): HasMany
+    {
+        return $this->hasMany(SubmissionSupportDoc::class, 'submission_id', 'id');
+    }
 }

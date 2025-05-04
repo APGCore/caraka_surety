@@ -161,7 +161,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
+                <TableCell colSpan={8} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

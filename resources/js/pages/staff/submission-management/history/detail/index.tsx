@@ -4,6 +4,16 @@ import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
@@ -287,6 +297,31 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         content: editorRefs.current[key].getContent(),
       };
     });
+  };
+
+  const handleSendGuarantor = (submissionId: number) => {
+    setIsLoading(true);
+    axios
+      .post(route("api.submission-management.send", { id: submissionId }))
+      .then((response) => {
+        console.log("Success Send To Guarantor", response);
+        toast({
+          title: "Sukses",
+          description: "Pengajuan berhasil dikirim ke asuransi",
+        });
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error Send To Guarantor", error);
+        toast({
+          title: "Gagal",
+          description: error.response.data.message,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
@@ -939,6 +974,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </>
           )}
+
+          <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="default"
+                  disabled={isLoading}
+                  className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                  Kirim Ke {submission.guarantor?.name}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-green-600 hover:bg-green-400"
+                    onClick={() => handleSendGuarantor(submission.id)}>
+                    Kirim
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </Show>
         </Show>
       </div>
     </main>

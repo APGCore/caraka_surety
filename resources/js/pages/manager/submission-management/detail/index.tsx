@@ -1297,7 +1297,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>
-                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                        {/*Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?*/}
+                        Apakah Anda Yakin ingin menyetujui pengajuan ini?
                       </AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -1345,32 +1346,32 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </Show>
-            <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    disabled={isLoading}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim Ke {submission.guarantor?.name}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-green-600 hover:bg-green-400"
-                      onClick={() => handleSendGuarantor(submission.id)}>
-                      Kirim
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </Show>
+            {/*<Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>*/}
+            {/*  <AlertDialog>*/}
+            {/*    <AlertDialogTrigger asChild>*/}
+            {/*      <Button*/}
+            {/*        variant="default"*/}
+            {/*        disabled={isLoading}*/}
+            {/*        className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">*/}
+            {/*        {isLoading && <LoaderCircle className="animate-spin mr-1" />}*/}
+            {/*        Kirim Ke {submission.guarantor?.name}*/}
+            {/*      </Button>*/}
+            {/*    </AlertDialogTrigger>*/}
+            {/*    <AlertDialogContent>*/}
+            {/*      <AlertDialogHeader>*/}
+            {/*        <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>*/}
+            {/*      </AlertDialogHeader>*/}
+            {/*      <AlertDialogFooter>*/}
+            {/*        <AlertDialogCancel>Batal</AlertDialogCancel>*/}
+            {/*        <AlertDialogAction*/}
+            {/*          className="bg-green-600 hover:bg-green-400"*/}
+            {/*          onClick={() => handleSendGuarantor(submission.id)}>*/}
+            {/*          Kirim*/}
+            {/*        </AlertDialogAction>*/}
+            {/*      </AlertDialogFooter>*/}
+            {/*    </AlertDialogContent>*/}
+            {/*  </AlertDialog>*/}
+            {/*</Show>*/}
           </Show>
         </div>
       </main>
