@@ -68,6 +68,7 @@ type Submission = {
   risk_mitigation: string;
   blank_id?: number;
   revised_note: string | null;
+  support_docs: SupportDocument[];
 };
 
 type Scoring = {
@@ -95,6 +96,14 @@ type Document = {
   required_doc_id: number;
   required_doc_name: string;
   file: File;
+};
+
+export type SupportDocument = {
+  name: string;
+  number: string;
+  date?: string | Date | undefined;
+  file?: File | null;
+  url?: string;
 };
 
 type ScoringCategories = {

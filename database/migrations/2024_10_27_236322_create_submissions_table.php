@@ -40,9 +40,9 @@ return new class extends Migration
             $table->foreignId('rejected_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('staff_id')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->string('no_guarantee');
-            $table->string('contract_doc_name');
-            $table->string('contract_doc_number');
-            $table->string('contract_doc_date');
+            $table->string('contract_doc_name')->nullable();
+            $table->string('contract_doc_number')->nullable();
+            $table->string('contract_doc_date')->nullable();
             $table->float('contract_value');
             $table->float('guarantee_value');
             $table->integer('time_period');

@@ -170,6 +170,7 @@ class SubmissionController extends Controller
 
             $obligee = $validated['obligee'];
             $submission = $validated['submission'];
+            $supportDocs = $submission['support_docs'] ?? [];
             $scoring = $validated['scoring'];
             $isEdit = isset($submission['id']);
 
@@ -254,11 +255,11 @@ class SubmissionController extends Controller
             $scores = $scoring['scores'];
 
             if ($isEdit) {
-                $submission = Submission::query()->with(['blanks', 'scores'])->find($submission['id']);
+                $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->find($submission['id']);
                 $submission->scores()->delete();
                 $submission->update($dataSubmission);
             } else {
-                $submission = Submission::query()->with(['blanks', 'scores'])->create($dataSubmission);
+                $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->create($dataSubmission);
             }
 
             // update or create submission blangko
@@ -266,6 +267,33 @@ class SubmissionController extends Controller
                 'submission_id' => $submission->getAttribute('id'),
                 'blank_id' => $blank->id,
             ]);
+
+            // update support document
+            // delete data if exist
+            if ($isEdit) {
+                $submission->supportDocs->each(function ($doc) {
+                    $this->deleteFile($doc->getAttribute('url'));
+                    $doc->delete();
+                });
+            }
+            foreach ($supportDocs as $supportDoc) {
+                $data = [];
+                $data['submission_id'] = $submission->getAttribute('id');
+                $data['name'] = $supportDoc['name'];
+                $data['number'] = $supportDoc['number'];
+                $data['date'] = $supportDoc['date'];
+                $file = $supportDoc['file'];
+
+                // upload file
+                $path = "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}";
+                $data['url'] = $this->uploadFile(
+                    $file,
+                    $path,
+                    $supportDoc['name'],
+                );
+
+                $submission->supportDocs()->create($data);
+            }
 
             // create submission scoring
             foreach ($scores as &$score) {
@@ -340,7 +368,18 @@ class SubmissionController extends Controller
         $submission = array_merge($submissionArray,
             $submission->guarantorToProductType->only(
                 'product_type_id', 'job_group', 'job_type',
-            ), ['blank_id' => $submission->blanks->first()?->id]);
+            ),
+            ['blank_id' => $submission->getRelation('blanks')->first()?->id],
+            ['support_docs' => $submission->getRelation('supportDocs')->map(function ($doc) {
+                return [
+                    'id' => $doc->id,
+                    'name' => $doc->name,
+                    'number' => $doc->number,
+                    'date' => $doc->date,
+                    'url' => Storage::url($doc->url),
+                ];
+            })]
+        );
 
         // new class
         $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
@@ -424,6 +463,7 @@ class SubmissionController extends Controller
             'employeeLimit',
             'guarantorProductTypeLimit',
             'callback',
+            'supportDocs',
         ])->findOrFail($id);
     }
 
@@ -1443,7 +1483,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -1492,7 +1532,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
