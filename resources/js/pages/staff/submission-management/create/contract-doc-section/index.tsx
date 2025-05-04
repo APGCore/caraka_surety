@@ -55,7 +55,7 @@ const ContractDocSection: React.FC<ContractDocSectionType> = ({ supportDocs, err
               <Button
                 type="button"
                 onClick={() => {
-                  const data = [...supportDocs, { name: "", number: "", date: "" }];
+                  const data = [...supportDocs, { name: "", number: "", date: new Date() }];
                   onChange(data);
                 }}>
                 Tambah

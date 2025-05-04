@@ -1431,7 +1431,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                           <SelectContent>
                             <SelectItem value="-1">-1</SelectItem>
                             <SelectItem value="0">0</SelectItem>
-                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="1">+1</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
