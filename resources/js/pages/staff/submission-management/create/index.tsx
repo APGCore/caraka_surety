@@ -1418,7 +1418,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       </div>
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Selisih Waktu</Label>
-                        <Select value={data.submission.difference_time_period?.toString()}
+                        <Select
+                          value={data.submission.difference_time_period?.toString()}
                           onValueChange={(value) => {
                             setData("submission", {
                               ...data.submission,
