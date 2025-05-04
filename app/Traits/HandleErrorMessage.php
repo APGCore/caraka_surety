@@ -12,9 +12,11 @@ trait HandleErrorMessage
         $errorCode = $e->getCode();
         $errorFile = $e->getFile();
         $errorLine = $e->getLine();
+        $isSQL = false;
 
         if (str_contains($errorMessage, 'SQL') || str_contains($errorMessage, 'sql')) {
             $errorMessage = 'Terjadi kesalahan pada database, silakan hubungi administrator.';
+            $isSQL = true;
         }
 
         return [
@@ -23,6 +25,7 @@ trait HandleErrorMessage
             'code' => $errorCode,
             'file' => $errorFile,
             'line' => $errorLine,
+            ...($isSQL ? ['sql_error' => $e->getMessage()] : []),
         ];
     }
 }

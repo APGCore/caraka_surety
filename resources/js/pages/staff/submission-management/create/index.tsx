@@ -39,16 +39,20 @@ import InputCurrency from "@/components/molecules/input/currency-input";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
+import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useCallback, useState } from "react";
+import { Simulate } from "react-dom/test-utils";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
-import { Ratio, SubmissionCreatePageProps, SubmissionFormProps } from "./submission-create-page.type";
+import { Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument } from "./submission-create-page.type";
+
+import error = Simulate.error;
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission }) => {
   const defaultPrincipalRatios: Ratio = {
@@ -124,6 +128,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       note: "",
       risk_mitigation: "",
       revised_note: null,
+      support_docs: [],
     },
     scoring: {
       id: 1,
@@ -1354,54 +1359,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                     </div>
 
                     <div className="flex gap-5">
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-md">Nama Dasar Dokumen</Label>
-                        <Input
-                          className="text-md"
-                          placeholder="Nama dasar dokumen"
-                          value={data.submission.contract_doc_name}
-                          onChange={(e) =>
-                            setData("submission", {
-                              ...data.submission,
-                              contract_doc_name: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-md">Nomor Dasar Dokumen</Label>
-                        <Input
-                          className="text-md"
-                          placeholder="Nomor dasar dokumen"
-                          value={data.submission.contract_doc_number}
-                          onChange={(e) =>
-                            setData("submission", {
-                              ...data.submission,
-                              contract_doc_number: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-md">Tanggal Dasar Dokumen</Label>
-                        <CalendarPicker
-                          dateFormat="YYYY-MM-DD"
-                          disabled={{
-                            before: subDays(new Date(), 90),
-                          }}
-                          initialDate={
-                            data?.submission?.contract_doc_date
-                              ? dayjs(data?.submission?.contract_doc_date).toDate()
-                              : dayjs().toDate()
-                          }
-                          onPickDate={(d) => {
-                            setData("submission", {
-                              ...data.submission,
-                              contract_doc_date: dayjs(d).format("YYYY-MM-DD"),
-                            });
-                          }}
-                        />
-                      </div>
+                      <ContractDocSection
+                        supportDocs={data.submission.support_docs}
+                        onChange={(value: SupportDocument[]) => {
+                          setData("submission" as any, {
+                            ...data.submission,
+                            support_docs: value,
+                          });
+                        }}
+                      />
                     </div>
                     <div className="flex gap-5">
                       <div className="grid gap-1 w-full">

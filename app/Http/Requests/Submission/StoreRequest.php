@@ -69,9 +69,9 @@ class StoreRequest extends FormRequest
             'submission.job_type' => ['required', 'string', Rule::in(JobType::getValues())], // jenis pekerjaan
             'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
             'submission.blank_id' => ['required', 'exists:'.Blank::class.',id,deleted_at,NULL'], // id blank
-            'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
-            'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
-            'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
+            //            'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
+            //            'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
+            //            'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
             'submission.contract_value' => ['required', 'numeric'], // nilai kontrak
             'submission.guarantee_value' => ['required', 'numeric'], // nilai jaminan
             'submission.time_period' => ['required', 'numeric'], // jangka waktu (165 Hari)
@@ -87,6 +87,12 @@ class StoreRequest extends FormRequest
             'submission.source_of_fund_id' => ['required', 'exists:'.SourceOfFund::class.',id,deleted_at,NULL'], // id sumber dana
             'submission.note' => ['nullable', 'string'], // catatan
             'submission.risk_mitigation' => ['nullable', 'string'], // mitigasi risiko
+
+            'submission.support_docs' => ['required', 'array', 'min:1'], // dokumen pendukung
+            'submission.support_docs.*.name' => ['required', 'string'],
+            'submission.support_docs.*.number' => ['required', 'string'],
+            'submission.support_docs.*.date' => ['required', 'date'],
+            'submission.support_docs.*.file' => ['required', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
