@@ -90,7 +90,7 @@ class StoreRequest extends FormRequest
             'submission.risk_mitigation' => ['nullable', 'string'], // mitigasi risiko
 
             'submission.support_docs' => ['required', 'array', 'min:1'], // dokumen pendukung
-            'submission.support_docs.*.id' => ['nullable', 'number'],
+            'submission.support_docs.*.id' => ['nullable', 'numeric'],
             'submission.support_docs.*.name' => ['required', 'string'],
             'submission.support_docs.*.number' => ['required', 'string'],
             'submission.support_docs.*.date' => ['required', 'date'],
