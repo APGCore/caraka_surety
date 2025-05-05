@@ -1440,9 +1440,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         <Label className="text-md">Tanggal Awal Jaminan</Label>
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"
-                          disabled={{
-                            before: subDays(new Date(), 90),
-                          }}
+                          // disabled={{
+                          //   before: subDays(new Date(), 90),
+                          // }}
                           initialDate={
                             data?.submission?.start_date
                               ? dayjs(data?.submission?.start_date).toDate()
