@@ -275,11 +275,17 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               }}
             />
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.liquidity_ratios ?? "??"}</div>
           <div className="pt-2 h-[30px] w-full text-black">
-            {firstRatio?.profitability_ratios !== undefined ? firstRatio?.profitability_ratios.toString() + "%" : "??"}{" "}
+            {cleanNumber(firstRatio?.liquidity_ratios ?? "0") ?? "??"}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{firstRatio?.solvency_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">
+            {firstRatio?.profitability_ratios !== undefined
+              ? cleanNumber(firstRatio?.profitability_ratios.toString()) + "%"
+              : "??"}{" "}
+          </div>
+          <div className="pt-2 h-[30px] w-full text-black">
+            {cleanNumber(firstRatio?.solvency_ratios ?? "0") ?? "??"}
+          </div>
         </div>
         {/* Second Ratio */}
         <div className="grid gap-3 w-full">
@@ -294,7 +300,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       current_assets: value ?? "",
-                      liquidity_ratios: liquidity ?? "",
+                      liquidity_ratios: cleanNumber(liquidity) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
@@ -311,7 +317,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       current_debt: value ?? "",
-                      liquidity_ratios: liquidity ?? "",
+                      liquidity_ratios: cleanNumber(liquidity) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
@@ -328,7 +334,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       total_debt: value ?? "",
-                      solvency_ratios: solvency ?? "",
+                      solvency_ratios: cleanNumber(solvency) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
@@ -345,7 +351,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...secondRatio,
                       total_assets: value ?? "",
-                      solvency_ratios: solvency ?? "",
+                      solvency_ratios: cleanNumber(solvency) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, false);
@@ -388,13 +394,17 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               }}
             />
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.liquidity_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">
+            {cleanNumber(secondRatio?.liquidity_ratios ?? "0") ?? "??"}
+          </div>
           <div className="pt-2 h-[30px] w-full text-black">
             {secondRatio?.profitability_ratios !== undefined
-              ? secondRatio?.profitability_ratios.toString() + "%"
+              ? cleanNumber(secondRatio?.profitability_ratios.toString()) + "%"
               : "??"}{" "}
           </div>
-          <div className="pt-2 h-[30px] w-full text-black">{secondRatio?.solvency_ratios ?? "??"}</div>
+          <div className="pt-2 h-[30px] w-full text-black">
+            {cleanNumber(secondRatio?.solvency_ratios ?? "0") ?? "??"}
+          </div>
         </div>
       </div>
     </>

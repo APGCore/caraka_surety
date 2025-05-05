@@ -1419,6 +1419,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Selisih Waktu</Label>
                         <Select
+                          value={data.submission.difference_time_period?.toString()}
                           onValueChange={(value) => {
                             setData("submission", {
                               ...data.submission,
@@ -1439,9 +1440,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         <Label className="text-md">Tanggal Awal Jaminan</Label>
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"
-                          disabled={{
-                            before: subDays(new Date(), 90),
-                          }}
+                          // disabled={{
+                          //   before: subDays(new Date(), 90),
+                          // }}
                           initialDate={
                             data?.submission?.start_date
                               ? dayjs(data?.submission?.start_date).toDate()
