@@ -319,7 +319,10 @@ const BlankPage: BlankPageProps = ({
                 <TableRow key={blank.id}>
                   <TableCell>{meta.from + index}</TableCell>
                   <TableCell>{blank.number}</TableCell>
-                  <TableCell>
+                  <TableCell className="space-x-2">
+                    <Show when={blank.is_picked}>
+                      <Badge className="text-white bg-gray-400">Dipakai Pengajuan</Badge>
+                    </Show>
                     <Show when={blank.is_used}>
                       <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
                     </Show>
@@ -327,13 +330,13 @@ const BlankPage: BlankPageProps = ({
                       <Badge className="text-white bg-blue-400">Belum digunakan</Badge>
                     </Show>
                     <Show when={blank.is_broken}>
-                      <Badge className="text-white bg-red-400 ml-2">Rusak</Badge>
+                      <Badge className="text-white bg-red-400">Rusak</Badge>
                     </Show>
                     <Show when={!blank.is_broken}>
-                      <Badge className="text-white bg-green-400 ml-2">Baik</Badge>
+                      <Badge className="text-white bg-green-400">Baik</Badge>
                     </Show>
                     <Show when={blank.profile_id}>
-                      <Badge className="text-white bg-blue-500 ml-2">Di {blank.profile?.name}</Badge>
+                      <Badge className="text-white bg-blue-500">Di {blank.profile?.name}</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>

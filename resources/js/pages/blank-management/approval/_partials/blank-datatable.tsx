@@ -38,6 +38,9 @@ const BlankDatatable: React.FC<BlankDatatableProps> = ({ blanks }) => {
                 <TableCell>{blanks?.meta.from + index}</TableCell>
                 <TableCell>{blank.number}</TableCell>
                 <TableCell className="space-x-1">
+                  <Show when={blank.is_picked}>
+                    <Badge className="text-white bg-gray-400">Dipakai Pengajuan</Badge>
+                  </Show>
                   <Show when={blank.is_used}>
                     <Badge className="text-white bg-yellow-400">Sudah digunakan</Badge>
                   </Show>
