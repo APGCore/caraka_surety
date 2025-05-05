@@ -1580,12 +1580,12 @@ class SubmissionController extends Controller
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-                //        'document' => [
-                //          'name' => $submission->getAttribute('contract_doc_name'),
-                //          'number' => $submission->getAttribute('contract_doc_number'),
-                //          'date' => $submission->getAttribute('contract_doc_date'),
-                //        ],
-                'document' => $submission->getRelation('supportDocs'),
+//                'document' => [
+//                  'name' => $submission->getAttribute('contract_doc_name'),
+//                  'number' => $submission->getAttribute('contract_doc_number'),
+//                  'date' => $submission->getAttribute('contract_doc_date'),
+//                ],
+                'document' => $submission->getRelation('supportDocs')->first(),
                 'guarantor' => [
                     ...$guarantor->only(['id', 'code', 'name']),
                     'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
