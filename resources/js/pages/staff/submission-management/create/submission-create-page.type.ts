@@ -100,6 +100,7 @@ type Document = {
 };
 
 export type SupportDocument = {
+  id?: number;
   name: string;
   number: string;
   date?: string | Date | undefined;

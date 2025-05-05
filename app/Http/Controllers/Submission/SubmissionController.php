@@ -271,29 +271,30 @@ class SubmissionController extends Controller
 
             // update support document
             // delete data if exist
-            if ($isEdit) {
-                $submission->supportDocs->each(function ($doc) {
-                    $this->deleteFile($doc->getAttribute('url'));
-                    $doc->delete();
-                });
-            }
             foreach ($supportDocs as $supportDoc) {
-                $data = [];
-                $data['submission_id'] = $submission->getAttribute('id');
-                $data['name'] = $supportDoc['name'];
-                $data['number'] = $supportDoc['number'];
-                $data['date'] = $supportDoc['date'];
-                $file = $supportDoc['file'];
+                $data = [
+                    'submission_id' => $submission->getAttribute('id'),
+                    'name' => $supportDoc['name'],
+                    'number' => $supportDoc['number'],
+                    'date' => $supportDoc['date'],
+                ];
 
-                // upload file
-                $path = "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}";
-                $data['url'] = $this->uploadFile(
-                    $file,
-                    $path,
-                    $supportDoc['name'],
+                if ($file = $supportDoc['file']) {
+                    if (! empty($supportDoc['id'])) {
+                        $existingDoc = $submission->supportDocs()->find($supportDoc['id']);
+                        $this->deleteFile($existingDoc->url);
+                    }
+                    $data['url'] = $this->uploadFile(
+                        $file,
+                        "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}",
+                        $supportDoc['name']
+                    );
+                }
+
+                $submission->supportDocs()->updateOrCreate(
+                    ['id' => $supportDoc['id'] ?? null],
+                    $data
                 );
-
-                $submission->supportDocs()->create($data);
             }
 
             // create submission scoring
@@ -1470,8 +1471,8 @@ class SubmissionController extends Controller
         $submission = Submission::query()
             ->with([
                 'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                  'director_name,director_position,director_phone,commissioner,year_established,'.
-                  'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                'director_name,director_position,director_phone,commissioner,year_established,'.
+                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
                 'principal.district:id,code,name',
@@ -1576,16 +1577,16 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-            ],
+        ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-//                'document' => [
-//                  'name' => $submission->getAttribute('contract_doc_name'),
-//                  'number' => $submission->getAttribute('contract_doc_number'),
-//                  'date' => $submission->getAttribute('contract_doc_date'),
-//                ],
-                'document' => $submission->getRelation('supportDocs')->first(),
+                //                'document' => [
+                //                  'name' => $submission->getAttribute('contract_doc_name'),
+                //                  'number' => $submission->getAttribute('contract_doc_number'),
+                //                  'date' => $submission->getAttribute('contract_doc_date'),
+                //                ],
+                'document' => $submission->getRelation('supportDocs')->first()->toArray(),
                 'guarantor' => [
                     ...$guarantor->only(['id', 'code', 'name']),
                     'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
@@ -1626,7 +1627,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-            ],
+        ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
