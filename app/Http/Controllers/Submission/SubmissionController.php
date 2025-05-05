@@ -229,14 +229,18 @@ class SubmissionController extends Controller
                     $messageResponse = 'Berhasil merevisi pengajuan';
                 }
             } else {
-                $noGuarantee = $this->generateNoGuarantee(
-                    $guarantorHead,
-                    $guarantorToProductType,
-                    $guarantorBranchId,
-                    $blank,
-                    $profile
-                );
+              if ($isEdit) {
+                $messageResponse = 'Berhasil memperbarui pengajuan';
+              } else{
                 $messageResponse = 'Berhasil membuat pengajuan';
+              }
+              $noGuarantee = $this->generateNoGuarantee(
+                  $guarantorHead,
+                  $guarantorToProductType,
+                  $guarantorBranchId,
+                  $blank,
+                  $profile
+              );
             }
             $dataSubmission['submission_before_id'] = $submissionBeforeId;
             $dataSubmission['no_guarantee'] = $noGuarantee;
