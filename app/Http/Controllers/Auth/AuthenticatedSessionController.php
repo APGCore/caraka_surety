@@ -134,7 +134,7 @@ class AuthenticatedSessionController extends Controller
         if ($userRole) {
             $userRole = $userRole->getAttribute('name');
             $route = $roleRoute[$userRole];
-            $this->activityLogin('Login sebagai '.$userRole);
+            //            $this->activityLogin('Login sebagai '.$userRole);
             flashMessage('Berhasil Login sebagai '.$userRole.'!', 'Anda berhasil login sebagai '.$userRole.'.');
 
             return redirect()->intended(route($route, absolute: false));

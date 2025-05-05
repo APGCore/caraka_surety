@@ -90,10 +90,11 @@ class StoreRequest extends FormRequest
             'submission.risk_mitigation' => ['nullable', 'string'], // mitigasi risiko
 
             'submission.support_docs' => ['required', 'array', 'min:1'], // dokumen pendukung
+            'submission.support_docs.*.id' => ['nullable', 'numeric'],
             'submission.support_docs.*.name' => ['required', 'string'],
             'submission.support_docs.*.number' => ['required', 'string'],
             'submission.support_docs.*.date' => ['required', 'date'],
-            'submission.support_docs.*.file' => ['required', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
+            'submission.support_docs.*.file' => ['required_if:submission.id,NULL', 'nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
@@ -145,9 +146,9 @@ class StoreRequest extends FormRequest
             'submission.job_group.required' => 'Kelompok pekerjaan wajib diisi',
             'submission.job_type.required' => 'Jenis pekerjaan wajib diisi',
             'submission.blank_id.required' => 'Blangko wajib diisi',
-            'submission.contract_doc_name.required' => 'Nama dokumen kontrak wajib diisi',
-            'submission.contract_doc_number.required' => 'Nomor dokumen kontrak wajib diisi',
-            'submission.contract_doc_date.required' => 'Tanggal dokumen kontrak wajib diisi',
+            //            'submission.contract_doc_name.required' => 'Nama dokumen kontrak wajib diisi',
+            //            'submission.contract_doc_number.required' => 'Nomor dokumen kontrak wajib diisi',
+            //            'submission.contract_doc_date.required' => 'Tanggal dokumen kontrak wajib diisi',
             'submission.contract_value.required' => 'Nilai kontrak wajib diisi',
             'submission.guarantee_value.required' => 'Nilai jaminan wajib diisi',
             'submission.time_period.required' => 'Jangka waktu wajib diisi',
@@ -159,6 +160,16 @@ class StoreRequest extends FormRequest
             'submission.job_location_address.required' => 'Alamat lokasi pekerjaan wajib diisi',
             'submission.job_location_postal_code.required' => 'Kode pos lokasi pekerjaan wajib diisi',
             'submission.source_of_fund_id.required' => 'Sumber dana wajib diisi',
+
+            'submission.support_docs.required' => 'Dokumen pendukung wajib diisi',
+            'submission.support_docs.array' => 'Dokumen pendukung harus berupa array',
+            'submission.support_docs.*.name.required' => 'Nama dokumen pendukung wajib diisi',
+            'submission.support_docs.*.number.required' => 'Nomor dokumen pendukung wajib diisi',
+            'submission.support_docs.*.date.required' => 'Tanggal dokumen pendukung wajib diisi',
+            'submission.support_docs.*.file.required_if' => 'File dokumen pendukung wajib diisi',
+            'submission.support_docs.*.file.file' => 'File dokumen pendukung harus berupa file',
+            'submission.support_docs.*.file.mimes' => 'File dokumen pendukung harus berupa file pdf',
+            'submission.support_docs.*.file.max' => 'File dokumen pendukung maksimal 20 MB',
 
             'principal.id.required' => 'Principal wajib diisi',
             'principal.ratios.required' => 'Rasio wajib diisi',

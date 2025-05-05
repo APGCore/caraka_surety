@@ -107,9 +107,9 @@ const ContractDocSection: React.FC<ContractDocSectionType> = ({ supportDocs, err
                     <Label className="text-md">Tanggal Dasar Dokumen</Label>
                     <CalendarPicker
                       dateFormat="YYYY-MM-DD"
-                      disabled={{
-                        before: subDays(new Date(), 90),
-                      }}
+                      // disabled={{
+                      //   before: subDays(new Date(), 90),
+                      // }}
                       initialDate={supportDocument.date ? dayjs(supportDocument.date).toDate() : dayjs().toDate()}
                       onPickDate={(d) => {
                         const date = dayjs(d).format("YYYY-MM-DD");

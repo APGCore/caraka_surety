@@ -229,6 +229,11 @@ class SubmissionController extends Controller
                     $messageResponse = 'Berhasil merevisi pengajuan';
                 }
             } else {
+                if ($isEdit) {
+                    $messageResponse = 'Berhasil memperbarui pengajuan';
+                } else {
+                    $messageResponse = 'Berhasil membuat pengajuan';
+                }
                 $noGuarantee = $this->generateNoGuarantee(
                     $guarantorHead,
                     $guarantorToProductType,
@@ -236,7 +241,6 @@ class SubmissionController extends Controller
                     $blank,
                     $profile
                 );
-                $messageResponse = 'Berhasil membuat pengajuan';
             }
             $dataSubmission['submission_before_id'] = $submissionBeforeId;
             $dataSubmission['no_guarantee'] = $noGuarantee;
@@ -271,29 +275,31 @@ class SubmissionController extends Controller
 
             // update support document
             // delete data if exist
-            if ($isEdit) {
-                $submission->supportDocs->each(function ($doc) {
-                    $this->deleteFile($doc->getAttribute('url'));
-                    $doc->delete();
-                });
-            }
             foreach ($supportDocs as $supportDoc) {
-                $data = [];
-                $data['submission_id'] = $submission->getAttribute('id');
-                $data['name'] = $supportDoc['name'];
-                $data['number'] = $supportDoc['number'];
-                $data['date'] = $supportDoc['date'];
-                $file = $supportDoc['file'];
+                $data = [
+                    'submission_id' => $submission->getAttribute('id'),
+                    'name' => $supportDoc['name'],
+                    'number' => $supportDoc['number'],
+                    'date' => $supportDoc['date'],
+                ];
+                $file = $supportDoc['file'] ?? null;
 
-                // upload file
-                $path = "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}";
-                $data['url'] = $this->uploadFile(
-                    $file,
-                    $path,
-                    $supportDoc['name'],
+                if ($file) {
+                    if (! empty($supportDoc['id'])) {
+                        $existingDoc = $submission->supportDocs()->find($supportDoc['id']);
+                        $this->deleteFile($existingDoc->url);
+                    }
+                    $data['url'] = $this->uploadFile(
+                        $file,
+                        "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}",
+                        $supportDoc['name']
+                    );
+                }
+
+                $submission->supportDocs()->updateOrCreate(
+                    ['id' => $supportDoc['id'] ?? null],
+                    $data
                 );
-
-                $submission->supportDocs()->create($data);
             }
 
             // create submission scoring
@@ -814,6 +820,19 @@ class SubmissionController extends Controller
         $productLimit = $submission->getRelation('guarantorProductTypeLimit')
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
+        $supportDocs = $submission->getRelation('supportDocs')
+            ->map(function ($doc) {
+                $date = $doc->getAttribute('date');
+                $url = $doc->getAttribute('url');
+                $doc->setAttribute('name', $doc->getAttribute('name') ?? '-');
+                $doc->setAttribute('number', $doc->getAttribute('number') ?? '-');
+                $doc->setAttribute('date', $date ? Carbon::parse($date)->translatedFormat('d F Y') : null);
+                if ($url) {
+                    $doc->setAttribute('url', Storage::url($url));
+                }
+
+                return $doc;
+            });
 
         // check role
         $checkRole = $this->checkRole();
@@ -876,6 +895,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
+        $submission->setAttribute('support_docs', $supportDocs);
 
         return inertia($component, [
             'submission' => fn () => $submission,
@@ -912,13 +932,14 @@ class SubmissionController extends Controller
         // check role
         $authId = auth()->id();
         $user = User::query()->find($authId);
-        $isStaff = $user->hasRole(RoleEnum::Staff->value);
-        $isDireksi = $user->hasRole(RoleEnum::Direksi->value);
-        $isManager = $user->hasRole(RoleEnum::Manager->value);
-        $isKepalaCabang = $user->hasRole(RoleEnum::KepalaCabang->value);
-        $isKepalaAgentPartner = $user->hasRole(RoleEnum::KepalaAgentPartner->value);
-        $isAgentPartner = $user->hasRole(RoleEnum::AgentPartner->value);
-        $isMarketingPartner = $user->hasRole(RoleEnum::MarketingPartner->value);
+        $roleName = $user->role->name;
+        $isStaff = $roleName === RoleEnum::Staff->value;
+        $isDireksi = $roleName === RoleEnum::Direksi->value;
+        $isManager = $roleName === RoleEnum::Manager->value;
+        $isKepalaCabang = $roleName === RoleEnum::KepalaCabang->value;
+        $isKepalaAgentPartner = $roleName === RoleEnum::KepalaAgentPartner->value;
+        $isAgentPartner = $roleName === RoleEnum::AgentPartner->value;
+        $isMarketingPartner = $roleName === RoleEnum::MarketingPartner->value;
 
         return compact([
             'authId',
@@ -984,10 +1005,11 @@ class SubmissionController extends Controller
                             $query->where('staff_id', '=', $authId);
                         })
                         ->when($isManager || $isKepalaCabang, function ($query) use ($authId) {
-                            $query->whereNot('status', SubmissionStatus::PROCESS->value)
-                                ->where('checked_by', '=', $authId)
-                                ->orWhere('approved_by', '=', $authId)
-                                ->orWhere('rejected_by', '=', $authId);
+                            $query->where(function ($query) use ($authId) {
+                                $query->where('checked_by', '=', $authId)
+                                    ->orWhere('approved_by', '=', $authId)
+                                    ->orWhere('rejected_by', '=', $authId);
+                            });
                         })
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
@@ -1468,8 +1490,8 @@ class SubmissionController extends Controller
         $submission = Submission::query()
             ->with([
                 'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                  'director_name,director_position,director_phone,commissioner,year_established,'.
-                  'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                'director_name,director_position,director_phone,commissioner,year_established,'.
+                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
                 'principal.district:id,code,name',
@@ -1578,12 +1600,12 @@ class SubmissionController extends Controller
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-                //        'document' => [
-                //          'name' => $submission->getAttribute('contract_doc_name'),
-                //          'number' => $submission->getAttribute('contract_doc_number'),
-                //          'date' => $submission->getAttribute('contract_doc_date'),
-                //        ],
-                'document' => $submission->getRelation('supportDocs'),
+                //                'document' => [
+                //                  'name' => $submission->getAttribute('contract_doc_name'),
+                //                  'number' => $submission->getAttribute('contract_doc_number'),
+                //                  'date' => $submission->getAttribute('contract_doc_date'),
+                //                ],
+                'document' => $submission->getRelation('supportDocs')->first()->toArray(),
                 'guarantor' => [
                     ...$guarantor->only(['id', 'code', 'name']),
                     'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
