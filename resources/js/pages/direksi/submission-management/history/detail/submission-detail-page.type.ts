@@ -164,6 +164,14 @@ interface Callback {
   updated_at: string;
 }
 
+interface SupportDocument {
+  id: number;
+  name: string;
+  number: string;
+  date: string;
+  url: string;
+}
+
 interface SubmissionDetailProps {
   submission: {
     id: number;
@@ -189,6 +197,7 @@ interface SubmissionDetailProps {
     contract_doc_number: string;
     contract_doc_date: string; // Format: YYYY-MM-DD
     time_period: number;
+    difference_time_period: number;
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;
@@ -212,6 +221,7 @@ interface SubmissionDetailProps {
       number: number;
     };
     submission_docs: Document[];
+    support_docs: SupportDocument[];
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;

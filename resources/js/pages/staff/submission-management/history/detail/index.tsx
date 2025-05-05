@@ -1,3 +1,4 @@
+import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -538,18 +539,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <td className="p-2 font-semibold">Alamat Obligee</td>
                 <td className="p-2">: {submission.obligee?.address}</td>
               </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Jenis Dokumen</td>
-                <td className="p-2">: {submission.contract_doc_name}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Nomor Dokumen</td>
-                <td className="p-2">: {submission.contract_doc_number}</td>
-              </tr>
-              <tr className="border-b">
-                <td className="p-2 font-semibold">Tanggal Dokumen</td>
-                <td className="p-2">: {submission.contract_doc_date}</td>
-              </tr>
+              {/*<tr className="border-b">*/}
+              {/*  <td className="p-2 font-semibold">Jenis Dokumen</td>*/}
+              {/*  <td className="p-2">: {submission.contract_doc_name}</td>*/}
+              {/*</tr>*/}
+              {/*<tr className="border-b">*/}
+              {/*  <td className="p-2 font-semibold">Nomor Dokumen</td>*/}
+              {/*  <td className="p-2">: {submission.contract_doc_number}</td>*/}
+              {/*</tr>*/}
+              {/*<tr className="border-b">*/}
+              {/*  <td className="p-2 font-semibold">Tanggal Dokumen</td>*/}
+              {/*  <td className="p-2">: {submission.contract_doc_date}</td>*/}
+              {/*</tr>*/}
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nilai Kontrak</td>
                 <td className="p-2">
@@ -572,7 +573,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Jangka Waktu</td>
-                <td className="p-2">: {submission.time_period} hari</td>
+                <td className="p-2">
+                  : {submission.time_period} hari <Badge>{submission.difference_time_period} Hari (Selisih)</Badge>
+                </td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nama Pekerjaan</td>
@@ -604,6 +607,39 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <tr>
                 <td className="p-2 font-semibold">Selesai Tanggal</td>
                 <td className="p-2">: {submission.end_date}</td>
+              </tr>
+              <tr>
+                <td className="p-2" colSpan={2}>
+                  <div className="flex flex-col items-center space-y-2">
+                    <span className="font-semibold">Dokumen Kontrak</span>
+                    <Separator />
+                    {submission.support_docs?.map((doc: any) => {
+                      return (
+                        <>
+                          <div className="grid grid-cols-4 gap-4 mt-2 w-full">
+                            <div className="col-span-1 text-center space-y-2.5">
+                              <h3>Nama Dokumen</h3>
+                              <p className="font-bold">{doc.name}</p>
+                            </div>
+                            <div className="col-span-1 text-center space-y-2.5">
+                              <h3>Nomor Dokumen</h3>
+                              <p className="font-bold">{doc.number}</p>
+                            </div>
+                            <div className="col-span-1 text-center space-y-2.5">
+                              <h3>Tanggal Dokumen</h3>
+                              <p className="font-bold">{doc.date}</p>
+                            </div>
+                            <div className="col-span-1 text-center space-y-1">
+                              <h3>Dokumen</h3>
+                              <PreviewFile preview={doc.url} />
+                            </div>
+                          </div>
+                          <Separator />
+                        </>
+                      );
+                    })}
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>

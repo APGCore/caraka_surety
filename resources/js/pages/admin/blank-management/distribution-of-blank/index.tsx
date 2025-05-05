@@ -136,10 +136,8 @@ const DistributionBlank: DistributionBlankPageProps = ({
   const changeFromOffice = async (office: any) => {
     setFromOffice(office);
     const { data } = await fetchBlankDistributed(office);
-    const dataBlankNotUsed = data.reverse();
 
-    setBlankNotUsed(dataBlankNotUsed);
-    setSelectedLastBlankTransfer(dataBlankNotUsed[0] ?? null);
+    setBlankNotUsed(data);
   };
 
   const addBlank = () => {
@@ -351,17 +349,17 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   </AlertDialogHeader>
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Combobox
-                        datas={guarantors}
-                        labelKey={"name"}
-                        valueKey={"name"}
-                        defaultValue={guarantorIdTransfer}
-                        placeholder={"Pilih Asuransi"}
-                        className={"w-[210px]"}
-                        onSelect={(value) => setGuarantorIdTransfer(value.id)}
-                      />
-                    </div>
+                    {/*<div className="flex items-center justify-center gap-2">*/}
+                    {/*  <Combobox*/}
+                    {/*    datas={guarantors}*/}
+                    {/*    labelKey={"name"}*/}
+                    {/*    valueKey={"name"}*/}
+                    {/*    defaultValue={guarantorIdTransfer}*/}
+                    {/*    placeholder={"Pilih Asuransi"}*/}
+                    {/*    className={"w-[210px]"}*/}
+                    {/*    onSelect={(value) => setGuarantorIdTransfer(value.id)}*/}
+                    {/*  />*/}
+                    {/*</div>*/}
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <Combobox
                         datas={officeForTransfer}
@@ -386,13 +384,25 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <div>
                         <Label htmlFor="number">Nomor Blangko Pertama</Label>
-                        <Input
-                          id="number"
-                          value={selectedFirstBlankTransfer?.number ?? ""}
-                          type="text"
-                          className="mt-1 block w-full"
-                          disabled
-                        />
+                        <Select
+                          value={selectedFirstBlankTransfer?.number}
+                          onValueChange={(e) => {
+                            const selectedBlank = blankNotUsed.find((blank) => blank.number === e);
+                            setSelectedFirstBlankTransfer(selectedBlank ?? null);
+                            setSelectedLastBlankTransfer(null);
+                            setQtyBlankTransfer(0);
+                          }}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Pilih Blangko" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {blankNotUsed.map((blank: any) => (
+                              <SelectItem key={blank.id} value={blank.number}>
+                                {blank.number}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <ArrowRight className="mb-2" />
                       <div>
@@ -403,16 +413,24 @@ const DistributionBlank: DistributionBlankPageProps = ({
                           onChange={(e: any) => {
                             const qty = Number(e.target.value);
                             setQtyBlankTransfer(qty);
-                            setSelectedBlanks(blankNotUsed.slice(0, qty));
+                            const firstBlankIndex =
+                              blankNotUsed.findIndex(
+                                (blank: any) => blank.number === selectedFirstBlankTransfer?.number,
+                              ) + 1;
+                            const blankNotUsedFiltered = blankNotUsed.slice(firstBlankIndex ? firstBlankIndex - 1 : 0);
+                            setSelectedBlanks(blankNotUsedFiltered.slice(0, qty));
                             if (qty == 0) {
-                              setSelectedFirstBlankTransfer(null);
+                              setSelectedLastBlankTransfer(null);
                             } else {
-                              setSelectedFirstBlankTransfer(blankNotUsed[qty - 1]);
+                              setSelectedLastBlankTransfer(blankNotUsedFiltered[qty - 1]);
                             }
                           }}
                           type="number"
                           min="0"
-                          max={blankNotUsed.length}
+                          max={
+                            blankNotUsed.length -
+                            blankNotUsed.findIndex((blank: any) => blank.number === selectedFirstBlankTransfer?.number)
+                          }
                           className="mt-1 block w-full"
                         />
                       </div>

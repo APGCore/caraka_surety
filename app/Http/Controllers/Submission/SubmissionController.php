@@ -229,18 +229,18 @@ class SubmissionController extends Controller
                     $messageResponse = 'Berhasil merevisi pengajuan';
                 }
             } else {
-              if ($isEdit) {
-                $messageResponse = 'Berhasil memperbarui pengajuan';
-              } else{
-                $messageResponse = 'Berhasil membuat pengajuan';
-              }
-              $noGuarantee = $this->generateNoGuarantee(
-                  $guarantorHead,
-                  $guarantorToProductType,
-                  $guarantorBranchId,
-                  $blank,
-                  $profile
-              );
+                if ($isEdit) {
+                    $messageResponse = 'Berhasil memperbarui pengajuan';
+                } else {
+                    $messageResponse = 'Berhasil membuat pengajuan';
+                }
+                $noGuarantee = $this->generateNoGuarantee(
+                    $guarantorHead,
+                    $guarantorToProductType,
+                    $guarantorBranchId,
+                    $blank,
+                    $profile
+                );
             }
             $dataSubmission['submission_before_id'] = $submissionBeforeId;
             $dataSubmission['no_guarantee'] = $noGuarantee;
@@ -820,6 +820,19 @@ class SubmissionController extends Controller
         $productLimit = $submission->getRelation('guarantorProductTypeLimit')
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
+        $supportDocs = $submission->getRelation('supportDocs')
+            ->map(function ($doc) {
+                $date = $doc->getAttribute('date');
+                $url = $doc->getAttribute('url');
+                $doc->setAttribute('name', $doc->getAttribute('name') ?? '-');
+                $doc->setAttribute('number', $doc->getAttribute('number') ?? '-');
+                $doc->setAttribute('date', $date ? Carbon::parse($date)->translatedFormat('d F Y') : null);
+                if ($url) {
+                    $doc->setAttribute('url', Storage::url($url));
+                }
+
+                return $doc;
+            });
 
         // check role
         $checkRole = $this->checkRole();
@@ -882,6 +895,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
+        $submission->setAttribute('support_docs', $supportDocs);
 
         return inertia($component, [
             'submission' => fn () => $submission,

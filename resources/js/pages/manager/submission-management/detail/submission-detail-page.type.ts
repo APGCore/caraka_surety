@@ -156,6 +156,14 @@ interface User {
   regency_id: number;
 }
 
+interface SupportDocument {
+  id: number;
+  name: string;
+  number: string;
+  date: string;
+  url: string;
+}
+
 interface SubmissionDetailProps {
   submission: {
     [key: string]: any;
@@ -226,6 +234,7 @@ interface SubmissionDetailProps {
       number: number;
     };
     submission_docs: Document[];
+    support_docs: SupportDocument[];
     no_guarantee: string;
     contract_value_formatted: string;
     guarantee_value_formatted: string;
