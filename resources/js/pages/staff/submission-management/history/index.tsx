@@ -63,7 +63,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions, status
             </SelectContent>
           </Select>
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />
+        {/*<SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />*/}
       </div>
       <SubmissionHistoryDatatable submissions={submissions} onDelete={() => {}} />
     </main>

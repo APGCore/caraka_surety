@@ -759,25 +759,25 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <td className="p-2 font-semibold">Alamat Obligee</td>
                   <td className="p-2">: {submission.obligee?.address}</td>
                 </tr>
-                <tr className="border-b">
-                  <td className="p-2 font-semibold">Jenis Dokumen</td>
-                  <td className="p-2">: {submission.contract_doc_name}</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="p-2 font-semibold">Nomor Dokumen</td>
-                  <td className="p-2">: {submission.contract_doc_number}</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="p-2 font-semibold">Tanggal Dokumen</td>
-                  <td className="p-2">
-                    :{" "}
-                    {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </td>
-                </tr>
+                {/*<tr className="border-b">*/}
+                {/*  <td className="p-2 font-semibold">Jenis Dokumen</td>*/}
+                {/*  <td className="p-2">: {submission.contract_doc_name}</td>*/}
+                {/*</tr>*/}
+                {/*<tr className="border-b">*/}
+                {/*  <td className="p-2 font-semibold">Nomor Dokumen</td>*/}
+                {/*  <td className="p-2">: {submission.contract_doc_number}</td>*/}
+                {/*</tr>*/}
+                {/*<tr className="border-b">*/}
+                {/*  <td className="p-2 font-semibold">Tanggal Dokumen</td>*/}
+                {/*  <td className="p-2">*/}
+                {/*    :{" "}*/}
+                {/*    {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {*/}
+                {/*      day: "numeric",*/}
+                {/*      month: "long",*/}
+                {/*      year: "numeric",*/}
+                {/*    })}*/}
+                {/*  </td>*/}
+                {/*</tr>*/}
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Kontrak</td>
                   <td className="p-2">

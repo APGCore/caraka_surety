@@ -35,6 +35,13 @@ class Submission extends Model
         'deleted_at',
     ];
 
+    public function toSearchableArray(): array
+    {
+        return [
+            'no_guarantee' => $this->no_guarantee,
+        ];
+    }
+
     //    protected function guaranteeValue(): Attribute
     //    {
     //        return Attribute::make(

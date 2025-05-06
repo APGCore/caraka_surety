@@ -366,23 +366,28 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       title: "Profile Perusahaan",
       name: "principal",
       isActive: true,
+      unlock: true,
     },
     {
       title: "Dokumen Perusahaan",
       name: "docs",
       isActive: false,
+      unlock: false,
     },
     {
       title: "Detail Kontrak dan Dasar Pengajuan",
       name: "contract",
       isActive: false,
+      unlock: false,
     },
     {
       title: "Resume dan Skoring",
       name: "skoring",
       isActive: false,
+      unlock: false,
     },
   ]);
+  const [unlockStep, setUnlockStep] = useState("principal");
 
   const handleSetRatios = (ratios: Ratio[]) => {
     setData("principal", {
@@ -394,16 +399,19 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
   const handleActiveStep = (targetStep: string) => {
     const targetIndex = steps.findIndex((step) => step.name === targetStep);
+    const unlockStepIndex = steps.findIndex((step) => step.name === unlockStep);
     const updatedSteps = steps.map((step, index) => ({
       ...step,
       isActive: index <= targetIndex,
+      unlock: index <= unlockStepIndex,
     }));
     setSteps(updatedSteps);
   };
 
   const handleClickStep = (stepName: string) => {
-    setFormStep(stepName as "principal" | "docs" | "contract" | "skoring");
-    handleActiveStep(stepName);
+    const nameStep = stepName as "principal" | "docs" | "contract" | "skoring";
+    setFormStep(nameStep);
+    handleActiveStep(nameStep);
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -485,8 +493,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
     });
   };
 
-  const [isPrincipalFetch, setIsPrincipalFetch] = useState(false);
-
   const { data: blanks } = useGetAllBlank(
     submission?.submission?.id ? submission?.submission?.blank_id : undefined,
     {},
@@ -496,7 +502,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
     !!data.principal.id,
     {
       onSuccess: async (data: any) => {
-        setIsPrincipalFetch(true);
         await queryClient.invalidateQueries({
           queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
           refetchType: "active",
@@ -531,12 +536,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
         });
 
         handleClickStep("docs");
+        setUnlockStep("docs");
       },
-      onError: (error) => {
-        console.log(error);
+      onError: (error: any) => {
+        const data = error.response.data.data;
         toast({
           title: "Gagal Mengupdate atau Membuat Principal!",
-          description: "Terjadi kesalahan saat mengupdate data. Silahkan coba lagi!",
+          description: Object.values(data)
+            .flatMap((err: any) => err)
+            .join("; "),
           variant: "destructive",
         });
       },
@@ -578,15 +586,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
 
   const handleNextStepForm = () => {
     if (formStep === "principal") {
-      if (isPrincipalFetch) {
-        handleClickStep("docs");
-      } else {
-        handleUpdatePrincipal();
-      }
+      handleUpdatePrincipal();
     } else if (formStep === "docs") {
       handleClickStep("contract");
+      setUnlockStep("contract");
     } else if (formStep === "contract") {
       handleClickStep("skoring");
+      setUnlockStep("skoring");
     }
   };
 
@@ -693,7 +699,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                     return (
                       <Fragment>
                         {/* STEPPER BULLET */}
-                        <button type="button" className="flex items-center cursor-default flex-col justify-center">
+                        <button
+                          type="button"
+                          className={cn("flex items-center cursor-default flex-col justify-center", {
+                            "cursor-pointer": step.unlock,
+                          })}
+                          onClick={() => step.unlock && handleClickStep(step.name)}
+                          key={index}>
                           <div
                             className={cn(
                               "flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 bg-gray-300 text-gray-700",

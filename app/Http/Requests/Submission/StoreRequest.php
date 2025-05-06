@@ -49,7 +49,7 @@ class StoreRequest extends FormRequest
             'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
             'obligee.pic' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
             'obligee.no_ppk' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.telephone' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.telephone' => ['required_if:obligee.id,NULL', 'nullable', 'string', 'not_in:0'],
             'obligee.province_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Province::class.',id'],
             'obligee.regency_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Regency::class.',id'],
             'obligee.district_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.District::class.',id'],
