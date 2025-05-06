@@ -806,6 +806,16 @@ class SubmissionController extends Controller
         // get submission pic
         $guarantorPic = $guarantorBranch->getAttribute('pic') ?? $guarantor->getAttribute('pic');
 
+        // get submission time difference period
+        $getDifferenceTimePeriod = $submission->getAttribute('difference_time_period');
+        $timePeriod = $submission->getAttribute('time_period');
+
+        if ($getDifferenceTimePeriod == -1) {
+            $timePeriod -= 1;
+        } elseif ($getDifferenceTimePeriod == 1) {
+            $timePeriod += 1;
+        }
+        
         $callback = $submission->getRelation('callback');
         if ($callback) {
             $callback->setAttribute('url', $callback->getAttribute('url')
@@ -896,6 +906,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
+        $submission->setAttribute('time_period', $timePeriod);
 
         return inertia($component, [
             'submission' => fn () => $submission,
@@ -1726,67 +1737,6 @@ class SubmissionController extends Controller
         }
     }
 
-    // public function embedQrCodeToDocs(Submission $submission): void
-    // {
-    //     $submission->load([
-    //         'callback',
-    //         'submissionDocs.documentFormat',
-    //     ]);
-
-    //     $qrUrl = optional($submission->callback)['url']; // Mengambil QR URL dari array callback
-    //     $targetTypeId = $submission->guarantorToProductType->id;
-
-    //     // Debug: Pastikan QR URL ada
-    //     Log::debug('QR URL:', [$qrUrl]);
-
-    //     // Debug: Pastikan callback sudah dimuat dengan benar
-    //     Log::debug('Callback Data:', [$targetTypeId]);
-
-    //     if (empty($qrUrl)) {
-    //         Log::info("No QR code available for submission ID: {$submission->id}");
-    //         return;
-    //     }
-
-    //     // Loop untuk meng-update submissionDocs
-    //     foreach ($submission->submissionDocs as $doc) {
-    //         // Debug: Periksa data submissionDoc dan documentFormat
-    //         Log::debug('Processing submissionDoc ID:', [$doc->id]);
-    //         Log::debug('Document Format ID:', [optional($doc->documentFormat)->id]);
-
-    //         $docTypeId = optional($doc->documentFormat->guarantorToProductType)->id;
-    //         Log::debug("doc {$docTypeId} vs target {$targetTypeId}");
-
-    //         // Pastikan tipe dokumen cocok
-    //         if ($docTypeId !== $targetTypeId) {
-    //             continue;
-    //         }
-
-    //         // Ambil konten HTML dokumen
-    //         $html = $doc->html ?? '';
-    //         Log::debug('Original HTML:', [$html]);
-
-    //         // HTML untuk QR Code
-    //         $qrHtml = '<div style="margin-top:40px;text-align:center;">';
-    //         $qrHtml .= '<img src="' . e($qrUrl) . '" alt="QR Code" style="width:150px;height:150px;"><br>';
-    //         $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
-    //         $qrHtml .= '</div>';
-
-    //         // Menambahkan QR Code ke dalam konten HTML
-    //         if (str_contains($html, '</body>')) {
-    //             $html = str_replace('</body>', $qrHtml . '</body>', $html);
-    //         } else {
-    //             $html .= $qrHtml;
-    //         }
-
-    //         // Debug: Periksa HTML yang sudah diperbarui
-    //         Log::debug('Updated HTML:', [$html]);
-
-    //         // Simpan perubahan HTML ke dokumen
-    //         $doc->html = $html;
-    //         $doc->save();
-    //         Log::info("Updated document {$doc->id} with QR code.");
-    //     }
-    // }
 
     public function embedQrCodeToDocs(Submission $submission): void
     {
