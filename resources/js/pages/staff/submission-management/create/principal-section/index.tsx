@@ -172,7 +172,11 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                   {name}
                   {props?.tooltip && (
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}>
                         <InfoIcon className="w-4 h-4" />
                       </TooltipTrigger>
                       <TooltipContent>

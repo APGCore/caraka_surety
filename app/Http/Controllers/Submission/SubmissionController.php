@@ -977,7 +977,8 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function displayHistory(Request $request)
+    // for list pengajuan masuk
+    public function displaySubmission(Request $request)
     {
         $checkRole = $this->checkRole();
         $authId = $checkRole['authId'];
@@ -994,34 +995,131 @@ class SubmissionController extends Controller
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
         $officeSelected = $officeFilter->officeSelected;
+
+        $staffs = ! $isStaff || ! $isDireksi ? User::query()
+            ->where('head_id', $authId)
+            ->pluck('id') : [];
+
+        $submissions = Submission::query()
+            ->where('guarantor_id', $this->guarantorId)
+            ->when($isDireksi, fn ($query) => $query
+                ->whereNotNull('checked_by')
+                ->where('status', SubmissionStatus::PROCESS->value)
+                ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
+            )
+            ->when($isManager, fn ($query) => $query
+                ->whereIn('staff_id', $staffs)
+                ->whereNull(['approved_by', 'rejected_by'])
+                ->where(fn ($query) => $query
+                    ->whereNull('checked_by')
+                    ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
+                )
+            )
+            ->when($isKepalaCabang, fn ($query) => $query
+                ->whereIn('staff_id', $staffs)
+                ->whereNull(['checked_by', 'approved_by', 'rejected_by'])
+            )
+            ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
+            ->when($officeSelected, fn ($query) => $query
+                ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
+            )
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'employeeLimit',
+                'guarantorProductTypeLimit',
+            ])
+            ->orderByDesc('updated_at')
+            ->get()
+            ->map(function ($submission) {
+                $date = Carbon::parse($submission->created_at)
+                    ->translatedFormat('d F Y');
+                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
+                $employeeLimit = $submission->getRelation('employeeLimit')
+                    ?->firstWhere('employee_id', auth()->id())
+                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
+                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
+
+                return array_merge($submission->toArray(), [
+                    'employee_limit' => $employeeLimit,
+                    'product_limit' => $productLimit,
+                    'beyond_the_limit' => $beyondTheLimit,
+                    'created_at' => $date,
+                ]);
+            });
+
+        if ($isStaff) {
+            $component = 'staff/submission-management/list/index';
+        } elseif ($isDireksi) {
+            $component = 'direksi/submission-management/list/index';
+        } elseif ($isManager) {
+            $component = 'manager/submission-management/list/index';
+        } elseif ($isKepalaCabang) {
+            $component = 'kepala-cabang/submission-management/list/index';
+        } elseif ($isKepalaAgentPartner) {
+            $component = 'kepala-agent-partner/submission-management/list/index';
+        } elseif ($isAgentPartner) {
+            $component = 'agent-partner/submission-management/list/index';
+        } elseif ($isMarketingPartner) {
+            $component = 'marketing-partner/submission-management/list/index';
+        } else {
+            $component = 'staff/submission-management/list/index';
+        }
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'List Pengajuan Masuk',
+            ],
+            'submissions' => fn () => $submissions,
+            'officeTypes' => $officeTypes,
+            'offices' => $offices,
+            'officeTypeSelected' => $officeTypeSelected,
+            'officeSelected' => $officeSelected,
+        ]);
+    }
+
+    // for history pengajuan
+    public function displayHistory(Request $request)
+    {
+        $checkRole = $this->checkRole();
+        $authId = $checkRole['authId'];
+        $isStaff = $checkRole['isStaff'];
+        $isDireksi = $checkRole['isDireksi'];
+        $isManager = $checkRole['isManager'];
+        $isKepalaCabang = $checkRole['isKepalaCabang'];
+        $isKepalaAgentPartner = $checkRole['isKepalaAgentPartner'];
+        $isAgentPartner = $checkRole['isAgentPartner'];
+        $isMarketingPartner = $checkRole['isMarketingPartner'];
+        $staffs = User::query()
+            ->where('head_id', $authId)
+            ->pluck('id');
+
+        $officeFilter = $this->filterOffice($request);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
         $status = SubmissionStatus::getValues();
         $statusSelected = $request['status_selected'] ?? null;
 
         $submissions = Submission::search($request->get('search'))
             ->query(
-                function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $officeSelected, $statusSelected) {
+                function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $staffs, $officeSelected, $statusSelected) {
                     $query->where('guarantor_id', $this->guarantorId)
-                        ->when($isStaff, function ($query) use ($authId) {
-                            $query->where('staff_id', '=', $authId);
-                        })
-                        ->when($isManager || $isKepalaCabang, function ($query) use ($authId) {
-                            $query->where(function ($query) use ($authId) {
-                                $query->where('checked_by', '=', $authId)
-                                    ->orWhere('approved_by', '=', $authId)
-                                    ->orWhere('rejected_by', '=', $authId);
-                            });
-                        })
+                        ->when($isStaff, fn ($query) => $query->where('staff_id', $authId))
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
-                        ->when($officeSelected && ! $isStaff, function ($query) use ($officeSelected) {
-                            $query->whereHas('staff', function ($query) use ($officeSelected) {
-                                $query->where('profile_id', $officeSelected);
-                            });
-                        })
-                        ->when($statusSelected, function ($query) use ($statusSelected) {
-                            $query->where('status', $statusSelected);
-                        })
+                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs))
+                        ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
+                        ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
                         ->with([
                             'scores',
                             'principal',
@@ -1071,112 +1169,6 @@ class SubmissionController extends Controller
             'officeSelected' => $officeSelected,
             'status' => $status,
             'statusSelected' => $statusSelected,
-        ]);
-    }
-
-    public function displaySubmission(Request $request)
-    {
-        $checkRole = $this->checkRole();
-        $authId = $checkRole['authId'];
-        $isStaff = $checkRole['isStaff'];
-        $isDireksi = $checkRole['isDireksi'];
-        $isManager = $checkRole['isManager'];
-        $isKepalaCabang = $checkRole['isKepalaCabang'];
-        $isKepalaAgentPartner = $checkRole['isKepalaAgentPartner'];
-        $isAgentPartner = $checkRole['isAgentPartner'];
-        $isMarketingPartner = $checkRole['isMarketingPartner'];
-
-        $officeFilter = $this->filterOffice($request);
-        $officeTypes = $officeFilter->officeTypes;
-        $offices = $officeFilter->offices;
-        $officeTypeSelected = $officeFilter->officeTypeSelected;
-        $officeSelected = $officeFilter->officeSelected;
-
-        $staffs = ! $isStaff || ! $isDireksi ? User::query()
-            ->where('head_id', $authId)
-            ->pluck('id') : [];
-
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->when($isDireksi, function ($query) {
-                $query->where('checked_by', '!=', null)
-                    ->where('status', SubmissionStatus::PROCESS->value);
-            })
-            ->when($isManager || $isKepalaCabang, function ($query) use ($staffs) {
-                $query->whereIn('staff_id', $staffs)
-                    ->where([
-                        'checked_by' => null,
-                        'approved_by' => null,
-                        'rejected_by' => null,
-                    ]);
-            })
-            ->when($isKepalaAgentPartner, function ($query) use ($staffs) {
-                $query->whereIn('staff_id', $staffs);
-            })
-            ->when($officeSelected, function ($query) use ($officeSelected) {
-                $query->whereHas('staff', function ($query) use ($officeSelected) {
-                    $query->where('profile_id', $officeSelected);
-                });
-            })
-            ->with([
-                'scores',
-                'principal',
-                'bank',
-                'obligee',
-                'sourceOfFund',
-                'guarantor',
-                'guarantorToProductType',
-                'employeeLimit',
-                'guarantorProductTypeLimit',
-            ])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
-                $employeeLimit = $submission->getRelation('employeeLimit')
-                    ?->firstWhere('employee_id', auth()->id())
-                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
-                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
-
-                return array_merge($submission->toArray(), [
-                    'employee_limit' => $employeeLimit,
-                    'product_limit' => $productLimit,
-                    'beyond_the_limit' => $beyondTheLimit,
-                    'created_at' => $date,
-                ]);
-            });
-
-        if ($isStaff) {
-            $component = 'staff/submission-management/list/index';
-        } elseif ($isDireksi) {
-            $component = 'direksi/submission-management/list/index';
-        } elseif ($isManager) {
-            $component = 'manager/submission-management/list/index';
-        } elseif ($isKepalaCabang) {
-            $component = 'kepala-cabang/submission-management/list/index';
-        } elseif ($isKepalaAgentPartner) {
-            $component = 'kepala-agent-partner/submission-management/list/index';
-        } elseif ($isAgentPartner) {
-            $component = 'agent-partner/submission-management/list/index';
-        } elseif ($isMarketingPartner) {
-            $component = 'marketing-partner/submission-management/list/index';
-        } else {
-            $component = 'staff/submission-management/list/index';
-        }
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'List Pengajuan Masuk',
-            ],
-            'submissions' => fn () => $submissions,
-            'officeTypes' => $officeTypes,
-            'offices' => $offices,
-            'officeTypeSelected' => $officeTypeSelected,
-            'officeSelected' => $officeSelected,
         ]);
     }
 
@@ -1596,7 +1588,7 @@ class SubmissionController extends Controller
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
                 'value' => $submission->getAttribute('guarantee_value'),
-        ],
+            ],
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
@@ -1646,7 +1638,7 @@ class SubmissionController extends Controller
                         'postal_code' => $submission->getAttribute('job_location_postal_code'),
                     ],
                 ],
-        ],
+            ],
             'output' => $submissionDocs->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
