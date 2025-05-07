@@ -592,13 +592,13 @@ class SubmissionController extends Controller
             'job_group',
             'job_type',
         ), ['support_docs' => $submission->getRelation('supportDocs')->map(function ($doc) {
-            return [
-                'id' => $doc->id,
-                'name' => $doc->name,
-                'number' => $doc->number,
-                'date' => $doc->date,
-                'url' => Storage::url($doc->url),
-            ];
+          return [
+            'id' => $doc->id,
+            'name' => $doc->name,
+            'number' => $doc->number,
+            'date' => $doc->date,
+            'url' => Storage::url($doc->url),
+          ];
         })]);
 
         // new class
@@ -1141,7 +1141,7 @@ class SubmissionController extends Controller
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
                         ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
-                            ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
+                          ->when($isKepalaCabang, fn($query) => $query->whereNotNull('checked_by')))
                         ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
                         ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
                         ->with([
@@ -1574,27 +1574,6 @@ class SubmissionController extends Controller
                 'policyno' => $submissionCallback->getAttribute('no_policy'),
             ];
         }
-        $docsPrincipal = $principal->getRelation('documents')->map(function ($doc) {
-            return [
-                'name' => $doc->getAttribute('name'),
-                'url' => $doc->getAttribute('url'),
-            ];
-        })->toArray();
-        $supportDocs = $submission->getRelation('supportDocs')->map(function ($doc) {
-            return [
-                'name' => $doc->getAttribute('name').', '.$doc->getAttribute('number').', '.$doc->getAttribute('date'),
-                'url' => $doc->getAttribute('url'),
-            ];
-        })->toArray();
-        $submissionDocs = $submissionDocs->map(function ($doc) {
-            return [
-                'name' => $doc->getAttribute('name'),
-                'url' => $doc->getAttribute('url'),
-            ];
-        })->toArray();
-        $finalOutputFile = $submissionDocsFile->only(['name', 'url']);
-        $docs = array_merge($docsPrincipal, $supportDocs, $finalOutputFile);
-
         $result = array_merge($dataRevision, [
             'submission_id' => $submission->getAttribute('id'),
             'principal' => [
@@ -1623,7 +1602,12 @@ class SubmissionController extends Controller
                     'address' => $principal->getAttribute('address'),
                     'postal_code' => $principal->getAttribute('postal_code'),
                 ],
-                'docs' => $docs,
+                'docs' => $beyondTheLimit ? $principal->getRelation('documents')->map(function ($doc) {
+                    return [
+                        'name' => $doc->getAttribute('name'),
+                        'url' => $doc->getAttribute('url'),
+                    ];
+                })->toArray() : [],
             ],
             'guarantee' => [
                 'no' => $submission->getAttribute('no_guarantee'),
@@ -1632,12 +1616,12 @@ class SubmissionController extends Controller
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-                'document' => [
-                    'name' => $submission->getAttribute('contract_doc_name'),
-                    'number' => $submission->getAttribute('contract_doc_number'),
-                    'date' => $submission->getAttribute('contract_doc_date'),
-                ],
-                // 'document' => $submission->getRelation('supportDocs')->first()->toArray(),
+                //                'document' => [
+                //                  'name' => $submission->getAttribute('contract_doc_name'),
+                //                  'number' => $submission->getAttribute('contract_doc_number'),
+                //                  'date' => $submission->getAttribute('contract_doc_date'),
+                //                ],
+                'document' => $submission->getRelation('supportDocs')->first()->toArray(),
                 'guarantor' => [
                     ...$guarantor->only(['id', 'code', 'name']),
                     'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
@@ -1685,7 +1669,12 @@ class SubmissionController extends Controller
                     'value' => $doc->getAttribute('format_document'),
                 ];
             })->toArray(),
-            'final_output_file' => $finalOutputFile,
+            'final_output_file' => $submissionDocsFile->map(function ($doc) {
+                return [
+                    'name' => $doc->getAttribute('name'),
+                    'url' => $doc->getAttribute('url'),
+                ];
+            })->toArray(),
         ]);
 
         Log::info('Data Send To Assurance', $result);
@@ -1720,9 +1709,8 @@ class SubmissionController extends Controller
             $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
             $prefix = $hostToHost->getAttribute('auth_prefix');
             $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-            $submissionId = $submission->getAttribute('id');
 
-            $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
+            $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submission->id]);
 
             if ($result['status'] === 'success') {
                 $data = $result['message'];
@@ -1731,11 +1719,12 @@ class SubmissionController extends Controller
                 // base64 to file
                 $fileData = $this->base64ToFile($imageString);
                 // save image to storage
-                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+                $url = $this->uploadFile($fileData, 'submission/callback', $submission->id.'-image-from-guarantor');
                 $submission->update(['has_send_to_guarantor' => true]);
                 SubmissionCallback::query()->updateOrCreate(
-                    ['submission_id' => $submissionId],
+                    ['submission_id' => $submission->id],
                     [
+                        'submission_id' => $submission->id,
                         'doc_url' => $data['doc_url'],
                         'url' => $url,
                         'no_policy' => $data['policyno'],
@@ -1752,6 +1741,7 @@ class SubmissionController extends Controller
             return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', 'Gagal mendekode data dari pihak asuransi');
         }
     }
+
 
     public function embedQrCodeToDocs(Submission $submission): void
     {
@@ -1772,10 +1762,11 @@ class SubmissionController extends Controller
 
         if ($matchingDocs->isEmpty()) {
             Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->id}");
+
             return;
         }
 
-        $embedSuccess = false;
+        $embedded = false;
 
         foreach ($matchingDocs as $doc) {
             $html = $doc->format_document ?? '';
@@ -1785,28 +1776,25 @@ class SubmissionController extends Controller
             $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
             $qrHtml .= '</div>';
 
-            if (!str_contains($html, $qrUrl)) { // Cegah embed dobel
-                if (str_contains($html, '</body>')) {
-                    $html = str_replace('</body>', $qrHtml.'</body>', $html);
-                } else {
-                    $html .= $qrHtml;
-                }
-
-                $doc->format_document = $html;
-                $doc->save();
-
-                Log::info("QR code embedded ke doc ID: {$doc->id}");
-                $embedSuccess = true;
+            if (str_contains($html, '</body>')) {
+                $html = str_replace('</body>', $qrHtml.'</body>', $html);
             } else {
-                Log::info("QR sudah ada di doc ID: {$doc->id}, lewati embed");
+                $html .= $qrHtml;
             }
+
+            $doc->format_document = $html;
+            $doc->save();
+            $embedded = true;
+
+            Log::info("QR code embedded ke doc ID: {$doc->id}");
         }
 
-        if ($embedSuccess && $submission->getAttribute('is_added_qr_code') != 1) {
-            $submission->is_added_qrcode = 1;
-            $submission->save();
-            Log::info("is_added_qrcode diupdate ke 1 untuk submission ID: {$submission->id}");
-        }
+        if ($embedded) {
+          if ($submission->is_added_qrcode != 1) {
+              $submission->is_added_qrcode = 1;
+              $submission->save();
+              Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
+          }
+      }
     }
-
 }
