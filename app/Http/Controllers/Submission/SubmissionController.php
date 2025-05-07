@@ -812,6 +812,16 @@ class SubmissionController extends Controller
         $documentFormatTypeGuarantor = $documentFormats->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))->values();
         $guarantorAddress = $guarantorBranch->getAttribute('address') ?? $guarantor->getAttribute('address') ?? '';
 
+        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
+        $submissionDocs = $submission->getRelation('submissionDocs')->whereNull('url')->values();
+        $finalOutputFile = $submissionDocsFile->map(function ($doc) {
+            $document = $doc->only('name', 'url');
+            $document['name'] = $doc->getAttribute('name') ?? '-';
+            $document['url'] = Storage::url($doc->getAttribute('url'));
+
+            return $document;
+        });
+
         // get submission pic
         $guarantorPic = $guarantorBranch->getAttribute('pic') ?? $guarantor->getAttribute('pic');
 
@@ -852,6 +862,7 @@ class SubmissionController extends Controller
 
                 return $doc;
             });
+        $isAddedQR = $submission->getAttribute('is_added_qrcode');
 
         // check role
         $checkRole = $this->checkRole();
@@ -864,18 +875,6 @@ class SubmissionController extends Controller
             $component = 'staff/submission-management/history/detail/index';
         } elseif ($isDireksi) {
             $component = 'direksi/submission-management/history/detail/index';
-            // GET DOC
-            $submissionDocs = $submission->getRelation('submissionDocs')
-                ->map(function ($docSig) {
-                    $url = $docSig->getAttribute('url');
-                    if ($url) {
-                        $docSig->setAttribute('url', Storage::url($url));
-                    }
-
-                    return $docSig;
-                });
-
-            $submission->setAttribute('submission_docs', $submissionDocs);
         } elseif ($isManager) {
             $component = 'manager/submission-management/detail/index';
         } elseif ($isKepalaCabang) {
@@ -884,8 +883,8 @@ class SubmissionController extends Controller
             $component = 'staff/submission-management/history/detail/index';
         }
 
-        $isAddedQR = $submission->getAttribute('is_added_qrcode');
-
+        $submission->unsetRelation('submissionDocs');
+        $submission->setAttribute('submission_docs', $submissionDocs);
         $submission->setAttribute('mail_number', $mailNumber);
         $submission->setAttribute('blank', $blank);
         $submission->setAttribute('required_docs', $requiredDocs);
@@ -918,6 +917,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('time_period', $timePeriod);
+        $submission->setAttribute('final_output_file', $finalOutputFile);
         $submission->setAttribute('is_added_qrcode', $isAddedQR);
 
         return inertia($component, [
@@ -1541,8 +1541,8 @@ class SubmissionController extends Controller
         $jobRegency = $submission->getRelation('regency');
         $jobDistrict = $submission->getRelation('district');
         $sourceOfFound = $submission->getRelation('sourceOfFund');
-        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document');
-        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document');
+        $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document')->values();
+        $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document')->values();
         $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
         $hostToHost = $guarantor->getRelation('hostToHost');
@@ -1551,13 +1551,13 @@ class SubmissionController extends Controller
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
-        $profileLimit = $this->getProfileLimit(
-            $submission->guarantor_id,
-            $submission->guarantor_product_type_id,
-            $submission->getRelation('staff')->getAttribute('profile_id')
-        )
-            ?->getAttribute('limit') ?? 0;
-        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
+        //        $profileLimit = $this->getProfileLimit(
+        //            $submission->guarantor_id,
+        //            $submission->guarantor_product_type_id,
+        //            $submission->getRelation('staff')->getAttribute('profile_id')
+        //        )
+        //            ?->getAttribute('limit') ?? 0;
+        //        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
 
         $dataRevision = [];
         if ($submissionBeforeId) {
@@ -1586,13 +1586,12 @@ class SubmissionController extends Controller
                 'url' => $doc->getAttribute('url'),
             ];
         })->toArray();
-        $submissionDocs = $submissionDocs->map(function ($doc) {
+        $finalOutputFile = $submissionDocsFile->map(function ($doc) {
             return [
                 'name' => $doc->getAttribute('name'),
                 'url' => $doc->getAttribute('url'),
             ];
         })->toArray();
-        $finalOutputFile = $submissionDocsFile->only(['name', 'url']);
         $docs = array_merge($docsPrincipal, $supportDocs, $finalOutputFile);
 
         $result = array_merge($dataRevision, [
@@ -1772,6 +1771,7 @@ class SubmissionController extends Controller
 
         if ($matchingDocs->isEmpty()) {
             Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->id}");
+
             return;
         }
 
@@ -1785,7 +1785,7 @@ class SubmissionController extends Controller
             $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
             $qrHtml .= '</div>';
 
-            if (!str_contains($html, $qrUrl)) { // Cegah embed dobel
+            if (! str_contains($html, $qrUrl)) { // Cegah embed dobel
                 if (str_contains($html, '</body>')) {
                     $html = str_replace('</body>', $qrHtml.'</body>', $html);
                 } else {
@@ -1809,4 +1809,35 @@ class SubmissionController extends Controller
         }
     }
 
+    public function destroy(Submission $submission): void
+    {
+        if ($submission->getAttribute('status') !== SubmissionStatus::PROCESS->value) {
+            flashMessage('error', 'Pengajuan tidak dapat dihapus karena sudah diterima', 'error');
+
+            return;
+        }
+        DB::beginTransaction();
+        try {
+            $submission->scores()->delete();
+            $submission->submissionDocs()->delete();
+            $submission->supportDocs()->delete();
+            $submission->callback()->delete();
+            $submission->blanks()->each(function ($blank) {
+                $blank->update([
+                    'is_picked' => false,
+                    'is_used' => false,
+                    'is_broken' => false,
+                    'is_revised' => false,
+                ]);
+            });
+            $submission->delete();
+            DB::commit();
+            flashMessage('success', 'Berhasil membatalkan pengajuan');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to delete submission', $error);
+            flashMessage('error', 'Terjadi kesalahan saat membatalkan pengajuan', 'error');
+        }
+    }
 }

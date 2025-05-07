@@ -338,6 +338,11 @@ interface SubmissionDetailProps {
     city: string;
     analyst_name: string;
     get_exp: string;
+    final_output_file: {
+      id: number;
+      name: string;
+      url: string;
+    }[];
   };
 }
 

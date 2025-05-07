@@ -502,57 +502,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
-  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
-
-  const handleSubmitDoc = () => {
-    if (!spkmgrFile && !permohonanFile) {
-      alert("Harap pilih setidaknya satu file untuk diunggah.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    const formData = new FormData();
-    if (spkmgrFile) formData.append("spkmgr_file", spkmgrFile);
-    if (permohonanFile) formData.append("permohonan_file", permohonanFile);
-    if (submission.id) formData.append("submission_id", String(submission.id));
-
-    axios
-      .post(route("manager-submission-save-permohonan-doc.submission"), formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-
-      .then((response) => {
-        console.log("Success submit submission", response);
-        toast({
-          title: "Dokumen berhasil diunggah!",
-          description: "Dokumen berhasil diunggah.",
-          variant: "default",
-        });
-
-        setSpkmgrFile(null);
-        setPermohonanFile(null);
-
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error submit submission", error.response?.data || error.message);
-
-        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah dokumen.";
-        toast({
-          title: "Dokumen gagal diunggah!",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   console.log("submission", submission);
 
   return (
@@ -1153,59 +1102,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Card>
               </div>
             ) : null}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmitDoc();
-              }}
-              className="space-y-16">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                <FileInput onFileChange={(file) => setSpkmgrFile(file)} />
-                {/* {spkmgrFile && <p className="text-green-500 text-sm mt-2">File: {spkmgrFile.name}</p>}
-                {!spkmgrFile && <p className="text-red-500 text-sm mt-2">File SPKMgr belum diunggah.</p>} */}
-              </div>
-
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                <FileInput onFileChange={(file) => setPermohonanFile(file)} />
-                {/* {permohonanFile && <p className="text-green-500 text-sm mt-2">File: {permohonanFile.name}</p>}
-                {!permohonanFile && <p className="text-red-500 text-sm mt-2">File Permohonan belum diunggah.</p>} */}
-              </div>
-
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Mengunggah..." : "Submit"}
-              </Button>
-            </form>
-            <br />
-
-            {submission.submission_docs?.length > 0 ? (
-              <table className="table-auto w-full border-collapse">
-                <thead>
-                  <tr className="border-b bg-gray-200">
-                    <th className="p-2 text-left">Nama Dokumen</th>
-                    <th className="p-2 text-left">Tindakan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <RenderList
-                    of={submission.submission_docs as Array<any>}
-                    render={(docSig) => (
-                      <tr key={docSig.id} className="border-b">
-                        <td className="p-2" title={docSig.name}>
-                          {docSig.name.length > 30 ? `${docSig.name.slice(0, 30)}...` : docSig.name}
-                        </td>
-                        <td className="p-2">
-                          {docSig?.url ? <PreviewFile preview={docSig.url} /> : "File Belum Diunggah"}
-                        </td>
-                      </tr>
-                    )}
-                  />
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-gray-500">Dokumen SPKMGR dan Suart Permohonan Belum ditandatangani</p>
-            )}
 
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>

@@ -15,9 +15,10 @@ import Show from "@/components/atoms/show";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { SubmissionStatus } from "@/types/submission-status";
-import { Link } from "@inertiajs/react";
-import { EllipsisVertical } from "lucide-react";
-import React from "react";
+import {Link, router} from "@inertiajs/react";
+import {EllipsisVertical} from "lucide-react";
+import React, {useState} from "react";
+import Loading from "@/_features/_common/components/loading";
 
 // import FormSkoring from "./form-submission";
 
@@ -35,6 +36,25 @@ interface SubmissionHistoryDatatableProps {
 }
 
 const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
+  const [loadingDelete, setLoadingDelete] = useState(false)
+  const handleDelete = (submission: any) => {
+    setLoadingDelete(true);
+    router.delete(route('staff-submission-destroy', { submission: submission.id}),
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          location.reload();
+        },
+        onError: () => {
+          // Handle error
+        },
+        onFinish: () => {
+          setLoadingDelete(false);
+        },
+      });
+  };
+
   return (
     <>
       <Table>
@@ -98,6 +118,36 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                             <Button variant="outline" className="w-full" asChild>
                               <Link href={route("staff-submission-edit", { id: submission.id })}>Edit</Link>
                             </Button>
+                          </Show>
+                          <Show
+                            when={submission.status === SubmissionStatus.PROCESS}>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="w-full">
+                                  Batal
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="sm:max-w-[425px]">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan
+                                    tidak dapat dikembalikan.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <AlertDialogCancel asChild>
+                                    <Button variant="outline" className="w-full" type="button">
+                                      Tidak
+                                    </Button>
+                                  </AlertDialogCancel>
+                                  <Button variant="destructive" className="w-full" type="submit" disabled={loadingDelete} onClick={() => handleDelete(submission)}>
+                                    <Loading isLoading={loadingDelete}/>
+                                    Batalkan Pengajuan
+                                  </Button>
+                                </div>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </Show>
                           <Show
                             when={
