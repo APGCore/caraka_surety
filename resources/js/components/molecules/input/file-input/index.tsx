@@ -96,6 +96,7 @@ const FileInput: React.FC<InputFileProps> = ({
         hidden
         type="file"
         required={required && preview === null}
+        accept={validation?.join(",")}
         onChange={(e) => {
           const file = e?.target?.files ? e.target.files[0] : null;
 

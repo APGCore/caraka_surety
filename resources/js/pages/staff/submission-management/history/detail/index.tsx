@@ -1,4 +1,5 @@
 import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
+import { FileInput } from "@/_features/_common/components/file-input";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -367,6 +368,57 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         },
       },
     );
+  };
+
+  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
+  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
+
+  const handleSubmitDoc = () => {
+    if (!spkmgrFile && !permohonanFile) {
+      alert("Harap pilih setidaknya satu file untuk diunggah.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const formData = new FormData();
+    if (spkmgrFile) formData.append("spkmgr_file", spkmgrFile);
+    if (permohonanFile) formData.append("permohonan_file", permohonanFile);
+    if (submission.id) formData.append("submission_id", String(submission.id));
+
+    axios
+      .post(route("staff-submission-save-permohonan-doc.submission"), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
+      .then((response) => {
+        console.log("Success submit submission", response);
+        toast({
+          title: "Dokumen berhasil diunggah!",
+          description: "Dokumen berhasil diunggah.",
+          variant: "default",
+        });
+
+        setSpkmgrFile(null);
+        setPermohonanFile(null);
+
+        router.reload();
+      })
+      .catch((error) => {
+        console.error("Error submit submission", error.response?.data || error.message);
+
+        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah dokumen.";
+        toast({
+          title: "Dokumen gagal diunggah!",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -804,35 +856,38 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(
-                  submission.scores.reduce((grouped: any, score: any) => {
-                    const { scoring_question_category_id, scoring_question_category, ...rest } = score;
-                    if (!grouped[scoring_question_category_id]) {
-                      grouped[scoring_question_category_id] = {
-                        ...scoring_question_category,
-                        items: [],
-                      };
-                    }
-                    grouped[scoring_question_category_id].items.push(rest);
-                    return grouped;
-                  }, {}),
-                ).map(([id, scores]: [any, any]) => {
-                  console.log("scores", scores.items);
-                  return (
+                <RenderList
+                  of={Object.entries(
+                    submission.scores.reduce((grouped: any, score: any) => {
+                      const { scoring_question_category_id, scoring_question_category, ...rest } = score;
+                      if (!grouped[scoring_question_category_id]) {
+                        grouped[scoring_question_category_id] = {
+                          ...scoring_question_category,
+                          items: [],
+                        };
+                      }
+                      grouped[scoring_question_category_id].items.push(rest);
+                      return grouped;
+                    }, {}),
+                  )}
+                  render={([id, scores]: [any, any]) => (
                     <React.Fragment key={id}>
                       <tr className="border-b bg-gray-100">
                         <td colSpan={4} className="p-2 font-bold">
                           {scores.name} ({scores.max_point})
                         </td>
                       </tr>
-                      {scores.items.map((score: any) => (
-                        <tr key={score.id} className="border-b">
-                          <td className="p-2 text-left"></td>
-                          <td className="p-2 text-left">{score.question_name}</td>
-                          <td className="p-2 text-left">{score.scoring_option.name}</td>
-                          <td className="p-2 text-center">{score.point}</td>
-                        </tr>
-                      ))}
+                      <RenderList
+                        of={scores.items as Array<any>}
+                        render={(score) => (
+                          <tr key={score.id} className="border-b">
+                            <td className="p-2 text-left"></td>
+                            <td className="p-2 text-left">{score.question_name}</td>
+                            <td className="p-2 text-left">{score.scoring_option.name}</td>
+                            <td className="p-2 text-center">{score.point}</td>
+                          </tr>
+                        )}
+                      />
                       <tr className="bg-gray-50">
                         <td className="p-2" colSpan={3}>
                           Sub Total:
@@ -842,8 +897,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         </td>
                       </tr>
                     </React.Fragment>
-                  );
-                })}
+                  )}
+                />
               </tbody>
 
               <tfoot>
@@ -897,8 +952,15 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
                           Dokumen Pendukung
                         </Button>
-                        <Button className="mt-4" onClick={handleEmbedQr} disabled={isLoading}>
-                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                        <Button
+                          className="mt-4"
+                          onClick={handleEmbedQr}
+                          disabled={isLoading || submission.is_added_qrcode === 1}>
+                          {isLoading
+                            ? "Memproses..."
+                            : submission.is_added_qrcode === 1
+                              ? "QR Code Sudah Dibubuhkan"
+                              : "Bubuhkan QR Code"}
                         </Button>
                       </>
                     ) : (
@@ -912,6 +974,45 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </Card>
             </div>
           ) : null}
+
+          {/*final output file*/}
+          <Show when={!submission.has_send_to_guarantor && !submission.final_output_file.length}>
+            <p className="text-gray-500">Dokumen SPKMGR dan Suart Permohonan Belum ditandatangani</p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmitDoc();
+              }}
+              className="space-y-5 my-2">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
+                <FileInput onFileChange={(file) => setSpkmgrFile(file)} />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
+                <FileInput onFileChange={(file) => setPermohonanFile(file)} />
+              </div>
+
+              <div className="text-right">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                  {isLoading ? "Mengunggah..." : "Submit"}
+                </Button>
+              </div>
+            </form>
+          </Show>
+          <Show when={submission.final_output_file.length}>
+            <h2 className="text-lg font-semibold mb-4 mt-5">Dokumen Final</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {submission.final_output_file.map((file: any) => (
+                <div key={file.id} className="flex items-center justify-between">
+                  <p>{file.name}</p>
+                  <PreviewFile preview={file.url} />
+                </div>
+              ))}
+            </div>
+          </Show>
 
           {submission.submission_docs.length > 0 ? (
             <RenderList
