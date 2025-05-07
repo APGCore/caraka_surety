@@ -884,6 +884,8 @@ class SubmissionController extends Controller
             $component = 'staff/submission-management/history/detail/index';
         }
 
+        $isAddedQR = $submission->getAttribute('is_added_qrcode');
+
         $submission->setAttribute('mail_number', $mailNumber);
         $submission->setAttribute('blank', $blank);
         $submission->setAttribute('required_docs', $requiredDocs);
@@ -916,6 +918,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('time_period', $timePeriod);
+        $submission->setAttribute('is_added_qrcode', $isAddedQR);
 
         return inertia($component, [
             'submission' => fn () => $submission,
@@ -1769,9 +1772,10 @@ class SubmissionController extends Controller
 
         if ($matchingDocs->isEmpty()) {
             Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->id}");
-
             return;
         }
+
+        $embedSuccess = false;
 
         foreach ($matchingDocs as $doc) {
             $html = $doc->format_document ?? '';
@@ -1781,16 +1785,28 @@ class SubmissionController extends Controller
             $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
             $qrHtml .= '</div>';
 
-            if (str_contains($html, '</body>')) {
-                $html = str_replace('</body>', $qrHtml.'</body>', $html);
+            if (!str_contains($html, $qrUrl)) { // Cegah embed dobel
+                if (str_contains($html, '</body>')) {
+                    $html = str_replace('</body>', $qrHtml.'</body>', $html);
+                } else {
+                    $html .= $qrHtml;
+                }
+
+                $doc->format_document = $html;
+                $doc->save();
+
+                Log::info("QR code embedded ke doc ID: {$doc->id}");
+                $embedSuccess = true;
             } else {
-                $html .= $qrHtml;
+                Log::info("QR sudah ada di doc ID: {$doc->id}, lewati embed");
             }
+        }
 
-            $doc->format_document = $html;
-            $doc->save();
-
-            Log::info("QR code embedded ke doc ID: {$doc->id}");
+        if ($embedSuccess && $submission->getAttribute('is_added_qr_code') != 1) {
+            $submission->is_added_qrcode = 1;
+            $submission->save();
+            Log::info("is_added_qrcode diupdate ke 1 untuk submission ID: {$submission->id}");
         }
     }
+
 }

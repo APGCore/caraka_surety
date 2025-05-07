@@ -369,6 +369,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     );
   };
 
+  console.log("submission", submission);
+
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
       {/* STEPPER SECTION */}
@@ -897,8 +899,15 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
                           Dokumen Pendukung
                         </Button>
-                        <Button className="mt-4" onClick={handleEmbedQr} disabled={isLoading}>
-                          {isLoading ? "Memproses..." : "Bubuhkan QR Code"}
+                        <Button
+                          className="mt-4"
+                          onClick={handleEmbedQr}
+                          disabled={isLoading || submission.is_added_qrcode === 1}>
+                          {isLoading
+                            ? "Memproses..."
+                            : submission.is_added_qrcode === 1
+                              ? "QR Code Sudah Dibubuhkan"
+                              : "Bubuhkan QR Code"}
                         </Button>
                       </>
                     ) : (
