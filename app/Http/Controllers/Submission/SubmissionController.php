@@ -591,7 +591,15 @@ class SubmissionController extends Controller
             'product_type_id',
             'job_group',
             'job_type',
-        ));
+        ), ['support_docs' => $submission->getRelation('supportDocs')->map(function ($doc) {
+          return [
+            'id' => $doc->id,
+            'name' => $doc->name,
+            'number' => $doc->number,
+            'date' => $doc->date,
+            'url' => Storage::url($doc->url),
+          ];
+        })]);
 
         // new class
         $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
