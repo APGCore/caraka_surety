@@ -1775,7 +1775,7 @@ class SubmissionController extends Controller
             return;
         }
 
-        $embedSuccess = false;
+        $embedded = false;
 
         foreach ($matchingDocs as $doc) {
             $html = $doc->format_document ?? '';
@@ -1785,28 +1785,26 @@ class SubmissionController extends Controller
             $qrHtml .= '<small>Scan untuk verifikasi dokumen ini</small>';
             $qrHtml .= '</div>';
 
-            if (! str_contains($html, $qrUrl)) { // Cegah embed dobel
-                if (str_contains($html, '</body>')) {
-                    $html = str_replace('</body>', $qrHtml.'</body>', $html);
-                } else {
-                    $html .= $qrHtml;
-                }
-
-                $doc->format_document = $html;
-                $doc->save();
-
-                Log::info("QR code embedded ke doc ID: {$doc->id}");
-                $embedSuccess = true;
+            if (str_contains($html, '</body>')) {
+                $html = str_replace('</body>', $qrHtml.'</body>', $html);
             } else {
-                Log::info("QR sudah ada di doc ID: {$doc->id}, lewati embed");
+                $html .= $qrHtml;
             }
+
+            $doc->format_document = $html;
+            $doc->save();
+            $embedded = true;
+
+            Log::info("QR code embedded ke doc ID: {$doc->id}");
         }
 
-        if ($embedSuccess && $submission->getAttribute('is_added_qr_code') != 1) {
-            $submission->is_added_qrcode = 1;
-            $submission->save();
-            Log::info("is_added_qrcode diupdate ke 1 untuk submission ID: {$submission->id}");
-        }
+        if ($embedded) {
+          if ($submission->is_added_qrcode != 1) {
+              $submission->is_added_qrcode = 1;
+              $submission->save();
+              Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
+          }
+      }
     }
 
     public function destroy(Submission $submission): void
