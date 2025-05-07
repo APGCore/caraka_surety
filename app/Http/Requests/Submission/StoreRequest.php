@@ -72,8 +72,8 @@ class StoreRequest extends FormRequest
             //            'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
             //            'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
             //            'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
-            'submission.contract_value' => ['required', 'numeric'], // nilai kontrak
-            'submission.guarantee_value' => ['required', 'numeric'], // nilai jaminan
+            'submission.contract_value' => ['required','regex:/^[0-9]+(,[0-9]{1,2})?$/'], // nilai kontrak
+            'submission.guarantee_value' => ['required', 'regex:/^[0-9]+(,[0-9]{1,2})?$/'], // nilai jaminan
             'submission.time_period' => ['required', 'numeric'], // jangka waktu (165 Hari)
             'submission.difference_time_period' => ['required'], // selisih waktu (1 Hari)
             'submission.start_date' => ['required', 'date'], // tanggal mulai

@@ -255,8 +255,9 @@ class SubmissionController extends Controller
             $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
             $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
             $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
-            $dataSubmission['contract_value'] = $this->currencyConvert($submission['contract_value']);
-            $dataSubmission['guarantee_value'] = $this->currencyConvert($submission['guarantee_value']);
+            $dataSubmission['contract_value'] = (float) str_replace(',', '.', $submission['contract_value']);
+            $dataSubmission['guarantee_value'] = (float) str_replace(',', '.', $submission['guarantee_value']);
+
             $scores = $scoring['scores'];
 
             if ($isEdit) {
@@ -1128,7 +1129,8 @@ class SubmissionController extends Controller
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
-                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs))
+                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
+                          ->when($isKepalaCabang, fn($query) => $query->whereNotNull('checked_by')))
                         ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
                         ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
                         ->with([
