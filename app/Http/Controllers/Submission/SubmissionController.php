@@ -868,6 +868,14 @@ class SubmissionController extends Controller
             });
         $isAddedQR = $submission->getAttribute('is_added_qrcode');
 
+        // get submission support docs
+        $supportDocs = $submission->getRelation('supportDocs');
+
+        $docsInfo = $supportDocs->map(function ($doc) {
+          return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
+        })->implode("; ");
+
+
         // check role
         $checkRole = $this->checkRole();
         $isStaff = $checkRole['isStaff'];
@@ -923,6 +931,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('time_period', $timePeriod);
         $submission->setAttribute('final_output_file', $finalOutputFile);
         $submission->setAttribute('is_added_qrcode', $isAddedQR);
+        $submission->setAttribute('submission_support_docs', $docsInfo);
 
         return inertia($component, [
             'submission' => fn () => $submission,

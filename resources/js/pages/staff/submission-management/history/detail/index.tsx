@@ -183,6 +183,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     mail_number_resume: string;
     underlying: string;
     product_name: string;
+    submission_support_docs: string;
 
     [key: string]: any;
   }
@@ -208,7 +209,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     principal_commissioner: submission.principal?.commissioner || "",
     pic: submission.principal?.pic || "",
     director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}, ${submission.principal?.postal_code}`,
     est_deed: submission.principal?.est_deed || "",
     last_deed: submission.principal?.last_deed || "",
     get_susunan_pengurus: submission.get_administators_principal || "",
@@ -273,7 +274,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
     terbilang: submission?.terbilang || "",
+    submission_support_docs: submission?.submission_support_docs || "",
   };
+
+  console.log("support", submission.submission_support_docs);
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {
@@ -420,6 +424,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         setIsLoading(false);
       });
   };
+
+  console.log("submission", submission);
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
