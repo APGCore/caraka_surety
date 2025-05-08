@@ -225,7 +225,9 @@ class SubmissionController extends Controller
                     $messageResponse = 'Berhasil memperbarui pengajuan';
                 } else {
                     $submissionForRevision->update(['is_revised' => true]);
-                    $submissionForRevision->blanks()->update(['is_revised' => true]);
+                    $submissionForRevision->blanks()->each(function ($query) {
+                        $query->update(['is_revised' => true]);
+                    });
                     $messageResponse = 'Berhasil merevisi pengajuan';
                 }
             } else {
