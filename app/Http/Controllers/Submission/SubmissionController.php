@@ -146,6 +146,7 @@ class SubmissionController extends Controller
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
+        Log::info("Data Pengajuan: ", $validated);
 
         DB::beginTransaction();
         try {
@@ -299,10 +300,11 @@ class SubmissionController extends Controller
                     );
                 }
 
-                $submission->supportDocs()->updateOrCreate(
-                    ['id' => $supportDoc['id'] ?? null],
-                    $data
-                );
+                if (!empty($supportDoc['id'])) {
+                    $submission->supportDocs()->where('id', $supportDoc['id'])->update($data);
+                } else {
+                    $submission->supportDocs()->create($data);
+                }
             }
 
             // create submission scoring
