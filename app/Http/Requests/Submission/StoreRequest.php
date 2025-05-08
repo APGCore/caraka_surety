@@ -94,7 +94,7 @@ class StoreRequest extends FormRequest
             'submission.support_docs.*.name' => ['required', 'string'],
             'submission.support_docs.*.number' => ['required', 'string'],
             'submission.support_docs.*.date' => ['required', 'date'],
-            'submission.support_docs.*.file' => ['required_if:submission.id,NULL', 'nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
+            'submission.support_docs.*.file' => ['required_if:submission.support_docs.*.id,NULL', 'nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
