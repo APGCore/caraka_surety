@@ -2,7 +2,6 @@ import { Button } from "@/components/_shadcn-ui/button";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { FormGuarantorProductTypeRateUtils } from "@/pages/admin/guarantor-management/guarantor-product-type-limit/_partials/form-guarantor-product-type-rate.utils";
-import { FormGuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/_partials/form-guarantor-rate.utils";
 import { useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
@@ -99,7 +98,7 @@ const FormGuarantorProductTypeRate: React.FC<FormGuarantorProductTypeLimitsProps
           className="w-max bg-green-600 hover:bg-green-500"
           disabled={processing}>
           {processing && <LoaderCircle className="animate-spin mr-1 flex-shrink-0" />}
-          {FormGuarantorRateUtils.create.btn_label}
+          Simpan
         </Button>
       </div>
     </form>

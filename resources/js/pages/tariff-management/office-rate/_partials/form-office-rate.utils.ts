@@ -1,4 +1,4 @@
-import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";
+import { OfficeRateUtils } from "@/pages/tariff-management/office-rate/office-rate.utils";
 
 export const FormOfficeRateUtils = {
   index: {

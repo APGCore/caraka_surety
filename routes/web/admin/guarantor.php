@@ -4,7 +4,6 @@ use App\Http\Controllers\Guarantor\BranchGuarantorController;
 use App\Http\Controllers\Guarantor\EmployeeLimitController;
 use App\Http\Controllers\Guarantor\GuarantorController;
 use App\Http\Controllers\Guarantor\GuarantorProductTypeLimitController;
-use App\Http\Controllers\Guarantor\GuarantorRateController;
 use App\Http\Controllers\Guarantor\GuarantorToProductTypeController;
 use App\Http\Controllers\Guarantor\ProfileLimitController;
 use Illuminate\Support\Facades\Route;
@@ -51,13 +50,6 @@ Route::prefix('guarantor-management')->group(function () {
         Route::put('update/{employeeLimit}', [EmployeeLimitController::class, 'update'])->name('update');
         Route::delete('destroy/{employeeLimit}', [EmployeeLimitController::class, 'destroy'])->name('destroy');
     });
-
-    Route::controller(GuarantorRateController::class)->prefix('guarantor-rate')
-        ->name('guarantor-rate.')->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('create', 'create')->name('create');
-            Route::post('store', 'store')->name('store');
-        });
 
     Route::controller(GuarantorProductTypeLimitController::class)->prefix('guarantor-product-type-limit')
         ->name('guarantor-product-type-limit.')->group(function () {

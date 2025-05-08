@@ -146,7 +146,7 @@ class SubmissionController extends Controller
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
-        Log::info("Data Pengajuan: ", $validated);
+        Log::info('Data Pengajuan: ', $validated);
 
         DB::beginTransaction();
         try {
@@ -300,7 +300,7 @@ class SubmissionController extends Controller
                     );
                 }
 
-                if (!empty($supportDoc['id'])) {
+                if (! empty($supportDoc['id'])) {
                     $submission->supportDocs()->where('id', $supportDoc['id'])->update($data);
                 } else {
                     $submission->supportDocs()->create($data);
@@ -1803,12 +1803,12 @@ class SubmissionController extends Controller
         }
 
         if ($embedded) {
-          if ($submission->is_added_qrcode != 1) {
-              $submission->is_added_qrcode = 1;
-              $submission->save();
-              Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
-          }
-      }
+            if ($submission->is_added_qrcode != 1) {
+                $submission->is_added_qrcode = 1;
+                $submission->save();
+                Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
+            }
+        }
     }
 
     public function destroy(Submission $submission): void

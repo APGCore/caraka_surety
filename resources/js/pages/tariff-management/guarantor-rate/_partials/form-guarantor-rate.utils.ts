@@ -1,4 +1,4 @@
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { GuarantorRateUtils } from "@/pages/tariff-management/guarantor-rate/guarantor-rate.utils";
 
 export const FormGuarantorRateUtils = {
   index: {

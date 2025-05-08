@@ -1,11 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import FormOfficeRate from "@/pages/admin/office-management/office-rate/_partials/form-office-rate";
-import OfficeRateHeader from "@/pages/admin/office-management/office-rate/_partials/office-rate-header";
-import { OfficeRateCreatePageProps } from "@/pages/admin/office-management/office-rate/create/office-rate-create.type";
+import FormGuarantorRate from "@/pages/tariff-management/guarantor-rate/_partials/form-guarantor-rate";
+import GuarantorRateHeader from "@/pages/tariff-management/guarantor-rate/_partials/guarantor-rate-header";
+import { GuarantorRateCreatePageProps } from "@/pages/tariff-management/guarantor-rate/create/guarantor-rate-create.type";
 
-const OfficeRateCreate: OfficeRateCreatePageProps = ({
-  profileId,
+const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
   guarantorId,
   guarantorBranchId,
   guarantorToProductTypeId,
@@ -18,8 +17,7 @@ const OfficeRateCreate: OfficeRateCreatePageProps = ({
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
-        <FormOfficeRate
-          profileId={profileId}
+        <FormGuarantorRate
           guarantorId={guarantorId}
           guarantorBranchId={guarantorBranchId}
           guarantorToProductTypeId={guarantorToProductTypeId}
@@ -30,18 +28,14 @@ const OfficeRateCreate: OfficeRateCreatePageProps = ({
   );
 };
 
-export default OfficeRateCreate;
+export default GuarantorRateCreate;
 
-OfficeRateCreate.layout = (page: any) => {
+GuarantorRateCreate.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <OfficeRateHeader
-        title={pagePropsData?.page_settings?.title}
-        profile={pagePropsData?.profile}
-        guarantor={pagePropsData?.guarantor}
-      />
+      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
       {page}
     </RoleBasedLayout>
   );
