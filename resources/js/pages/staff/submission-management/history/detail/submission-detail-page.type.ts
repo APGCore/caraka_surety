@@ -38,6 +38,7 @@ interface RequiredDoc {
 
 interface Principal {
   address: string;
+  postal_code: string;
   commissioner: string;
   created_at: string;
   bussiness_field: string;
@@ -261,6 +262,7 @@ interface SubmissionDetailProps {
     day_name: string;
     submission_date: string;
     terbilang: string;
+    submission_support_docs: string;
   };
 }
 
