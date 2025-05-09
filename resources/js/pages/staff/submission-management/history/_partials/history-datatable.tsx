@@ -8,6 +8,7 @@ import {
   AlertDialogTrigger,
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/_features/_common/components/_shadcn-ui/popover";
+import Loading from "@/_features/_common/components/loading";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
@@ -15,10 +16,9 @@ import Show from "@/components/atoms/show";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { SubmissionStatus } from "@/types/submission-status";
-import {Link, router} from "@inertiajs/react";
-import {EllipsisVertical} from "lucide-react";
-import React, {useState} from "react";
-import Loading from "@/_features/_common/components/loading";
+import { Link, router } from "@inertiajs/react";
+import { EllipsisVertical } from "lucide-react";
+import React, { useState } from "react";
 
 // import FormSkoring from "./form-submission";
 
@@ -36,23 +36,22 @@ interface SubmissionHistoryDatatableProps {
 }
 
 const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
-  const [loadingDelete, setLoadingDelete] = useState(false)
+  const [loadingDelete, setLoadingDelete] = useState(false);
   const handleDelete = (submission: any) => {
     setLoadingDelete(true);
-    router.delete(route('staff-submission-destroy', { submission: submission.id}),
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-          location.reload();
-        },
-        onError: () => {
-          // Handle error
-        },
-        onFinish: () => {
-          setLoadingDelete(false);
-        },
-      });
+    router.delete(route("staff-submission-destroy", { submission: submission.id }), {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        location.reload();
+      },
+      onError: () => {
+        // Handle error
+      },
+      onFinish: () => {
+        setLoadingDelete(false);
+      },
+    });
   };
 
   return (
@@ -119,8 +118,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               <Link href={route("staff-submission-edit", { id: submission.id })}>Edit</Link>
                             </Button>
                           </Show>
-                          <Show
-                            when={submission.status === SubmissionStatus.PROCESS}>
+                          <Show when={submission.status === SubmissionStatus.PROCESS}>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" className="w-full">
@@ -141,8 +139,13 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                                       Tidak
                                     </Button>
                                   </AlertDialogCancel>
-                                  <Button variant="destructive" className="w-full" type="submit" disabled={loadingDelete} onClick={() => handleDelete(submission)}>
-                                    <Loading isLoading={loadingDelete}/>
+                                  <Button
+                                    variant="destructive"
+                                    className="w-full"
+                                    type="submit"
+                                    disabled={loadingDelete}
+                                    onClick={() => handleDelete(submission)}>
+                                    <Loading isLoading={loadingDelete} />
                                     Batalkan Pengajuan
                                   </Button>
                                 </div>

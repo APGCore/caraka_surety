@@ -6,6 +6,7 @@ import {
   Boxes,
   Building,
   ChartColumn,
+  DollarSign,
   Home,
   Infinity,
   LibraryBig,
@@ -36,11 +37,6 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Produk Asuransi",
         route_name: "product-guarantor",
         href: route("product-guarantor.index"),
-      },
-      {
-        title: "Tarif Asuransi",
-        route_name: "guarantor-rate",
-        href: route("guarantor-rate.index"),
       },
     ],
   },
@@ -79,11 +75,6 @@ export const adminRoute: IAppSideBarMenu[] = [
       //   route_name: "branch-mitra-pemasaran",
       //   href: route("branch-mitra-pemasaran.index"),
       // },
-      {
-        title: "Tarif Unit Bisnis",
-        route_name: "office-rate",
-        href: route("office-rate.index"),
-      },
     ],
   },
   {
@@ -139,7 +130,6 @@ export const adminRoute: IAppSideBarMenu[] = [
       },
     ],
   },
-
   {
     title: "Kelola Batas Nilai Jaminan",
     icon: Infinity,
@@ -200,6 +190,22 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Pertanyaan",
         route_name: "scoring-question",
         href: route("scoring-question.index"),
+      },
+    ],
+  },
+  {
+    title: "Kelola Tarif",
+    icon: DollarSign,
+    items: [
+      {
+        title: "Tarif Asuransi",
+        route_name: "guarantor-rate",
+        href: route("guarantor-rate.index"),
+      },
+      {
+        title: "Tarif Unit Bisnis",
+        route_name: "office-rate",
+        href: route("office-rate.index"),
       },
     ],
   },

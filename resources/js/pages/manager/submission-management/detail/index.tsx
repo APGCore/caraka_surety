@@ -276,6 +276,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     mail_number_resume: string;
     underlying: string;
     product_name: string;
+    submission_support_docs: string;
 
     [key: string]: any;
   }
@@ -368,6 +369,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
     terbilang: submission?.terbilang || "",
+    submission_support_docs: submission?.submission_support_docs || "",
   };
 
   const documentFormat = () => {

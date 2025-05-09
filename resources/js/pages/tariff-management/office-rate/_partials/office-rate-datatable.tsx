@@ -4,18 +4,20 @@ import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
-import { GuarantorRateUtils } from "@/pages/admin/guarantor-management/guarantor-rate/guarantor-rate.utils";
+import { OfficeRateUtils } from "@/pages/tariff-management/office-rate/office-rate.utils";
 import { JobTypeEnum } from "@/types/job-type-enum";
 import { Link } from "@inertiajs/react";
 import React from "react";
 
-interface GuarantorRateDatatableProps {
+interface OfficeRateDatatableProps {
+  profileId: number | null;
   guarantorId: number | null;
   guarantorBranchId: number | null;
   guarantorProductTypes: any;
 }
 
-const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({
+const OfficeRateDatatable: React.FC<OfficeRateDatatableProps> = ({
+  profileId,
   guarantorId,
   guarantorBranchId,
   guarantorProductTypes,
@@ -49,7 +51,8 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({
                 <TableCell className="text-right">
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                    href={route(GuarantorRateUtils.link.create, {
+                    href={route(OfficeRateUtils.link.create, {
+                      profile_id: profileId,
                       guarantor_id: guarantorId,
                       guarantor_branch_id: guarantorBranchId,
                       guarantor_product_type_id: guarantorProductType.id,
@@ -75,4 +78,4 @@ const GuarantorRateDatatable: React.FC<GuarantorRateDatatableProps> = ({
   );
 };
 
-export default GuarantorRateDatatable;
+export default OfficeRateDatatable;

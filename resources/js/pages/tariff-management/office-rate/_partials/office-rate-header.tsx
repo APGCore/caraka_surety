@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
-import { OfficeRateUtils } from "@/pages/admin/office-management/office-rate/office-rate.utils";
+import { OfficeRateUtils } from "@/pages/tariff-management/office-rate/office-rate.utils";
 import { Head } from "@inertiajs/react";
 import React from "react";
 

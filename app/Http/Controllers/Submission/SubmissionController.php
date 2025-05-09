@@ -146,7 +146,7 @@ class SubmissionController extends Controller
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
-        Log::info("Data Pengajuan: ", $validated);
+        Log::info('Data Pengajuan: ', $validated);
 
         DB::beginTransaction();
         try {
@@ -300,7 +300,7 @@ class SubmissionController extends Controller
                     );
                 }
 
-                if (!empty($supportDoc['id'])) {
+                if (! empty($supportDoc['id'])) {
                     $submission->supportDocs()->where('id', $supportDoc['id'])->update($data);
                 } else {
                     $submission->supportDocs()->create($data);
@@ -868,6 +868,14 @@ class SubmissionController extends Controller
             });
         $isAddedQR = $submission->getAttribute('is_added_qrcode');
 
+        // get submission support docs
+        $supportDocs = $submission->getRelation('supportDocs');
+
+        $docsInfo = $supportDocs->map(function ($doc) {
+          return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
+        })->implode("; ");
+
+
         // check role
         $checkRole = $this->checkRole();
         $isStaff = $checkRole['isStaff'];
@@ -923,6 +931,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('time_period', $timePeriod);
         $submission->setAttribute('final_output_file', $finalOutputFile);
         $submission->setAttribute('is_added_qrcode', $isAddedQR);
+        $submission->setAttribute('submission_support_docs', $docsInfo);
 
         return inertia($component, [
             'submission' => fn () => $submission,
@@ -1803,12 +1812,12 @@ class SubmissionController extends Controller
         }
 
         if ($embedded) {
-          if ($submission->is_added_qrcode != 1) {
-              $submission->is_added_qrcode = 1;
-              $submission->save();
-              Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
-          }
-      }
+            if ($submission->is_added_qrcode != 1) {
+                $submission->is_added_qrcode = 1;
+                $submission->save();
+                Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
+            }
+        }
     }
 
     public function destroy(Submission $submission): void

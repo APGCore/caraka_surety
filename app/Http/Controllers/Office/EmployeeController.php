@@ -161,6 +161,7 @@ class EmployeeController extends Controller
                 RoleEnum::Staff->value,
                 RoleEnum::StaffTeknik->value,
                 RoleEnum::StaffOperasional->value,
+                RoleEnum::Finance->value,
             ],
             OfficeType::BRANCH->value => [
                 RoleEnum::KepalaCabang->value,
