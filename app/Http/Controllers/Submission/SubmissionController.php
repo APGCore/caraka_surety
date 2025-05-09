@@ -222,15 +222,11 @@ class SubmissionController extends Controller
             $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
             if ($submissionForRevision) {
                 $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
-                if ($isEdit) {
-                    $messageResponse = 'Berhasil memperbarui pengajuan';
-                } else {
-                    $submissionForRevision->update(['is_revised' => true]);
-                    $submissionForRevision->blanks()->each(function ($query) {
-                        $query->update(['is_revised' => true]);
-                    });
-                    $messageResponse = 'Berhasil merevisi pengajuan';
-                }
+                $submissionForRevision->update(['is_revised' => true]);
+                $submissionForRevision->blanks()->each(function ($query) {
+                    $query->update(['is_revised' => true]);
+                });
+                $messageResponse = 'Berhasil merevisi pengajuan';
             } else {
                 if ($isEdit) {
                     $messageResponse = 'Berhasil memperbarui pengajuan';
@@ -1841,6 +1837,9 @@ class SubmissionController extends Controller
                     'is_revised' => false,
                 ]);
             });
+            $submission->submissionBefore()->update([
+                'is_revised' => false,
+            ]);
             $submission->delete();
             DB::commit();
             flashMessage('success', 'Berhasil membatalkan pengajuan');
