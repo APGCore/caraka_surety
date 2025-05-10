@@ -1040,7 +1040,10 @@ class SubmissionController extends Controller
                 ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
             )
             ->when($isManager, fn ($query) => $query
-                ->whereIn('staff_id', $staffs)
+                ->where(function ($query) use ($staffs) {
+                    $query->whereIn('staff_id', $staffs)
+                        ->orWhereIn('checked_by', $staffs);
+                })
                 ->whereNull(['approved_by', 'rejected_by'])
                 ->where(fn ($query) => $query
                     ->whereNull('checked_by')
