@@ -20,6 +20,13 @@ class ReportController extends Controller
 {
     use CalculateInvoice, FilterOffice, GeneratePattern;
 
+    protected string $headComponent;
+
+    public function __construct()
+    {
+        $this->headComponent = 'report/';
+    }
+
     public function invoice(Request $request)
     {
         $date = collect($request->get('date') ?? [
@@ -107,15 +114,7 @@ class ReportController extends Controller
             ->appends($request->all());
 
         foreach ($submissions as $submission) {
-            $guarantor = $submission->guarantor;
-            $guarantorBranchId = $submission->guarantor_branch_id;
-            $guarantorToProductType = $submission->guarantorToProductType;
             $blank = $submission->blanks->firstWhere('is_broken', false);
-            $noGuarantee = $this->generateNoGuarantee($guarantor, $guarantorToProductType, $guarantorBranchId, $blank, $submission->staff?->office);
-            if ($submission->no_guarantee !== $noGuarantee) {
-                $submission->no_guarantee = $noGuarantee;
-                $submission->save();
-            }
             $submission->blank = $blank;
             // get invoice
             $officeRate = $this->calculateOffice($submission);
@@ -125,39 +124,11 @@ class ReportController extends Controller
                 'guarantor_rate' => $guarantorRate,
                 'difference' => $officeRate['total'] - $guarantorRate['total'],
             ];
-            //            $calculateCentralOffice = $this->calculateForCentralOffice($submission);
-            //            $calculateGuarantor = $this->calculateForGuarantor($submission);
-            //            $submission->central_office_rate = [
-            //                'minimum' => $calculateCentralOffice->get('minimum'),
-            //                'rate' => $calculateCentralOffice->get('rate') * 100,
-            //                'service_charge' => $calculateCentralOffice->get('service_charge_central'),
-            //                'total' => $calculateCentralOffice->get('total_central'),
-            //            ];
-            //            if ($submission->staff?->office?->office_type === OfficeType::BRANCH->value) {
-            //                $calculateOffice = $this->calculateForBranchOffice($submission);
-            //                $submission->branch_office_rate = [
-            //                    'minimum_bill' => $calculateOffice->get('minimum_bill'),
-            //                    'selling_rate' => $calculateOffice->get('selling_rate') * 100,
-            //                    'sales_administration' => $calculateOffice->get('sales_administration'),
-            //                    'service_charge' => $calculateOffice->get('service_charge_branch'),
-            //                    'total' => $calculateOffice->get('total_branch'),
-            //                ];
-            //            }
-            //            $submission->guarantor_rate = [
-            //                'minimum_payment' => $calculateGuarantor->get('minimum_payment'),
-            //                'pay_rate' => $calculateGuarantor->get('pay_rate') * 100,
-            //                'payment_administration' => $calculateGuarantor->get('payment_administration'),
-            //                'stamp_duty' => $calculateGuarantor->get('stamp_duty'),
-            //                'broken_rate' => $calculateGuarantor->get('broken_rate'),
-            //                'revised_rate' => $calculateGuarantor->get('revised_rate'),
-            //                'service_charge' => $calculateGuarantor->get('service_charge'),
-            //                'total' => $calculateGuarantor->get('total'),
-            //            ];
         }
 
         $resource = SubmissionResource::collection($submissions);
 
-        return inertia('report/invoice/index', [
+        return inertia($this->headComponent.'invoice/index', [
             'page_settings' => [
                 'title' => 'Laporan Invoice',
             ],
@@ -176,6 +147,55 @@ class ReportController extends Controller
             'productSelected' => (int) $productSelected,
             'productTypes' => $productTypes,
             'productTypeSelected' => (int) $productTypeSelected,
+        ]);
+    }
+
+    public function invoiceDetail(Submission $submission)
+    {
+        $submission->load([
+            'guarantor' => function ($query) {
+                $query->select(['id', 'name', 'code'])->withTrashed();
+            },
+            'guarantorBranch' => function ($query) {
+                $query->select(['id', 'name', 'code'])->withTrashed();
+            },
+            'guarantor.pattern' => function ($query) {
+                $query->select(['id', 'guarantor_id', 'prefix', 'content', 'suffix']);
+            },
+            'guarantor.guarantorRate',
+            'product' => function ($query) {
+                $query->select(['id', 'name'])->withTrashed();
+            },
+            'guarantorToProductType' => function ($query) {
+                $query->select(['id', 'code_product', 'code', 'name'])->withTrashed();
+            },
+            'blanks' => function ($query) {
+                $query->select(['blanks.id', 'blanks.number', 'blanks.is_broken'])->withTrashed();
+            },
+            'principal' => function ($query) {
+                $query->select(['id', 'name'])->withTrashed();
+            },
+            'obligee' => function ($query) {
+                $query->select(['id', 'name'])->withTrashed();
+            },
+            'staff' => function ($query) {
+                $query->select(['id', 'name', 'profile_id'])->withTrashed();
+            },
+            'staff.office' => function ($query) {
+                $query->select(['id', 'name', 'code', 'office_type'])->withTrashed();
+            },
+            'staff.office.profileRate',
+        ]);
+        $guarantorRate = $this->calculateGuarantor($submission);
+        $officeRate = $this->calculateOffice($submission);
+
+        return inertia($this->headComponent.'invoice/detail/index', [
+            'page_settings' => [
+                'title' => 'Detail Invoice',
+            ],
+            'submission' => $submission,
+            'guarantor_rate' => $guarantorRate,
+            'office_rate' => $officeRate,
         ]);
     }
 
@@ -212,7 +232,7 @@ class ReportController extends Controller
             'unused' => array_sum(array_column($branches, 'unused')),
         ];
 
-        return inertia('report/production/index', [
+        return inertia($this->headComponent.'production/index', [
             'page_settings' => [
                 'title' => 'Laporan Produksi',
             ],
@@ -238,7 +258,7 @@ class ReportController extends Controller
 
         $resource = BlankUsageResource::collection($blanks);
 
-        return inertia('report/blanks-usage/index', [
+        return inertia($this->headComponent.'blanks-usage/index', [
             'page_settings' => [
                 'title' => 'Laporan Penggunaan Blangko',
             ],
@@ -257,38 +277,3 @@ class ReportController extends Controller
         );
     }
 }
-
-// Ambil parameter jangka waktu dari request (default ke null jika tidak ada)
-// $startDate = $request->input('start_date');
-// $endDate = $request->input('end_date');
-
-// // Query dengan filter tanggal jika diberikan
-// $blanks = Blank::query()
-//     ->when($startDate, fn ($query) => $query->whereDate('created_at', '>=', $startDate))
-//     ->when($endDate, fn ($query) => $query->whereDate('created_at', '<=', $endDate))
-//     ->withCount([
-//         'submissions as used' => fn ($query) => $query->where('status', 'used'),
-//         'submissions as revised' => fn ($query) => $query->where('status', 'revised'),
-//         'submissions as damaged' => fn ($query) => $query->where('status', 'damaged'),
-//     ])
-//     ->get();
-
-// $totalSent = $blanks->count();
-// $totalUsed = $blanks->sum('used');
-// $totalRevised = $blanks->sum('revised');
-// $totalDamaged = $blanks->sum('damaged');
-// $totalNotUsed = $totalSent - $totalUsed;
-
-// 'data' => [
-//     'blanks' => $blanks,
-//     'total_sent' => $totalSent,
-//     'total_used' => $totalUsed,
-//     'total_revised' => $totalRevised,
-//     'total_damaged' => $totalDamaged,
-//     'total_not_used' => $totalNotUsed,
-// ],
-// 'filters' => [
-//     'start_date' => $startDate,
-//     'end_date' => $endDate,
-// ],
-// 'export_url' => url('/export-blanks?start_date=' . $startDate . '&end_date=' . $endDate),
