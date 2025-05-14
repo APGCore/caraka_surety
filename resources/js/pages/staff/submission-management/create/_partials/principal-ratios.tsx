@@ -211,7 +211,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={firstRatio?.total_debt ?? ""}
               placeholder="Total Utang"
               onChange={(value) => {
-                const solvency = calculateRatios(firstRatio?.total_assets ?? "", value ?? "");
+                const solvency = calculateRatios(value ?? "", firstRatio?.total_assets ?? "");
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -228,7 +228,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={firstRatio?.total_assets ?? ""}
               placeholder="Total Aktiva"
               onChange={(value) => {
-                const solvency = calculateRatios(value ?? "", firstRatio?.total_debt ?? "");
+                const solvency = calculateRatios(firstRatio?.total_debt ?? "", value ?? "");
                 const dataRatios = firstRatio
                   ? {
                       ...firstRatio,
@@ -331,7 +331,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={secondRatio?.total_debt ?? ""}
               placeholder="Total Utang"
               onChange={(value) => {
-                const solvency = calculateRatios(secondRatio?.total_assets ?? "", value ?? "");
+                const solvency = calculateRatios(value ?? "", secondRatio?.total_assets ?? "");
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
@@ -348,7 +348,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
               value={secondRatio?.total_assets ?? ""}
               placeholder="Total Aktiva"
               onChange={(value) => {
-                const solvency = calculateRatios(value ?? "", secondRatio?.total_debt ?? "");
+                const solvency = calculateRatios(secondRatio?.total_debt ?? "", value ?? "");
                 const dataRatios = secondRatio
                   ? {
                       ...secondRatio,
