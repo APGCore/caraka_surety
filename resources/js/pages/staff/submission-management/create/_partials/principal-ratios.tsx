@@ -216,7 +216,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...firstRatio,
                       total_debt: value ?? "",
-                      solvency_ratios: solvency ?? "",
+                      solvency_ratios: cleanNumber(solvency) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, true);
@@ -233,7 +233,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
                   ? {
                       ...firstRatio,
                       total_assets: value ?? "",
-                      solvency_ratios: solvency ?? "",
+                      solvency_ratios: cleanNumber(solvency) ?? "",
                     }
                   : defaultRatio;
                 setHandleAndRatios(dataRatios, true);
