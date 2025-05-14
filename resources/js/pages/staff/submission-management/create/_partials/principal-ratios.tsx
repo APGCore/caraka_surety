@@ -32,7 +32,7 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
 
   const calculateRatios = (value1: string, value2: string) => {
-    const number = Number(value1) / Number(value2);
+    const number = Number(value1.replace(",", ".")) / Number(value2.replace(",", "."));
 
     return number === Infinity || isNaN(number) ? "0" : number.toString();
   };
