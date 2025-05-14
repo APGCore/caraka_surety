@@ -586,7 +586,7 @@ class SubmissionController extends Controller
         ]);
 
         $submission = array_merge($submissionArray, [
-            'submission_before_id' => $id,
+            'submission_before_id' => (int) $id,
         ], $submission->getRelation('guarantorToProductType')->only(
             'product_type_id',
             'job_group',
