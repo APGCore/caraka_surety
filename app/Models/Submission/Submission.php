@@ -61,6 +61,16 @@ class Submission extends Model
     //        return 'Rp. ' . $this->currencyConvert($value);
     //    }
 
+    public function getGuaranteeValueAttribute($value): string
+    {
+      return str_replace(',', '.', $value);
+    }
+
+    public function getContractValueAttribute($value): string
+    {
+      return str_replace(',', '.', $value);
+    }
+
     public function scores(): HasMany
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
