@@ -62,4 +62,9 @@ class Principal extends Model
     {
         return $this->hasMany(Submission::class)->where('status', 'approved');
     }
+
+    public function principalRate()
+    {
+        return $this->hasMany(PrincipalRate::class);
+    }
 }

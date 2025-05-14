@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Guarantor;
 
-use App\Models\Guarantor\Guarantor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;

@@ -341,7 +341,7 @@ class SubmissionController extends Controller
     public function edit($id)
     {
         $submission = $this->getSubmission($id);
-        if ($submission->status !== SubmissionStatus::PROCESS->value) {
+        if ($submission->getAttribute('has_send_to_guarantor')) {
             flashMessage('Gagal', 'Pengajuan tidak dapat diubah', 'error');
 
             return redirect()->back();
@@ -868,9 +868,8 @@ class SubmissionController extends Controller
         $supportDocs = $submission->getRelation('supportDocs');
 
         $docsInfo = $supportDocs->map(function ($doc) {
-          return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
-        })->implode("; ");
-
+            return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
+        })->implode('; ');
 
         // check role
         $checkRole = $this->checkRole();
@@ -1228,8 +1227,7 @@ class SubmissionController extends Controller
                 throw new Exception('Failed to approve submission');
             }
             $submission->load('blanks');
-            $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
-            $blank->update(['is_used' => true]);
+            $submission->blanks()->update(['is_used' => true]);
             $documents = $request->input('documents', []);
             if (count($documents) > 0) {
                 $submission->submissionDocs()->delete();

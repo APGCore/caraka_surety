@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\HostToHostResource;
 use App\Models\Guarantor\Guarantor;
-use App\Models\HostToHost;
+use App\Models\Guarantor\HostToHost;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

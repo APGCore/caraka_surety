@@ -196,7 +196,7 @@ InvoicePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <InvoiceHeader title={pagePropsData?.page_settings?.title} />
+      <InvoiceHeader title={pagePropsData?.page_settings?.title} url={route(InvoiceUtils.link.index)} />
       {page}
     </RoleBasedLayout>
   );
