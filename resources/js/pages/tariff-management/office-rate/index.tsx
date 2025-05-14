@@ -121,6 +121,25 @@ const OfficeRatePage: OfficeRatePageProps = ({
         />
       </div>
       <div className="flex gap-x-3">
+        <Combobox
+          datas={guarantors}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorSelected}
+          placeholder={"Pilih Asuransi"}
+          className={"min-w-[160px]"}
+          onSelect={(value) => handleSelectGuarantor(value.id)}
+        />
+        {/*<Combobox*/}
+        {/*  datas={guarantorBranches}*/}
+        {/*  labelKey={"name"}*/}
+        {/*  valueKey={"name"}*/}
+        {/*  defaultValueId={guarantorBranchSelected}*/}
+        {/*  placeholder={"Pilih Cabang Asuransi"}*/}
+        {/*  className={"min-w-[160px]"}*/}
+        {/*  isSelectFirst={!guarantorBranchSelected}*/}
+        {/*  onSelect={(value) => handleSelectGuarantorBranch(value.id)}*/}
+        {/*/>*/}
         <Select onValueChange={(value) => handleSelectOfficeType(value)} defaultValue={String(officeTypeSelected)}>
           <SelectTrigger className="min-w-[160px]">
             <SelectValue placeholder="Pilih " />
@@ -145,25 +164,6 @@ const OfficeRatePage: OfficeRatePageProps = ({
             onSelect={(value) => handleSelectOffice(value.id)}
           />
         </Show>
-        <Combobox
-          datas={guarantors}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValue={guarantorSelected}
-          placeholder={"Pilih Asuransi"}
-          className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectGuarantor(value.id)}
-        />
-        {/*<Combobox*/}
-        {/*  datas={guarantorBranches}*/}
-        {/*  labelKey={"name"}*/}
-        {/*  valueKey={"name"}*/}
-        {/*  defaultValueId={guarantorBranchSelected}*/}
-        {/*  placeholder={"Pilih Cabang Asuransi"}*/}
-        {/*  className={"min-w-[160px]"}*/}
-        {/*  isSelectFirst={!guarantorBranchSelected}*/}
-        {/*  onSelect={(value) => handleSelectGuarantorBranch(value.id)}*/}
-        {/*/>*/}
         <Combobox
           datas={products}
           labelKey={"name"}

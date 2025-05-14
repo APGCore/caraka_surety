@@ -92,7 +92,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
     { key: "last_deed", name: "Akte Perubahan Terakhir", value: last_deed },
   ];
 
-  const biodatafields = [
+  const biodatafields: any = [
     { key: "name", name: "Nama", value: name },
     {
       key: "business_info",
@@ -124,7 +124,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       key: "deeds",
       name: "Dokumen Akta",
       fields: [
-        { key: "year_established", name: "Tahun Perusahaan Berdiri", value: year_established },
+        { key: "year_established", name: "Tahun Perusahaan Berdiri", value: year_established, maxLength: 4 },
         {
           key: "est_deed",
           name: "Akte Pendirian",
@@ -163,14 +163,14 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
           {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
         </div>
       ))} */}
-      {biodatafields.map((item) =>
+      {biodatafields.map((item: any) =>
         item?.fields ? (
           <div key={item.key} className="flex gap-5">
-            {item.fields.map(({ key, name, value, ...props }) => (
+            {item.fields.map(({ key, name, value, tooltip, maxLength }: {key: any, name: any, value: any, tooltip?: string, maxLength?: number}) => (
               <div key={key} className="grid w-full gap-1">
                 <Label className="text-sm flex items-center gap-1">
                   {name}
-                  {props?.tooltip && (
+                  {tooltip && (
                     <Tooltip>
                       <TooltipTrigger
                         onClick={(e) => {
@@ -180,7 +180,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                         <InfoIcon className="w-4 h-4" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{props.tooltip}</p>
+                        <p>{tooltip}</p>
                       </TooltipContent>
                     </Tooltip>
                   )}
@@ -192,6 +192,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                   type={typeof value === "number" ? "number" : "text"}
                   value={value || ""}
                   onChange={handleInputChange(key)}
+                  maxLength={maxLength}
                 />
                 {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
               </div>

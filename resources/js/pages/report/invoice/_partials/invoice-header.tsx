@@ -5,16 +5,17 @@ import React from "react";
 
 interface InvoiceHeaderProps {
   title: string;
+  url: string;
 }
 
-const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ title }) => {
+const InvoiceHeader: React.FC<InvoiceHeaderProps> = ({ title, url }) => {
   return (
     <>
       <Head title={title ?? "Invoice"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(InvoiceUtils.link.index)}>Laporan Invoice</BreadcrumbLink>
+            <BreadcrumbLink href={url}>{title ?? "Invoice"}</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

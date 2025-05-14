@@ -63,12 +63,12 @@ class Submission extends Model
 
     public function getGuaranteeValueAttribute($value): string
     {
-      return str_replace(',', '.', $value);
+        return str_replace(',', '.', $value);
     }
 
     public function getContractValueAttribute($value): string
     {
-      return str_replace(',', '.', $value);
+        return str_replace(',', '.', $value);
     }
 
     public function scores(): HasMany
@@ -191,5 +191,10 @@ class Submission extends Model
     public function supportDocs(): HasMany
     {
         return $this->hasMany(SubmissionSupportDoc::class, 'submission_id', 'id');
+    }
+
+    public function submissionRate(): HasOne
+    {
+        return $this->hasOne(SubmissionRate::class, 'submission_id', 'id');
     }
 }

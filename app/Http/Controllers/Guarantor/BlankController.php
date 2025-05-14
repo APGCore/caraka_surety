@@ -293,13 +293,12 @@ class BlankController extends Controller
             ->where([
                 'guarantor_id' => $guarantorId,
                 'profile_id' => $user?->profile_id,
-                'is_used' => false,
                 'is_revised' => false,
                 'is_broken' => false,
                 'is_approved' => true,
             ])
             ->where(function ($query) use ($exceptBlankId) {
-                $query->where('is_picked', false)
+                $query->where(['is_picked' => false, 'is_used' => false])
                     ->when($exceptBlankId != null, function ($query) use ($exceptBlankId) {
                         return $query->orWhere('id', $exceptBlankId);
                     });

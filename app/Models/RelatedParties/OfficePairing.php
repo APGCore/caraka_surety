@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RelatedParties;
 
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
