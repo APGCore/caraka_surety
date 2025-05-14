@@ -1246,7 +1246,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               when={
                 submission.status === SubmissionStatus.PROCESS &&
                 submission.beyond_the_limit &&
-                !submission.checked_at &&
+                submission.checked_at &&
                 !submission.approved_at &&
                 !submission.rejected_at
               }>
