@@ -1605,6 +1605,7 @@ class SubmissionController extends Controller
             ];
         })->toArray();
         $docs = array_merge($docsPrincipal, $supportDocs, $finalOutputFile);
+        $docSupport = $submission->getRelation('supportDocs')->first();
 
         $result = array_merge($dataRevision, [
             'submission_id' => $submission->getAttribute('id'),
@@ -1643,12 +1644,20 @@ class SubmissionController extends Controller
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-                'document' => [
-                    'name' => $submission->getAttribute('contract_doc_name'),
-                    'number' => $submission->getAttribute('contract_doc_number'),
-                    'date' => $submission->getAttribute('contract_doc_date'),
+//                'document' => [
+//                    'name' => $submission->getAttribute('contract_doc_name'),
+//                    'number' => $submission->getAttribute('contract_doc_number'),
+//                    'date' => $submission->getAttribute('contract_doc_date'),
+//                ],
+                'document' => $docSupport ? [
+                    'name' => $docSupport->getAttribute('name'),
+                    'number' => $docSupport->getAttribute('number'),
+                    'date' => $docSupport->getAttribute('date'),
+                ] : [
+                    'name' => null,
+                    'number' => null,
+                    'date' => null,
                 ],
-                // 'document' => $submission->getRelation('supportDocs')->first()->toArray(),
                 'guarantor' => [
                     ...$guarantor->only(['id', 'code', 'name']),
                     'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
