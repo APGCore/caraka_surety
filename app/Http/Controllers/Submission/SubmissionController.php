@@ -1821,25 +1821,21 @@ class SubmissionController extends Controller
 
     public function destroy(Submission $submission): void
     {
-        if ($submission->getAttribute('status') !== SubmissionStatus::PROCESS->value) {
-            flashMessage('error', 'Pengajuan tidak dapat dihapus karena sudah diterima', 'error');
-
-            return;
-        }
         DB::beginTransaction();
         try {
             $submission->scores()->delete();
             $submission->submissionDocs()->delete();
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
-            $submission->blanks()->each(function ($blank) {
+            $submission->load('roles');
+            foreach ($submission->getRelation('roles') as $blank) {
                 $blank->update([
-                    'is_picked' => false,
-                    'is_used' => false,
-                    'is_broken' => false,
-                    'is_revised' => false,
+                  'is_picked' => false,
+                  'is_used' => false,
+                  'is_broken' => false,
+                  'is_revised' => false,
                 ]);
-            });
+            }
             $submission->submissionBefore()->update([
                 'is_revised' => false,
             ]);
