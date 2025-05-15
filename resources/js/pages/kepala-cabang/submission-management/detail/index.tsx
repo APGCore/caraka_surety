@@ -549,7 +549,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Pengajuan Melebihi Batas Kewenangan. Nilai Jaminan Rp. {textCurrency(submission.guarantee_value)}
+              Pengajuan Melebihi Batas Kewenangan. Nilai Jaminan {submission.guarantee_value_formatted}
             </AlertDescription>
           </Alert>
         </div>
@@ -767,21 +767,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Kontrak</td>
                   <td className="p-2">
-                    :{" "}
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                    }).format(submission.contract_value)}
+                    :{" " + submission.contract_value_formatted}
+                    {/*{new Intl.NumberFormat("id-ID", {*/}
+                    {/*  style: "currency",*/}
+                    {/*  currency: "IDR",*/}
+                    {/*}).format(submission.contract_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
                   <td className="p-2">
-                    :{" "}
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                    }).format(submission.guarantee_value)}
+                    :{" " + submission.guarantee_value_formatted}
+                    {/*{new Intl.NumberFormat("id-ID", {*/}
+                    {/*  style: "currency",*/}
+                    {/*  currency: "IDR",*/}
+                    {/*}).format(submission.guarantee_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">

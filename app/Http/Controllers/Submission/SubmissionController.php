@@ -1151,7 +1151,9 @@ class SubmissionController extends Controller
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
-                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
+                        ->when($isManager || $isKepalaCabang, fn ($query) =>
+                          $query->whereIn('staff_id', $staffs)
+                            ->whereNot('status', SubmissionStatus::PROCESS->value)
                             ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
                         ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
                         ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
