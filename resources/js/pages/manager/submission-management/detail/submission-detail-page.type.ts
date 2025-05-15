@@ -344,6 +344,8 @@ interface SubmissionDetailProps {
       url: string;
     }[];
   };
+
+  auth: any
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {

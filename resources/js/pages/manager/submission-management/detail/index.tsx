@@ -69,7 +69,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) => {
   const { currentStep, steps, gotoStep } = useStepper(initialSteps);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -418,7 +418,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
             <AlertDescription>
-              Pengajuan Melebihi Batas Kewenangan. Nilai Jaminan Rp. {textCurrency(submission.guarantee_value)}
+              Pengajuan Melebihi Batas Kewenangan. Nilai Jaminan {submission.guarantee_value_formatted}
             </AlertDescription>
           </Alert>
         </div>
@@ -636,21 +636,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Kontrak</td>
                   <td className="p-2">
-                    :{" "}
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                    }).format(submission.contract_value)}
+                    :{" " + submission.contract_value_formatted}
+                    {/*{new Intl.NumberFormat("id-ID", {*/}
+                    {/*  style: "currency",*/}
+                    {/*  currency: "IDR",*/}
+                    {/*}).format(submission.contract_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
                   <td className="p-2">
-                    :{" "}
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                    }).format(submission.guarantee_value)}
+                    :{" " + submission.guarantee_value_formatted}
+                    {/*{new Intl.NumberFormat("id-ID", {*/}
+                    {/*  style: "currency",*/}
+                    {/*  currency: "IDR",*/}
+                    {/*}).format(submission.guarantee_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">
@@ -1150,7 +1150,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               when={
                 submission.status === SubmissionStatus.PROCESS &&
                 submission.beyond_the_limit &&
-                submission.checked_at &&
+                submission.checked_at !== auth.user.id &&
                 !submission.approved_at &&
                 !submission.rejected_at
               }>
