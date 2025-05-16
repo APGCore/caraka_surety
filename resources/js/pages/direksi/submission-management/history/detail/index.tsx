@@ -779,7 +779,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       disabled={isLoading}
                       className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                       {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Reject
+                      Tolak
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -803,7 +803,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       disabled={isLoading}
                       className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                       {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Approve
+                      Setujui
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>

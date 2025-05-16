@@ -1265,100 +1265,100 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 })()}
               </div>
             </div>
-            <Show
-              when={
-                submission.status === SubmissionStatus.PROCESS &&
-                !submission.beyond_the_limit &&
-                !submission.checked_at &&
-                !submission.approved_at &&
-                !submission.rejected_at
-              }>
-              <div className="flex gap-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="default"
-                      disabled={isLoading}
-                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Reject
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-600 hover:bg-red-400"
-                        onClick={() => submission.id && handleReject(submission.id)}>
-                        Tolak
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="default"
-                      disabled={isLoading}
-                      className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Approve
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-green-600 hover:bg-green-400"
-                        onClick={() => submission.id && handleApprove(submission.id)}>
-                        Setujui
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </Show>
-            <Show
-              when={
-                submission.status === SubmissionStatus.PROCESS &&
-                submission.beyond_the_limit &&
-                !submission.checked_at &&
-                !submission.approved_at &&
-                !submission.rejected_at
-              }>
+            <div className="flex gap-2">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="default"
                     disabled={isLoading}
-                    className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
                     {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim Ke Manager
+                    Tolak
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke Manager?</AlertDialogTitle>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
                     <AlertDialogAction
-                      className="bg-yellow-600 hover:bg-yellow-200"
-                      onClick={() => submission.id && handleCheck(submission.id)}>
-                      Kirim
+                      className="bg-red-600 hover:bg-red-400"
+                      onClick={() => submission.id && handleReject(submission.id)}>
+                      Tolak
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </Show>
+              <Show
+                when={
+                  submission.status === SubmissionStatus.PROCESS &&
+                  !submission.beyond_the_limit &&
+                  !submission.checked_at &&
+                  !submission.approved_at &&
+                  !submission.rejected_at
+                }>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="default"
+                        disabled={isLoading}
+                        className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                        {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                        Setujui
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-green-600 hover:bg-green-400"
+                          onClick={() => submission.id && handleApprove(submission.id)}>
+                          Setujui
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+              </Show>
+              <Show
+                when={
+                  submission.status === SubmissionStatus.PROCESS &&
+                  submission.beyond_the_limit &&
+                  !submission.checked_at &&
+                  !submission.approved_at &&
+                  !submission.rejected_at
+                }>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Kirim Ke Manager
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke Manager?</AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-yellow-600 hover:bg-yellow-200"
+                        onClick={() => submission.id && handleCheck(submission.id)}>
+                        Kirim
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </Show>
+            </div>
             {/*<Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>*/}
             {/*  <AlertDialog>*/}
             {/*    <AlertDialogTrigger asChild>*/}
