@@ -425,7 +425,7 @@ class SubmissionController extends Controller
                     'name' => $doc->name,
                     'number' => $doc->number,
                     'date' => $doc->date,
-                    'url' => Storage::url($doc->url),
+                    'url' => $doc->url ? Storage::url($doc->url) : null,
                 ];
             })]
         );
@@ -597,7 +597,7 @@ class SubmissionController extends Controller
                 'name' => $doc->name,
                 'number' => $doc->number,
                 'date' => $doc->date,
-                'url' => Storage::url($doc->url),
+                'url' => $doc->url ? Storage::url($doc->url) : null,
             ];
         })]);
 
