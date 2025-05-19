@@ -835,6 +835,9 @@ class SubmissionController extends Controller
             $timePeriod += 1;
         }
 
+        // get terbilang hari
+        $terbilang_hari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
+
         $callback = $submission->getRelation('callback');
         if ($callback) {
             $callback->setAttribute('url', $callback->getAttribute('url')
@@ -901,6 +904,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('scoring_result', $scoringResult);
         $submission->setAttribute('analysis', $analysis);
         $submission->setAttribute('terbilang', $terbilang);
+        $submission->setAttribute('terbilang_hari', $terbilang_hari);
         $submission->setAttribute('notes', $notes);
         $submission->setAttribute('recommendation', $recommendation);
         $submission->setAttribute('total_score', $totalScore);
@@ -1151,8 +1155,7 @@ class SubmissionController extends Controller
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);
                         })
-                        ->when($isManager || $isKepalaCabang, fn ($query) =>
-                          $query->whereIn('staff_id', $staffs)
+                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
                             ->whereNot('status', SubmissionStatus::PROCESS->value)
                             ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
                         ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
@@ -1644,11 +1647,11 @@ class SubmissionController extends Controller
             'contract' => [
                 'blank' => $blank?->number,
                 'value' => $submission->getAttribute('contract_value'),
-//                'document' => [
-//                    'name' => $submission->getAttribute('contract_doc_name'),
-//                    'number' => $submission->getAttribute('contract_doc_number'),
-//                    'date' => $submission->getAttribute('contract_doc_date'),
-//                ],
+                //                'document' => [
+                //                    'name' => $submission->getAttribute('contract_doc_name'),
+                //                    'number' => $submission->getAttribute('contract_doc_number'),
+                //                    'date' => $submission->getAttribute('contract_doc_date'),
+                //                ],
                 'document' => $docSupport ? [
                     'name' => $docSupport->getAttribute('name'),
                     'number' => $docSupport->getAttribute('number'),
@@ -1839,10 +1842,10 @@ class SubmissionController extends Controller
             $submission->load('roles');
             foreach ($submission->getRelation('roles') as $blank) {
                 $blank->update([
-                  'is_picked' => false,
-                  'is_used' => false,
-                  'is_broken' => false,
-                  'is_revised' => false,
+                    'is_picked' => false,
+                    'is_used' => false,
+                    'is_broken' => false,
+                    'is_revised' => false,
                 ]);
             }
             $submission->submissionBefore()->update([

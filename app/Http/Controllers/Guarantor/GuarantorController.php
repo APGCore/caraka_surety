@@ -120,11 +120,20 @@ class GuarantorController extends Controller
                 ->create($requestValid)
                 ->load('pattern');
 
+            // pattern
             $guarantor->pattern()->create([
                 'prefix' => $requestValid['prefix'] ?? '',
                 'content' => $requestValid['content'] ?? '',
                 'suffix' => $requestValid['suffix'] ?? '',
             ]);
+
+            // pairing banks
+            if ($request->has('pairing_banks')) {
+                $pairingBanks = collect($requestValid['pairing_banks'])->map(function ($item) {
+                    return ['bank_id' => $item['id']];
+                })->toArray();
+                $guarantor->guarantorPairings()->createMany($pairingBanks);
+            }
 
             activity()
                 ->useLog('guarantor')
@@ -163,7 +172,7 @@ class GuarantorController extends Controller
         $picture = $guarantor->getAttribute('picture') ?
           Storage::url($guarantor->getAttribute('picture')) : '';
         $guarantor->setAttribute('picture', $picture);
-        $guarantor->load('pattern');
+        $guarantor->load(['pattern', 'bank:id,name']);
 
         $component = str_replace('/'.$guarantor->getAttribute('id'), '', request()->path()).'/index';
 
@@ -206,6 +215,15 @@ class GuarantorController extends Controller
                 $guarantor->pattern()->create($patternData);
             } else {
                 $guarantor->pattern->update($patternData);
+            }
+
+            // pairing banks
+            if ($request->has('pairing_banks')) {
+                $pairingBanks = collect($requestValid['pairing_banks'])->map(function ($item) {
+                    return ['bank_id' => $item['id']];
+                })->toArray();
+                $guarantor->guarantorPairings()->delete();
+                $guarantor->guarantorPairings()->createMany($pairingBanks);
             }
 
             activity()

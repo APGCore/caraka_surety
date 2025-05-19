@@ -270,7 +270,6 @@ class ProfileController extends Controller
 
     public function store(StoreRequest $request)
     {
-
         try {
 
             DB::beginTransaction();

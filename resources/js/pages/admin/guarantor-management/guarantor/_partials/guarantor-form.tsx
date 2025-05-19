@@ -1,3 +1,5 @@
+import NewCombobox from "@/_features/_common/components/combobox";
+import { useGetAllBank } from "@/_features/guarantor/services/guarantor-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/_shadcn-ui/avatar";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
@@ -13,7 +15,13 @@ import InputLocation from "@/components/molecules/input/location-input";
 import TextInput from "@/components/molecules/input/text-input";
 import { router, useForm } from "@inertiajs/react";
 import axios from "axios";
-import { FormEvent, FormEventHandler, useEffect, useRef, useState } from "react";
+import { FormEvent, FormEventHandler, useEffect, useMemo, useRef, useState } from "react";
+
+interface Bank {
+  id: number;
+  name: string;
+  isChoosed: boolean;
+}
 
 interface Props {
   guarantor?: any;
@@ -41,6 +49,7 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     prefix: string;
     content: string;
     suffix: string;
+    pairing_banks: any;
   }>({
     id: guarantor?.id ?? null,
     code: guarantor?.code ?? "",
@@ -60,6 +69,7 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     prefix: guarantor?.pattern?.prefix ?? "",
     content: guarantor?.pattern?.content ?? "",
     suffix: guarantor?.pattern?.suffix ?? "",
+    pairing_banks: guarantor?.bank ?? [],
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,11 +121,62 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
     setData("content", data.content + result);
     convertPattern(data.content + result);
   };
+
   const clear = () => {
     setData({ ...data, prefix: "", content: "", suffix: "" });
     setContentConverted("");
     setPreviewPattern("");
   };
+
+  // pairing banks
+  const { data: bank, isLoading: isLoadingBank } = useGetAllBank();
+
+  const [selectedBank, setSelectedBank] = useState<Bank[]>([]);
+
+  const bankList = useMemo(() => {
+    if (!isLoadingBank && Array.isArray(bank)) {
+      return bank.map((item: Bank) => ({
+        id: item.id,
+        name: item.name,
+        isChoosed: selectedBank.some((selected: Bank): boolean => selected.id === item.id),
+      }));
+    }
+    return [];
+  }, [bank, isLoadingBank]);
+
+  const handleSelectBank = (val: Bank) => {
+    if (!val) return;
+    setData("pairing_banks", [...data.pairing_banks, val]);
+    setSelectedBank([...selectedBank, val]);
+  };
+
+  // Render selected guarantors
+  const renderSelectedBanks = useMemo(() => {
+    return selectedBank.map((bank: Bank) => (
+      <div key={bank.id} className="flex items-center justify-between p-1 text-sm pl-2 border rounded-md">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{bank.name}</span>
+        </div>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => {
+            const newSelectedBank = selectedBank.filter((g) => g.id !== bank.id);
+
+            setSelectedBank(newSelectedBank);
+            setData("pairing_banks", newSelectedBank);
+          }}>
+          Hapus
+        </Button>
+      </div>
+    ));
+  }, [selectedBank]);
+
+  useEffect(() => {
+    if (guarantor) {
+      setSelectedBank(guarantor.bank);
+    }
+  }, [guarantor]);
 
   const cancel = () => {
     router.get(routeBack);
@@ -422,6 +483,29 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
           </div>
         </CardContent>
       </Card>
+
+      <div className="grid gap-1 ">
+        <p className="text-lg font-bold uppercase underline underline-offset-4 mb-3">Pairing Asuransi</p>
+        <NewCombobox
+          isDisabled={!isLoadingBank && Array.isArray(bank) && selectedBank.length === bank?.length}
+          data={bankList}
+          valueKey="id"
+          labelKey="name"
+          filterKey="isChoosed"
+          isLoading={isLoadingBank}
+          placeholder="Pilih Bank"
+          onSelect={(val: any) => {
+            handleSelectBank(val);
+          }}
+        />
+        {selectedBank.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <span className="text-sm font-bold">Bank yang dipilih</span>
+            {renderSelectedBanks}
+          </div>
+        )}
+      </div>
+
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
 
