@@ -166,37 +166,51 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       {biodatafields.map((item: any) =>
         item?.fields ? (
           <div key={item.key} className="flex gap-5">
-            {item.fields.map(({ key, name, value, tooltip, maxLength }: {key: any, name: any, value: any, tooltip?: string, maxLength?: number}) => (
-              <div key={key} className="grid w-full gap-1">
-                <Label className="text-sm flex items-center gap-1">
-                  {name}
-                  {tooltip && (
-                    <Tooltip>
-                      <TooltipTrigger
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                        }}>
-                        <InfoIcon className="w-4 h-4" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </Label>
+            {item.fields.map(
+              ({
+                key,
+                name,
+                value,
+                tooltip,
+                maxLength,
+              }: {
+                key: any;
+                name: any;
+                value: any;
+                tooltip?: string;
+                maxLength?: number;
+              }) => (
+                <div key={key} className="grid w-full gap-1">
+                  <Label className="text-sm flex items-center gap-1">
+                    {name}
+                    {tooltip && (
+                      <Tooltip>
+                        <TooltipTrigger
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                          }}>
+                          <InfoIcon className="w-4 h-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </Label>
 
-                <Input
-                  className="text-md"
-                  placeholder={`Masukan ${name}`}
-                  type={typeof value === "number" ? "number" : "text"}
-                  value={value || ""}
-                  onChange={handleInputChange(key)}
-                  maxLength={maxLength}
-                />
-                {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
-              </div>
-            ))}
+                  <Input
+                    className="text-md"
+                    placeholder={`Masukan ${name}`}
+                    type={typeof value === "number" ? "number" : "text"}
+                    value={value || ""}
+                    onChange={handleInputChange(key)}
+                    maxLength={maxLength}
+                  />
+                  {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
+                </div>
+              ),
+            )}
           </div>
         ) : (
           <div key={item.key} className="grid w-full gap-1">

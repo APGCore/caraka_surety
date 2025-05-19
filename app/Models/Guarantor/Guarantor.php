@@ -9,6 +9,7 @@ use App\Models\Location\Regency;
 use App\Models\Product\Product;
 use App\Models\Product\ProductType;
 use App\Models\Profile\Profile;
+use App\Models\RelatedParties\Bank;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -113,5 +114,15 @@ class Guarantor extends Model
     public function hostToHost(): HasOne
     {
         return $this->hasOne(HostToHost::class);
+    }
+
+    public function guarantorPairings(): HasMany
+    {
+        return $this->hasMany(GuarantorPairing::class);
+    }
+
+    public function bank(): BelongsToMany
+    {
+        return $this->belongsToMany(Bank::class, GuarantorPairing::class, 'guarantor_id', 'bank_id')->withPivot('id');
     }
 }

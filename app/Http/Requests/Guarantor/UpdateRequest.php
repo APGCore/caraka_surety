@@ -41,6 +41,10 @@ class UpdateRequest extends FormRequest
             'prefix' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string', 'max:255'],
             'suffix' => ['nullable', 'string', 'max:255'],
+
+            // pairing banks
+            'pairing_banks' => ['nullable', 'array'],
+            'pairing_banks.*.id' => ['required', 'exists:banks,id'],
         ];
     }
 }

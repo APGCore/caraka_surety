@@ -1,11 +1,12 @@
 import { FetchParams } from "@/_features/_common/types/fetch";
 import { QuerySetting } from "@/_features/_common/types/react-query";
-import { useQuery } from "@tanstack/react-query";
+import { QueryOptions, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const GUARANTOR_QUERY_KEY = {
   SEARCH_GUARANTOR: "searchGuarantor",
   GET_ALL_GUARANTOR: "getAllGuarantor",
+  GET_ALL_BANK: "bank",
 };
 
 interface SearchGuarantorsParams extends FetchParams {
@@ -38,6 +39,17 @@ export const useSearchGuarantors = <TResponse = unknown>(
       );
 
       return response.data.data as TResponse;
+    },
+    ...querySetting,
+  });
+};
+
+export const useGetAllBank = (querySetting?: QueryOptions) => {
+  return useQuery({
+    queryKey: [GUARANTOR_QUERY_KEY.GET_ALL_BANK],
+    queryFn: async () => {
+      const response = await axios.get(route("api.bank-management.bank.all"));
+      return response.data.data;
     },
     ...querySetting,
   });
