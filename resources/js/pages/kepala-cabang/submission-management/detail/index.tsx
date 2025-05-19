@@ -367,8 +367,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     mail_number_resume: submission.mail_number_resume || "",
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
-    terbilang: submission?.terbilang || "",
     submission_support_docs: submission?.submission_support_docs || "",
+    terbilang: submission?.terbilang || "",
+    terbilang_hari: submission?.terbilang_hari || "",
   };
 
   const documentFormat = () => {
@@ -1298,32 +1299,32 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   !submission.approved_at &&
                   !submission.rejected_at
                 }>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="default"
-                        disabled={isLoading}
-                        className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                        {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoading}
+                      className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
+                      Setujui
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
+                      </AlertDialogTitle>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-green-600 hover:bg-green-400"
+                        onClick={() => submission.id && handleApprove(submission.id)}>
                         Setujui
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?
-                        </AlertDialogTitle>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-green-600 hover:bg-green-400"
-                          onClick={() => submission.id && handleApprove(submission.id)}>
-                          Setujui
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </Show>
               <Show
                 when={

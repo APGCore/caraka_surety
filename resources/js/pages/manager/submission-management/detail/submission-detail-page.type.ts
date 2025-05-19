@@ -262,6 +262,7 @@ interface SubmissionDetailProps {
     day_name: string;
     submission_date: string;
     terbilang: string;
+    terbilang_hari: string;
     guarantor_city: string;
     note_scoring: string;
   };
@@ -345,7 +346,7 @@ interface SubmissionDetailProps {
     }[];
   };
 
-  auth: any
+  auth: any;
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {

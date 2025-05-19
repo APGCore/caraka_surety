@@ -691,6 +691,8 @@ class SubmissionController extends Controller
         $guaranteeValue = $submission->getAttribute('guarantee_value');
         $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
 
+
+
         // Hitung total skoring
         $totalScore = array_sum($analysis);
 
@@ -835,6 +837,9 @@ class SubmissionController extends Controller
             $timePeriod += 1;
         }
 
+        // get terbilang hari
+        $terbilang_hari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
+
         $callback = $submission->getRelation('callback');
         if ($callback) {
             $callback->setAttribute('url', $callback->getAttribute('url')
@@ -901,6 +906,7 @@ class SubmissionController extends Controller
         $submission->setAttribute('scoring_result', $scoringResult);
         $submission->setAttribute('analysis', $analysis);
         $submission->setAttribute('terbilang', $terbilang);
+        $submission->setAttribute('terbilang_hari', $terbilang_hari);
         $submission->setAttribute('notes', $notes);
         $submission->setAttribute('recommendation', $recommendation);
         $submission->setAttribute('total_score', $totalScore);
