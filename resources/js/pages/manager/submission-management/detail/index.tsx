@@ -1114,7 +1114,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                 when={
                   submission.status === SubmissionStatus.PROCESS &&
                   !submission.beyond_the_limit &&
-                  !submission.checked_at &&
+                  submission.checked_at !== auth.user.id &&
                   !submission.approved_at &&
                   !submission.rejected_at
                 }>

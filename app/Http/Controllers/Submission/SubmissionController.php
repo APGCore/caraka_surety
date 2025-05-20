@@ -1048,10 +1048,10 @@ class SubmissionController extends Controller
                         ->orWhereIn('checked_by', $staffs);
                 })
                 ->whereNull(['approved_by', 'rejected_by'])
-                ->where(fn ($query) => $query
-                    ->whereNull('checked_by')
-                    ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
-                )
+                //  ->where(fn ($query) => $query
+                //      ->whereNull('checked_by')
+                //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
+                //  )
             )
             ->when($isKepalaCabang, fn ($query) => $query
                 ->whereIn('staff_id', $staffs)
