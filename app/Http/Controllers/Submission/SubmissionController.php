@@ -1839,8 +1839,8 @@ class SubmissionController extends Controller
             $submission->submissionDocs()->delete();
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
-            $submission->load('bank');
-            foreach ($submission->getRelation('bank') as $blank) {
+            $submission->load('blank');
+            foreach ($submission->getRelation('blank') as $blank) {
                 $blank->update([
                     'is_picked' => false,
                     'is_used' => false,
