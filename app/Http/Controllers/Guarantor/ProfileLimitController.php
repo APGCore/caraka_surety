@@ -173,7 +173,7 @@ class ProfileLimitController extends Controller
             })
             ->orderBy('id')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', $request->query())
+            ->withQueryString()
             ->appends($request->all());
 
         $profileResource = ProfileResource::collection($profiles);
