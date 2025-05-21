@@ -407,6 +407,9 @@ class SubmissionController extends Controller
             'source_of_fund_id',
             'note',
             'risk_mitigation',
+            'revised_note',
+            'first_year_ratio',
+            'last_year_ratio',
         ]);
 
         $submission = array_merge(
@@ -577,6 +580,9 @@ class SubmissionController extends Controller
             'source_of_fund_id',
             'note',
             'risk_mitigation',
+            'revised_note',
+            'first_year_ratio',
+            'last_year_ratio',
         ]);
 
         $submission = array_merge($submissionArray, [
