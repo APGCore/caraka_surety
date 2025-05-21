@@ -44,7 +44,7 @@ import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
-import React, { Fragment, useCallback, useState } from "react";
+import React, {Fragment, useCallback, useEffect, useState} from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
@@ -137,7 +137,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
   };
   const { data, setData, post, processing } = useForm<SubmissionFormProps>(submission ?? dataDefault);
 
-  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([]);
+  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>(() => data.principal.ratios);
 
   // Product
   const { data: products } = useGetAllProduct(guarantor.id);
@@ -155,6 +155,16 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       }
     });
   };
+
+  useEffect(() => {
+    const fetchRatios = async () => {
+      if (data.principal.id !== null && data.principal.id !== undefined) {
+        const ratio = await fetchPrincipalRatios(Number(data.principal.id));
+        setPrincipalRatios(ratio);
+      }
+    };
+    fetchRatios();
+  }, [data.principal.id]);
 
   // Obligee Province
   const { data: obligeeProvinces } = useGetAllProvince();
