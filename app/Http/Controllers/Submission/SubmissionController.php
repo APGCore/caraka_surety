@@ -374,14 +374,16 @@ class SubmissionController extends Controller
         ]);
         $firstYearRatio = $submission->getAttribute('first_year_ratio');
         $lastYearRatio = $submission->getAttribute('last_year_ratio');
-        $principalRatios = $submission->getRelation('principal')
-          ->principalRatios->whereIn('year', [
-              $firstYearRatio,
-              $lastYearRatio,
-          ])->toArray() ?? [];
+        $principalRatios = $submission->getRelation('principal')->principalRatios;
+        if($firstYearRatio && $lastYearRatio) {
+            $principalRatios = $principalRatios->whereIn('year', [
+                $firstYearRatio,
+                $lastYearRatio,
+            ]);
+        }
 
         $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios,
+            'ratios' => $principalRatios->toArray(),
         ]));
 
         $obligee = $submission->obligee;
@@ -557,13 +559,16 @@ class SubmissionController extends Controller
         ]);
         $firstYearRatio = $submission->getAttribute('first_year_ratio');
         $lastYearRatio = $submission->getAttribute('last_year_ratio');
-        $principalRatios = $submission->getRelation('principal')
-          ->principalRatios->whereIn('year', [
+        $principalRatios = $submission->getRelation('principal')->principalRatios;
+        if($firstYearRatio && $lastYearRatio) {
+          $principalRatios = $principalRatios->whereIn('year', [
             $firstYearRatio,
             $lastYearRatio,
-          ])->toArray() ?? [];
+          ]);
+        }
+
         $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios,
+          'ratios' => $principalRatios->toArray(),
         ]));
 
         $obligee = $submission->getRelation('obligee');
@@ -649,11 +654,14 @@ class SubmissionController extends Controller
 
         $firstYearRatio = $submission->getAttribute('first_year_ratio');
         $lastYearRatio = $submission->getAttribute('last_year_ratio');
-        $ratios = $principal->getRelation('principalRatios')->whereIn('year', [
-            $firstYearRatio,
-            $lastYearRatio,
-        ])->toArray() ?? [];
-        $principal->setAttribute('ratios', $ratios);
+        $ratios = $principal->getRelation('principalRatios');
+        if ($firstYearRatio && $lastYearRatio) {
+            $ratios = $ratios->whereIn('year', [
+                $firstYearRatio,
+                $lastYearRatio,
+            ]);
+        }
+        $principal->setAttribute('ratios', $ratios->toArray());
 
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
         $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
