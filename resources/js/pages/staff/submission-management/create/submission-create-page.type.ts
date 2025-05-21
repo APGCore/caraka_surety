@@ -69,6 +69,8 @@ type Submission = {
   risk_mitigation: string;
   blank_id?: number;
   revised_note: string | null;
+  first_year_ratio: number | null;
+  last_year_ratio: number | null;
   support_docs: SupportDocument[];
 };
 
