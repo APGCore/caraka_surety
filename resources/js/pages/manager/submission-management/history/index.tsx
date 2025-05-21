@@ -1,3 +1,4 @@
+import FilterOffice from "@/_features/_common/components/filter-office";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
@@ -12,33 +13,61 @@ import SubmissionHistoryDatatable from "./_partials/history-datatable";
 import SubmissionHistoryHeader from "./_partials/history-page-header";
 import { SubmissionHistoryPageProps } from "./history-page.type";
 
-const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions, status, statusSelected }) => {
+const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
+  submissions,
+  offices,
+  officeTypes,
+  officeSelected,
+  officeTypeSelected,
+}) => {
   const [search, setSearch] = useState("");
-  const [select, setSelect] = useState("10");
+  const [select, setSelect] = useState(10);
   const [statusSelectedState, setStatusSelectedState] = useState("");
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(parseInt(select), search, statusSelected);
+    getData(select, search, statusSelectedState, officeTypeSelected, officeSelected);
   };
 
   const handleSelect = (value: string) => {
-    setSelect(value);
-    getData(parseInt(value), search, statusSelected);
+    setSelect(Number(value));
+    getData(Number(value), search, statusSelectedState, officeTypeSelected, officeSelected);
   };
 
   const handleStatus = (value: string) => {
     setStatusSelectedState(value);
-    getData(parseInt(select), search, value);
+    getData(select, search, value, officeTypeSelected, officeSelected);
   };
 
-  const getData = (per_page: number, search: string, status: string) => {
+  const handleSelectOfficeType = (officeType: string) => {
+    getData(select, search, statusSelectedState, officeType, undefined);
+  };
+
+  const handleSelectOffice = (officeId: number) => {
+    getData(select, search, statusSelectedState, officeTypeSelected, officeId);
+  };
+
+  const handleReset = () => {
+    setSelect(10);
+    setSearch("");
+    getData(10, "", statusSelectedState, undefined, undefined);
+  };
+
+  const getData = (
+    per_page: number,
+    search: string,
+    status: string | undefined,
+    officeTypeSelected: string | undefined,
+    officeSelected: number | undefined,
+  ) => {
     router.get(
       route("manager-submission-history.submission"),
       pickBy({
         per_page,
         search,
         status_selected: status,
+        office_type: officeTypeSelected,
+        office_id: officeSelected,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -48,7 +77,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions, status
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex space-x-2">
-          <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
+          <SelectLengthDatatable defaultValue={select.toString()} onChange={handleSelect} />
           <Select
             value={statusSelectedState}
             onValueChange={(val) => {
@@ -64,8 +93,17 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({ submissions, status
               />
             </SelectContent>
           </Select>
+          <FilterOffice
+            offices={offices}
+            officeTypes={officeTypes}
+            officeTypeSelected={officeTypeSelected}
+            officeSelected={officeSelected}
+            handleSelectOfficeType={handleSelectOfficeType}
+            handleSelectOffice={handleSelectOffice}
+            handleReset={handleReset}
+          />
         </div>
-        {/*<SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />*/}
+        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />
       </div>
       <SubmissionHistoryDatatable submissions={submissions} />
     </main>

@@ -115,6 +115,8 @@ class SubmissionController extends Controller
                         'staff.office.profileRate',
                         'submissionBefore:id,no_guarantee',
                         'submissionBefore.blanks',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name',
                     ]);
             })
             ->orderBy('created_at', 'desc')
@@ -1042,68 +1044,79 @@ class SubmissionController extends Controller
         $officeTypeSelected = $officeFilter->officeTypeSelected;
         $officeSelected = $officeFilter->officeSelected;
 
+        $search = $request->input('search');
+
         $staffs = ! $isStaff || ! $isDireksi ? User::query()
             ->where('head_id', $authId)
             ->pluck('id') : [];
 
-        $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
-            ->where('product_id', $this->productId)
-            ->when($isDireksi, fn ($query) => $query
-                ->whereNotNull('checked_by')
-                ->where('status', SubmissionStatus::PROCESS->value)
-                ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
-            )
-            ->when($isManager, fn ($query) => $query
-                ->where(function ($query) use ($staffs) {
-                    $query->whereIn('staff_id', $staffs)
-                        ->orWhereIn('checked_by', $staffs);
-                })
-                ->whereNull(['approved_by', 'rejected_by'])
-                //  ->where(fn ($query) => $query
-                //      ->whereNull('checked_by')
-                //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
-                //  )
-            )
-            ->when($isKepalaCabang, fn ($query) => $query
-                ->whereIn('staff_id', $staffs)
-                ->whereNull(['checked_by', 'approved_by', 'rejected_by'])
-            )
-            ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
-            ->when($officeSelected, fn ($query) => $query
-                ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
-            )
-            ->with([
-                'scores',
-                'principal',
-                'bank',
-                'obligee',
-                'sourceOfFund',
-                'guarantor',
-                'guarantorToProductType',
-                'employeeLimit',
-                'guarantorProductTypeLimit',
-            ])
+        $submissions = Submission::search($search)
+            ->query(function ($query) use ($isDireksi, $isManager, $isKepalaCabang, $isKepalaAgentPartner, $staffs, $officeSelected) {
+                $query
+                    ->where('guarantor_id', $this->guarantorId)
+                    ->where('product_id', $this->productId)
+                    ->when($isDireksi, fn ($query) => $query
+                        ->whereNotNull('checked_by')
+                        ->where('status', SubmissionStatus::PROCESS->value)
+                        ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
+                    )
+                    ->when($isManager, fn ($query) => $query
+                        ->where(function ($query) use ($staffs) {
+                            $query->whereIn('staff_id', $staffs)
+                                ->orWhereIn('checked_by', $staffs);
+                        })
+                        ->whereNull(['approved_by', 'rejected_by'])
+                        //  ->where(fn ($query) => $query
+                        //      ->whereNull('checked_by')
+                        //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
+                        //  )
+                    )
+                    ->when($isKepalaCabang, fn ($query) => $query
+                        ->whereIn('staff_id', $staffs)
+                        ->whereNull(['checked_by', 'approved_by', 'rejected_by'])
+                    )
+                    ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
+                    ->when($officeSelected, fn ($query) => $query
+                        ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
+                    )
+                    ->with([
+                        'scores',
+                        'principal',
+                        'bank',
+                        'obligee',
+                        'sourceOfFund',
+                        'guarantor',
+                        'guarantorToProductType',
+                        'employeeLimit',
+                        'guarantorProductTypeLimit',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name',
+                    ]);
+            })
             ->orderByDesc('updated_at')
-            ->get()
-            ->map(function ($submission) {
-                $date = Carbon::parse($submission->created_at)
-                    ->translatedFormat('d F Y');
-                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
-                $employeeLimit = $submission->getRelation('employeeLimit')
-                    ?->firstWhere('employee_id', auth()->id())
-                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
-                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query', null)
+            ->appends($request->all());
 
-                return array_merge($submission->toArray(), [
-                    'employee_limit' => $employeeLimit,
-                    'product_limit' => $productLimit,
-                    'beyond_the_limit' => $beyondTheLimit,
-                    'created_at' => $date,
-                ]);
-            });
+        $submissions = SubmissionResource::collection($submissions);
+        //            ->map(function ($submission) {
+        //                $date = Carbon::parse($submission->created_at)
+        //                    ->translatedFormat('d F Y');
+        //                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
+        //                $employeeLimit = $submission->getRelation('employeeLimit')
+        //                    ?->firstWhere('employee_id', auth()->id())
+        //                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+        //                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
+        //                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
+        //                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
+        //
+        //                return array_merge($submission->toArray(), [
+        //                    'employee_limit' => $employeeLimit,
+        //                    'product_limit' => $productLimit,
+        //                    'beyond_the_limit' => $beyondTheLimit,
+        //                    'created_at' => $date,
+        //                ]);
+        //            });
 
         if ($isStaff) {
             $component = 'staff/submission-management/list/index';
@@ -1183,7 +1196,8 @@ class SubmissionController extends Controller
                             'guarantor',
                             'guarantorToProductType',
                             'guarantorProductTypeLimit',
-                            'staff.office',
+                            'staff:id,name,profile_id',
+                            'staff.office:id,name',
                         ]);
                 }
             )
