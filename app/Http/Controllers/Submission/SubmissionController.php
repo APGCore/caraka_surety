@@ -891,7 +891,7 @@ class SubmissionController extends Controller
         $supportDocs = $submission->getRelation('supportDocs');
 
         $docsInfo = $supportDocs->map(function ($doc) {
-            return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
+            return "{$doc->name}, Nomor : {$doc->number}, Tanggal {$doc->date}";
         })->implode('; ');
 
         // check role
