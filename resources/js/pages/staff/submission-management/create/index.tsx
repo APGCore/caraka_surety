@@ -124,6 +124,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       note: "",
       risk_mitigation: "",
       revised_note: null,
+      first_year_ratio: dayjs().year(),
+      last_year_ratio: dayjs().year() - 1,
       support_docs: [],
     },
     scoring: {
@@ -135,17 +137,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
   };
   const { data, setData, post, processing } = useForm<SubmissionFormProps>(submission ?? dataDefault);
 
-  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>(() => {
-    return data.principal.ratios?.length > 0
-      ? data.principal.ratios
-      : [
-          defaultPrincipalRatios,
-          {
-            ...defaultPrincipalRatios,
-            year: dayjs().year() - 1,
-          },
-        ];
-  });
+  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([]);
 
   // Product
   const { data: products } = useGetAllProduct(guarantor.id);
@@ -390,7 +382,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       ...data.principal,
       ratios,
     });
-    setPrincipalRatios((prev) => [...prev, ...ratios]);
+    setPrincipalRatios((prev) => [
+      ...ratios,
+      ...prev.filter((item) => !ratios.some((r) => r.year === item.year)),
+    ]);
   };
 
   const handleActiveStep = (targetStep: string) => {
@@ -639,7 +634,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       setFormSearchPrincipalState("search");
                       // SETTING PRINCIPAL DATA
 
-                      const ratios = await fetchPrincipalRatios(val.id);
+                      const allRatios = await fetchPrincipalRatios(val.id);
+                      const firstYearRatio = data.submission.first_year_ratio;
+                      const lastYearRatio = data.submission.last_year_ratio;
+                      const ratios = allRatios.filter(
+                        (ratio: Ratio) =>
+                          firstYearRatio &&
+                          lastYearRatio &&
+                          (Number(ratio.year) === Number(firstYearRatio) || Number(ratio.year) === Number(lastYearRatio))
+                      );
                       setData("principal", {
                         ...data.principal,
                         id: val.id,
@@ -667,7 +670,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         ratios: ratios.slice(0, 2),
                       });
 
-                      setPrincipalRatios(ratios);
+                      setPrincipalRatios(allRatios);
                     }}
                   />
                   <Button
@@ -1619,7 +1622,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                 <div>
                   <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                   <div className="grid gap-16">
-                    <PrincipalRatios ratios={principalRatios} setRatio={handleSetRatios} />
+                    <PrincipalRatios ratios={principalRatios} firstYear={data.submission.first_year_ratio} secondYear={data.submission.last_year_ratio} setRatio={handleSetRatios} />
                     <RenderList
                       of={scorings}
                       render={(scoringCategories) => {

@@ -372,19 +372,6 @@ class SubmissionController extends Controller
             'last_deed',
             'business_fields',
         ]);
-        $firstYearRatio = $submission->getAttribute('first_year_ratio');
-        $lastYearRatio = $submission->getAttribute('last_year_ratio');
-        $principalRatios = $submission->getRelation('principal')->principalRatios;
-        if($firstYearRatio && $lastYearRatio) {
-            $principalRatios = $principalRatios->whereIn('year', [
-                $firstYearRatio,
-                $lastYearRatio,
-            ]);
-        }
-
-        $principal = collect(array_merge($principal, [
-            'ratios' => $principalRatios->toArray(),
-        ]));
 
         $obligee = $submission->obligee;
 
@@ -442,7 +429,7 @@ class SubmissionController extends Controller
         );
 
         // new class
-        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+        $data = collect(compact('submission', 'principal', 'obligee', 'scoring'));
 
         return inertia('staff/submission-management/create/index', [
             'page_settings' => fn () => [
@@ -557,19 +544,6 @@ class SubmissionController extends Controller
             'last_deed',
             'business_fields',
         ]);
-        $firstYearRatio = $submission->getAttribute('first_year_ratio');
-        $lastYearRatio = $submission->getAttribute('last_year_ratio');
-        $principalRatios = $submission->getRelation('principal')->principalRatios;
-        if($firstYearRatio && $lastYearRatio) {
-          $principalRatios = $principalRatios->whereIn('year', [
-            $firstYearRatio,
-            $lastYearRatio,
-          ]);
-        }
-
-        $principal = collect(array_merge($principal, [
-          'ratios' => $principalRatios->toArray(),
-        ]));
 
         $obligee = $submission->getRelation('obligee');
 
@@ -622,7 +596,7 @@ class SubmissionController extends Controller
         })]);
 
         // new class
-        $data = collect(compact('submission', 'principal', 'principalRatios', 'obligee', 'scoring'));
+        $data = collect(compact('submission', 'principal', 'obligee', 'scoring'));
 
         return inertia('staff/submission-management/create/index', [
             'page_settings' => fn () => [

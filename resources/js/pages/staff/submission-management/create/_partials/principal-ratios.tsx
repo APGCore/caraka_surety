@@ -17,6 +17,8 @@ import React, { useEffect, useState } from "react";
 
 interface PrincipalRatiosProps {
   ratios: Ratio[];
+  firstYear?: number | null;
+  secondYear?: number | null;
   setRatio: (ratios: Ratio[]) => void;
 }
 
@@ -26,7 +28,7 @@ const cleanNumber = (str: string) => {
   return parseFloat(rounded).toString(); // remove trailing zeros if any
 };
 
-const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) => {
+const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, firstYear, secondYear, setRatio }) => {
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const years: Array<number> = Array.from({ length: 20 }, (_, i) => dayjs().year() - i);
@@ -73,8 +75,8 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, setRatio }) =
   };
 
   useEffect(() => {
-    const firstRatioSet: Ratio = ratios[0] ?? defaultRatio;
-    const secondRatioSet: Ratio = ratios[1] ?? secondDefaultRatio;
+    const firstRatioSet: Ratio = firstYear !== null ? (ratios.find(r => r.year === firstYear) ?? ratios[0]) : defaultRatio;
+    const secondRatioSet: Ratio = secondYear !== null ? (ratios.find(r => r.year === secondYear) ?? ratios[1]) : secondDefaultRatio;
     setFirstRatio(firstRatioSet);
     setSecondRatio(secondRatioSet);
     handleComparisonRatios([firstRatioSet, secondRatioSet]);
