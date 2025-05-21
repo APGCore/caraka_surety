@@ -22,13 +22,19 @@ class ProductTipeController extends Controller
         $perPage = $request->get('per_page') ?? 10;
         $page = $request->get('page') ?? 1;
         $productId = $request->get('product_id') ?? null;
+        $guarantorId = $request->get('guarantor_id') ?? null;
 
         // search query
         $query = ProductType::search($search)
-            ->query(function ($query) use ($productId) {
+            ->query(function ($query) use ($productId, $guarantorId) {
                 if ($productId) {
                     $query->whereHas('product', function ($query) use ($productId) {
                         $query->where('product_id', $productId);
+                    });
+                }
+                if ($guarantorId) {
+                    $query->whereHas('guarantorToProductType', function ($query) use ($guarantorId) {
+                        $query->where('guarantor_id', $guarantorId);
                     });
                 }
             })

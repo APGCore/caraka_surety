@@ -153,7 +153,15 @@ const ProfileLimitsPage: ProfileLimitsPageProps = ({
     router.delete(route(ProfileLimitsUtils.link.destroy, profileLimit.id));
   };
 
-  return <ListOfficeLimitPage />;
+  return (
+    <ListOfficeLimitPage
+      initialGuarantorId={guarantorSelected.toString()}
+      initialProductId={guarantorProductSelected.toString()}
+      initialProductTypeId={guarantorProductTypeSelected.toString()}
+      initialJobGroup={jobGroupSelected}
+      initialOfficeType={officeTypeSelected}
+    />
+  );
 
   return (
     <main className="space-y-2.5">

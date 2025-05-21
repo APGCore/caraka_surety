@@ -8,6 +8,7 @@ use App\Models\Location\Regency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
@@ -29,6 +30,16 @@ class Bank extends Model
             'name' => $this->name,
             'address' => $this->address,
         ];
+    }
+
+    public function head(): BelongsTo
+    {
+        return $this->belongsTo(Bank::class, 'headquarter_id');
+    }
+
+    public function branch(): HasMany
+    {
+        return $this->hasMany(Bank::class, 'headquarter_id');
     }
 
     public function province(): BelongsTo

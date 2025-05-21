@@ -75,8 +75,10 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, firstYear, se
   };
 
   useEffect(() => {
-    const firstRatioSet: Ratio = firstYear !== null ? (ratios.find(r => r.year === firstYear) ?? ratios[0]) : defaultRatio;
-    const secondRatioSet: Ratio = secondYear !== null ? (ratios.find(r => r.year === secondYear) ?? ratios[1]) : secondDefaultRatio;
+    const firstRatioSet: Ratio =
+      firstYear !== null ? (ratios.find((r) => r.year === firstYear) ?? ratios[0]) : defaultRatio;
+    const secondRatioSet: Ratio =
+      secondYear !== null ? (ratios.find((r) => r.year === secondYear) ?? ratios[1]) : secondDefaultRatio;
     setFirstRatio(firstRatioSet);
     setSecondRatio(secondRatioSet);
     handleComparisonRatios([firstRatioSet, secondRatioSet]);

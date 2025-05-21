@@ -43,12 +43,15 @@ class SubmissionController extends Controller
 
     protected int $guarantorId;
 
+    protected int $productId;
+
     public function __construct(
         HostToHostService $hostToHostService
     ) {
         Carbon::setLocale('id');
         $this->hostToHostService = $hostToHostService;
         $this->guarantorId = config('guarantor.id');
+        $this->productId = config('product.id');
     }
 
     public function index(Request $request)
@@ -1045,6 +1048,7 @@ class SubmissionController extends Controller
 
         $submissions = Submission::query()
             ->where('guarantor_id', $this->guarantorId)
+            ->where('product_id', $this->productId)
             ->when($isDireksi, fn ($query) => $query
                 ->whereNotNull('checked_by')
                 ->where('status', SubmissionStatus::PROCESS->value)
@@ -1159,6 +1163,7 @@ class SubmissionController extends Controller
             ->query(
                 function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $staffs, $officeSelected, $statusSelected) {
                     $query->where('guarantor_id', $this->guarantorId)
+                        ->where('product_id', $this->productId)
                         ->when($isStaff, fn ($query) => $query->where('staff_id', $authId))
                         ->when($isDireksi, function ($query) {
                             $query->whereNot('status', SubmissionStatus::PROCESS->value);

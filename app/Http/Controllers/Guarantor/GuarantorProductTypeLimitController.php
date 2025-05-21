@@ -102,7 +102,7 @@ class GuarantorProductTypeLimitController extends Controller
             })
             ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->withQueryString()
             ->appends($request->all());
 
         $resource = GuarantorToProductTypeResource::collection($guarantorProductTypes);

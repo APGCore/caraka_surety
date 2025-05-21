@@ -9,6 +9,7 @@ use App\Http\Resources\Bank\BankResource;
 use App\Models\RelatedParties\Bank;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -62,6 +63,9 @@ class BankController extends Controller
     public function index(Request $request): Response
     {
         $bank = Bank::search($request->get('search'))
+            ->query(function ($query) {
+                $query->whereNull('headquarter_id');
+            })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
@@ -232,9 +236,13 @@ class BankController extends Controller
         return $this->responseSuccess('Success mendapatkan data bank!', $bank);
     }
 
-    public function apiGetAllBank()
+    public function apiGetAllBank(Request $request): JsonResponse
     {
+        $isHead = $request->get('is_head') ?? 'false';
         $bank = Bank::query()
+            ->when($isHead !== 'false', function ($query) {
+                $query->where('headquarter_id', null);
+            })
             ->get();
 
         return $this->responseSuccess('Success mendapatkan data bank!', $bank);

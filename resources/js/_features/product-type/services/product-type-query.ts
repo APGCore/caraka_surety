@@ -9,6 +9,7 @@ export const PRODUCT_TYPE_QUERY_KEY = {
 
 interface SearchProductTypeParams extends FetchParams {
   productId?: string;
+  guarantorId?: string;
 }
 
 export const useSearchProductType = <TResponse = unknown>(
@@ -22,6 +23,7 @@ export const useSearchProductType = <TResponse = unknown>(
       params?.search,
       params?.page,
       params?.productId,
+      params?.guarantorId,
     ],
     queryFn: async () => {
       const response = await axios.get(
@@ -31,6 +33,7 @@ export const useSearchProductType = <TResponse = unknown>(
           page: params?.page,
           is_page_able: params?.isPageAble,
           product_id: params?.productId,
+          guarantor_id: params?.guarantorId,
         }),
       );
 

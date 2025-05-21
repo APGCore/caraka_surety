@@ -44,11 +44,15 @@ export const useSearchGuarantors = <TResponse = unknown>(
   });
 };
 
-export const useGetAllBank = (querySetting?: QueryOptions) => {
+export const useGetAllBank = (isHead: boolean, querySetting?: QueryOptions) => {
   return useQuery({
-    queryKey: [GUARANTOR_QUERY_KEY.GET_ALL_BANK],
+    queryKey: [GUARANTOR_QUERY_KEY.GET_ALL_BANK, isHead ? "true" : "false"],
     queryFn: async () => {
-      const response = await axios.get(route("api.bank-management.bank.all"));
+      const response = await axios.get(
+        route("api.bank-management.bank.all", {
+          is_head: isHead,
+        }),
+      );
       return response.data.data;
     },
     ...querySetting,

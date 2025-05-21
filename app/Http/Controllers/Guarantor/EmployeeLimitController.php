@@ -168,7 +168,7 @@ class EmployeeLimitController extends Controller
             })
             ->orderBy('id')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->withQueryString()
             ->appends($request->all());
 
         $employeeResource = EmployeeResource::collection($employees);
