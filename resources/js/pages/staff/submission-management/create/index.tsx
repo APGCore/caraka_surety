@@ -18,7 +18,7 @@ import {
 } from "@/common/hooks/react-query/principal";
 import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
-import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
+// import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
 import { cn } from "@/common/utils/cn";
 import { getNumericValue } from "@/common/utils/get-numeric-value";
 import { textCurrency } from "@/common/utils/text-currency";
@@ -42,17 +42,13 @@ import PrincipalRatios from "@/pages/staff/submission-management/create/_partial
 import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
-import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useCallback, useState } from "react";
-import { Simulate } from "react-dom/test-utils";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
 import { Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument } from "./submission-create-page.type";
-
-import error = Simulate.error;
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission }) => {
   const defaultPrincipalRatios: Ratio = {
@@ -252,27 +248,27 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
   const [isResetProductType, setIsResetProductType] = useState(false);
 
   // submission before
-  const { data: submissionBefore } = useGetBeforeSubmission({
-    principal_id: String(data.principal.id),
-    guarantor_id: String(selectedGuarantor),
-    product_type_id: String(data.submission.product_type_id),
-    job_group: String(data.submission.job_group),
-    job_type: String(data.submission.job_type),
-  });
+  // const { data: submissionBefore } = useGetBeforeSubmission({
+  //   principal_id: String(data.principal.id),
+  //   guarantor_id: String(selectedGuarantor),
+  //   product_type_id: String(data.submission.product_type_id),
+  //   job_group: String(data.submission.job_group),
+  //   job_type: String(data.submission.job_type),
+  // });
 
-  const handleSelectSubmissionBefore = (submissionId: number) => {
-    setData("submission", {
-      ...data.submission,
-      submission_inherit_id: submissionId,
-    });
-  };
+  // const handleSelectSubmissionBefore = (submissionId: number) => {
+  //   setData("submission", {
+  //     ...data.submission,
+  //     submission_inherit_id: submissionId,
+  //   });
+  // };
 
-  const handleResetSubmissionBefore = () => {
-    setData("submission", {
-      ...data.submission,
-      submission_inherit_id: undefined,
-    });
-  };
+  // const handleResetSubmissionBefore = () => {
+  //   setData("submission", {
+  //     ...data.submission,
+  //     submission_inherit_id: undefined,
+  //   });
+  // };
 
   // profile limit
   const { profileLimit } = useGetProfileLimit({
@@ -394,7 +390,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       ...data.principal,
       ratios,
     });
-    setPrincipalRatios(ratios);
+    setPrincipalRatios((prev) => [...prev, ...ratios]);
   };
 
   const handleActiveStep = (targetStep: string) => {
