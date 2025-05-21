@@ -42,14 +42,16 @@ type OfficeType = "Kantor Pusat" | "Kantor Cabang" | "Mitra Agen" | "Mitra Pemas
 type JobGroup = "Konstruksi" | "Non Konstruksi";
 
 const useOfficeLimit = ({
+  initialGuarantorId,
   initialProductId,
   initialProductTypeId,
   initialJobGroup,
   initialOfficeType,
 }: {
+  initialGuarantorId: string;
   initialProductId: string;
   initialProductTypeId: string;
-  initialJobGroup: string;
+  initialJobGroup: JobGroup;
   initialOfficeType: OfficeType;
 }) => {
   const [search, setSearch] = useQueryState("search", {
@@ -75,6 +77,13 @@ const useOfficeLimit = ({
 
   const [productId, setProductId] = useQueryState("product_id", {
     defaultValue: initialProductId,
+    history: "push",
+    parse: (value) => value || "",
+    serialize: (value) => value,
+  });
+
+  const [guarantorId, setGuarantorId] = useQueryState("guarantor_id", {
+    defaultValue: initialGuarantorId,
     history: "push",
     parse: (value) => value || "",
     serialize: (value) => value,
@@ -116,10 +125,11 @@ const useOfficeLimit = ({
   } = useSearchProductType(
     {
       productId,
+      guarantorId,
       isPageAble: "false",
     },
     {
-      enabled: !!productId,
+      enabled: !!productId && !!guarantorId,
     },
   );
 
@@ -154,12 +164,10 @@ const useOfficeLimit = ({
   const handlePerPageChange = useCallback((value: string) => {
     setPerPage(value);
     setPage("1");
-    setProductId("");
   }, []);
 
   const handlePageChange = useCallback((page: number) => {
     setPage(page.toString());
-    setProductId("");
   }, []);
 
   const handleProductIdChange = useCallback((value: string) => {

@@ -2,6 +2,7 @@ import FilterOffice from "@/_features/_common/components/filter-office";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
+import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
@@ -87,17 +88,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <div className="flex gap-x-3">
-          <form onSubmit={handleSearch} className="flex items-end gap-x-3">
-            <Input
-              className="h-full"
-              placeholder="Cari Pengajuan"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Button type="submit">Cari</Button>
-          </form>
-        </div>
+        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />
       </div>
       <SubmissionHistoryDatatable submissions={submissions} />
     </main>

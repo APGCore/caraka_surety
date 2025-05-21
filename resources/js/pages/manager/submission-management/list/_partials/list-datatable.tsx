@@ -27,6 +27,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nomor Jaminan</TableHead>
@@ -38,10 +39,11 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
         </TableHeader>
         <TableBody>
           <RenderList
-            of={submissions}
+            of={submissions.data}
             render={(submission: any, index: number) => (
               <TableRow key={submission.id} className={submission.beyond_the_limit ? "bg-amber-300" : ""}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{submissions.meta.from + index}</TableCell>
+                <TableCell>{submission.staff?.office}</TableCell>
                 <TableCell>{submission.principal?.name}</TableCell>
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>{submission.no_guarantee}</TableCell>
@@ -91,7 +93,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
         </TableBody>
       </Table>
       <ShowingCountDatatable meta={submissions.meta} />
-      <PaginationDatatable meta={submissions.meta} only={["submissions"]} />
+      <PaginationDatatable meta={submissions.meta} />
     </>
   );
 };

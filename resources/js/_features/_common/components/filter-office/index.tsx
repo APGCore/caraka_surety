@@ -1,3 +1,4 @@
+import NewCombobox from "@/_features/_common/components/combobox";
 import {
   Select,
   SelectContent,
@@ -46,16 +47,14 @@ const FilterOffice: React.FC<FilterOfficeProps> = ({
         </SelectContent>
       </Select>
       <Show when={officeTypeSelected !== officeTypes[0]}>
-        <Combobox
-          datas={offices}
+        <NewCombobox
+          data={offices}
           labelKey={"name"}
-          valueKey={"name"}
+          valueKey={"id"}
           defaultValue={officeSelected}
           placeholder={"Pilih Kantor"}
           className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectOffice(value.id)}
-          isReset={true}
-          handleReset={() => handleReset()}
+          onSelect={(value: any) => handleSelectOffice(value.id)}
         />
       </Show>
     </>

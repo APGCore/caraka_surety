@@ -2,6 +2,7 @@ import React from "react";
 
 interface SubmissionCreateProps {
   guarantor: any;
+  product: any;
   submission?: SubmissionFormProps;
 }
 

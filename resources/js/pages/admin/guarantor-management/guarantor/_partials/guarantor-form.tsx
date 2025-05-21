@@ -129,7 +129,7 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
   };
 
   // pairing banks
-  const { data: bank, isLoading: isLoadingBank } = useGetAllBank();
+  const { data: bank, isLoading: isLoadingBank } = useGetAllBank(true);
 
   const [selectedBank, setSelectedBank] = useState<Bank[]>([]);
 

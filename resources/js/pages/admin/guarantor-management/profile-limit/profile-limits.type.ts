@@ -13,7 +13,7 @@ interface ProfileLimitsProps {
   jobTypes: any;
   jobTypeSelected: string;
   officeTypes: any;
-  officeTypeSelected: number;
+  officeTypeSelected: any;
   limit: any;
   profiles: any;
 }

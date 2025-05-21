@@ -26,11 +26,11 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
             <TableHead className="text-right" />
           </TableRow>
@@ -40,7 +40,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             of={submissions.data}
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{submissions.meta.from + index}</TableCell>
+                <TableCell>{submission?.staff?.office}</TableCell>
                 <TableCell>{submission.principal?.name}</TableCell>
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>{formatRupiah(submission.guarantee_value)}</TableCell>
@@ -57,7 +58,6 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     {submission.status}
                   </span>
                 </TableCell>
-                <TableCell>{submission.staff.office}</TableCell>
                 <TableCell>{submission.created_at}</TableCell>
                 <TableCell className="text-right">
                   <Link href={route("direksi-submission-detail.submission", { id: submission.id })}>

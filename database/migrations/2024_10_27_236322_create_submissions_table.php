@@ -67,6 +67,8 @@ return new class extends Migration
             $table->boolean('is_revised')->default(false);
             $table->boolean('is_added_qrcode')->default(false);
             $table->text('revised_note')->nullable();
+            $table->integer('first_year_ratio')->nullable();
+            $table->integer('last_year_ratio')->nullable();
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();

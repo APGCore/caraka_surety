@@ -44,13 +44,13 @@ import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
-import React, {Fragment, useCallback, useEffect, useState} from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
 import { Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument } from "./submission-create-page.type";
 
-const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission }) => {
+const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, submission }) => {
   const defaultPrincipalRatios: Ratio = {
     current_assets: "",
     current_debt: "",
@@ -96,9 +96,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       postal_code: "",
     },
     submission: {
-      guarantor_id: guarantor?.id ?? "",
+      guarantor_id: guarantor?.id ?? undefined,
       guarantor_branch_id: undefined,
-      product_id: undefined,
+      product_id: product?.id ?? undefined,
       product_type_id: null,
       job_group: "",
       job_type: "",
@@ -392,10 +392,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
       ...data.principal,
       ratios,
     });
-    setPrincipalRatios((prev) => [
-      ...ratios,
-      ...prev.filter((item) => !ratios.some((r) => r.year === item.year)),
-    ]);
+    setPrincipalRatios((prev) => [...ratios, ...prev.filter((item) => !ratios.some((r) => r.year === item.year))]);
   };
 
   const handleActiveStep = (targetStep: string) => {
@@ -651,7 +648,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                         (ratio: Ratio) =>
                           firstYearRatio &&
                           lastYearRatio &&
-                          (Number(ratio.year) === Number(firstYearRatio) || Number(ratio.year) === Number(lastYearRatio))
+                          (Number(ratio.year) === Number(firstYearRatio) ||
+                            Number(ratio.year) === Number(lastYearRatio)),
                       );
                       setData("principal", {
                         ...data.principal,
@@ -823,34 +821,34 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                       />
                     </div>
                     <div className="flex gap-5">
-                      <div className="grid gap-1 w-full">
-                        <Label className="text-md">Produk</Label>
-                        <Combobox
-                          datas={Array.isArray(products) ? products : []}
-                          labelKey="name"
-                          valueKey="name"
-                          placeholder="Pilih Produk"
-                          defaultValueId={data?.submission?.product_id ?? selectedProducts}
-                          onSelect={(val: any) => {
-                            let changedSubmission = {
-                              ...data.submission,
-                            };
-                            if (val.id !== selectedProducts) {
-                              setSelectedBranchGuarantor(null);
-                              setSelectedProductType(null);
-                              setIsResetProductType(true);
-                              changedSubmission["product_type_id"] = null;
-                              if (data?.submission?.bank_id) {
-                                changedSubmission["bank_id"] = undefined;
-                                setSelectedBank(null);
-                              }
-                            }
-                            changedSubmission["product_id"] = val?.id;
-                            setData("submission", changedSubmission);
-                            setSelectedProducts(val.id);
-                          }}
-                        />
-                      </div>
+                      {/*<div className="grid gap-1 w-full">*/}
+                      {/*  <Label className="text-md">Produk</Label>*/}
+                      {/*  <Combobox*/}
+                      {/*    datas={Array.isArray(products) ? products : []}*/}
+                      {/*    labelKey="name"*/}
+                      {/*    valueKey="name"*/}
+                      {/*    placeholder="Pilih Produk"*/}
+                      {/*    defaultValueId={data?.submission?.product_id ?? selectedProducts}*/}
+                      {/*    onSelect={(val: any) => {*/}
+                      {/*      let changedSubmission = {*/}
+                      {/*        ...data.submission,*/}
+                      {/*      };*/}
+                      {/*      if (val.id !== selectedProducts) {*/}
+                      {/*        setSelectedBranchGuarantor(null);*/}
+                      {/*        setSelectedProductType(null);*/}
+                      {/*        setIsResetProductType(true);*/}
+                      {/*        changedSubmission["product_type_id"] = null;*/}
+                      {/*        if (data?.submission?.bank_id) {*/}
+                      {/*          changedSubmission["bank_id"] = undefined;*/}
+                      {/*          setSelectedBank(null);*/}
+                      {/*        }*/}
+                      {/*      }*/}
+                      {/*      changedSubmission["product_id"] = val?.id;*/}
+                      {/*      setData("submission", changedSubmission);*/}
+                      {/*      setSelectedProducts(val.id);*/}
+                      {/*    }}*/}
+                      {/*  />*/}
+                      {/*</div>*/}
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Cabang Asuransi</Label>
                         <Combobox
@@ -1632,7 +1630,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
                 <div>
                   <h1 className="text-2xl font-bold mb-8">Resume dan Skoring</h1>
                   <div className="grid gap-16">
-                    <PrincipalRatios ratios={principalRatios} firstYear={data.submission.first_year_ratio} secondYear={data.submission.last_year_ratio} setRatio={handleSetRatios} />
+                    <PrincipalRatios
+                      ratios={principalRatios}
+                      firstYear={data.submission.first_year_ratio}
+                      secondYear={data.submission.last_year_ratio}
+                      setRatio={handleSetRatios}
+                    />
                     <RenderList
                       of={scorings}
                       render={(scoringCategories) => {
@@ -1796,7 +1799,7 @@ SubmissionCreatePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionCreateHeader title={pagePropsData?.page_settings?.title} />
+      <SubmissionCreateHeader title={pagePropsData?.page_settings?.title + " " + pagePropsData?.product?.name} />
       {page}
     </RoleBasedLayout>
   );

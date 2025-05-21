@@ -22,10 +22,19 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { Pencil, Search, Trash } from "lucide-react";
+import React from "react";
 import CreateUpdateOfficeLimitModal from "../../components/office-limit/create-update-office-limit-modal";
 import DeleteOfficeLimitModal from "../../components/office-limit/delete-office-limit-modal";
 import useOfficeLimit from "../../hooks/use-list-office-limit";
 import useOfficeLimitModal from "../../hooks/use-office-limit-modal";
+
+interface ListOfficeLimitPageType {
+  initialGuarantorId: string;
+  initialProductId: string;
+  initialProductTypeId: string;
+  initialJobGroup: any;
+  initialOfficeType: any;
+}
 
 const formatRupiah = (value: number | string | null | undefined) => {
   if (!value) return "Belum diatur";
@@ -38,7 +47,13 @@ const formatRupiah = (value: number | string | null | undefined) => {
   }).format(num);
 };
 
-const ListOfficeLimitPage = () => {
+const ListOfficeLimitPage: React.FC<ListOfficeLimitPageType> = ({
+  initialGuarantorId,
+  initialProductId,
+  initialProductTypeId,
+  initialJobGroup,
+  initialOfficeType,
+}) => {
   const {
     isOpenUpdateOfficeLimit,
     handleOpenUpdateOfficeLimit,
@@ -80,10 +95,11 @@ const ListOfficeLimitPage = () => {
     isLoadingOfficeTypes,
     isSuccessOfficeTypes,
   } = useOfficeLimit({
-    initialProductId: "1",
-    initialProductTypeId: "1",
-    initialJobGroup: "Konstruksi",
-    initialOfficeType: "Kantor Pusat",
+    initialGuarantorId,
+    initialProductId,
+    initialProductTypeId,
+    initialJobGroup,
+    initialOfficeType,
   });
 
   return (

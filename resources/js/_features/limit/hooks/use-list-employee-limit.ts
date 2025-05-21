@@ -154,12 +154,10 @@ const useListEmployeeLimit = ({
   const handlePerPageChange = useCallback((value: string) => {
     setPerPage(value);
     setPage("1");
-    setProductId("");
   }, []);
 
   const handlePageChange = useCallback((page: number) => {
     setPage(page.toString());
-    setProductId("");
   }, []);
 
   const handleProductIdChange = useCallback((value: string) => {
