@@ -152,8 +152,8 @@ class SubmissionController extends Controller
         try {
             $principal = $validated['principal'];
             $principalId = $principal['id'];
-            $principalRatios = $principal['ratios'];
-            $principalRatios = collect($principalRatios)->map(function ($ratio) {
+            $principalRatios = collect($principal['ratios']);
+            $principalRatios = $principalRatios->map(function ($ratio) {
                 $ratio['year'] = (int) $ratio['year'];
                 $ratio['current_assets'] = (float) $ratio['current_assets'];
                 $ratio['current_debt'] = (float) $ratio['current_debt'];
@@ -256,6 +256,8 @@ class SubmissionController extends Controller
             $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
             $dataSubmission['contract_value'] = (float) str_replace(',', '.', $submission['contract_value']);
             $dataSubmission['guarantee_value'] = (float) str_replace(',', '.', $submission['guarantee_value']);
+            $dataSubmission['first_year_ratio'] = $principalRatios[0]['year'] ?? null;
+            $dataSubmission['last_year_ratio'] = $principalRatios[1]['year'] ?? null;
 
             $scores = $scoring['scores'];
 
@@ -370,7 +372,14 @@ class SubmissionController extends Controller
             'last_deed',
             'business_fields',
         ]);
-        $principalRatios = $submission->principal->principalRatios->toArray() ?? [];
+        $firstYearRatio = $submission->getAttribute('first_year_ratio');
+        $lastYearRatio = $submission->getAttribute('last_year_ratio');
+        $principalRatios = $submission->getRelation('principal')
+          ->principalRatios->whereIn('year', [
+              $firstYearRatio,
+              $lastYearRatio,
+          ])->toArray() ?? [];
+
         $principal = collect(array_merge($principal, [
             'ratios' => $principalRatios,
         ]));
@@ -546,7 +555,13 @@ class SubmissionController extends Controller
             'last_deed',
             'business_fields',
         ]);
-        $principalRatios = $submission->getRelation('principal')->principalRatios->toArray() ?? [];
+        $firstYearRatio = $submission->getAttribute('first_year_ratio');
+        $lastYearRatio = $submission->getAttribute('last_year_ratio');
+        $principalRatios = $submission->getRelation('principal')
+          ->principalRatios->whereIn('year', [
+            $firstYearRatio,
+            $lastYearRatio,
+          ])->toArray() ?? [];
         $principal = collect(array_merge($principal, [
             'ratios' => $principalRatios,
         ]));
@@ -632,7 +647,12 @@ class SubmissionController extends Controller
                 return $doc->only(['id', 'name', 'description', 'url']);
             });
 
-        $ratios = collect($principal->getRelation('principalRatios'))->take(2);
+        $firstYearRatio = $submission->getAttribute('first_year_ratio');
+        $lastYearRatio = $submission->getAttribute('last_year_ratio');
+        $ratios = $principal->getRelation('principalRatios')->whereIn('year', [
+            $firstYearRatio,
+            $lastYearRatio,
+        ])->toArray() ?? [];
         $principal->setAttribute('ratios', $ratios);
 
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
@@ -871,7 +891,7 @@ class SubmissionController extends Controller
         $supportDocs = $submission->getRelation('supportDocs');
 
         $docsInfo = $supportDocs->map(function ($doc) {
-            return "{$doc->name}, Nomor {$doc->number}, Tanggal {$doc->date}";
+            return "{$doc->name}, Nomor : {$doc->number}, Tanggal {$doc->date}";
         })->implode('; ');
 
         // check role
