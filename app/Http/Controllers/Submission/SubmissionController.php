@@ -635,7 +635,7 @@ class SubmissionController extends Controller
                 $lastYearRatio,
             ]);
         }
-        $principal->setAttribute('ratios', $ratios->toArray());
+        $principal->setAttribute('ratios', $ratios->values()->toArray());
 
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
         $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
