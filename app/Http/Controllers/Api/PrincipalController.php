@@ -103,7 +103,7 @@ class PrincipalController extends Controller
     {
         $principal->load('principalRatios');
 
-        $ratios = $principal->getRelation('principalRatios')->take(2) ?? [];
+        $ratios = $principal->getRelation('principalRatios') ?? [];
 
         return $this->responseSuccess('Data Ratio', $ratios);
     }
