@@ -96,12 +96,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, firstYear, se
           <div className="pt-2 text-black h-[45px]">Laba Bersih</div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Likuiditas
-            {comparisonRatios.liquidity_ratios == true && (
+            {comparisonRatios?.liquidity_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
                 Naik
               </Badge>
             )}
-            {comparisonRatios.liquidity_ratios == false && (
+            {comparisonRatios?.liquidity_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>
@@ -109,12 +109,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, firstYear, se
           </div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Profitabilitas
-            {comparisonRatios.profitability_ratios == true && (
+            {comparisonRatios?.profitability_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
                 Naik
               </Badge>
             )}
-            {comparisonRatios.profitability_ratios == false && (
+            {comparisonRatios?.profitability_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>
@@ -122,12 +122,12 @@ const PrincipalRatios: React.FC<PrincipalRatiosProps> = ({ ratios, firstYear, se
           </div>
           <div className="pt-2 text-black h-[45px] flex justify-between">
             Rasio Solvabilitas
-            {comparisonRatios.solvency_ratios == true && (
+            {comparisonRatios?.solvency_ratios == true && (
               <Badge variant="success" className="flex-shrink-0 h-6">
                 Naik
               </Badge>
             )}
-            {comparisonRatios.solvency_ratios == false && (
+            {comparisonRatios?.solvency_ratios == false && (
               <Badge variant="destructive" className="flex-shrink-0 h-6">
                 Turun
               </Badge>

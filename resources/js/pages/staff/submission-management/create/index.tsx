@@ -137,7 +137,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, submission
   };
   const { data, setData, post, processing } = useForm<SubmissionFormProps>(submission ?? dataDefault);
 
-  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>([]);
+  const [principalRatios, setPrincipalRatios] = useState<Ratio[]>(() => data.principal.ratios);
 
   // Product
   const { data: products } = useGetAllProduct(guarantor.id);
