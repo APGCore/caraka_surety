@@ -9,4 +9,5 @@ export interface Roles {
   KepalaAgentPartner: string;
   AgentPartner: string;
   MarketingPartner: string;
+  Keuangan: string;
 }

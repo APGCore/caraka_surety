@@ -7,6 +7,7 @@ use App\Enums\SubmissionStatus;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use Illuminate\Http\Request;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
@@ -119,14 +120,14 @@ class DashboardController extends Controller
         ];
     }
 
-    public function dashboardAdmin(Request $request): \Inertia\Response
+    public function dashboardAdmin(Request $request): Response
     {
         $component = 'admin/dashboard/index';
 
         return inertia($component);
     }
 
-    public function dashboardStaff(Request $request): \Inertia\Response
+    public function dashboardStaff(Request $request): Response
     {
         $productId = $request->get('product_id');
         $props = $this->getProps($productId);
@@ -136,7 +137,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardStaffOperasional(Request $request): \Inertia\Response
+    public function dashboardStaffOperasional(Request $request): Response
     {
         $component = 'staff-operasional/dashboard/index';
 
@@ -146,7 +147,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardStaffTeknik(Request $request): \Inertia\Response
+    public function dashboardStaffTeknik(Request $request): Response
     {
         $component = 'staff-teknik/dashboard/index';
 
@@ -156,7 +157,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardManager(Request $request): \Inertia\Response
+    public function dashboardManager(Request $request): Response
     {
         $component = 'manager/dashboard/index';
 
@@ -166,7 +167,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardDireksi(Request $request): \Inertia\Response
+    public function dashboardDireksi(Request $request): Response
     {
         $component = 'direksi/dashboard/index';
 
@@ -176,14 +177,14 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardStaffCabang(Request $request): \Inertia\Response
+    public function dashboardStaffCabang(Request $request): Response
     {
         $component = 'staff-cabang/dashboard/index';
 
         return inertia($component);
     }
 
-    public function dashboardKepalaCabang(Request $request): \Inertia\Response
+    public function dashboardKepalaCabang(Request $request): Response
     {
         $component = 'kepala-cabang/dashboard/index';
 
@@ -193,7 +194,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardKepalaAgenPartner(Request $request): \Inertia\Response
+    public function dashboardKepalaAgenPartner(Request $request): Response
     {
         $component = 'kepala-agent-partner/dashboard/index';
 
@@ -203,7 +204,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardAgenPartner(Request $request): \Inertia\Response
+    public function dashboardAgenPartner(Request $request): Response
     {
         $component = 'agent-partner/dashboard/index';
 
@@ -213,7 +214,7 @@ class DashboardController extends Controller
         return inertia($component, $props);
     }
 
-    public function dashboardMarketingPartner(Request $request): \Inertia\Response
+    public function dashboardMarketingPartner(Request $request): Response
     {
         $component = 'marketing-partner/dashboard/index';
 
@@ -221,5 +222,15 @@ class DashboardController extends Controller
         $props = $this->getProps($productId);
 
         return inertia($component, $props);
+    }
+
+    public function dashboardKeuangan(Request $request): Response
+    {
+        $component = 'keuangan/dashboard/index';
+
+        $productId = $request->get('product_id');
+        $products = Product::query()->get();
+
+        return inertia($component, compact('products'));
     }
 }

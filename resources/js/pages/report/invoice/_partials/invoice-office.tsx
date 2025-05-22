@@ -27,7 +27,7 @@ const InvoiceOffice: React.FC<InvoiceOfficeProps> = ({ officeRate }) => {
             <TableCell>: {officeRate?.rate}%</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Biaya Admin</TableCell>
+            <TableCell>Biaya Administrasi</TableCell>
             <TableCell>: {formatCurrency(officeRate?.adm)}</TableCell>
           </TableRow>
           <TableRow>

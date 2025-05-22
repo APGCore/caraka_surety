@@ -33,7 +33,7 @@ const InvoiceGuarantor: React.FC<InvoiceGuarantorProps> = ({ guarantorName, guar
             <TableCell>: {guarantorRate?.rate}%</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>Administrasi</TableCell>
+            <TableCell>Biaya Administrasi</TableCell>
             <TableCell>: {formatCurrency(guarantorRate?.adm)}</TableCell>
           </TableRow>
           <TableRow>
