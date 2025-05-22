@@ -1,3 +1,4 @@
+import NewCombobox from "@/_features/_common/components/combobox";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   Select,
@@ -19,7 +20,6 @@ import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 import { OfficeRatePageProps } from "./office-rate.type";
-import NewCombobox from "@/_features/_common/components/combobox";
 
 const OfficeRatePage: OfficeRatePageProps = ({
   offices,
