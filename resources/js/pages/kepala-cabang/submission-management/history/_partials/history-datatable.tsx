@@ -1,4 +1,4 @@
-import { formatCurrency } from "@/common/utils/format-currency";
+import { formatCurrency } from "@/_features/_common/utils/format-currency";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
@@ -19,8 +19,10 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
+            <TableHead>Nomor Jaminan</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal Dibuat</TableHead>
@@ -32,10 +34,12 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             of={submissions.data}
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{submissions.meta.from + index}</TableCell>
+                <TableCell>{submission.staff?.office}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>{formatCurrency(submission?.guarantee_value)}</TableCell>
+                <TableCell>{submission.no_guarantee}</TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
@@ -61,7 +65,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={9} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

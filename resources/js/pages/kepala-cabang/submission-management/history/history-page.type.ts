@@ -5,6 +5,10 @@ interface SubmissionHistoryProps {
   submissions: any[];
   status: SubmissionStatus;
   statusSelected: string;
+  offices: any;
+  officeTypes: any;
+  officeSelected: any;
+  officeTypeSelected: any;
 }
 
 export type SubmissionHistoryPageProps = React.FC<SubmissionHistoryProps> & {

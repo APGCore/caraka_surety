@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/_features/_common/utils/format-currency";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
@@ -6,14 +7,6 @@ import { PaginationDatatable } from "@/components/molecules/datatable/pagination
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import React from "react";
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(value);
-}
 
 interface SubmissionListDatatableProps {
   submissions: any;
@@ -45,7 +38,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                 <TableCell>{submission.principal?.name}</TableCell>
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>
-                  {formatRupiah(submission.guarantee_value)} limit {formatRupiah(submission.employee_limit)}
+                  {formatCurrency(submission.guarantee_value)} limit {formatCurrency(submission.employee_limit)}
                 </TableCell>
                 <TableCell>
                   <span
