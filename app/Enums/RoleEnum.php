@@ -30,8 +30,8 @@ enum RoleEnum: string
     case StaffOperasional = 'Staff Operasional';
     case StaffOperasionalRoute = 'staff-operasional.dashboard.index';
 
-    case Finance = 'Keuangan';
-    case FinanceRoute = 'keuangan.index';
+    case Keuangan = 'Keuangan';
+    case KeuanganRoute = 'keuangan.index';
 
     public static function getValues(): array
     {
@@ -46,7 +46,7 @@ enum RoleEnum: string
             self::AgentPartner->value,
             self::MarketingPartner->value,
             self::KepalaAgentPartner->value,
-            self::Finance->value,
+            self::Keuangan->value,
         ];
     }
 
@@ -63,7 +63,7 @@ enum RoleEnum: string
             self::KepalaAgentPartner->value => self::KepalaAgentPartnerRoute->value,
             self::AgentPartner->value => self::AgentPartnerRoute->value,
             self::MarketingPartner->value => self::MarketingPartnerRoute->value,
-            self::Finance->value => self::FinanceRoute->value,
+            self::Keuangan->value => self::KeuanganRoute->value,
         ];
     }
 
@@ -80,7 +80,7 @@ enum RoleEnum: string
             self::KepalaAgentPartner->name => self::KepalaAgentPartner->value,
             self::AgentPartner->name => self::AgentPartner->value,
             self::MarketingPartner->name => self::MarketingPartner->value,
-            self::Finance->name => self::Finance->value,
+            self::Keuangan->name => self::Keuangan->value,
         ];
     }
 }

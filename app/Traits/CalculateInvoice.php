@@ -26,9 +26,9 @@ trait CalculateInvoice
         $serviceCharge = (float) $timePeriode > 91 ? (($guaranteeValue * $rate * $timePeriode) / 91) : ($guaranteeValue * $rate);
         $premi = max($serviceCharge, $minimum);
         $total = max(($adm + $serviceCharge), ($adm + $premi));
-        $commission *= $premi;
-        $pph *= $commission;
-        $nettCommission = $commission - $pph;
+        $commissionResult = $commission * $premi;
+        $pphResult = $pph * $commissionResult;
+        $nettCommission = $commissionResult - $pphResult;
         $nettPremi = $total - $nettCommission;
 
         return collect([
@@ -37,11 +37,15 @@ trait CalculateInvoice
             'adm' => $adm,
             'broken_rate' => $brokenRate,
             'revised_rate' => $revisedRate,
+            'percent_commission' => $commission * 100,
+            'percent_pph' => $pph * 100,
+
+            // result
             'service_charges' => $serviceCharge,
             'premi' => $premi,
             'total' => $total,
-            'commission' => $commission,
-            'pph_commission' => $pph,
+            'commission' => $commissionResult,
+            'pph_commission' => $pphResult,
             'nett_commission' => $nettCommission,
             'nett_premi' => $nettPremi,
         ]);

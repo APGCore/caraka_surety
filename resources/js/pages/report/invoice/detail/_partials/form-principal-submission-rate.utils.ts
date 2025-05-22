@@ -6,7 +6,7 @@ export const FormPrincipalSubmissionRateUtils = {
   },
   create: {
     route: InvoiceUtils.link.store,
-    title: "Tarif Perusahaan Di Pengajuan",
+    title: "Setting Tarif Perusahaan Di Pengajuan",
     sub_title: "Tindakan ini akan mengatur data Tarif Perusahaan dan Pengajuan",
     btn_label: "Simpan",
     class_name: "w-full",

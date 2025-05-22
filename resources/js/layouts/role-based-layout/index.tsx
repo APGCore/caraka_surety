@@ -1,3 +1,4 @@
+import KeuanganLayoutPage from "@/layouts/pusat-layout/kauangan";
 import AdminLayoutPage from "../admin-layout";
 import AgentPartnerLayoutPage from "../agent-partner";
 import KepalaCabangLayoutPage from "../cabang-layout/kepala-cabang";
@@ -73,6 +74,12 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
         <MarketingPartnerLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
         </MarketingPartnerLayoutPage>
+      );
+    case roles.Keuangan:
+      return (
+        <KeuanganLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
+          {children}
+        </KeuanganLayoutPage>
       );
     default:
       return (

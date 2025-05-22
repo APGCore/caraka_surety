@@ -14,6 +14,8 @@ import Show from "@/components/atoms/show";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
+import InvoiceGuarantor from "@/pages/report/invoice/_partials/invoice-guarantor";
+import InvoiceOffice from "@/pages/report/invoice/_partials/invoice-office";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { FormPrincipalSubmissionRateUtils } from "@/pages/report/invoice/detail/_partials/form-principal-submission-rate.utils";
 import { InvoiceDetailPageProps } from "@/pages/report/invoice/detail/invoice-detail.type";
@@ -101,6 +103,14 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
                       <p className="text-sm font-semibold">Tarif Blangko Revisi</p>
                       <p>{formatCurrency(guarantor_rate.revised_rate)}</p>
                     </div>
+                    <div className="col-span-1">
+                      <p className="text-sm font-semibold">Komisi</p>
+                      <p>{guarantor_rate.percent_commission} %</p>
+                    </div>
+                    <div className="col-span-1">
+                      <p className="text-sm font-semibold">PPH 23</p>
+                      <p>{guarantor_rate.percent_pph} %</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -176,126 +186,114 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
           <CardDescription>{FormPrincipalSubmissionRateUtils.create.sub_title}</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="cols-span-1 space-y-2">
+              <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
+                Minimum Penjualan
+              </label>
+
+              <div className="flex items-center space-x-4">
+                <InputCurrency
+                  value={data.minimum_bill?.toString() ?? ""}
+                  onChange={(e) => setData({ ...data, minimum_bill: e })}
+                />
+              </div>
+
+              <InputError message={errors?.minimum_bill} />
+            </div>
+            <div className="cols-span-1 space-y-2">
+              <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">
+                Tarif Penjualan
+              </label>
+              <div className="flex items-center space-x-4">
+                <Input
+                  type="number"
+                  id="selling_rate"
+                  name="selling_rate"
+                  value={data.selling_rate}
+                  step="0.00001"
+                  min="0"
+                  onChange={(e) => setData({ ...data, selling_rate: e.currentTarget.value })}
+                />
+                <span className="text-gray-900 text-sm">%</span>
+              </div>
+
+              <InputError message={errors?.selling_rate} />
+            </div>
+            <div className="cols-span-1 space-y-2">
+              <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">
+                Administrasi Penjualan
+              </label>
+              <div className="flex items-center space-x-4">
+                <InputCurrency
+                  value={data.sales_administration?.toString() ?? ""}
+                  onChange={(e) => setData({ ...data, sales_administration: e })}
+                />
+              </div>
+
+              <InputError message={errors?.sales_administration} />
+            </div>
+            <div className="cols-span-1 space-y-2">
+              <label htmlFor="broken_rate" className="block text-sm font-medium text-gray-700">
+                Tarif Blangko Rusak
+              </label>
+              <div className="flex items-center space-x-4">
+                <InputCurrency
+                  value={data.broken_rate?.toString() ?? ""}
+                  onChange={(e) => setData({ ...data, broken_rate: e })}
+                />
+              </div>
+
+              <InputError message={errors?.broken_rate} />
+            </div>
+            <div className="cols-span-1 space-y-2">
+              <label htmlFor="revised_rate" className="block text-sm font-medium text-gray-700">
+                Tarif blangko Revisi
+              </label>
+              <div className="flex items-center space-x-4">
+                <InputCurrency
+                  value={data.revised_rate?.toString() ?? ""}
+                  onChange={(e) => setData({ ...data, revised_rate: e })}
+                />
+              </div>
+
+              <InputError message={errors?.revised_rate} />
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <div className="w-full text-right">
+            <Button type="button" onClick={submit}>
+              <Loading isLoading={processing} />
+              Simpan
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Hasil Tarif</CardTitle>
+          <CardDescription>Hasil tarif yang sudah di setting</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-1">
               <Card>
                 <CardHeader>
-                  <CardTitle>Setting Tarif</CardTitle>
+                  <CardTitle>Tarif Modal</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="cols-span-1 space-y-2">
-                      <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">
-                        Minimum Penjualan
-                      </label>
-
-                      <div className="flex items-center space-x-4">
-                        <InputCurrency
-                          value={data.minimum_bill?.toString() ?? ""}
-                          onChange={(e) => setData({ ...data, minimum_bill: e })}
-                        />
-                      </div>
-
-                      <InputError message={errors?.minimum_bill} />
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">
-                        Tarif Penjualan
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <Input
-                          type="number"
-                          id="selling_rate"
-                          name="selling_rate"
-                          value={data.selling_rate}
-                          step="0.00001"
-                          min="0"
-                          onChange={(e) => setData({ ...data, selling_rate: e.currentTarget.value })}
-                        />
-                        <span className="text-gray-900 text-sm">%</span>
-                      </div>
-
-                      <InputError message={errors?.selling_rate} />
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">
-                        Administrasi Penjualan
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <InputCurrency
-                          value={data.sales_administration?.toString() ?? ""}
-                          onChange={(e) => setData({ ...data, sales_administration: e })}
-                        />
-                      </div>
-
-                      <InputError message={errors?.sales_administration} />
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <label htmlFor="broken_rate" className="block text-sm font-medium text-gray-700">
-                        Tarif Blangko Rusak
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <InputCurrency
-                          value={data.broken_rate?.toString() ?? ""}
-                          onChange={(e) => setData({ ...data, broken_rate: e })}
-                        />
-                      </div>
-
-                      <InputError message={errors?.broken_rate} />
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <label htmlFor="revised_rate" className="block text-sm font-medium text-gray-700">
-                        Tarif blangko Revisi
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <InputCurrency
-                          value={data.revised_rate?.toString() ?? ""}
-                          onChange={(e) => setData({ ...data, revised_rate: e })}
-                        />
-                      </div>
-
-                      <InputError message={errors?.revised_rate} />
-                    </div>
-                  </div>
+                  <InvoiceGuarantor guarantorName={submission.guarantor.name} guarantorRate={guarantor_rate} />
                 </CardContent>
-                <CardFooter>
-                  <div className="w-full text-right">
-                    <Button type="button" onClick={submit}>
-                      <Loading isLoading={processing} />
-                      Simpan
-                    </Button>
-                  </div>
-                </CardFooter>
               </Card>
             </div>
-            <div>
+            <div className="col-span-1">
               <Card>
                 <CardHeader>
-                  <CardTitle>Hasil Tarif</CardTitle>
+                  <CardTitle>Tarif Jual</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="cols-span-1 space-y-2">
-                      <p className="text-sm font-semibold">Tarif Jual</p>
-                      <h3 className="text-lg font-semibold">{submission_rate.rate} %</h3>
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <p className="text-sm font-semibold">Minimum</p>
-                      <h3 className="text-lg font-semibold">{formatCurrency(submission_rate.minimum)}</h3>
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <p className="text-sm font-semibold">Biaya Administrasi</p>
-                      <h3 className="text-lg font-semibold">{formatCurrency(submission_rate.adm)}</h3>
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <p className="text-sm font-semibold">Service Charges</p>
-                      <h3 className="text-lg font-semibold">{formatCurrency(submission_rate.service_charges)}</h3>
-                    </div>
-                    <div className="cols-span-1 space-y-2">
-                      <p className="text-sm font-semibold">Total</p>
-                      <h3 className="text-lg font-semibold">{formatCurrency(submission_rate.total)}</h3>
-                    </div>
-                  </div>
+                  <InvoiceOffice officeRate={submission_rate} />
                 </CardContent>
               </Card>
             </div>

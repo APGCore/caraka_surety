@@ -1,10 +1,8 @@
 <?php
 
-use App\Enums\RoleEnum;
-use App\Http\Middleware\HandleRoleUsers;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', HandleRoleUsers::class.':'.implode(',', [RoleEnum::Admin->value])])
+Route::middleware(['auth'])
     ->prefix('report-management/report')
     ->name('report.')
     ->group(function () {
