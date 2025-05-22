@@ -60,10 +60,6 @@ const OfficeRatePage: OfficeRatePageProps = ({
     getData(select, search, officeTypeSelected, officeSelected, guarantorId);
   };
 
-  const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
-    getData(select, search, officeTypeSelected, officeSelected, guarantorSelected, guarantorBranchId);
-  };
-
   const handleSelectProduct = (productId: number) => {
     getData(select, search, officeTypeSelected, officeSelected, guarantorSelected, guarantorBranchSelected, productId);
   };
