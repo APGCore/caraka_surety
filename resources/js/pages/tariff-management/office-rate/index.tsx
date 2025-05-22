@@ -1,3 +1,4 @@
+import NewCombobox from "@/_features/_common/components/combobox";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import {
   Select,
@@ -9,7 +10,6 @@ import {
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
-import { Combobox } from "@/components/molecules/combobox";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -58,10 +58,6 @@ const OfficeRatePage: OfficeRatePageProps = ({
 
   const handleSelectGuarantor = (guarantorId: number) => {
     getData(select, search, officeTypeSelected, officeSelected, guarantorId);
-  };
-
-  const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
-    getData(select, search, officeTypeSelected, officeSelected, guarantorSelected, guarantorBranchId);
   };
 
   const handleSelectProduct = (productId: number) => {
@@ -121,14 +117,14 @@ const OfficeRatePage: OfficeRatePageProps = ({
         />
       </div>
       <div className="flex gap-x-3">
-        <Combobox
-          datas={guarantors}
+        <NewCombobox
+          data={guarantors}
           labelKey={"name"}
-          valueKey={"name"}
+          valueKey={"id"}
           defaultValue={guarantorSelected}
           placeholder={"Pilih Asuransi"}
           className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectGuarantor(value.id)}
+          onSelect={(value: any) => handleSelectGuarantor(value.id)}
         />
         {/*<Combobox*/}
         {/*  datas={guarantorBranches}*/}
@@ -154,25 +150,24 @@ const OfficeRatePage: OfficeRatePageProps = ({
           </SelectContent>
         </Select>
         <Show when={officeTypeSelected !== officeTypes[0]}>
-          <Combobox
-            datas={offices}
+          <NewCombobox
+            data={offices}
             labelKey={"name"}
-            valueKey={"name"}
+            valueKey={"id"}
             defaultValue={officeSelected}
             placeholder={"Pilih Kantor"}
             className={"min-w-[160px]"}
-            onSelect={(value) => handleSelectOffice(value.id)}
+            onSelect={(value: any) => handleSelectOffice(value.id)}
           />
         </Show>
-        <Combobox
-          datas={products}
+        <NewCombobox
+          data={products}
           labelKey={"name"}
-          valueKey={"name"}
+          valueKey={"id"}
           defaultValue={productSelected}
           placeholder={"Pilih Produk"}
           className={"min-w-[160px]"}
-          shortValue={true}
-          onSelect={(value) => handleSelectProduct(value.id)}
+          onSelect={(value: any) => handleSelectProduct(value.id)}
         />
         <Select onValueChange={(value) => handleSelectJobGroup(value)} defaultValue={jobGroupSelected}>
           <SelectTrigger>

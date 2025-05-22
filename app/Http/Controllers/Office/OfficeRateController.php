@@ -29,7 +29,7 @@ class OfficeRateController extends Controller
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = OfficeType::getValueOfName()[$officeTypeSelected];
         $offices = Profile::query()->where('office_type', $officeType)->get();
-        $officeSelected = (int) ($request->get('profile_id') ?? $offices->first()?->getAttribute('id'));
+        $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->getAttribute('id'));
         $guarantors = Guarantor::with(['product', 'productType'])->whereNull('headquarter_id')->get();
         $guarantor = $guarantors->find($request->get('guarantor_id')) ?? $guarantors->first();
         $guarantorBranches = Guarantor::with(['product', 'productType'])->where('headquarter_id', $guarantor->getAttribute('id'))->get();
@@ -102,7 +102,7 @@ class OfficeRateController extends Controller
             'guarantor_branch_id' => 'nullable|exists:'.Guarantor::class.',id,deleted_at,NULL',
             'guarantor_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
         ]);
-        $profileId = $request->get('profile_id');
+        $profileId = $request->get('profile_id') ?? $request->get('office_id');
         $profile = Profile::query()->find($profileId);
         $guarantorId = $request->get('guarantor_id');
         $guarantor = Guarantor::query()->find($guarantorId);
@@ -152,7 +152,7 @@ class OfficeRateController extends Controller
             $guarantorRate = ProfileRate::query()
                 ->updateOrCreate(
                     [
-                        'profile_id' => $requestValid['profile_id'],
+                        'profile_id' => $requestValid['profile_id'] ?? $requestValid['office_id'] ?? null,
                         'guarantor_id' => $requestValid['guarantor_id'],
                         'guarantor_branch_id' => $requestValid['guarantor_branch_id'] ?? null,
                         'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],

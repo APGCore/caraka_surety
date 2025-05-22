@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Submission;
 
+use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Submission\SourceOfFundsResource;
 use App\Models\Submission\SourceOfFund;
@@ -106,7 +107,13 @@ class SourceOfFundController extends Controller
 
     public function getAll()
     {
+        $user = auth()->user()->load('office:id,office_type');
+        $office = $user->office;
+        $isBranch = $office->office_type == OfficeType::BRANCH->value;
         $sourceOfFunds = SourceOfFund::query()
+            ->when($isBranch, function ($query) {
+                return $query->where('name', 'APBN');
+            })
             ->get();
 
         return $this->responseSuccess('Data Sumber Dana', $sourceOfFunds);

@@ -1051,7 +1051,7 @@ class SubmissionController extends Controller
             ->pluck('id') : [];
 
         $submissions = Submission::search($search)
-            ->query(function ($query) use ($isDireksi, $isManager, $isKepalaCabang, $isKepalaAgentPartner, $staffs, $officeSelected) {
+            ->query(function ($query) use ($authId, $isDireksi, $isManager, $isKepalaCabang, $isKepalaAgentPartner, $staffs, $officeSelected) {
                 $query
                     ->where('guarantor_id', $this->guarantorId)
                     ->where('product_id', $this->productId)
@@ -1073,7 +1073,11 @@ class SubmissionController extends Controller
                     )
                     ->when($isKepalaCabang, fn ($query) => $query
                         ->whereIn('staff_id', $staffs)
-                        ->whereNull(['checked_by', 'approved_by', 'rejected_by'])
+                        ->whereNull(['approved_by', 'rejected_by'])
+                        ->where(function ($query) use ($authId) {
+                            $query->whereNull('checked_by')
+                                ->orWhere('checked_by', $authId);
+                        })
                     )
                     ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
                     ->when($officeSelected, fn ($query) => $query

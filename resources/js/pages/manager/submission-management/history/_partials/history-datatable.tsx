@@ -38,8 +38,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>{submission.staff?.office}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
-                <TableCell>{formatCurrency(submission?.guarantee_value)}</TableCell>
                 <TableCell>{submission.no_guarantee}</TableCell>
+                <TableCell>{formatCurrency(submission?.guarantee_value)}</TableCell>
                 <TableCell>
                   <span
                     className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
