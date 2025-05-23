@@ -1505,7 +1505,7 @@ class SubmissionController extends Controller
         }
     }
 
-    public function storeDocument(Request $request,Submission $submission): JsonResponse
+    public function storeDocument(Request $request,$submissionId): JsonResponse
     {
       $request->validate([
           'documents' => 'required|array',
@@ -1515,7 +1515,9 @@ class SubmissionController extends Controller
           'documents.*.url' => 'nullable|string|max:255',
       ]);
 
+      DB::beginTransaction();
       try {
+          $submission = Submission::query()->findOrFail($submissionId);
           $documents = $request->input('documents', []);
           if (count($documents) > 0) {
               $submission->submissionDocs()->delete();
@@ -1527,8 +1529,10 @@ class SubmissionController extends Controller
               ])->toArray();
               $submission->submissionDocs()->createMany($docData);
           }
+          DB::commit();
           return $this->responseSuccess('Berhasil menyimpan dokumen pengajuan');
       } catch (\Exception $e) {
+          DB::rollBack();
           $error = $this->handleErrorMessage($e);
           Log::error('Failed to save documents', $error);
           return $this->responseError('Gagal menyimpan dokumen pengajuan', $error);
