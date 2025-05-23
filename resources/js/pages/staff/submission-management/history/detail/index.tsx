@@ -93,26 +93,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
-  const calculateTotalPoint = (scores: any) => {
-    return scores.reduce((total: number, score: any) => total + score.point, 0);
-  };
-
-  //   const handleApprove = (submissionId: number) => {
-  //     setIsLoading(true);
-  //     axios
-  //       .post(route("manager-submission-approve", submissionId))
-  //       .then((response) => {
-  //         console.log("success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.log("error approve submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
-
   // DOCUMENT FORMAT
   interface SubmissionData {
     principal_name: string;
@@ -337,6 +317,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
   };
 
   const handleUpdateDocument = (id: number, format: string) => {
+    if (submission.has_send_to_guarantor) return
     axios
       .put(route("api.submission-management.document", {id}), {format})
       .then((response) => {

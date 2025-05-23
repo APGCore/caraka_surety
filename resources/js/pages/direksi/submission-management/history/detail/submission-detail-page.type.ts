@@ -174,7 +174,9 @@ interface SupportDocument {
 
 interface SubmissionDetailProps {
   submission: {
+    [key: string]: any;
     id: number;
+    submission_before_id: number | null;
     bank: Bank;
     bank_name: string;
     approved_by_direksi: boolean;
@@ -207,7 +209,27 @@ interface SubmissionDetailProps {
     approved_at: string;
     user_rejected: User;
     rejected_at: string;
-    beyond_the_limit: boolean;
+    beyond_the_limit: boolean | null;
+    document_format_analysis: {
+      id: number;
+      name: string;
+      format_document: any;
+    };
+    document_format_guarantor: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
+    document_format_product: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
+    document_format_type_guarantee: {
+      id: number;
+      name: string;
+      format_document: string;
+    }[];
     district: {
       name: string;
     };
@@ -252,7 +274,9 @@ interface SubmissionDetailProps {
     callback: Callback | null;
     has_send_to_guarantor: boolean;
     terbilang: string;
+    terbilang_hari: string;
     guarantor_city: string;
+    note_scoring: string;
   };
 }
 

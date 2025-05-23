@@ -21,4 +21,14 @@ enum SubmissionStatus: string
             self::BROKEN->value,
         ];
     }
+
+    public static function getLabels(): array
+    {
+        return [
+            self::PROCESS->value => 'Proses',
+            self::APPROVED->value => 'Disetujui',
+            self::REJECTED->value => 'Ditolak',
+            self::BROKEN->value => 'Rusak',
+        ];
+    }
 }
