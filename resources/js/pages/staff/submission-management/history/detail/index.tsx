@@ -330,6 +330,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
+  const handleUpdateDocument = (id: number, format: string) => {
+    axios
+      .put(route("api.submission-management.document", { id }), { format })
+      .then((response) => {
+        console.log("Success update document", response);
+      })
+      .catch((error) => {
+        console.error("Error update document", error);
+      });
+  };
+
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoading(true);
     axios
@@ -1032,6 +1043,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                         onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
                         initialContent={doc.format_document}
+                        onContentChange={(content: string) => {
+                          handleUpdateDocument(doc.id, content);
+                        }}
                       />
                     </div>
                   </div>
