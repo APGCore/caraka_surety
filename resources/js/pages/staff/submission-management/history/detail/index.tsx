@@ -310,24 +310,24 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
 
     const documents = documentFormat();
     axios
-      .post(route("api.submission-management.document.store", {submissionId}), { documents })
-      .then(() => {
-        axios
-          .post(route("api.submission-management.send", {id: submissionId}))
-          .then((response) => {
-            console.log("Success Send To Guarantor", response);
-            toast({
-              title: "Sukses",
-              description: "Pengajuan berhasil dikirim ke asuransi",
-            });
-            router.reload();
-          })
+      .post(route("api.submission-management.document.store", {submissionId}), {documents})
+      .then(() =>
+        axios.post(route("api.submission-management.send", {id: submissionId}))
+      )
+      .then((response) => {
+        console.log("Success Send To Guarantor", response);
+        toast({
+          title: "Sukses",
+          description: "Pengajuan berhasil dikirim ke asuransi",
+        });
+        router.reload();
       })
       .catch((error) => {
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan";
         console.error("Error Send To Guarantor", error);
         toast({
           title: "Gagal",
-          description: error.response.data.message,
+          description: message,
           variant: "destructive",
         });
       })
