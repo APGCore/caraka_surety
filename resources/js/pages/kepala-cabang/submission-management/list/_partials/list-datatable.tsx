@@ -59,7 +59,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
-                    {submission.status}
+                    {submission.status_label}
                   </span>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
