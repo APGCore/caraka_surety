@@ -176,10 +176,7 @@ class InvoiceController extends Controller
                 'principal_id' => $principalId,
             ];
 
-            PrincipalRate::query()->updateOrCreate(
-                $dataPrincipalRate,
-                $dataRate
-            );
+            PrincipalRate::query()->firstOrCreate($dataPrincipalRate, $dataRate);
 
             $submission->submissionRate()->updateOrCreate(
                 ['submission_id' => $submissionId],

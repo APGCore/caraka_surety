@@ -4,7 +4,7 @@ use App\Enums\RoleEnum;
 use App\Http\Middleware\HandleRoleUsers;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', HandleRoleUsers::class.':'.implode(',', [RoleEnum::Admin->value, RoleEnum::Finance->value])])
+Route::middleware(['auth', HandleRoleUsers::class.':'.implode(',', [RoleEnum::Admin->value, RoleEnum::Keuangan->value])])
     ->prefix('tariff-management')
     ->group(function () {
         foreach (glob(__DIR__.'/*.php') as $file) {
