@@ -112,7 +112,7 @@ class SourceOfFundController extends Controller
         $isBranch = $office->office_type == OfficeType::BRANCH->value;
         $sourceOfFunds = SourceOfFund::query()
             ->when($isBranch, function ($query) {
-                return $query->where('name', 'APBN');
+                return $query->where('name', 'APBD');
             })
             ->get();
 

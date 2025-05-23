@@ -183,9 +183,14 @@ class SubmissionController extends Controller
             // get profile
             $profile = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
 
+            // submission editing
+            $submissionEdit = Submission::with('blanks')->find($submission['id'] ?? null);
+            $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
+            $blankId = $submission['blank_id'] ?? null;
+
             // get blanks
             $blank = Blank::query()
-                ->where('is_picked', $isEdit)
+                ->where('is_picked', $isEdit && in_array($blankId, $blankIds))
                 ->firstWhere('id', $submission['blank_id']);
             if (! $blank) {
                 throw new Exception('Blangko Sudah Digunakan');
