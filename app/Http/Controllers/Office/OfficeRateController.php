@@ -108,6 +108,7 @@ class OfficeRateController extends Controller
         $guarantor = Guarantor::query()->find($guarantorId);
         $guarantorBranchId = $request->get('guarantor_branch_id');
         $guarantorToProductTypeId = $request->get('guarantor_product_type_id');
+        $guarantorToProductType = GuarantorToProductType::query()->with('product:id,name')->find($guarantorToProductTypeId);
         $guarantorRate = ProfileRate::query()
             ->where([
                 'profile_id' => $profileId,
@@ -127,6 +128,7 @@ class OfficeRateController extends Controller
             'guarantor' => $guarantor,
             'guarantorBranchId' => $guarantorBranchId,
             'guarantorToProductTypeId' => $guarantorToProductTypeId,
+            'guarantorToProductType' => $guarantorToProductType,
             'guarantorRate' => $guarantorRate,
         ]);
     }
@@ -149,7 +151,7 @@ class OfficeRateController extends Controller
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
             ];
 
-            $guarantorRate = ProfileRate::query()
+            $officeRate = ProfileRate::query()
                 ->updateOrCreate(
                     [
                         'profile_id' => $requestValid['profile_id'] ?? $requestValid['office_id'] ?? null,
@@ -159,11 +161,14 @@ class OfficeRateController extends Controller
                     ],
                     $data
                 );
-            $officeTypeSelected = $guarantorRate->load('profile')->getRelation('profile')?->office_type;
+            $officeRate->load(['profile', 'guarantorToProductType']);
+            $officeTypeSelected = $officeRate->getRelation('profile')?->office_type;
             $officeType = OfficeType::getNameOfValue()[$officeTypeSelected];
+            $guarantorToProductType = $officeRate->getRelation('guarantorToProductType');
+
             activity()
                 ->useLog('office-rate')
-                ->performedOn($guarantorRate)
+                ->performedOn($officeRate)
                 ->causedBy(auth()->user())
                 ->log('Setting Limit Unit Bisnis');
             flashMessage('Berhasil', 'Data berhasil disimpan');
@@ -172,11 +177,12 @@ class OfficeRateController extends Controller
 
             return redirect()->route('office-rate.index', [
                 'office_type' => $officeType,
-                'profile_id' => $guarantorRate->getAttribute('profile_id'),
-                'guarantor_id' => $guarantorRate->getAttribute('guarantor_id'),
-                'branch_guarantor_id' => $guarantorRate->getAttribute('branch_guarantor_id'),
-                'product_id' => $guarantorRate->getAttribute('product_id'),
-                'job_group' => $guarantorRate->getAttribute('job_group'),
+                'profile_id' => $officeRate->getAttribute('profile_id'),
+                'guarantor_id' => $officeRate->getAttribute('guarantor_id'),
+                'guarantor_branch_id' => $officeRate->getAttribute('guarantor_branch_id'),
+                'branch_guarantor_id' => $officeRate->getAttribute('branch_guarantor_id'),
+                'product_id' => $guarantorToProductType->getAttribute('product_id'),
+                'job_group' => $guarantorToProductType->getAttribute('job_group'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();

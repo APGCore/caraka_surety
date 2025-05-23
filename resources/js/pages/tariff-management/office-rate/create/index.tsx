@@ -9,12 +9,13 @@ const OfficeRateCreate: OfficeRateCreatePageProps = ({
   guarantorId,
   guarantorBranchId,
   guarantorToProductTypeId,
+  guarantorToProductType,
   guarantorRate,
 }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductTypeId?.full_name}</CardTitle>
+        <CardTitle>Kelola Tarif Produk Asuransi {guarantorToProductType?.product?.name} {guarantorToProductType?.full_name}</CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
