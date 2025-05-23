@@ -183,9 +183,14 @@ class SubmissionController extends Controller
             // get profile
             $profile = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
 
+            // submission editing
+            $submissionEdit = Submission::with('blanks')->find($submission['id'] ?? null);
+            $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
+            $blankId = $submission['blank_id'] ?? null;
+
             // get blanks
             $blank = Blank::query()
-                ->where('is_picked', $isEdit)
+                ->where('is_picked', $isEdit && in_array($blankId, $blankIds))
                 ->firstWhere('id', $submission['blank_id']);
             if (! $blank) {
                 throw new Exception('Blangko Sudah Digunakan');
@@ -1243,7 +1248,7 @@ class SubmissionController extends Controller
         ]);
     }
 
-    public function approve(Request $request, Submission $submission): void
+    public function approve(Submission $submission): void
     {
         DB::beginTransaction();
         try {
@@ -1264,17 +1269,6 @@ class SubmissionController extends Controller
             }
             $submission->load('blanks');
             $submission->blanks()->update(['is_used' => true]);
-            $documents = $request->input('documents', []);
-            if (count($documents) > 0) {
-                $submission->submissionDocs()->delete();
-                $docData = collect($documents)->map(fn ($doc) => [
-                    'document_format_id' => $doc['id'] ?? null,
-                    'name' => $doc['name'] ?? null,
-                    'format_document' => $doc['content'],
-                    'url' => $doc['url'] ?? null,
-                ])->toArray();
-                $submission->submissionDocs()->createMany($docData);
-            }
 
             // $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
             // $hostToHost = $guarantor->getRelation('hostToHost');
@@ -1511,7 +1505,41 @@ class SubmissionController extends Controller
         }
     }
 
-    public function updateDocument(Request $request, SubmissionDoc $submissionDoc)
+    public function storeDocument(Request $request,$submissionId): JsonResponse
+    {
+      $request->validate([
+          'documents' => 'required|array',
+          'documents.*.id' => 'nullable|integer|exists:document_formats,id',
+          'documents.*.name' => 'nullable|string|max:255',
+          'documents.*.content' => 'required|string',
+          'documents.*.url' => 'nullable|string|max:255',
+      ]);
+
+      DB::beginTransaction();
+      try {
+          $submission = Submission::query()->findOrFail($submissionId);
+          $documents = $request->input('documents', []);
+          if (count($documents) > 0) {
+              $submission->submissionDocs()->delete();
+              $docData = collect($documents)->map(fn ($doc) => [
+                  'document_format_id' => $doc['id'] ?? null,
+                  'name' => $doc['name'] ?? null,
+                  'format_document' => $doc['content'],
+                  'url' => $doc['url'] ?? null,
+              ])->toArray();
+              $submission->submissionDocs()->createMany($docData);
+          }
+          DB::commit();
+          return $this->responseSuccess('Berhasil menyimpan dokumen pengajuan');
+      } catch (\Exception $e) {
+          DB::rollBack();
+          $error = $this->handleErrorMessage($e);
+          Log::error('Failed to save documents', $error);
+          return $this->responseError('Gagal menyimpan dokumen pengajuan', $error);
+      }
+    }
+
+    public function updateDocument(Request $request, SubmissionDoc $submissionDoc): JsonResponse
     {
         $validated = $request->validate([
             'format' => 'required|string',
@@ -1528,8 +1556,9 @@ class SubmissionController extends Controller
             return $this->responseSuccess('Berhasil mengubah format dokumen');
         } catch (Exception $e) {
             DB::rollBack();
-
-            return $this->responseError('Gagal mengubah format dokumen', ['message' => $e->getMessage()]);
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to update document format', $error);
+            return $this->responseError('Gagal mengubah format dokumen', $error);
         }
     }
 

@@ -7,6 +7,7 @@ Route::controller(SubmissionController::class)
     ->prefix('submission-management')
     ->name('api.submission-management.')
     ->group(function () {
+        Route::post('document/{submissionId}/store', 'storeDocument')->name('document.store');
         Route::put('document/{submissionDoc}', 'updateDocument')->name('document');
         Route::post('{submission}', 'send')->name('send');
     });

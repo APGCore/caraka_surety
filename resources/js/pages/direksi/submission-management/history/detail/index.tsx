@@ -180,14 +180,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const handleSaveDocument = (id: number, format: string) => {
+  const handleUpdateDocument = (id: number, format: string) => {
     axios
       .put(route("api.submission-management.document", { id }), { format })
       .then((response) => {
-        console.log("Success Send To Guarantor", response);
+        console.log("Success update document", response);
       })
       .catch((error) => {
-        console.error("Error Send To Guarantor", error);
+        console.error("Error update document", error);
       });
   };
 
@@ -757,7 +757,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       <TinyMCEEditor
                         id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                         onContentChange={(content: string) => {
-                          handleSaveDocument(doc.id, content);
+                          handleUpdateDocument(doc.id, content);
                         }}
                         onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
                         initialContent={doc.format_document}
