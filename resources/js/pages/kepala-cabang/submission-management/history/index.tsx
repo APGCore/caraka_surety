@@ -1,6 +1,4 @@
 import FilterOffice from "@/_features/_common/components/filter-office";
-import { Button } from "@/components/_shadcn-ui/button";
-import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
@@ -103,7 +101,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />
+        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Nomor Pengajuan" />
       </div>
       <SubmissionHistoryDatatable submissions={submissions} />
     </main>
