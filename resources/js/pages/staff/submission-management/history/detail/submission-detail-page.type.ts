@@ -263,6 +263,7 @@ interface SubmissionDetailProps {
     submission_date: string;
     terbilang: string;
     submission_support_docs: string;
+    has_send_to_guarantor: boolean;
   };
 }
 

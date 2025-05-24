@@ -4,7 +4,6 @@ import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
-import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
   AlertDialog,
@@ -95,6 +94,96 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const editorRefs = useRef<{ [key: string]: any }>({});
 
+  // Fungsi untuk mengganti placeholder dalam template
+  const replacePlaceholders = (template: string, data: any): string => {
+    return template.replace(/\[([A-Z_]+)]/g, (_, key: string) => {
+      const value = data[key.toLowerCase()]; // Ambil nilai dari data berdasarkan key
+      return value !== undefined ? value : `[${key}]`; // Kembalikan placeholder jika tidak ditemukan
+    });
+  };
+
+  const dataTemplate: any = {
+    // Informasi Principal
+    principal_name: submission.principal?.name || "",
+    location: submission.principal?.address || "",
+    npwp: submission.principal?.npwp || "",
+    nib: submission.principal?.nib || "",
+    telephone: submission.principal?.telephone || "",
+    director_name: submission.principal?.director_name || "",
+    director_phone: submission.principal?.director_phone || "",
+    bussiness_field: submission.principal?.bussiness_field || "",
+    principal_commissioner: submission.principal?.commissioner || "",
+    pic: submission.principal?.pic || "",
+    director_position: submission.principal?.director_position || "",
+    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    est_deed: submission.principal?.est_deed || "",
+    last_deed: submission.principal?.last_deed || "",
+    get_susunan_pengurus: submission.get_administators_principal || "",
+    get_exp: submission.get_exp || "",
+
+    // Informasi Bank & Obligee
+    bank_name: submission.bank_name || "",
+    obligee_name: submission.obligee?.name || "",
+    obligee_address: submission.obligee?.address || "",
+    source_of_fund: submission.source_of_fund?.name || "",
+    ppk_name: submission.obligee?.pic || "",
+    ppk_number: submission.obligee?.no_ppk || "",
+    obligee_city: submission.obligee?.district?.name || "",
+    obligee_location: `${submission.obligee?.address}, ${submission.obligee?.district?.name}, ${submission.obligee?.regency?.name}, ${submission.obligee?.province?.name}`,
+
+    // Informasi Guarantor
+    guarantor_name: submission.guarantor?.name || "",
+    guarantor_address: submission.guarantor_address || "",
+    guarantor_pic: submission.guarantor_pic || "",
+    guarantor_location: `${submission.guarantor?.address}, ${submission.guarantor?.district?.name}, ${submission.guarantor?.regency?.name}, ${submission.guarantor?.province?.name}`,
+    guarantor_city: submission.guarantor_city || "",
+
+    // Informasi Kontrak & Proyek
+    source_of_fund_name: submission.source_of_fund?.name || "",
+    contract_value: submission.contract_value_formatted || 0,
+    guarantee_value: submission.guarantee_value_formatted || 0,
+    guarantee_type: submission.guarantor_to_product_type?.name || "",
+    no_guarantee: submission.no_guarantee || "",
+    time_period: submission.time_period || "",
+    job_name: submission.job_name || "",
+    job_location_village: submission.job_location_village || "",
+    contract_doc_name: submission.contract_doc_name || "",
+    contract_doc_number: submission.contract_doc_number || "",
+    contract_doc_date: submission.contract_doc_date || "",
+    start_date: submission.start_date || "",
+    end_date: submission.end_date || "",
+    guarantee_issue_date: submission.guarantee_issue_date || "",
+    submission_date: submission.submission_date || "",
+    day: submission.day_name || "",
+
+    // SCORING
+    character_score: submission.analysis?.character,
+    capacity_score: submission.analysis?.capacity,
+    capital_score: submission.analysis?.capital,
+    collateral_score: submission.analysis?.collateral,
+    condition_score: submission.analysis?.character,
+    total_score: submission.total_score,
+
+    recommendation: submission.recommendation,
+    notes: submission.notes,
+    analyst_name: submission.analyst_name || "",
+    manager_technique_name: submission.manager_technique_name || "",
+
+    // Informasi Tambahan
+    branch_manager: submission.principal?.director_name || "",
+    job_location: `${submission.job_location_village}, ${submission.district?.name}, ${submission.regency?.name}, ${submission.province?.name}`,
+    job_group: submission.guarantor_to_product_type?.job_group || "",
+    no: submission.id || "",
+    city: submission.regency?.name || "",
+    mail_number: submission.mail_number || "",
+    mail_number_resume: submission.mail_number_resume || "",
+    underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
+    product_name: submission.product?.name || "",
+    submission_support_docs: submission?.submission_support_docs || "",
+    terbilang: submission?.terbilang || "",
+    terbilang_hari: submission?.terbilang_hari || "",
+  };
+
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
   const handleApprove = (submissionId: number): void => {
@@ -130,31 +219,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const handleSendGuarantor = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("api.submission-management.send", { id: submissionId }))
-      .then((response) => {
-        console.log("Success Send To Guarantor", response);
-        toast({
-          title: "Sukses",
-          description: "Pengajuan berhasil dikirim ke asuransi",
-        });
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error Send To Guarantor", error);
-        toast({
-          title: "Gagal",
-          description: error.response.data.message,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoading(true);
     axios
@@ -181,6 +245,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleUpdateDocument = (id: number, format: string) => {
+    if (submission.has_send_to_guarantor) return
     axios
       .put(route("api.submission-management.document", { id }), { format })
       .then((response) => {
@@ -400,10 +465,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
                   <td className="p-2">
                     :{" " + submission.guarantee_value_formatted}
-                    {/*{new Intl.NumberFormat("id-ID", {*/}
-                    {/*  style: "currency",*/}
-                    {/*  currency: "IDR",*/}
-                    {/*}).format(submission.guarantee_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">
@@ -721,7 +782,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
-            {submission.has_send_to_guarantor ? (
+            <Show when={submission.has_send_to_guarantor}>
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
                   Dokumen Terverifikasi Dari {submission.guarantor?.name}
@@ -746,7 +807,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </CardContent>
                 </Card>
               </div>
-            ) : null}
+            </Show>
+
             <RenderList
               of={submission.submission_docs as Array<any>}
               render={(doc) => {
@@ -767,6 +829,82 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 );
               }}
             />
+
+            <Show when={submission.submission_docs.length === 0}>
+              <div>
+                <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>
+                <div>
+                  <TinyMCEEditor
+                    id="hasil-analisis"
+                    onInit={(evt, editor) => (editorRefs.current["hasil-analisis"] = editor)}
+                    initialContent={replacePlaceholders(
+                      submission.document_format_analysis?.format_document,
+                      dataTemplate,
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div>
+                {(() => {
+                  const documentsToDisplay: JSX.Element[] = [];
+
+                  // Untuk document_format_guarantor
+                  if (submission.document_format_guarantor?.length) {
+                    submission.document_format_guarantor.forEach((doc: any) => {
+                      documentsToDisplay.push(
+                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                          <TinyMCEEditor
+                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                          />
+                        </div>,
+                      );
+                    });
+                  }
+
+                  // Untuk document_format_product
+                  if (submission.document_format_product?.length) {
+                    submission.document_format_product.forEach((doc: any) => {
+                      documentsToDisplay.push(
+                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                          <TinyMCEEditor
+                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                          />
+                        </div>,
+                      );
+                    });
+                  }
+
+                  // Untuk document_format_type_guarantee
+                  if (submission.document_format_type_guarantee?.length) {
+                    submission.document_format_type_guarantee.forEach((doc: any) => {
+                      documentsToDisplay.push(
+                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                          <TinyMCEEditor
+                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                          />
+                        </div>,
+                      );
+                    });
+                  }
+
+                  if (documentsToDisplay.length > 0) {
+                    return documentsToDisplay;
+                  }
+
+                  return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
+                })()}
+              </div>
+            </Show>
             <Show
               when={
                 submission.status === SubmissionStatus.PROCESS && !submission.approved_at && !submission.rejected_at

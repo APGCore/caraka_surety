@@ -5,6 +5,7 @@ interface OfficeRateCreateProps {
   guarantorId: any;
   guarantorBranchId: any;
   guarantorToProductTypeId: any;
+  guarantorToProductType: any;
   guarantorRate: any;
 }
 

@@ -4,7 +4,7 @@ import Show from "@/components/atoms/show";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { FormOfficeRateUtils } from "@/pages/tariff-management/office-rate/_partials/form-office-rate.utils";
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
@@ -60,13 +60,7 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
   };
 
   const handleBack = () => {
-    router.get(
-      route(FormOfficeRateUtils.index.route, {
-        profile_id: profileId,
-        guarantor_id: guarantorId,
-        guarantor_branch_id: guarantorBranchId ?? undefined,
-      }),
-    );
+    window.history.back();
   };
 
   return (

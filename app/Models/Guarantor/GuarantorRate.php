@@ -31,6 +31,6 @@ class GuarantorRate extends Model
 
     public function guarantorToProductType(): HasOne
     {
-        return $this->hasOne(GuarantorToProductType::class);
+        return $this->hasOne(GuarantorToProductType::class, 'id', 'guarantor_to_product_type_id');
     }
 }

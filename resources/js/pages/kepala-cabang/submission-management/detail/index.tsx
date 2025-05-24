@@ -1,10 +1,8 @@
 import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
-import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
-import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
   AlertDialog,
@@ -22,7 +20,6 @@ import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
-import { FileInput } from "@/components/molecules/input/file-input";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
@@ -88,123 +85,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         ? "destructive"
         : "default";
 
-  const data = {
-    principal: {
-      name: submission.principal?.name || "",
-      address: submission.principal?.address || "",
-      npwp: submission.principal?.npwp || "",
-      nib: submission.principal?.nib || "",
-      //   signer_name: submission.principal?.signer_name || "",
-      telephone: submission.principal?.telephone || "",
-      director_name: submission.principal?.director_name || "",
-      director_phone: submission.principal?.director_phone || "",
-      pic: submission.principal?.pic || "",
-      director_position: submission.principal?.director_position || "",
-      location:
-        submission.principal?.address +
-        ", " +
-        submission.principal?.district?.name +
-        ", " +
-        submission.principal?.regency?.name +
-        ", " +
-        submission.principal?.province?.name,
-    },
-    obligee: {
-      name: submission.obligee?.name || "",
-      address: submission.obligee?.address || "",
-      source_of_fund: submission.source_of_fund?.name || "",
-      ppk_name: submission.obligee?.pic || "",
-      city: submission.obligee?.district?.name,
-      location: (
-        submission.obligee?.address ||
-        "" +
-          ", " +
-          (submission.obligee?.district?.name || "") +
-          ", " +
-          (submission.obligee?.regency?.name || "") +
-          ", " +
-          (submission.obligee?.province?.name || "")
-      ).trim(),
-    },
-    guarantor: {
-      name: submission.guarantor?.name || "",
-      address: submission.guarantor?.address || "",
-      pic: submission.guarantor?.pic || "",
-      location:
-        submission.guarantor?.address +
-        ", " +
-        submission.guarantor?.district?.name +
-        ", " +
-        submission.guarantor?.regency?.name +
-        ", " +
-        submission.guarantor?.province?.name,
-    },
-    guarantor_address: submission.guarantor_address || "",
-    source_of_fund: {
-      name: submission.source_of_fund.name,
-    },
-    contract_value: submission.contract_value || 0,
-    guarantee_value: submission.guarantee_value || 0,
-    guarantee_type: submission.guarantor_to_product_type?.name || "",
-    time_period: submission.time_period || "",
-    job_name: submission.job_name || "",
-    job_location_village: submission.job_location_village || "",
-    contract_doc_name: submission.contract_doc_name || "",
-    contract_doc_number: submission.contract_doc_number || "",
-    contract_doc_date: submission.contract_doc_date || "",
-    start_date: submission.start_date || "",
-    end_date: submission.end_date || "",
-    guarantee_issue_date: submission.guarantee_issue_date || "",
-    submission_date: submission.created_at || "",
-    // letter_date: submission.letter_date || "",
-    // letter_number: submission.letter_number || "",
-    analysis: {
-      character: submission.scores?.find((score) => score?.category_name === "Character")?.point || "N/A",
-      capacity: submission.scores?.find((score) => score?.category_name === "Capacity")?.point || "N/A",
-      capital: submission.scores?.find((score) => score?.category_name === "Capital")?.point || "N/A",
-      condition: submission.scores?.find((score) => score?.category_name === "Condition")?.point || "N/A",
-      collateral: submission.scores?.find((score) => score?.category_name === "Collateral")?.point || "N/A",
-    },
-    scoring_result: submission.scores || "",
-    // description: submission.description || "",
-    date: submission.created_at || "",
-    analyst_name: submission.analyst_name || "",
-    manager_name: submission.principal?.commissioner || "",
-    branch_manager: submission.principal?.director_name || "",
-    job_location:
-      submission.job_location_village +
-      ", " +
-      submission.district?.name +
-      ", " +
-      submission.regency?.name +
-      ", " +
-      submission.province?.name,
-    job_group: submission.guarantor_to_product_type?.job_group,
-    no: submission.id,
-    city: submission.regency?.name,
-  };
-
   const calculateTotalPoint = (scores: any) => {
     return scores.reduce((total: number, score: any) => total + score.point, 0);
   };
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
-
-  //   const handleApprove = (submissionId: number) => {
-  //     setIsLoading(true);
-  //     axios
-  //       .post(route("kepala-cabang-submission-approve", submissionId))
-  //       .then((response) => {
-  //         console.log("success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.log("error approve submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
 
   // DOCUMENT FORMAT
   interface SubmissionData {
@@ -454,31 +339,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const handleSendGuarantor = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("api.submission-management.send", { id: submissionId }))
-      .then((response) => {
-        console.log("Success Send To Guarantor", response);
-        toast({
-          title: "Sukses",
-          description: "Pengajuan berhasil dikirim ke asuransi",
-        });
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error Send To Guarantor", error);
-        toast({
-          title: "Gagal",
-          description: error.response.data.message,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     axios
       .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
@@ -488,57 +348,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       })
       .catch((error) => {
         console.error("Error Get Callback From Guarantor", error);
-      });
-  };
-
-  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
-  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
-
-  const handleSubmitDoc = () => {
-    if (!spkmgrFile && !permohonanFile) {
-      alert("Harap pilih setidaknya satu file untuk diunggah.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    const formData = new FormData();
-    if (spkmgrFile) formData.append("spkmgr_file", spkmgrFile);
-    if (permohonanFile) formData.append("permohonan_file", permohonanFile);
-    if (submission.id) formData.append("submission_id", String(submission.id));
-
-    axios
-      .post(route("kepala-cabang-submission-save-permohonan-doc.submission"), formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-
-      .then((response) => {
-        console.log("Success submit submission", response);
-        toast({
-          title: "Dokumen berhasil diunggah!",
-          description: "Dokumen berhasil diunggah.",
-          variant: "default",
-        });
-
-        setSpkmgrFile(null);
-        setPermohonanFile(null);
-
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error submit submission", error.response?.data || error.message);
-
-        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah dokumen.";
-        toast({
-          title: "Dokumen gagal diunggah!",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
@@ -1137,59 +946,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Card>
               </div>
             ) : null}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmitDoc();
-              }}
-              className="space-y-16">
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                <FileInput onFileChange={(file) => setSpkmgrFile(file)} />
-                {/* {spkmgrFile && <p className="text-green-500 text-sm mt-2">File: {spkmgrFile.name}</p>}
-                {!spkmgrFile && <p className="text-red-500 text-sm mt-2">File SPKMgr belum diunggah.</p>} */}
-              </div>
-
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                <FileInput onFileChange={(file) => setPermohonanFile(file)} />
-                {/* {permohonanFile && <p className="text-green-500 text-sm mt-2">File: {permohonanFile.name}</p>}
-                {!permohonanFile && <p className="text-red-500 text-sm mt-2">File Permohonan belum diunggah.</p>} */}
-              </div>
-
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Mengunggah..." : "Submit"}
-              </Button>
-            </form>
-            <br />
-
-            {submission.submission_docs?.length > 0 ? (
-              <table className="table-auto w-full border-collapse">
-                <thead>
-                  <tr className="border-b bg-gray-200">
-                    <th className="p-2 text-left">Nama Dokumen</th>
-                    <th className="p-2 text-left">Tindakan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <RenderList
-                    of={submission.submission_docs as Array<any>}
-                    render={(docSig) => (
-                      <tr key={docSig.id} className="border-b">
-                        <td className="p-2" title={docSig.name}>
-                          {docSig.name.length > 30 ? `${docSig.name.slice(0, 30)}...` : docSig.name}
-                        </td>
-                        <td className="p-2">
-                          {docSig?.url ? <PreviewFile preview={docSig.url} /> : "File Belum Diunggah"}
-                        </td>
-                      </tr>
-                    )}
-                  />
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-gray-500">Dokumen SPKMGR dan Suart Permohonan Belum ditandatangani</p>
-            )}
 
             <div>
               <h2 className="text-lg font-semibold mb-4 mt-5">Resume Analisa Penjaminan</h2>

@@ -85,21 +85,7 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.fax} />
       </div>
 
-      {/* 4. Alamat */}
-      <div>
-        <InputLabel htmlFor="address" value="Alamat" />
-        <Textarea
-          id="address"
-          className="mt-1 block w-full"
-          placeholder="Masukkan Alamat..."
-          value={data.address || ""}
-          onChange={(e) => setData("address", e.target.value)}
-          required
-        />
-        <InputError className="mt-2" message={errors.address} />
-      </div>
-
-      {/* 5. Provinsi */}
+      {/* 4. Provinsi */}
       <div>
         <InputLabel htmlFor="province_id" value="Provinsi" />
         <Combobox
@@ -114,7 +100,7 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.province_id} />
       </div>
 
-      {/* 6. Kabupaten/Kota */}
+      {/* 5. Kabupaten/Kota */}
       <div>
         <InputLabel htmlFor="regency_id" value="Kabupaten/Kota" />
         <Combobox
@@ -129,7 +115,7 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.regency_id} />
       </div>
 
-      {/* 7. Kecamatan */}
+      {/* 6. Kecamatan */}
       <div>
         <InputLabel htmlFor="district_id" value="Kecamatan" />
         <Combobox
@@ -144,7 +130,7 @@ const Form: React.FC<Props> = ({
         <InputError className="mt-2" message={errors.district_id} />
       </div>
 
-      {/* 8. Desa/Kelurahan */}
+      {/* 7. Desa/Kelurahan */}
       <div>
         <InputLabel htmlFor="village" value="Desa/Kelurahan" />
         <TextInput
@@ -156,6 +142,34 @@ const Form: React.FC<Props> = ({
           required
         />
         <InputError className="mt-2" message={errors.village} />
+      </div>
+
+      {/* 8. Alamat */}
+      <div>
+        <InputLabel htmlFor="address" value="Alamat" />
+        <Textarea
+          id="address"
+          className="mt-1 block w-full"
+          placeholder="Masukkan Alamat..."
+          value={data.address || ""}
+          onChange={(e) => setData("address", e.target.value)}
+          required
+        />
+        <InputError className="mt-2" message={errors.address} />
+      </div>
+
+      {/* 9. Kode Pos */}
+      <div>
+        <InputLabel htmlFor="postal_code" value="Kode Pos" />
+        <TextInput
+          id="postal_code"
+          className="mt-1 block w-full"
+          placeholder="Masukkan Kode Pos..."
+          type="number"
+          value={data.postal_code || ""}
+          onChange={(e) => setData("postal_code", e.target.value)}
+        />
+        <InputError className="mt-2" message={errors.postal_code} />
       </div>
 
       {/* 9. NPWP */}

@@ -4,7 +4,6 @@ import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
-import { textCurrency } from "@/common/utils/text-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import {
   AlertDialog,
@@ -22,7 +21,6 @@ import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
-import { FileInput } from "@/components/molecules/input/file-input";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
@@ -359,31 +357,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
       });
   };
 
-  const handleSendGuarantor = (submissionId: number) => {
-    setIsLoading(true);
-    axios
-      .post(route("api.submission-management.send", { id: submissionId }))
-      .then((response) => {
-        console.log("Success Send To Guarantor", response);
-        toast({
-          title: "Sukses",
-          description: "Pengajuan berhasil dikirim ke asuransi",
-        });
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error Send To Guarantor", error);
-        toast({
-          title: "Gagal",
-          description: error.response.data.message,
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoading(true);
     axios
@@ -648,10 +621,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
                   <td className="p-2">
                     :{" " + submission.guarantee_value_formatted}
-                    {/*{new Intl.NumberFormat("id-ID", {*/}
-                    {/*  style: "currency",*/}
-                    {/*  currency: "IDR",*/}
-                    {/*}).format(submission.guarantee_value)}*/}
                   </td>
                 </tr>
                 <tr className="border-b">
@@ -1025,66 +994,65 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
             </div>
 
             <div>
-              <div>
-                {(() => {
-                  const documentsToDisplay: JSX.Element[] = [];
+              {(() => {
+                const documentsToDisplay: JSX.Element[] = [];
 
-                  // Untuk document_format_guarantor
-                  if (submission.document_format_guarantor?.length) {
-                    submission.document_format_guarantor.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                // Untuk document_format_guarantor
+                if (submission.document_format_guarantor?.length) {
+                  submission.document_format_guarantor.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
+                    );
+                  });
+                }
 
-                  // Untuk document_format_product
-                  if (submission.document_format_product?.length) {
-                    submission.document_format_product.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                // Untuk document_format_product
+                if (submission.document_format_product?.length) {
+                  submission.document_format_product.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
+                    );
+                  });
+                }
 
-                  // Untuk document_format_type_guarantee
-                  if (submission.document_format_type_guarantee?.length) {
-                    submission.document_format_type_guarantee.forEach((doc: any) => {
-                      documentsToDisplay.push(
-                        <div key={doc.id} style={{ marginBottom: "20px" }}>
-                          <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
-                            onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                          />
-                        </div>,
-                      );
-                    });
-                  }
+                // Untuk document_format_type_guarantee
+                if (submission.document_format_type_guarantee?.length) {
+                  submission.document_format_type_guarantee.forEach((doc: any) => {
+                    documentsToDisplay.push(
+                      <div key={doc.id} style={{ marginBottom: "20px" }}>
+                        <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          initialContent={replacePlaceholders(doc.format_document, dataTemplate)}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        />
+                      </div>,
+                    );
+                  });
+                }
 
-                  if (documentsToDisplay.length > 0) {
-                    return documentsToDisplay;
-                  }
+                if (documentsToDisplay.length > 0) {
+                  return documentsToDisplay;
+                }
 
-                  return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
-                })()}
-              </div>
+                return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
+              })()}
             </div>
+
             <div className="flex gap-2">
               <Show
                 when={
@@ -1185,32 +1153,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                 </AlertDialog>
               </Show>
             </div>
-            {/*<Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>*/}
-            {/*  <AlertDialog>*/}
-            {/*    <AlertDialogTrigger asChild>*/}
-            {/*      <Button*/}
-            {/*        variant="default"*/}
-            {/*        disabled={isLoading}*/}
-            {/*        className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">*/}
-            {/*        {isLoading && <LoaderCircle className="animate-spin mr-1" />}*/}
-            {/*        Kirim Ke {submission.guarantor?.name}*/}
-            {/*      </Button>*/}
-            {/*    </AlertDialogTrigger>*/}
-            {/*    <AlertDialogContent>*/}
-            {/*      <AlertDialogHeader>*/}
-            {/*        <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>*/}
-            {/*      </AlertDialogHeader>*/}
-            {/*      <AlertDialogFooter>*/}
-            {/*        <AlertDialogCancel>Batal</AlertDialogCancel>*/}
-            {/*        <AlertDialogAction*/}
-            {/*          className="bg-green-600 hover:bg-green-400"*/}
-            {/*          onClick={() => handleSendGuarantor(submission.id)}>*/}
-            {/*          Kirim*/}
-            {/*        </AlertDialogAction>*/}
-            {/*      </AlertDialogFooter>*/}
-            {/*    </AlertDialogContent>*/}
-            {/*  </AlertDialog>*/}
-            {/*</Show>*/}
           </Show>
         </div>
       </main>

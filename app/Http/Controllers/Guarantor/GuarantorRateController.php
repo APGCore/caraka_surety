@@ -94,6 +94,7 @@ class GuarantorRateController extends Controller
         $guarantor = Guarantor::query()->find($guarantorId);
         $guarantorBranchId = $request->get('guarantor_branch_id');
         $guarantorToProductTypeId = $request->get('guarantor_product_type_id');
+        $guarantorToProductType = GuarantorToProductType::query()->with('product:id,name')->find($guarantorToProductTypeId);
         $guarantorRate = GuarantorRate::query()
             ->where([
                 'guarantor_id' => $guarantorId,
@@ -110,6 +111,7 @@ class GuarantorRateController extends Controller
             'guarantor' => $guarantor,
             'guarantorBranchId' => $guarantorBranchId,
             'guarantorToProductTypeId' => $guarantorToProductTypeId,
+            'guarantorToProductType' => $guarantorToProductType,
             'guarantorRate' => $guarantorRate,
         ]);
     }
@@ -142,6 +144,10 @@ class GuarantorRateController extends Controller
                     ],
                     $data
                 );
+
+            $guarantorRate->load(['guarantorToProductType']);
+            $guarantorToProductType = $guarantorRate->getRelation('guarantorToProductType');
+
             activity()
                 ->useLog('guarantor-rate')
                 ->performedOn($guarantorRate)
@@ -153,8 +159,8 @@ class GuarantorRateController extends Controller
             return redirect()->route('guarantor-rate.index', [
                 'guarantor_id' => $guarantorRate->getAttribute('guarantor_id'),
                 'branch_guarantor_id' => $guarantorRate->getAttribute('branch_guarantor_id'),
-                'product_id' => $guarantorRate->getAttribute('product_id'),
-                'job_group' => $guarantorRate->getAttribute('job_group'),
+                'product_id' => $guarantorToProductType->getAttribute('product_id'),
+                'job_group' => $guarantorToProductType->getAttribute('job_group'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();

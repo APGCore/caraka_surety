@@ -4,7 +4,7 @@ import Show from "@/components/atoms/show";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { FormGuarantorRateUtils } from "@/pages/tariff-management/guarantor-rate/_partials/form-guarantor-rate.utils";
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
@@ -55,13 +55,9 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
   };
 
   const handleBack = () => {
-    router.get(
-      route(FormGuarantorRateUtils.index.route, {
-        guarantor_id: guarantorId,
-        guarantor_branch_id: guarantorBranchId ?? undefined,
-      }),
-    );
+    window.history.back();
   };
+
   return (
     <form
       onSubmit={(e) => {

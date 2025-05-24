@@ -191,6 +191,7 @@ interface SubmissionDetailProps {
     contract_doc_number: string;
     contract_doc_date: string; // Format: YYYY-MM-DD
     time_period: number;
+    difference_time_period: number;
     job_name: string;
     guarantee_issue_date: string; // Format: YYYY-MM-DD
     job_location: string;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Submission;
 
+use App\Enums\SubmissionStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -22,6 +23,7 @@ class SubmissionResource extends JsonResource
 
         return [
             ...parent::toArray($request),
+            'status_label' => SubmissionStatus::getLabels()[$this->resource->status] ?? null,
             'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
             'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
             'created_at' => $this->resource->created_at?->format('d F Y H:i:s') ?? null,
