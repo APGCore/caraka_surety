@@ -17,7 +17,7 @@ use Inertia\Response;
 
 class RegencyController extends Controller
 {
-    protected $regencyService;
+    protected RegencyService $regencyService;
 
     public function __construct(RegencyService $regencyService)
     {
