@@ -838,7 +838,7 @@ class SubmissionController extends Controller
         $guarantorAddress = $guarantorBranch->getAttribute('address') ?? $guarantor->getAttribute('address') ?? '';
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
-        $submissionDocs = $isStaff && $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
+        $submissionDocs = $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
         $finalOutputFile = $submissionDocsFile->map(function ($doc) {
             $document = $doc->only('name', 'url');
             $document['name'] = $doc->getAttribute('name') ?? '-';
