@@ -1,6 +1,4 @@
 import FilterOffice from "@/_features/_common/components/filter-office";
-import { Button } from "@/components/_shadcn-ui/button";
-import { Input } from "@/components/_shadcn-ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -86,7 +84,7 @@ const SubmissionListPage: SubmissionListPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Pengajuan" />
+        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Nomor Pengajuan" />
       </div>
       <SubmissionListDatatable submissions={submissions} />
     </main>
