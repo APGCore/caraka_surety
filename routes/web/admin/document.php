@@ -14,6 +14,7 @@ Route::prefix('documents')->group(function () {
             Route::get('/edit/{requiredDoc}', 'edit')->name('edit');
             Route::put('/{requiredDoc}', 'update')->name('update');
             Route::delete('/{requiredDoc}', 'destroy')->name('destroy');
+            Route::put('/{requiredDoc}/no', 'updateNo')->name('update.no');
         });
 
     Route::controller(DocumentFormatController::class)->prefix('format')

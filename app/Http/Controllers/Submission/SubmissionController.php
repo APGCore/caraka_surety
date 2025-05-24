@@ -1290,7 +1290,7 @@ class SubmissionController extends Controller
             //     }
             // }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
-            flashMessage('success', 'Berhasil menyetujui pengajuan dan menyimpan dokumen');
+            flashMessage('success', 'Berhasil menyetujui pengajuan');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

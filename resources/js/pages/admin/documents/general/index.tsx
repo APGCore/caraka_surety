@@ -9,8 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/_shadcn-ui/alert-dialog";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/_shadcn-ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/_shadcn-ui/button";
+import {Breadcrumb, BreadcrumbItem, BreadcrumbList} from "@/components/_shadcn-ui/breadcrumb";
+import {Button, buttonVariants} from "@/components/_shadcn-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,20 +18,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/_shadcn-ui/dropdown-menu";
-import { Input } from "@/components/_shadcn-ui/input";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/_shadcn-ui/pagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
+import {Input} from "@/components/_shadcn-ui/input";
+import {Pagination, PaginationContent, PaginationItem, PaginationLink} from "@/components/_shadcn-ui/pagination";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/_shadcn-ui/select";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/_shadcn-ui/table";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { Head, Link, router } from "@inertiajs/react";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { pickBy } from "lodash";
-import React, { useState } from "react";
-import { DocumentGeneralPageProps } from "./documents-general-required.page.type";
+import {Head, Link, router} from "@inertiajs/react";
+import {DotsHorizontalIcon} from "@radix-ui/react-icons";
+import {pickBy} from "lodash";
+import React, {useState} from "react";
+import {DocumentGeneralPageProps} from "./documents-general-required.page.type";
+import RenderList from "@/_features/_common/components/render-list";
+import axios from "axios";
 
-const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
+const DocumentGeneralPage: DocumentGeneralPageProps = ({reqDocs}) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
+  const [requiredDocs, setRequiredDocs] = useState(() => reqDocs);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +46,8 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     getData(value, search);
   };
 
-  const handleExport = () => {};
+  const handleExport = () => {
+  };
 
   const getData = (perPage: string, search: string) => {
     return router.get(
@@ -52,9 +56,28 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
         per_page: perPage,
         search,
       }),
-      { preserveState: true, preserveScroll: true },
+      {preserveState: true, preserveScroll: true},
     );
   };
+
+  const changeOrder = (e: any, id: any) => {
+    setRequiredDocs((prevState) => {
+      const newState = [...prevState];
+      const index = newState.findIndex((item) => item.id === id);
+      const value = Number(e.target.value);
+      const existingValue = newState.filter((item) => item.no === value && item.id !== id);
+      if (index !== -1 && value > 0 && existingValue.length === 0) {
+        newState[index].no = value;
+      }
+      return newState;
+    })
+  }
+
+  const handleSaveOrder = (e: any, id: any) => {
+    e.preventDefault();
+    axios.put(route("document.update.no", id), {no: Number(e.target.value)})
+    .then();
+  }
 
   const deleteData = (reqDoc: any) => {
     router.delete(route("document.destroy", reqDoc.id));
@@ -67,7 +90,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
           <Button onClick={handleExport}>Export</Button>
           <Select onValueChange={handleSelect} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
-              <SelectValue placeholder="Items per page" />
+              <SelectValue placeholder="Items per page"/>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="10">10</SelectItem>
@@ -94,6 +117,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
+              <TableHead>No Urut</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Kategori</TableHead>
               <TableHead>Produk</TableHead>
@@ -102,76 +126,81 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reqDocs.length > 0 ? (
-              reqDocs.map((reqDoc, index) => (
-                <TableRow key={reqDoc.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{reqDoc.name}</TableCell>
-                  <TableCell
-                    className={
-                      reqDoc.product_type_id
-                        ? "px-2 py-1 text-xs font-semibold rounded text-yellow-600"
-                        : "px-2 py-1 text-xs font-semibold rounded text-green-600"
-                    }>
-                    {reqDoc.product_type_id ? "Khusus" : "Umum"}
-                  </TableCell>
+            <RenderList of={requiredDocs} render={(reqDoc: any, index: number) => (
+              <TableRow key={reqDoc.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>
+                  <Input type="number" className="w-[40pt]" value={reqDoc.no} min={1}
+                         onChange={(e) => changeOrder(e, reqDoc.id)}
+                          onBlur={(e) => handleSaveOrder(e, reqDoc.id)} placeholder="No Urut"
+                  />
+                </TableCell>
+                <TableCell>{reqDoc.name}</TableCell>
+                <TableCell
+                  className={
+                    reqDoc.product_type_id
+                      ? "px-2 py-1 text-xs font-semibold rounded text-yellow-600"
+                      : "px-2 py-1 text-xs font-semibold rounded text-green-600"
+                  }>
+                  {reqDoc.product_type_id ? "Khusus" : "Umum"}
+                </TableCell>
 
-                  <TableCell>{reqDoc.product_type ? reqDoc.product_type.name : "Tidak Memilih"}</TableCell>
-                  <TableCell>{reqDoc.description}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex h-8 w-8 p-0 group">
-                          <DotsHorizontalIcon className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-36 mr-8 mt-1">
-                        {/* <DropdownMenuItem asChild className="cursor-pointer">
+                <TableCell>{reqDoc.product_type ? reqDoc.product_type.name : "Tidak Memilih"}</TableCell>
+                <TableCell>{reqDoc.description}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex h-8 w-8 p-0 group">
+                        <DotsHorizontalIcon className="h-4 w-4"/>
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-36 mr-8 mt-1">
+                      {/* <DropdownMenuItem asChild className="cursor-pointer">
                           <Link href={route("submission.show", { id: reqDoc.id })}>Detail</Link>
                         </DropdownMenuItem> */}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={route("document.edit", { requiredDoc: reqDoc.id })}>Edit</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
-                          <AlertDialog>
-                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                              Delete
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengajuan secara permanen.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteData(reqDoc)}
-                                  className={buttonVariants({
-                                    variant: "destructive",
-                                  })}>
-                                  Hapus
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
+                      <DropdownMenuSeparator/>
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={route("document.edit", {requiredDoc: reqDoc.id})}>Edit</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator/>
+                      <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
+                        <AlertDialog>
+                          <AlertDialogTrigger
+                            className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                            Delete
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tindakan ini tidak dapat diurungkan. Ini akan menghapus pengajuan secara permanen.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteData(reqDoc)}
+                                className={buttonVariants({
+                                  variant: "destructive",
+                                })}>
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            )} renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={6} className="text-center">
                   Tidak ada data ditemukan
                 </TableCell>
               </TableRow>
-            )}
+            )}/>
           </TableBody>
         </Table>
       </div>
@@ -208,7 +237,7 @@ DocumentGeneralPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Pengajuan"}/>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

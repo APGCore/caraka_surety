@@ -252,7 +252,7 @@ class PrincipalController extends Controller
                 'principal_id' => $request->get('principal_id'),
                 'is_approved' => true,
             ]);
-        }])->get();
+        }])->orderBy('no')->get();
 
         $resource = PrincipalDocumentResource::collection($requiredDocuments);
 
