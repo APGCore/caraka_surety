@@ -633,6 +633,13 @@ class SubmissionController extends Controller
         $principalDocs = $principal->getRelation('documents');
         $blank = $submission->getRelation('blanks')->first();
 
+        // check role
+        $checkRole = $this->checkRole();
+        $isStaff = $checkRole['isStaff'];
+        $isDireksi = $checkRole['isDireksi'];
+        $isManager = $checkRole['isManager'];
+        $isKepalaCabang = $checkRole['isKepalaCabang'];
+
         $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -831,7 +838,7 @@ class SubmissionController extends Controller
         $guarantorAddress = $guarantorBranch->getAttribute('address') ?? $guarantor->getAttribute('address') ?? '';
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
-        $submissionDocs = $submission->getRelation('submissionDocs')->whereNull('url')->values();
+        $submissionDocs = $isStaff && $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
         $finalOutputFile = $submissionDocsFile->map(function ($doc) {
             $document = $doc->only('name', 'url');
             $document['name'] = $doc->getAttribute('name') ?? '-';
@@ -870,8 +877,15 @@ class SubmissionController extends Controller
         $productLimit = $submission->getRelation('guarantorProductTypeLimit')
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
-        $supportDocs = $submission->getRelation('supportDocs')
-            ->map(function ($doc) {
+
+      // get submission support docs
+        $supportDocs = $submission->getRelation('supportDocs');
+
+        $docsInfo = $supportDocs->map(function ($doc) {
+          return "{$doc->name}, Nomor : {$doc->number}, Tanggal {$doc->date}";
+        })->implode('; ');
+
+        $supportDocs = $supportDocs->map(function ($doc) {
                 $date = $doc->getAttribute('date');
                 $url = $doc->getAttribute('url');
                 $doc->setAttribute('name', $doc->getAttribute('name') ?? '-');
@@ -884,20 +898,6 @@ class SubmissionController extends Controller
                 return $doc;
             });
         $isAddedQR = $submission->getAttribute('is_added_qrcode');
-
-        // get submission support docs
-        $supportDocs = $submission->getRelation('supportDocs');
-
-        $docsInfo = $supportDocs->map(function ($doc) {
-            return "{$doc->name}, Nomor : {$doc->number}, Tanggal {$doc->date}";
-        })->implode('; ');
-
-        // check role
-        $checkRole = $this->checkRole();
-        $isStaff = $checkRole['isStaff'];
-        $isDireksi = $checkRole['isDireksi'];
-        $isManager = $checkRole['isManager'];
-        $isKepalaCabang = $checkRole['isKepalaCabang'];
 
         if ($isStaff) {
             $component = 'staff/submission-management/history/detail/index';
