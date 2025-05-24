@@ -1509,7 +1509,7 @@ class SubmissionController extends Controller
     {
       $request->validate([
           'documents' => 'required|array',
-          'documents.*.id' => 'nullable|integer|exists:document_formats,id',
+          'documents.*.id' => 'required|string|exists:document_formats,id',
           'documents.*.name' => 'nullable|string|max:255',
           'documents.*.content' => 'required|string',
           'documents.*.url' => 'nullable|string|max:255',
