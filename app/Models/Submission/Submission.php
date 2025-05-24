@@ -38,7 +38,7 @@ class Submission extends Model
     public function toSearchableArray(): array
     {
         return [
-            'no_guarantee' => $this->no_guarantee,
+            'no_guarantee' => $this->getAttribute('no_guarantee'),
         ];
     }
 
