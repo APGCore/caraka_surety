@@ -69,6 +69,8 @@ return new class extends Migration
             $table->text('revised_note')->nullable();
             $table->integer('first_year_ratio')->nullable();
             $table->integer('last_year_ratio')->nullable();
+            $table->date('publication_date')->nullable();
+            $table->string('publication_place')->nullable();
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
