@@ -1922,4 +1922,65 @@ class SubmissionController extends Controller
       flashMessage('error', 'Terjadi kesalahan saat membatalkan pengajuan', 'error');
     }
   }
+
+  public function updatePublication(Request $request)
+  {
+    // dd($request->all());
+      $request->validate([
+          'submission_id' => 'required|exists:submissions,id',
+          'publication_date' => 'nullable|date',
+          'publication_place' => 'nullable|string|max:255',
+      ]);
+      DB::beginTransaction();
+
+      try {
+          $submission = Submission::findOrFail($request->submission_id);
+
+          $submission->update([
+              'publication_date' => $request->publication_date,
+              'publication_place' => $request->publication_place,
+          ]);
+
+          $submissionId = $submission->id;
+          $publicationDate = $submission->publication_date;
+          $publicationPlace = $submission->publication_place;
+
+          $this->updatePublicationPlaceholders($submissionId, $publicationDate, $publicationPlace);
+
+
+          DB::commit();
+
+          flashMessage('success', 'Berhasil memperbarui data publikasi pengajuan');
+      } catch (\Exception $e) {
+          DB::rollBack();
+          $error = $this->handleErrorMessage($e);
+          Log::error('Failed to delete submission', $error);
+          flashMessage('error', 'Terjadi kesalahan saat mengupdate data', 'error');
+      }
+  }
+
+  public function updatePublicationPlaceholders(int $submissionId, ?string $publicationDate, ?string $publicationPlace)
+  {
+      DB::transaction(function () use ($submissionId, $publicationDate, $publicationPlace) {
+          $submissionDocs = SubmissionDoc::where('submission_id', $submissionId)->get();
+
+          foreach ($submissionDocs as $doc) {
+              $content = $doc->format_document;
+
+              if (strpos($content, '[PUBLICATION_DATE]') !== false && $publicationDate) {
+                  $formattedDate = Carbon::parse($publicationDate)->translatedFormat('d F Y');
+                  $content = str_replace('[PUBLICATION_DATE]', $formattedDate, $content);
+              }
+
+              if (strpos($content, '[PUBLICATION_PLACE]') !== false && $publicationPlace) {
+                  $content = str_replace('[PUBLICATION_PLACE]', $publicationPlace, $content);
+              }
+
+              $doc->update([
+                  'format_document' => $content,
+              ]);
+          }
+      });
+  }
+
 }

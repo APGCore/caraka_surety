@@ -17,6 +17,7 @@ Route::prefix('submission-management')->group(function () {
             Route::post('/save-doc', 'saveDocSignatured')->name('save-permohonan-doc.submission');
             Route::post('/save-content', 'saveDocument')->name('save.content');
             Route::post('/{submission}/embed-qr', 'embedQrCodeToDocs')->name('embedQr');
+            Route::post('/publication/{submission}', 'updatePublication')->name('publication');
             Route::delete('/delete/{submission}', 'destroy')->name('destroy');
         });
 });
