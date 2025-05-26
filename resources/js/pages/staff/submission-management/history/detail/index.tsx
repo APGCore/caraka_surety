@@ -91,6 +91,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
 
   const {comparisonRatios, handleComparisonRatios} = useCompareRatios();
 
+  const editorDocsRefs = useRef<{ [key: string]: any }>({});
   const editorRefs = useRef<{ [key: string]: any }>({});
 
   // DOCUMENT FORMAT
@@ -189,7 +190,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
     principal_commissioner: submission.principal?.commissioner || "",
     pic: submission.principal?.pic || "",
     director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}, ${submission.principal?.postal_code}`,
+    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
     est_deed: submission.principal?.est_deed || "",
     last_deed: submission.principal?.last_deed || "",
     get_susunan_pengurus: submission.get_administators_principal || "",
@@ -241,7 +242,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
     recommendation: submission.recommendation,
     notes: submission.notes,
     analyst_name: submission.analyst_name || "",
-    manager_technique_name: submission.principal?.commissioner || "",
+    manager_technique_name: submission.manager_technique_name || "",
 
     // Informasi Tambahan
     branch_manager: submission.principal?.director_name || "",
@@ -253,8 +254,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
     mail_number_resume: submission.mail_number_resume || "",
     underlying: submission.contract_doc_name + " " + submission.contract_doc_number + " " + submission.job_name || "",
     product_name: submission.product?.name || "",
-    terbilang: submission?.terbilang || "",
     submission_support_docs: submission?.submission_support_docs || "",
+    terbilang: submission?.terbilang || "",
+    terbilang_hari: submission?.terbilang_hari || "",
   };
 
   console.log("support", submission.submission_support_docs);
@@ -1028,7 +1030,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({submission}) => {
                     <div>
                       <TinyMCEEditor
                         id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                        onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                        onInit={(evt, editor) => (editorDocsRefs.current[`editor-${doc.id}`] = editor)}
                         initialContent={doc.format_document}
                         onContentChange={(content: string) => {
                           handleUpdateDocument(doc.id, content);
