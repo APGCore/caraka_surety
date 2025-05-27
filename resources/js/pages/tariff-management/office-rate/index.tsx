@@ -105,6 +105,8 @@ const OfficeRatePage: OfficeRatePageProps = ({
     );
   };
 
+  // console.log(officeSelected, "officeSelected");
+
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
