@@ -101,6 +101,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [publicationPlace, setPublicationPlace] = useState<string | null>(null);
   const [isPendingUpdatePublication, setIsPendingUpdatePublication] = useState<boolean>(false);
   const submissionId = submission?.id || "";
+
   // DOCUMENT FORMAT
   interface SubmissionData {
     principal_name: string;
@@ -1078,20 +1079,32 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <hr />
-
-          {submission.publication_date && submission.publication_place ? (
-            <p className="text-green-600 font-semibold my-4">
-              Tanggal dan Tempat Publikasi sudah diisi dan tidak dapat diubah.
-            </p>
-          ) : (
-            <>
+          <Show when={!submission.publication_date || !submission.publication_place}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmitPublication(e);
+              }}>
               <div>
                 <h3 className="text-lg font-semibold mb-2 pt-4">Tanggal Publikasi</h3>
                 <CalendarPicker
                   dateFormat="YYYY-MM-DD"
                   initialDate={publicationDate ? dayjs(publicationDate).toDate() : dayjs().toDate()}
                   onPickDate={(e) => {
-                    setPublicationDate(dayjs(e).format("YYYY-MM-DD"));
+                    const selectedDate = dayjs(e);
+                    const today = dayjs();
+                    const minDate = today.subtract(1, "month");
+
+                    if (selectedDate.isBefore(minDate) || selectedDate.isAfter(today)) {
+                      toast({
+                        title: "Gagal Memilih Tanggal",
+                        description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir hingga hari ini.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+
+                    setPublicationDate(selectedDate.format("YYYY-MM-DD"));
                   }}
                 />
                 <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
@@ -1109,20 +1122,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-sm text-gray-500 mt-1">* Tempat publikasi hanya dapat diisi satu kali.</p>
               </div>
               <div className="text-right mt-4">
-                <Button
-                  disabled={isPendingUpdatePublication}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleSubmitPublication(e);
-                  }}
-                  type="button">
+                <Button disabled={isPendingUpdatePublication} type="submit">
                   {isLoading && <LoaderCircle className="animate-spin mr-1" />}Simpan{" "}
                 </Button>
               </div>
-            </>
-          )}
-
+            </form>
+          </Show>
+          <Show when={submission.publication_date || submission.publication_place}>
+            <p className="text-green-600 font-semibold my-4">
+              Tanggal dan Tempat Publikasi sudah diisi dan tidak dapat diubah.
+            </p>
+          </Show>
           {submission.submission_docs.length > 0 ? (
             <RenderList
               of={submission.submission_docs as Array<any>}
