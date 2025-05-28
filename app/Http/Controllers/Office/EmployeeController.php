@@ -89,7 +89,7 @@ class EmployeeController extends Controller
     {
         $officeMonitoring = collect($requestValid['office_monitorings'])->map(function ($monitoring) use ($employee) {
             return [
-                'id' => $monitoring['office_monitoring_id'],
+                'id' => $monitoring['office_monitoring_id'] ?? null,
                 'user_id' => $employee->getAttribute('id'),
                 'profile_id' => $monitoring['office_id'],
             ];
