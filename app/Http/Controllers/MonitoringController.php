@@ -40,10 +40,11 @@ class MonitoringController extends Controller
 
         $submissions = Submission::search($request->get('search'))
             ->query(
-                function ($query) use ($officeIds, $isAdmin, $statusSelected) {
+                function ($query) use ($officeIds, $isAdmin, $statusSelected, $officeSelected) {
                     $query->where('guarantor_id', config('guarantor.id'))
                         ->where('product_id', config('product.id'))
                         ->when(! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
+                        ->when($officeSelected, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
                         ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
                         ->with([
                             'scores',
