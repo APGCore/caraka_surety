@@ -9,7 +9,6 @@ import {
 } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
-import { Combobox } from "@/components/molecules/combobox";
 import React from "react";
 
 interface FilterOfficeProps {
@@ -19,7 +18,7 @@ interface FilterOfficeProps {
   officeSelected: number;
   handleSelectOfficeType: (officeType: string) => void;
   handleSelectOffice: (officeId: number) => void;
-  handleReset: () => void;
+  handleReset?: () => void;
 }
 
 const FilterOffice: React.FC<FilterOfficeProps> = ({
@@ -29,7 +28,6 @@ const FilterOffice: React.FC<FilterOfficeProps> = ({
   officeSelected,
   handleSelectOfficeType,
   handleSelectOffice,
-  handleReset,
 }) => {
   return (
     <>
@@ -46,7 +44,7 @@ const FilterOffice: React.FC<FilterOfficeProps> = ({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <Show when={officeTypeSelected !== officeTypes[0]}>
+      <Show when={officeTypeSelected !== officeTypes[0] || offices.length > 0}>
         <NewCombobox
           data={offices}
           labelKey={"name"}

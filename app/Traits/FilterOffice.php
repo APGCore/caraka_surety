@@ -8,13 +8,20 @@ use Illuminate\Http\Request;
 
 trait FilterOffice
 {
-    public function filterOffice(Request $request): object
+    public function filterOffice(Request $request, ?OfficeType $officeType = null, $profileIds = null): object
     {
-        $officeTypes = OfficeType::getName();
-        array_unshift($officeTypes, 'Semua');
+        $officeTypes = $officeType ? [OfficeType::getNameOfValue()[$officeType->value]] : OfficeType::getName();
+        if (! $officeType) {
+            array_unshift($officeTypes, 'Semua');
+        }
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = $officeTypeSelected !== 'Semua' ? OfficeType::getValueOfName()[$officeTypeSelected] : null;
-        $offices = Profile::query()->where('office_type', $officeType)->get();
+        $offices = Profile::query()
+            ->where('office_type', $officeType)
+            ->when($profileIds !== null, function ($query) use ($profileIds) {
+                return $query->whereIn('id', $profileIds);
+            })
+            ->get();
         $officeSelected = $officeTypeSelected != 'Semua' ? ((int) ($request->get('office_id') ?? $offices->first()?->getAttribute('id'))) : 0;
 
         return (object) compact('offices', 'officeTypes', 'officeSelected', 'officeTypeSelected');

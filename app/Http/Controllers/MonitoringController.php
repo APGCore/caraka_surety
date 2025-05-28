@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Submission\Submission;
+use App\Traits\FilterOffice;
 use App\Traits\Numbering;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ use Riskihajar\Terbilang\Facades\Terbilang;
 
 class MonitoringController extends Controller
 {
-    use Numbering;
+    use FilterOffice, Numbering;
 
     /**
      * Display the monitoring dashboard.
@@ -29,6 +31,12 @@ class MonitoringController extends Controller
         $isAdmin = $request->user()->hasRole(RoleEnum::Admin->value);
         $officeMonitorings = collect($request->user()->officeMonitorings);
         $officeIds = $officeMonitorings->pluck('id')->toArray();
+
+        $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, ! $isAdmin ? $officeIds : null);
+        $officeTypes = $officeFilter->officeTypes;
+        $offices = $officeFilter->offices;
+        $officeTypeSelected = $officeFilter->officeTypeSelected;
+        $officeSelected = $officeFilter->officeSelected;
 
         $submissions = Submission::search($request->get('search'))
             ->query(
@@ -65,6 +73,10 @@ class MonitoringController extends Controller
             'submissions' => fn () => $resource,
             'status' => $status,
             'statusSelected' => $statusSelected,
+            'officeTypes' => $officeTypes,
+            'offices' => $offices,
+            'officeTypeSelected' => $officeTypeSelected,
+            'officeSelected' => $officeSelected,
         ]);
     }
 
