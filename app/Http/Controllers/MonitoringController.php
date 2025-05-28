@@ -35,7 +35,7 @@ class MonitoringController extends Controller
                 function ($query) use ($officeIds, $isAdmin, $statusSelected) {
                     $query->where('guarantor_id', config('guarantor.id'))
                         ->where('product_id', config('product.id'))
-                        ->when(count($officeIds) && ! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
+                        ->when(! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
                         ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
                         ->with([
                             'scores',
