@@ -26,13 +26,16 @@ class StoreRequest extends FormRequest
             'name' => 'required|string',
             'username' => 'required|string|unique:users,username,NULL,id,deleted_at,NULL',
             'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
-            'password' => 'required|string|min:8',
-            'password_confirmation' => 'required|same:password',
+            'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'head_id' => 'nullable|exists:users,id',
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
+
+            'office_monitorings' => ['nullable', 'array'],
+            'office_monitorings.*.office_monitoring_id' => ['nullable', 'exists:office_monitorings,id'],
+            'office_monitorings.*.office_id' => ['required', 'exists:profiles,id'],
         ];
     }
 }

@@ -245,7 +245,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleUpdateDocument = (id: number, format: string) => {
-    if (submission.has_send_to_guarantor) return
+    if (submission.has_send_to_guarantor) return;
     axios
       .put(route("api.submission-management.document", { id }), { format })
       .then((response) => {
@@ -463,9 +463,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
-                  <td className="p-2">
-                    :{" " + submission.guarantee_value_formatted}
-                  </td>
+                  <td className="p-2">:{" " + submission.guarantee_value_formatted}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Jangka Waktu</td>
@@ -853,7 +851,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   if (submission.document_format_guarantor?.length) {
                     submission.document_format_guarantor.forEach((doc: any) => {
                       documentsToDisplay.push(
-                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                        <div key={doc.id} style={{ marginBottom: "20px" }}>
                           <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                           <TinyMCEEditor
                             id={doc.name.replace(/\s+/g, "-").toLowerCase()}
@@ -869,7 +867,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   if (submission.document_format_product?.length) {
                     submission.document_format_product.forEach((doc: any) => {
                       documentsToDisplay.push(
-                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                        <div key={doc.id} style={{ marginBottom: "20px" }}>
                           <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                           <TinyMCEEditor
                             id={doc.name.replace(/\s+/g, "-").toLowerCase()}
@@ -885,7 +883,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   if (submission.document_format_type_guarantee?.length) {
                     submission.document_format_type_guarantee.forEach((doc: any) => {
                       documentsToDisplay.push(
-                        <div key={doc.id} style={{marginBottom: "20px"}}>
+                        <div key={doc.id} style={{ marginBottom: "20px" }}>
                           <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                           <TinyMCEEditor
                             id={doc.name.replace(/\s+/g, "-").toLowerCase()}

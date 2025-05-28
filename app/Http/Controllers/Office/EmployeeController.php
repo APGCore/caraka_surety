@@ -9,14 +9,17 @@ use App\Http\Requests\Employee\StoreRequest;
 use App\Http\Requests\Employee\UpdateRequest;
 use App\Http\Resources\Office\EmployeeResource;
 use App\Models\Profile\Profile;
+use App\Models\RelatedParties\OfficeMonitoring;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Inertia\Response;
 
 /**
  * @group Office Management
@@ -82,10 +85,38 @@ class EmployeeController extends Controller
         };
     }
 
+    private function createOfficeMonitoring($requestValid, $employee): void
+    {
+        $officeMonitoring = collect($requestValid['office_monitorings'])->map(function ($monitoring) use ($employee) {
+            return [
+                'id' => $monitoring['office_monitoring_id'],
+                'user_id' => $employee->getAttribute('id'),
+                'profile_id' => $monitoring['office_id'],
+            ];
+        })->toArray();
+        $officeMonitoringIds = collect($officeMonitoring)->pluck('id')->unique()->toArray();
+        // delete pivot data
+        OfficeMonitoring::query()
+            ->where('user_id', $employee->getAttribute('id'))
+            ->whereNotIn('id', $officeMonitoringIds)
+            ->delete();
+        foreach ($officeMonitoring as $monitoring) {
+            OfficeMonitoring::query()->updateOrCreate(
+                [
+                    'id' => $monitoring['id'] ?? null,
+                ],
+                [
+                    'user_id' => $monitoring['user_id'],
+                    'profile_id' => $monitoring['profile_id'],
+                ]
+            );
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): RedirectResponse
     {
         DB::beginTransaction();
         try {
@@ -94,6 +125,9 @@ class EmployeeController extends Controller
             $user = User::query()
                 ->create($requestValid)->load('office');
             $office = $user->getRelation('office');
+
+            $this->createOfficeMonitoring($requestValid, $user);
+
             $routeName = $this->getRouteName($office);
             activity()
                 ->useLog('employee')
@@ -118,7 +152,7 @@ class EmployeeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(Request $request): Response
     {
         $request->validate([
             'office_id' => 'required|exists:profiles,id',
@@ -231,9 +265,9 @@ class EmployeeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, User $employee)
+    public function edit(Request $request, User $employee): Response
     {
-        $employee = User::query()->with('office')->find($employee->getAttribute('id'));
+        $employee = User::query()->with(['role', 'office', 'officeMonitorings'])->find($employee->getAttribute('id'));
         $office = $employee->getRelation('office');
         $officeType = $office->getAttribute('office_type');
         $officeSelected = $office->getAttribute('id');
@@ -281,6 +315,8 @@ class EmployeeController extends Controller
             $requestValid = array_filter($requestValid, fn ($value) => $value !== null);
 
             $office = $employee->load('office')->getRelation('office');
+
+            $this->createOfficeMonitoring($requestValid, $employee);
             $routeName = $this->getRouteName($office);
             $employee->update($requestValid);
             activity()

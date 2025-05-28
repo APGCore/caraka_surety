@@ -84,7 +84,12 @@ const SubmissionListPage: SubmissionListPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Nomor Pengajuan" />
+        <SearchDatatable
+          value={search}
+          onChange={setSearch}
+          onSubmit={handleSearch}
+          placeholder="Cari Nomor Pengajuan"
+        />
       </div>
       <SubmissionListDatatable submissions={submissions} />
     </main>

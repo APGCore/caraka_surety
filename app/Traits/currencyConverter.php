@@ -11,4 +11,9 @@ trait currencyConverter
     {
         return (int) str_replace('.', '', $value);
     }
+
+    public function formatCurrency($value): string
+    {
+        return 'Rp. '.number_format($value, 2, ',', '.');
+    }
 }

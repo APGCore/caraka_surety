@@ -33,8 +33,11 @@ class UpdateRequest extends FormRequest
             'head_id' => 'nullable|exists:users,id',
             'profile_id' => 'required|exists:profiles,id',
             'role_id' => 'required|exists:roles,id',
-            'password' => 'nullable|string|min:8',
-            'password_confirmation' => 'nullable|required_with:password|same:password',
+            'password' => 'nullable|string|min:8|confirmed',
+
+            'office_monitorings' => ['nullable', 'array'],
+            'office_monitorings.*.office_monitoring_id' => ['nullable', 'exists:office_monitorings,id'],
+            'office_monitorings.*.office_id' => ['required', 'exists:profiles,id'],
         ];
     }
 }

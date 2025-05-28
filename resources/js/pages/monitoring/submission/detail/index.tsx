@@ -5,16 +5,6 @@ import { toast } from "@/common/hooks/general/use-toast";
 import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/_shadcn-ui/alert-dialog";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Card, CardContent } from "@/components/_shadcn-ui/card";
@@ -67,7 +57,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const { currentStep, steps, gotoStep } = useStepper(initialSteps);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -273,88 +263,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
     submission_support_docs: submission?.submission_support_docs || "",
     terbilang: submission?.terbilang || "",
     terbilang_hari: submission?.terbilang_hari || "",
-  };
-
-  const documentFormat = () => {
-    return Object.keys(editorRefs.current).map((key) => {
-      const allDocuments = [
-        ...(Array.isArray(submission.document_format_guarantor) ? submission.document_format_guarantor : []),
-        ...(Array.isArray(submission.document_format_product) ? submission.document_format_product : []),
-        ...(Array.isArray(submission.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
-      ];
-
-      if (key === "hasil-analisis") {
-        return {
-          id: submission.document_format_analysis?.id || "hasil-analisis",
-          name: "Resume Analisa Penjaminan",
-          content: editorRefs.current[key].getContent(),
-        };
-      }
-
-      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
-
-      return {
-        id: doc ? doc.id : key,
-        name: doc ? doc.name : key,
-        content: editorRefs.current[key].getContent(),
-      };
-    });
-  };
-
-  const handleApprove = (submissionId: number): void => {
-    setIsLoading(true);
-
-    const documents = documentFormat();
-
-    axios
-      .post(route("manager-submission-approve", { id: submissionId }), { documents })
-      .then((response) => {
-        console.log("Success approve submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.error("Error approving submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const handleReject = (submissionId: number) => {
-    setIsLoading(true);
-    const documents = documentFormat();
-
-    axios
-      .post(route("manager-submission-reject", submissionId), { documents })
-      .then((response) => {
-        console.log("success reject submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.log("error reject submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  // handle check status
-  const handleCheck = (submissionId: number) => {
-    setIsLoading(true);
-    const documents = documentFormat();
-
-    axios
-      .post(route("manager-submission-check", submissionId), { documents })
-      .then((response) => {
-        console.log("success check submission", response);
-        router.reload();
-      })
-      .catch((error) => {
-        console.log("error check submission", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
@@ -1049,107 +957,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
 
                 return <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>;
               })()}
-            </div>
-
-            <div className="flex gap-2">
-              <Show
-                when={
-                  submission.status === SubmissionStatus.PROCESS && !submission.approved_at && !submission.rejected_at
-                }>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="default"
-                      disabled={isLoading}
-                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Tolak
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-600 hover:bg-red-400"
-                        onClick={() => submission.id && handleReject(submission.id)}>
-                        Tolak
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </Show>
-              <Show
-                when={
-                  submission.status === SubmissionStatus.PROCESS &&
-                  !submission.beyond_the_limit &&
-                  submission.checked_by !== auth.user.id &&
-                  !submission.approved_at &&
-                  !submission.rejected_at
-                }>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="default"
-                      disabled={isLoading}
-                      className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Setujui
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {/*Apakah Anda Yakin ingin menyetujui pengajuan ini dan Kirim Ke {submission.guarantor?.name}?*/}
-                        Apakah Anda Yakin ingin menyetujui pengajuan ini?
-                      </AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-green-600 hover:bg-green-400"
-                        onClick={() => submission.id && handleApprove(submission.id)}>
-                        Setujui
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </Show>
-              <Show
-                when={
-                  submission.status === SubmissionStatus.PROCESS &&
-                  submission.beyond_the_limit &&
-                  submission.checked_by !== auth.user.id &&
-                  !submission.approved_at &&
-                  !submission.rejected_at
-                }>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="default"
-                      disabled={isLoading}
-                      className="bg-yellow-400 text-destructive-foreground shadow-sm hover:bg-yellow-200 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                      Kirim Ke Direksi
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini ke direksi?</AlertDialogTitle>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Batal</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-yellow-600 hover:bg-yellow-200"
-                        onClick={() => submission.id && handleCheck(submission.id)}>
-                        Kirim
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </Show>
             </div>
           </Show>
         </div>

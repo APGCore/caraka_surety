@@ -11,6 +11,7 @@ import {
   Infinity,
   LibraryBig,
   MapPinHouse,
+  MonitorCheck,
   Network,
   Stamp,
   User,
@@ -232,6 +233,17 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Daftar Pengajuan",
         route_name: "submission",
         href: route("submission.index"),
+      },
+    ],
+  },
+  {
+    title: "Monitoring",
+    icon: MonitorCheck,
+    items: [
+      {
+        title: "Pengajuan",
+        route_name: "monitoring.submission",
+        href: route("monitoring.submission.index"),
       },
     ],
   },

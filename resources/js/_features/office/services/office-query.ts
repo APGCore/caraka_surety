@@ -33,6 +33,11 @@ export interface OfficeData {
   village: string;
   postal_code: string;
   users: User[];
+  pivot?: {
+    id: number;
+    office_id: number;
+    user_id: number;
+  };
 }
 
 interface PaginationMeta {

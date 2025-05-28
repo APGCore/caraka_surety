@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Archive, Home, Stamp } from "lucide-react";
+import { Archive, Home, MonitorCheck, Stamp } from "lucide-react";
 
 export const direksiRoute: IAppSideBarMenu[] = [
   {
@@ -33,6 +33,17 @@ export const direksiRoute: IAppSideBarMenu[] = [
         title: "Riwayat Pengajuan",
         route_name: "direksi-submission-history",
         href: route("direksi-submission-history.submission"),
+      },
+    ],
+  },
+  {
+    title: "Monitoring",
+    icon: MonitorCheck,
+    items: [
+      {
+        title: "Pengajuan",
+        route_name: "monitoring.submission",
+        href: route("monitoring.submission.index"),
       },
     ],
   },

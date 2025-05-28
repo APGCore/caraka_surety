@@ -13,6 +13,8 @@ import { SubmissionHistoryPageProps } from "./history-page.type";
 
 const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
   submissions,
+  status,
+  statusSelected,
   offices,
   officeTypes,
   officeSelected,
@@ -20,7 +22,7 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
 }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
-  const [statusSelectedState, setStatusSelectedState] = useState("");
+  const [statusSelectedState, setStatusSelectedState] = useState(statusSelected ?? "");
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -101,7 +103,12 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Nomor Pengajuan" />
+        <SearchDatatable
+          value={search}
+          onChange={setSearch}
+          onSubmit={handleSearch}
+          placeholder="Cari Nomor Pengajuan"
+        />
       </div>
       <SubmissionHistoryDatatable submissions={submissions} />
     </main>

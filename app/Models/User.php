@@ -5,8 +5,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Guarantor\EmployeeLimit;
 use App\Models\Profile\Profile;
+use App\Models\RelatedParties\OfficeMonitoring;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -95,5 +97,15 @@ class User extends Authenticatable
     public function head(): BelongsTo
     {
         return $this->belongsTo(User::class, 'head_id');
+    }
+
+    public function officeMonitorings(): BelongsToMany
+    {
+        return $this->belongsToMany(Profile::class, OfficeMonitoring::class, 'user_id', 'profile_id')
+            ->withPivot([
+                'id',
+                'user_id',
+                'profile_id',
+            ]);
     }
 }

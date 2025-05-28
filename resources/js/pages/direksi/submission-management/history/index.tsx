@@ -86,7 +86,12 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
             handleReset={handleReset}
           />
         </div>
-        <SearchDatatable value={search} onChange={setSearch} onSubmit={handleSearch} placeholder="Cari Nomor Pengajuan" />
+        <SearchDatatable
+          value={search}
+          onChange={setSearch}
+          onSubmit={handleSearch}
+          placeholder="Cari Nomor Pengajuan"
+        />
       </div>
       <SubmissionHistoryDatatable submissions={submissions} />
     </main>
