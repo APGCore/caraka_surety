@@ -556,43 +556,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   <td className="p-2">: {submission.obligee?.address}</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="p-2 font-semibold">Jenis Dokumen</td>
-                  <td className="p-2">: {submission.contract_doc_name}</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="p-2 font-semibold">Nomor Dokumen</td>
-                  <td className="p-2">: {submission.contract_doc_number}</td>
-                </tr>
-                <tr className="border-b">
-                  <td className="p-2 font-semibold">Tanggal Dokumen</td>
-                  <td className="p-2">
-                    :{" "}
-                    {new Date(submission.contract_doc_date).toLocaleDateString("id-ID", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </td>
-                </tr>
-                <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Kontrak</td>
-                  <td className="p-2">
-                    :{" " + submission.contract_value_formatted}
-                    {/*{new Intl.NumberFormat("id-ID", {*/}
-                    {/*  style: "currency",*/}
-                    {/*  currency: "IDR",*/}
-                    {/*}).format(submission.contract_value)}*/}
-                  </td>
+                  <td className="p-2">:{" " + submission.contract_value_formatted}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
-                  <td className="p-2">
-                    :{" " + submission.guarantee_value_formatted}
-                    {/*{new Intl.NumberFormat("id-ID", {*/}
-                    {/*  style: "currency",*/}
-                    {/*  currency: "IDR",*/}
-                    {/*}).format(submission.guarantee_value)}*/}
-                  </td>
+                  <td className="p-2">:{" " + submission.guarantee_value_formatted}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Jangka Waktu</td>

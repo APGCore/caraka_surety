@@ -1,3 +1,4 @@
+import Show from "@/_features/_common/components/show";
 import { formatCurrency } from "@/_features/_common/utils/format-currency";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
@@ -43,8 +44,8 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                   {formatCurrency(submission.guarantee_value)} limit {formatCurrency(submission.employee_limit)}
                 </TableCell>
                 <TableCell>
-                  <span
-                    className={`p-2 uppercase text-xs font-semibold rounded ${
+                  <p
+                    className={`py-1 uppercase text-xs font-semibold rounded text-center ${
                       submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
                         : submission.status === SubmissionStatus.REJECTED ||
@@ -53,7 +54,19 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
                     {submission.status_label}
-                  </span>
+                  </p>
+                  <Show when={submission.is_revised}>
+                    <p
+                      className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                      Di Revisi
+                    </p>
+                  </Show>
+                  <Show when={submission.submission_before_id}>
+                    <p
+                      className={`w-[120px] mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                      Hasil Di Revisi
+                    </p>
+                  </Show>
                 </TableCell>
                 <TableCell>{submission.created_at}</TableCell>
                 <TableCell>

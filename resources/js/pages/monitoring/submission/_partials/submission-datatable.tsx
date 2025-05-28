@@ -9,11 +9,11 @@ import { SubmissionStatus } from "@/types/submission-status";
 import { Link } from "@inertiajs/react";
 import React from "react";
 
-interface SubmissionHistoryDatatableProps {
+interface SubmissionDatatableProps {
   submissions: any;
 }
 
-const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
+const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }) => {
   return (
     <>
       <Table>
@@ -68,7 +68,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
-                  <Link href={route("kepala-cabang-submission-detail.submission", { id: submission.id })}>
+                  <Link href={route("monitoring.submission.detail", { id: submission.id })}>
                     <Button variant="outline" size="sm">
                       Detail
                     </Button>
@@ -86,10 +86,10 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
           />
         </TableBody>
       </Table>
-      <ShowingCountDatatable meta={submissions?.meta} />
-      <PaginationDatatable meta={submissions?.meta} />
+      <ShowingCountDatatable meta={submissions.meta} />
+      <PaginationDatatable meta={submissions.meta} />
     </>
   );
 };
 
-export default SubmissionHistoryDatatable;
+export default SubmissionDatatable;

@@ -1,4 +1,3 @@
-import FilterOffice from "@/_features/_common/components/filter-office";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
@@ -7,67 +6,37 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
-import SubmissionHistoryDatatable from "./_partials/history-datatable";
-import SubmissionHistoryHeader from "./_partials/history-page-header";
-import { SubmissionHistoryPageProps } from "./history-page.type";
+import SubmissionDatatable from "./_partials/submission-datatable";
+import SubmissionHeader from "./_partials/submission-page-header";
+import { SubmissionPageProps } from "./submission-page.type";
 
-const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
-  submissions,
-  status,
-  statusSelected,
-  offices,
-  officeTypes,
-  officeSelected,
-  officeTypeSelected,
-}) => {
+const SubmissionPage: SubmissionPageProps = ({ submissions, status, statusSelected }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
   const [statusSelectedState, setStatusSelectedState] = useState(statusSelected ?? "");
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(select, search, statusSelectedState, officeTypeSelected, officeSelected);
+    getData(select, search, statusSelectedState);
   };
 
   const handleSelect = (value: string) => {
     setSelect(Number(value));
-    getData(Number(value), search, statusSelectedState, officeTypeSelected, officeSelected);
+    getData(Number(value), search, statusSelectedState);
   };
 
   const handleStatus = (value: string) => {
     setStatusSelectedState(value);
-    getData(select, search, value, officeTypeSelected, officeSelected);
+    getData(select, search, value);
   };
 
-  const handleSelectOfficeType = (officeType: string) => {
-    getData(select, search, statusSelectedState, officeType, undefined);
-  };
-
-  const handleSelectOffice = (officeId: number) => {
-    getData(select, search, statusSelectedState, officeTypeSelected, officeId);
-  };
-
-  const handleReset = () => {
-    setSelect(10);
-    setSearch("");
-    getData(10, "", statusSelectedState, undefined, undefined);
-  };
-
-  const getData = (
-    per_page: number,
-    search: string,
-    status: string | undefined,
-    officeTypeSelected: string | undefined,
-    officeSelected: number | undefined,
-  ) => {
+  const getData = (per_page: number, search: string, status: string | undefined) => {
     router.get(
-      route("manager-submission-history.submission"),
+      route("monitoring.submission.index"),
       pickBy({
         per_page,
         search,
         status_selected: status,
-        office_type: officeTypeSelected,
-        office_id: officeSelected,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -93,15 +62,6 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
               />
             </SelectContent>
           </Select>
-          <FilterOffice
-            offices={offices}
-            officeTypes={officeTypes}
-            officeTypeSelected={officeTypeSelected}
-            officeSelected={officeSelected}
-            handleSelectOfficeType={handleSelectOfficeType}
-            handleSelectOffice={handleSelectOffice}
-            handleReset={handleReset}
-          />
         </div>
         <SearchDatatable
           value={search}
@@ -110,19 +70,19 @@ const SubmissionHistoryPage: SubmissionHistoryPageProps = ({
           placeholder="Cari Nomor Pengajuan"
         />
       </div>
-      <SubmissionHistoryDatatable submissions={submissions} />
+      <SubmissionDatatable submissions={submissions} />
     </main>
   );
 };
 
-export default SubmissionHistoryPage;
+export default SubmissionPage;
 
-SubmissionHistoryPage.layout = (page: any) => {
+SubmissionPage.layout = (page: any) => {
   const pagePropsData = page.props;
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionHistoryHeader title={pagePropsData?.page_settings?.title} />
+      <SubmissionHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>
   );

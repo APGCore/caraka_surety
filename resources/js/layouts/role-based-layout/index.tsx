@@ -1,3 +1,4 @@
+import { Roles } from "@/common/types/roles";
 import KeuanganLayoutPage from "@/layouts/pusat-layout/kauangan";
 import AdminLayoutPage from "../admin-layout";
 import AgentPartnerLayoutPage from "../agent-partner";
@@ -19,7 +20,7 @@ interface IRoleBasedLayout extends React.PropsWithChildren {
 const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
   const { auth, roles_names, guarantor } = propsData;
   const user = auth?.user;
-  const roles = roles_names;
+  const roles: Roles = roles_names;
   switch (user.role.name) {
     case roles.Admin:
       return (

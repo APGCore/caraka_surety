@@ -16,7 +16,7 @@ import {
   useCreateOrUpdatePrincipal,
   useGetAllPrincipal,
 } from "@/common/hooks/react-query/principal";
-import { useGetAllProduct } from "@/common/hooks/react-query/product";
+// import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 // import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
 import { cn } from "@/common/utils/cn";
@@ -140,7 +140,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   const [principalRatios, setPrincipalRatios] = useState<Ratio[]>(() => data.principal.ratios);
 
   // Product
-  const { data: products } = useGetAllProduct(guarantor.id);
+  // const { data: products } = useGetAllProduct(guarantor.id);
   const [selectedProducts, setSelectedProducts] = useState(() => data.submission.product_id ?? null);
 
   // Principal
@@ -1333,6 +1333,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
 
                       <Button
                         type="button"
+                        className="mt-7"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -1726,7 +1727,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           })
                         }
                       />
-                      <Show when={!!submission && !submission?.submission?.id}>
+                      <Show when={!!submission && submission.submission?.submission_before_id}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"

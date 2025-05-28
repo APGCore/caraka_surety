@@ -1,9 +1,10 @@
+import { Roles } from "@/_features/_common/types/roles";
 import React from "react";
 
 interface EmployeeEditProps {
   officeSelected: number;
-  role?: any;
   roles: any;
+  roles_names: Roles;
   headers: any;
   employee: any;
   routeName: any;

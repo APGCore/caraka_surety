@@ -1,3 +1,7 @@
+import NewCombobox from "@/_features/_common/components/combobox";
+import { Roles } from "@/_features/_common/types/roles";
+import { OfficeData, useSearchOffice } from "@/_features/office/services/office-query";
+import { Button } from "@/components/_shadcn-ui/button";
 import { Input, PasswordInput } from "@/components/_shadcn-ui/input";
 import {
   Select,
@@ -14,18 +18,19 @@ import Show from "@/components/atoms/show";
 import InputError from "@/components/molecules/input/error-input";
 import { router, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect, useMemo, useState } from "react";
 
 interface Props {
   officeSelected: number;
   role?: any;
   roles: any;
+  roles_names: Roles;
   headers: any;
   employee?: any;
   routeName: any;
 }
 
-const Form: React.FC<Props> = ({ officeSelected, role, roles, headers, employee, routeName }) => {
+const Form: React.FC<Props> = ({ officeSelected, roles, roles_names, headers, employee, routeName }) => {
   const { data, setData, post, patch, errors, processing } = useForm<{
     name: string;
     username: string;
@@ -36,17 +41,84 @@ const Form: React.FC<Props> = ({ officeSelected, role, roles, headers, employee,
     profile_id: number;
     password: string;
     password_confirmation: string;
+    office_monitorings: any[];
   }>({
     name: employee?.name || "",
     username: employee?.username || "",
     email: employee?.email || "",
     phone: employee?.phone || "",
     head_id: employee?.head_id || null,
-    role_id: employee?.role_id || role?.id || null,
+    role_id: employee?.role_id || null,
     profile_id: officeSelected,
     password: employee?.password || "",
     password_confirmation: employee?.password || "",
+    office_monitorings: employee?.office_monitorings
+      ? employee.office_monitorings.map((office: any) => ({
+          office_monitoring_id: office.pivot?.id,
+          office_id: office.id,
+          name: office.name,
+        }))
+      : [],
   });
+
+  // pairing banks
+  const { data: office, isLoading: isLoadingOffice } = useSearchOffice({
+    officeType: "Kantor Cabang",
+  });
+
+  const [selectedOffice, setSelectedOffice] = useState<OfficeData[]>([]);
+
+  const officeList = useMemo(() => {
+    if (!isLoadingOffice && Array.isArray(office)) {
+      return office.map((item: OfficeData) => ({
+        id: item.id,
+        name: item.name,
+        isChoosed: selectedOffice.some((selected: OfficeData): boolean => selected.id === item.id),
+      }));
+    }
+    return [];
+  }, [office, isLoadingOffice]);
+
+  const handleSelectOffice = (val: OfficeData) => {
+    if (!val) return;
+    setData("office_monitorings", [
+      ...data.office_monitorings,
+      {
+        office_monitoring_id: val.pivot?.id,
+        office_id: val.id,
+        name: val.name,
+      },
+    ]);
+    setSelectedOffice([...selectedOffice, val]);
+  };
+
+  // Render selected guarantors
+  const renderSelectedOffices = useMemo(() => {
+    return selectedOffice.map((office: OfficeData) => (
+      <div key={office.id} className="flex items-center justify-between p-1 text-sm pl-2 border rounded-md">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{office.name}</span>
+        </div>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => {
+            const newSelectedOffice = selectedOffice.filter((g) => g.id !== office.id);
+
+            setSelectedOffice(newSelectedOffice);
+            setData("office_monitorings", newSelectedOffice);
+          }}>
+          Hapus
+        </Button>
+      </div>
+    ));
+  }, [selectedOffice]);
+
+  useEffect(() => {
+    if (employee) {
+      setSelectedOffice(employee.office_monitorings);
+    }
+  }, [employee]);
 
   const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
     event.preventDefault();
@@ -217,6 +289,30 @@ const Form: React.FC<Props> = ({ officeSelected, role, roles, headers, employee,
           />
           <InputError message={errors.password_confirmation} className="mt-2" />
         </div>
+
+        <Show when={employee.role.name === roles_names?.Manager || employee.role.name === roles_names?.Direksi}>
+          <div className="sm:col-span-6">
+            <p className="text-lg font-bold uppercase underline underline-offset-4 mb-3">Monitor Unit Bisnis</p>
+            <NewCombobox
+              isDisabled={!isLoadingOffice && Array.isArray(office) && selectedOffice.length === office?.length}
+              data={officeList}
+              valueKey="id"
+              labelKey="name"
+              filterKey="isChoosed"
+              isLoading={isLoadingOffice}
+              placeholder="Pilih Unit Bisnis"
+              onSelect={(val: any) => {
+                handleSelectOffice(val);
+              }}
+            />
+            {selectedOffice.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <span className="text-sm font-bold">Unit Bisnis yang dipilih</span>
+                {renderSelectedOffices}
+              </div>
+            )}
+          </div>
+        </Show>
       </div>
 
       <div className="flex justify-end">
