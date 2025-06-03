@@ -290,7 +290,7 @@ const Form: React.FC<Props> = ({ officeSelected, roles, roles_names, headers, em
           <InputError message={errors.password_confirmation} className="mt-2" />
         </div>
 
-        <Show when={employee.role.name === roles_names?.Manager || employee.role.name === roles_names?.Direksi}>
+        <Show when={employee?.role?.name === roles_names?.Manager || employee?.role?.name === roles_names?.Direksi}>
           <div className="sm:col-span-6">
             <p className="text-lg font-bold uppercase underline underline-offset-4 mb-3">Monitor Unit Bisnis</p>
             <NewCombobox

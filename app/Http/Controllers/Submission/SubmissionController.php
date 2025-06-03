@@ -1347,7 +1347,7 @@ class SubmissionController extends Controller
                 flashMessage('error', 'Gagal kirim ke direksi pengajuan', 'error');
             } else {
                 $documents = $request->input('documents', []);
-                $submission->submissionDocs()->delete();
+                $submission->submissionDocs()->whereNotNull('document_format_id')->delete();
                 $docData = collect($documents)->map(fn ($doc) => [
                     'document_format_id' => $doc['id'] ?? null,
                     'name' => $doc['name'] ?? null,
@@ -1499,7 +1499,7 @@ class SubmissionController extends Controller
             $submission = Submission::query()->findOrFail($submissionId);
             $documents = $request->input('documents', []);
             if (count($documents) > 0) {
-                $submission->submissionDocs()->delete();
+                $submission->submissionDocs()->whereNotNull('document_format_id')->delete();
                 $docData = collect($documents)->map(fn ($doc) => [
                     'document_format_id' => $doc['id'] ?? null,
                     'name' => $doc['name'] ?? null,
