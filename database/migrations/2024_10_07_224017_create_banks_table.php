@@ -24,7 +24,9 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
+            $table->string('code')->nullable();
             $table->string('name');
+            $table->string('email');
             $table->string('address');
             $table->string('postal_code');
             $table->string('telephone');
