@@ -39,6 +39,9 @@ Route::middleware('auth')->group(function () {
                             // NAME: api.principal-management.document.upload
                             // PATH: /principal-management/document/uploads/{principal}
                             Route::post('uploads/{principal}', 'uploadDocument')->name('upload');
+                            // NAME: api.principal-management.document.delete
+                            // PATH: /principal-management/document/delete/{document}
+                            Route::delete('delete/{document}', 'deleteDocument')->name('delete');
                         });
                 });
         });
