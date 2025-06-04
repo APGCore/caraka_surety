@@ -10,6 +10,7 @@ use App\Http\Resources\Principal\PrincipalDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
+use App\Models\RelatedParties\PrincipalDocument;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -155,5 +156,30 @@ class PrincipalController extends Controller
 
             return $this->responseError('Gagal mengunggah dokumen', $error);
         }
+    }
+
+    public function deleteDocument(PrincipalDocument $document): JsonResponse
+    {
+      try {
+        DB::beginTransaction();
+
+        $document->delete();
+
+        activity()
+          ->useLog('principal_document')
+          ->performedOn($document)
+          ->causedBy(auth()->user())
+          ->log('Menghapus dokumen principal');
+        flashMessage('Dokumen Principal Dihapus', 'Dokumen Principal dihapus');
+        DB::commit();
+        return $this->responseSuccess('Dokumen Principal Berhasil Dihapus');
+      } catch (Exception $e) {
+        DB::rollBack();
+        flashMessage('Gagal Menghapus Dokumen Principal', 'Terjadi kesalahan saat menghapus dokumen principal', 'error');
+        $error = $this->handleErrorMessage($e);
+        Log::error('PrincipalController@deleteDocument: ', $error);
+
+        return $this->responseError('Gagal menghapus dokumen', $error);
+      }
     }
 }

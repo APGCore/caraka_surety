@@ -1,18 +1,20 @@
-import { toast } from "@/common/hooks/general/use-toast";
-import { PRINCIPAL_QUERY_KEY, useCreateOrUpdatePrincipalDocs } from "@/common/hooks/react-query/principal";
-import { Button } from "@/components/_shadcn-ui/button";
-import { Label } from "@/components/_shadcn-ui/label";
-import { PreviewFile } from "@/components/molecules/preview-file";
-import { queryClient } from "@/components/organisms/provider/react-query-provider";
+import {toast} from "@/common/hooks/general/use-toast";
+import {PRINCIPAL_QUERY_KEY} from "@/common/hooks/react-query/principal";
+import {Button} from "@/components/_shadcn-ui/button";
+import {Label} from "@/components/_shadcn-ui/label";
+import {PreviewFile} from "@/components/molecules/preview-file";
+import {queryClient} from "@/components/organisms/provider/react-query-provider";
 import axios from "axios";
-import { FileIcon } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import {FileIcon} from "lucide-react";
+import React, {useEffect, useRef, useState} from "react";
+import Loading from "@/_features/_common/components/loading";
 
 interface CreateOrUpdatePrincipalDocFormProps {
   principalId: number;
   id: number;
   name: string;
   principal_document: {
+    id?: number;
     path: string;
   } | null;
   doc: string;
@@ -27,18 +29,19 @@ const limit = 15 * 1024 * 1024;
 const toMB = (size: number) => (size / (1024 * 1024)).toFixed(2);
 
 const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormProps> = ({
-  principalId,
-  id,
-  name,
-  principal_document,
-  doc,
-  file,
-}) => {
+                                                                                         principalId,
+                                                                                         id,
+                                                                                         name,
+                                                                                         principal_document,
+                                                                                         doc,
+                                                                                         file,
+                                                                                       }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [files, setFiles] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   useEffect(() => {
     if (file) {
@@ -104,14 +107,54 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
     }
   };
 
+  const onFileDelete = async () => {
+    setLoadingDelete(true);
+
+    try {
+      const response = await axios.delete(
+        route("api.principal-management.document.delete", {
+          document: principal_document?.id,
+        }),
+      );
+
+      if (response.status === 200) {
+        setFiles(null);
+        setPreview(null);
+        setStatus("idle");
+        setUploadProgress(0);
+        toast({
+          title: "Data berhasil dihapus!",
+          description: `Berhasil menghapus dokumen ${name} principal!`,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+          refetchType: "active",
+        });
+      }
+    } catch {
+      setStatus("error");
+      toast({
+        title: "Terjadi kesalahan saat menghapus data. Silahkan coba lagi!",
+        description: `Gagal menghapus dokumen ${name} principal!`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingDelete(false);
+    }
+  }
+
   const handleReset = () => {
     if (inputRef?.current) {
       inputRef.current.value = "";
     }
-    setFiles(null);
-    setPreview(null);
-    setStatus("idle");
-    setUploadProgress(0);
+    if (principal_document) {
+      onFileDelete();
+    } else {
+      setFiles(null);
+      setPreview(null);
+      setStatus("idle");
+      setUploadProgress(0);
+    }
   };
 
   return (
@@ -127,7 +170,7 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
             inputRef.current?.click();
           }}
           className="border-2 border-dashed h-[150px] w-full  border-gray-200 rounded-lg flex flex-col gap-1 p-6 items-center">
-          <FileIcon className="w-10 h-10 flex-shrink-0" />
+          <FileIcon className="w-10 h-10 flex-shrink-0"/>
           {!files ? (
             <>
               <span className="text-sm font-medium text-gray-500">Klik untuk upload file Anda!</span>
@@ -152,15 +195,16 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
             <div className="h-2.5 w-full rounded-full bg-gray-200">
               <div
                 className="h-2.5 rounded-full bg-black transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}></div>
+                style={{width: `${uploadProgress}%`}}></div>
             </div>
             <p className="text-sm text-gray-600">{uploadProgress}% terupload</p>
           </div>
         )}
         {preview && (
           <div className="flex justify-end mt-3 gap-x-3">
-            <PreviewFile files={files} preview={preview} />
-            <Button variant={"destructive"} onClick={handleReset}>
+            <PreviewFile files={files} preview={preview}/>
+            <Button type={"button"} variant={"destructive"} disabled={loadingDelete} onClick={handleReset}>
+              <Loading isLoading={loadingDelete}/>
               Reset
             </Button>
           </div>
