@@ -461,9 +461,7 @@ class SubmissionController extends Controller
             'principal' => function ($query) {
                 $query->withTrashed();
             },
-            'principal.documents' => function ($query) {
-                $query->withTrashed();
-            },
+            'principal.documents',
             'principal.principalRatios' => function ($query) {
                 $query->withTrashed();
             },
