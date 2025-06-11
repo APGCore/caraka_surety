@@ -60,7 +60,7 @@ class StoreRequest extends FormRequest
 
             // submission
             'submission' => ['required'],
-            'submissionType' => ['required', Rule::in(array_keys(SubmissionType::getValues()))],
+            'submissionType' => ['required', Rule::in(SubmissionType::getValues())],
             'submission.id' => ['required_if:submissionType,'.SubmissionType::EDIT->value, 'nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.submission_before_id' => ['required_if:submissionType,'.SubmissionType::REVISION->value, 'nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
 
