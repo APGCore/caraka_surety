@@ -1,55 +1,56 @@
-import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
+import useGetProductTypesByProductAndGuarantor
+  from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
-import { toast } from "@/common/hooks/general/use-toast";
-import { useGetAllBank } from "@/common/hooks/react-query/bank";
-import { useGetAllBlank } from "@/common/hooks/react-query/blank";
-import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
+import {toast} from "@/common/hooks/general/use-toast";
+import {useGetAllBank} from "@/common/hooks/react-query/bank";
+import {useGetAllBlank} from "@/common/hooks/react-query/blank";
+import {useGetBranchGuarantorByHeadquarter} from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
-import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
+import {useGetAllObligee} from "@/common/hooks/react-query/obligee";
 import {
   PRINCIPAL_QUERY_KEY,
   useCreateOrUpdatePrincipal,
   useGetAllPrincipal,
 } from "@/common/hooks/react-query/principal";
 // import { useGetAllProduct } from "@/common/hooks/react-query/product";
-import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
+import {useGetAllSourceOfFund} from "@/common/hooks/react-query/source-of-fund";
 // import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
-import { cn } from "@/common/utils/cn";
-import { getNumericValue } from "@/common/utils/get-numeric-value";
-import { textCurrency } from "@/common/utils/text-currency";
-import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
-import { Button } from "@/components/_shadcn-ui/button";
-import { Input } from "@/components/_shadcn-ui/input";
-import { Label } from "@/components/_shadcn-ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/_shadcn-ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
-import { Textarea } from "@/components/_shadcn-ui/textarea";
+import {cn} from "@/common/utils/cn";
+import {getNumericValue} from "@/common/utils/get-numeric-value";
+import {textCurrency} from "@/common/utils/text-currency";
+import {Alert, AlertDescription, AlertTitle} from "@/components/_shadcn-ui/alert";
+import {Button} from "@/components/_shadcn-ui/button";
+import {Input} from "@/components/_shadcn-ui/input";
+import {Label} from "@/components/_shadcn-ui/label";
+import {RadioGroup, RadioGroupItem} from "@/components/_shadcn-ui/radio-group";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/_shadcn-ui/select";
+import {Textarea} from "@/components/_shadcn-ui/textarea";
 import Loading from "@/components/atoms/loading";
 import NewCombobox from "@/components/atoms/new-combobox";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
-import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
-import { Combobox } from "@/components/molecules/combobox";
+import {CalendarPicker} from "@/components/molecules/calendar/single-calendar";
+import {Combobox} from "@/components/molecules/combobox";
 import InputCurrency from "@/components/molecules/input/currency-input";
-import { queryClient } from "@/components/organisms/provider/react-query-provider";
+import {queryClient} from "@/components/organisms/provider/react-query-provider";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
-import { SubmissionType } from "@/types/submission-type";
-import { useForm } from "@inertiajs/react";
+import {SubmissionType} from "@/types/submission-type";
+import {useForm} from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
-import { AlertCircle, LoaderCircle } from "lucide-react";
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import {AlertCircle, LoaderCircle} from "lucide-react";
+import React, {Fragment, useCallback, useEffect, useState} from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
-import { Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument } from "./submission-create-page.type";
+import {Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument} from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, submission }) => {
   const defaultPrincipalRatios: Ratio = {
@@ -1729,7 +1730,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           })
                         }
                       />
-                      <Show when={!!submission && submission.submission?.submission_before_id}>
+                      <Show when={data.submissionType === SubmissionType.REVISION}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"
