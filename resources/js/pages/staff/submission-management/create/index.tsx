@@ -141,7 +141,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
 
   // Product
   // const { data: products } = useGetAllProduct(guarantor.id);
-  const [selectedProducts, setSelectedProducts] = useState(() => data.submission.product_id ?? null);
+  const [selectedProducts, setSelectedProducts] = useState(() => data.submission?.product_id ?? null);
 
   // Principal
   const { data: principals } = useGetAllPrincipal();
@@ -235,7 +235,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     selectedGuarantor ? String(selectedGuarantor) : undefined,
   );
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(
-    () => data?.submission.guarantor_branch_id ?? null,
+    () => data?.submission?.guarantor_branch_id ?? null,
   );
   const [isResetBranchGuarantor, setIsResetBranchGuarantor] = useState(false);
 
@@ -245,7 +245,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     selectedGuarantorId: selectedGuarantor,
   });
   const [selectedProductType, setSelectedProductType] = useState<object | null>(
-    () => data.submission.product_type_id ?? null,
+    () => data.submission?.product_type_id ?? null,
   );
   const [isResetProductType, setIsResetProductType] = useState(false);
 
@@ -253,9 +253,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   // const { data: submissionBefore } = useGetBeforeSubmission({
   //   principal_id: String(data.principal.id),
   //   guarantor_id: String(selectedGuarantor),
-  //   product_type_id: String(data.submission.product_type_id),
-  //   job_group: String(data.submission.job_group),
-  //   job_type: String(data.submission.job_type),
+  //   product_type_id: String(data.submission?.product_type_id),
+  //   job_group: String(data.submission?.job_group),
+  //   job_type: String(data.submission?.job_type),
   // });
 
   // const handleSelectSubmissionBefore = (submissionId: number) => {
@@ -275,15 +275,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   // profile limit
   const { profileLimit } = useGetProfileLimit({
     guarantor_id: Number(selectedGuarantor),
-    product_type_id: Number(data.submission.product_type_id),
-    job_group: data.submission.job_group,
-    job_type: data.submission.job_type,
+    product_type_id: Number(data.submission?.product_type_id),
+    job_group: data.submission?.job_group,
+    job_type: data.submission?.job_type,
   });
 
   // Source of Fundd
   const { data: sourceOfFunds } = useGetAllSourceOfFund();
   const [selectedSourceOfFund, setSelectedSourceOfFund] = useState<number | null>(
-    () => data.submission.source_of_fund_id ?? null,
+    () => data.submission?.source_of_fund_id ?? null,
   );
 
   // Obligee
@@ -342,7 +342,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   // Bank
   //   const { banks } = useGetAllBank();
   const { data: banks } = useGetAllBank();
-  const [selectedBank, setSelectedBank] = useState<number | null>(() => data.submission.bank_id ?? 0);
+  const [selectedBank, setSelectedBank] = useState<number | null>(() => data.submission?.bank_id ?? 0);
 
   // SCORING
   const { scorings, scoring } = useGetScoringById({
@@ -642,8 +642,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       // SETTING PRINCIPAL DATA
 
                       const allRatios = await fetchPrincipalRatios(val.id);
-                      const firstYearRatio = data.submission.first_year_ratio;
-                      const lastYearRatio = data.submission.last_year_ratio;
+                      const firstYearRatio = data.submission?.first_year_ratio;
+                      const lastYearRatio = data.submission?.last_year_ratio;
                       const ratios = allRatios.filter(
                         (ratio: Ratio) =>
                           firstYearRatio &&
@@ -902,7 +902,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         <div className="grid gap-1 w-full">
                           <Label className="text-md">Jenis Pekerjaan</Label>
                           <Select
-                            value={data.submission.job_group}
+                            value={data.submission?.job_group}
                             onValueChange={(val) => {
                               setData("submission", {
                                 ...data.submission,
@@ -925,7 +925,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         <div className="grid gap-1 w-full">
                           <Label className="text-md">Tipe Pekerjaan</Label>
                           <Select
-                            value={data.submission.job_type}
+                            value={data.submission?.job_type}
                             onValueChange={(val) => {
                               setData("submission", {
                                 ...data.submission,
@@ -950,7 +950,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                     {/*    data={Array.isArray(submissionBefore) ? submissionBefore : []}*/}
                     {/*    labelKey="name"*/}
                     {/*    valueKey="id"*/}
-                    {/*    defaultValue={data.submission.submission_inherit_id}*/}
+                    {/*    defaultValue={data.submission?.submission_inherit_id}*/}
                     {/*    placeholder={"Pilih Pengajuan Sebelumnya"}*/}
                     {/*    className={"min-w-[160px]"}*/}
                     {/*    onSelect={(value) => handleSelectSubmissionBefore(value?.id)}*/}
@@ -1343,7 +1343,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       </Button>
                     </div>
 
-                    <Show when={data.submission.product_id === 2}>
+                    <Show when={data.submission?.product_id === 2}>
                       <div className="grid gap-1">
                         <Label className="text-md">Banks</Label>
                         <Combobox
@@ -1364,11 +1364,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                     </Show>
                     <div className="grid gap-1">
                       <Label className="text-md">Nama Proyek</Label>
-                      <input
-                        type="text"
-                        className="border border-gray-300 p-2 rounded-md"
+                      <Textarea
+                        className="text-md"
                         placeholder="Masukkan Nama Proyek"
-                        value={data.submission.job_name}
+                        value={data.submission?.job_name}
                         onChange={(e) =>
                           setData("submission", {
                             ...data.submission,
@@ -1380,7 +1379,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
 
                     <div className="flex gap-5">
                       <ContractDocSection
-                        supportDocs={data.submission.support_docs}
+                        supportDocs={data.submission?.support_docs}
                         onChange={(value: SupportDocument[]) => {
                           setData("submission" as any, {
                             ...data.submission,
@@ -1393,7 +1392,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Nilai Kontrak</Label>
                         <InputCurrency
-                          defaultValue={data.submission.contract_value}
+                          defaultValue={data.submission?.contract_value}
                           placeholder="Nilai Kontrak"
                           onChange={(value) => {
                             setData("submission", {
@@ -1406,7 +1405,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Nilai Jaminan</Label>
                         <InputCurrency
-                          defaultValue={data.submission.guarantee_value}
+                          defaultValue={data.submission?.guarantee_value}
                           placeholder="Nilai Jaminan"
                           onChange={(value) => {
                             setData("submission", {
@@ -1424,12 +1423,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           className="text-md"
                           type="number"
                           placeholder="Jangka Waktu"
-                          value={data.submission.time_period}
+                          value={data.submission?.time_period}
                           onChange={(e) =>
                             setData("submission", {
                               ...data.submission,
                               time_period: e.target.value,
-                              end_date: dayjs(data.submission.start_date)
+                              end_date: dayjs(data.submission?.start_date)
                                 .add(Number(e.target.value), "day")
                                 .format("YYYY-MM-DD"),
                             })
@@ -1439,7 +1438,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Selisih Waktu</Label>
                         <Select
-                          value={data.submission.difference_time_period?.toString()}
+                          value={data.submission?.difference_time_period?.toString()}
                           onValueChange={(value) => {
                             setData("submission", {
                               ...data.submission,
@@ -1491,7 +1490,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                               end_date: dayjs(e).format("YYYY-MM-DD"),
                               time_period: dayjs(e)
                                 .startOf("day")
-                                .diff(dayjs(data.submission.start_date).startOf("day"), "day")
+                                .diff(dayjs(data.submission?.start_date).startOf("day"), "day")
                                 .toString(),
                             });
                           }}
@@ -1583,7 +1582,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                             <Input
                               className="text-md"
                               placeholder="Masukan nama Desa"
-                              value={data.submission.job_location_village}
+                              value={data.submission?.job_location_village}
                               onChange={(e) =>
                                 setData("submission", {
                                   ...data.submission,
@@ -1611,7 +1610,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                             <Input
                               className="text-md"
                               placeholder="Masukan kode pos"
-                              value={data.submission.job_location_postal_code}
+                              value={data.submission?.job_location_postal_code}
                               onChange={(e) =>
                                 setData("submission", {
                                   ...data.submission,
@@ -1633,8 +1632,8 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                   <div className="grid gap-16">
                     <PrincipalRatios
                       ratios={principalRatios}
-                      firstYear={data.submission.first_year_ratio}
-                      secondYear={data.submission.last_year_ratio}
+                      firstYear={data.submission?.first_year_ratio}
+                      secondYear={data.submission?.last_year_ratio}
                       setRatio={handleSetRatios}
                     />
                     <RenderList
@@ -1727,12 +1726,12 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           })
                         }
                       />
-                      <Show when={!!submission && submission.submission?.submission_before_id}>
+                      <Show when={data.submission?.submission_before_id}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"
                           placeholder="Masukan Catatan Revisi"
-                          value={data.submission.revised_note ?? ""}
+                          value={data.submission?.revised_note ?? ""}
                           onChange={(e) =>
                             setData("submission", {
                               ...data.submission,

@@ -129,16 +129,16 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'obligee.name.required_if' => 'Nama pemberi pekerjaan wajib diisi',
-            'obligee.pic.required_if' => 'Nama PIC wajib diisi',
-            'obligee.no_ppk.required_if' => 'Nomor PPK wajib diisi',
-            'obligee.telephone.required_if' => 'Nomor telepon wajib diisi',
-            'obligee.province_id.required_if' => 'Provinsi wajib diisi',
-            'obligee.regency_id.required_if' => 'Kabupaten/Kota wajib diisi',
-            'obligee.district_id.required_if' => 'Kecamatan wajib diisi',
-            'obligee.village.required_if' => 'Desa wajib diisi',
-            'obligee.address.required_if' => 'Alamat wajib diisi',
-            'obligee.postal_code.required_if' => 'Kode pos wajib diisi',
+            'obligee.name.required' => 'Nama pemberi pekerjaan wajib diisi',
+            'obligee.pic.required' => 'Nama PIC wajib diisi',
+            'obligee.no_ppk.required' => 'Nomor PPK wajib diisi',
+            'obligee.telephone.required' => 'Nomor telepon wajib diisi',
+            'obligee.province_id.required' => 'Provinsi wajib diisi',
+            'obligee.regency_id.required' => 'Kabupaten/Kota wajib diisi',
+            'obligee.district_id.required' => 'Kecamatan wajib diisi',
+            'obligee.village.required' => 'Desa wajib diisi',
+            'obligee.address.required' => 'Alamat wajib diisi',
+            'obligee.postal_code.required' => 'Kode pos wajib diisi',
 
             'submission.guarantor_id.required' => 'Penjamin wajib diisi',
             'submission.guarantor_branch_id.required' => 'Cabang penjamin wajib diisi',
