@@ -46,16 +46,16 @@ class StoreRequest extends FormRequest
         return [
             // obligiee
             'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'],
-            'obligee.name' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.pic' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.no_ppk' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.telephone' => ['required_if:obligee.id,NULL', 'nullable', 'string', 'not_in:0'],
-            'obligee.province_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Province::class.',id'],
-            'obligee.regency_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.Regency::class.',id'],
-            'obligee.district_id' => ['required_if:obligee.id,NULL', 'nullable', 'exists:'.District::class.',id'],
-            'obligee.village' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.address' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
-            'obligee.postal_code' => ['required_if:obligee.id,NULL', 'nullable', 'string'],
+            'obligee.name' => ['required', 'nullable', 'string'],
+            'obligee.pic' => ['required', 'nullable', 'string'],
+            'obligee.no_ppk' => ['required', 'nullable', 'string'],
+            'obligee.telephone' => ['required', 'nullable', 'string', 'not_in:0'],
+            'obligee.province_id' => ['required', 'nullable', 'exists:'.Province::class.',id'],
+            'obligee.regency_id' => ['required', 'nullable', 'exists:'.Regency::class.',id'],
+            'obligee.district_id' => ['required', 'nullable', 'exists:'.District::class.',id'],
+            'obligee.village' => ['required', 'nullable', 'string'],
+            'obligee.address' => ['required', 'nullable', 'string'],
+            'obligee.postal_code' => ['required', 'nullable', 'string'],
 
             // submission
             'submission' => ['required'],
