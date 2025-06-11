@@ -160,26 +160,27 @@ class PrincipalController extends Controller
 
     public function deleteDocument(PrincipalDocument $document): JsonResponse
     {
-      try {
-        DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-        $document->delete();
+            $document->delete();
 
-        activity()
-          ->useLog('principal_document')
-          ->performedOn($document)
-          ->causedBy(auth()->user())
-          ->log('Menghapus dokumen principal');
-        flashMessage('Dokumen Principal Dihapus', 'Dokumen Principal dihapus');
-        DB::commit();
-        return $this->responseSuccess('Dokumen Principal Berhasil Dihapus');
-      } catch (Exception $e) {
-        DB::rollBack();
-        flashMessage('Gagal Menghapus Dokumen Principal', 'Terjadi kesalahan saat menghapus dokumen principal', 'error');
-        $error = $this->handleErrorMessage($e);
-        Log::error('PrincipalController@deleteDocument: ', $error);
+            activity()
+                ->useLog('principal_document')
+                ->performedOn($document)
+                ->causedBy(auth()->user())
+                ->log('Menghapus dokumen principal');
+            flashMessage('Dokumen Principal Dihapus', 'Dokumen Principal dihapus');
+            DB::commit();
 
-        return $this->responseError('Gagal menghapus dokumen', $error);
-      }
+            return $this->responseSuccess('Dokumen Principal Berhasil Dihapus');
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Dokumen Principal', 'Terjadi kesalahan saat menghapus dokumen principal', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@deleteDocument: ', $error);
+
+            return $this->responseError('Gagal menghapus dokumen', $error);
+        }
     }
 }
