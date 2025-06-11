@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Submission;
 use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
+use App\Enums\SubmissionType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Submission\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
@@ -12,7 +13,6 @@ use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
-use App\Models\Guarantor\ProfileLimit;
 use App\Models\Product\Product;
 use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Response;
 use Riskihajar\Terbilang\Facades\Terbilang;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -57,7 +58,7 @@ class SubmissionController extends Controller
         $this->productId = config('product.id');
     }
 
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $date = collect($request->get('date') ?? [
             now()->subDays(7)->toDateString().' 00:00:00',
@@ -124,7 +125,7 @@ class SubmissionController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->appends('query')
             ->appends($request->all());
 
         $resource = SubmissionResource::collection($submissions);
@@ -178,10 +179,12 @@ class SubmissionController extends Controller
 
             $obligee = $validated['obligee'];
             $submission = $validated['submission'];
+            $submissionType = $validated['submissionType'];
             $submission['difference_time_period'] = (float) $submission['difference_time_period'];
             $supportDocs = $submission['support_docs'] ?? [];
             $scoring = $validated['scoring'];
-            $isEdit = isset($submission['id']);
+            $isEdit = $submissionType === SubmissionType::EDIT->value;
+            $isRevision = $submissionType === SubmissionType::REVISION->value;
 
             // get profile
             $profile = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
@@ -230,10 +233,10 @@ class SubmissionController extends Controller
 
             // prepare create submission
             $dataSubmission = collect($submission)->toArray();
-            $submissionBeforeId = $dataSubmission['submission_before_id'] ?? null;
 
-            $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
-            if ($submissionForRevision) {
+            if ($isRevision) {
+                $submissionBeforeId = $dataSubmission['submission_before_id'];
+                $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
                 $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
                 $submissionForRevision->update(['is_revised' => true]);
                 $submissionForRevision->blanks()->each(function ($query) {
@@ -254,7 +257,6 @@ class SubmissionController extends Controller
                     $profile
                 );
             }
-            $dataSubmission['submission_before_id'] = $submissionBeforeId;
             $dataSubmission['no_guarantee'] = $noGuarantee;
 
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
@@ -306,7 +308,7 @@ class SubmissionController extends Controller
                     }
                     $data['url'] = $this->uploadFile(
                         $file,
-                        "submission/submission-{$noGuarantee}/support-documents/{$supportDoc['number']}",
+                        "submission/submission-$noGuarantee/support-documents/{$supportDoc['number']}",
                         $supportDoc['name']
                     );
                 }
@@ -351,17 +353,70 @@ class SubmissionController extends Controller
     }
 
     /**
+     * Display the form for creating a new resource.
+     */
+    public function create(): Response
+    {
+        $checkRole = $this->checkRole();
+        $isStaff = $checkRole['isStaff'];
+        $isAgentPartner = $checkRole['isAgentPartner'];
+        $isMarketingPartner = $checkRole['isMarketingPartner'];
+
+        if ($isStaff) {
+            $component = 'staff/submission-management/create/index';
+        } elseif ($isAgentPartner) {
+            $component = 'agent-partner/submission-management/create/index';
+        } elseif ($isMarketingPartner) {
+            $component = 'marketing-partner/submission-management/create/index';
+        } else {
+            $component = 'staff/submission-management/create/index';
+        }
+
+        return inertia($component, [
+            'page_settings' => fn () => [
+                'title' => 'Buat Pengajuan',
+            ],
+        ]);
+    }
+
+    private function checkRole(): array
+    {
+        // check role
+        $authId = auth()->id();
+        $user = User::query()->find($authId);
+        $roleName = $user->role->name;
+        $isStaff = $roleName === RoleEnum::Staff->value;
+        $isDireksi = $roleName === RoleEnum::Direksi->value;
+        $isManager = $roleName === RoleEnum::Manager->value;
+        $isKepalaCabang = $roleName === RoleEnum::KepalaCabang->value;
+        $isKepalaAgentPartner = $roleName === RoleEnum::KepalaAgentPartner->value;
+        $isAgentPartner = $roleName === RoleEnum::AgentPartner->value;
+        $isMarketingPartner = $roleName === RoleEnum::MarketingPartner->value;
+
+        return compact([
+            'authId',
+            'isStaff',
+            'isDireksi',
+            'isManager',
+            'isKepalaCabang',
+            'isKepalaAgentPartner',
+            'isAgentPartner',
+            'isMarketingPartner',
+        ]);
+    }
+
+    /**
      * Display the specified resource.
      */
-    public function edit($id)
+    public function edit($id): Response|RedirectResponse
     {
         $submission = $this->getSubmission($id);
         if ($submission->getAttribute('has_send_to_guarantor')) {
-            flashMessage('Gagal', 'Pengajuan tidak dapat diubah', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak dapat diubah karena sudah di kirim ke asuransi', 'error');
 
             return redirect()->back();
         }
-        $principal = $submission->principal->only([
+        $principal = $submission->getRelation('principal')->only([
             'id',
             'province_id',
             'regency_id',
@@ -386,12 +441,12 @@ class SubmissionController extends Controller
             'business_fields',
         ]);
 
-        $obligee = $submission->obligee;
+        $obligee = $submission->getRelation('obligee');
 
         $scoring = collect([
-            'id' => $submission->scores->first()->scoring_id,
-            'note' => $submission->note_scoring,
-            'scores' => $submission->scores,
+            'id' => $submission->getRelation('scores')->first()?->scoring_id ?? null,
+            'note' => $submission->getAttribute('note_scoring'),
+            'scores' => $submission->getAttribute('scores'),
         ]);
 
         $submissionArray = $submission->only([
@@ -427,7 +482,7 @@ class SubmissionController extends Controller
 
         $submission = array_merge(
             $submissionArray,
-            $submission->guarantorToProductType->only(
+            $submission->getRelation('guarantorToProductType')->only(
                 'product_type_id',
                 'job_group',
                 'job_type',
@@ -444,8 +499,10 @@ class SubmissionController extends Controller
             })]
         );
 
+        $submissionType = SubmissionType::EDIT->value;
+
         // new class
-        $data = collect(compact('submission', 'principal', 'obligee', 'scoring'));
+        $data = collect(compact('submission', 'principal', 'obligee', 'scoring', 'submissionType'));
 
         return inertia('staff/submission-management/create/index', [
             'page_settings' => fn () => [
@@ -531,7 +588,7 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function revision($id)
+    public function revision($id): Response
     {
         $submission = $this->getSubmission($id);
         $principal = $submission->getRelation('principal')->only([
@@ -612,8 +669,10 @@ class SubmissionController extends Controller
             ];
         })]);
 
+        $submissionType = SubmissionType::REVISION->value;
+
         // new class
-        $data = collect(compact('submission', 'principal', 'obligee', 'scoring'));
+        $data = collect(compact('submission', 'principal', 'obligee', 'scoring', 'submissionType'));
 
         return inertia('staff/submission-management/create/index', [
             'page_settings' => fn () => [
@@ -626,7 +685,7 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showDetailSubmission($id)
+    public function showDetailSubmission($id): Response
     {
         $submission = $this->getSubmission($id);
         $mailNumber = $this->generateNomorSurat($submission);
@@ -896,7 +955,7 @@ class SubmissionController extends Controller
         });
 
         $docsInfo = $supportDocs->map(function ($doc) {
-            return "{$doc->name}, Nomor : {$doc->number}, Tanggal {$doc->date}";
+            return "$doc->name, Nomor : $doc->number, Tanggal $doc->date";
         })->implode('; ');
 
         $isAddedQR = $submission->getAttribute('is_added_qrcode');
@@ -957,58 +1016,9 @@ class SubmissionController extends Controller
         ]);
     }
 
-    private function checkRole(): array
-    {
-        // check role
-        $authId = auth()->id();
-        $user = User::query()->find($authId);
-        $roleName = $user->role->name;
-        $isStaff = $roleName === RoleEnum::Staff->value;
-        $isDireksi = $roleName === RoleEnum::Direksi->value;
-        $isManager = $roleName === RoleEnum::Manager->value;
-        $isKepalaCabang = $roleName === RoleEnum::KepalaCabang->value;
-        $isKepalaAgentPartner = $roleName === RoleEnum::KepalaAgentPartner->value;
-        $isAgentPartner = $roleName === RoleEnum::AgentPartner->value;
-        $isMarketingPartner = $roleName === RoleEnum::MarketingPartner->value;
-
-        return compact([
-            'authId',
-            'isStaff',
-            'isDireksi',
-            'isManager',
-            'isKepalaCabang',
-            'isKepalaAgentPartner',
-            'isAgentPartner',
-            'isMarketingPartner',
-        ]);
-    }
-
-    public function displayCreate()
-    {
-        $checkRole = $this->checkRole();
-        $isStaff = $checkRole['isStaff'];
-        $isAgentPartner = $checkRole['isAgentPartner'];
-        $isMarketingPartner = $checkRole['isMarketingPartner'];
-
-        if ($isStaff) {
-            $component = 'staff/submission-management/create/index';
-        } elseif ($isAgentPartner) {
-            $component = 'agent-partner/submission-management/create/index';
-        } elseif ($isMarketingPartner) {
-            $component = 'marketing-partner/submission-management/create/index';
-        } else {
-            $component = 'staff/submission-management/create/index';
-        }
-
-        return inertia($component, [
-            'page_settings' => fn () => [
-                'title' => 'Buat Pengajuan',
-            ],
-        ]);
-    }
-
     // for list pengajuan masuk
-    public function displaySubmission(Request $request)
+
+    public function displaySubmission(Request $request): Response
     {
         $checkRole = $this->checkRole();
         $authId = $checkRole['authId'];
@@ -1081,7 +1091,7 @@ class SubmissionController extends Controller
             })
             ->orderByDesc('updated_at')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->appends('query')
             ->appends($request->all());
 
         $submissions = SubmissionResource::collection($submissions);
@@ -1189,7 +1199,7 @@ class SubmissionController extends Controller
             )
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->appends('query')
             ->appends($request->all());
         $resource = SubmissionResource::collection($submissions);
 
@@ -1365,7 +1375,7 @@ class SubmissionController extends Controller
         }
     }
 
-    public function saveDocument(Request $request)
+    public function saveDocument(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'submission_id' => 'required|integer|exists:submissions,id',
@@ -1376,16 +1386,17 @@ class SubmissionController extends Controller
 
         DB::beginTransaction();
         try {
-            $submissionDoc = SubmissionDoc::updateOrCreate(
-                [
-                    'submission_id' => $validated['submission_id'],
-                    'name' => $validated['name'],
-                ],
-                [
-                    'document_format_id' => $validated['document_format_id'] ?? null,
-                    'format_document' => $validated['format_document'], // Data yang diperbarui
-                ]
-            );
+            $submissionDoc = SubmissionDoc::query()
+                ->updateOrCreate(
+                    [
+                        'submission_id' => $validated['submission_id'],
+                        'name' => $validated['name'],
+                    ],
+                    [
+                        'document_format_id' => $validated['document_format_id'] ?? null,
+                        'format_document' => $validated['format_document'], // Data yang diperbarui
+                    ]
+                );
 
             DB::commit();
 
@@ -1406,7 +1417,7 @@ class SubmissionController extends Controller
         }
     }
 
-    public function saveDocSignatured(Request $request)
+    public function saveDocSignatured(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
@@ -1429,7 +1440,7 @@ class SubmissionController extends Controller
                 //                    $uniqueName,
                 //                    'public'
                 //                );
-                $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/{$submissionId}", $uniqueName);
+                $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/$submissionId", $uniqueName);
                 $documents[] = [
                     'submission_id' => $submissionId,
                     'document_format_id' => null,
@@ -1449,7 +1460,7 @@ class SubmissionController extends Controller
                 //                    $uniqueName,
                 //                    'public'
                 //                );
-                $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/{$submissionId}", $uniqueName);
+                $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/$submissionId", $uniqueName);
                 $documents[] = [
                     'submission_id' => $submissionId,
                     'document_format_id' => null,
@@ -1460,7 +1471,7 @@ class SubmissionController extends Controller
             }
 
             foreach ($documents as $document) {
-                SubmissionDoc::updateOrCreate(
+                SubmissionDoc::query()->updateOrCreate(
                     ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
                     $document
                 );
@@ -1509,7 +1520,7 @@ class SubmissionController extends Controller
             DB::commit();
 
             return $this->responseSuccess('Berhasil menyimpan dokumen pengajuan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Failed to save documents', $error);
@@ -1762,15 +1773,6 @@ class SubmissionController extends Controller
         return $final;
     }
 
-    private function getProfileLimit($guarantorId, $guarantorProductTypeId, $profileId)
-    {
-        return ProfileLimit::query()
-            ->where('guarantor_id', $guarantorId)
-            ->where('guarantor_to_product_type_id', $guarantorProductTypeId)
-            ->where('profile_id', $profileId)
-            ->first();
-    }
-
     /**
      * @throws Exception
      */
@@ -1823,18 +1825,18 @@ class SubmissionController extends Controller
             'submissionDocs.documentFormat.guarantorToProductType',
         ]);
 
-        $qrPath = optional($submission->callback)['url'];
+        $qrPath = optional($submission->getRelation('callback'))['url'];
         $qrUrl = Storage::url($qrPath);
-        $targetTypeId = optional($submission->guarantorToProductType)->id;
+        $targetTypeId = optional($submission->getRelation('guarantorToProductType'))->id;
 
-        $matchingDocs = $submission->submissionDocs->filter(function ($doc) use ($targetTypeId) {
+        $matchingDocs = $submission->getRelation('submissionDocs')->filter(function ($doc) use ($targetTypeId) {
             return optional(optional($doc->documentFormat)->guarantorToProductType)->id === $targetTypeId;
         });
 
-        Log::debug("qr : {$qrUrl}");
+        Log::debug("qr : $qrUrl");
 
         if ($matchingDocs->isEmpty()) {
-            Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->id}");
+            Log::info("Tidak ada dokumen yang cocok untuk embedding QR, submission ID: {$submission->getAttribute('id')}");
 
             return;
         }
@@ -1859,14 +1861,14 @@ class SubmissionController extends Controller
             $doc->save();
             $embedded = true;
 
-            Log::info("QR code embedded ke doc ID: {$doc->id}");
+            Log::info("QR code embedded ke doc ID: $doc->id");
         }
 
         if ($embedded) {
-            if ($submission->is_added_qrcode != 1) {
-                $submission->is_added_qrcode = 1;
+            if ($submission->getAttribute('is_added_qrcode') != 1) {
+                Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->getAttribute('id')}");
+                $submission->setAttribute('is_added_qrcode', 1);
                 $submission->save();
-                Log::info("is_added_qrcode diset ke 1 di submissions ID: {$submission->id}");
             }
         }
     }
@@ -1902,7 +1904,7 @@ class SubmissionController extends Controller
         }
     }
 
-    public function updatePublication(Request $request)
+    public function updatePublication(Request $request): void
     {
         // dd($request->all());
         $request->validate([
@@ -1913,23 +1915,24 @@ class SubmissionController extends Controller
         DB::beginTransaction();
 
         try {
-            $submission = Submission::findOrFail($request->submission_id);
+            $submissionId = $request->get('submission_id');
+            $publicationDate = $request->get('publication_date');
+            $publicationPlace = $request->get('publication_place');
+            $submission = Submission::query()->findOrFail($submissionId);
 
             $submission->update([
-                'publication_date' => $request->publication_date,
-                'publication_place' => $request->publication_place,
+                'publication_date' => $publicationDate,
+                'publication_place' => $publicationPlace,
             ]);
 
-            $submissionId = $submission->id;
-            $publicationDate = $submission->publication_date;
-            $publicationPlace = $submission->publication_place;
+            $submissionId = $submission->getAttribute('id');
 
             $this->updatePublicationPlaceholders($submissionId, $publicationDate, $publicationPlace);
 
             DB::commit();
 
             flashMessage('success', 'Berhasil memperbarui data publikasi pengajuan');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Failed to delete submission', $error);
@@ -1937,20 +1940,20 @@ class SubmissionController extends Controller
         }
     }
 
-    public function updatePublicationPlaceholders(int $submissionId, ?string $publicationDate, ?string $publicationPlace)
+    public function updatePublicationPlaceholders(int $submissionId, ?string $publicationDate, ?string $publicationPlace): void
     {
         DB::transaction(function () use ($submissionId, $publicationDate, $publicationPlace) {
-            $submissionDocs = SubmissionDoc::where('submission_id', $submissionId)->get();
+            $submissionDocs = SubmissionDoc::query()->where('submission_id', $submissionId)->get();
 
             foreach ($submissionDocs as $doc) {
                 $content = $doc->format_document;
 
-                if (strpos($content, '[PUBLICATION_DATE]') !== false && $publicationDate) {
+                if (str_contains($content, '[PUBLICATION_DATE]') && $publicationDate) {
                     $formattedDate = Carbon::parse($publicationDate)->translatedFormat('d F Y');
                     $content = str_replace('[PUBLICATION_DATE]', $formattedDate, $content);
                 }
 
-                if (strpos($content, '[PUBLICATION_PLACE]') !== false && $publicationPlace) {
+                if (str_contains($content, '[PUBLICATION_PLACE]') && $publicationPlace) {
                     $content = str_replace('[PUBLICATION_PLACE]', $publicationPlace, $content);
                 }
 

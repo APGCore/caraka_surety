@@ -1,3 +1,4 @@
+import { SubmissionType } from "@/types/submission-type";
 import React from "react";
 
 interface SubmissionCreateProps {
@@ -147,6 +148,7 @@ export interface SubmissionFormProps {
   obligee: Obligee;
   submission: Submission;
   scoring: Scoring;
+  submissionType: SubmissionType;
 }
 
 export interface ISelectedPrincipalDistrict {

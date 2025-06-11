@@ -9,7 +9,6 @@ Route::prefix('submission-management')->group(function () {
         ->group(function () {
             Route::get('/list', 'displaySubmission')->name('list.submission');
             Route::get('/history', 'displayHistory')->name('history.submission');
-            Route::get('/create', 'displayCreateByStaff')->name('create.submission');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
 
             Route::post('/approve/{submission}', 'approve')->name('approve');

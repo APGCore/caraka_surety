@@ -4,6 +4,7 @@ namespace App\Http\Requests\Submission;
 
 use App\Enums\JobGroup;
 use App\Enums\JobType;
+use App\Enums\SubmissionType;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Location\District;
@@ -59,8 +60,10 @@ class StoreRequest extends FormRequest
 
             // submission
             'submission' => ['required'],
-            'submission.id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
-            'submission.submission_before_id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
+            'submissionType' => ['required', Rule::in(array_keys(SubmissionType::getValues()))],
+            'submission.id' => ['required_if:submissionType,'.SubmissionType::EDIT->value, 'nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
+            'submission.submission_before_id' => ['required_if:submissionType,'.SubmissionType::REVISION->value, 'nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
+
             'submission.submission_inherit_id' => ['nullable', 'exists:'.Submission::class.',id,deleted_at,NULL'], // id submission
             'submission.guarantor_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin
             'submission.guarantor_branch_id' => ['required', 'exists:'.Guarantor::class.',id,deleted_at,NULL'], // id penjamin cabang

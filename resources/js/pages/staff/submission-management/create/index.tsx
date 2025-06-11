@@ -40,6 +40,7 @@ import { queryClient } from "@/components/organisms/provider/react-query-provide
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
+import { SubmissionType } from "@/types/submission-type";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -134,6 +135,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
       scores: [],
       min_point: 0,
     },
+    submissionType: SubmissionType.NEW,
   };
   const { data, setData, post, processing } = useForm<SubmissionFormProps>(submission ?? dataDefault);
 

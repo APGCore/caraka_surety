@@ -7,7 +7,7 @@ Route::prefix('submission-management')->group(function () {
     Route::controller(SubmissionController::class)
         ->name('agent-partner-submission.')
         ->group(function () {
-            Route::get('/create', 'displayCreate')->name('create.index');
+            Route::get('/create', 'create')->name('create.index');
             Route::get('/history', 'displayHistory')->name('history.index');
             Route::post('/store', 'store')->name('form.store');
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail');
