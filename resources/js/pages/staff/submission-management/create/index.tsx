@@ -42,7 +42,7 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
 import {SubmissionType} from "@/types/submission-type";
-import {useForm} from "@inertiajs/react";
+import {router, useForm} from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import {AlertCircle, LoaderCircle} from "lucide-react";
@@ -486,7 +486,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
       },
       onSuccess: () => {
         if (submission) {
-          window.history.back();
+          router.get(route('staff-submission-history.submission'));
         } else {
           handleReset();
         }
@@ -495,7 +495,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   };
 
   const { data: blanks } = useGetAllBlank(
-    submission?.submission?.id ? submission?.submission?.blank_id : undefined,
+    data.submissionType === SubmissionType.EDIT ? data.submission.blank_id : undefined,
     {},
   );
 
@@ -607,7 +607,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     }
   };
 
-  console.log(data.submission);
+  console.log(data);
 
   return (
     <>
