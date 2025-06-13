@@ -1822,15 +1822,21 @@ class SubmissionController extends Controller
   {
     $submission->load([
       'callback',
+      'guarantorToProductType',
       'submissionDocs.documentFormat.guarantorToProductType',
     ]);
 
-    $qrPath = optional($submission->getRelation('callback'))['url'];
-    $qrUrl = Storage::url($qrPath);
-    $targetTypeId = optional($submission->getRelation('guarantorToProductType'))->id;
+    $callback = $submission->getRelation('callback');
+    $qrUrl = $callback && $callback->url ? Storage::url($callback->url) : null;
 
-    $matchingDocs = $submission->getRelation('submissionDocs')->filter(function ($doc) use ($targetTypeId) {
-      return optional(optional($doc->documentFormat)->guarantorToProductType)->id === $targetTypeId;
+    $guarantorType = $submission->getRelation('guarantorToProductType');
+    $targetTypeId = $guarantorType ? $guarantorType->id : null;
+
+    $docs = $submission->getRelation('submissionDocs');
+
+    $matchingDocs = collect($docs)->filter(function ($doc) use ($targetTypeId) {
+      $guarantorToProductType = $doc->getRelation('documentFormat')?->getRelation('guarantorToProductType');
+      return $guarantorToProductType && $guarantorToProductType->id === $targetTypeId;
     });
 
     Log::debug("qr : $qrUrl");
