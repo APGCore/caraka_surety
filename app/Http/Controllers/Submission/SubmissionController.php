@@ -302,7 +302,7 @@ class SubmissionController extends Controller
         $file = $supportDoc['file'] ?? null;
 
         if ($file) {
-          $existingDoc = $submission->supportDocs()->find($supportDoc['id']);
+          $existingDoc = $submission->supportDocs()->find($supportDoc['id'] ?? null);
           if ($existingDoc) {
             $this->deleteFile($existingDoc->url);
           }
