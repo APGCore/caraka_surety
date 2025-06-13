@@ -1788,8 +1788,9 @@ class SubmissionController extends Controller
       $prefix = $hostToHost->getAttribute('auth_prefix');
       $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
       $submissionId = $submission->getAttribute('id');
+      $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
-      $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
+      $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
 
       if ($result['status'] === 'success') {
         $data = $result['message'];
