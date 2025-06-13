@@ -1730,7 +1730,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           })
                         }
                       />
-                      <Show when={data.submissionType === SubmissionType.REVISION || data.submission.revised_note}>
+                      <Show when={data.submission.submission_before_id}>
                         <Label className="text-sm">Catatan Revisi</Label>
                         <Textarea
                           className="text-md"
