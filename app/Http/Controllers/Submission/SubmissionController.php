@@ -1638,7 +1638,7 @@ class SubmissionController extends Controller
       }
       $dataSend = [
         'previous_id' => $submissionBeforeId,
-        'submission_id' => $submissionBeforeId,
+        // 'submission_id' => $submissionBeforeId,
         'remarks' => $submission->getAttribute('revised_note'),
         'policyno' => $submissionCallback->getAttribute('no_policy'),
       ];
@@ -1788,9 +1788,8 @@ class SubmissionController extends Controller
       $prefix = $hostToHost->getAttribute('auth_prefix');
       $token = ($prefix ? $prefix . ' ' : '') . $hostToHost->getAttribute('token');
       $submissionId = $submission->getAttribute('id');
-      $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
-      $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
+      $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
 
       if ($result['status'] === 'success') {
         $data = $result['message'];
