@@ -6,6 +6,7 @@ interface InvoiceDetailProps {
   office_rate: any;
   principal_rate: any;
   submission_rate: any;
+  is_set: boolean;
 }
 
 export type InvoiceDetailPageProps = React.FC<InvoiceDetailProps> & {

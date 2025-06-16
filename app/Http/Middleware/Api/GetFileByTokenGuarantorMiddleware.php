@@ -13,7 +13,7 @@ class GetFileByTokenGuarantorMiddleware
 
     public function handle(Request $request, Closure $next)
     {
-        $token = $request->header('token');
+        $token = $request->header('Authorization');
         if (! $token) {
             return $this->responseError(message: ['message' => 'Token Tidak Ditemukan'], code: 401);
         }

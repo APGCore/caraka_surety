@@ -3,5 +3,6 @@ export const InvoiceUtils = {
     index: "report.invoice.index",
     show: "report.invoice.show",
     store: "report.invoice.store",
+    send_to_finance: "report.invoice.send-to-finance",
   },
 };

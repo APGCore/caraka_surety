@@ -12,4 +12,5 @@ Route::controller(InvoiceController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/{submission}', 'show')->name('show');
         Route::post('/', 'store')->name('store');
+        Route::post('/send-to-finance', 'sendToFinance')->name('send-to-finance');
     });
