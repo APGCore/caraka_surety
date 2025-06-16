@@ -442,8 +442,8 @@ class InvoiceController extends Controller
                     ],
                 ],
             ];
-            $url = env('FINANCE_API_URL');
-            $token = env('FINANCE_API_TOKEN');
+            $url = config('services.finance.url');
+            $token = config('services.finance.token');
             $response = $this->hostToHostService->sendPostRequest($url, $token, $dataSend);
 
             if ($response['status'] === 'error') {
