@@ -1625,7 +1625,7 @@ class SubmissionController extends Controller
     //            ?->getAttribute('limit') ?? 0;
     //        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
 
-    $dataSend = [];
+    $dataSend = ['submission_id' => $submission->getAttribute('id')];
     if ($submissionBeforeId) {
       $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
       if (!$submissionCallback) {
@@ -1635,8 +1635,7 @@ class SubmissionController extends Controller
         ];
       }
       $dataSend = [
-        'previous_id' => $submissionBeforeId,
-        // 'submission_id' => $submissionBeforeId,
+        'submission_id' => $submissionBeforeId,
         'remarks' => $submission->getAttribute('revised_note'),
         'policyno' => $submissionCallback->getAttribute('no_policy'),
       ];
@@ -1663,7 +1662,6 @@ class SubmissionController extends Controller
     $docSupport = $submission->getRelation('supportDocs')->first();
 
     $result = array_merge($dataSend, [
-      'submission_id' => $submission->getAttribute('id'),
       'principal' => [
         'id' => $principal->getAttribute('id'),
         'name' => $principal->getAttribute('name'),
