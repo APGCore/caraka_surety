@@ -32,7 +32,6 @@ function formatRupiah(value: number) {
 
 interface SubmissionHistoryDatatableProps {
   submissions: any;
-  onDelete: (submission: any) => void;
 }
 
 const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
@@ -60,7 +59,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
-            <TableHead>Perusahaan</TableHead>
+            <TableHead>Principal</TableHead>
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nomor Jaminan</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
