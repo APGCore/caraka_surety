@@ -1202,7 +1202,8 @@ class SubmissionController extends Controller
                 'staff.office:id,name',
             ])
             ->orderByDesc('created_at')
-            ->paginate($request->get('per_page') ?? 10);
+            ->paginate($request->get('per_page') ?? 10)
+            ->withQueryString();
         $resource = SubmissionResource::collection($submissions);
 
         if ($isStaff) {
