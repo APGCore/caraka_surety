@@ -1780,6 +1780,7 @@ class SubmissionController extends Controller
      */
     public function postToGetCallback(Submission $submission): JsonResponse
     {
+        Log::info("Mengambil data callback untuk submission:", ['no jaminan' => $submission->getAttribute('no_guarantee')]);
         try {
             $submission->load(['guarantor', 'guarantor.hostToHost']);
             $guarantor = $submission->getRelation('guarantor');
@@ -1790,7 +1791,6 @@ class SubmissionController extends Controller
             $submissionId = $submission->getAttribute('id');
             $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
-            Log::info("Mengambil data callback untuk submission ID: $submissionId");
             $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
 
             if ($result['status'] === 'success') {
