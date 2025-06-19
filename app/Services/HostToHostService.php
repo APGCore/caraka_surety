@@ -21,14 +21,14 @@ class HostToHostService
                     ->useLog('host-to-host')
                     ->causedBy(auth()->user())
                     ->log('Sent POST request to '.$url);
-                Log::info('Request to '.$url.' was successful', ['response' => $responseJson]);
+                Log::info('Request to '.$url.' was successful', ['response' => $responseJson, 'data' => $data]);
 
                 return [
                     'status' => 'success',
                     'message' => $responseJson,
                 ];
             }
-            Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson]);
+            Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson, 'data' => $data]);
 
             return [
                 'status' => 'error',
