@@ -9,29 +9,37 @@ class HostToHostService
 {
     public function sendPostRequest(string $url, string $token, array $data): array
     {
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => $token,
-        ])->post($url, $data);
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $token,
+            ])->post($url, $data);
 
-        $responseJson = $response->json();
-        if ($response->successful()) {
-            activity()
-                ->useLog('host-to-host')
-                ->causedBy(auth()->user())
-                ->log('Sent POST request to '.$url);
-            Log::info('Request to '.$url.' was successful', ['response' => $responseJson]);
+            $responseJson = $response->json();
+            if ($response->successful()) {
+                activity()
+                    ->useLog('host-to-host')
+                    ->causedBy(auth()->user())
+                    ->log('Sent POST request to '.$url);
+                Log::info('Request to '.$url.' was successful', ['response' => $responseJson]);
+
+                return [
+                    'status' => 'success',
+                    'message' => $responseJson,
+                ];
+            }
+            Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson]);
 
             return [
-                'status' => 'success',
-                'message' => $responseJson,
+                'status' => 'error',
+                'message' => $responseJson['error']['message'] ?? 'Terjadi Kesalahan',
+            ];
+        } catch (\Exception $e) {
+            Log::error('Exception during POST request to '.$url.': '.$e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage(),
             ];
         }
-        Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson]);
-
-        return [
-            'status' => 'error',
-            'message' => $responseJson['error']['message'] ?? 'Terjadi Kesalahan',
-        ];
     }
 }
