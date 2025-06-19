@@ -1775,53 +1775,6 @@ class SubmissionController extends Controller
         return $final;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function postToGetCallback(Submission $submission): JsonResponse
-    {
-        Log::info("Mengambil data callback untuk submission:", ['no jaminan' => $submission->getAttribute('no_guarantee')]);
-        try {
-            $submission->load(['guarantor', 'guarantor.hostToHost']);
-            $guarantor = $submission->getRelation('guarantor');
-            $hostToHost = $guarantor->getRelation('hostToHost');
-            $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
-            $prefix = $hostToHost->getAttribute('auth_prefix');
-            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-            $submissionId = $submission->getAttribute('id');
-            $submissionBeforeId = $submission->getAttribute('submission_before_id');
-
-            $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
-
-            if ($result['status'] === 'success') {
-                $data = $result['message'];
-                // image is base64
-                $imageString = $data['image'];
-                // base64 to file
-                $fileData = $this->base64ToFile($imageString);
-                // save image to storage
-                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
-                $submission->update(['has_send_to_guarantor' => true]);
-                SubmissionCallback::query()->updateOrCreate(
-                    ['submission_id' => $submissionId],
-                    [
-                        'doc_url' => $data['doc_url'],
-                        'url' => $url,
-                        'no_policy' => $data['policyno'],
-                    ]
-                );
-
-                return $this->responseSuccess('Berhasil Mengambil Data', $data);
-            } else {
-                throw new Exception('Gagal mengambil data dari pihak asuransi: '.$result['message']);
-            }
-        } catch (Exception $e) {
-            Log::error('Error decoding JSON: ', ['message' => $e->getMessage()]);
-
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', 'Gagal mendekode data dari pihak asuransi');
-        }
-    }
-
     public function embedQrCodeToDocs(Submission $submission): void
     {
         $submission->load([
