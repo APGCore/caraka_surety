@@ -61,13 +61,15 @@ class SubmissionController extends Controller
         $submission = Submission::query()
             ->with(['guarantor', 'guarantor.hostToHost'])
             ->find($submissionId);
+        $submissionBeforeId = $submission->getAttribute('submission_before_id');
         $guarantor = $submission->getRelation('guarantor');
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host').'/submission/status';
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
-        $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
+        Log::info("Mengambil data callback untuk submission:", ['no jaminan' => $submission->getAttribute('no_guarantee')]);
+        $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
 
         if ($result['status'] === 'success') {
             $data = $result['message'];
