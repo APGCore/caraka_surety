@@ -1790,6 +1790,7 @@ class SubmissionController extends Controller
             $submissionId = $submission->getAttribute('id');
             $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
+            Log::info("Mengambil data callback untuk submission ID: $submissionId");
             $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
 
             if ($result['status'] === 'success') {
