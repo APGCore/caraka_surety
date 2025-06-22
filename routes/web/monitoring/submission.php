@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\Submission\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(MonitoringController::class)
@@ -10,5 +11,6 @@ Route::controller(MonitoringController::class)
             ->name('submission')->group(function () {
                 Route::get('/', 'submission')->name('.index');
                 Route::get('/{submission}', 'submissionDetail')->name('.detail');
+                Route::get('/{id}/edit', [SubmissionController::class, 'edit'])->name('.edit');
             });
     });

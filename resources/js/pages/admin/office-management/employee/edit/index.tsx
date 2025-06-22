@@ -6,6 +6,7 @@ import { Head } from "@inertiajs/react";
 
 const EmployeeCreatePage: EmployeePageEditProps = ({
   officeSelected,
+  isHeadquarter,
   roles,
   roles_names,
   headers,
@@ -28,6 +29,7 @@ const EmployeeCreatePage: EmployeePageEditProps = ({
             headers={headers}
             employee={employee}
             officeSelected={officeSelected}
+            isHeadquarter={isHeadquarter}
             routeName={routeName}
           />
         </div>

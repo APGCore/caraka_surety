@@ -238,6 +238,7 @@ class SubmissionController extends Controller
                 $submissionBeforeId = $dataSubmission['submission_before_id'];
                 $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
                 $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
+                $dataSubmission['staff_id'] = auth()->id();
                 $submissionForRevision->update(['is_revised' => true]);
                 $submissionForRevision->blanks()->each(function ($query) {
                     $query->update(['is_revised' => true]);
@@ -254,13 +255,12 @@ class SubmissionController extends Controller
                     $blank,
                     $profile
                 );
+                $dataSubmission['staff_id'] = auth()->id();
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
             $dataSubmission['no_guarantee'] = $noGuarantee;
-
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
-            $dataSubmission['staff_id'] = auth()->id();
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
@@ -325,6 +325,12 @@ class SubmissionController extends Controller
             }
 
             $submission->scores()->createMany($scores);
+
+            // if score < min_point_scoring, set status to REJECTED
+            $totalScore = collect($scores)->sum('point');
+            if ($totalScore < $submission->getAttribute('min_point_scoring')) {
+                $this->processRejection($submission);
+            }
             activity()
                 ->useLog('submission')
                 ->performedOn($submission)
@@ -933,8 +939,6 @@ class SubmissionController extends Controller
         $employeeLimit = $submission->getRelation('employeeLimit')
             ?->firstWhere('employee_id', auth()->id())
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-        $productLimit = $submission->getRelation('guarantorProductTypeLimit')
-            ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
         // get submission support docs
@@ -1001,8 +1005,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('document_format_type_guarantee', $documentFormatTypeGuarantor);
         $submission->setAttribute('guarantor_address', $guarantorAddress);
         $submission->setAttribute('guarantor_pic', $guarantorPic);
-        $submission->setAttribute('employee_limit', $employeeLimit);
-        $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('time_period', $timePeriod);
@@ -1305,28 +1307,39 @@ class SubmissionController extends Controller
         }
     }
 
+    private function processRejection(Submission $submission): bool
+    {
+        $dateNow = now()->format('Y-m-d H:i:s');
+
+        $checkedBy = $submission->getAttribute('checked_by');
+        $checkedAt = $submission->getAttribute('checked_at');
+        $submission->load(['blanks', 'staff']);
+        $staff = $submission->getAttribute('staff');
+        $headId = $staff->getAttribute('head_id');
+        foreach ($submission->getRelation('blanks') as $blank) {
+            $blank->update([
+                'is_picked' => false,
+                'is_used' => false,
+                'is_broken' => false,
+                'is_revised' => false,
+                'is_approved' => false,
+            ]);
+        }
+
+        return $submission->update([
+            'checked_by' => $headId ?? $checkedBy ?? auth()->id(),
+            'checked_at' => $checkedAt ?? $dateNow,
+            'rejected_by' => $headId ?? auth()->id(),
+            'rejected_at' => $dateNow,
+            'status' => SubmissionStatus::REJECTED->value,
+        ]);
+    }
+
     public function reject(Submission $submission): void
     {
         DB::beginTransaction();
         try {
-            $dateNow = now()->format('Y-m-d H:i:s');
-
-            $checkedBy = $submission->getAttribute('checked_by');
-            $checkedAt = $submission->getAttribute('checked_at');
-            $submission->blanks()->update([
-                'is_picked' => null,
-                'is_used' => null,
-                'is_broken' => null,
-                'is_revised' => null,
-                'is_approved' => null,
-            ]);
-            $updated = $submission->update([
-                'checked_by' => $checkedBy ?? auth()->id(),
-                'checked_at' => $checkedAt ?? $dateNow,
-                'rejected_by' => auth()->id(),
-                'rejected_at' => $dateNow,
-                'status' => SubmissionStatus::REJECTED->value,
-            ]);
+            $updated = $this->processRejection($submission);
 
             if (! $updated) {
                 DB::rollBack();

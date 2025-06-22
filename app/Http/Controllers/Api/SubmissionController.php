@@ -68,7 +68,7 @@ class SubmissionController extends Controller
         $prefix = $hostToHost->getAttribute('auth_prefix');
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
-        Log::info("Mengambil data callback untuk submission:", ['no jaminan' => $submission->getAttribute('no_guarantee')]);
+        Log::info('Mengambil data callback untuk submission:', ['no jaminan' => $submission->getAttribute('no_guarantee')]);
         $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
 
         if ($result['status'] === 'success') {

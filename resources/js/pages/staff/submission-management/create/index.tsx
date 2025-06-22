@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/_features/_common/components/_shadcn-ui/alert-dialog";
+import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
@@ -41,11 +52,11 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import PrincipalRatios from "@/pages/staff/submission-management/create/_partials/principal-ratios";
 import ContractDocSection from "@/pages/staff/submission-management/create/contract-doc-section";
 import { SubmissionType } from "@/types/submission-type";
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import axios from "axios";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
@@ -350,11 +361,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   const { scorings, scoring } = useGetScoringById({
     selectedScoringId: 1,
   });
-  const [lessThanValue, setLessThanValue] = useState<boolean | undefined>(() => {
-    const sumPoint = data.scoring.scores.reduce((acc, score) => acc + Number(score.point), 0);
-    return sumPoint < (scoring?.min_point ?? 0);
-  });
-
+  const sumPoint = useMemo(
+    () => data.scoring.scores.reduce((acc, score) => acc + Number(score.point), 0),
+    [data.scoring.scores],
+  );
+  const lessThanValue = useMemo(() => sumPoint < (scoring?.min_point ?? 0), [sumPoint, scoring?.min_point]);
   // Form State
   const [formSearchPrincipalState, setFormSearchPrincipalState] = useState<"idle" | "search" | "not-search">(() =>
     submission ? "not-search" : "idle",
@@ -433,8 +444,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
         ...data.scoring,
         scores: updatedScores,
       });
-      const sumPoint = updatedScores.reduce((acc, score) => acc + Number(score.point), 0);
-      setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
     } else {
       // If no matching score is found, add a new entry
       const scores = [
@@ -450,8 +459,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
         ...data.scoring,
         scores,
       });
-      const sumPoint = scores.reduce((acc, score) => acc + Number(score.point), 0);
-      setLessThanValue(sumPoint < (scoring?.min_point ?? 0));
     }
   };
   const handleReset = () => {
@@ -485,7 +492,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
       },
       onSuccess: () => {
         if (submission) {
-          router.get(route("staff-submission-history.submission"));
+          history.back();
         } else {
           handleReset();
         }
@@ -1700,6 +1707,13 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         );
                       }}
                     />
+                    <div className="w-100">
+                      <Separator className="h-1" />
+                      <div className="flex items-center justify-between">
+                        <Label className="text-md font-bold">Total Skor</Label>
+                        <span className="text-lg font-semibold">{sumPoint} Poin</span>
+                      </div>
+                    </div>
                     <Show when={lessThanValue != undefined && lessThanValue}>
                       <div className="grid gap-1 w-full">
                         <Label className="text-sm">Mitigasi Risiko</Label>
@@ -1777,7 +1791,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                 </Show>
 
                 {/* SHOW SUBMIT IF SECTION IS SKORING */}
-                <Show when={formStep === "skoring"}>
+                <Show when={formStep === "skoring" && !lessThanValue}>
                   <Button type="submit" disabled={processing}>
                     {/* SHOW CIRCLE LOADER IND */}
                     <Show when={processing}>
@@ -1785,6 +1799,43 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                     </Show>
                     Submit
                   </Button>
+                </Show>
+
+                <Show when={formStep === "skoring" && lessThanValue}>
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <Button type="button" disabled={processing}>
+                        {/* SHOW CIRCLE LOADER IND */}
+                        <Show when={processing}>
+                          <LoaderCircle className="animate-spin mr-1" />
+                        </Show>
+                        Submit
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="sm:max-w-[425px]">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Peringatan!!!</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Skor yang didapatkan kurang dari {scoring?.min_point ?? 0} poin dan pengajuan otomatis di
+                          tolak, apakah anda yakin ingin melanjutkan pengajuan ini?
+                          <br />
+                          Jika anda yakin, silahkan klik tombol submit.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="grid grid-cols-2 gap-4">
+                        <AlertDialogCancel asChild>
+                          <Button variant="outline" className="w-full" type="button">
+                            Batal
+                          </Button>
+                        </AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                          <Button variant="destructive" className="w-full" onClick={handleSubmit}>
+                            Submit
+                          </Button>
+                        </AlertDialogAction>
+                      </div>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Show>
               </div>
             </>

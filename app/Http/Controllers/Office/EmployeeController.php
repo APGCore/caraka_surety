@@ -160,7 +160,9 @@ class EmployeeController extends Controller
         ]);
         $officeSelected = (int) $request->get('office_id', 1);
         $office = Profile::query()->find($officeSelected);
-        $roleNames = $this->getRoleByOfficeType($office->getAttribute('office_type'));
+        $officeType = $office->getAttribute('office_type');
+        $isHeadquarter = $officeType === OfficeType::HEADQUARTER->value;
+        $roleNames = $this->getRoleByOfficeType($officeType);
         $roles = Role::query()->whereIn('name', $roleNames)->get();
         // for head role
         $roleId = (int) $request->get('role_id');
@@ -180,6 +182,7 @@ class EmployeeController extends Controller
         return inertia($component, [
             'page_settings' => ['title' => 'Tambah Pengguna'],
             'officeSelected' => $officeSelected,
+            'isHeadquarter' => $isHeadquarter,
             'roles' => $roles,
             'headers' => $headers,
             'routeName' => $routeName,
@@ -270,6 +273,7 @@ class EmployeeController extends Controller
         $employee = User::query()->with(['role', 'office', 'officeMonitorings'])->find($employee->getAttribute('id'));
         $office = $employee->getRelation('office');
         $officeType = $office->getAttribute('office_type');
+        $isHeadquarter = $officeType === OfficeType::HEADQUARTER->value;
         $officeSelected = $office->getAttribute('id');
         $roleId = $request->get('role_id', $employee->getAttribute('role_id'));
         $role = Role::query()->find($roleId);
@@ -295,6 +299,7 @@ class EmployeeController extends Controller
         return inertia($component, [
             'page_settings' => ['title' => 'Ubah Pengguna'],
             'officeSelected' => $officeSelected,
+            'isHeadquarter' => $isHeadquarter,
             'roles' => $roles,
             'employee' => $employee,
             'headers' => $headers,
@@ -305,7 +310,7 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, User $employee)
+    public function update(UpdateRequest $request, User $employee): RedirectResponse
     {
         DB::beginTransaction();
         try {

@@ -36,6 +36,7 @@ class HostToHostService
             ];
         } catch (\Exception $e) {
             Log::error('Exception during POST request to '.$url.': '.$e->getMessage());
+
             return [
                 'status' => 'error',
                 'message' => $e->getMessage(),

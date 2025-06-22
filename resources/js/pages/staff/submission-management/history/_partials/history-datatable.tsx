@@ -112,12 +112,15 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               Detail
                             </Link>
                           </Button>
-                          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
+                          <Show
+                            when={
+                              submission.status !== SubmissionStatus.REJECTED &&
+                              !submission.has_send_to_guarantor &&
+                              !submission.is_revised
+                            }>
                             <Button variant="outline" className="w-full" asChild>
                               <Link href={route("staff-submission-edit", { id: submission.id })}>Edit</Link>
                             </Button>
-                          </Show>
-                          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" className="w-full">
