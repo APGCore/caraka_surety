@@ -1633,7 +1633,7 @@ class SubmissionController extends Controller
             if (! $submissionCallback) {
                 return [
                     'status' => 'error',
-                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
+                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
                 ];
             }
             $dataSend = [
