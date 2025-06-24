@@ -1,3 +1,5 @@
+import { OfficeData } from "@/_features/office/services/office-query";
+
 export interface User {
   id: number;
   name: string;
@@ -8,6 +10,8 @@ export interface User {
   profile_id?: number;
   role_id?: number;
   phone?: number;
+  office: OfficeData;
+  role: any;
 }
 
 interface FlashMessageProps {

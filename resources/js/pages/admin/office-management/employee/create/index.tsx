@@ -1,10 +1,17 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { EmployeePageCreateProps } from "@/pages/admin/office-management/employee/create/employee-create-page.type";
-import Form from "@/pages/admin/office-management/employee/form";
 import { Head } from "@inertiajs/react";
+import { EmployeePageCreateProps } from "../create/employee-create-page.type";
+import Form from "../form";
 
-const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, roles_names, headers, routeName }) => {
+const EmployeeCreatePage: EmployeePageCreateProps = ({
+  officeSelected,
+  isHeadquarter,
+  roles,
+  roles_names,
+  headers,
+  routeName,
+}) => {
   return (
     <main>
       <div className="pt-5 pb-12 mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -20,6 +27,7 @@ const EmployeeCreatePage: EmployeePageCreateProps = ({ officeSelected, roles, ro
             roles_names={roles_names}
             headers={headers}
             officeSelected={officeSelected}
+            isHeadquarter={isHeadquarter}
             routeName={routeName}
           />
         </div>

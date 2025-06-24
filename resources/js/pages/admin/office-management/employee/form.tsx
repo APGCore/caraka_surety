@@ -18,10 +18,11 @@ import Show from "@/components/atoms/show";
 import InputError from "@/components/molecules/input/error-input";
 import { router, useForm } from "@inertiajs/react";
 import { RotateCw } from "lucide-react";
-import { FormEventHandler, useEffect, useMemo, useState } from "react";
+import { FormEventHandler, useMemo, useState } from "react";
 
 interface Props {
   officeSelected: number;
+  isHeadquarter: boolean;
   role?: any;
   roles: any;
   roles_names: Roles;
@@ -30,7 +31,7 @@ interface Props {
   routeName: any;
 }
 
-const Form: React.FC<Props> = ({ officeSelected, roles, roles_names, headers, employee, routeName }) => {
+const Form: React.FC<Props> = ({ officeSelected, isHeadquarter, roles, roles_names, headers, employee, routeName }) => {
   const { data, setData, post, patch, errors, processing } = useForm<{
     name: string;
     username: string;
@@ -113,12 +114,6 @@ const Form: React.FC<Props> = ({ officeSelected, roles, roles_names, headers, em
       </div>
     ));
   }, [selectedOffice]);
-
-  useEffect(() => {
-    if (employee) {
-      setSelectedOffice(employee.office_monitorings);
-    }
-  }, [employee]);
 
   const submitForm: FormEventHandler<HTMLFormElement> = (event: any) => {
     event.preventDefault();
@@ -290,7 +285,13 @@ const Form: React.FC<Props> = ({ officeSelected, roles, roles_names, headers, em
           <InputError message={errors.password_confirmation} className="mt-2" />
         </div>
 
-        <Show when={employee?.role?.name === roles_names?.Manager || employee?.role?.name === roles_names?.Direksi}>
+        <Show
+          when={
+            isHeadquarter &&
+            (employee?.role?.name === roles_names?.Staff ||
+              employee?.role?.name === roles_names?.Manager ||
+              employee?.role?.name === roles_names?.Direksi)
+          }>
           <div className="sm:col-span-6">
             <p className="text-lg font-bold uppercase underline underline-offset-4 mb-3">Monitor Unit Bisnis</p>
             <NewCombobox

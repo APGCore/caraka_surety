@@ -14,6 +14,7 @@ interface SubmissionDatatableProps {
 }
 
 const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }) => {
+  console.log("submissions", submissions);
   return (
     <>
       <Table>
@@ -66,13 +67,25 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                     </p>
                   </Show>
                 </TableCell>
-                <TableCell>{submission?.created_at}</TableCell>
+                <TableCell>{submission.created_at}</TableCell>
                 <TableCell className="text-right">
                   <Link href={route("monitoring.submission.detail", { id: submission.id })}>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" className="w-full" size="sm">
                       Detail
                     </Button>
                   </Link>
+                  <Show
+                    when={
+                      submission.status !== SubmissionStatus.REJECTED &&
+                      !submission.has_send_to_guarantor &&
+                      !submission.is_revised
+                    }>
+                    <Link href={route("monitoring.submission.edit", { id: submission.id })}>
+                      <Button variant="outline" className="w-full mt-1" size="sm">
+                        Edit
+                      </Button>
+                    </Link>
+                  </Show>
                 </TableCell>
               </TableRow>
             )}

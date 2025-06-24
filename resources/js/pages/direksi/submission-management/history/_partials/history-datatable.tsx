@@ -21,7 +21,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
           <TableRow>
             <TableHead className="w-0">#</TableHead>
             <TableHead>Unit Bisnis</TableHead>
-            <TableHead>Perusahaan</TableHead>
+            <TableHead>Principal</TableHead>
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nomor Jaminan</TableHead>
             <TableHead>Nilai Jaminan</TableHead>

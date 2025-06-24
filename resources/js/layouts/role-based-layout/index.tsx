@@ -1,5 +1,8 @@
 import { Roles } from "@/common/types/roles";
+import StaffCabangLayoutPage from "@/layouts/cabang-layout/staff-cabang";
 import KeuanganLayoutPage from "@/layouts/pusat-layout/kauangan";
+import { User } from "@/types";
+import { OfficeTypeEnum } from "@/types/office-type-enum";
 import AdminLayoutPage from "../admin-layout";
 import AgentPartnerLayoutPage from "../agent-partner";
 import KepalaCabangLayoutPage from "../cabang-layout/kepala-cabang";
@@ -19,8 +22,10 @@ interface IRoleBasedLayout extends React.PropsWithChildren {
 
 const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...props }) => {
   const { auth, roles_names, guarantor } = propsData;
-  const user = auth?.user;
+  const user: User = auth?.user;
   const roles: Roles = roles_names;
+  const isHeadquarter = user.office.office_type === OfficeTypeEnum.HEADQUARTER;
+
   switch (user.role.name) {
     case roles.Admin:
       return (
@@ -52,7 +57,7 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
           {children}
         </StaffOperasionalLayoutPage>
       );
-    case roles.KepalaCabang:
+    case !isHeadquarter && roles.KepalaCabang:
       return (
         <KepalaCabangLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
           {children}
@@ -83,11 +88,19 @@ const RoleBasedLayout: React.FC<IRoleBasedLayout> = ({ propsData, children, ...p
         </KeuanganLayoutPage>
       );
     default:
-      return (
-        <StaffLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
-          {children}
-        </StaffLayoutPage>
-      );
+      if (isHeadquarter) {
+        return (
+          <StaffLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
+            {children}
+          </StaffLayoutPage>
+        );
+      } else {
+        return (
+          <StaffCabangLayoutPage user={user} roles={roles} guarantor={guarantor} {...props}>
+            {children}
+          </StaffCabangLayoutPage>
+        );
+      }
   }
 };
 

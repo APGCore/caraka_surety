@@ -32,7 +32,6 @@ function formatRupiah(value: number) {
 
 interface SubmissionHistoryDatatableProps {
   submissions: any;
-  onDelete: (submission: any) => void;
 }
 
 const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({ submissions }) => {
@@ -60,7 +59,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
-            <TableHead>Perusahaan</TableHead>
+            <TableHead>Principal</TableHead>
             <TableHead>Tipe Produk</TableHead>
             <TableHead>Nomor Jaminan</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
@@ -113,12 +112,15 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               Detail
                             </Link>
                           </Button>
-                          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
+                          <Show
+                            when={
+                              submission.status !== SubmissionStatus.REJECTED &&
+                              !submission.has_send_to_guarantor &&
+                              !submission.is_revised
+                            }>
                             <Button variant="outline" className="w-full" asChild>
                               <Link href={route("staff-submission-edit", { id: submission.id })}>Edit</Link>
                             </Button>
-                          </Show>
-                          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="destructive" className="w-full">

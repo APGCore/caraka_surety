@@ -238,6 +238,7 @@ class SubmissionController extends Controller
                 $submissionBeforeId = $dataSubmission['submission_before_id'];
                 $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
                 $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
+                $dataSubmission['staff_id'] = auth()->id();
                 $submissionForRevision->update(['is_revised' => true]);
                 $submissionForRevision->blanks()->each(function ($query) {
                     $query->update(['is_revised' => true]);
@@ -254,13 +255,12 @@ class SubmissionController extends Controller
                     $blank,
                     $profile
                 );
+                $dataSubmission['staff_id'] = auth()->id();
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
             $dataSubmission['no_guarantee'] = $noGuarantee;
-
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
-            $dataSubmission['staff_id'] = auth()->id();
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
@@ -325,6 +325,12 @@ class SubmissionController extends Controller
             }
 
             $submission->scores()->createMany($scores);
+
+            // if score < min_point_scoring, set status to REJECTED
+            $totalScore = collect($scores)->sum('point');
+            if ($totalScore < $submission->getAttribute('min_point_scoring')) {
+                $this->processRejection($submission);
+            }
             activity()
                 ->useLog('submission')
                 ->performedOn($submission)
@@ -933,8 +939,6 @@ class SubmissionController extends Controller
         $employeeLimit = $submission->getRelation('employeeLimit')
             ?->firstWhere('employee_id', auth()->id())
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-        $productLimit = $submission->getRelation('guarantorProductTypeLimit')
-            ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
         // get submission support docs
@@ -1001,8 +1005,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('document_format_type_guarantee', $documentFormatTypeGuarantor);
         $submission->setAttribute('guarantor_address', $guarantorAddress);
         $submission->setAttribute('guarantor_pic', $guarantorPic);
-        $submission->setAttribute('employee_limit', $employeeLimit);
-        $submission->setAttribute('product_limit', $productLimit);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('time_period', $timePeriod);
@@ -1041,77 +1043,63 @@ class SubmissionController extends Controller
             ->where('head_id', $authId)
             ->pluck('id') : [];
 
-        $submissions = Submission::search($search)
-            ->query(function ($query) use ($authId, $isDireksi, $isManager, $isKepalaCabang, $isKepalaAgentPartner, $staffs, $officeSelected) {
-                $query
-                    ->where('guarantor_id', $this->guarantorId)
-                    ->where('product_id', $this->productId)
-                    ->when($isDireksi, fn ($query) => $query
-                        ->whereNotNull('checked_by')
-                        ->where('status', SubmissionStatus::PROCESS->value)
-                        ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
-                    )
-                    ->when($isManager, fn ($query) => $query
-                        ->where(function ($query) use ($staffs) {
-                            $query->whereIn('staff_id', $staffs)
-                                ->orWhereIn('checked_by', $staffs);
-                        })
-                        ->whereNull(['approved_by', 'rejected_by'])
-                        //  ->where(fn ($query) => $query
-                        //      ->whereNull('checked_by')
-                        //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
-                        //  )
-                    )
-                    ->when($isKepalaCabang, fn ($query) => $query
-                        ->whereIn('staff_id', $staffs)
-                        ->whereNull(['approved_by', 'rejected_by'])
-                        ->where(function ($query) use ($authId) {
-                            $query->whereNull('checked_by')
-                                ->orWhere('checked_by', $authId);
-                        })
-                    )
-                    ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
-                    ->when($officeSelected, fn ($query) => $query
-                        ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
-                    )
-                    ->with([
-                        'scores',
-                        'principal',
-                        'bank',
-                        'obligee',
-                        'sourceOfFund',
-                        'guarantor',
-                        'guarantorToProductType',
-                        'employeeLimit',
-                        'guarantorProductTypeLimit',
-                        'staff:id,name,profile_id',
-                        'staff.office:id,name',
-                    ]);
+        $submissions = Submission::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereLike('no_guarantee', "%$search%")
+                    ->orWhereHas('principal', function ($query) use ($search) {
+                        $query->whereLike('name', "%$search%");
+                    });
+                });
             })
+            ->where('guarantor_id', $this->guarantorId)
+            ->where('product_id', $this->productId)
+            ->when($isDireksi, fn ($query) => $query
+              ->whereNotNull('checked_by')
+              ->where('status', SubmissionStatus::PROCESS->value)
+              ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
+            )
+            ->when($isManager, fn ($query) => $query
+              ->where(function ($query) use ($staffs) {
+                $query->whereIn('staff_id', $staffs)
+                  ->orWhereIn('checked_by', $staffs);
+              })
+              ->whereNull(['approved_by', 'rejected_by'])
+            //  ->where(fn ($query) => $query
+            //      ->whereNull('checked_by')
+            //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
+            //  )
+            )
+            ->when($isKepalaCabang, fn ($query) => $query
+              ->whereIn('staff_id', $staffs)
+              ->whereNull(['approved_by', 'rejected_by'])
+              ->where(function ($query) use ($authId) {
+                $query->whereNull('checked_by')
+                  ->orWhere('checked_by', $authId);
+              })
+            )
+            ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
+            ->when($officeSelected, fn ($query) => $query
+              ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
+            )
+            ->with([
+              'scores',
+              'principal',
+              'bank',
+              'obligee',
+              'sourceOfFund',
+              'guarantor',
+              'guarantorToProductType',
+              'employeeLimit',
+              'guarantorProductTypeLimit',
+              'staff:id,name,profile_id',
+              'staff.office:id,name',
+            ])
             ->orderByDesc('updated_at')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query')
-            ->appends($request->all());
+            ->withQueryString();
 
         $submissions = SubmissionResource::collection($submissions);
-        //            ->map(function ($submission) {
-        //                $date = Carbon::parse($submission->created_at)
-        //                    ->translatedFormat('d F Y');
-        //                $submissionInheritId = $submission->getAttribute('submission_inherit_id');
-        //                $employeeLimit = $submission->getRelation('employeeLimit')
-        //                    ?->firstWhere('employee_id', auth()->id())
-        //                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-        //                $productLimit = $submission->getRelation('guarantorProductTypeLimit')
-        //                    ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
-        //                $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
-        //
-        //                return array_merge($submission->toArray(), [
-        //                    'employee_limit' => $employeeLimit,
-        //                    'product_limit' => $productLimit,
-        //                    'beyond_the_limit' => $beyondTheLimit,
-        //                    'created_at' => $date,
-        //                ]);
-        //            });
 
         if ($isStaff) {
             $component = 'staff/submission-management/list/index';
@@ -1166,40 +1154,44 @@ class SubmissionController extends Controller
         $officeSelected = $officeFilter->officeSelected;
         $status = SubmissionStatus::getValues();
         $statusSelected = $request['status_selected'] ?? null;
+        $search = $request->get('search');
 
-        $submissions = Submission::search($request->get('search'))
-            ->query(
-                function ($query) use ($authId, $isStaff, $isManager, $isKepalaCabang, $isDireksi, $staffs, $officeSelected, $statusSelected) {
-                    $query->where('guarantor_id', $this->guarantorId)
-                        ->where('product_id', $this->productId)
-                        ->when($isStaff, fn ($query) => $query->where('staff_id', $authId))
-                        ->when($isDireksi, function ($query) {
-                            $query->whereNot('status', SubmissionStatus::PROCESS->value);
-                        })
-                        ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
-                            ->whereNot('status', SubmissionStatus::PROCESS->value)
-                            ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
-                        ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
-                        ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
-                        ->with([
-                            'scores',
-                            'principal',
-                            'bank',
-                            'obligee',
-                            'employeeLimit',
-                            'sourceOfFund',
-                            'guarantor',
-                            'guarantorToProductType',
-                            'guarantorProductTypeLimit',
-                            'staff:id,name,profile_id',
-                            'staff.office:id,name',
-                        ]);
-                }
-            )
+        $submissions = Submission::query()
+            ->where('guarantor_id', $this->guarantorId)
+            ->where('product_id', $this->productId)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereLike('no_guarantee', "%$search%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->whereLike('name', "%$search%");
+                        });
+                });
+            })
+            ->when($isStaff, fn ($query) => $query->where('staff_id', $authId))
+            ->when($isDireksi, function ($query) {
+                $query->whereNot('status', SubmissionStatus::PROCESS->value);
+            })
+            ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
+                ->whereNot('status', SubmissionStatus::PROCESS->value)
+                ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
+            ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
+            ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'employeeLimit',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'guarantorProductTypeLimit',
+                'staff:id,name,profile_id',
+                'staff.office:id,name',
+            ])
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query')
-            ->appends($request->all());
+            ->withQueryString();
         $resource = SubmissionResource::collection($submissions);
 
         if ($isStaff) {
@@ -1301,28 +1293,39 @@ class SubmissionController extends Controller
         }
     }
 
+    private function processRejection(Submission $submission): bool
+    {
+        $dateNow = now()->format('Y-m-d H:i:s');
+
+        $checkedBy = $submission->getAttribute('checked_by');
+        $checkedAt = $submission->getAttribute('checked_at');
+        $submission->load(['blanks', 'staff']);
+        $staff = $submission->getAttribute('staff');
+        $headId = $staff->getAttribute('head_id');
+        foreach ($submission->getRelation('blanks') as $blank) {
+            $blank->update([
+                'is_picked' => false,
+                'is_used' => false,
+                'is_broken' => false,
+                'is_revised' => false,
+                'is_approved' => false,
+            ]);
+        }
+
+        return $submission->update([
+            'checked_by' => $headId ?? $checkedBy ?? auth()->id(),
+            'checked_at' => $checkedAt ?? $dateNow,
+            'rejected_by' => $headId ?? auth()->id(),
+            'rejected_at' => $dateNow,
+            'status' => SubmissionStatus::REJECTED->value,
+        ]);
+    }
+
     public function reject(Submission $submission): void
     {
         DB::beginTransaction();
         try {
-            $dateNow = now()->format('Y-m-d H:i:s');
-
-            $checkedBy = $submission->getAttribute('checked_by');
-            $checkedAt = $submission->getAttribute('checked_at');
-            $submission->blanks()->update([
-                'is_picked' => null,
-                'is_used' => null,
-                'is_broken' => null,
-                'is_revised' => null,
-                'is_approved' => null,
-            ]);
-            $updated = $submission->update([
-                'checked_by' => $checkedBy ?? auth()->id(),
-                'checked_at' => $checkedAt ?? $dateNow,
-                'rejected_by' => auth()->id(),
-                'rejected_at' => $dateNow,
-                'status' => SubmissionStatus::REJECTED->value,
-            ]);
+            $updated = $this->processRejection($submission);
 
             if (! $updated) {
                 DB::rollBack();
@@ -1624,20 +1627,17 @@ class SubmissionController extends Controller
         //            ?->getAttribute('limit') ?? 0;
         //        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
 
-        $dataSend = [
-            'submission_id' => $submission->getAttribute('id'),
-        ];
+        $dataSend = ['submission_id' => $submission->getAttribute('id')];
         if ($submissionBeforeId) {
             $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
             if (! $submissionCallback) {
                 return [
                     'status' => 'error',
-                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan',
+                    'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
                 ];
             }
             $dataSend = [
-                'previous_id' => $submissionBeforeId,
-                // 'submission_id' => $submissionBeforeId,
+                'submission_id' => $submissionBeforeId,
                 'remarks' => $submission->getAttribute('revised_note'),
                 'policyno' => $submissionCallback->getAttribute('no_policy'),
             ];
@@ -1772,51 +1772,6 @@ class SubmissionController extends Controller
         }
 
         return $final;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function postToGetCallback(Submission $submission): JsonResponse
-    {
-        try {
-            $submission->load(['guarantor', 'guarantor.hostToHost']);
-            $guarantor = $submission->getRelation('guarantor');
-            $hostToHost = $guarantor->getRelation('hostToHost');
-            $url = $hostToHost->getAttribute('guarantor_url_host').'/status';
-            $prefix = $hostToHost->getAttribute('auth_prefix');
-            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-            $submissionId = $submission->getAttribute('id');
-
-            $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionId]);
-
-            if ($result['status'] === 'success') {
-                $data = $result['message'];
-                // image is base64
-                $imageString = $data['image'];
-                // base64 to file
-                $fileData = $this->base64ToFile($imageString);
-                // save image to storage
-                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
-                $submission->update(['has_send_to_guarantor' => true]);
-                SubmissionCallback::query()->updateOrCreate(
-                    ['submission_id' => $submissionId],
-                    [
-                        'doc_url' => $data['doc_url'],
-                        'url' => $url,
-                        'no_policy' => $data['policyno'],
-                    ]
-                );
-
-                return $this->responseSuccess('Berhasil Mengambil Data', $data);
-            } else {
-                throw new Exception('Gagal mengambil data dari pihak asuransi: '.$result['message']);
-            }
-        } catch (Exception $e) {
-            Log::error('Error decoding JSON: ', ['message' => $e->getMessage()]);
-
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', 'Gagal mendekode data dari pihak asuransi');
-        }
     }
 
     public function embedQrCodeToDocs(Submission $submission): void

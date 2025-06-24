@@ -32,6 +32,7 @@ export interface OfficeData {
   district: string;
   village: string;
   postal_code: string;
+  office_type: OfficeType;
   users: User[];
   pivot?: {
     id: number;
