@@ -316,16 +316,16 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
             </div>
           </div>
         </CardContent>
-        {is_set && (
-          <CardFooter>
-            <div className="w-full text-right">
-              <Button type="button" variant="success" onClick={sendToFinance}>
-                <Loading isLoading={isLoadingSendToFinance} />
-                {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}
-              </Button>
-            </div>
-          </CardFooter>
-        )}
+        {/*{is_set && (*/}
+        {/*  <CardFooter>*/}
+        {/*    <div className="w-full text-right">*/}
+        {/*      <Button type="button" variant="success" onClick={sendToFinance}>*/}
+        {/*        <Loading isLoading={isLoadingSendToFinance} />*/}
+        {/*        {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}*/}
+        {/*      </Button>*/}
+        {/*    </div>*/}
+        {/*  </CardFooter>*/}
+        {/*)}*/}
       </Card>
     </main>
   );
