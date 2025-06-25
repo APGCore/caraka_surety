@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Location\DistrictController;
 use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Principal\UpdateRequest;
-use App\Http\Resources\Principal\PrincipalDocumentResource;
+use App\Http\Resources\Document\RequiredDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\RequiredDoc;
@@ -252,7 +252,7 @@ class PrincipalController extends Controller
             ]);
         }])->orderBy('no')->get();
 
-        $resource = PrincipalDocumentResource::collection($requiredDocuments);
+        $resource = RequiredDocumentResource::collection($requiredDocuments)->resolve();
 
         return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $resource);
     }
