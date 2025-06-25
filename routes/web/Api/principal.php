@@ -16,10 +16,6 @@ Route::middleware('auth')->group(function () {
                             // PATH: /principal-management/principal/all
                             Route::get('all', 'getAll')->name('all');
 
-                            // NAME: api.principal-management.principal.documents
-                            // PATH: /principal-management/principal/document
-                            Route::get('document', 'getDocument')->name('documents');
-
                             // NAME: api.principal-management.principal.ratios
                             // PATH: /principal-management/principal/ratios/{principal}
                             Route::get('ratios/{principal}', 'getRatios')->name('ratios');
