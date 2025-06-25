@@ -18,7 +18,7 @@ class RequiredDocumentResource extends JsonResource
         return [
             ...parent::toArray($request),
             'principal_document' => $this->whenLoaded('principalDocument', function () {
-                return PrincipalDocumentResource::collection($this->resource->principalDocument)->resolve();
+                return (new PrincipalDocumentResource($this->resource->principalDocument))->resolve();
             }),
             'created_at' => $this->resource->created_at?->format('d F Y'),
         ];
