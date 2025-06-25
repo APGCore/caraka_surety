@@ -1047,53 +1047,53 @@ class SubmissionController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
-                    ->orWhereHas('principal', function ($query) use ($search) {
-                        $query->whereLike('name', "%$search%");
-                    });
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->whereLike('name', "%$search%");
+                        });
                 });
             })
             ->where('guarantor_id', $this->guarantorId)
             ->where('product_id', $this->productId)
             ->when($isDireksi, fn ($query) => $query
-              ->whereNotNull('checked_by')
-              ->where('status', SubmissionStatus::PROCESS->value)
-              ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
+                ->whereNotNull('checked_by')
+                ->where('status', SubmissionStatus::PROCESS->value)
+                ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
             )
             ->when($isManager, fn ($query) => $query
-              ->where(function ($query) use ($staffs) {
-                $query->whereIn('staff_id', $staffs)
-                  ->orWhereIn('checked_by', $staffs);
-              })
-              ->whereNull(['approved_by', 'rejected_by'])
-            //  ->where(fn ($query) => $query
-            //      ->whereNull('checked_by')
-            //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
-            //  )
+                ->where(function ($query) use ($staffs) {
+                    $query->whereIn('staff_id', $staffs)
+                        ->orWhereIn('checked_by', $staffs);
+                })
+                ->whereNull(['approved_by', 'rejected_by'])
+                //  ->where(fn ($query) => $query
+                //      ->whereNull('checked_by')
+                //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
+                //  )
             )
             ->when($isKepalaCabang, fn ($query) => $query
-              ->whereIn('staff_id', $staffs)
-              ->whereNull(['approved_by', 'rejected_by'])
-              ->where(function ($query) use ($authId) {
-                $query->whereNull('checked_by')
-                  ->orWhere('checked_by', $authId);
-              })
+                ->whereIn('staff_id', $staffs)
+                ->whereNull(['approved_by', 'rejected_by'])
+                ->where(function ($query) use ($authId) {
+                    $query->whereNull('checked_by')
+                        ->orWhere('checked_by', $authId);
+                })
             )
             ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
             ->when($officeSelected, fn ($query) => $query
-              ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
+                ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
             )
             ->with([
-              'scores',
-              'principal',
-              'bank',
-              'obligee',
-              'sourceOfFund',
-              'guarantor',
-              'guarantorToProductType',
-              'employeeLimit',
-              'guarantorProductTypeLimit',
-              'staff:id,name,profile_id',
-              'staff.office:id,name',
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'employeeLimit',
+                'guarantorProductTypeLimit',
+                'staff:id,name,profile_id',
+                'staff.office:id,name',
             ])
             ->orderByDesc('updated_at')
             ->paginate($request->get('per_page') ?? 10)
