@@ -19,4 +19,7 @@ export const FormPrincipalSubmissionRateUtils = {
       description: "Tarif gagal di setting",
     },
   },
+  send_to_finance: {
+    route: InvoiceUtils.link.send_to_finance,
+  },
 };

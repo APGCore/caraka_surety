@@ -16,6 +16,9 @@ class PrincipalResource extends JsonResource
     {
         return [
             ...parent::toArray($request),
+            'documents' => $this->whenLoaded('documents', function () {
+                return PrincipalDocumentResource::collection($this->resource->documents)->resolve();
+            }),
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

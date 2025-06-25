@@ -16,10 +16,11 @@ class SubmissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $employeeLimit = $this->resource->employeeLimit->firstWhere('employee_id', auth()->id());
-        $productLimit = $this->resource->guarantorProductTypeLimit;
+        $employeeLimit = $this->resource->relationLoaded('employeeLimit') ? $this->resource->employeeLimit->firstWhere('employee_id', auth()->id()) : null;
+        $productLimit = $this->resource->relationLoaded('guarantorProductTypeLimit') ? $this->resource->guarantorProductTypeLimit : null;
         $employeeLimit = $employeeLimit ? ($this->resource->submission_inherit_id ? $employeeLimit->limit_inherit : $employeeLimit->limit) : 0;
         $productLimit = $productLimit ? ($this->resource->submission_inherit_id ? $productLimit->limit_inherit : $productLimit->limit) : 0;
+        $blanks = $this->resource->relationLoaded('blanks') ? $this->resource->blanks : null;
 
         return [
             ...parent::toArray($request),
@@ -27,8 +28,8 @@ class SubmissionResource extends JsonResource
             'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
             'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
             'created_at' => $this->resource->created_at?->format('d F Y H:i:s') ?? null,
-            'blank' => $this->resource->blank ?? $this->resource->blanks->first(),
-            'blanks' => $this->whenLoaded('blanks', $this->resource->blanks),
+            'blank' => $this->whenLoaded('blank', $this->resource->blank ?? $blanks?->first()),
+            'blanks' => $blanks,
             'principal' => $this->whenLoaded('principal', function () {
                 return [
                     'id' => $this->resource->principal->id,
@@ -57,6 +58,7 @@ class SubmissionResource extends JsonResource
                 return [
                     'id' => $this->resource->guarantorToProductType->id,
                     'name' => $this->resource->guarantorToProductType->name,
+                    'full_name' => $this->resource->guarantorToProductType->full_name,
                 ];
             }),
             'obligee' => $this->whenLoaded('obligee', function () {

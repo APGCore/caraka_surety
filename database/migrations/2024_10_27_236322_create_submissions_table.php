@@ -64,6 +64,7 @@ return new class extends Migration
             $table->text('min_point_scoring')->nullable();
             $table->text('risk_mitigation')->nullable();
             $table->boolean('has_send_to_guarantor')->default(false);
+            $table->boolean('has_send_to_finance')->default(false);
             $table->boolean('is_revised')->default(false);
             $table->boolean('is_added_qrcode')->default(false);
             $table->text('revised_note')->nullable();

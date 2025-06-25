@@ -15,21 +15,10 @@ class PrincipalDocumentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $principalDocument = collect($this->resource->principalDocument);
-
-        if ($principalDocument->isNotEmpty()) {
-            $principalDocument = [
-                ...$principalDocument->toArray(),
-                'path' => $principalDocument->get('url')
-                    ? Storage::url($principalDocument->get('url')) : null,
-            ];
-        } else {
-            $principalDocument = null;
-        }
-
         return [
             ...parent::toArray($request),
-            'principal_document' => $principalDocument,
+            'path' => $this->resource->url
+              ? Storage::url($this->resource->url) : null,
             'created_at' => $this->resource->created_at->format('d F Y'),
         ];
     }

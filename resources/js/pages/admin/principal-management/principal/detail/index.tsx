@@ -1,12 +1,21 @@
+import { formatCurrency } from "@/_features/_common/utils/format-currency";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/_shadcn-ui/tabs";
 import PrimaryButton from "@/components/atoms/button/primary-button";
 import SecondaryButton from "@/components/atoms/button/secondary-button";
+import RenderList from "@/components/atoms/render-list";
+import Show from "@/components/atoms/show";
+import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
+import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
+import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { PrincipalDetailPageProps } from "@/pages/admin/principal-management/principal/detail/detail-principal-page.type";
+import { SubmissionStatus } from "@/types/submission-status";
 import { Head, Link } from "@inertiajs/react";
+import React from "react";
 
-const PrincipalDetailPage: PrincipalDetailPageProps & { layout?: any } = ({ principal }) => {
+const PrincipalDetailPage: PrincipalDetailPageProps & { layout?: any } = ({ principal, submissions }) => {
   return (
     <main className="space-y-1.5 flex items justify-center w-full">
       <div className="w-full">
@@ -102,51 +111,113 @@ const PrincipalDetailPage: PrincipalDetailPageProps & { layout?: any } = ({ prin
               <TabsTrigger value="ajuan" className="flex-1 text-white">
                 Riwayat Ajuan
               </TabsTrigger>
-              <TabsTrigger value="perusahaan" className="flex-1 text-white">
-                Riwayat Perusahaan
+              <TabsTrigger value="dokumen" className="flex-1 text-white">
+                Dokumen Perusahaan
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="ajuan">
-              <h4 className="text-lg font-medium text-gray-900">Riwayat Ajuan</h4>
-              <p className="mt-2 text-sm text-gray-600">Berikut adalah riwayat ajuan yang dilakukan oleh principal.</p>
-              <table className="min-w-full bg-white mt-4">
-                <thead>
-                  <tr>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">No</th>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">Tanggal Ajuan</th>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">1</td>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">12/10/2024</td>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">Diterima</td>
-                  </tr>
-                </tbody>
-              </table>
+              <h4 className="text-lg font-medium text-gray-900">Riwayat Pengajuan Jaminan</h4>
+              <p className="mt-2 text-sm text-gray-600">
+                Berikut adalah riwayat pengajuan jaminan yang dilakukan oleh principal.
+              </p>
+              <Table className="mt-2">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-0">#</TableHead>
+                    <TableHead>Unit Bisnis</TableHead>
+                    <TableHead>Produk</TableHead>
+                    <TableHead>Tipe Produk</TableHead>
+                    <TableHead>Nomor Jaminan</TableHead>
+                    <TableHead>Nilai Jaminan</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Tanggal Dibuat</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <RenderList
+                    of={submissions.data}
+                    render={(submission: any, index: number) => (
+                      <TableRow key={submission.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{submission.staff?.office}</TableCell>
+                        <TableCell>{submission.product?.name}</TableCell>
+                        <TableCell>{submission.product_type?.full_name}</TableCell>
+                        <TableCell>{submission.no_guarantee}</TableCell>
+                        <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
+                              submission.status === SubmissionStatus.APPROVED
+                                ? "bg-green-100 text-green-800"
+                                : submission.status === SubmissionStatus.REJECTED ||
+                                    submission.status === SubmissionStatus.BROKEN
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                            {submission.status_label}
+                          </span>
+                        </TableCell>
+                        <TableCell>{submission?.created_at}</TableCell>
+                      </TableRow>
+                    )}
+                    renderFallback={() => (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center">
+                          No data found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  />
+                </TableBody>
+              </Table>
+              <ShowingCountDatatable meta={submissions.meta} />
+              <PaginationDatatable meta={submissions.meta} />
             </TabsContent>
 
-            <TabsContent value="perusahaan">
-              <h4 className="text-lg font-medium text-gray-900">Riwayat Perusahaan</h4>
-              <p className="mt-2 text-sm text-gray-600">Berikut adalah riwayat perusahaan terkait principal.</p>
-              <table className="min-w-full bg-white mt-4">
-                <thead>
-                  <tr>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">No</th>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">Perubahan</th>
-                    <th className="border-b px-4 py-2 text-left text-sm font-medium text-gray-900">Tanggal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">1</td>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">Perubahan Direktur</td>
-                    <td className="border-b px-4 py-2 text-sm text-gray-900">01/09/2024</td>
-                  </tr>
-                </tbody>
-              </table>
+            <TabsContent value="dokumen">
+              <h4 className="text-lg font-medium text-gray-900">Dokumen Perusahaan</h4>
+              <p className="mt-2 text-sm text-gray-600">
+                Berikut adalah dokumen perusahaan yang telah diunggah oleh principal.
+              </p>
+              <Show
+                when={principal?.documents.length > 0}
+                fallback={<p className="text-gray-500">Tidak ada dokumen yang diunggah.</p>}>
+                <Table className="mt-2">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-0">#</TableHead>
+                      <TableHead>Nama Dokumen</TableHead>
+                      <TableHead>Deskripsi</TableHead>
+                      <TableHead className="w-1 text-center">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <RenderList
+                      of={principal.documents}
+                      render={(doc: any, index: number) => (
+                        <TableRow key={doc.id}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{doc.name}</TableCell>
+                          <TableCell>{doc.description || "-"}</TableCell>
+                          <TableCell align="center">
+                            <Show when={!!doc.path} fallback="File Belum Diunggah">
+                              <PreviewFile preview={doc.path} />
+                            </Show>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      renderFallback={() => (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center">
+                            Tidak ada dokumen yang diunggah.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    />
+                  </TableBody>
+                </Table>
+              </Show>
             </TabsContent>
           </Tabs>
         </div>

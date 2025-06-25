@@ -19,8 +19,8 @@ import InvoiceOffice from "@/pages/report/invoice/_partials/invoice-office";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { FormPrincipalSubmissionRateUtils } from "@/pages/report/invoice/detail/_partials/form-principal-submission-rate.utils";
 import { InvoiceDetailPageProps } from "@/pages/report/invoice/detail/invoice-detail.type";
-import { useForm } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
+import { router, useForm } from "@inertiajs/react";
+import React, { useState } from "react";
 import InvoiceHeader from "../_partials/invoice-header";
 
 const InvoiceDetailPage: InvoiceDetailPageProps = ({
@@ -29,6 +29,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
   office_rate,
   principal_rate,
   submission_rate,
+  is_set,
 }) => {
   const minimum = String(submission_rate.minimum || principal_rate.minimum || office_rate.minimum || 0);
   const rate = String(submission_rate.rate || principal_rate.rate || office_rate.rate || 0);
@@ -37,6 +38,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
   const revisedRate = String(
     submission_rate.revised_rate || principal_rate.revised_rate || office_rate.revised_rate || 0,
   );
+  const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
 
   const { data, setData, post, errors, processing } = useForm<{
     submission_id: number | string;
@@ -62,6 +64,21 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
         console.log(params);
       },
     });
+  };
+
+  const sendToFinance = () => {
+    setIsLoadingSendToFinance(true);
+    router.post(
+      route(InvoiceUtils.link.send_to_finance, { submission_id: submission.id }),
+      {},
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onFinish: () => {
+          setIsLoadingSendToFinance(false);
+        },
+      },
+    );
   };
 
   return (
@@ -299,6 +316,16 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
             </div>
           </div>
         </CardContent>
+        {/*{is_set && (*/}
+        {/*  <CardFooter>*/}
+        {/*    <div className="w-full text-right">*/}
+        {/*      <Button type="button" variant="success" onClick={sendToFinance}>*/}
+        {/*        <Loading isLoading={isLoadingSendToFinance} />*/}
+        {/*        {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}*/}
+        {/*      </Button>*/}
+        {/*    </div>*/}
+        {/*  </CardFooter>*/}
+        {/*)}*/}
       </Card>
     </main>
   );

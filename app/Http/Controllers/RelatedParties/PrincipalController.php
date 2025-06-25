@@ -8,21 +8,26 @@ use App\Http\Controllers\Location\RegencyController;
 use App\Http\Requests\Principal\UpdateRequest;
 use App\Http\Resources\Principal\PrincipalDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
+use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\RelatedParties\Principal;
+use App\Models\Submission\Submission;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
+use Inertia\ResponseFactory;
 
 class PrincipalController extends Controller
 {
-    public function apiSearch(Request $request)
+    public function apiSearch(Request $request): JsonResponse
     {
         // request
         $search = $request->get('search') ?? '';
@@ -85,40 +90,33 @@ class PrincipalController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      */
-    public function show(Principal $principal)
+    public function show(Request $request, Principal $principal): Response|ResponseFactory
     {
-        $principal = Principal::with('province', 'regency', 'district')->findOrFail($principal->id);
+        $principal->load('province', 'regency', 'district', 'documents');
+        $submissions = Submission::query()
+            ->where('principal_id', $principal->getAttribute('id'))
+            ->with(['staff.office', 'product:id,name', 'guarantorToProductType:id,name,full_name'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(perPage: 10, page: $request->get('page', 1));
+
+        $principal = (new PrincipalResource($principal))->resolve();
+        $submissions = SubmissionResource::collection($submissions);
 
         return inertia('admin/principal-management/principal/detail/index', [
             'page_settings' => [
                 'title' => 'Detail Principal',
             ],
             'principal' => $principal,
+            'submissions' => $submissions,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Principal $principal, Request $request)
+    public function edit(Principal $principal, Request $request): Response|ResponseFactory
     {
         $provinces = Province::query()->get();
 
@@ -129,7 +127,7 @@ class PrincipalController extends Controller
             $regencies = $regenciesQuery->where('province_id', $request->get('province_id'))->get();
             if ($regencies->count() == 0) {
                 $province = $provinces->where('id', $request->get('province_id'))->first();
-                $regencyController = new RegencyController;
+                $regencyController = app(RegencyController::class);
                 $regencyController->synchronize($request->merge(['code' => $province->code]));
             }
             $regencies = $regenciesQuery->where('province_id', $request->get('province_id'))->get();
@@ -147,7 +145,7 @@ class PrincipalController extends Controller
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))->get();
             if ($districts->count() == 0) {
                 $regency = $regencies->where('id', $request->get('regency_id'))->first();
-                $districtController = new DistrictController;
+                $districtController = app(DistrictController::class);
                 $districtController->synchronize($request->merge(['code' => $regency->code]));
             }
             $districts = $districtsQuery->where('regency_id', $request->get('regency_id'))->get();
@@ -179,7 +177,7 @@ class PrincipalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, Principal $principal)
+    public function update(UpdateRequest $request, Principal $principal): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -205,7 +203,7 @@ class PrincipalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Principal $principal)
+    public function destroy(Principal $principal): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -241,7 +239,7 @@ class PrincipalController extends Controller
         return $this->responseSuccess('Data Principal', $principals);
     }
 
-    public function getDocument(Request $request)
+    public function getDocument(Request $request): JsonResponse
     {
         $request->validate([
             'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
@@ -259,7 +257,7 @@ class PrincipalController extends Controller
         return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $resource);
     }
 
-    public function getRatios($principalId)
+    public function getRatios($principalId): JsonResponse
     {
         $principal = Principal::query()
             ->with('principalRatios')

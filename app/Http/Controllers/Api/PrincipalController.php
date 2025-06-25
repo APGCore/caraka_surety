@@ -6,14 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Principal\StoreRequest;
 use App\Http\Requests\Principal\UpdateRequest;
 use App\Http\Requests\Principal\UploadDocumentRequest;
-use App\Http\Resources\Principal\PrincipalDocumentResource;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
 use App\Models\RelatedParties\PrincipalDocument;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -80,24 +78,6 @@ class PrincipalController extends Controller
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
-    }
-
-    public function getDocument(Request $request): JsonResponse
-    {
-        $request->validate([
-            'principal_id' => 'nullable|exists:'.Principal::class.',id,deleted_at,NULL',
-        ]);
-
-        $requiredDocuments = RequiredDoc::with(['principalDocument' => function ($query) use ($request) {
-            $query->where([
-                'principal_id' => $request->get('principal_id'),
-                'is_approved' => true,
-            ]);
-        }])->get();
-
-        $resource = PrincipalDocumentResource::collection($requiredDocuments);
-
-        return $this->responseSuccess('Berhasil Mengambil Dokumen Principal', $resource);
     }
 
     public function getRatios(Principal $principal): JsonResponse
