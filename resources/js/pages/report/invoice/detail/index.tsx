@@ -10,7 +10,6 @@ import {
 import Loading from "@/_features/_common/components/loading";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Input } from "@/components/_shadcn-ui/input";
-import Show from "@/components/atoms/show";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -316,16 +315,16 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
             </div>
           </div>
         </CardContent>
-        {/*{is_set && (*/}
-        {/*  <CardFooter>*/}
-        {/*    <div className="w-full text-right">*/}
-        {/*      <Button type="button" variant="success" onClick={sendToFinance}>*/}
-        {/*        <Loading isLoading={isLoadingSendToFinance} />*/}
-        {/*        {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}*/}
-        {/*      </Button>*/}
-        {/*    </div>*/}
-        {/*  </CardFooter>*/}
-        {/*)}*/}
+        {is_set && (
+          <CardFooter>
+            <div className="w-full text-right">
+              <Button type="button" variant="success" onClick={sendToFinance}>
+                <Loading isLoading={isLoadingSendToFinance} />
+                {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}
+              </Button>
+            </div>
+          </CardFooter>
+        )}
       </Card>
     </main>
   );

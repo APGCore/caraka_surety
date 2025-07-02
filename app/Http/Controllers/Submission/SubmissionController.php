@@ -245,16 +245,16 @@ class SubmissionController extends Controller
                 });
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
-                if ($submissionEdit->getAttribute('submission_before_id') !== null){
-                  $noGuarantee = $submissionEdit->getAttribute('no_guarantee');
+                if ($submissionEdit->getAttribute('submission_before_id') !== null) {
+                    $noGuarantee = $submissionEdit->getAttribute('no_guarantee');
                 } else {
-                  $noGuarantee = $this->generateNoGuarantee(
-                    $guarantorHead,
-                    $guarantorToProductType,
-                    $guarantorBranchId,
-                    $blank,
-                    $profile
-                  );
+                    $noGuarantee = $this->generateNoGuarantee(
+                        $guarantorHead,
+                        $guarantorToProductType,
+                        $guarantorBranchId,
+                        $blank,
+                        $profile
+                    );
                 }
                 $messageResponse = 'Berhasil memperbarui pengajuan';
             } else {
@@ -295,9 +295,9 @@ class SubmissionController extends Controller
 
             // update or create submission blangko
             SubmissionBlank::query()->updateOrCreate([
-              'submission_id' => $submission->getAttribute('id')
+                'submission_id' => $submission->getAttribute('id'),
             ], [
-              'blank_id' => $blank->getAttribute('id')
+                'blank_id' => $blank->getAttribute('id'),
             ]);
 
             // update support document
@@ -1183,8 +1183,8 @@ class SubmissionController extends Controller
                 $query->whereNot('status', SubmissionStatus::PROCESS->value);
             })
             ->when($isManager || $isKepalaCabang, fn ($query) => $query->whereIn('staff_id', $staffs)
-            ->whereNot('status', SubmissionStatus::PROCESS->value)
-            ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
+                ->whereNot('status', SubmissionStatus::PROCESS->value)
+                ->when($isKepalaCabang, fn ($query) => $query->whereNotNull('checked_by')))
             ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
             ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
             ->with([

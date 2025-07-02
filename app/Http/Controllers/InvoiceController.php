@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
+use App\Enums\SubmissionStatus;
 use App\Http\Requests\Invoice\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Guarantor;
@@ -63,6 +64,7 @@ class InvoiceController extends Controller
         $submissions = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
                 return $query
+                    ->where('status', SubmissionStatus::APPROVED->value)
                     ->when($date->isNotEmpty(), function ($query) use ($date) {
                         $query->whereBetween('created_at', $date);
                     })
