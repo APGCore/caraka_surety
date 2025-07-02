@@ -295,8 +295,9 @@ class SubmissionController extends Controller
 
             // update or create submission blangko
             SubmissionBlank::query()->updateOrCreate([
-                'submission_id' => $submission->getAttribute('id'),
-                'blank_id' => $blank->getAttribute('id'),
+              'submission_id' => $submission->getAttribute('id')
+            ], [
+              'blank_id' => $blank->getAttribute('id')
             ]);
 
             // update support document
