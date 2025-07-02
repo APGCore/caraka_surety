@@ -245,7 +245,7 @@ class SubmissionController extends Controller
                 });
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
-                if ($submissionEdit->getAttribute('submission_before_id')){
+                if ($submissionEdit->getAttribute('submission_before_id') !== null){
                   $noGuarantee = $submissionEdit->getAttribute('no_guarantee');
                 } else {
                   $noGuarantee = $this->generateNoGuarantee(
