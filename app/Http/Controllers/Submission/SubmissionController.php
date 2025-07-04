@@ -194,6 +194,11 @@ class SubmissionController extends Controller
             $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
             $blankId = $submission['blank_id'] ?? null;
 
+            // update is picked blank
+            $submission->blanks()->update([
+              'is_picked' => false,
+            ]);
+
             // get blanks
             $blank = Blank::query()
                 ->where('is_picked', $isEdit && in_array($blankId, $blankIds))
@@ -293,10 +298,6 @@ class SubmissionController extends Controller
                 $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->create($dataSubmission);
             }
 
-            // update is picked blank
-            $submission->blanks()->update([
-                'is_picked' => false,
-            ]);
             // update or create submission blangko
             SubmissionBlank::query()->updateOrCreate([
                 'submission_id' => $submission->getAttribute('id'),
