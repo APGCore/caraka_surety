@@ -26,43 +26,43 @@ const InvoiceGuarantor: React.FC<InvoiceGuarantorProps> = ({ guarantorName, guar
         <TableBody>
           <TableRow>
             <TableCell>Minimum</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.minimum)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.minimum ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Rate</TableCell>
-            <TableCell>: {guarantorRate?.rate}%</TableCell>
+            <TableCell>: {guarantorRate?.rate ?? 0} %</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Biaya Administrasi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.adm)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.adm ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Service Charge</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.service_charges)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.service_charges ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Total</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.total)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.total ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Premi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.premi)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.premi ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Komisi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.commission)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.commission ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>PPH 23 Komisi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.pph_commission)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.pph_commission ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>NETT Komisi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.nett_commission)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.nett_commission ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>NETT Premi</TableCell>
-            <TableCell>: {formatCurrency(guarantorRate?.nett_premi)}</TableCell>
+            <TableCell>: {formatCurrency(guarantorRate?.nett_premi ?? 0)}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

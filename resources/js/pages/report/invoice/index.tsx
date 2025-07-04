@@ -1,5 +1,17 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/_features/_common/components/_shadcn-ui/alert-dialog";
+import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import FilterOffice from "@/_features/_common/components/filter-office";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
+import Loading from "@/components/atoms/loading";
 import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import ExportDocsButtonDatatable from "@/components/molecules/datatable/export";
@@ -10,7 +22,7 @@ import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";
@@ -31,6 +43,7 @@ const InvoicePage: InvoicePageProps = ({
 }) => {
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
+  const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
   const [filterDate, setFilterDate] = useState<DateRange | undefined>({
     from: subDays(new Date(), 7),
     to: new Date(),
@@ -125,6 +138,24 @@ const InvoicePage: InvoicePageProps = ({
     );
   };
 
+  const sendToFinance = () => {
+    const submissionIds = submissions.data.map((submission: any) => submission.id);
+    if (submissionIds.length === 0) return;
+
+    setIsLoadingSendToFinance(true);
+    router.post(
+      route(InvoiceUtils.link.send_to_finance, { submission_ids: submissionIds }),
+      {},
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onFinish: () => {
+          setIsLoadingSendToFinance(false);
+        },
+      },
+    );
+  };
+
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
@@ -140,7 +171,7 @@ const InvoicePage: InvoicePageProps = ({
           placeholder="Cari Invoice"
         />
       </div>
-      <div className="flex gap-x-3">
+      <div className="flex gap-x-3 justify-between">
         <div className="flex gap-x-3">
           <FilterOffice
             offices={offices}
@@ -151,38 +182,71 @@ const InvoicePage: InvoicePageProps = ({
             handleSelectOffice={handleSelectOffice}
             handleReset={handleResetFilterOffice}
           />
+          <Combobox
+            datas={guarantors}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorSelected}
+            placeholder={"Pilih Asuransi"}
+            className={"min-w-[160px]"}
+            onSelect={(value) => handleSelectGuarantor(value.id)}
+          />
+          <Combobox
+            datas={products}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={productSelected}
+            placeholder={"Pilih Produk"}
+            className={"min-w-[160px]"}
+            onSelect={(value) => handleSelectProduct(value.id)}
+            isReset={true}
+            handleReset={() => handleSelectProduct(null)}
+          />
+          <Combobox
+            datas={productTypes}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={productTypeSelected}
+            placeholder={"Pilih Jenis Jaminan"}
+            className={"min-w-[160px]"}
+            onSelect={(value) => handleSelectProductType(value.id)}
+            isReset={true}
+            handleReset={() => handleSelectProductType(null)}
+          />
         </div>
-        <Combobox
-          datas={guarantors}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValue={guarantorSelected}
-          placeholder={"Pilih Asuransi"}
-          className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectGuarantor(value.id)}
-        />
-        <Combobox
-          datas={products}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValue={productSelected}
-          placeholder={"Pilih Produk"}
-          className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectProduct(value.id)}
-          isReset={true}
-          handleReset={() => handleSelectProduct(null)}
-        />
-        <Combobox
-          datas={productTypes}
-          labelKey={"name"}
-          valueKey={"name"}
-          defaultValue={productTypeSelected}
-          placeholder={"Pilih Jenis Jaminan"}
-          className={"min-w-[160px]"}
-          onSelect={(value) => handleSelectProductType(value.id)}
-          isReset={true}
-          handleReset={() => handleSelectProductType(null)}
-        />
+        <div className="flex gap-x-3">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="success"
+                disabled={isLoadingSendToFinance || submissions.data.length === 0}>
+                <Loading isLoading={isLoadingSendToFinance} />
+                {"Kirim ke Keuangan"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="sm:max-w-[425px]">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Peringatan!!!</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Apakah anda yakin ingin mengirim pengajuan ke sistem keuangan?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="grid grid-cols-2 gap-4">
+                <AlertDialogCancel asChild>
+                  <Button variant="outline" className="w-full" type="button">
+                    Batal
+                  </Button>
+                </AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button variant="success" className="w-full" onClick={sendToFinance}>
+                    Kirim ke Keuangan
+                  </Button>
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
       <InvoiceDatatable submissions={submissions} />
     </main>
