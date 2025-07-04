@@ -1,4 +1,5 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
+import Show from "@/_features/_common/components/show";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
@@ -6,7 +7,7 @@ import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { Link } from "@inertiajs/react";
-import React, { useState } from "react";
+import React from "react";
 
 interface InvoiceDatatableProps {
   submissions: any;
@@ -20,7 +21,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
             <TableHead>TANGGAL PENGAJUAN</TableHead>
-            <TableHead>NO REG BLANGKO</TableHead>
+            <TableHead className="text-center">NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
             <TableHead>NILAI JAMINAN</TableHead>
@@ -37,7 +38,21 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                 <TableRow key={submission.id}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
-                  <TableCell>{submission.blank?.number}</TableCell>
+                  <TableCell className="text-center">
+                    {submission.blank?.number}
+                    <Show when={submission.is_revised}>
+                      <p
+                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                        Di Revisi
+                      </p>
+                    </Show>
+                    <Show when={submission.submission_before_id}>
+                      <p
+                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                        Revisi dari {submission.submission_before?.blank?.number}
+                      </p>
+                    </Show>
+                  </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>

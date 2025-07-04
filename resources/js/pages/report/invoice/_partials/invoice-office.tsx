@@ -20,23 +20,23 @@ const InvoiceOffice: React.FC<InvoiceOfficeProps> = ({ officeRate }) => {
         <TableBody>
           <TableRow>
             <TableCell>Minimum</TableCell>
-            <TableCell>: {formatCurrency(officeRate?.minimum)}</TableCell>
+            <TableCell>: {formatCurrency(officeRate?.minimum ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Rate</TableCell>
-            <TableCell>: {officeRate?.rate}%</TableCell>
+            <TableCell>: {officeRate?.rate ?? 0} %</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Biaya Administrasi</TableCell>
-            <TableCell>: {formatCurrency(officeRate?.adm)}</TableCell>
+            <TableCell>: {formatCurrency(officeRate?.adm ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Service Charges</TableCell>
-            <TableCell>: {formatCurrency(officeRate?.service_charges)}</TableCell>
+            <TableCell>: {formatCurrency(officeRate?.service_charges ?? 0)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Total</TableCell>
-            <TableCell>: {formatCurrency(officeRate?.total)}</TableCell>
+            <TableCell>: {formatCurrency(officeRate?.total ?? 0)}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

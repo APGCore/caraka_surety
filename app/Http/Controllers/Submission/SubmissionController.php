@@ -196,7 +196,7 @@ class SubmissionController extends Controller
 
             // update is picked blank
             $submission->blanks()->update([
-              'is_picked' => false,
+                'is_picked' => false,
             ]);
 
             // get blanks

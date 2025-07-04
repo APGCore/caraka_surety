@@ -9,7 +9,9 @@ import {
 } from "@/_features/_common/components/_shadcn-ui/card";
 import Loading from "@/_features/_common/components/loading";
 import { formatCurrency } from "@/common/utils/format-currency";
+import { Alert, AlertDescription, AlertTitle } from "@/components/_shadcn-ui/alert";
 import { Input } from "@/components/_shadcn-ui/input";
+import Show from "@/components/atoms/show";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -19,6 +21,7 @@ import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { FormPrincipalSubmissionRateUtils } from "@/pages/report/invoice/detail/_partials/form-principal-submission-rate.utils";
 import { InvoiceDetailPageProps } from "@/pages/report/invoice/detail/invoice-detail.type";
 import { router, useForm } from "@inertiajs/react";
+import { AlertCircle } from "lucide-react";
 import React, { useState } from "react";
 import InvoiceHeader from "../_partials/invoice-header";
 
@@ -27,16 +30,15 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
   guarantor_rate,
   office_rate,
   principal_rate,
-  submission_rate,
+  capital_rate,
+  selling_rate,
   is_set,
 }) => {
-  const minimum = String(submission_rate.minimum || principal_rate.minimum || office_rate.minimum || 0);
-  const rate = String(submission_rate.rate || principal_rate.rate || office_rate.rate || 0);
-  const adm = String(submission_rate.adm || principal_rate.adm || office_rate.adm || 0);
-  const brokenRate = String(submission_rate.broken_rate || principal_rate.broken_rate || office_rate.broken_rate || 0);
-  const revisedRate = String(
-    submission_rate.revised_rate || principal_rate.revised_rate || office_rate.revised_rate || 0,
-  );
+  const minimum = String(selling_rate.minimum || principal_rate.minimum || office_rate.minimum || 0);
+  const rate = String(selling_rate.rate || principal_rate.rate || office_rate.rate || 0);
+  const adm = String(selling_rate.adm || principal_rate.adm || office_rate.adm || 0);
+  const brokenRate = String(selling_rate.broken_rate || principal_rate.broken_rate || office_rate.broken_rate || 0);
+  const revisedRate = String(selling_rate.revised_rate || principal_rate.revised_rate || office_rate.revised_rate || 0);
   const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
 
   const { data, setData, post, errors, processing } = useForm<{
@@ -68,7 +70,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
   const sendToFinance = () => {
     setIsLoadingSendToFinance(true);
     router.post(
-      route(InvoiceUtils.link.send_to_finance, { submission_id: submission.id }),
+      route(InvoiceUtils.link.send_to_finance, { submission_ids: [submission.id] }),
       {},
       {
         preserveState: true,
@@ -82,6 +84,30 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
 
   return (
     <main className="space-y-2.5">
+      <Show when={submission.submission_before_id}>
+        <Alert variant="info">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Informasi</AlertTitle>
+          <AlertDescription>
+            Pengajuan ini merupakan revisi dari pengajuan sebelumnya dengan nomor blangko{" "}
+            {submission.submission_before?.blank?.number}.
+          </AlertDescription>
+        </Alert>
+      </Show>
+      <Show when={submission.is_revised}>
+        <Alert variant="warning">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Informasi</AlertTitle>
+          <AlertDescription>Pengajuan ini merupakan revisi</AlertDescription>
+        </Alert>
+      </Show>
+      <Show when={submission.has_send_to_finance}>
+        <Alert variant="success">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Informasi</AlertTitle>
+          <AlertDescription>Pengajuan ini sudah dikirim ke keuangan.</AlertDescription>
+        </Alert>
+      </Show>
       <Card>
         <CardHeader>
           <CardTitle>Pengajuan {submission.principal.name}</CardTitle>
@@ -299,7 +325,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
                   <CardTitle>Tarif Modal</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <InvoiceGuarantor guarantorName={submission.guarantor.name} guarantorRate={guarantor_rate} />
+                  <InvoiceGuarantor guarantorName={submission.guarantor.name} guarantorRate={capital_rate} />
                 </CardContent>
               </Card>
             </div>
@@ -309,7 +335,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
                   <CardTitle>Tarif Jual</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <InvoiceOffice officeRate={submission_rate} />
+                  <InvoiceOffice officeRate={selling_rate} />
                 </CardContent>
               </Card>
             </div>
