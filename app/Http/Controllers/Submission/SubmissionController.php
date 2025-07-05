@@ -194,10 +194,6 @@ class SubmissionController extends Controller
             $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
             $blankId = $submission['blank_id'] ?? null;
 
-            // update is picked blank
-            $submission->blanks()->update([
-                'is_picked' => false,
-            ]);
 
             // get blanks
             $blank = Blank::query()
@@ -206,7 +202,6 @@ class SubmissionController extends Controller
             if (! $blank) {
                 throw new Exception('Blangko Sudah Digunakan');
             }
-            $blank->update(['is_picked' => true]);
 
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
@@ -304,6 +299,12 @@ class SubmissionController extends Controller
             ], [
                 'blank_id' => $blank->getAttribute('id'),
             ]);
+            // update is picked blank
+            $submission->blanks()->update([
+              'is_picked' => false,
+            ]);
+
+            $blank->update(['is_picked' => true]);
 
             // update support document
             // delete data if exist
