@@ -21,6 +21,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
             <TableHead>TANGGAL PENGAJUAN</TableHead>
+            <TableHead>Unit Bisnis</TableHead>
             <TableHead className="text-center">NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
@@ -38,6 +39,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
                 <TableRow key={submission.id}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.staff?.office}</TableCell>
                   <TableCell className="text-center">
                     {submission.blank?.number}
                     <Show when={submission.is_revised}>
