@@ -343,9 +343,9 @@ class SubmissionController extends Controller
 
             $submission->scores()->createMany($scores);
 
-            // if score <= min_point_scoring, set status to REJECTED
+            // if score < min_point_scoring, set status to REJECTED
             $totalScore = collect($scores)->sum('point');
-            if ($totalScore <= $submission->getAttribute('min_point_scoring')) {
+            if ($totalScore < $submission->getAttribute('min_point_scoring')) {
                 $this->processRejection($submission);
             }
             activity()
