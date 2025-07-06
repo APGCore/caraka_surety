@@ -1,4 +1,5 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
+import { Checkbox } from "@/_features/_common/components/_shadcn-ui/checkbox";
 import Show from "@/_features/_common/components/show";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
@@ -11,14 +12,41 @@ import React from "react";
 
 interface InvoiceDatatableProps {
   submissions: any;
+  submissionIds: any[];
+  checkAll: boolean;
+  setCheckAll: (checked: boolean) => void;
+  submissionChecked: any[];
+  setSubmissionChecked: (ids: any[]) => void;
 }
 
-const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
+const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
+  submissions,
+  submissionIds,
+  checkAll,
+  setCheckAll,
+  submissionChecked,
+  setSubmissionChecked,
+}) => {
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-0">
+              <Checkbox
+                type="button"
+                checked={checkAll}
+                onCheckedChange={(checked: boolean) => {
+                  setCheckAll(checked);
+                  if (checked) {
+                    setSubmissionChecked(submissionIds);
+                  } else {
+                    setSubmissionChecked([]);
+                  }
+                }}
+                disabled={!submissions?.data?.length}
+              />
+            </TableHead>
             <TableHead className="w-0">NO</TableHead>
             <TableHead>TANGGAL PENGAJUAN</TableHead>
             <TableHead>Unit Bisnis</TableHead>
@@ -37,6 +65,19 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({ submissions }) => {
             render={(submission: any, index: number) => (
               <>
                 <TableRow key={submission.id}>
+                  <TableCell className="w-0">
+                    <Checkbox
+                      type="button"
+                      checked={submissionChecked.includes(submission.id)}
+                      onCheckedChange={(checked: boolean) => {
+                        if (checked) {
+                          setSubmissionChecked([...submissionChecked, submission.id]);
+                        } else {
+                          setSubmissionChecked(submissionChecked.filter((id) => id !== submission.id));
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
                   <TableCell>{submission.staff?.office}</TableCell>

@@ -2,6 +2,7 @@ import React from "react";
 
 interface InvoiceProps {
   submissions: any;
+  submissionIds: any[];
   offices: any;
   officeTypes: any;
   officeSelected: number;

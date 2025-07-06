@@ -61,60 +61,41 @@ class InvoiceController extends Controller
         $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
 
+        // Get all IDs before pagination
+        $submissionIds = Submission::search($request->get('search'))
+            ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
+                $query->where('status', SubmissionStatus::APPROVED->value)
+                    ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
+                    ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
+                    ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+                    ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+                    ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+                    ->select('id');
+            })
+            ->get()->pluck('id')->toArray();
+
+        // Paginate the results
         $submissions = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                return $query
-                    ->where('status', SubmissionStatus::APPROVED->value)
-                    ->when($date->isNotEmpty(), function ($query) use ($date) {
-                        $query->whereBetween('created_at', $date);
-                    })
-                    ->when($officeSelected, function ($query) use ($officeSelected) {
-                        $query->whereHas('staff', function ($query) use ($officeSelected) {
-                            $query->where('profile_id', $officeSelected);
-                        });
-                    })
-                    ->when($guarantorSelected, function ($query) use ($guarantorSelected) {
-                        $query->where('guarantor_id', $guarantorSelected);
-                    })
-                    ->when($productSelected, function ($query) use ($productSelected) {
-                        $query->where('product_id', $productSelected);
-                    })
-                    ->when($guarantorToProductType, function ($query) use ($guarantorToProductType) {
-                        $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-                    })
+                $query->where('status', SubmissionStatus::APPROVED->value)
+                    ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
+                    ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
+                    ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+                    ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+                    ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
                     ->with([
                         'submissionBefore:id',
-                        'guarantor' => function ($query) {
-                            $query->select(['id', 'name', 'code'])->withTrashed();
-                        },
-                        'guarantorBranch' => function ($query) {
-                            $query->select(['id', 'name', 'code'])->withTrashed();
-                        },
-                        'guarantor.pattern' => function ($query) {
-                            $query->select(['id', 'guarantor_id', 'prefix', 'content', 'suffix']);
-                        },
+                        'guarantor:id,name,code',
+                        'guarantorBranch:id,name,code',
+                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
                         'guarantor.guarantorRate',
-                        'product' => function ($query) {
-                            $query->select(['id', 'name'])->withTrashed();
-                        },
-                        'guarantorToProductType' => function ($query) {
-                            $query->select(['id', 'code_product', 'code', 'name'])->withTrashed();
-                        },
-                        'blanks' => function ($query) {
-                            $query->select(['blanks.id', 'blanks.number', 'blanks.is_broken'])->withTrashed();
-                        },
-                        'principal' => function ($query) {
-                            $query->select(['id', 'name'])->withTrashed();
-                        },
-                        'obligee' => function ($query) {
-                            $query->select(['id', 'name'])->withTrashed();
-                        },
-                        'staff' => function ($query) {
-                            $query->select(['id', 'name', 'profile_id'])->withTrashed();
-                        },
-                        'staff.office' => function ($query) {
-                            $query->select(['id', 'name', 'code', 'office_type'])->withTrashed();
-                        },
+                        'product:id,name',
+                        'guarantorToProductType:id,code_product,code,name',
+                        'blanks:id,number,is_broken',
+                        'principal:id,name',
+                        'obligee:id,name',
+                        'staff:id,name,profile_id',
+                        'staff.office:id,name,code,office_type',
                         'staff.office.profileRate',
                     ]);
             })
@@ -130,6 +111,7 @@ class InvoiceController extends Controller
                 'title' => 'Laporan Invoice',
             ],
             'submissions' => fn () => $resource,
+            'submissionIds' => $submissionIds,
             'date' => [
                 'start' => $date->first(),
                 'end' => $date->last(),
