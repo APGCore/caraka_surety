@@ -31,6 +31,7 @@ const OfficeRateDatatable: React.FC<OfficeRateDatatableProps> = ({
             <TableHead>Kode</TableHead>
             <TableHead>Jenis Jaminan</TableHead>
             <TableHead>Kelompok Pekerjaan</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead className="text-right" />
           </TableRow>
         </TableHeader>
@@ -47,6 +48,13 @@ const OfficeRateDatatable: React.FC<OfficeRateDatatableProps> = ({
                   <Show when={guarantorProductType.job_type == JobTypeEnum.CONDITIONAL}>
                     <Badge className="ml-2 bg-blue-400">{guarantorProductType.job_type}</Badge>
                   </Show>
+                </TableCell>
+                <TableCell>
+                  <Show
+                    when={guarantorProductType.office_rate}
+                    children={<Badge className="ml-2 bg-green-400">Sudah di setting</Badge>}
+                    fallback={<Badge className="ml-2 bg-red-400">Belum di setting</Badge>}
+                  />
                 </TableCell>
                 <TableCell className="text-right">
                   <Link

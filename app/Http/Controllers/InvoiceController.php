@@ -14,7 +14,6 @@ use App\Models\Submission\Submission;
 use App\Services\HostToHostService;
 use App\Traits\CalculateInvoice;
 use App\Traits\FilterOffice;
-use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -366,8 +365,9 @@ class InvoiceController extends Controller
                     ->first();
                 // If profile rate not found, use guarantor rate
                 if (! $profileRate) {
-                  $offices[] = $businessUnit;
-                  continue; // Skip if submission rate is not set
+                    $offices[] = $businessUnit;
+
+                    continue; // Skip if submission rate is not set
                 }
                 $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
                 $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0) / 100;
@@ -491,8 +491,8 @@ class InvoiceController extends Controller
                 $token = config('services.finance.token');
                 $response = $this->hostToHostService->sendPostRequest($url, $token, $dataSend);
                 $responses[] = $response;
-                if($response['status'] !== 'error') {
-                  $submission->update(['has_send_to_finance' => true]);
+                if ($response['status'] !== 'error') {
+                    $submission->update(['has_send_to_finance' => true]);
                 }
             }
 
@@ -503,8 +503,8 @@ class InvoiceController extends Controller
                 $officeNames = collect($offices)->unique('id')->pluck('name')->toArray();
                 Log::info('Invoice sent to finance successfully', ['responses' => $responses, 'offices_not_have_rate' => $officeNames]);
                 flashMessage('Berhasil',
-                  'Invoice berhasil dikirim ke aplikasi keuangan' . (count($offices) > 0 ?
-                    ', namun Unit Bisnis ' . implode(', ', $officeNames) . ' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : ''));
+                    'Invoice berhasil dikirim ke aplikasi keuangan'.(count($offices) > 0 ?
+                      ', namun Unit Bisnis '.implode(', ', $officeNames).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : ''));
             }
         } catch (\Exception $e) {
             $message = $this->handleErrorMessage($e);

@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'auth' => fn () => [
-                'user' => $request->user()?->load(['role', 'office:id,office_type']),
+                'user' => $request->user()?->load(['role', 'office:id,name,office_type']),
             ],
             'roles_names' => fn () => (object) RoleEnum::getKeyValue(),
             'guarantor' => Guarantor::query()->select(['id', 'name', 'picture'])->firstWhere('id', session('guarantor_id', config('guarantor.id'))),

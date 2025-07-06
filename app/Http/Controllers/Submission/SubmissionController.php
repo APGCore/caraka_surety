@@ -194,7 +194,6 @@ class SubmissionController extends Controller
             $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
             $blankId = $submission['blank_id'] ?? null;
 
-
             // get blanks
             $blank = Blank::query()
                 ->where('is_picked', $isEdit && in_array($blankId, $blankIds))
@@ -301,10 +300,16 @@ class SubmissionController extends Controller
             ]);
             // update is picked blank
             $submission->blanks()->update([
-              'is_picked' => false,
+                'is_picked' => false,
+                'is_used' => false,
+                'is_broken' => false,
+                'is_revised' => false,
             ]);
 
-            $blank->update(['is_picked' => true]);
+            $blank->update([
+                'is_picked' => true,
+                'is_used' => $submission->getAttribute('status') === SubmissionStatus::APPROVED->value,
+            ]);
 
             // update support document
             // delete data if exist

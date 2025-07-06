@@ -1,15 +1,15 @@
-import {Tooltip, TooltipContent, TooltipTrigger} from "@/_features/_common/components/_shadcn-ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/_features/_common/components/_shadcn-ui/tooltip";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
-import {getNumericValue} from "@/common/utils/get-numeric-value";
-import {Input} from "@/components/_shadcn-ui/input";
-import {Label} from "@/components/_shadcn-ui/label";
-import {Textarea} from "@/components/_shadcn-ui/textarea";
-import {Combobox} from "@/components/molecules/combobox";
-import {InfoIcon} from "lucide-react";
+import { getNumericValue } from "@/common/utils/get-numeric-value";
+import { Input } from "@/components/_shadcn-ui/input";
+import { Label } from "@/components/_shadcn-ui/label";
+import { Textarea } from "@/components/_shadcn-ui/textarea";
+import { Combobox } from "@/components/molecules/combobox";
+import { InfoIcon } from "lucide-react";
 import React from "react";
 
 interface PrincipalSectionProps {
@@ -39,30 +39,30 @@ interface PrincipalSectionProps {
 }
 
 const PrincipalSection: React.FC<PrincipalSectionProps> = ({
-                                                             province_id,
-                                                             regency_id,
-                                                             district_id,
-                                                             name,
-                                                             telephone,
-                                                             npwp,
-                                                             nib,
-                                                             director_name,
-                                                             director_phone,
-                                                             director_position,
-                                                             commissioner,
-                                                             business_fields,
-                                                             year_established,
-                                                             est_deed,
-                                                             last_deed,
-                                                             village,
-                                                             address,
-                                                             postal_code,
-                                                             errors,
-                                                             onChangePrincipal,
-                                                           }) => {
-  const {data: provinces} = useGetAllProvince();
-  const {data: regencies} = useGetRegencyByProvinceId(province_id?.toString());
-  const {data: districts} = useGetDistrictByRegencyId(regency_id?.toString());
+  province_id,
+  regency_id,
+  district_id,
+  name,
+  telephone,
+  npwp,
+  nib,
+  director_name,
+  director_phone,
+  director_position,
+  commissioner,
+  business_fields,
+  year_established,
+  est_deed,
+  last_deed,
+  village,
+  address,
+  postal_code,
+  errors,
+  onChangePrincipal,
+}) => {
+  const { data: provinces } = useGetAllProvince();
+  const { data: regencies } = useGetRegencyByProvinceId(province_id?.toString());
+  const { data: districts } = useGetDistrictByRegencyId(regency_id?.toString());
 
   const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value;
@@ -78,38 +78,44 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
   };
 
   const biodatafields: any = [
-    {key: "name", name: "Nama", value: name},
+    { key: "name", name: "Nama", value: name },
     {
       key: "business_info",
       name: "Informasi Bisnis",
       fields: [
-        {key: "telephone", name: "Nomor Telepon", value: telephone, type: "number"},
-        {key: "npwp", name: "NPWP", value: npwp, type: "text"},
-        {key: "nib", name: "NIB", value: nib, type: "text"},
+        { key: "telephone", name: "Nomor Telepon", value: telephone, type: "number" },
+        { key: "npwp", name: "NPWP", value: npwp, type: "text" },
+        { key: "nib", name: "NIB", value: nib, type: "text" },
       ],
     },
     {
       key: "director_info",
       name: "Informasi Direktur",
       fields: [
-        {key: "director_name", name: "Nama Direktur", value: director_name, type: "text"},
-        {key: "director_phone", name: "Nomor Telepon Direktur", value: director_phone, type: "number"},
-        {key: "director_position", name: "Jabatan", value: director_position, type: "text"},
+        { key: "director_name", name: "Nama Direktur", value: director_name, type: "text" },
+        { key: "director_phone", name: "Nomor Telepon Direktur", value: director_phone, type: "number" },
+        { key: "director_position", name: "Jabatan", value: director_position, type: "text" },
       ],
     },
     {
       key: "commissioner",
       name: "Komisioner",
       fields: [
-        {key: "commissioner", name: "Nama Komisaris", value: commissioner, type: "text"},
-        {key: "business_fields", name: "Bidang Usaha", value: business_fields, type: "text"},
+        { key: "commissioner", name: "Nama Komisaris", value: commissioner, type: "text" },
+        { key: "business_fields", name: "Bidang Usaha", value: business_fields, type: "text" },
       ],
     },
     {
       key: "deeds",
       name: "Dokumen Akta",
       fields: [
-        {key: "year_established", name: "Tahun Perusahaan Berdiri", value: year_established, type: "text", maxLength: 4},
+        {
+          key: "year_established",
+          name: "Tahun Perusahaan Berdiri",
+          value: year_established,
+          type: "text",
+          maxLength: 4,
+        },
         {
           key: "est_deed",
           name: "Akte Pendirian",
@@ -117,21 +123,21 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
           type: "text",
           tooltip: "Isi dengan format Nomor {Angka} Tahun {Angka}",
         },
-        {key: "last_deed", name: "Akte Perubahan Terakhir", value: last_deed, type: "text"},
+        { key: "last_deed", name: "Akte Perubahan Terakhir", value: last_deed, type: "text" },
       ],
     },
   ];
 
   const locationFieldsCombobox = [
-    {key: "province_id", name: "Provinsi", value: Number(province_id)},
-    {key: "regency_id", name: "Kabupaten", value: Number(regency_id)},
-    {key: "district_id", name: "Kecamatan", value: Number(district_id)},
+    { key: "province_id", name: "Provinsi", value: Number(province_id) },
+    { key: "regency_id", name: "Kabupaten", value: Number(regency_id) },
+    { key: "district_id", name: "Kecamatan", value: Number(district_id) },
   ];
 
   const locationFieldsInput = [
-    {key: "village", name: "Desa", value: village, type: "text"},
-    {key: "address", name: "Alamat", value: address, type: "text"},
-    {key: "postal_code", name: "Kode Pos", value: postal_code, type: "text"},
+    { key: "village", name: "Desa", value: village, type: "text" },
+    { key: "address", name: "Alamat", value: address, type: "text" },
+    { key: "postal_code", name: "Kode Pos", value: postal_code, type: "text" },
   ];
 
   return (
@@ -154,13 +160,13 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
           <div key={item.key} className="flex gap-5">
             {item.fields.map(
               ({
-                 key,
-                 name,
-                 value,
-                 type,
-                 tooltip,
-                 maxLength,
-               }: {
+                key,
+                name,
+                value,
+                type,
+                tooltip,
+                maxLength,
+              }: {
                 key: any;
                 name: any;
                 value: any;
@@ -178,7 +184,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                             e.stopPropagation();
                             e.preventDefault();
                           }}>
-                          <InfoIcon className="w-4 h-4"/>
+                          <InfoIcon className="w-4 h-4" />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{tooltip}</p>
@@ -195,8 +201,9 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                     onChange={(e) => {
                       if (type === "number") {
                         const v = e.target.value;
-                        if (/^\d*$/.test(v)) { // hanya digit
-                          handleInputChange(key)(e)
+                        if (/^\d*$/.test(v)) {
+                          // hanya digit
+                          handleInputChange(key)(e);
                         }
                       } else {
                         handleInputChange(key)(e);
@@ -227,7 +234,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       <div className="grid gap-1">
         <Label className="text-md">Alamat Perusahaan</Label>
         <div className="flex gap-5 mt-2">
-          {locationFieldsCombobox.map(({key, name, value}) => (
+          {locationFieldsCombobox.map(({ key, name, value }) => (
             <div key={key} className="grid gap-1 w-full">
               <Label className="text-sm">{name}</Label>
               <Combobox
@@ -261,7 +268,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       </div>
 
       <div className="flex gap-5 items-start">
-        {locationFieldsInput.map(({key, name, value, type}) => (
+        {locationFieldsInput.map(({ key, name, value, type }) => (
           <div key={key} className="grid w-full gap-1">
             <Label className="text-sm">{name}</Label>
             {key === "address" ? (
@@ -280,8 +287,9 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                 onChange={(e) => {
                   if (type === "number") {
                     const v = e.target.value;
-                    if (/^\d*$/.test(v)) { // hanya digit
-                      handleInputChange(key)(e)
+                    if (/^\d*$/.test(v)) {
+                      // hanya digit
+                      handleInputChange(key)(e);
                     }
                   } else {
                     handleInputChange(key)(e);
