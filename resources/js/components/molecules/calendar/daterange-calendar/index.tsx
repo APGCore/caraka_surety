@@ -11,9 +11,10 @@ import { DateRange } from "react-day-picker";
 interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange?: (date: DateRange | undefined) => void;
   value?: DateRange;
+  numberOfMonths?: number;
 }
 
-const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ className, onDateChange, value }) => {
+const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ className, onDateChange, value, numberOfMonths }) => {
   const [date, setDate] = React.useState<DateRange | undefined>(
     value || {
       from: new Date(),
@@ -53,7 +54,7 @@ const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ class
               onDateChange?.(dt);
               setDate(dt);
             }}
-            numberOfMonths={1}
+            numberOfMonths={numberOfMonths || 1}
             disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
             locale={id}
           />
