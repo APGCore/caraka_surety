@@ -1622,13 +1622,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                               placeholder="Masukan kode pos"
                               value={data.submission.job_location_postal_code}
                               onChange={(e) => {
-                                  const v = e.target.value;
-                                  if (/^\d*$/.test(v)) { // hanya digit
-                                    setData("submission", {
-                                      ...data.submission,
-                                      job_location_postal_code: e.target.value,
-                                    })
-                                  }
+                                const v = e.target.value;
+                                if (/^\d*$/.test(v)) {
+                                  // hanya digit
+                                  setData("submission", {
+                                    ...data.submission,
+                                    job_location_postal_code: e.target.value,
+                                  });
+                                }
                               }}
                             />
                           </div>

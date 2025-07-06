@@ -13,7 +13,7 @@ export const KepalaCabangLayoutPage: KepalaCabangLayoutPageProps = ({ children, 
     <SidebarProvider>
       <AppSidebar user={user} routes={kepalaCabangRoute} roles={roles} />
       <SidebarInset>
-        <Navbar guarantor={guarantor} />
+        <Navbar guarantor={guarantor} office={user.office} />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
           {children}
         </div>
