@@ -14,7 +14,7 @@ export const AdminLayoutPage: AdminLayoutPageProps = ({ children, user, roles })
       <AppSidebar user={user} routes={adminRoute} roles={roles} />
       <SidebarInset>
         <Navbar />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-6xl w-full mx-auto">
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-7xl w-full mx-auto">
           {children}
         </div>
       </SidebarInset>

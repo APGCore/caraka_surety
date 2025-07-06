@@ -22,7 +22,7 @@ import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";
@@ -30,6 +30,7 @@ import { InvoicePageProps } from "./_partials/invoice.type";
 
 const InvoicePage: InvoicePageProps = ({
   submissions,
+  submissionIds,
   offices,
   officeTypes,
   officeSelected,
@@ -48,6 +49,14 @@ const InvoicePage: InvoicePageProps = ({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
+  const [checkAll, setCheckAll] = useState<boolean>(false);
+  const [submissionChecked, setSubmissionChecked] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (checkAll) {
+      setSubmissionChecked(submissionIds);
+    }
+  }, [checkAll, submissionIds]);
 
   const handleSelectInvoiceLength = (perPage: string) => {
     setPerPage(perPage);
@@ -139,12 +148,11 @@ const InvoicePage: InvoicePageProps = ({
   };
 
   const sendToFinance = () => {
-    const submissionIds = submissions.data.map((submission: any) => submission.id);
-    if (submissionIds.length === 0) return;
+    if (submissionChecked.length === 0) return;
 
     setIsLoadingSendToFinance(true);
     router.post(
-      route(InvoiceUtils.link.send_to_finance, { submission_ids: submissionIds }),
+      route(InvoiceUtils.link.send_to_finance, { submission_ids: submissionChecked }),
       {},
       {
         preserveState: true,
@@ -220,7 +228,7 @@ const InvoicePage: InvoicePageProps = ({
               <Button
                 type="button"
                 variant="success"
-                disabled={isLoadingSendToFinance || submissions.data.length === 0}>
+                disabled={isLoadingSendToFinance || submissionChecked.length === 0}>
                 <Loading isLoading={isLoadingSendToFinance} />
                 {"Kirim ke Keuangan"}
               </Button>
@@ -248,7 +256,14 @@ const InvoicePage: InvoicePageProps = ({
           </AlertDialog>
         </div>
       </div>
-      <InvoiceDatatable submissions={submissions} />
+      <InvoiceDatatable
+        submissions={submissions}
+        submissionIds={submissionIds}
+        checkAll={checkAll}
+        setCheckAll={setCheckAll}
+        submissionChecked={submissionChecked}
+        setSubmissionChecked={setSubmissionChecked}
+      />
     </main>
   );
 };
