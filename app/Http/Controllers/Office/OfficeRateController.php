@@ -49,7 +49,7 @@ class OfficeRateController extends Controller
         $jobTypeSelected = $request->get('job_type') ?? $jobTypes[1];
 
         $guarantorProductTypes = GuarantorToProductType::search($request->get('search'))
-            ->query(function ($query) use ($guarantorSelected, $productSelected, $jobGroupSelected, $jobTypeSelected) {
+            ->query(function ($query) use ($guarantorSelected, $officeSelected, $productSelected, $jobGroupSelected, $jobTypeSelected) {
                 $query->where('guarantor_id', $guarantorSelected)
                     ->where('product_id', $productSelected)
                     ->when($jobGroupSelected, function ($query, $jobGroup) {
@@ -58,7 +58,9 @@ class OfficeRateController extends Controller
                     ->when($jobTypeSelected, function ($query, $jobType) {
                         $query->where('job_type', $jobType);
                     })
-                    ->with('guarantorRate');
+                    ->with(['profileRate' => function ($q) use ($officeSelected) {
+                        $q->where('profile_id', $officeSelected);
+                    }]);
             })
             ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
