@@ -1867,14 +1867,13 @@ class SubmissionController extends Controller
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
             $submission->load('blanks');
-            foreach ($submission->getRelation('blanks') as $blank) {
-                $blank->update([
-                    'is_picked' => false,
-                    'is_used' => false,
-                    'is_broken' => false,
-                    'is_revised' => false,
-                ]);
-            }
+            $submission->blanks()->update([
+              'is_picked' => false,
+              'is_used' => false,
+              'is_broken' => false,
+              'is_revised' => false,
+            ]);
+            $submission->blanks()->delete();
             $submission->submissionBefore()->update([
                 'is_revised' => false,
             ]);
