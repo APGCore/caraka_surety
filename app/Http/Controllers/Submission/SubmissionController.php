@@ -308,7 +308,9 @@ class SubmissionController extends Controller
 
             $blank->update([
                 'is_picked' => true,
-                'is_used' => $submission->getAttribute('status') === SubmissionStatus::APPROVED->value,
+                'is_used' => $blank->getAttribute('is_used'),
+                'is_broken' => $blank->getAttribute('is_broken'),
+                'is_revised' => $blank->getAttribute('is_revised'),
             ]);
 
             // update support document
@@ -1866,14 +1868,13 @@ class SubmissionController extends Controller
             $submission->submissionDocs()->delete();
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
-            $submission->load('blanks');
             $submission->blanks()->update([
               'is_picked' => false,
               'is_used' => false,
               'is_broken' => false,
               'is_revised' => false,
             ]);
-            $submission->blanks()->delete();
+            $submission->blanks()->detach();
             $submission->submissionBefore()->update([
                 'is_revised' => false,
             ]);
