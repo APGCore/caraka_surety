@@ -1,22 +1,21 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/_shadcn-ui/breadcrumb";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/_shadcn-ui/card";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import { CreateBankPageProps } from "@/pages/admin/bank-management/bank/create/create-bank-page.type";
-import Form from "@/pages/admin/bank-management/bank/form";
-import { Head } from "@inertiajs/react";
+import BankForm from "../_partials/bank-form";
+import BankHeader from "../_partials/bank-header";
+import { BankUtils } from "../bank.utils";
+import { BankCreatePageProps } from "./bank-create-page.type";
 
-const BankCreatePage: React.FC<CreateBankPageProps> & { layout?: any } = () => {
+const BankCreatePage: BankCreatePageProps = () => {
   return (
-    <main className="space-y-2.5 flex items-center justify-center">
-      <div className="max-w-xl w-full">
-        <header>
-          <h2 className="text-lg font-medium text-gray-900">Membuat Data Bank</h2>
-
-          <p className="mt-1 text-sm text-gray-600">Untuk membuat data bank</p>
-        </header>
-
-        <Form routeSubmit={route("bank.store")} routeBack={route("bank.index")} />
-      </div>
-    </main>
+    <Card className="w-[800px] mx-auto">
+      <CardHeader>
+        <CardTitle>Membuat Data Bank</CardTitle>
+        <CardDescription>Untuk membuat data bank baru</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <BankForm routeSubmit={route(BankUtils.link.store)} routeBack={route(BankUtils.link.index)} />
+      </CardContent>
+    </Card>
   );
 };
 
@@ -27,14 +26,7 @@ BankCreatePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title} />
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>{pagePropsData?.page_settings?.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <BankHeader title={pagePropsData?.page_settings?.title} />
       {page}
     </RoleBasedLayout>
   );

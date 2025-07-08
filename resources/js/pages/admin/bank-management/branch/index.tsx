@@ -3,15 +3,17 @@ import { Button } from "@/components/_shadcn-ui/button";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import BankDatatable from "@/pages/admin/bank-management/bank/_partials/bank-datatable";
-import BankHeader from "@/pages/admin/bank-management/bank/_partials/bank-header";
-import { BankPageProps } from "@/pages/admin/bank-management/bank/bank-page.type";
-import { BankUtils } from "@/pages/admin/bank-management/bank/bank.utils";
 import { Link, router } from "@inertiajs/react";
+import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
+import { BankUtils } from "../bank/bank.utils";
+import BranchBankDatatable from "./_partials/branch-bank-datatable";
+import BranchBankHeader from "./_partials/branch-bank-header";
+import { BranchBankPageProps } from "./branch-bank-page.type";
+import { BranchBankUtils } from "./branch-bank.utils";
 
-const BankPage: BankPageProps = ({ banks }) => {
+const BankPage: BranchBankPageProps = ({ banks }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -27,7 +29,7 @@ const BankPage: BankPageProps = ({ banks }) => {
 
   const getData = (per_page: string, search: string) => {
     return router.get(
-      route(BankUtils.link.index),
+      route(BranchBankUtils.link.index),
       pickBy({
         per_page,
         search,
@@ -43,10 +45,15 @@ const BankPage: BankPageProps = ({ banks }) => {
           <SelectLengthDatatable defaultValue={select} onChange={handleSelect} />
         </div>
         <div className="flex gap-x-3">
-          <SearchDatatable value={search} placeholder={"Cari Bank"} onChange={setSearch} onSubmit={handleSearch} />
+          <SearchDatatable
+            value={search}
+            placeholder={"Cari Cabang Bank"}
+            onChange={setSearch}
+            onSubmit={handleSearch}
+          />
         </div>
       </div>
-      <BankDatatable banks={banks} />
+      <BranchBankDatatable banks={banks} />
     </main>
   );
 };
@@ -58,12 +65,20 @@ BankPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <BankHeader
+      <BranchBankHeader
         title={pagePropsData?.page_settings?.title}
         button={
-          <Button variant="success" asChild>
-            <Link href={route(BankUtils.link.create)}>Tambah Bank</Link>
-          </Button>
+          <div className="flex items-center gap-x-3">
+            <Button asChild>
+              <Link href={route(BankUtils.link.index)} className="flex items-center gap-x-2">
+                <ChevronLeftIcon />
+                Kembali
+              </Link>
+            </Button>
+            <Button variant="success" asChild>
+              <Link href={route(BranchBankUtils.link.create, { bank: pagePropsData?.bank?.id })}>Tambah</Link>
+            </Button>
+          </div>
         }
       />
       {page}

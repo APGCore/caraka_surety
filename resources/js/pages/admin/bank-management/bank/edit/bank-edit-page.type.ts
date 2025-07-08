@@ -6,5 +6,4 @@ interface BankEditProps {
 
 export type BankEditPageProps = React.FC<BankEditProps> & {
   layout?: (page: any) => JSX.Element;
-  bank: any;
 };
