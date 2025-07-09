@@ -14,7 +14,6 @@ import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import Loading from "@/components/atoms/loading";
 import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
 import { Combobox } from "@/components/molecules/combobox";
-import ExportDocsButtonDatatable from "@/components/molecules/datatable/export";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -168,7 +167,6 @@ const InvoicePage: InvoicePageProps = ({
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={() => {}} />
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectInvoiceLength} />
           <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} numberOfMonths={2} />
         </div>

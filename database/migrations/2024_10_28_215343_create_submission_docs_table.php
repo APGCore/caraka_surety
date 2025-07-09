@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Document\DocumentFormat;
+use App\Models\Guarantor\Guarantor;
+use App\Models\RelatedParties\Bank;
 use App\Models\Submission\Submission;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +18,8 @@ return new class extends Migration
         Schema::create('submission_docs', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Submission::class, 'submission_id')->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Guarantor::class, 'guarantor_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignIdFor(DocumentFormat::class, 'document_format_id')->nullable()->constrained()->noActionOnDelete();
             $table->string('name');
             $table->text('format_document')->nullable();
