@@ -113,8 +113,20 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       name: "Dokumen Akta",
       type: "text",
       fields: [
-        { key: "year_established", name: "Tahun Perusahaan Berdiri", value: year_established, type: "number", maxLength: 4 },
-        { key: "est_deed", name: "Akte Pendirian", value: est_deed, type: "text", tooltip: "Isi dengan format Nomor {Angka} Tahun {Angka}" },
+        {
+          key: "year_established",
+          name: "Tahun Perusahaan Berdiri",
+          value: year_established,
+          type: "number",
+          maxLength: 4,
+        },
+        {
+          key: "est_deed",
+          name: "Akte Pendirian",
+          value: est_deed,
+          type: "text",
+          tooltip: "Isi dengan format Nomor {Angka} Tahun {Angka}",
+        },
         { key: "last_deed", name: "Akte Perubahan Terakhir", value: last_deed, type: "text" },
       ],
     },

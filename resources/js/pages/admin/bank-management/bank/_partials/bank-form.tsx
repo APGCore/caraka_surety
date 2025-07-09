@@ -9,7 +9,6 @@ import TextInput from "@/components/molecules/input/text-input";
 import { router, useForm } from "@inertiajs/react";
 import React, { FormEvent, FormEventHandler, useRef, useState } from "react";
 
-
 interface Props {
   bank?: any;
   routeSubmit: string;
