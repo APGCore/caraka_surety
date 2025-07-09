@@ -6,9 +6,8 @@ import InputError from "@/components/molecules/input/error-input";
 import InputLabel from "@/components/molecules/input/label-input";
 import InputLocation from "@/components/molecules/input/location-input";
 import TextInput from "@/components/molecules/input/text-input";
-import { Transition } from "@headlessui/react";
 import { router, useForm } from "@inertiajs/react";
-import { FormEventHandler, useRef, useState } from "react";
+import { FormEvent, FormEventHandler, useRef, useState } from "react";
 
 interface Props {
   bank?: any;
@@ -16,10 +15,13 @@ interface Props {
   routeBack: string;
 }
 
-const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
-  const { data, setData, post, errors, processing, recentlySuccessful } = useForm<{
-    id: number;
+const BranchBankForm: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
+  const { data, setData, post, errors, processing } = useForm<{
+    id: number | null;
+    headquarter_id: number | null;
+    code: string;
     name: string;
+    email: string;
     telephone: string;
     address: string;
     province_id: number | null;
@@ -29,21 +31,24 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
     postal_code: string;
     fax: string;
     pic: string;
-    picture: string;
+    picture: string | null;
     upload_picture: File | null;
   }>({
-    id: bank?.id,
-    name: bank?.name,
-    telephone: bank?.telephone,
-    address: bank?.address,
-    province_id: bank?.province_id,
-    regency_id: bank?.regency_id,
-    district_id: bank?.district_id,
-    village: bank?.village,
-    postal_code: bank?.postal_code,
-    fax: bank?.fax,
-    pic: bank?.pic,
-    picture: bank?.picture,
+    id: bank?.id ?? null,
+    headquarter_id: bank?.headquarter_id ?? null,
+    code: bank?.code ?? "",
+    name: bank?.name ?? "",
+    email: bank?.email ?? "",
+    telephone: bank?.telephone ?? "",
+    address: bank?.address ?? "",
+    province_id: bank?.province_id ?? null,
+    regency_id: bank?.regency_id ?? null,
+    district_id: bank?.district_id ?? null,
+    village: bank?.village ?? "",
+    postal_code: bank?.postal_code ?? "",
+    fax: bank?.fax ?? "",
+    pic: bank?.pic ?? "",
+    picture: bank?.picture ?? null,
     upload_picture: null,
   });
 
@@ -54,31 +59,20 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
     router.get(routeBack);
   };
 
-  const submit: FormEventHandler<HTMLFormElement> = (event: any) => {
+  const submit: FormEventHandler<HTMLFormElement> = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (data.id) {
-      router.post(
-        routeSubmit,
-        { ...data, _method: "put" },
-        {
-          preserveScroll: true,
-          preserveState: true,
-          onFinish: () => {
-            router.get(routeBack);
-          },
-        },
-      );
-    } else {
-      post(routeSubmit, {
-        preserveScroll: true,
-        preserveState: true,
-        onFinish: () => {
-          router.get(routeBack);
-        },
-      });
-    }
+    post(routeSubmit, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        router.get(routeBack);
+      },
+      onError: (value: any) => {
+        console.log(value);
+      },
+    });
   };
+
   return (
     <form onSubmit={submit} className="mt-6 space-y-6">
       <div className="flex items-center justify-center">
@@ -88,7 +82,10 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
             inputRef.current?.click();
           }}>
           <AvatarImage
-            src={preview ?? data.picture ?? "https://github.com/shadcn.png"}
+            src={
+              (preview ?? (data.picture && data.picture !== "" ? data.picture : undefined)) ||
+              "https://github.com/shadcn.png"
+            }
             alt="@shadcn"
             className="object-contain w-full h-full"
           />
@@ -113,7 +110,7 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
           }}
         />
       </div>
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="pic" value="Penanggung Jawab(PIC)" />
 
         <TextInput
@@ -121,41 +118,66 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
           className="mt-1 block w-full"
           value={data.pic}
           onChange={(e) => setData("pic", e.target.value)}
+          isFocused
           autoComplete="pic"
         />
 
         <InputError className="mt-2" message={errors.pic} />
       </div>
+      <div className="space-y-2">
+        <InputLabel htmlFor="code" value="Kode" />
 
-      {/* 1. Nama */}
-      <div>
+        <TextInput
+          id="code"
+          className="mt-1 block w-full"
+          value={data.code}
+          onChange={(e) => setData("code", e.target.value)}
+          required
+          autoComplete="code"
+        />
+
+        <InputError className="mt-2" message={errors.code} />
+      </div>
+      <div className="space-y-2">
         <InputLabel htmlFor="name" value="Nama" />
+
         <TextInput
           id="name"
           className="mt-1 block w-full"
-          placeholder="Masukkan nama bank..."
-          value={data.name || ""}
+          value={data.name}
           onChange={(e) => setData("name", e.target.value)}
           required
-          isFocused
           autoComplete="name"
         />
+
         <InputError className="mt-2" message={errors.name} />
       </div>
+      <div className="space-y-2">
+        <InputLabel htmlFor="email" value="Email" />
 
-      {/* 2. Telephone */}
-      <div>
+        <TextInput
+          id="email"
+          className="mt-1 block w-full"
+          value={data.email}
+          onChange={(e) => setData("email", e.target.value)}
+          required
+          autoComplete="email"
+        />
+
+        <InputError className="mt-2" message={errors.email} />
+      </div>
+      <div className="space-y-2">
         <InputLabel htmlFor="telephone" value="Telepon" />
+
         <TextInput
           id="telephone"
-          type="number"
           className="mt-1 block w-full"
-          placeholder="Masukkan nomor telepon..."
-          value={data.telephone || ""}
+          value={data.telephone}
           onChange={(e) => setData("telephone", e.target.value)}
           required
           autoComplete="telephone"
         />
+
         <InputError className="mt-2" message={errors.telephone} />
       </div>
 
@@ -187,47 +209,39 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
         error_regency_id={errors.regency_id}
         error_district_id={errors.district_id}
       />
-
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="address" value="Alamat" />
+
         <Textarea
           id="address"
-          placeholder="Masukkan alamat bank..."
           className="mt-1 block w-full"
-          value={data.address || ""}
+          value={data.address}
           onChange={(e) => setData("address", e.target.value)}
           required
           autoComplete="address"
         />
+
         <InputError className="mt-2" message={errors.address} />
       </div>
-
-      {/* 8. Kode Post */}
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="postal_code" value="Kode Pos" />
         <TextInput
           id="postal_code"
-          type="number"
           className="mt-1 block w-full"
-          placeholder="Masukkan Kode Pos..."
-          value={data.postal_code || ""}
+          value={data.postal_code}
           onChange={(e) => setData("postal_code", e.target.value)}
-          required
           autoComplete="postal_code"
           min="0"
+          required
         />
         <InputError className="mt-2" message={errors.postal_code} />
       </div>
-
-      {/* 9. Fax */}
-      <div>
+      <div className="space-y-2">
         <InputLabel htmlFor="fax" value="Fax" />
         <TextInput
           id="fax"
-          type="number"
-          placeholder="Masukkan Fax"
           className="mt-1 block w-full"
-          value={data.fax || ""}
+          value={data.fax}
           onChange={(e) => setData("fax", e.target.value)}
           autoComplete="fax"
         />
@@ -236,18 +250,11 @@ const Form: React.FC<Props> = ({ bank, routeSubmit, routeBack }) => {
 
       <div className="flex items-center gap-4 justify-end">
         <SecondaryButton onClick={cancel}>Batal</SecondaryButton>
+
         <PrimaryButton disabled={processing}>Simpan</PrimaryButton>
-        <Transition
-          show={recentlySuccessful}
-          enter="transition ease-in-out"
-          enterFrom="opacity-0"
-          leave="transition ease-in-out"
-          leaveTo="opacity-0">
-          <p className="text-sm text-gray-600">Saved.</p>
-        </Transition>
       </div>
     </form>
   );
 };
 
-export default Form;
+export default BranchBankForm;

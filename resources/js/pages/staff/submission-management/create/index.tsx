@@ -1150,6 +1150,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                                       <div className="grid gap-1 w-full">
                                         <Label className="text-sm">Kode Pos</Label>
                                         <Input
+                                          type="number"
                                           className="text-md"
                                           placeholder="Kode Pos"
                                           value={data.obligee.postal_code}
@@ -1322,6 +1323,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                                   <div className="grid gap-1 w-full">
                                     <Label className="text-sm">Kode Pos</Label>
                                     <Input
+                                      type="number"
                                       className="text-md"
                                       placeholder="Kode Pos"
                                       value={data.obligee.postal_code}
@@ -1618,18 +1620,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           <div className="grid gap-1 w-full">
                             <Label className="text-sm">Kode Pos</Label>
                             <Input
+                              type="number"
                               className="text-md"
                               placeholder="Masukan kode pos"
                               value={data.submission.job_location_postal_code}
                               onChange={(e) => {
-                                const v = e.target.value;
-                                if (/^\d*$/.test(v)) {
-                                  // hanya digit
-                                  setData("submission", {
-                                    ...data.submission,
-                                    job_location_postal_code: e.target.value,
-                                  });
-                                }
+                                setData("submission", {
+                                  ...data.submission,
+                                  job_location_postal_code: e.target.value,
+                                });
                               }}
                             />
                           </div>

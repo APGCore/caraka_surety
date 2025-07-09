@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\SubmissionStatus;
+use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Location\District;
@@ -26,11 +27,12 @@ return new class extends Migration
         $district = new District;
         Schema::create('submissions', function (Blueprint $table) use ($province, $regency, $district) {
             $table->id();
-            $table->bigInteger('submission_before_id')->nullable()->unsigned();
-            $table->bigInteger('submission_inherit_id')->nullable()->unsigned();
+            $table->unsignedBigInteger('submission_before_id')->nullable();
+            $table->unsignedBigInteger('submission_inherit_id')->nullable();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
             $table->foreignId('guarantor_branch_id')->references('id')->on('guarantors')->noActionOnDelete();
+            $table->foreignIdFor(Blank::class, 'blank_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Product::class, 'product_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Obligee::class, 'obligee_id')->constrained()->noActionOnDelete();
@@ -38,6 +40,7 @@ return new class extends Migration
             $table->foreignId('checked_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('approved_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('rejected_by')->nullable()->references('id')->on('users')->noActionOnDelete();
+            $table->foreignId('office_id')->nullable()->references('id')->on('profile')->noActionOnDelete();
             $table->foreignId('staff_id')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->string('no_guarantee');
             $table->string('contract_doc_name')->nullable();

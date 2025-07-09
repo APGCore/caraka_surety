@@ -78,10 +78,11 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
   };
 
   const biodatafields: any = [
-    { key: "name", name: "Nama", value: name },
+    { key: "name", name: "Nama", value: name, type: "text" },
     {
       key: "business_info",
       name: "Informasi Bisnis",
+      type: "text",
       fields: [
         { key: "telephone", name: "Nomor Telepon", value: telephone, type: "number" },
         { key: "npwp", name: "NPWP", value: npwp, type: "text" },
@@ -91,6 +92,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
     {
       key: "director_info",
       name: "Informasi Direktur",
+      type: "text",
       fields: [
         { key: "director_name", name: "Nama Direktur", value: director_name, type: "text" },
         { key: "director_phone", name: "Nomor Telepon Direktur", value: director_phone, type: "number" },
@@ -100,6 +102,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
     {
       key: "commissioner",
       name: "Komisioner",
+      type: "text",
       fields: [
         { key: "commissioner", name: "Nama Komisaris", value: commissioner, type: "text" },
         { key: "business_fields", name: "Bidang Usaha", value: business_fields, type: "text" },
@@ -108,12 +111,13 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
     {
       key: "deeds",
       name: "Dokumen Akta",
+      type: "text",
       fields: [
         {
           key: "year_established",
           name: "Tahun Perusahaan Berdiri",
           value: year_established,
-          type: "text",
+          type: "number",
           maxLength: 4,
         },
         {
@@ -137,24 +141,11 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
   const locationFieldsInput = [
     { key: "village", name: "Desa", value: village, type: "text" },
     { key: "address", name: "Alamat", value: address, type: "text" },
-    { key: "postal_code", name: "Kode Pos", value: postal_code, type: "text" },
+    { key: "postal_code", name: "Kode Pos", value: postal_code, type: "number" },
   ];
 
   return (
     <div className="grid gap-5">
-      {/* {fields.map(({ key, name, value }) => (
-        <div key={key} className="grid w-full gap-1">
-          <Label className="text-sm">{name}</Label>
-          <Input
-            className="text-md"
-            placeholder={`Masukan ${name}`}
-            type={typeof value === "number" ? "number" : "text"}
-            value={value || ""}
-            onChange={handleInputChange(key)}
-          />
-          {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
-        </div>
-      ))} */}
       {biodatafields.map((item: any) =>
         item?.fields ? (
           <div key={item.key} className="flex gap-5">
@@ -222,7 +213,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
             <Input
               className="text-md"
               placeholder={`Masukan ${item.name}`}
-              type={typeof item.value === "number" ? "number" : "text"}
+              type={item.type}
               value={item.value || ""}
               onChange={handleInputChange(item.key)}
             />
@@ -282,18 +273,10 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
               <Input
                 className="text-md"
                 placeholder={`Masukan ${name}`}
-                type={"text"}
+                type={type}
                 value={value || ""}
                 onChange={(e) => {
-                  if (type === "number") {
-                    const v = e.target.value;
-                    if (/^\d*$/.test(v)) {
-                      // hanya digit
-                      handleInputChange(key)(e);
-                    }
-                  } else {
-                    handleInputChange(key)(e);
-                  }
+                  handleInputChange(key)(e);
                 }}
               />
             )}

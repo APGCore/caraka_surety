@@ -1,3 +1,4 @@
+import { AlertDialogDescription } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { FileInput } from "@/_features/_common/components/file-input";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
@@ -28,7 +29,7 @@ import { CalendarPicker } from "@/components/molecules/calendar/single-calendar"
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
-import { router } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
@@ -89,9 +90,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         ? "destructive"
         : "default";
 
-  const filteredSubmission = isApproved ? initialSteps : initialSteps.slice(0, 4);
-
-  const { currentStep, steps, gotoStep } = useStepper(filteredSubmission);
+  const { currentStep, steps, gotoStep } = useStepper(initialSteps);
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
@@ -100,6 +99,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [publicationDate, setPublicationDate] = useState<string | null>(null);
   const [publicationPlace, setPublicationPlace] = useState<string | null>(null);
   const [isPendingUpdatePublication, setIsPendingUpdatePublication] = useState<boolean>(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
   const submissionId = submission?.id || "";
 
   // DOCUMENT FORMAT
@@ -226,7 +226,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_value: submission.contract_value_formatted || 0,
     guarantee_value: submission.guarantee_value_formatted || 0,
     guarantee_type: submission.guarantor_to_product_type?.name || "",
-    no_guarantee: submission.no_guarantee || "",
+    no_guarantee: isApproved ? (submission.no_guarantee || "") : "-",
     time_period: submission.time_period || "",
     job_name: submission.job_name || "",
     job_location_village: submission.job_location_village || "",
@@ -477,6 +477,23 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         },
       },
     );
+  };
+
+  const handleDelete = (submission: any) => {
+    setLoadingDelete(true);
+    router.delete(route("staff-submission-destroy", { submission: submission.id }), {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        location.reload();
+      },
+      onError: () => {
+        // Handle error
+      },
+      onFinish: () => {
+        setLoadingDelete(false);
+      },
+    });
   };
 
   useEffect(() => {
@@ -763,6 +780,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </table>
         </Show>
         <Show when={currentStep.name === "skoring"}>
+          {/*Rasio*/}
           <div>
             <h2 className="text-lg font-semibold mb-4 mt-10">Analisis Rasio Keuangan Perusahaan</h2>
 
@@ -910,6 +928,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tbody>
             </table>
           </div>
+          {/*Scoring*/}
           <div>
             <h2 className="text-lg font-semibold mb-4 mt-10">Hasil Skoring</h2>
             <table className="table-fixed w-full border border-gray-300">
@@ -1002,6 +1021,22 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tfoot>
             </table>
           </div>
+          <div>
+            <h2 className="text-lg font-semibold mb-4 mt-10">Catatan Skoring</h2>
+            <p className="text-sm text-gray-600">{submission.note_scoring}</p>
+          </div>
+          {/* Mitigasi Risiko */}
+          <Show when={submission.risk_mitigation}>
+            <div>
+              <h2 className="text-lg font-semibold mb-4 mt-10">Mitigasi Risiko</h2>
+              <p className="text-sm text-gray-600">{submission.risk_mitigation}</p>
+            </div>
+          </Show>
+          {/* Catatan */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4 mt-10">Catatan</h2>
+            <p className="text-sm text-gray-600">{submission.notes}</p>
+          </div>
         </Show>
         <Show when={currentStep.name === "luaran"}>
           {submission.has_send_to_guarantor ? (
@@ -1041,7 +1076,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           ) : null}
           {/*final output file*/}
-          <Show when={!submission.has_send_to_guarantor && !submission.final_output_file.length}>
+          <Show when={!submission.has_send_to_guarantor && !submission.final_output_file.length && isApproved}>
             <p className="text-gray-500">Dokumen SPKMGR dan Suart Permohonan Belum ditandatangani</p>
             <form
               onSubmit={(e) => {
@@ -1067,7 +1102,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </form>
           </Show>
-          <Show when={submission.final_output_file.length}>
+          <Show when={submission.final_output_file.length && isApproved}>
             <h2 className="text-lg font-semibold mb-4 mt-5">Dokumen Final</h2>
             <div className="grid grid-cols-1 gap-4">
               {submission.final_output_file.map((file: any) => (
@@ -1079,7 +1114,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <hr />
-          <Show when={!submission.publication_date || !submission.publication_place}>
+          <Show when={(!submission.publication_date || !submission.publication_place) && isApproved}>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -1128,7 +1163,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </form>
           </Show>
-          <Show when={submission.publication_date || submission.publication_place}>
+          <Show when={(submission.publication_date || submission.publication_place) && isApproved}>
             <p className="text-green-600 font-semibold my-4">
               Tanggal dan Tempat Publikasi sudah diisi dan tidak dapat diubah.
             </p>
@@ -1233,7 +1268,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </>
           )}
-          <Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>
+          {/*buttons*/}
+          <Show when={isApproved && !submission.has_send_to_guarantor}>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -1259,6 +1295,70 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </AlertDialogContent>
             </AlertDialog>
           </Show>
+          <div className="flex gap-4">
+            <Show
+              when={
+                !isRejected &&
+                !submission.has_send_to_guarantor &&
+                !submission.is_revised
+              }>
+              <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
+                  Edit
+                </Link>
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    Batal
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="sm:max-w-[425px]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak dapat
+                      dikembalikan.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="grid grid-cols-2 gap-4">
+                    <AlertDialogCancel asChild>
+                      <Button variant="outline" className="w-full" type="button">
+                        Tidak
+                      </Button>
+                    </AlertDialogCancel>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      type="submit"
+                      disabled={loadingDelete}
+                      onClick={() => handleDelete(submission)}>
+                      <Loading isLoading={loadingDelete} />
+                      Batalkan Pengajuan
+                    </Button>
+                  </div>
+                </AlertDialogContent>
+              </AlertDialog>
+            </Show>
+            <Show
+              when={
+                isApproved &&
+                !submission.submission_before_id &&
+                !submission.is_revised
+              }>
+              <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                <Link
+                  type="button"
+                  href={route("staff-submission-revision", {
+                    id: submission.id,
+                  })}>
+                  Revisi
+                </Link>
+              </Button>
+            </Show>
+          </div>
         </Show>
       </div>
     </main>
@@ -1269,10 +1369,11 @@ export default SubmissionDetailPage;
 
 SubmissionDetailPage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const isApproved = pagePropsData.submission.status == SubmissionStatus.APPROVED;
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionDetailHeader title={"Detail Pengajuan"} />
+      <SubmissionDetailHeader title={`Detail Pengajuan ${isApproved ? `(${pagePropsData.submission.no_guarantee})` : ''}`} />
       {page}
     </RoleBasedLayout>
   );

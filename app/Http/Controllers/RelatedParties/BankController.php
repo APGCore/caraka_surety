@@ -8,8 +8,8 @@ use App\Http\Requests\Bank\UpdateRequest;
 use App\Http\Resources\Bank\BankResource;
 use App\Models\RelatedParties\Bank;
 use Exception;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +17,9 @@ use Inertia\Response;
 
 class BankController extends Controller
 {
-    public function apiSearch(Request $request)
+    protected string $prefixComp = 'admin/bank-management/bank';
+
+    public function apiSearch(Request $request): JsonResponse
     {
         // request
         $search = $request->get('search') ?? '';
@@ -64,7 +66,8 @@ class BankController extends Controller
     {
         $bank = Bank::search($request->get('search'))
             ->query(function ($query) {
-                $query->whereNull('headquarter_id');
+                $query->with(['province', 'regency', 'district'])
+                    ->whereNull('headquarter_id');
             })
             ->orderBy('name')
             ->paginate($request->get('per_page') ?? 10)
@@ -72,7 +75,7 @@ class BankController extends Controller
             ->appends($request->all());
         $bankResource = BankResource::collection($bank);
 
-        $component = $request->path().'/index';
+        $component = $this->prefixComp.'/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -83,26 +86,9 @@ class BankController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request)
-    {
-        $bank = Bank::all();
-
-        $component = $request->path().'/index';
-
-        return inertia($component, [
-            'page_settings' => [
-                'title' => 'Tambah Bank',
-            ],
-            'banks' => $bank,
-        ]);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -125,34 +111,32 @@ class BankController extends Controller
             DB::rollBack();
             flashMessage('Gagal', 'Penambahan data bank gagal', 'error');
             $error = $this->handleErrorMessage($e);
-            Log::error('ObligeeController@store: ', $error);
+            Log::error('BankController@store: ', $error);
         } finally {
             return redirect()->route('bank.index');
         }
     }
 
     /**
-     * Display the specified resource.
+     * Show the form for creating a new resource.
      */
-    public function show(Bank $bank)
+    public function create(): Response
     {
-        $bank = Bank::with('province', 'regency', 'district')->findOrFail($bank->getAttribute('id'));
+        $component = $this->prefixComp.'/create/index';
 
-        return inertia('admin/bank-management/bank/detail/index', [
+        return inertia($component, [
             'page_settings' => [
-                'title' => 'Detail Bank',
+                'title' => 'Tambah Bank',
             ],
-            'bank' => $bank,
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Bank $bank, Request $request)
+    public function edit(Bank $bank): Response
     {
-        $component = $request->path();
-        $component = substr($component, 0, strrpos($component, '/')).'/index';
+        $component = $this->prefixComp.'/edit/index';
 
         return inertia($component, [
             'page_settings' => [
@@ -165,7 +149,7 @@ class BankController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, Bank $bank)
+    public function update(UpdateRequest $request, Bank $bank): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -190,7 +174,7 @@ class BankController extends Controller
             DB::rollBack();
             flashMessage('Gagal', 'Perubahan data bank gagal', 'error');
             $error = $this->handleErrorMessage($e);
-            Log::error('ObligeeController@update: ', $error);
+            Log::error('BankController@update: ', $error);
         } finally {
             return redirect()->route('bank.index');
         }
@@ -199,18 +183,14 @@ class BankController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Bank $bank)
+    public function destroy(Bank $bank): RedirectResponse
     {
         try {
             DB::beginTransaction();
 
-            if ($bank->exists) {
-                $picture = $bank->getAttribute('picture') ?? '';
-                $this->deleteFile($picture);
-                $bank->delete();
-            } else {
-                throw new ThrottleRequestsException('Data bank tidak ditemukan');
-            }
+            $picture = $bank->getAttribute('picture') ?? '';
+            $this->deleteFile($picture);
+            $bank->delete();
             activity()
                 ->useLog('bank')
                 ->performedOn($bank)
@@ -220,15 +200,15 @@ class BankController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal Menghapus Kantor Cabang', 'Terjadi kesalahan saat menghapus kantor cabang', 'error');
+            flashMessage('Gagal Menghapus Bank', 'Terjadi kesalahan saat menghapus bank', 'error');
             $error = $this->handleErrorMessage($e);
-            Log::error('Profil Destroy: ', $error);
+            Log::error('BankController@destroy: ', $error);
         } finally {
-            return redirect()->back();
+            return redirect()->route('bank.index');
         }
     }
 
-    public function getAllBank()
+    public function getAllBank(): JsonResponse
     {
         $bank = Bank::query()
             ->get();
@@ -238,10 +218,14 @@ class BankController extends Controller
 
     public function apiGetAllBank(Request $request): JsonResponse
     {
-        $isHead = $request->get('is_head') ?? 'false';
+        $guarantor = $request->query('guarantor');
         $bank = Bank::query()
-            ->when($isHead !== 'false', function ($query) {
-                $query->where('headquarter_id', null);
+            ->with('branch')
+            ->whereNull('headquarter_id')
+            ->when($guarantor, function ($query) use ($guarantor) {
+                return $query->whereHas('guarantor', function ($query) use ($guarantor) {
+                    $query->where('guarantor_id', $guarantor);
+                });
             })
             ->get();
 
