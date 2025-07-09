@@ -159,8 +159,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                           <Show
                             when={
                               submission.status === SubmissionStatus.APPROVED &&
-                              !submission.is_revised &&
-                              !submission.submission_before_id
+                              !submission.is_revised
                             }>
                             <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400" asChild>
                               <Link
