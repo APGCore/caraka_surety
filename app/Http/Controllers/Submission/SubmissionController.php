@@ -292,18 +292,22 @@ class SubmissionController extends Controller
                 $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->create($dataSubmission);
             }
 
+            if ($isEdit) {
+              // update is picked blank
+              $submission->blanks()->update([
+                  'is_picked' => false,
+                  'is_used' => false,
+                  'is_broken' => false,
+                  'is_revised' => false,
+              ]);
+              $submission->blanks()->detach();
+            }
+
             // update or create submission blangko
             SubmissionBlank::query()->updateOrCreate([
                 'submission_id' => $submission->getAttribute('id'),
             ], [
                 'blank_id' => $blank->getAttribute('id'),
-            ]);
-            // update is picked blank
-            $submission->blanks()->update([
-                'is_picked' => false,
-                'is_used' => false,
-                'is_broken' => false,
-                'is_revised' => false,
             ]);
 
             $blank->update([
