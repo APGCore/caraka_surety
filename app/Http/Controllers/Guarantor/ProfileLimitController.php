@@ -26,8 +26,7 @@ class ProfileLimitController extends Controller
         $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
 
         // Selected Guarantor
-        $guarantor = Guarantor::query()->find(config('app.guarantor.id'));
-        $guarantor_id = $guarantor ? $guarantor->id : null;
+        $guarantor_id = config('guarantor.id');
 
         // default job type Jastan to unconditional
         $job_type = JobType::UNCONDITIONAL->value;

@@ -24,8 +24,7 @@ class EmployeeLimitController extends Controller
     public function apiSearch(Request $request): JsonResponse
     {
         // Selected Guarantor
-        $guarantor = Guarantor::query()->find(config('app.guarantor.id'));
-        $guarantor_id = $guarantor ? $guarantor->id : null;
+        $guarantor_id = config('guarantor.id');
 
         // default job type Jastan to unconditional
         $job_type = JobType::UNCONDITIONAL->value;
