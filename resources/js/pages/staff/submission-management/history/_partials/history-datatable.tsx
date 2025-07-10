@@ -156,11 +156,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               </AlertDialogContent>
                             </AlertDialog>
                           </Show>
-                          <Show
-                            when={
-                              submission.status === SubmissionStatus.APPROVED &&
-                              !submission.is_revised
-                            }>
+                          <Show when={submission.status === SubmissionStatus.APPROVED && !submission.is_revised}>
                             <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400" asChild>
                               <Link
                                 type="button"
@@ -171,6 +167,42 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               </Link>
                             </Button>
                           </Show>
+                          {/*<Show*/}
+                          {/*  when={*/}
+                          {/*  (submission.status === SubmissionStatus.APPROVED ||*/}
+                          {/*    submission.status === SubmissionStatus.PROCESS)*/}
+                          {/*  }>*/}
+                          {/*  <AlertDialog>*/}
+                          {/*    <AlertDialogTrigger asChild>*/}
+                          {/*      <Button variant="destructive" className="w-full">*/}
+                          {/*        Rusak*/}
+                          {/*      </Button>*/}
+                          {/*    </AlertDialogTrigger>*/}
+                          {/*    <AlertDialogContent className="sm:max-w-[425px]">*/}
+                          {/*      <AlertDialogHeader>*/}
+                          {/*        <AlertDialogTitle>Pengajuan Rusak</AlertDialogTitle>*/}
+                          {/*        <AlertDialogDescription>*/}
+                          {/*          Apakah Anda yakin bahwa pengajuan ini rusak?*/}
+                          {/*        </AlertDialogDescription>*/}
+                          {/*      </AlertDialogHeader>*/}
+                          {/*      <div className="grid grid-cols-2 gap-4">*/}
+                          {/*        <AlertDialogCancel asChild>*/}
+                          {/*          <Button variant="outline" className="w-full" type="button">*/}
+                          {/*            Batalkan*/}
+                          {/*          </Button>*/}
+                          {/*        </AlertDialogCancel>*/}
+                          {/*        <Button variant="destructive" className="w-full" type="submit" asChild>*/}
+                          {/*          <Link*/}
+                          {/*            href={route("staff-submission-broken", {*/}
+                          {/*              id: submission.id,*/}
+                          {/*            })}>*/}
+                          {/*            Rusak*/}
+                          {/*          </Link>*/}
+                          {/*        </Button>*/}
+                          {/*      </div>*/}
+                          {/*    </AlertDialogContent>*/}
+                          {/*  </AlertDialog>*/}
+                          {/*</Show>*/}
                         </div>
                       </PopoverContent>
                     </Popover>

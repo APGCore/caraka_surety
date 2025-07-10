@@ -226,7 +226,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     contract_value: submission.contract_value_formatted || 0,
     guarantee_value: submission.guarantee_value_formatted || 0,
     guarantee_type: submission.guarantor_to_product_type?.name || "",
-    no_guarantee: isApproved ? (submission.no_guarantee || "") : "-",
+    no_guarantee: isApproved ? submission.no_guarantee || "" : "-",
     time_period: submission.time_period || "",
     job_name: submission.job_name || "",
     job_location_village: submission.job_location_village || "",
@@ -449,7 +449,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   //     setIsPendingUpdatePublication(false);
   //   }
   // };
-  const handleSubmitPublication = async (e: React.FormEvent) => {
+  const handleSubmitPublication = async () => {
     setIsLoading(true);
     router.post(
       route("staff-submission-publication", { submission: submissionId }),
@@ -1118,7 +1118,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmitPublication(e);
+                handleSubmitPublication();
               }}>
               <div>
                 <h3 className="text-lg font-semibold mb-2 pt-4">Tanggal Publikasi</h3>
@@ -1296,12 +1296,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </AlertDialog>
           </Show>
           <div className="flex gap-4">
-            <Show
-              when={
-                !isRejected &&
-                !submission.has_send_to_guarantor &&
-                !submission.is_revised
-              }>
+            <Show when={!isRejected && !submission.has_send_to_guarantor && !submission.is_revised}>
               <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
                 <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
                   Edit
@@ -1342,12 +1337,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </Show>
-            <Show
-              when={
-                isApproved &&
-                !submission.submission_before_id &&
-                !submission.is_revised
-              }>
+            <Show when={isApproved && !submission.submission_before_id && !submission.is_revised}>
               <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
                 <Link
                   type="button"
@@ -1373,7 +1363,9 @@ SubmissionDetailPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <SubmissionDetailHeader title={`Detail Pengajuan ${isApproved ? `(${pagePropsData.submission.no_guarantee})` : ''}`} />
+      <SubmissionDetailHeader
+        title={`Detail Pengajuan ${isApproved ? `(${pagePropsData.submission.no_guarantee})` : ""}`}
+      />
       {page}
     </RoleBasedLayout>
   );

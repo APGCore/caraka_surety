@@ -293,14 +293,14 @@ class SubmissionController extends Controller
             }
 
             if ($isEdit) {
-              // update is picked blank
-              $submission->blanks()->update([
-                  'is_picked' => false,
-                  'is_used' => false,
-                  'is_broken' => false,
-                  'is_revised' => false,
-              ]);
-              $submission->blanks()->detach();
+                // update is picked blank
+                $submission->blanks()->update([
+                    'is_picked' => false,
+                    'is_used' => false,
+                    'is_broken' => false,
+                    'is_revised' => false,
+                ]);
+                $submission->blanks()->detach();
             }
 
             // update or create submission blangko
@@ -1160,7 +1160,7 @@ class SubmissionController extends Controller
     }
 
     // for history pengajuan
-    public function displayHistory(Request $request)
+    public function displayHistory(Request $request): Response
     {
         $checkRole = $this->checkRole();
         $authId = $checkRole['authId'];
@@ -1199,11 +1199,10 @@ class SubmissionController extends Controller
             ->when($isDireksi, function ($query) {
                 $query->whereNot('status', SubmissionStatus::PROCESS->value);
             })
-            ->when($isManager || $isKepalaCabang, fn ($query) =>
-              $query->where(function ($query) use ($staffs, $authId) {
+            ->when($isManager || $isKepalaCabang, fn ($query) => $query->where(function ($query) use ($staffs, $authId) {
                 $query->whereIn('staff_id', $staffs)
                     ->orWhere('checked_by', $authId);
-              })->whereNotNull('checked_by')
+            })->whereNotNull('checked_by')
             )
             ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
             ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
@@ -1313,6 +1312,24 @@ class SubmissionController extends Controller
     {
         DB::beginTransaction();
         try {
+            $submission->load(['guarantor.hostToHost', 'submissionCallback']);
+            $guarantor = $submission->getRelation('guarantor');
+            $hostToHost = $guarantor->getRelation('hostToHost');
+            if (! $hostToHost) {
+                throw new Exception('Host to host not found for guarantor');
+            }
+            $url = $hostToHost->getAttribute('guarantor_url_host').'';
+            $prefix = $hostToHost->getAttribute('auth_prefix');
+            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+            $submissionCallback = $submission->getRelation('submissionCallback');
+            $data = [
+                'submission_id' => $submission->getAttribute('id'),
+                'no_policy' => $submissionCallback->getAttribute('no_policy'),
+            ];
+            $final = $this->hostToHostService->sendPostRequest($url, $token, $data);
+            if ($final['status'] != 'success') {
+                throw new Exception('Gagal mengajukan pengajuan rusak ke pihak asuransi: '.$final['message']);
+            }
             $submission->update(['status' => SubmissionStatus::BROKEN->value]);
             $submission->blanks()->update(['is_broken' => true]);
             DB::commit();
@@ -1876,10 +1893,10 @@ class SubmissionController extends Controller
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
             $submission->blanks()->update([
-              'is_picked' => false,
-              'is_used' => false,
-              'is_broken' => false,
-              'is_revised' => false,
+                'is_picked' => false,
+                'is_used' => false,
+                'is_broken' => false,
+                'is_revised' => false,
             ]);
             $submission->blanks()->detach();
             $submission->submissionBefore()->update([

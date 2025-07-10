@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->string('no_policy');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

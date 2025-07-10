@@ -381,10 +381,12 @@ class InvoiceController extends Controller
                     'office' => [
                         'code' => $prefixCode.'office-'.$office->getAttribute('id'),
                         'name' => $office->getAttribute('name'),
+                        'office_type' => $office->getAttribute('office_type'),
                     ],
                     'business_unit' => [
                         'code' => $prefixCode.'business-unit-'.$businessUnit->getAttribute('id'),
                         'name' => $businessUnit->getAttribute('name'),
+                        'office_type' => $businessUnit->getAttribute('office_type'),
                     ],
                     'principal' => [
                         'code' => $prefixCode.'principal-'.$principal->getAttribute('id'),
