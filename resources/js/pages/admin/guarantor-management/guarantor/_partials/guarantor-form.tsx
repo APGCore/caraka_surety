@@ -85,7 +85,7 @@ const GuarantorForm: React.FC<Props> = ({ guarantor, routeSubmit, routeBack }) =
   const addContent = (value: string) => {
     const content = data.content + value;
     setData("content", content);
-    convertPattern(content);
+    convertPattern(data.prefix + content + data.suffix);
   };
 
   const changeContent = (value: string) => {
