@@ -127,6 +127,7 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
+              <TableHead>User Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Jumlah Pengguna</TableHead>
               <TableHead>Aksi</TableHead>
@@ -143,6 +144,7 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
                       <TableCell>{office?.code}</TableCell>
                       <TableCell>{office?.name}</TableCell>
+                      <TableCell>{office?.username}</TableCell>
                       <TableCell>{office?.email ?? "-"}</TableCell>
                       <TableCell>{office?.users?.length}</TableCell>
                       <TableCell className="text-right">
@@ -233,16 +235,18 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <Button
-                                      onClick={() => {
-                                        handleDelete(office.id);
-                                      }}
-                                      className={buttonVariants({
-                                        variant: "destructive",
-                                      })}>
-                                      {isLoading && <Loader />}
-                                      Lanjutkan Hapus
-                                    </Button>
+                                    <AlertDialogAction asChild>
+                                      <Button
+                                        onClick={() => {
+                                          handleDelete(office.id);
+                                        }}
+                                        className={buttonVariants({
+                                          variant: "destructive",
+                                        })}>
+                                        {isLoading && <Loader />}
+                                        Lanjutkan Hapus
+                                      </Button>
+                                    </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>

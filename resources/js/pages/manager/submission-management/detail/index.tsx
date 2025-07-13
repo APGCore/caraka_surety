@@ -92,22 +92,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
 
-  //   const handleApprove = (submissionId: number) => {
-  //     setIsLoading(true);
-  //     axios
-  //       .post(route("manager-submission-approve", submissionId))
-  //       .then((response) => {
-  //         console.log("success approve submission", response);
-  //         router.reload();
-  //       })
-  //       .catch((error) => {
-  //         console.log("error approve submission", error);
-  //       })
-  //       .finally(() => {
-  //         setIsLoading(false);
-  //       });
-  //   };
-
   // DOCUMENT FORMAT
   interface SubmissionData {
     principal_name: string;
@@ -1054,7 +1038,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
             <div className="flex gap-2">
               <Show
                 when={
-                  submission.status === SubmissionStatus.PROCESS && !submission.approved_at && !submission.rejected_at
+                  isProcess &&
+                  submission.checked_by !== auth.user.id &&
+                  !submission.approved_at &&
+                  !submission.rejected_at
                 }>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -1083,7 +1070,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
               </Show>
               <Show
                 when={
-                  submission.status === SubmissionStatus.PROCESS &&
+                  isProcess &&
                   !submission.beyond_the_limit &&
                   submission.checked_by !== auth.user.id &&
                   !submission.approved_at &&
@@ -1119,7 +1106,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
               </Show>
               <Show
                 when={
-                  submission.status === SubmissionStatus.PROCESS &&
+                  isProcess &&
                   submission.beyond_the_limit &&
                   submission.checked_by !== auth.user.id &&
                   !submission.approved_at &&

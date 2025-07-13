@@ -238,7 +238,7 @@ class SubmissionController extends Controller
                 $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
                 $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
                 $dataSubmission['staff_id'] = auth()->id();
-                $submissionForRevision->update(['is_revised' => true]);
+                $submissionForRevision->update(['is_revised' => true, 'status' => SubmissionStatus::REVISED->value]);
                 $submissionForRevision->blanks()->each(function ($query) {
                     $query->update(['is_revised' => true]);
                 });
@@ -1277,26 +1277,6 @@ class SubmissionController extends Controller
             }
             $submission->load('blanks');
             $submission->blanks()->update(['is_used' => true]);
-
-            // $guarantor = $submission->load(['guarantor', 'guarantor.hostToHost'])->getRelation('guarantor');
-            // $hostToHost = $guarantor->getRelation('hostToHost');
-            // $messageSend = '';
-            // if ($hostToHost) {
-            //     // if submission before id is exist, is revision submission
-            //     $submissionIdForHost = $submission->getAttribute('id');
-            //     try {
-            //         $result = $this->sendToGuarantor($submissionIdForHost);
-            //         if ($result['status'] == 'success') {
-            //             $messageSend = 'Berhasil mengirimkan data ke pihak asuransi';
-            //         } else {
-            //             $messageSend = 'Gagal mengirimkan data ke pihak asuransi: '.$result['message'];
-            //         }
-            //     } catch (Exception $e) {
-            //         $error = $this->handleErrorMessage($e);
-            //         Log::error('Failed to send data to insurance', $error);
-            //         $messageSend = 'Gagal mengirimkan data ke pihak asuransi';
-            //     }
-            // }
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan');
             DB::commit();

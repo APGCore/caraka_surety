@@ -374,6 +374,7 @@ class InvoiceController extends Controller
                         'id' => $submission->getAttribute('id'),
                         'no_guarantee' => $submission->getAttribute('no_guarantee'),
                         'no_blank' => $blanks->firstWhere('is_broken', false)?->getAttribute('number') ?? '-',
+                        'status' => $submission->getAttribute('status'),
                         'created_at' => $submission->getAttribute('created_at'),
                         'checked_at' => $submission->getAttribute('checked_at'),
                         'approved_at' => $submission->getAttribute('approved_at'),

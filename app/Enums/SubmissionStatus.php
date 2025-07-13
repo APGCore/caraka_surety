@@ -10,6 +10,8 @@ enum SubmissionStatus: string
 
     case REJECTED = 'rejected';
 
+    case REVISED = 'revised';
+
     case BROKEN = 'broken';
 
     public static function getValues(): array
@@ -18,6 +20,7 @@ enum SubmissionStatus: string
             self::PROCESS->value,
             self::APPROVED->value,
             self::REJECTED->value,
+            self::REVISED->value,
             self::BROKEN->value,
         ];
     }
@@ -28,6 +31,7 @@ enum SubmissionStatus: string
             self::PROCESS->value => 'Proses',
             self::APPROVED->value => 'Disetujui',
             self::REJECTED->value => 'Ditolak',
+            self::REVISED->value => 'Direvisi',
             self::BROKEN->value => 'Rusak',
         ];
     }

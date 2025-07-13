@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guarantor;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\HostToHostResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\HostToHost;
@@ -83,24 +84,22 @@ class HostToHostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'guarantor_id' => 'required|integer|exists:guarantors,id',
             'guarantor_url_host' => 'required|string',
             'auth_prefix' => 'nullable|string',
             'token' => 'nullable|string',
         ]);
 
         // Selected Guarantor
-        $guarantor = Guarantor::first();
-        $guarantor_id = $guarantor ? $guarantor->id : null;
+        $guarantorId = $request->get('guarantor_id');
+        $guarantor = Guarantor::query()->find($guarantorId, ['id', 'name']);
 
         DB::beginTransaction();
         try {
             HostToHost::query()->create(
                 array_merge(
-                    [
-                        'guarantor_id' => $guarantor_id,
-                    ],
                     $request->only([
-                        // 'guarantor_id',
+                        'guarantor_id',
                         'guarantor_url_host',
                         'auth_prefix',
                         'token',
