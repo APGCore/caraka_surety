@@ -16,7 +16,7 @@ import { useFetchGetAllGuarantor } from "@/_features/insurance/services/insuranc
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { useForm } from "@inertiajs/react";
 import { CircleAlertIcon, LoaderCircle } from "lucide-react";
-import {FormEvent, useEffect, useState} from "react";
+import {FormEvent, useEffect} from "react";
 import { HOST_TO_HOST_QUERY_KEY } from "../../services/host-to-host-query";
 
 interface CreateUpdateHostToHostModalProps {
@@ -30,13 +30,11 @@ export default function CreateUpdateHostToHostModal({
   handleOpen,
   hostToHost,
 }: CreateUpdateHostToHostModalProps) {
-  const { data: guarantorsFetch, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({
+  const { data: guarantors, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({
     is_head: true,
     host_not_exist: hostToHost === null,
     ...(hostToHost ? { host_to_host_id: hostToHost.id } : {}),
   });
-
-  const [guarantors] = useState(() => guarantorsFetch ?? []);
 
   const { data, setData, post, put, processing, reset } = useForm<{
     id: number | null;
@@ -137,7 +135,7 @@ export default function CreateUpdateHostToHostModal({
           <div>
             <Label htmlFor={`guarantor`}>Guarantor</Label>
             <NewCombobox
-              data={guarantors as any[]}
+              data={Array.isArray(guarantors) ? guarantors : []}
               labelKey={"name"}
               valueKey={"id"}
               defaultValue={hostToHost?.guarantor_id}
