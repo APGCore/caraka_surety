@@ -15,6 +15,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -201,23 +202,8 @@ class EmployeeLimitController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // $requestValid = $request->validate(
-        //   [
-        //     'guarantor_to_product_type_id' => 'required|exists:' . GuarantorToProductType::class . ',id',
-        //     'profile_id' => 'required|exists:' . Profile::class . ',id',
-        //     'employee_id' => 'required|exists:' . User::class . ',id',
-        //     'limit' => 'required',
-        //   ],
-        //   [
-        //     'guarantor_to_product_type_id.required' => 'Produk belum dipilih',
-        //     'profile_id.required' => 'Profil belum dipilih',
-        //     'employee_id.required' => 'Pengguna belum dipilih',
-        //     'limit.required' => 'Limit wajib diisi',
-        //   ]
-        // );
-
         try {
             DB::beginTransaction();
 
@@ -291,6 +277,7 @@ class EmployeeLimitController extends Controller
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Error store profile limit', $error);
+            flashMessage('Gagal', $error['message'], 'error');
 
             return redirect()->back()->withErrors($error);
         }
@@ -325,13 +312,8 @@ class EmployeeLimitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, EmployeeLimit $employeeLimit)
+    public function update(Request $request, EmployeeLimit $employeeLimit): RedirectResponse
     {
-        // $requestValid = $request->validate(
-        //   ['limit' => 'required'],
-        //   ['limit.required' => 'Limit wajib diisi']
-        // );
-
         try {
 
             DB::beginTransaction();
@@ -404,7 +386,7 @@ class EmployeeLimitController extends Controller
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Error update profile limit', $error);
-            flashMessage('Gagal', $error['message']);
+            flashMessage('Gagal', $error['message'], 'error');
 
             return redirect()->back()->withErrors($error);
         }

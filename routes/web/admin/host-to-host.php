@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\HostToHostController;
+use App\Http\Controllers\Guarantor\HostToHostController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('host-to-host-management')->group(function () {

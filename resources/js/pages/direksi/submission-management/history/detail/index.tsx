@@ -903,10 +903,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 })()}
               </div>
             </Show>
-            <Show
-              when={
-                submission.status === SubmissionStatus.PROCESS && !submission.approved_at && !submission.rejected_at
-              }>
+            <Show when={isProcess && !submission.approved_at && !submission.rejected_at}>
               <div className="flex gap-2">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -961,32 +958,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </AlertDialog>
               </div>
             </Show>
-            {/*<Show when={submission.status === SubmissionStatus.APPROVED && !submission.has_send_to_guarantor}>*/}
-            {/*  <AlertDialog>*/}
-            {/*    <AlertDialogTrigger asChild>*/}
-            {/*      <Button*/}
-            {/*        variant="default"*/}
-            {/*        disabled={isLoading}*/}
-            {/*        className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">*/}
-            {/*        {isLoading && <LoaderCircle className="animate-spin mr-1" />}*/}
-            {/*        Kirim Ke {submission.guarantor?.name}*/}
-            {/*      </Button>*/}
-            {/*    </AlertDialogTrigger>*/}
-            {/*    <AlertDialogContent>*/}
-            {/*      <AlertDialogHeader>*/}
-            {/*        <AlertDialogTitle>Apakah Anda Yakin ingin menolak pengajuan ini?</AlertDialogTitle>*/}
-            {/*      </AlertDialogHeader>*/}
-            {/*      <AlertDialogFooter>*/}
-            {/*        <AlertDialogCancel>Batal</AlertDialogCancel>*/}
-            {/*        <AlertDialogAction*/}
-            {/*          className="bg-green-600 hover:bg-green-400"*/}
-            {/*          onClick={() => handleSendGuarantor(submission.id)}>*/}
-            {/*          Kirim*/}
-            {/*        </AlertDialogAction>*/}
-            {/*      </AlertDialogFooter>*/}
-            {/*    </AlertDialogContent>*/}
-            {/*  </AlertDialog>*/}
-            {/*</Show>*/}
           </Show>
         </div>
       </main>

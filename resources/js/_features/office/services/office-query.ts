@@ -24,6 +24,7 @@ export interface OfficeData {
   id: number;
   code: string;
   name: string;
+  username: string;
   email: string;
   phone: string;
   address: string;

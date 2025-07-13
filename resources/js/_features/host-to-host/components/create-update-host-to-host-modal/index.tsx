@@ -10,11 +10,13 @@ import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Input } from "@/_features/_common/components/_shadcn-ui/input";
 import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import { Textarea } from "@/_features/_common/components/_shadcn-ui/textarea";
+import NewCombobox from "@/_features/_common/components/combobox";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
+import { useFetchGetAllGuarantor } from "@/_features/insurance/services/insurance-query";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { useForm } from "@inertiajs/react";
 import { CircleAlertIcon, LoaderCircle } from "lucide-react";
-import { FormEvent, useEffect, useId } from "react";
+import { FormEvent, useEffect } from "react";
 import { HOST_TO_HOST_QUERY_KEY } from "../../services/host-to-host-query";
 
 interface CreateUpdateHostToHostModalProps {
@@ -28,15 +30,21 @@ export default function CreateUpdateHostToHostModal({
   handleOpen,
   hostToHost,
 }: CreateUpdateHostToHostModalProps) {
-  const id = useId();
+  const { data: guarantors, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({
+    is_head: true,
+    host_not_exist: hostToHost === null,
+    ...(hostToHost ? { host_to_host_id: hostToHost.id } : {}),
+  });
 
   const { data, setData, post, put, processing, reset } = useForm<{
-    id: string;
+    id: number | null;
+    guarantor_id: number | null;
     guarantor_url_host: string;
     auth_prefix: string;
     token: string;
   }>({
-    id: "",
+    id: null,
+    guarantor_id: null,
     guarantor_url_host: "",
     auth_prefix: "",
     token: "",
@@ -45,7 +53,8 @@ export default function CreateUpdateHostToHostModal({
   useEffect(() => {
     if (hostToHost && typeof hostToHost === "object") {
       setData({
-        id: hostToHost.id,
+        id: hostToHost.id ?? null,
+        guarantor_id: hostToHost.guarantor_id ?? null,
         guarantor_url_host: hostToHost.guarantor_url_host,
         auth_prefix: hostToHost.auth_prefix,
         token: hostToHost.token,
@@ -122,6 +131,22 @@ export default function CreateUpdateHostToHostModal({
         </div>
 
         <form onSubmit={handleFormSubmit} id={`form`} className="space-y-4">
+          {/* GUARANTOR */}
+          <div>
+            <Label htmlFor={`guarantor`}>Guarantor</Label>
+            <NewCombobox
+              data={guarantors as any[]}
+              labelKey={"name"}
+              valueKey={"id"}
+              defaultValue={hostToHost?.guarantor_id}
+              placeholder={"Pilih Guarantor"}
+              className={"min-w-[160px]"}
+              isLoading={isLoadingGuarantors}
+              onSelect={(value: any) => {
+                setData({ ...data, guarantor_id: value.id });
+              }}
+            />
+          </div>
           {/* URL */}
           <div>
             <Label htmlFor={`url`}>URL</Label>
@@ -165,6 +190,7 @@ export default function CreateUpdateHostToHostModal({
             className="flex-1"
             onClick={(e) => {
               handleBubbleEvent(e);
+              reset();
               handleOpen?.(false);
             }}>
             Batal
