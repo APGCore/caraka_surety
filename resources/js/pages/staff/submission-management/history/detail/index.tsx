@@ -197,7 +197,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     principal_commissioner: submission.principal?.commissioner || "",
     pic: submission.principal?.pic || "",
     director_position: submission.principal?.director_position || "",
-    principal_address: `${submission.principal?.address}, ${submission.principal?.district?.name}, ${submission.principal?.regency?.name}, ${submission.principal?.province?.name}`,
+    principal_address: submission.principal?.address || "",
     est_deed: submission.principal?.est_deed || "",
     last_deed: submission.principal?.last_deed || "",
     get_susunan_pengurus: submission.get_administators_principal || "",
