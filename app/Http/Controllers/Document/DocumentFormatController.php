@@ -36,9 +36,9 @@ class DocumentFormatController extends Controller
         return [
             'guarantors' => $guarantors,
             'guarantorSelected' => (int) $guarantorSelected,
-            'products' => $products,
+            'products' => $products ?? [],
             'productSelected' => (int) $productSelected,
-            'guarantorProductTypes' => $guarantorProductTypes,
+            'guarantorProductTypes' => $guarantorProductTypes ?? [],
             'guarantorProductTypeSelected' => (int) $guarantorProductTypeSelected,
         ];
     }
@@ -251,8 +251,4 @@ class DocumentFormatController extends Controller
         }
     }
 
-    public function getFormattedCreatedAtAttribute()
-    {
-        return Carbon::parse($this->attributes['created_at'])->translatedFormat('d F Y');
-    }
 }
