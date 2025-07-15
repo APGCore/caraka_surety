@@ -829,18 +829,18 @@ class SubmissionController extends Controller
         }
 
         if ($isStaff) {
-            $component = 'staff/submission-management/history/detail/index';
+            $component = 'staff/submission-management/detail/index';
         } elseif ($isDireksi) {
-            $component = 'direksi/submission-management/history/detail/index';
+            $component = 'direksi/submission-management/detail/index';
         } elseif ($isManager) {
             $component = 'manager/submission-management/detail/index';
         } elseif ($isKepalaCabang) {
             $component = 'kepala-cabang/submission-management/detail/index';
         } else {
-            $component = 'staff/submission-management/history/detail/index';
+            $component = 'staff/submission-management/detail/index';
         }
         $submission->unsetRelation('submissionDocs');
-        
+
         $submission->setAttribute('contract_value_formatted', $contractValueFormatted);
         $submission->setAttribute('guarantee_value_formatted', $guaranteeValueFormatted);
         $submission->setAttribute('submission_docs', $submissionDocs);

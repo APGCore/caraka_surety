@@ -353,7 +353,7 @@ class InvoiceController extends Controller
                     continue; // Skip if submission rate is not set
                 }
                 $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
-                $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0) / 100;
+                $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0);
                 $adm = (float) ($profileRate->getAttribute('sales_administration') ?? 0);
                 $brokenRate = (float) ($profileRate->getAttribute('broken_rate') ?? 0);
                 $revisedRate = (float) ($profileRate->getAttribute('revised_rate') ?? 0);
