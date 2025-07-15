@@ -210,22 +210,7 @@ interface SubmissionDetailProps {
     user_rejected: User;
     rejected_at: string;
     beyond_the_limit: boolean | null;
-    document_format_analysis: {
-      id: number;
-      name: string;
-      format_document: any;
-    };
-    document_format_guarantor: {
-      id: number;
-      name: string;
-      format_document: string;
-    }[];
-    document_format_product: {
-      id: number;
-      name: string;
-      format_document: string;
-    }[];
-    document_format_type_guarantee: {
+    document_formats: {
       id: number;
       name: string;
       format_document: string;
