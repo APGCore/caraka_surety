@@ -24,6 +24,7 @@ trait ReplaceDocumentFormat
             'obligee.district',
             'obligee.regency',
             'obligee.province',
+            'guarantor:id,name',
             'guarantorBranch.district',
             'guarantorBranch.regency',
             'guarantorBranch.province',
@@ -46,10 +47,11 @@ trait ReplaceDocumentFormat
         $obligeeDistrict = $obligee->getRelation('district');
         $obligeeRegency = $obligee->getRelation('regency');
         $obligeeProvince = $obligee->getRelation('province');
-        $guarantor = $submission->getRelation('guarantorBranch');
-        $guarantorDistrict = $guarantor->getRelation('district');
-        $guarantorRegency = $guarantor->getRelation('regency');
-        $guarantorProvince = $guarantor->getRelation('province');
+        $guarantor = $submission->getRelation('guarantor');
+        $guarantorBranch = $submission->getRelation('guarantorBranch');
+        $guarantorBranchDistrict = $guarantorBranch->getRelation('district');
+        $guarantorBranchRegency = $guarantorBranch->getRelation('regency');
+        $guarantorBranchProvince = $guarantorBranch->getRelation('province');
         $guarantorToProductType = $submission->getRelation('guarantorToProductType');
         $sourceOfFund = $submission->getRelation('sourceOfFund');
         $scores = $submission->getRelation('scores');
@@ -152,13 +154,13 @@ trait ReplaceDocumentFormat
             'obligee_city' => $obligee->district->name ?? '...',
             'obligee_location' => "{$obligee->address}, {$obligeeDistrict->name}, {$obligeeRegency->name}, {$obligeeProvince->name}",
             'guarantor_name' => $guarantor->name ?? '...',
-            'guarantor_address' => $guarantor->address ?? '...',
-            'guarantor_pic' => $guarantor->pic ?? '...',
-            'guarantor_location' => "{$guarantor->address}, ".
-              "{$guarantorDistrict->name}, ".
-              "{$guarantorRegency->name}, ".
-              "{$guarantorProvince->name}",
-            'guarantor_city' => $guarantorDistrict->name ?? '...',
+            'guarantor_address' => $guarantorBranch->address ?? '...',
+            'guarantor_pic' => $guarantorBranch->pic ?? '...',
+            'guarantor_location' => "{$guarantorBranch->address}, ".
+              "{$guarantorBranchDistrict->name}, ".
+              "{$guarantorBranchRegency->name}, ".
+              "{$guarantorBranchProvince->name}",
+            'guarantor_city' => $guarantorBranchDistrict->name ?? '...',
             'source_of_fund_name' => $sourceOfFund->name ?? '...',
             'contract_value' => $contractValueFormatted,
             'guarantee_value' => $guaranteeValueFormatted,
