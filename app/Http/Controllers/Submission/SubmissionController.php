@@ -803,6 +803,8 @@ class SubmissionController extends Controller
             ?->getAttribute($submissionInheritId ? 'limit_inherit' : 'limit', 0);
         $beyondTheLimit = $employeeLimit < $submission->getAttribute('guarantee_value');
 
+        $totalScore = $submission->getRelation('scores')->sum('point');
+
         // get submission support docs
         $supportDocs = $submission->getRelation('supportDocs');
 
@@ -846,6 +848,9 @@ class SubmissionController extends Controller
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('final_output_file', $finalOutputFile);
+        $submission->setAttribute('callback', $callback);
+        $submission->setAttribute('employee_limit', $employeeLimit);
+        $submission->setAttribute('total_score', $totalScore);
 
         return inertia($component, [
             'submission' => fn () => $submission,

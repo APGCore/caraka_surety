@@ -88,10 +88,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         ? "destructive"
         : "default";
 
-  const calculateTotalPoint = (scores: any) => {
-    return scores.reduce((total: number, score: any) => total + score.point, 0);
-  };
-
   const editorRefs = useRef<{ [key: string]: any }>({});
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
@@ -657,7 +653,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <td className="p-2 font-semibold" colSpan={3}>
                       Total:
                     </td>
-                    <td className="p-2 text-center">{calculateTotalPoint(submission.scores)}</td>
+                    <td className="p-2 text-center">{submission.total_score}</td>
                   </tr>
                   <tr>
                     <td
@@ -665,21 +661,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       className={cn({
                         "p-2 text-center": true,
                         "bg-green-300":
-                          submission.scores?.[0]?.scoring?.min_point < calculateTotalPoint(submission.scores),
+                          submission.scores?.[0]?.scoring?.min_point < submission.total_score,
                         "bg-red-300":
-                          submission.scores?.[0]?.scoring?.min_point >= calculateTotalPoint(submission.scores),
+                          submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
                       })}>
                       <span className="pr-1">Disarankan Untuk</span>
-                      {submission.scores?.[0]?.scoring?.min_point < calculateTotalPoint(submission.scores) ? (
+                      {submission.scores?.[0]?.scoring?.min_point < submission.total_score ? (
                         <span className="text-green-800">
-                          Disetujui Karena Nilai {calculateTotalPoint(submission.scores)} Lebih Dari{" "}
+                          Disetujui Karena Nilai {submission.total_score} Lebih Dari{" "}
                           {submission.scores?.[0]?.scoring?.min_point}
                         </span>
                       ) : (
                         <span className="text-red-800">
                           Ditolak Karena
                           {" Nilai " +
-                            calculateTotalPoint(submission.scores) +
+                            submission.total_score +
                             " Kurang Dari " +
                             submission.scores?.[0]?.scoring?.min_point}
                         </span>
