@@ -81,6 +81,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // DOCUMENT FORMAT
   const editorRefs = useRef<{ [key: string]: any }>({});
 
+  const handleUpdateDocument = (id: number, format: string) => {
+    if (submission.has_send_to_guarantor) return;
+    axios
+      .put(route("api.submission-management.document", { id }), { format })
+      .then((response) => {
+        console.log("Success update document", response);
+      })
+      .catch((error) => {
+        console.error("Error update document", error);
+      });
+  };
+
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoading(true);
     axios
@@ -623,10 +635,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       colSpan={4}
                       className={cn({
                         "p-2 text-center": true,
-                        "bg-green-300":
-                          submission.scores?.[0]?.scoring?.min_point < submission.total_score,
-                        "bg-red-300":
-                          submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
+                        "bg-green-300": submission.scores?.[0]?.scoring?.min_point < submission.total_score,
+                        "bg-red-300": submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
                       })}>
                       <span className="pr-1">Disarankan Untuk</span>
                       <Show when={submission.scores?.[0]?.scoring?.min_point < submission.total_score}>
@@ -693,20 +703,46 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </Show>
 
-            <RenderList
-              of={submission.document_formats}
-              render={(doc) => (
-                <div key={doc.id} style={{ marginBottom: "20px" }}>
-                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                  <TinyMCEEditor
-                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                    initialContent={doc.format_document}
-                    onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                  />
-                </div>
-              )}
-              renderFallback={() => <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>}
-            />
+            <Show when={submission.submission_docs.length > 0}>
+              <RenderList
+                of={submission.submission_docs as Array<any>}
+                render={(doc) => {
+                  return (
+                    <div>
+                      <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
+                      <div>
+                        <TinyMCEEditor
+                          id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                          onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                          initialContent={doc.format_document}
+                          onContentChange={(content: string) => {
+                            handleUpdateDocument(doc.id, content);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                }}
+              />
+            </Show>
+            <Show when={submission.submission_docs.length === 0}>
+              <RenderList
+                of={submission.document_formats}
+                render={(doc) => (
+                  <div key={doc.id} style={{ marginBottom: "20px" }}>
+                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                    <TinyMCEEditor
+                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                      initialContent={doc.format_document}
+                      onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                    />
+                  </div>
+                )}
+                renderFallback={() => (
+                  <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>
+                )}
+              />
+            </Show>
           </Show>
         </div>
       </main>

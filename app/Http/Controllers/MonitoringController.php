@@ -123,6 +123,7 @@ class MonitoringController extends Controller
                 $query->withTrashed();
             },
             'submissionDocs',
+            'submissionDocs.documentFormat:id,no',
             'scores',
             'scores.scoring' => function ($query) {
                 $query->withTrashed();
@@ -208,7 +209,12 @@ class MonitoringController extends Controller
             ->get();
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
-        $submissionDocs = $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
+        $submissionDocs = $submission->getAttribute('has_send_to_guarantor')
+          ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
+        // sort by no
+        $submissionDocs = $submissionDocs->sortBy(function ($doc) {
+            return $doc->getRelation('documentFormat')->getAttribute('no');
+        })->values();
         $finalOutputFile = $submissionDocsFile->map(function ($doc) {
             $document = $doc->only('name', 'url');
             $document['name'] = $doc->getAttribute('name') ?? '-';

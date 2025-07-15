@@ -168,7 +168,11 @@ const InvoicePage: InvoicePageProps = ({
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectInvoiceLength} />
-          <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} numberOfMonths={2} />
+          <CalendarDateRangePicker
+            value={filterDate}
+            onDateChange={(date) => handleChangeDate(date)}
+            numberOfMonths={2}
+          />
         </div>
         <SearchDatatable
           value={search}

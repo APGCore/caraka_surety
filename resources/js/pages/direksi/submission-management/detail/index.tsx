@@ -660,10 +660,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       colSpan={4}
                       className={cn({
                         "p-2 text-center": true,
-                        "bg-green-300":
-                          submission.scores?.[0]?.scoring?.min_point < submission.total_score,
-                        "bg-red-300":
-                          submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
+                        "bg-green-300": submission.scores?.[0]?.scoring?.min_point < submission.total_score,
+                        "bg-red-300": submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
                       })}>
                       <span className="pr-1">Disarankan Untuk</span>
                       {submission.scores?.[0]?.scoring?.min_point < submission.total_score ? (
