@@ -166,7 +166,7 @@ trait ReplaceDocumentFormat
             'guarantee_value' => $guaranteeValueFormatted,
             'guarantee_type' => $guarantorToProductType->name ?? '...',
             'no_guarantee' => $submission->no_guarantee ?? '...',
-            'time_period' => $submission->time_period ?? '...',
+            'time_period' => $timePeriod ?? '...',
             'job_name' => $submission->job_name ?? '...',
             'job_location_village' => $submission->job_location_village ?? '...',
             'contract_doc_name' => $supportDocs->pluck('name')->implode(', ') ?? '...',
