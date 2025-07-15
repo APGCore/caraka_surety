@@ -24,9 +24,9 @@ trait ReplaceDocumentFormat
             'obligee.district',
             'obligee.regency',
             'obligee.province',
-            'guarantor.district',
-            'guarantor.regency',
-            'guarantor.province',
+            'guarantorBranch.district',
+            'guarantorBranch.regency',
+            'guarantorBranch.province',
             'guarantorToProductType',
             'sourceOfFund',
             'scores.scoringQuestionCategory',
@@ -46,7 +46,7 @@ trait ReplaceDocumentFormat
         $obligeeDistrict = $obligee->getRelation('district');
         $obligeeRegency = $obligee->getRelation('regency');
         $obligeeProvince = $obligee->getRelation('province');
-        $guarantor = $submission->getRelation('guarantor');
+        $guarantor = $submission->getRelation('guarantorBranch');
         $guarantorDistrict = $guarantor->getRelation('district');
         $guarantorRegency = $guarantor->getRelation('regency');
         $guarantorProvince = $guarantor->getRelation('province');
