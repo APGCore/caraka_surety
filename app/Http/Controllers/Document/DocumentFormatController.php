@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Document\DocumentFormatResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Guarantor;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -250,5 +249,4 @@ class DocumentFormatController extends Controller
             return redirect()->back()->withErrors('Gagal menghapus data');
         }
     }
-
 }

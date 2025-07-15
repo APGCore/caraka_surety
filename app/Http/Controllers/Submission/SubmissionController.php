@@ -24,10 +24,9 @@ use App\Models\Submission\SubmissionCallback;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use App\Services\HostToHostService;
-use App\Traits\currencyConverter;
 use App\Traits\FilterOffice;
 use App\Traits\GeneratePattern;
-use App\Traits\Numbering;
+use App\Traits\ReplaceDocumentFormat;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -36,12 +35,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
-use Riskihajar\Terbilang\Facades\Terbilang;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
-    use currencyConverter, FilterOffice, GeneratePattern, Numbering;
+    use FilterOffice, GeneratePattern, ReplaceDocumentFormat;
 
     protected HostToHostService $hostToHostService;
 
@@ -721,7 +719,6 @@ class SubmissionController extends Controller
     public function showDetailSubmission($id): Response
     {
         $submission = $this->getSubmission($id);
-        $mailNumber = $this->generateNomorSurat($submission);
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');
         $blank = $submission->getRelation('blanks')->first();
@@ -753,10 +750,6 @@ class SubmissionController extends Controller
         }
         $principal->setAttribute('ratios', $ratios->values()->toArray());
 
-        $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
-        $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
-        $analystName = $submission->getRelation('staff')->getAttribute('name');
-
         $submission->getRelation('scores')->map(function ($score) {
             $score->setAttribute('category_name', $score->scoringQuestionCategory->name ?? '-');
             $score->setAttribute('question_name', $score->scoringQuestion->name ?? '-');
@@ -765,170 +758,27 @@ class SubmissionController extends Controller
             return $score;
         });
 
-        // SCORING RESULT
-        $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
-
-        $scoringResult = $submission->getRelation('scores')
-            ->reduce(function ($grouped, $score) use (&$analysis) {
-                $categoryId = $score->getAttribute('scoring_question_category_id');
-                $category = $score->getRelation('scoringQuestionCategory');
-                $categoryName = $category->getAttribute('name');
-
-                if (! isset($grouped[$categoryId])) {
-                    $grouped[$categoryId] = [
-                        'id' => $categoryId,
-                        'name' => $categoryName,
-                        'items' => [],
-                    ];
-                }
-
-                $grouped[$categoryId]['items'][] = $score;
-                $point = $score->getAttribute('point') ?? 0;
-
-                switch ($categoryName) {
-                    case 'Character':
-                        $analysis['character'] += $point;
-                        break;
-                    case 'Capacity':
-                        $analysis['capacity'] += $point;
-                        break;
-                    case 'Capital':
-                        $analysis['capital'] += $point;
-                        break;
-                    case 'Condition':
-                        $analysis['condition'] += $point;
-                        break;
-                    case 'Collateral':
-                        $analysis['collateral'] += $point;
-                        break;
-                }
-
-                return $grouped;
-            }, []);
-
-        $guaranteeValue = $submission->getAttribute('guarantee_value');
-        $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
-
-        // Hitung total skoring
-        $totalScore = array_sum($analysis);
-
-        // Tentukan notes dan recommendation
-        if ($totalScore > 60 && $totalScore < 100) {
-            $notes = 'Dipertimbangkan untuk disetujui';
-            $recommendation = 'disetujui';
-        } elseif ($totalScore <= 60) {
-            $notes = 'Dipertimbangkan untuk ditambahkan mitigasi risiko';
-            $recommendation = 'ditolak';
-        } else {
-            $notes = 'Skoring tidak valid';
-            $recommendation = 'ditolak';
-        }
-
-        // GET EXPERIENCE
-        $approvedSubmissionsExp = Submission::query()
-            ->where('status', 'approved')
-            ->where(function ($query) use ($submission) {
-                $query->where('principal_id', $submission->getAttribute('principal_id'))
-                    ->orWhere('obligee_id', $submission->getAttribute('obligee_id'));
-            })
-            ->with(['obligee'])
-            ->get()
-            ->map(function ($submission) use (&$index) {
-                $index++;
-
-                return "<tr style='text-align: left;'>
-                    <td style='text-align: center;'>{$index}</td>
-                    <td>{$submission->getRelation('obligee')->getAttribute('name')}</td>
-                    <td>{$submission->getAttribute('job_name')}</td>
-                    <td>Rp. ".number_format($submission->getAttribute('contract_value'), 0, ',', '.').'</td>
-                    <td>'.date('Y', strtotime($submission->getAttribute('approved_at'))).'</td>
-                </tr>';
-            })->implode('');
-
-        $getExp = "<table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
-                      <tr>
-                          <td colspan='5' style='border-left: 1px solid black; border-right: 1px solid black; text-align: center;'>
-                              <strong>PENGALAMAN KERJA</strong>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td colspan='5' style='text-align:left'>
-                              <strong>Berikut Pengalaman Kerja PT {$principal->getAttribute('name')}</strong>
-                          </td>
-                      </tr>
-                      <tr>
-                          <th>No</th>
-                          <th>Obligee</th>
-                          <th>Nama Proyek</th>
-                          <th>Nilai Proyek</th>
-                          <th>Tahun</th>
-                      </tr>
-                      {$approvedSubmissionsExp}
-                  </table>";
-
-        // GET SUSUNAN PENGURUS
-
-        $pengurus = collect();
-
-        if (! empty($principal->getAttribute('director_name'))) {
-            $pengurus->push(['nama' => $principal->getAttribute('director_name'), 'jabatan' => 'Direktur']);
-        }
-        if (! empty($principal->commissioner)) {
-            $pengurus->push(['nama' => $principal->getAttribute('commissioner'), 'jabatan' => 'Komisaris']);
-        }
-
-        if (! empty($principal->head_name)) {
-            $pengurus->push(['nama' => $principal->getAttribute('head_name'), 'jabatan' => 'Kepala Cabang']);
-        }
-
-        $susunanPengurus = $pengurus->map(function ($pengurus, $index) {
-            return "<tr>
-                        <td style='text-align: center; vertical-align: middle;'>".($index + 1)."</td>
-                        <td>{$pengurus['nama']}</td>
-                        <td>{$pengurus['jabatan']}</td>
-                    </tr>";
-        })->implode('');
-
-        $getAdministatorsPrincipal =
-          "<table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
-              <tr>
-                  <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
-              </tr>
-              <tr>
-                  <th>No</th>
-                  <th>Nama</th>
-                  <th>Jabatan</th>
-              </tr>
-              {$susunanPengurus}
-          </table>";
-
         $principal->setAttribute('approved_submissions', $principal->approvedSubmissions()
             ->select(['id', 'contract_doc_name', 'contract_doc_number', 'contract_value', 'status', 'created_at'])
             ->with('obligee')
             ->get());
 
-        // number surat
-        $mailNumberResume = $this->generateNomorSuratResume($submission->getAttribute('id'), $submission->getAttribute('created_at'));
         // tanggal pengajuan
-        $submissionDate = Carbon::parse($submission->getAttribute('created_at'))->translatedFormat('d F Y');
         $startDate = Carbon::parse($submission->getAttribute('start_date'))->translatedFormat('d F Y');
         $endDate = Carbon::parse($submission->getAttribute('end_date'))->translatedFormat('d F Y');
-        $guaranteeIssueDate = Carbon::parse($submission->getAttribute('approved_at'))->translatedFormat('d F Y');
-        $contractDocDate = Carbon::parse($submission->getAttribute('contract_doc_date'))->translatedFormat('d F Y');
-        $dayName = Carbon::parse($submission->getAttribute('approved_at'))->translatedFormat('l');
 
-        $documentFormatAnalysis = DocumentFormat::query()
-            ->whereNull('guarantor_id')
-            ->whereNull('product_id')
-            ->whereNull('guarantor_to_product_type_id')
-            ->first();
-        $guarantor = $submission->getRelation('guarantor');
-        $guarantorBranch = $submission->getRelation('guarantorBranch');
-        $documentFormats = $guarantor->getRelation('documentFormats');
-        $documentFormatGuarantor = $documentFormats->whereNull('product_id')->whereNull('guarantor_to_product_type_id')->values();
-        $documentFormatProduct = $documentFormats->where('product_id', $submission->getAttribute('product_id'))->whereNull('guarantor_to_product_type_id')->values();
-        $documentFormatTypeGuarantor = $documentFormats->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))->values();
-        $guarantorAddress = $guarantorBranch->getAttribute('address') ?? $guarantor->getAttribute('address') ?? '';
+        $documentFormats = DocumentFormat::query()
+            ->whereNull(['guarantor_id', 'product_id', 'guarantor_to_product_type_id'])
+            ->orWhere(function ($query) use ($submission) {
+                $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                    ->where('product_id', $submission->getAttribute('product_id'))
+                    ->where(function ($query) use ($submission) {
+                        $query->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+                            ->orWhereNull('guarantor_to_product_type_id');
+                    });
+            })
+            ->orderBy('no')
+            ->get();
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
         $submissionDocs = $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
@@ -939,22 +789,6 @@ class SubmissionController extends Controller
 
             return $document;
         });
-
-        // get submission pic
-        $guarantorPic = $guarantorBranch->getAttribute('pic') ?? $guarantor->getAttribute('pic');
-
-        // get submission time difference period
-        $getDifferenceTimePeriod = $submission->getAttribute('difference_time_period');
-        $timePeriod = $submission->getAttribute('time_period');
-
-        if ($getDifferenceTimePeriod == -1) {
-            $timePeriod -= 1;
-        } elseif ($getDifferenceTimePeriod == 1) {
-            $timePeriod += 1;
-        }
-
-        // get terbilang hari
-        $terbilang_hari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
         $callback = $submission->getRelation('callback');
         if ($callback) {
@@ -985,11 +819,10 @@ class SubmissionController extends Controller
             return $doc;
         });
 
-        $docsInfo = $supportDocs->map(function ($doc) {
-            return "$doc->name, Nomor : $doc->number, Tanggal $doc->date";
-        })->implode('; ');
-
-        $isAddedQR = $submission->getAttribute('is_added_qrcode');
+        $submissionConverted = $this->convertSubmission((clone $submission));
+        foreach ($documentFormats as $documentFormat) {
+            $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+        }
 
         if ($isStaff) {
             $component = 'staff/submission-management/history/detail/index';
@@ -1005,40 +838,14 @@ class SubmissionController extends Controller
 
         $submission->unsetRelation('submissionDocs');
         $submission->setAttribute('submission_docs', $submissionDocs);
-        $submission->setAttribute('mail_number', $mailNumber);
         $submission->setAttribute('blank', $blank);
         $submission->setAttribute('required_docs', $requiredDocs);
-        $submission->setAttribute('contract_value_formatted', $contractValueFormatted);
-        $submission->setAttribute('guarantee_value_formatted', $guaranteeValueFormatted);
-        $submission->setAttribute('analyst_name', $analystName);
-        $submission->setAttribute('scoring_result', $scoringResult);
-        $submission->setAttribute('analysis', $analysis);
-        $submission->setAttribute('terbilang', $terbilang);
-        $submission->setAttribute('terbilang_hari', $terbilang_hari);
-        $submission->setAttribute('notes', $notes);
-        $submission->setAttribute('recommendation', $recommendation);
-        $submission->setAttribute('total_score', $totalScore);
-        $submission->setAttribute('get_exp', $getExp);
-        $submission->setAttribute('get_administators_principal', $getAdministatorsPrincipal);
-        $submission->setAttribute('mail_number_resume', $mailNumberResume);
         $submission->setAttribute('start_date', $startDate);
         $submission->setAttribute('end_date', $endDate);
-        $submission->setAttribute('submission_date', $submissionDate);
-        $submission->setAttribute('guarantee_issue_date', $guaranteeIssueDate);
-        $submission->setAttribute('contract_doc_date', $contractDocDate);
-        $submission->setAttribute('day_name', $dayName);
-        $submission->setAttribute('document_format_analysis', $documentFormatAnalysis);
-        $submission->setAttribute('document_format_guarantor', $documentFormatGuarantor);
-        $submission->setAttribute('document_format_product', $documentFormatProduct);
-        $submission->setAttribute('document_format_type_guarantee', $documentFormatTypeGuarantor);
-        $submission->setAttribute('guarantor_address', $guarantorAddress);
-        $submission->setAttribute('guarantor_pic', $guarantorPic);
+        $submission->setAttribute('document_formats', $documentFormats);
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
-        $submission->setAttribute('time_period', $timePeriod);
         $submission->setAttribute('final_output_file', $finalOutputFile);
-        $submission->setAttribute('is_added_qrcode', $isAddedQR);
-        $submission->setAttribute('submission_support_docs', $docsInfo);
 
         return inertia($component, [
             'submission' => fn () => $submission,

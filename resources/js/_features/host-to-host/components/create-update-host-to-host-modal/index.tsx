@@ -16,7 +16,7 @@ import { useFetchGetAllGuarantor } from "@/_features/insurance/services/insuranc
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
 import { useForm } from "@inertiajs/react";
 import { CircleAlertIcon, LoaderCircle } from "lucide-react";
-import {FormEvent, useEffect} from "react";
+import { FormEvent, useEffect } from "react";
 import { HOST_TO_HOST_QUERY_KEY } from "../../services/host-to-host-query";
 
 interface CreateUpdateHostToHostModalProps {
