@@ -271,7 +271,7 @@ class SubmissionController extends Controller
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
             $dataSubmission['note_scoring'] = $scoring['note'];
             $modelScoring = Scoring::query()->find($scoring['id']);
-            $dataSubmission['min_point_scoring'] = $modelScoring?->min_point;
+            $dataSubmission['min_point_scoring'] = (int) $modelScoring?->min_point;
             $dataSubmission['contract_doc_date'] = $submission['contract_doc_date'] ? Carbon::parse($submission['contract_doc_date'])->format('Y-m-d') : null;
             $dataSubmission['start_date'] = $submission['start_date'] ? Carbon::parse($submission['start_date'])->format('Y-m-d H:i:s') : null;
             $dataSubmission['end_date'] = $submission['end_date'] ? Carbon::parse($submission['end_date'])->format('Y-m-d H:i:s') : null;
@@ -354,7 +354,7 @@ class SubmissionController extends Controller
 
             // if score < min_point_scoring, set status to REJECTED
             $totalScore = collect($scores)->sum('point');
-            if ($totalScore < $submission->getAttribute('min_point_scoring')) {
+            if ($totalScore < ((int) $submission->getAttribute('min_point_scoring'))) {
                 $this->processRejection($submission);
             }
             activity()
@@ -584,6 +584,7 @@ class SubmissionController extends Controller
                 $query->withTrashed();
             },
             'submissionDocs',
+            'submissionDocs.documentFormat:id,no',
             'scores',
             'scores.scoring' => function ($query) {
                 $query->withTrashed();
@@ -783,7 +784,12 @@ class SubmissionController extends Controller
             ->get();
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
-        $submissionDocs = $submission->getAttribute('has_send_to_guarantor') ? $submission->getRelation('submissionDocs')->whereNull('url')->values() : [];
+        $submissionDocs = $submission->getAttribute('has_send_to_guarantor')
+          ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
+        // sort by no
+        $submissionDocs = $submissionDocs->sortBy(function ($doc) {
+            return $doc->getRelation('documentFormat')->getAttribute('no');
+        })->values();
         $finalOutputFile = $submissionDocsFile->map(function ($doc) {
             $document = $doc->only('name', 'url');
             $document['name'] = $doc->getAttribute('name') ?? '-';
@@ -855,7 +861,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('callback', $callback);
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('total_score', $totalScore);
-
 
         return inertia($component, [
             'submission' => fn () => $submission,

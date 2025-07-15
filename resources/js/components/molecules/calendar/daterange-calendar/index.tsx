@@ -14,7 +14,12 @@ interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivEleme
   numberOfMonths?: number;
 }
 
-const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({ className, onDateChange, value, numberOfMonths }) => {
+const CalendarDateRangePicker: React.FC<CalendarDateRangePickerProps> = ({
+  className,
+  onDateChange,
+  value,
+  numberOfMonths,
+}) => {
   const [date, setDate] = React.useState<DateRange | undefined>(
     value || {
       from: new Date(),
