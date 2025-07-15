@@ -851,6 +851,9 @@ class SubmissionController extends Controller
         $submission->setAttribute('callback', $callback);
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('total_score', $totalScore);
+        $submission->setAttribute('contract_value', (float) $submission->getAttribute('contract_value'));
+        $submission->setAttribute('guarantee_value', (float) $submission->getAttribute('guarantee_value'));
+
 
         return inertia($component, [
             'submission' => fn () => $submission,
