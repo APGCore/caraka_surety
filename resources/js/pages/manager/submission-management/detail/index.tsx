@@ -687,24 +687,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                       colSpan={4}
                       className={cn({
                         "p-2 text-center": true,
-                        "bg-green-300": submission.scores?.[0]?.scoring?.min_point < submission.total_score,
-                        "bg-red-300": submission.scores?.[0]?.scoring?.min_point >= submission.total_score,
+                        "bg-green-300": submission.min_point_scoring <= submission.total_score,
+                        "bg-red-300": submission.min_point_scoring > submission.total_score,
                       })}>
                       <span className="pr-1">Disarankan Untuk</span>
-                      {submission.scores?.[0]?.scoring?.min_point < submission.total_score ? (
+                      <Show when={submission.min_point_scoring < submission.total_score}>
                         <span className="text-green-800">
-                          Disetujui Karena Nilai {submission.total_score} Lebih Dari{" "}
-                          {submission.scores?.[0]?.scoring?.min_point}
+                          Disetujui Karena Nilai {submission.total_score} Lebih Dari {submission.min_point_scoring}
                         </span>
-                      ) : (
+                      </Show>
+                      <Show when={submission.min_point_scoring > submission.total_score}>
                         <span className="text-red-800">
                           Ditolak Karena
-                          {" Nilai " +
-                            submission.total_score +
-                            " Kurang Dari " +
-                            submission.scores?.[0]?.scoring?.min_point}
+                          {" Nilai " + submission.total_score + " Kurang Dari " + submission.min_point_scoring}
                         </span>
-                      )}
+                      </Show>
                     </td>
                   </tr>
                 </tfoot>

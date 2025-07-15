@@ -256,6 +256,7 @@ class MonitoringController extends Controller
         foreach ($documentFormats as $documentFormat) {
             $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
         }
+        $totalScore = $submission->getRelation('scores')->sum('point');
 
         $submission->unsetRelation('submissionDocs');
         $submission->setAttribute('submission_docs', $submissionDocs);
@@ -267,6 +268,9 @@ class MonitoringController extends Controller
         $submission->setAttribute('beyond_the_limit', $beyondTheLimit);
         $submission->setAttribute('support_docs', $supportDocs);
         $submission->setAttribute('final_output_file', $finalOutputFile);
+        $submission->setAttribute('callback', $callback);
+        $submission->setAttribute('employee_limit', $employeeLimit);
+        $submission->setAttribute('total_score', $totalScore);
 
         return inertia('monitoring/submission/detail/index', [
             'submission' => fn () => $submission,

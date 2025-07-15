@@ -35,6 +35,10 @@ class Submission extends Model
         'deleted_at',
     ];
 
+    protected $casts = [
+        'min_point_scoring' => 'integer',
+    ];
+
     public function toSearchableArray(): array
     {
         return [
