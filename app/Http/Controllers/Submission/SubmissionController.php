@@ -730,6 +730,8 @@ class SubmissionController extends Controller
         $isManager = $checkRole['isManager'];
         $isKepalaCabang = $checkRole['isKepalaCabang'];
 
+        $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
+        $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
         $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
             ->map(function ($doc) use ($principalDocs) {
                 $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -837,8 +839,10 @@ class SubmissionController extends Controller
         } else {
             $component = 'staff/submission-management/history/detail/index';
         }
-
         $submission->unsetRelation('submissionDocs');
+        
+        $submission->setAttribute('contract_value_formatted', $contractValueFormatted);
+        $submission->setAttribute('guarantee_value_formatted', $guaranteeValueFormatted);
         $submission->setAttribute('submission_docs', $submissionDocs);
         $submission->setAttribute('blank', $blank);
         $submission->setAttribute('required_docs', $requiredDocs);
@@ -851,8 +855,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('callback', $callback);
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('total_score', $totalScore);
-        $submission->setAttribute('contract_value', (float) $submission->getAttribute('contract_value'));
-        $submission->setAttribute('guarantee_value', (float) $submission->getAttribute('guarantee_value'));
 
 
         return inertia($component, [
