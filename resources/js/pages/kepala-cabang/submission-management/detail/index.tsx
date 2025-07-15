@@ -95,19 +95,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {
-      const allDocuments = [
-        ...(Array.isArray(submission.document_format_guarantor) ? submission.document_format_guarantor : []),
-        ...(Array.isArray(submission.document_format_product) ? submission.document_format_product : []),
-        ...(Array.isArray(submission.document_format_type_guarantee) ? submission.document_format_type_guarantee : []),
-      ];
-
-      if (key === "hasil-analisis") {
-        return {
-          id: submission.document_format_analysis?.id || "hasil-analisis",
-          name: "Resume Analisa Penjaminan",
-          content: editorRefs.current[key].getContent(),
-        };
-      }
+      const allDocuments = [...(Array.isArray(submission.document_formats) ? submission.document_formats : [])];
 
       const doc = allDocuments.find((d) => `editor-${d.id}` === key);
 
