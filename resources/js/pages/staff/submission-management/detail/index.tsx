@@ -35,7 +35,7 @@ import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import SubmissionDetailHeader from "./_partials/create-page-header";
+import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";

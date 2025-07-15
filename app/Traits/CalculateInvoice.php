@@ -9,6 +9,7 @@ trait CalculateInvoice
 {
     public function calculateGuarantor(Submission $submission): Collection
     {
+      $submission->fresh(['guarantor.guarantorRate']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $guarantor = $submission->getRelation('guarantor');
@@ -28,6 +29,7 @@ trait CalculateInvoice
 
     public function calculateOffice(Submission $submission): Collection
     {
+      $submission->fresh(['staff.office.profileRate']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $office = $submission->getRelation('staff')?->getRelation('office');
@@ -37,7 +39,7 @@ trait CalculateInvoice
             ->first();
 
         $minimum = (float) ($profileRate?->getAttribute('minimum_bill') ?? 0);
-        $rate = (float) ($profileRate?->getAttribute('selling_rate') ?? 0) / 100;
+      $rate = (float)($profileRate?->getAttribute('selling_rate') ?? 0);
         $adm = (float) ($profileRate?->getAttribute('sales_administration') ?? 0);
         $brokenRate = (float) ($profileRate?->getAttribute('broken_rate') ?? 0);
         $revisedRate = (float) ($profileRate?->getAttribute('revised_rate') ?? 0);
@@ -47,6 +49,7 @@ trait CalculateInvoice
 
     public function calculatePrincipal(Submission $submission): Collection
     {
+      $submission->fresh(['principal.principalRate', 'staff']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $staff = $submission->getRelation('staff');
@@ -56,7 +59,7 @@ trait CalculateInvoice
             ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
             ->first();
         $minimum = (float) ($principalRate?->getAttribute('minimum_bill') ?? 0);
-        $rate = (float) ($principalRate?->getAttribute('selling_rate') ?? 0) / 100;
+      $rate = (float)($principalRate?->getAttribute('selling_rate') ?? 0);
         $adm = (float) ($principalRate?->getAttribute('sales_administration') ?? 0);
         $brokenRate = (float) ($principalRate?->getAttribute('broken_rate') ?? 0);
         $revisedRate = (float) ($principalRate?->getAttribute('revised_rate') ?? 0);
@@ -66,6 +69,7 @@ trait CalculateInvoice
 
     public function calculateCapitalRates(Submission $submission): Collection
     {
+      $submission->fresh(['guarantor.guarantorRate', 'submissionRate']);
         $isRevised = $submission->getAttribute('is_revised');
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
@@ -93,12 +97,14 @@ trait CalculateInvoice
 
     public function calculateSellingRates(Submission $submission): Collection
     {
+      $submission->fresh(['submissionRate']);
+      // Ensure the submission is fresh to get the latest rates
         $isRevised = $submission->getAttribute('is_revised');
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $submissionRate = $submission->getRelation('submissionRate');
         $minimum = (float) ($submissionRate?->getAttribute('minimum_bill') ?? 0);
-        $rate = (float) ($submissionRate?->getAttribute('selling_rate') ?? 0) / 100;
+      $rate = (float)($submissionRate?->getAttribute('selling_rate') ?? 0);
         $adm = (float) ($submissionRate?->getAttribute('sales_administration') ?? 0);
         $brokenRate = (float) ($submissionRate?->getAttribute('broken_rate') ?? 0);
         $revisedRate = (float) ($submissionRate?->getAttribute('revised_rate') ?? 0);
@@ -112,15 +118,15 @@ trait CalculateInvoice
         return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
     }
 
-    public function extractedSellingRates(float $guaranteeValue, float|int $rate, int $timePeriode, float $adm, float|int $minimum, float $brokenRate, float $revisedRate): Collection
+    private function extractedSellingRates(float $guaranteeValue, float|int $rate, int $timePeriode, float $adm, float|int $minimum, float $brokenRate, float $revisedRate): Collection
     {
-        $subService = $guaranteeValue * $rate;
+      $subService = $guaranteeValue * ($rate / 100);
         $serviceCharges = $timePeriode > 90 ? ($subService * $timePeriode) / 90 : $subService;
         $total = max(($serviceCharges + $adm), $minimum);
 
         return collect([
             'minimum' => $minimum,
-            'rate' => $rate * 100,
+            'rate' => $rate,
             'adm' => $adm,
             'broken_rate' => $brokenRate,
             'revised_rate' => $revisedRate,
@@ -129,7 +135,7 @@ trait CalculateInvoice
         ]);
     }
 
-    public function extractedCapitalRates(int $timePeriode, float $guaranteeValue, float $rate, float|int $minimum, float|int $adm, float $commission, float $pph, float|int $brokenRate, float|int $revisedRate): Collection
+    private function extractedCapitalRates(int $timePeriode, float $guaranteeValue, float $rate, float|int $minimum, float|int $adm, float $commission, float $pph, float|int $brokenRate, float|int $revisedRate): Collection
     {
         $serviceCharge = (float) $timePeriode > 91 ? (($guaranteeValue * $rate * $timePeriode) / 91) : ($guaranteeValue * $rate);
         $premi = max($serviceCharge, $minimum);
