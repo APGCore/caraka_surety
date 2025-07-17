@@ -160,6 +160,11 @@ class MonitoringController extends Controller
     $principalDocs = $principal->getRelation('documents');
     $blank = $submission->getRelation('blanks')->first();
 
+    if ($submission->status === SubmissionStatus::PROCESS->value && $blank) {
+      $blank->number = str_pad('X', 16, 'X');
+    }
+    $submission->setAttribute('blank', $blank);
+
     $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
       ->map(function ($doc) use ($principalDocs) {
         $principalDoc = $principalDocs->firstWhere('required_doc_id', $doc->id);
@@ -267,7 +272,6 @@ class MonitoringController extends Controller
     $submission->setAttribute('guarantee_value_formatted', $guaranteeValueFormatted);
     $submission->unsetRelation('submissionDocs');
     $submission->setAttribute('submission_docs', $submissionDocs);
-    $submission->setAttribute('blank', $blank);
     $submission->setAttribute('required_docs', $requiredDocs);
     $submission->setAttribute('start_date', $startDate);
     $submission->setAttribute('end_date', $endDate);
