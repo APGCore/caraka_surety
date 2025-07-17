@@ -209,9 +209,9 @@ class InvoiceController extends Controller
         }
         $guarantorRate = $this->calculateGuarantor($submission);
         $officeRate = $this->calculateOffice($submission);
-        $principalRate = $this->calculatePrincipal($submission);
+        //        $principalRate = $this->calculatePrincipal($submission);
         $capitalRate = $this->calculateCapitalRates($submission);
-        $sellingRate = $this->calculateSellingRates($submission);
+        //        $sellingRate = $this->calculateSellingRates($submission);
         $isSet = $submission->getRelation('submissionRate') !== null;
 
         $submission->unsetRelation('guarantor.guarantorRate');
@@ -226,9 +226,9 @@ class InvoiceController extends Controller
             'submission' => $submission,
             'guarantor_rate' => $guarantorRate,
             'office_rate' => $officeRate,
-            'principal_rate' => $principalRate,
+            //            'principal_rate' => $principalRate,
             'capital_rate' => $capitalRate,
-            'selling_rate' => $sellingRate,
+            'selling_rate' => $officeRate,
             'is_set' => $isSet,
         ]);
     }
@@ -275,6 +275,7 @@ class InvoiceController extends Controller
             'submission_ids' => 'required|array',
             'submission_ids.*' => 'required|integer|exists:'.Submission::class.',id,deleted_at,NULL',
         ]);
+        DB::beginTransaction();
         try {
             $submissionIds = $request->get('submission_ids', []);
             $submissions = Submission::query()
@@ -326,8 +327,8 @@ class InvoiceController extends Controller
                 ->whereIn('id', $submissionIds)
                 ->get();
 
-            $responses = [];
             $offices = [];
+            $invoices = [];
             foreach ($submissions as $submission) {
                 $staff = $submission->getRelation('staff');
                 $office = Profile::query()
@@ -352,6 +353,7 @@ class InvoiceController extends Controller
 
                     continue; // Skip if submission rate is not set
                 }
+                $submission->update(['has_send_to_finance' => true]);
                 $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
                 $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0);
                 $adm = (float) ($profileRate->getAttribute('sales_administration') ?? 0);
@@ -370,7 +372,7 @@ class InvoiceController extends Controller
                 $sellingRates = $this->calculateSellingRates($submission);
 
                 $prefixCode = 'apg-core-';
-                $dataSend = [
+                $invoices[] = [
                     'submission' => [
                         'id' => $submission->getAttribute('id'),
                         'no_guarantee' => $submission->getAttribute('no_guarantee'),
@@ -472,27 +474,25 @@ class InvoiceController extends Controller
                         ],
                     ],
                 ];
-                Log::info('Data to send to finance', ['data' => $dataSend]);
-                $url = config('services.finance.url');
-                $token = config('services.finance.token');
-                $response = $this->hostToHostService->sendPostRequest($url, $token, $dataSend);
-                $responses[] = $response;
-                if ($response['status'] !== 'error') {
-                    $submission->update(['has_send_to_finance' => true]);
-                }
             }
-
-            if (collect($responses)->where('status', 'error')->isNotEmpty()) {
-                Log::error('Error sending invoice to finance', ['responses' => $responses]);
+            Log::info('Data to send to finance', compact('invoices', 'offices'));
+            $url = config('services.finance.url');
+            $token = config('services.finance.token');
+            $response = $this->hostToHostService->sendPostRequest($url, $token, compact('invoices'));
+            if ($response['status'] === 'error') {
+                Log::error('Error sending invoice to finance', compact('response'));
                 flashMessage('Gagal', 'Gagal mengirim invoice ke aplikasi keuangan', 'error');
+                DB::rollBack();
             } else {
                 $officeNames = collect($offices)->unique('id')->pluck('name')->toArray();
-                Log::info('Invoice sent to finance successfully', ['responses' => $responses, 'offices_not_have_rate' => $officeNames]);
+                Log::info('Invoice sent to finance successfully', ['response' => $response, 'offices_not_have_rate' => $officeNames]);
                 flashMessage('Berhasil',
                     'Invoice berhasil dikirim ke aplikasi keuangan'.(count($offices) > 0 ?
                       ', namun Unit Bisnis '.implode(', ', $officeNames).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : ''));
+                DB::commit();
             }
         } catch (\Exception $e) {
+            DB::rollBack();
             $message = $this->handleErrorMessage($e);
             Log::error('Error sending invoice to finance', $message);
             flashMessage('Gagal', $message['message'] ?? 'Gagal mengirim invoice ke aplikasi keuangan', 'error');

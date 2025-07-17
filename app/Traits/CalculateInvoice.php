@@ -102,12 +102,12 @@ trait CalculateInvoice
         $isRevised = $submission->getAttribute('is_revised');
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-        $submissionRate = $submission->getRelation('submissionRate');
-        $minimum = (float) ($submissionRate?->getAttribute('minimum_bill') ?? 0);
-        $rate = (float) ($submissionRate?->getAttribute('selling_rate') ?? 0);
-        $adm = (float) ($submissionRate?->getAttribute('sales_administration') ?? 0);
-        $brokenRate = (float) ($submissionRate?->getAttribute('broken_rate') ?? 0);
-        $revisedRate = (float) ($submissionRate?->getAttribute('revised_rate') ?? 0);
+        $settingRate = $submission->getRelation('submissionRate');
+        $minimum = (float) ($settingRate?->getAttribute('minimum_bill') ?? 0);
+        $rate = (float) ($settingRate?->getAttribute('selling_rate') ?? 0);
+        $adm = (float) ($settingRate?->getAttribute('sales_administration') ?? 0);
+        $brokenRate = (float) ($settingRate?->getAttribute('broken_rate') ?? 0);
+        $revisedRate = (float) ($settingRate?->getAttribute('revised_rate') ?? 0);
 
         if ($isRevised) {
             $minimum = 0;
