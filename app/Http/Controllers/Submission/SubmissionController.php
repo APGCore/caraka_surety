@@ -731,6 +731,10 @@ class SubmissionController extends Controller
         $isManager = $checkRole['isManager'];
         $isKepalaCabang = $checkRole['isKepalaCabang'];
 
+        if ($submission->getAttribute('status') === SubmissionStatus::PROCESS->value && $blank) {
+          $blank->number = str_pad('X', 16, 'X');
+        }
+        $submission->setAttribute('blank', $blank);
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
         $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
         $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])

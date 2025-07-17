@@ -160,7 +160,7 @@ class MonitoringController extends Controller
     $principalDocs = $principal->getRelation('documents');
     $blank = $submission->getRelation('blanks')->first();
 
-    if ($submission->status === SubmissionStatus::PROCESS->value && $blank) {
+    if ($submission->getAttribute('status') === SubmissionStatus::PROCESS->value && $blank) {
       $blank->number = str_pad('X', 16, 'X');
     }
     $submission->setAttribute('blank', $blank);
