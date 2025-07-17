@@ -810,7 +810,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       "bg-red-300": submission.min_point_scoring > submission.total_score,
                     })}>
                     <span className="pr-1">Disarankan Untuk</span>
-                    <Show when={submission.min_point_scoring < submission.total_score}>
+                    <Show when={submission.min_point_scoring <= submission.total_score}>
                       <span className="text-green-800">
                         Disetujui Karena Nilai {submission.total_score} Lebih Dari {submission.min_point_scoring}
                       </span>
