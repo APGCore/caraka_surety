@@ -334,13 +334,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 {/*</tr>*/}
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Kontrak</td>
-                  <td className="p-2">
-                    :{" " + submission.contract_value_formatted}
-                    {/*{new Intl.NumberFormat("id-ID", {*/}
-                    {/*  style: "currency",*/}
-                    {/*  currency: "IDR",*/}
-                    {/*}).format(submission.contract_value)}*/}
-                  </td>
+                  <td className="p-2">:{" " + submission.contract_value_formatted}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold">Nilai Jaminan</td>
