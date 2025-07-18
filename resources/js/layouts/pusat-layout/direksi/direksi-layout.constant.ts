@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Archive, Home, MonitorCheck } from "lucide-react";
+import {Archive, Home, MonitorCheck, Stamp} from "lucide-react";
 
 export const direksiRoute: IAppSideBarMenu[] = [
   {
@@ -9,17 +9,17 @@ export const direksiRoute: IAppSideBarMenu[] = [
     icon: Home,
     items: [],
   },
-  // {
-  //   title: "Kelola Blangko",
-  //   icon: Stamp,
-  //   items: [
-  //     {
-  //       title: "Penerimaan Blangko",
-  //       route_name: "direksi-blank-management.blank",
-  //       href: route("direksi-blank-management.blank.index"),
-  //     },
-  //   ],
-  // },
+  {
+    title: "Kelola Blangko",
+    icon: Stamp,
+    items: [
+      {
+        title: "Penerimaan Blangko",
+        route_name: "direksi-blank-management.blank",
+        href: route("direksi-blank-management.blank.index"),
+      },
+    ],
+  },
   {
     title: "Kelola Pengajuan",
     icon: Archive,
