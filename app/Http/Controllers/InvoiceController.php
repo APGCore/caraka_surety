@@ -475,7 +475,16 @@ class InvoiceController extends Controller
                     ],
                 ];
             }
-            Log::info('Data to send to finance', compact('invoices', 'offices'));
+            $officeNames = collect($offices)->unique('id')->pluck('name')->toArray();
+            // If rate not found
+            $rateNotFound = count($offices) > 0 ? ', karena Unit Bisnis '.implode(', ', $officeNames).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+            if (count($invoices) === 0) {
+                flashMessage('Peringatan', 'Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound, 'warning');
+                DB::rollBack();
+
+                return redirect()->back();
+            }
+            Log::info('Data to send to finance', compact('invoices'));
             $url = config('services.finance.url');
             $token = config('services.finance.token');
             $response = $this->hostToHostService->sendPostRequest($url, $token, compact('invoices'));
@@ -484,11 +493,8 @@ class InvoiceController extends Controller
                 flashMessage('Gagal', 'Gagal mengirim invoice ke aplikasi keuangan', 'error');
                 DB::rollBack();
             } else {
-                $officeNames = collect($offices)->unique('id')->pluck('name')->toArray();
                 Log::info('Invoice sent to finance successfully', ['response' => $response, 'offices_not_have_rate' => $officeNames]);
-                flashMessage('Berhasil',
-                    'Invoice berhasil dikirim ke aplikasi keuangan'.(count($offices) > 0 ?
-                      ', namun Unit Bisnis '.implode(', ', $officeNames).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : ''));
+                flashMessage('Berhasil', 'Invoice berhasil dikirim ke aplikasi keuangan'.$rateNotFound);
                 DB::commit();
             }
         } catch (\Exception $e) {

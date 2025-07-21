@@ -732,7 +732,7 @@ class SubmissionController extends Controller
         $isKepalaCabang = $checkRole['isKepalaCabang'];
 
         if ($submission->getAttribute('status') === SubmissionStatus::PROCESS->value && $blank) {
-          $blank->number = str_pad('X', 16, 'X');
+            $blank->number = str_pad('X', 16, 'X');
         }
         $submission->setAttribute('blank', $blank);
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
