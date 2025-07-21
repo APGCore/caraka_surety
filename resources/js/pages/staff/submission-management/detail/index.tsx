@@ -442,7 +442,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </div>
         </Show>
         <Show when={currentStep.name === "docs"}>
-          {submission.required_docs && submission.required_docs.length > 0 ? (
+          <Show when={submission.required_docs && submission.required_docs.length > 0}>
             <table className="table-fixed w-full border border-gray-300">
               <thead>
                 <tr className="border-b bg-gray-100">
@@ -459,16 +459,21 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       <tr key={doc.id} className="border-b">
                         <td className="p-2">{doc.name}</td>
                         <td className="p-2">{doc.description || "-"}</td>
-                        <td className="p-2">{doc?.url ? <PreviewFile preview={doc.url} /> : "File Belum Diunggah"}</td>
+                        <td className="p-2">
+                          <Show when={!!doc?.url} fallback={"File Belum Diunggah"}>
+                            <PreviewFile preview={doc.url} />
+                          </Show>
+                        </td>
                       </tr>
                     );
                   }}
                 />
               </tbody>
             </table>
-          ) : (
-            <p className="text-gray-500">Tidak ada dokumen yang diunggah.</p>
-          )}
+            <Show when={!(submission.required_docs && submission.required_docs.length > 0)}>
+              <p className="text-gray-500">Tidak ada dokumen yang diunggah.</p>
+            </Show>
+          </Show>
         </Show>
         <Show when={currentStep.name === "contract"}>
           <table className="table-fixed w-full border border-gray-300">
@@ -493,18 +498,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <td className="p-2 font-semibold">Alamat Obligee</td>
                 <td className="p-2">: {submission.obligee?.address}</td>
               </tr>
-              {/*<tr className="border-b">*/}
-              {/*  <td className="p-2 font-semibold">Jenis Dokumen</td>*/}
-              {/*  <td className="p-2">: {submission.contract_doc_name}</td>*/}
-              {/*</tr>*/}
-              {/*<tr className="border-b">*/}
-              {/*  <td className="p-2 font-semibold">Nomor Dokumen</td>*/}
-              {/*  <td className="p-2">: {submission.contract_doc_number}</td>*/}
-              {/*</tr>*/}
-              {/*<tr className="border-b">*/}
-              {/*  <td className="p-2 font-semibold">Tanggal Dokumen</td>*/}
-              {/*  <td className="p-2">: {submission.contract_doc_date}</td>*/}
-              {/*</tr>*/}
               <tr className="border-b">
                 <td className="p-2 font-semibold">Nilai Kontrak</td>
                 <td className="p-2">:{" " + submission.contract_value_formatted}</td>
@@ -673,16 +666,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tr className="border-b bg-gray-100">
                   <td className="p-2 font-semibold text-left">
                     Rasio Likuiditas
-                    {comparisonRatios.liquidity_ratios == true && (
+                    <Show when={comparisonRatios.liquidity_ratios === true}>
                       <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
                         Naik
                       </Badge>
-                    )}
-                    {comparisonRatios.liquidity_ratios == false && (
+                    </Show>
+                    <Show when={comparisonRatios.liquidity_ratios === false}>
                       <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
                         Turun
                       </Badge>
-                    )}
+                    </Show>
                   </td>
                   <RenderList
                     of={submission.principal?.ratios as Array<any>}
@@ -694,16 +687,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tr className="border-b bg-gray-100">
                   <td className="p-2 font-semibold text-left">
                     Rasio Solvabilitas
-                    {comparisonRatios.solvency_ratios == true && (
+                    <Show when={comparisonRatios.solvency_ratios === true}>
                       <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
                         Naik
                       </Badge>
-                    )}
-                    {comparisonRatios.solvency_ratios == false && (
+                    </Show>
+                    <Show when={comparisonRatios.solvency_ratios === false}>
                       <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
                         Turun
                       </Badge>
-                    )}
+                    </Show>
                   </td>
                   <RenderList
                     of={submission.principal?.ratios as Array<any>}
@@ -715,16 +708,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <tr className="border-b bg-gray-100">
                   <td className="p-2 font-semibold text-left">
                     Rasio Profitabilitas
-                    {comparisonRatios.profitability_ratios == true && (
+                    <Show when={comparisonRatios.profitability_ratios === true}>
                       <Badge variant="success" className="flex-shrink-0 h-6 mx-2">
                         Naik
                       </Badge>
-                    )}
-                    {comparisonRatios.profitability_ratios == false && (
+                    </Show>
+                    <Show when={comparisonRatios.profitability_ratios === false}>
                       <Badge variant="destructive" className="flex-shrink-0 h-6 mx-2">
                         Turun
                       </Badge>
-                    )}
+                    </Show>
                   </td>
                   <RenderList
                     of={submission.principal?.ratios as Array<any>}

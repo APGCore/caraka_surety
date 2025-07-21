@@ -1707,6 +1707,7 @@ class SubmissionController extends Controller
             $submission->blanks()->detach();
             $submission->submissionBefore()->update([
                 'is_revised' => false,
+                'status' => SubmissionStatus::APPROVED->value,
             ]);
             $submission->delete();
             DB::commit();
