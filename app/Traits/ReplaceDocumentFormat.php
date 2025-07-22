@@ -238,14 +238,21 @@ trait ReplaceDocumentFormat
             ->with('obligee')
             ->get()
             ->map(function ($submission, $index) use ($obligee) {
-                return "<tr style='text-align: left;'>
-                    <td style='text-align: center;'>".($index + 1)."</td>
-                    <td>{$obligee->getAttribute('name')}</td>
+                $no = $index + 1;
+                $obligeeName = $obligee->getAttribute('name');
+                $contractValue = number_format($submission->contract_value, 0, ',', '.');
+                $approvedAt = date('Y', strtotime($submission->approved_at));
+                return
+                  "<tr style='text-align: left;'>
+                    <td style='text-align: center;'>$no</td>
+                    <td>$obligeeName</td>
                     <td>$submission->job_name</td>
-                    <td>Rp. ".number_format($submission->contract_value, 0, ',', '.').'</td>
-                    <td>'.date('Y', strtotime($submission->approved_at)).'</td>
-                </tr>';
+                    <td>Rp. $contractValue</td>
+                    <td>$approvedAt</td>
+                  </tr>";
             })->implode('');
+
+        $principalName = $principal->getAttribute('name');
 
         return "<table style='width: 100%; border-collapse: collapse; text-align: center;' border='1'>
             <tr>
@@ -255,7 +262,7 @@ trait ReplaceDocumentFormat
             </tr>
             <tr>
                 <td colspan='5' style='text-align:left'>
-                    <strong>Berikut Pengalaman Kerja PT {$principal->getAttribute('name')}</strong>
+                    <strong>Berikut Pengalaman Kerja $principalName</strong>
                 </td>
             </tr>
             <tr>
@@ -265,7 +272,7 @@ trait ReplaceDocumentFormat
                 <th>Nilai Proyek</th>
                 <th>Tahun</th>
             </tr>
-            {$approvedSubmissionsExp}
+            $approvedSubmissionsExp
         </table>";
     }
 
