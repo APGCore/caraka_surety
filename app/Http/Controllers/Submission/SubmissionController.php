@@ -333,7 +333,7 @@ class SubmissionController extends Controller
                     }
                     $data['url'] = $this->uploadFile(
                         $file,
-                        "submission/submission-$noGuarantee/support-documents/{$supportDoc['number']}",
+                      "submission/submission-{$submission->getAttribute('id')}/support-documents/{$supportDoc['date']}",
                         $supportDoc['name']
                     );
                 }
