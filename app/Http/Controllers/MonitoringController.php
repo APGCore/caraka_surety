@@ -36,34 +36,38 @@ class MonitoringController extends Controller
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
         $officeSelected = $officeFilter->officeSelected;
+        $search = $request->input('search');
 
-        $submissions = Submission::search($request->get('search'))
-            ->query(
-                function ($query) use ($officeIds, $isAdmin, $statusSelected, $officeSelected) {
-                    $query->where('guarantor_id', config('guarantor.id'))
-                        ->where('product_id', config('product.id'))
-                        ->when(! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
-                        ->when($officeSelected, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
-                        ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
-                        ->with([
-                            'scores',
-                            'principal',
-                            'bank',
-                            'obligee',
-                            'employeeLimit',
-                            'sourceOfFund',
-                            'guarantor',
-                            'guarantorToProductType',
-                            'guarantorProductTypeLimit',
-                            'staff:id,name,profile_id',
-                            'staff.office:id,name',
-                        ]);
-                }
-            )
+        $submissions = Submission::query()
+            ->when($search, function ($query, $search) {
+              $query->where(function ($query) use ($search) {
+                $query->whereLike('no_guarantee', "%$search%")
+                  ->orWhereHas('principal', function ($query) use ($search) {
+                    $query->whereLike('name', "%$search%");
+                  });
+              });
+            })
+            ->where('guarantor_id', config('guarantor.id'))
+            ->where('product_id', config('product.id'))
+            ->when(! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
+            ->when($officeSelected, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
+            ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
+            ->with([
+                'scores',
+                'principal',
+                'bank',
+                'obligee',
+                'employeeLimit',
+                'sourceOfFund',
+                'guarantor',
+                'guarantorToProductType',
+                'guarantorProductTypeLimit',
+                'staff:id,name,profile_id',
+                'staff.office:id,name',
+            ])
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
+            ->withQueryString();
         $resource = SubmissionResource::collection($submissions);
 
         return inertia('monitoring/submission/index', [
