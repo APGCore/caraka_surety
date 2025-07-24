@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('fax')->nullable();
             $table->string('pic');
             $table->text('picture')->nullable();
+            $table->text('publication_place')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

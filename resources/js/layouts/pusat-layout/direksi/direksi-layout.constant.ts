@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import {Archive, Home, MonitorCheck, Stamp} from "lucide-react";
+import { Archive, Home, MonitorCheck, Stamp } from "lucide-react";
 
 export const direksiRoute: IAppSideBarMenu[] = [
   {
