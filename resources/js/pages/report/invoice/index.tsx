@@ -142,7 +142,18 @@ const InvoicePage: InvoicePageProps = ({
         product_id,
         product_type_id,
       }),
-      { preserveState: true, preserveScroll: true },
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          setSubmissionChecked((prev) => {
+            if (checkAll) {
+              return submissionIds;
+            }
+            return prev.filter((id) => submissionIds.includes(id));
+          });
+        },
+      },
     );
   };
 

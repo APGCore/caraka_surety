@@ -242,6 +242,7 @@ trait ReplaceDocumentFormat
                 $obligeeName = $obligee->getAttribute('name');
                 $contractValue = number_format($submission->contract_value, 0, ',', '.');
                 $approvedAt = date('Y', strtotime($submission->approved_at));
+
                 return
                   "<tr style='text-align: left;'>
                     <td style='text-align: center;'>$no</td>

@@ -40,12 +40,12 @@ class MonitoringController extends Controller
 
         $submissions = Submission::query()
             ->when($search, function ($query, $search) {
-              $query->where(function ($query) use ($search) {
-                $query->whereLike('no_guarantee', "%$search%")
-                  ->orWhereHas('principal', function ($query) use ($search) {
-                    $query->whereLike('name', "%$search%");
-                  });
-              });
+                $query->where(function ($query) use ($search) {
+                    $query->whereLike('no_guarantee', "%$search%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->whereLike('name', "%$search%");
+                        });
+                });
             })
             ->where('guarantor_id', config('guarantor.id'))
             ->where('product_id', config('product.id'))

@@ -263,6 +263,8 @@ class SubmissionController extends Controller
                     $profile
                 );
                 $dataSubmission['staff_id'] = auth()->id();
+                $dataSubmission['publication_date'] = now();
+                $dataSubmission['publication_place'] = $guarantorHead->getRelation('branch')?->where('id', $guarantorBranchId)->first()?->publication_place;
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
             $dataSubmission['no_guarantee'] = $noGuarantee;
@@ -333,7 +335,7 @@ class SubmissionController extends Controller
                     }
                     $data['url'] = $this->uploadFile(
                         $file,
-                      "submission/submission-{$submission->getAttribute('id')}/support-documents/{$supportDoc['date']}",
+                        "submission/submission-{$submission->getAttribute('id')}/support-documents/{$supportDoc['date']}",
                         $supportDoc['name']
                     );
                 }
@@ -908,33 +910,41 @@ class SubmissionController extends Controller
             })
             ->where('guarantor_id', $this->guarantorId)
             ->where('product_id', $this->productId)
-            ->when($isDireksi, fn ($query) => $query
-                ->whereNotNull('checked_by')
-                ->where('status', SubmissionStatus::PROCESS->value)
-                ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
+            ->when(
+                $isDireksi,
+                fn ($query) => $query
+                    ->whereNotNull('checked_by')
+                    ->where('status', SubmissionStatus::PROCESS->value)
+                    ->whereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::Manager->value))
             )
-            ->when($isManager, fn ($query) => $query
-                ->where(function ($query) use ($staffs) {
-                    $query->whereIn('staff_id', $staffs)
-                        ->orWhereIn('checked_by', $staffs);
-                })
-                ->whereNull(['approved_by', 'rejected_by'])
+            ->when(
+                $isManager,
+                fn ($query) => $query
+                    ->where(function ($query) use ($staffs) {
+                        $query->whereIn('staff_id', $staffs)
+                            ->orWhereIn('checked_by', $staffs);
+                    })
+                    ->whereNull(['approved_by', 'rejected_by'])
                 //  ->where(fn ($query) => $query
                 //      ->whereNull('checked_by')
                 //      ->orWhereHas('userChecked.role', fn ($query) => $query->where('name', RoleEnum::KepalaCabang->value))
                 //  )
             )
-            ->when($isKepalaCabang, fn ($query) => $query
-                ->whereIn('staff_id', $staffs)
-                ->whereNull(['approved_by', 'rejected_by'])
-                ->where(function ($query) use ($authId) {
-                    $query->whereNull('checked_by')
-                        ->orWhere('checked_by', $authId);
-                })
+            ->when(
+                $isKepalaCabang,
+                fn ($query) => $query
+                    ->whereIn('staff_id', $staffs)
+                    ->whereNull(['approved_by', 'rejected_by'])
+                    ->where(function ($query) use ($authId) {
+                        $query->whereNull('checked_by')
+                            ->orWhere('checked_by', $authId);
+                    })
             )
             ->when($isKepalaAgentPartner, fn ($query) => $query->whereIn('staff_id', $staffs))
-            ->when($officeSelected, fn ($query) => $query
-                ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
+            ->when(
+                $officeSelected,
+                fn ($query) => $query
+                    ->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected))
             )
             ->with([
                 'scores',
@@ -1025,10 +1035,12 @@ class SubmissionController extends Controller
             ->when($isDireksi, function ($query) {
                 $query->whereNot('status', SubmissionStatus::PROCESS->value);
             })
-            ->when($isManager || $isKepalaCabang, fn ($query) => $query->where(function ($query) use ($staffs, $authId) {
-                $query->whereIn('staff_id', $staffs)
-                    ->orWhere('checked_by', $authId);
-            })->whereNotNull('checked_by')
+            ->when(
+                $isManager || $isKepalaCabang,
+                fn ($query) => $query->where(function ($query) use ($staffs, $authId) {
+                    $query->whereIn('staff_id', $staffs)
+                        ->orWhere('checked_by', $authId);
+                })->whereNotNull('checked_by')
             )
             ->when($officeSelected && ! $isStaff, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
             ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
@@ -1428,8 +1440,8 @@ class SubmissionController extends Controller
         $submission = Submission::query()
             ->with([
                 'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                'director_name,director_position,director_phone,commissioner,year_established,'.
-                'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                  'director_name,director_position,director_phone,commissioner,year_established,'.
+                  'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                 'principal.province:id,code,name',
                 'principal.regency:id,code,name',
                 'principal.district:id,code,name',
