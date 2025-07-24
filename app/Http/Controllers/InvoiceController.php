@@ -326,7 +326,6 @@ class InvoiceController extends Controller
                 ])
                 ->whereIn('id', $submissionIds)
                 ->get();
-
             $offices = [];
             $invoices = [];
             foreach ($submissions as $submission) {

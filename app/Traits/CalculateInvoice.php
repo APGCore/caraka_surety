@@ -69,7 +69,7 @@ trait CalculateInvoice
 
     public function calculateCapitalRates(Submission $submission): Collection
     {
-        $submission->fresh(['guarantor.guarantorRate', 'submissionRate']);
+        $submission->load(['guarantor.guarantorRate', 'submissionRate']);
         $isRevised = $submission->getAttribute('is_revised');
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
@@ -97,7 +97,7 @@ trait CalculateInvoice
 
     public function calculateSellingRates(Submission $submission): Collection
     {
-        $submission->fresh(['submissionRate']);
+        $submission->load(['submissionRate']);
         // Ensure the submission is fresh to get the latest rates
         $isRevised = $submission->getAttribute('is_revised');
         $timePeriode = (int) $submission->getAttribute('time_period');
