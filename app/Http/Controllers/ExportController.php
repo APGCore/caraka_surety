@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SubmissionExport;
 use App\Models\Document\DocumentFormat;
-use App\Models\Submission\SubmissionDoc;
-use Storage;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use TCPDF;
 
 class ExportController extends Controller
 {
-    public function exportToPdf($docId)
+    public function exportToPdf($docId): StreamedResponse
     {
-        // $document = SubmissionDoc::findOrFail($docId);
-        $document = DocumentFormat::findOrFail($docId);
+        $document = DocumentFormat::query()->findOrFail($docId);
 
         $pdf = new TCPDF;
         $pdf->SetCreator('MyApp');
@@ -41,21 +43,18 @@ class ExportController extends Controller
         }, $document->name.'.pdf');
     }
 
-    public function uploadToS3($docId)
+    public function submissionToExcel(Request $request): BinaryFileResponse
     {
-        $pdfPath = 'temp/document_'.$docId.'.pdf';
+        $request->merge([
+            'submission_ids' => explode(',', $request->get('submission_ids', '')),
+        ]);
+        // Validasi input jika diperlukan
+        $validatedData = $request->validate([
+            'submission_ids' => 'nullable|array',
+            'submission_ids.*' => 'integer|exists:submissions,id,deleted_at,NULL',
+        ]);
+        $submissionIds = $validatedData['submission_ids'];
 
-        if (! Storage::disk('local')->exists($pdfPath)) {
-            return response()->json(['error' => 'File PDF tidak ditemukan'], 404);
-        }
-
-        // Unggah ke S3
-        $s3Path = 'documents/'.basename($pdfPath);
-        Storage::disk('s3')->put($s3Path, Storage::disk('local')->get($pdfPath));
-
-        // Hapus file dari penyimpanan lokal setelah diunggah
-        Storage::disk('local')->delete($pdfPath);
-
-        return response()->json(['message' => 'PDF berhasil diunggah ke S3', 's3_path' => $s3Path]);
+        return Excel::download(new SubmissionExport($submissionIds), 'Pengajuan_Jaminan.xlsx');
     }
 }

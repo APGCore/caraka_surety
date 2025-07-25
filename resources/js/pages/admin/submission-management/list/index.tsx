@@ -18,6 +18,7 @@ import { SubmissionUtils } from "./_partials/submission.utils";
 
 const SubmissionPage: SubmissionPageProps = ({
   submissions,
+  submissionIds,
   offices,
   officeTypes,
   officeSelected,
@@ -90,6 +91,17 @@ const SubmissionPage: SubmissionPageProps = ({
     getData({ product_type_id: productTypeId });
   };
 
+  const exportExcel = () => {
+    window.location.href =
+      route(SubmissionUtils.link.export.excel) +
+      "?" +
+      new URLSearchParams(
+        pickBy({
+          submission_ids: submissionIds,
+        }) as unknown as Record<string, string>,
+      ).toString();
+  };
+
   const getData = ({
     per_page = perPage,
     searchValue = search,
@@ -129,7 +141,7 @@ const SubmissionPage: SubmissionPageProps = ({
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={() => {}} />
+          <ExportDocsButtonDatatable onClick={exportExcel} />
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectSubmissionLength} />
           <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />
         </div>

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ExportController;
 use App\Http\Controllers\Submission\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,12 +15,8 @@ Route::prefix('submission-management')->group(function () {
             Route::post('/check/{submission}', 'check')->name('check');
 
             Route::get('/detail/{id}', 'showDetailSubmission')->name('detail.submission');
-            // Route::get('/detail-doc/{id}', 'showDetailDocsSubmissionManager')->name('detail.submission');
             Route::get('/draft-doc/{id}', 'showDetailDocsSubmissionManager')->name('docs.submission');
 
             Route::post('/save-doc', 'saveDocSignatured')->name('save-permohonan-doc.submission');
         });
 });
-
-Route::get('/submission-management/document-draft/export-pdf/{id}', [ExportController::class, 'exportToPdf'])->name('export.pdf');
-Route::post('/submission-management/document-draft/upload-pdf/{id}', [ExportController::class, 'uploadToS3'])->name('upload.pdf');

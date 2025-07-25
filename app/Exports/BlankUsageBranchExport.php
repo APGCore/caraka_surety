@@ -10,6 +10,8 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class BlankUsageBranchExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithMapping
 {
@@ -88,8 +90,8 @@ class BlankUsageBranchExport implements FromCollection, ShouldAutoSize, WithEven
                 $sheet->getStyle('A1:G2')->applyFromArray([
                     'font' => ['bold' => true],
                     'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
 
@@ -100,8 +102,8 @@ class BlankUsageBranchExport implements FromCollection, ShouldAutoSize, WithEven
                 $highestRow = $sheet->getHighestRow();
                 $sheet->getStyle("B3:G{$highestRow}")->applyFromArray([
                     'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
 
@@ -111,7 +113,7 @@ class BlankUsageBranchExport implements FromCollection, ShouldAutoSize, WithEven
                 $sheet->getStyle("A1:{$highestColumn}{$highestRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'borderStyle' => Border::BORDER_THIN,
                         ],
                     ],
                 ]);

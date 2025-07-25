@@ -18,14 +18,15 @@ class BlankUsageExport implements FromCollection, WithEvents, WithHeadings
         return Blank::query()
             ->select([
                 'number', // Nomor Blanko
-                \DB::raw("CONCAT(
-                            CASE WHEN is_used = 1 THEN 'Terpakai' ELSE '' END,
-                            CASE WHEN is_used = 1 AND (is_broken = 1 OR is_approved = 1) THEN ', ' ELSE '' END,
-                            CASE WHEN is_broken = 1 THEN ' Rusak' ELSE '' END,
-                            CASE WHEN (is_used = 0 AND is_broken = 0) AND is_approved = 1 THEN ', ' ELSE '' END,
-                            CASE WHEN is_approved = 1 THEN ', Disetujui' ELSE '' END
-                          ) AS status"), // Gabungan status
-                \DB::raw('(SELECT name FROM profiles WHERE profiles.id = blanks.profile_id) AS kantor_cabang'), // Kantor Cabang
+                'is_used', // Status digunakan
+                'is_broken', // Status rusak
+                'is_approved', // Status disetujui
+                'profile_id', // ID Kantor Cabang
+            ])
+            ->with([
+                'profile' => function ($query) {
+                    $query->select('id', 'name', 'code');
+                },
             ])
             ->get();
     }
@@ -38,7 +39,35 @@ class BlankUsageExport implements FromCollection, WithEvents, WithHeadings
         return [
             'No Blanko',
             'Status',
-            'Kantor Cabang',
+            'Unit Bisnis',
+        ];
+    }
+
+    public function map($blank): array
+    {
+        $status = [];
+
+        if ($blank->is_used) {
+            $status[] = 'Terpakai';
+        }
+
+        if ($blank->is_broken) {
+            $status[] = 'Rusak';
+        }
+
+        if ($blank->is_approved) {
+            $status[] = 'Disetujui';
+        }
+
+        $gabunganStatus = implode(', ', $status);
+        $profile = $blank->getRelation('profile');
+
+        return [
+            $blank->number,
+            $gabunganStatus,
+            $profile ?
+              $profile->name.' ('.$profile->code.')'
+              : '',
         ];
     }
 
