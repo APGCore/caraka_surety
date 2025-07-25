@@ -37,6 +37,7 @@ const BranchGuarantorForm: React.FC<Props> = ({ guarantor, branchGuarantor, rout
     prefix: string;
     content: string;
     suffix: string;
+    publication_place: string;
   }>({
     headquarter_id: guarantor.id,
     id: branchGuarantor?.id ?? null,
@@ -57,6 +58,7 @@ const BranchGuarantorForm: React.FC<Props> = ({ guarantor, branchGuarantor, rout
     prefix: branchGuarantor?.pattern?.prefix ?? "",
     content: branchGuarantor?.pattern?.content ?? "",
     suffix: branchGuarantor?.pattern?.suffix ?? "",
+    publication_place: branchGuarantor?.publication_place ?? "",
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -253,6 +255,21 @@ const BranchGuarantorForm: React.FC<Props> = ({ guarantor, branchGuarantor, rout
           autoComplete="fax"
         />
         <InputError className="mt-2" message={errors.fax} />
+      </div>
+
+      <div className="space-y-2">
+        <InputLabel htmlFor="publication_place" value="Tempat Publikasi" />
+
+        <TextInput
+          id="publication_place"
+          className="mt-1 block w-full"
+          value={data.publication_place}
+          onChange={(e) => setData("publication_place", e.target.value)}
+          autoComplete="publication_place"
+          placeholder="Tempat Publikasi dalam pengajuan"
+        />
+
+        <InputError className="mt-2" message={errors.publication_place} />
       </div>
 
       <div className="flex items-center gap-4 justify-end">
