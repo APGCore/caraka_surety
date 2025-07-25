@@ -56,6 +56,8 @@ class SubmissionController extends Controller
         $this->productId = config('product.id');
     }
 
+    // For Export
+
     public function index(Request $request): Response
     {
         $date = collect($request->get('date') ?? [
@@ -71,7 +73,7 @@ class SubmissionController extends Controller
             ->whereNull('headquarter_id')
             ->with('guarantorToProductTypes')
             ->get(['id', 'name']);
-        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->getAttribute('id'));
+        $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
         $products = Product::query()
             ->with('productType')
             ->get(['id', 'name']);
@@ -81,50 +83,56 @@ class SubmissionController extends Controller
         $productTypeSelected = $request->get('product_type_id');
         $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
+        $search = $request->get('search');
 
-        $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                return $query
-                    ->when($date->isNotEmpty(), function ($query) use ($date) {
-                        $query->whereBetween('created_at', $date);
-                    })
-                    ->when($officeSelected, function ($query) use ($officeSelected) {
-                        $query->whereHas('staff', function ($query) use ($officeSelected) {
-                            $query->where('profile_id', $officeSelected);
+        $submissions = Submission::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('no_guarantee', 'like', "%{$search}%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
                         });
-                    })
-                    ->when($guarantorSelected !== null, function ($query) use ($guarantorSelected) {
-                        $query->where('guarantor_id', $guarantorSelected);
-                    })
-                    ->when($productSelected !== null, function ($query) use ($productSelected) {
-                        $query->where('product_id', $productSelected);
-                    })
-                    ->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
-                        $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-                    })
-                    ->with([
-                        'guarantor:id,name,code',
-                        'guarantorBranch:id,name,code',
-                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                        'guarantor.guarantorRate',
-                        'product:id,name',
-                        'guarantorToProductType:id,code_product,code,name',
-                        'blanks:id,number,is_broken',
-                        'principal:id,name',
-                        'obligee:id,name',
-                        'staff:id,name,profile_id',
-                        'staff.office:id,name,code,office_type',
-                        'staff.office.profileRate',
-                        'submissionBefore:id',
-                        'submissionBefore.blanks',
-                        'staff:id,name,profile_id',
-                        'staff.office:id,name',
-                    ]);
+                });
             })
+            ->when($date->isNotEmpty(), function ($query) use ($date) {
+                $query->whereBetween('created_at', $date);
+            })
+            ->when($officeSelected, function ($query) use ($officeSelected) {
+                $query->whereHas('staff', function ($query) use ($officeSelected) {
+                    $query->where('profile_id', $officeSelected);
+                });
+            })
+            ->where('guarantor_id', $guarantorSelected)
+            ->when($productSelected !== null, function ($query) use ($productSelected) {
+                $query->where('product_id', $productSelected);
+            })
+            ->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
+                $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
+            });
+
+        $submissionIds = $submissions->pluck('id');
+
+        $submissions = $submissions->with([
+            'guarantor:id,name,code',
+            'guarantorBranch:id,name,code',
+            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+            'guarantor.guarantorRate',
+            'product:id,name',
+            'guarantorToProductType:id,code_product,code,name',
+            'blanks:id,number,is_broken',
+            'principal:id,name',
+            'obligee:id,name',
+            'staff:id,name,profile_id',
+            'staff.office:id,name,code,office_type',
+            'staff.office.profileRate',
+            'submissionBefore:id',
+            'submissionBefore.blanks',
+            'staff:id,name,profile_id',
+            'staff.office:id,name',
+        ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query')
-            ->appends($request->all());
+            ->withQueryString();
 
         $resource = SubmissionResource::collection($submissions);
         $component = 'admin/submission-management/list/index';
@@ -134,6 +142,7 @@ class SubmissionController extends Controller
                 'title' => 'Daftar Pengajuan',
             ],
             'submissions' => fn () => $resource,
+            'submissionIds' => $submissionIds,
             'offices' => $offices,
             'officeTypes' => $officeTypes,
             'officeSelected' => (int) $officeSelected,

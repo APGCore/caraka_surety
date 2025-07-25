@@ -8,39 +8,39 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
-import {Button} from "@/_features/_common/components/_shadcn-ui/button";
+import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import FilterOffice from "@/_features/_common/components/filter-office";
-import {getQueryParameter} from "@/common/utils/get-query-parameter";
+import { getQueryParameter } from "@/common/utils/get-query-parameter";
 import Loading from "@/components/atoms/loading";
-import {CalendarDateRangePicker} from "@/components/molecules/calendar/daterange-calendar";
-import {Combobox} from "@/components/molecules/combobox";
+import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
+import { Combobox } from "@/components/molecules/combobox";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
-import {InvoiceUtils} from "@/pages/report/invoice/_partials/invoice.utils";
-import {router} from "@inertiajs/react";
-import {subDays} from "date-fns";
-import {pickBy} from "lodash";
-import {useEffect, useState} from "react";
-import {DateRange} from "react-day-picker";
+import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
+import { router } from "@inertiajs/react";
+import { subDays } from "date-fns";
+import { pickBy } from "lodash";
+import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
 import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";
-import {InvoicePageProps} from "./_partials/invoice.type";
+import { InvoicePageProps } from "./_partials/invoice.type";
 
 const InvoicePage: InvoicePageProps = ({
-                                         submissions,
-                                         submissionIds,
-                                         offices,
-                                         officeTypes,
-                                         officeSelected,
-                                         officeTypeSelected,
-                                         guarantors,
-                                         guarantorSelected,
-                                         products,
-                                         productSelected,
-                                         productTypes,
-                                         productTypeSelected,
-                                       }) => {
+  submissions,
+  submissionIds,
+  offices,
+  officeTypes,
+  officeSelected,
+  officeTypeSelected,
+  guarantors,
+  guarantorSelected,
+  products,
+  productSelected,
+  productTypes,
+  productTypeSelected,
+}) => {
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
   const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
@@ -59,11 +59,11 @@ const InvoicePage: InvoicePageProps = ({
 
   const handleSelectInvoiceLength = (perPage: string) => {
     setPerPage(perPage);
-    getData({per_page: perPage});
+    getData({ per_page: perPage });
   };
 
   const handleSearchInvoice = () => {
-    getData({searchValue: search});
+    getData({ searchValue: search });
   };
 
   const convertDate = (date: DateRange | undefined) => {
@@ -80,28 +80,28 @@ const InvoicePage: InvoicePageProps = ({
     setFilterDate(dateRange);
     if (dateRange?.from && dateRange?.to) {
       const dates = convertDate(dateRange);
-      getData({date: dates});
+      getData({ date: dates });
     }
   };
 
   const handleSelectOfficeType = (officeType: string) => {
-    getData({office_type: officeType, office_id: 0});
+    getData({ office_type: officeType, office_id: 0 });
   };
 
   const handleSelectOffice = (officeId: number) => {
-    getData({office_id: officeId});
+    getData({ office_id: officeId });
   };
 
   const handleSelectGuarantor = (guarantorId: number) => {
-    getData({guarantor_id: guarantorId});
+    getData({ guarantor_id: guarantorId });
   };
 
   const handleSelectProduct = (productId?: number | null) => {
-    getData({product_id: productId});
+    getData({ product_id: productId });
   };
 
   const handleSelectProductType = (productTypeId?: number | null) => {
-    getData({product_type_id: productTypeId});
+    getData({ product_type_id: productTypeId });
   };
 
   const handleResetFilterOffice = () => {
@@ -112,15 +112,15 @@ const InvoicePage: InvoicePageProps = ({
   };
 
   const getData = ({
-                     per_page = perPage,
-                     searchValue = search,
-                     date = convertDate(filterDate),
-                     office_type = officeTypeSelected,
-                     office_id = officeSelected,
-                     guarantor_id = guarantorSelected,
-                     product_id = productSelected,
-                     product_type_id = productTypeSelected,
-                   }: {
+    per_page = perPage,
+    searchValue = search,
+    date = convertDate(filterDate),
+    office_type = officeTypeSelected,
+    office_id = officeSelected,
+    guarantor_id = guarantorSelected,
+    product_id = productSelected,
+    product_type_id = productTypeSelected,
+  }: {
     per_page?: string;
     searchValue?: string;
     date?: { from: string; to: string } | undefined;
@@ -143,15 +143,16 @@ const InvoicePage: InvoicePageProps = ({
         product_type_id,
       }),
       {
-        preserveState: true, preserveScroll: true,
+        preserveState: true,
+        preserveScroll: true,
         onSuccess: () => {
           setSubmissionChecked((prev) => {
             if (checkAll) {
               return submissionIds;
             }
             return prev.filter((id) => submissionIds.includes(id));
-          })
-        }
+          });
+        },
       },
     );
   };
@@ -161,7 +162,7 @@ const InvoicePage: InvoicePageProps = ({
 
     setIsLoadingSendToFinance(true);
     router.post(
-      route(InvoiceUtils.link.send_to_finance, {submission_ids: submissionChecked}),
+      route(InvoiceUtils.link.send_to_finance, { submission_ids: submissionChecked }),
       {},
       {
         preserveState: true,
@@ -177,7 +178,7 @@ const InvoicePage: InvoicePageProps = ({
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectInvoiceLength}/>
+          <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectInvoiceLength} />
           <CalendarDateRangePicker
             value={filterDate}
             onDateChange={(date) => handleChangeDate(date)}
@@ -241,7 +242,7 @@ const InvoicePage: InvoicePageProps = ({
                 type="button"
                 variant="success"
                 disabled={isLoadingSendToFinance || submissionChecked.length === 0}>
-                <Loading isLoading={isLoadingSendToFinance}/>
+                <Loading isLoading={isLoadingSendToFinance} />
                 {"Kirim ke Keuangan"}
               </Button>
             </AlertDialogTrigger>
@@ -287,7 +288,7 @@ InvoicePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <InvoiceHeader title={pagePropsData?.page_settings?.title} url={route(InvoiceUtils.link.index)}/>
+      <InvoiceHeader title={pagePropsData?.page_settings?.title} url={route(InvoiceUtils.link.index)} />
       {page}
     </RoleBasedLayout>
   );

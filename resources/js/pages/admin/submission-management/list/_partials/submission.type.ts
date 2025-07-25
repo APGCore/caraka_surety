@@ -2,6 +2,7 @@ import React from "react";
 
 interface SubmissionProps {
   submissions: any;
+  submissionIds: any[];
   offices: any;
   officeTypes: any;
   officeSelected: number;
