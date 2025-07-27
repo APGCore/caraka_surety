@@ -96,8 +96,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const editorDocsRefs = useRef<{ [key: string]: any }>({});
   const editorRefs = useRef<{ [key: string]: any }>({});
-  const [publicationDate, setPublicationDate] = useState<string | null>(null);
-  const [publicationPlace, setPublicationPlace] = useState<string | null>(null);
+  const [publicationDate, setPublicationDate] = useState<string | null>(submission.publication_date || null);
+  const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const submissionId = submission?.id || "";
 
@@ -951,7 +951,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <hr />
-          <Show when={(!submission.publication_date || !submission.publication_place) && isApproved}>
+          <Show when={isApproved && !submission.has_send_to_guarantor}>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -981,7 +981,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 />
                 <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold mb-2 mt-4">Tempat Publikasi</h3>
                 <Input
@@ -999,14 +998,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Button>
               </div>
             </form>
-          </Show>
-          <Show when={(submission.publication_date || submission.publication_place) && isApproved}>
-            <p className="text-green-600 font-semibold my-4">
-              Tanggal dan Tempat Publikasi sudah diisi dan tidak dapat diubah.
-            </p>
-          </Show>
-          {/*buttons*/}
-          <Show when={isApproved && !submission.has_send_to_guarantor}>
+            {/*buttons*/}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -1032,60 +1024,62 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </AlertDialogContent>
             </AlertDialog>
           </Show>
-          <div className="flex gap-4">
-            <Show when={!isRejected && !submission.has_send_to_guarantor && !submission.is_revised}>
-              <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
-                  Edit
-                </Link>
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    Batal
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="sm:max-w-[425px]">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak dapat
-                      dikembalikan.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <div className="grid grid-cols-2 gap-4">
-                    <AlertDialogCancel asChild>
-                      <Button variant="outline" className="w-full" type="button">
-                        Tidak
-                      </Button>
-                    </AlertDialogCancel>
+          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
+            <div className="flex gap-4">
+              <Show when={!isRejected}>
+                <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                  <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
+                    Edit
+                  </Link>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button
                       variant="destructive"
-                      className="w-full"
-                      type="submit"
-                      disabled={loadingDelete}
-                      onClick={() => handleDelete(submission)}>
-                      <Loading isLoading={loadingDelete} />
-                      Batalkan Pengajuan
+                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                      Batal
                     </Button>
-                  </div>
-                </AlertDialogContent>
-              </AlertDialog>
-            </Show>
-            <Show when={isApproved && !submission.submission_before_id && !submission.is_revised}>
-              <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                <Link
-                  type="button"
-                  href={route("staff-submission-revision", {
-                    id: submission.id,
-                  })}>
-                  Revisi
-                </Link>
-              </Button>
-            </Show>
-          </div>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="sm:max-w-[425px]">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak dapat
+                        dikembalikan.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="grid grid-cols-2 gap-4">
+                      <AlertDialogCancel asChild>
+                        <Button variant="outline" className="w-full" type="button">
+                          Tidak
+                        </Button>
+                      </AlertDialogCancel>
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        type="submit"
+                        disabled={loadingDelete}
+                        onClick={() => handleDelete(submission)}>
+                        <Loading isLoading={loadingDelete} />
+                        Batalkan Pengajuan
+                      </Button>
+                    </div>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </Show>
+              <Show when={isApproved}>
+                <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                  <Link
+                    type="button"
+                    href={route("staff-submission-revision", {
+                      id: submission.id,
+                    })}>
+                    Revisi
+                  </Link>
+                </Button>
+              </Show>
+            </div>
+          </Show>
         </Show>
       </div>
     </main>
