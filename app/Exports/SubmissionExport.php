@@ -2,7 +2,10 @@
 
 namespace App\Exports;
 
+use App\Enums\SubmissionStatus;
 use App\Models\Submission\Submission;
+use App\Traits\CalculateInvoice;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
@@ -10,10 +13,15 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
 {
+    use CalculateInvoice;
+
     protected array $submissionIds;
+
+    private int $rowNumber = 0;
 
     public function __construct(array $submissionIds)
     {
@@ -33,7 +41,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
                 'guarantor.guarantorRate',
                 'product:id,name',
-                'guarantorToProductType:id,code_product,code,name',
+                'guarantorToProductType:id,code_product,code,name,full_name',
                 'blanks:id,number,is_broken',
                 'principal:id,name',
                 'obligee:id,name',
@@ -45,6 +53,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'staff:id,name,profile_id',
                 'staff.office:id,name',
             ])
+            ->orderByDesc('created_at')
             ->get();
     }
 
@@ -54,31 +63,59 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     public function headings(): array
     {
         return [
-            'ID',
-            'Tanggal Pengajuan',
-            'Nomor Blangko',
-            'Nomor Pengajuan',
-            'Nama Principal',
-            'Nilai Jaminan',
-            'Produk',
-            'Jenis Jaminan',
+            'NO',
+            'PERIODE',
+            'CABANG ASURANSI',
+            'CABANG BPR/SUMBER BISNIS',
+            'NO BLANKO',
+            'NO JAMINAN',
+            'PRINCIPAL',
+            'OBLIGEE',
+            'NILAI JAMINAN',
+            'JENIS JAMINAN',
+            'ASURANSI PENJAMIN',
+            'PERIODE AWAL',
+            'PERIODE AKHIR',
+            'JANGKA WAKTU',
+            'SELISIH JANGKA WAKTU',
+            'KETERANGAN',
+            'PREMI',
+            'ADMIN',
+            'TOTAL PREMI',
+            'KOMISI',
+            'PPH',
+            'NETT PREMI',
         ];
     }
 
     public function map($row): array
     {
-        $guarantorToProductType = $row->getRelation('guarantorToProductType');
-        $blanks = $row->getRelation('blanks');
+        $capitalRates = $this->calculateCapitalRates($row);
+        $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
         return [
-            $row->id,
-            $row->created_at->format('Y-m-d H:i:s'),
-            $blanks->isNotEmpty() ? $blanks->first()->number : '',
-            $row->no_guarantee,
-            $row->principal?->name ?? '',
-            number_format($row->guarantee_value, 2, ',', '.'),
-            $row->product?->name ?? '',
-            $guarantorToProductType?->name ?? '',
+            ++$this->rowNumber,
+            Carbon::parse($row->approved_at)->format('F'),
+            $row->guarantorBranch->name ?? '',
+            $row->staff->office->name ?? '',
+            $row->blanks->firstWhere('is_broken', false)?->getAttribute('number') ?? '-',
+            $isProcess ? 'XXXXXXXXXXXXXXXX' : $row->no_guarantee,
+            $row->principal->name ?? '',
+            $row->obligee->name ?? '',
+            $row->guarantee_value,
+            $row->guarantorToProductType->full_name ?? '',
+            $row->guarantor->name ?? '',
+            Carbon::parse($row->start_date)->format('d/m/Y H:i'),
+            Carbon::parse($row->end_date)->format('d/m/Y H:i'),
+            $row->time_period,
+            $row->difference_time_period,
+            strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
+            $capitalRates->get('premi', 0),
+            $capitalRates->get('adm', 0),
+            $capitalRates->get('total', 0),
+            $capitalRates->get('commission', 0),
+            $capitalRates->get('pph_commission', 0),
+            $capitalRates->get('nett_premi', 0),
         ];
     }
 
@@ -107,14 +144,28 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     public function columnFormats(): array
     {
         return [
-            'A' => '@', // ID sebagai teks
-            'B' => 'yyyy-mm-dd hh:mm:ss', // Tanggal Pengajuan
-            'C' => '@', // Nomor Blangko sebagai teks
-            'D' => '@', // Nomor Pengajuan sebagai teks
-            'E' => '@', // Nama Principal sebagai teks
-            'F' => '#,##0.00', // Nilai Jaminan dengan format angka
-            'G' => '@', // Produk sebagai teks
-            'H' => '@', // Jenis Jaminan sebagai teks
+            'A' => '@', // NO
+            'B' => '@', // PERIODE
+            'C' => '@', // CABANG ASURANSI
+            'D' => '@', // CABANG BPR/SUMBER BISNIS
+            'E' => '@', // NO BLANKO
+            'F' => '@', // NO JAMINAN
+            'G' => '@', // PRINCIPAL
+            'H' => '@', // OBLIGEE
+            'I' => 'Rp #,##0', // NILAI JAMINAN
+            'J' => '@', // JENIS JAMINAN
+            'K' => '@', // ASURANSI PENJAMIN
+            'L' => NumberFormat::FORMAT_DATE_DATETIME, // PERIODE AWAL
+            'M' => NumberFormat::FORMAT_DATE_DATETIME, // PERIODE AKHIR
+            'N' => '#,##0', // JANGKA WAKTU
+            'O' => '#,##0', // SELISIH JANGKA WAKTU
+            'P' => '@', // KETERANGAN
+            'Q' => '#,##0.00', // PREMI
+            'R' => '#,##0.00', // ADMIN
+            'S' => '#,##0.00', // TOTAL PREMI
+            'T' => '#,##0.00', // KOMISI
+            'U' => '#,##0.00', // PPH
+            'V' => '#,##0.00', // NETT PREMI
         ];
     }
 }

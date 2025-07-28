@@ -9,22 +9,6 @@ export const keuanganRoute: IAppSideBarMenu[] = [
     icon: Home,
     items: [],
   },
-  // {
-  //   title: "Kelola Tarif",
-  //   icon: DollarSign,
-  //   items: [
-  //     {
-  //       title: "Tarif Asuransi (Modal)",
-  //       route_name: "guarantor-rate",
-  //       href: route("guarantor-rate.index"),
-  //     },
-  //     {
-  //       title: "Tarif Unit Bisnis (Jual)",
-  //       route_name: "office-rate",
-  //       href: route("office-rate.index"),
-  //     },
-  //   ],
-  // },
   {
     title: "Laporan",
     icon: LibraryBig,
@@ -33,6 +17,11 @@ export const keuanganRoute: IAppSideBarMenu[] = [
         title: "Invoice",
         route_name: "report.invoice",
         href: route("report.invoice.index"),
+      },
+      {
+        title: "Produksi",
+        route_name: "report.production",
+        href: route("report.production.index"),
       },
     ],
   },
