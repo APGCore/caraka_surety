@@ -229,11 +229,11 @@ export const adminRoute: IAppSideBarMenu[] = [
         route_name: "document-format",
         href: route("document-format.index"),
       },
-      {
-        title: "Daftar Pengajuan",
-        route_name: "submission",
-        href: route("submission.index"),
-      },
+      // {
+      //   title: "Daftar Pengajuan",
+      //   route_name: "submission",
+      //   href: route("submission.index"),
+      // },
     ],
   },
   {

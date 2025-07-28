@@ -55,6 +55,6 @@ class ExportController extends Controller
         ]);
         $submissionIds = $validatedData['submission_ids'];
 
-        return Excel::download(new SubmissionExport($submissionIds), 'Pengajuan_Jaminan.xlsx');
+        return Excel::download(new SubmissionExport($submissionIds), 'Laporan Produksi.xlsx');
     }
 }
