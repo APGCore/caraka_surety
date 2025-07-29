@@ -9,6 +9,7 @@ use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 use Riskihajar\Terbilang\Facades\Terbilang;
 
@@ -16,7 +17,10 @@ trait ReplaceDocumentFormat
 {
     use currencyConverter, Numbering;
 
-    public function convertSubmission(Submission $submission): array
+  /**
+   * @throws Exception
+   */
+  public function convertSubmission(Submission $submission): array
     {
         $submission->load([
             'principal.district',
@@ -92,8 +96,9 @@ trait ReplaceDocumentFormat
         }
 
         // get terbilang
-        $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
-        $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
+        $terbilangAccessor = Terbilang::getFacadeAccessor();
+        $terbilang = $guaranteeValue ? ucwords($terbilangAccessor->make($guaranteeValue, ' Rupiah')) : '';
+        $terbilangHari = $timePeriod ? ucwords($terbilangAccessor->make($timePeriod)) : '';
 
         // SCORING RESULT
         $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
@@ -152,45 +157,45 @@ trait ReplaceDocumentFormat
             'obligee_city' => $obligee->district->name ?? '...',
             'obligee_address' => $obligee->address ?? '...',
             'obligee_location' => "$obligee->address, $obligeeDistrict->name, $obligeeRegency->name, $obligeeProvince->name",
-            'source_of_fund' => $submission->source_of_fund->name ?? '...',
+            'source_of_fund' => $submission->getRelation('source_of_fund')?->name ?? '...',
             'ppk_name' => $obligee->pic ?? '...',
             'ppk_number' => $obligee->no_ppk ?? '...',
             'guarantor_name' => $guarantor->name ?? '...',
             'guarantor_address' => $guarantorBranch->address ?? '...',
             'guarantor_pic' => $guarantorBranch->pic ?? '...',
-            'guarantor_location' => "{$guarantorBranch->address}, ".
-              "{$guarantorBranchDistrict->name}, ".
-              "{$guarantorBranchRegency->name}, ".
-              "{$guarantorBranchProvince->name}",
+            'guarantor_location' => "$guarantorBranch->address, ".
+              "$guarantorBranchDistrict->name, ".
+              "$guarantorBranchRegency->name, ".
+              "$guarantorBranchProvince->name",
             'guarantor_city' => $guarantorBranchDistrict->name ?? '...',
             'source_of_fund_name' => $sourceOfFund->name ?? '...',
             'contract_value' => $contractValueFormatted,
             'guarantee_value' => $guaranteeValueFormatted,
             'guarantee_type' => $guarantorToProductType->name ?? '...',
-            'no_guarantee' => $submission->status === SubmissionStatus::PROCESS->value ? str_pad('X', 16, 'X') : $submission->no_guarantee ?? '...',
+            'no_guarantee' => $submission->getAttribute('status') === SubmissionStatus::PROCESS->value ? str_pad('X', 16, 'X') : $submission->no_guarantee ?? '...',
             'time_period' => $timePeriod ?? '...',
             'job_name' => $submission->job_name ?? '...',
             'job_location_village' => $submission->job_location_village ?? '...',
             'contract_doc_name' => $supportDocs->pluck('name')->implode(', ') ?? '...',
             'contract_doc_number' => $supportDocs->pluck('number')->implode(', ') ?? '...',
             'contract_doc_date' => $supportDocs->pluck('date')->implode(', ') ?? '...',
-            'start_date' => $submission->start_date ? Carbon::parse($submission->start_date)->translatedFormat('d F Y') : '...',
-            'end_date' => $submission->end_date ? Carbon::parse($submission->end_date)->translatedFormat('d F Y') : '...',
+            'start_date' => $submission->getAttribute('start_date') ? Carbon::parse($submission->getAttribute('start_date'))->translatedFormat('d F Y') : '...',
+            'end_date' => $submission->getAttribute('end_date') ? Carbon::parse($submission->getAttribute('end_date'))->translatedFormat('d F Y') : '...',
             'guarantee_issue_date' => Carbon::parse($submission->getAttribute('approved_at'))->translatedFormat('d F Y') ?? '...',
             'submission_date' => Carbon::parse($submission->getAttribute('created_at'))->translatedFormat('d F Y') ?? '...',
             'day' => Carbon::parse($submission->getAttribute('approved_at'))->translatedFormat('l'),
             'recommendation' => $recommendation,
             'notes' => $notes,
             'analyst_name' => $staff->getAttribute('name') ?? '...',
-            'manager_technique_name' => $headStaff->getAttribute('name') ?? '...',
+            'manager_technique_name' => $headStaff?->getAttribute('name') ?? '...',
             'branch_manager' => $principal->director_name ?? '...',
-            'job_location' => "$submission->job_location_village, $district->name, $regency->name, $province->name",
+            'job_location' => "{$submission->getAttribute('job_location_village')}, $district->name, $regency->name, $province->name",
             'job_group' => $guarantorToProductType->job_group ?? '...',
             'no' => $submission->id ?? '...',
             'city' => $submission->regency->name ?? '...',
             'mail_number' => $this->generateNomorSurat($submission),
             'mail_number_resume' => $this->generateNomorSuratResume($submission->getAttribute('id'), $submission->getAttribute('created_at')),
-            'underlying' => ($submission->contract_doc_name.' '.$submission->contract_doc_number.' '.$submission->job_name) ?? '...',
+            'underlying' => ($submission->getAttribute('contract_doc_name').' '.$submission->getAttribute('contract_doc_number').' '.$submission->getAttribute('job_name')) ?? '...',
             'product_name' => $product->name ?? '...',
             'submission_support_docs' => $supportDocs->map(function ($doc) {
                 return "$doc->name, Nomor : $doc->number, Tanggal $doc->date";
@@ -205,8 +210,8 @@ trait ReplaceDocumentFormat
             'collateral_score' => $analysis['collateral'],
             'condition_score' => $analysis['condition'],
             'total_score' => $totalScore,
-            'publication_place' => $submission->publication_place ?? '...',
-            'publication_date' => $submission->publication_date ? Carbon::parse($submission->publication_date)->translatedFormat('d F Y') : '...',
+            'publication_place' => $submission->getAttribute('publication_place') ?? '...',
+            'publication_date' => $submission->getAttribute('publication_date') ? Carbon::parse($submission->getAttribute('publication_date'))->translatedFormat('d F Y') : '...',
             // 'bank_branch_name' => $bankBranch->name ?? '...',
         ];
     }
