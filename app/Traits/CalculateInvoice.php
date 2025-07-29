@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\SubmissionStatus;
 use App\Models\Submission\Submission;
 use Illuminate\Support\Collection;
 
@@ -70,7 +71,7 @@ trait CalculateInvoice
     public function calculateCapitalRates(Submission $submission): Collection
     {
         $submission->load(['guarantor.guarantorRate', 'submissionRate']);
-        $isRevised = $submission->getAttribute('is_revised');
+        $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $guarantor = $submission->getRelation('guarantor');
@@ -99,7 +100,7 @@ trait CalculateInvoice
     {
         $submission->load(['submissionRate']);
         // Ensure the submission is fresh to get the latest rates
-        $isRevised = $submission->getAttribute('is_revised');
+        $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $settingRate = $submission->getRelation('submissionRate');

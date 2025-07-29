@@ -7,6 +7,7 @@ import RenderList from "@/components/atoms/render-list";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
+import { SubmissionStatus } from "@/types/submission-status";
 import { Link } from "@inertiajs/react";
 import React from "react";
 
@@ -83,7 +84,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                   <TableCell>{submission.staff?.office}</TableCell>
                   <TableCell className="text-center">
                     {submission.blank?.number}
-                    <Show when={submission.is_revised}>
+                    <Show when={submission.status === SubmissionStatus.REVISED}>
                       <p
                         className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
                         Di Revisi

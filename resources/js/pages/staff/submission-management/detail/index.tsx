@@ -78,9 +78,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
   }, []);
 
-  const isProcess = submission.status == SubmissionStatus.PROCESS;
-  const isApproved = submission.status == SubmissionStatus.APPROVED;
-  const isRejected = submission.status == SubmissionStatus.REJECTED;
+  const isProcess = submission.status === SubmissionStatus.PROCESS;
+  const isApproved = submission.status === SubmissionStatus.APPROVED;
+  const isRejected = submission.status === SubmissionStatus.REJECTED;
+  const isRevised = submission.status === SubmissionStatus.REVISED;
   const [isLoading, setIsLoading] = useState(false);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
@@ -1024,7 +1025,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </AlertDialogContent>
             </AlertDialog>
           </Show>
-          <Show when={!submission.has_send_to_guarantor && !submission.is_revised}>
+          <Show when={!submission.has_send_to_guarantor && !isRevised}>
             <div className="flex gap-4">
               <Show when={!isRejected}>
                 <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>

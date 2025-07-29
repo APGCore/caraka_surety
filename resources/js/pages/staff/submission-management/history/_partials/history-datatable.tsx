@@ -94,7 +94,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-1">
-                    <Show when={submission.status === SubmissionStatus.APPROVED && submission.is_revised}>
+                    <Show when={submission.status === SubmissionStatus.REVISED}>
                       <Button variant="secondary" size="sm">
                         Di Revisi
                       </Button>
@@ -115,8 +115,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                           <Show
                             when={
                               submission.status !== SubmissionStatus.REJECTED &&
-                              !submission.has_send_to_guarantor &&
-                              !submission.is_revised
+                              submission.status === SubmissionStatus.REVISED &&
+                              !submission.has_send_to_guarantor
                             }>
                             <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400" asChild>
                               <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
@@ -156,7 +156,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                               </AlertDialogContent>
                             </AlertDialog>
                           </Show>
-                          <Show when={submission.status === SubmissionStatus.APPROVED && !submission.is_revised}>
+                          <Show when={submission.status === SubmissionStatus.APPROVED}>
                             <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400" asChild>
                               <Link
                                 type="button"

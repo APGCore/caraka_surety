@@ -20,6 +20,7 @@ import InvoiceOffice from "@/pages/report/invoice/_partials/invoice-office";
 import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 // import { FormPrincipalSubmissionRateUtils } from "@/pages/report/invoice/detail/_partials/form-principal-submission-rate.utils";
 import { InvoiceDetailPageProps } from "@/pages/report/invoice/detail/invoice-detail.type";
+import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import { AlertCircle } from "lucide-react";
 import React, { useState } from "react";
@@ -93,7 +94,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
           </AlertDescription>
         </Alert>
       </Show>
-      <Show when={submission.is_revised}>
+      <Show when={submission.status === SubmissionStatus.REVISED}>
         <Alert variant="warning">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Informasi</AlertTitle>

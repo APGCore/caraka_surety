@@ -54,7 +54,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                     }`}>
                     {submission.status_label}
                   </p>
-                  <Show when={submission.is_revised}>
+                  <Show when={submission.status === SubmissionStatus.REVISED}>
                     <p
                       className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
                       Di Revisi
@@ -77,8 +77,8 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <Show
                     when={
                       submission.status !== SubmissionStatus.REJECTED &&
-                      !submission.has_send_to_guarantor &&
-                      !submission.is_revised
+                      submission.status !== SubmissionStatus.REVISED &&
+                      !submission.has_send_to_guarantor
                     }>
                     <Link href={route("monitoring.submission.edit", { id: submission.id })}>
                       <Button variant="outline" className="w-full mt-1" size="sm">

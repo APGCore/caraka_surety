@@ -281,7 +281,7 @@ class InvoiceController extends Controller
             $submissions = Submission::query()
                 ->select(['id', 'no_guarantee', 'guarantor_id', 'guarantor_branch_id', 'principal_id', 'obligee_id', 'staff_id',
                     'product_id', 'guarantor_to_product_type_id', 'guarantee_value', 'time_period', 'difference_time_period', 'status',
-                    'created_at', 'checked_at', 'approved_at', 'is_revised',
+                    'created_at', 'checked_at', 'approved_at',
                 ])
                 ->with([
                     'guarantor' => function ($query) {
