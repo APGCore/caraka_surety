@@ -64,7 +64,7 @@ class InvoiceController extends Controller
         // Get all IDs before pagination
         $submissionIds = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                $query->where('status', SubmissionStatus::APPROVED->value)
+                $query->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
                     ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
                     ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
                     ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
@@ -77,7 +77,7 @@ class InvoiceController extends Controller
         // Paginate the results
         $submissions = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                $query->where('status', SubmissionStatus::APPROVED->value)
+                $query->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
                     ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
                     ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
                     ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
