@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class HostToHostService
 {
-  use HandleErrorMessage;
+    use HandleErrorMessage;
     public function sendPostRequest(string $url, string $token, array $data): array
     {
         try {
@@ -24,7 +24,6 @@ class HostToHostService
                     ->useLog('host-to-host')
                     ->causedBy(auth()->user())
                     ->log('Sent POST request to '.$url);
-                Log::info('Request to '.$url.' was successful', ['response' => $responseJson, 'data' => $data]);
 
                 return [
                     'status' => 'success',
