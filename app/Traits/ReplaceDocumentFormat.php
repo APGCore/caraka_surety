@@ -157,7 +157,6 @@ trait ReplaceDocumentFormat
             'obligee_address' => $obligee->address ?? '...',
             'obligee_location' => "$obligee->address, $obligeeDistrict->name, $obligeeRegency->name, $obligeeProvince->name",
             'source_of_fund' => $sourceOfFund->name ?? '...',
-            'source_of_fund_name' => $sourceOfFund->name ?? '...',
             'ppk_name' => $obligee->pic ?? '...',
             'ppk_number' => $obligee->no_ppk ?? '...',
             'guarantor_name' => $guarantor->name ?? '...',
