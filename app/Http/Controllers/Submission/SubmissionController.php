@@ -1439,13 +1439,14 @@ class SubmissionController extends Controller
 
             return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
         }
-        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId, 'message' => $result['message']]);
+        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId, ...$result]);
 
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
+        return $this->responseError('Gagal mengirimkan data ke pihak asuransi');
     }
 
     private function sendToGuarantor($submissionId): array
     {
+      try {
         $submission = Submission::query()
             ->with([
                 'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
@@ -1647,6 +1648,15 @@ class SubmissionController extends Controller
         }
 
         return $final;
+      } catch (Exception $e) {
+        $error = $this->handleErrorMessage($e);
+        Log::error('Error sending submission to guarantor', $error);
+
+        return [
+          'status' => 'error',
+          'message' => 'Gagal mengirimkan data ke pihak asuransi',
+        ];
+      }
     }
 
     public function embedQrCodeToDocs(Submission $submission): void

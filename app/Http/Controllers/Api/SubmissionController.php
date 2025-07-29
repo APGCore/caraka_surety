@@ -93,18 +93,18 @@ class SubmissionController extends Controller
             }
 
             if (isset($data['error'])) {
-                Log::error('Error Callback: ', ['message' => $data['error']]);
+                Log::error('Error Callback: ', $data['error']);
 
                 return $this->responseError($data['error']['message'] ?? 'Data Belum Diterima Dari Asuransi', $data['error']);
             }
 
             Log::info('Callback Success: ', $data);
 
-            return $this->responseSuccess('Berhasil Mengambil Data', $data);
+            return $this->responseSuccess('Berhasil Mengambil Data Callback', $data);
         } else {
-            Log::error('Error Callback: ', ['message' => $result['message']]);
+            Log::error('Error Callback: ', $result);
 
-            return $this->responseError('Terjadi Kesalahan Saat Mengambil Data', $result['message']);
+            return $this->responseError('Terjadi Kesalahan Saat Mengambil Data Callback');
         }
     }
 
