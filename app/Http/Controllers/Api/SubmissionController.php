@@ -10,7 +10,6 @@ use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
 use App\Services\HostToHostService;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -23,15 +22,15 @@ class SubmissionController extends Controller
         $this->hostToHostService = $hostToHostService;
     }
 
-  /**
-   * @throws Exception
-   */
-  public function postToGetCallback(CallbackRequest $request): JsonResponse
+    /**
+     * @throws Exception
+     */
+    public function postToGetCallback(CallbackRequest $request): JsonResponse
     {
         $submissionId = $request->get('submission_id');
         $submissionFirst = Submission::query()
-          ->select(['id', 'no_guarantee', 'created_at'])
-          ->firstWhere('id', $submissionId);
+            ->select(['id', 'no_guarantee', 'created_at'])
+            ->firstWhere('id', $submissionId);
 
         $submission = Submission::query()
             ->orderBy('created_at')

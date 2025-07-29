@@ -69,7 +69,6 @@ return new class extends Migration
             $table->boolean('has_send_to_guarantor')->default(false);
             $table->boolean('has_send_to_bank')->default(false);
             $table->boolean('has_send_to_finance')->default(false);
-            $table->boolean('is_revised')->default(false);
             $table->boolean('is_added_qrcode')->default(false);
             $table->text('revised_note')->nullable();
             $table->integer('first_year_ratio')->nullable();

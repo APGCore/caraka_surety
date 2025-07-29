@@ -5,11 +5,11 @@ namespace App\Services;
 use App\Traits\HandleErrorMessage;
 use Exception;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class HostToHostService
 {
     use HandleErrorMessage;
+
     public function sendPostRequest(string $url, string $token, array $data): array
     {
         try {

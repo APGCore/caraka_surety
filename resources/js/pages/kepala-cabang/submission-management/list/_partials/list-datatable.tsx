@@ -62,7 +62,7 @@ const SubmissionListDatatable: React.FC<SubmissionListDatatableProps> = ({ submi
                     }`}>
                     {submission.status_label}
                   </p>
-                  <Show when={submission.is_revised}>
+                  <Show when={submission.status === SubmissionStatus.REVISED}>
                     <p
                       className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
                       Di Revisi
