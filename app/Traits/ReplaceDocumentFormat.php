@@ -156,7 +156,8 @@ trait ReplaceDocumentFormat
             'obligee_city' => $obligee->district->name ?? '...',
             'obligee_address' => $obligee->address ?? '...',
             'obligee_location' => "$obligee->address, $obligeeDistrict->name, $obligeeRegency->name, $obligeeProvince->name",
-            'source_of_fund' => $submission->getRelation('source_of_fund')?->name ?? '...',
+            'source_of_fund' => $sourceOfFund->name ?? '...',
+            'source_of_fund_name' => $sourceOfFund->name ?? '...',
             'ppk_name' => $obligee->pic ?? '...',
             'ppk_number' => $obligee->no_ppk ?? '...',
             'guarantor_name' => $guarantor->name ?? '...',
@@ -167,7 +168,6 @@ trait ReplaceDocumentFormat
               "$guarantorBranchRegency->name, ".
               "$guarantorBranchProvince->name",
             'guarantor_city' => $guarantorBranchDistrict->name ?? '...',
-            'source_of_fund_name' => $sourceOfFund->name ?? '...',
             'contract_value' => $contractValueFormatted,
             'guarantee_value' => $guaranteeValueFormatted,
             'guarantee_type' => $guarantorToProductType->name ?? '...',
