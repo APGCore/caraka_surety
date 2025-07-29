@@ -23,45 +23,22 @@ class SubmissionController extends Controller
         $this->hostToHostService = $hostToHostService;
     }
 
-    public function callback(CallbackRequest $request): JsonResponse
-    {
-        try {
-            // image is base64
-            $imageString = $request->get('image');
-            // base64 to file
-            $fileData = $this->base64ToFile($imageString);
-            $submissionId = $request->get('submission_id');
-            // save image to storage
-            $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
-
-            $data = SubmissionCallback::query()->updateOrCreate(
-                ['submission_id' => $submissionId],
-                [
-                    'submission_id' => $submissionId,
-                    'doc_url' => $request->get('doc_url'),
-                    'url' => $url,
-                    'no_policy' => $request->get('policyno'),
-                ]
-            );
-
-            Log::info('Callback Success: ', $data->toArray());
-
-            return $this->responseSuccess('Berhasil Mengirimkan data');
-        } catch (Exception $e) {
-            $error = $this->handleErrorMessage($e);
-            Log::error('Callback Error: ', $error);
-
-            return $this->responseError('Terjadi Kesalahan Saat Mengirimkan data', $error);
-        }
-    }
-
-    public function postToGetCallback(Request $request): JsonResponse
+  /**
+   * @throws Exception
+   */
+  public function postToGetCallback(CallbackRequest $request): JsonResponse
     {
         $submissionId = $request->get('submission_id');
+        $submissionFirst = Submission::query()
+          ->select(['id', 'no_guarantee', 'created_at'])
+          ->firstWhere('id', $submissionId);
+
         $submission = Submission::query()
+            ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
-            ->find($submissionId);
-        $submissionBeforeId = $submission->getAttribute('submission_before_id');
+            ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+
+        $submissionFirstId = $submission->getAttribute('submission_id');
         $guarantor = $submission->getRelation('guarantor');
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host').'/submission/status';
@@ -69,7 +46,7 @@ class SubmissionController extends Controller
         $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
         Log::info('Mengambil data callback untuk submission:', ['no jaminan' => $submission->getAttribute('no_guarantee')]);
-        $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionBeforeId ?? $submissionId]);
+        $result = $this->hostToHostService->sendPostRequest($url, $token, ['submission_id' => $submissionFirstId]);
 
         if ($result['status'] === 'success') {
             $data = $result['message'];
