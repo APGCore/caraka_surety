@@ -231,6 +231,7 @@ trait ReplaceDocumentFormat
     {
         $approvedSubmissionsExp = Submission::query()
             ->where('status', 'approved')
+            ->whereNull('submission_before_id')
             ->where(function ($query) use ($principal, $obligee) {
                 $query->where('principal_id', $principal->getAttribute('id'))
                     ->orWhere('obligee_id', $obligee->getAttribute('id'));
