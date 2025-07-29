@@ -96,9 +96,8 @@ trait ReplaceDocumentFormat
         }
 
         // get terbilang
-        $terbilangAccessor = Terbilang::getFacadeAccessor();
-        $terbilang = $guaranteeValue ? ucwords($terbilangAccessor->make($guaranteeValue, ' Rupiah')) : '';
-        $terbilangHari = $timePeriod ? ucwords($terbilangAccessor->make($timePeriod)) : '';
+        $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
+        $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
         // SCORING RESULT
         $analysis = ['character' => 0, 'capacity' => 0, 'capital' => 0, 'condition' => 0, 'collateral' => 0];
