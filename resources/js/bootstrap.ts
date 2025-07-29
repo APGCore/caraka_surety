@@ -1,22 +1,14 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 window.axios = axios;
 
-window.axios.defaults.withCredentials = true;
-
 window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 
-// import axios from "axios";
-// import Cookies from "js-cookie";
+// Use custom XSRF token name
+const csrfCookieName = import.meta.env.VITE_SESSION_XSRF_TOKEN;
+const csrf = Cookies.get(csrfCookieName);
 
-// axios.defaults.withCredentials = true;
-// axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
-
-// // Optional: Add this only if CSRF still not working
-// axios.interceptors.request.use((config) => {
-//   const token = Cookies.get("XSRF-TOKEN");
-//   if (token) {
-//     config.headers["X-XSRF-TOKEN"] = decodeURIComponent(token);
-//   }
-//   return config;
-// });
+if (csrf) {
+  window.axios.defaults.headers.common["X-XSRF-TOKEN"] = csrf;
+}
