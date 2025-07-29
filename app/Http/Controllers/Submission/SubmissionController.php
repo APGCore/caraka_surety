@@ -1439,7 +1439,7 @@ class SubmissionController extends Controller
 
             return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
         }
-        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId]);
+        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId, 'message' => $result['message']]);
 
         return $this->responseError('Gagal mengirimkan data ke pihak asuransi: '.$result['message']);
     }
