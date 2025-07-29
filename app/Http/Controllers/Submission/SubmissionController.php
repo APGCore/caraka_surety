@@ -243,12 +243,12 @@ class SubmissionController extends Controller
             if ($isRevision) {
                 $submissionBeforeId = $dataSubmission['submission_before_id'];
                 $submissionForRevision = Submission::query()->select(['id', 'no_guarantee'])->find($submissionBeforeId);
-                $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
-                $dataSubmission['staff_id'] = auth()->id();
                 $submissionForRevision->update(['is_revised' => true, 'status' => SubmissionStatus::REVISED->value]);
                 $submissionForRevision->blanks()->each(function ($query) {
                     $query->update(['is_revised' => true]);
                 });
+                $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
+                $dataSubmission['staff_id'] = auth()->id();
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
                 if ($submissionEdit->getAttribute('submission_before_id') !== null) {
@@ -1441,7 +1441,7 @@ class SubmissionController extends Controller
         }
         Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId, ...$result]);
 
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi');
+        return $this->responseError('Gagal mengirimkan data ke pihak asuransi', $result);
     }
 
     private function sendToGuarantor($submissionId): array
@@ -1504,6 +1504,7 @@ class SubmissionController extends Controller
         //        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
 
         $dataSend = ['submission_id' => $submission->getAttribute('id')];
+        // endorsement
         if ($submissionBeforeId) {
             $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
             if (! $submissionCallback) {
@@ -1512,8 +1513,9 @@ class SubmissionController extends Controller
                     'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
                 ];
             }
+            $submissionFirst = Submission::query()->orderBy('created_at')->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
             $dataSend = [
-                'submission_id' => $submissionBeforeId,
+                'submission_id' => $submissionFirst->getAttribute('id'),
                 'remarks' => $submission->getAttribute('revised_note'),
                 'policyno' => $submissionCallback->getAttribute('no_policy'),
             ];
