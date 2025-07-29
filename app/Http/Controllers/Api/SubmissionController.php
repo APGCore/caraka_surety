@@ -38,7 +38,7 @@ class SubmissionController extends Controller
             ->with(['guarantor', 'guarantor.hostToHost'])
             ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
 
-        $submissionFirstId = $submission->getAttribute('submission_id');
+        $submissionFirstId = $submission->getAttribute('id');
         $guarantor = $submission->getRelation('guarantor');
         $hostToHost = $guarantor->getRelation('hostToHost');
         $url = $hostToHost->getAttribute('guarantor_url_host').'/submission/status';
