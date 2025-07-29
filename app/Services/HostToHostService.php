@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Traits\HandleErrorMessage;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class HostToHostService
 {
+  use HandleErrorMessage;
     public function sendPostRequest(string $url, string $token, array $data): array
     {
         try {
@@ -28,19 +31,10 @@ class HostToHostService
                     'message' => $responseJson,
                 ];
             }
-            Log::error('Request to '.$url.' was failed: ', ['error' => $responseJson, 'data' => $data]);
 
-            return [
-                'status' => 'error',
-                'message' => $responseJson['error']['message'] ?? 'Terjadi Kesalahan',
-            ];
-        } catch (\Exception $e) {
-            Log::error('Exception during POST request to '.$url.': '.$e->getMessage());
-
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
+            throw new Exception($responseJson['error']['message'] ?? 'Terjadi Kesalahan');
+        } catch (Exception $e) {
+            return $this->handleErrorMessage($e);
         }
     }
 }
