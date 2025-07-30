@@ -508,6 +508,7 @@ class InvoiceController extends Controller
             Log::error('Error sending invoice to finance', compact('response'));
             throw new Exception('Gagal mengirim invoice ke aplikasi keuangan');
         } else {
+            $submissionIds = collect($invoices)->pluck('submission.id')->toArray();
             // Update submissions that have been sent to finance
             Submission::query()
                 ->whereIn('id', $submissionIds)
