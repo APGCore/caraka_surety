@@ -1,6 +1,6 @@
 export const SubmissionUtils = {
   link: {
-    index: "report.production.index",
+    index: "submission.index",
     export: {
       excel: "report.submission.export.excel",
     },
