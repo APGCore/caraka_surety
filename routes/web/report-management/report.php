@@ -13,12 +13,11 @@ Route::controller(ReportController::class)
     ->group(function () {
         Route::prefix('production')
             ->name('production.')->group(function () {
-                Route::get('/', 'productionReportV2')->name('index');
+                Route::get('/', 'productionReport')->name('index');
             });
         Route::prefix('blank-usage')
             ->name('blank-usage.')->group(function () {
                 Route::get('/', 'blankUsage')->name('index');
-                // Route::get('/export', 'exportBlankUsage')->name('export');
                 Route::get('/export-blank-usage', function () {
                     return Excel::download(new BlankUsageExport, 'blank_usage.xlsx');
                 })->name('export-unit');

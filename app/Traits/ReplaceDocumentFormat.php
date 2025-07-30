@@ -17,10 +17,10 @@ trait ReplaceDocumentFormat
 {
     use currencyConverter, Numbering;
 
-  /**
-   * @throws Exception
-   */
-  public function convertSubmission(Submission $submission): array
+    /**
+     * @throws Exception
+     */
+    public function convertSubmission(Submission $submission): array
     {
         $submission->load([
             'principal.district',
