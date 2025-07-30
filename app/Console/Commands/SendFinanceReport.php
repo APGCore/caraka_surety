@@ -29,29 +29,31 @@ class SendFinanceReport extends Command
      */
     public function handle(): void
     {
-      try {
-        DB::beginTransaction();
-        $submissionIds = Submission::query()
-            ->whereNotIn('status', [
-                SubmissionStatus::PROCESS->value,
-                SubmissionStatus::REJECTED->value,
-            ])
-            ->where('has_send_to_finance', false)
-            ->limit(50)
-            ->pluck('id');
+        try {
+            DB::beginTransaction();
+            $submissionIds = Submission::query()
+                ->whereNotIn('status', [
+                    SubmissionStatus::PROCESS->value,
+                    SubmissionStatus::REJECTED->value,
+                ])
+                ->where('has_send_to_finance', false)
+                ->limit(50)
+                ->pluck('id');
 
-        if ($submissionIds->isEmpty()) {
-            $this->info('Tidak ada laporan keuangan yang perlu dikirim.');
+            if ($submissionIds->isEmpty()) {
+                $this->info('Tidak ada laporan keuangan yang perlu dikirim.');
+
+                return;
+            }
+
+            $invoiceController = app(InvoiceController::class);
+            $invoiceController->sendFinanceProcess($submissionIds);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error('Gagal mengirim laporan keuangan: '.$e->getMessage());
+
             return;
         }
-
-        $invoiceController = app(InvoiceController::class);
-        $invoiceController->sendFinanceProcess($submissionIds);
-        DB::commit();
-      } catch (\Exception $e) {
-        DB::rollBack();
-        $this->error('Gagal mengirim laporan keuangan: ' . $e->getMessage());
-        return;
-      }
     }
 }
