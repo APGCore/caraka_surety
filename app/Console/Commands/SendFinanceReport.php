@@ -47,6 +47,7 @@ class SendFinanceReport extends Command
 
         $invoiceController = app(InvoiceController::class);
         $invoiceController->sendFinanceProcess($submissionIds);
+        DB::commit();
       } catch (\Exception $e) {
         DB::rollBack();
         $this->error('Gagal mengirim laporan keuangan: ' . $e->getMessage());
