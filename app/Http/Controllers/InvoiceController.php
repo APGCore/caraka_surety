@@ -508,7 +508,10 @@ class InvoiceController extends Controller
             Log::error('Error sending invoice to finance', compact('response'));
             throw new Exception('Gagal mengirim invoice ke aplikasi keuangan');
         } else {
-            $submissions->update(['has_send_to_finance' => true]);
+            // Update submissions that have been sent to finance
+            Submission::query()
+                ->whereIn('id', $submissionIds)
+                ->update(['has_send_to_finance' => true]);
             Log::info('Invoice sent to finance successfully', ['response' => $response, 'offices_not_have_rate' => $officeNames]);
         }
     }
