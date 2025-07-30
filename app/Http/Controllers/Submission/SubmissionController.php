@@ -88,9 +88,9 @@ class SubmissionController extends Controller
         $submissions = Submission::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('no_guarantee', 'like', "%{$search}%")
+                    $query->whereLike('no_guarantee', "%{$search}%")
                         ->orWhereHas('principal', function ($query) use ($search) {
-                            $query->where('name', 'like', "%{$search}%");
+                            $query->whereLike('name', "%{$search}%");
                         });
                 });
             })

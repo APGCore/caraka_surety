@@ -29,8 +29,8 @@ class ActivityLogController extends Controller
 
         // get the data from the database
         $query = Activity::when($search, function ($query) use ($search) {
-            $query->where('log_name', 'like', '%'.$search.'%')
-                ->orWhere('description', 'like', '%'.$search.'%');
+            $query->whereLike('log_name', '%'.$search.'%')
+                ->orWhereLike('description', '%'.$search.'%');
         })
             ->select(['id', 'log_name', 'description', 'subject_type', 'event', 'subject_id', 'causer_type', 'causer_id', 'properties', 'created_at'])
             ->orderBy('created_at', 'desc');
@@ -104,8 +104,8 @@ class ActivityLogController extends Controller
         ]);
 
         $activities = Activity::when($request->search, function ($query) use ($request) {
-            $query->where('log_name', 'like', '%'.$request->search.'%')
-                ->orWhere('description', 'like', '%'.$request->search.'%');
+            $query->whereLike('log_name', '%'.$request->search.'%')
+                ->orWhereLike('description', '%'.$request->search.'%');
         })
             ->select(['id', 'log_name', 'description', 'subject_type', 'event', 'subject_id', 'causer_type', 'causer_id', 'properties', 'created_at'])
             ->orderBy('created_at', 'desc')

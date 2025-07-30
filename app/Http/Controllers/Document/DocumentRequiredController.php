@@ -22,7 +22,7 @@ class DocumentRequiredController extends Controller
     {
         $requiredDocs = RequiredDoc::with('productType')
             ->when($request->exists('search'), function ($query) use ($request) {
-                return $query->where('name', 'like', '%'.$request->search.'%');
+                return $query->whereLike('name', '%'.$request->search.'%');
             })
             ->when($request->exists('per_page'), function ($query) use ($request) {
                 return $query->limit($request->per_page);

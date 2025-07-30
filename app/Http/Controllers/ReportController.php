@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\BlankUsageExport;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
@@ -11,7 +10,8 @@ use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\FilterOffice;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Inertia\Response;
+use Inertia\ResponseFactory;
 
 class ReportController extends Controller
 {
@@ -21,15 +21,12 @@ class ReportController extends Controller
 
     public function __construct()
     {
-        $this->headComponent = 'report/';
+        $this->headComponent = 'report';
     }
 
-    public function productionReportV2(Request $request)
+    public function productionReport(Request $request): Response|ResponseFactory
     {
-        $date = collect($request->get('date') ?? [
-            now()->subDays(7)->toDateString().' 00:00:00',
-            now()->toDateString().' 23:59:59',
-        ])->values();
+        $date = $request->get('date');
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -54,14 +51,14 @@ class ReportController extends Controller
         $submissions = Submission::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('no_guarantee', 'like', "%{$search}%")
+                    $query->whereLike('no_guarantee', "%$search%")
                         ->orWhereHas('principal', function ($query) use ($search) {
-                            $query->where('name', 'like', "%{$search}%");
+                            $query->whereLike('name', "%$search%");
                         });
                 });
             })
-            ->when($date->isNotEmpty(), function ($query) use ($date) {
-                $query->whereBetween('created_at', $date);
+            ->when($date !== null, function ($query) use ($date) {
+                $query->whereBetween('approved_at', $date);
             })
             ->when($officeSelected, function ($query) use ($officeSelected) {
                 $query->whereHas('staff', function ($query) use ($officeSelected) {
@@ -101,7 +98,7 @@ class ReportController extends Controller
             ->withQueryString();
 
         $resource = SubmissionResource::collection($submissions);
-        $component = 'admin/submission-management/list/index';
+        $component = "$this->headComponent/production/index";
 
         return inertia($component, [
             'page_settings' => [
@@ -122,48 +119,6 @@ class ReportController extends Controller
         ]);
     }
 
-    public function productionReport(Request $request)
-    {
-        // Data dasar untuk laporan produksi
-        $branches = [
-            [
-                'branch' => 'Lampung',
-                'sent' => 50,
-                'number_range' => '001 - 050',
-                'used' => 39,
-                'revised' => 1,
-                'damaged' => 0,
-                'unused' => 10,
-            ],
-            [
-                'branch' => 'Lampung',
-                'sent' => 50,
-                'number_range' => '201 - 250',
-                'used' => 0,
-                'revised' => 0,
-                'damaged' => 0,
-                'unused' => 50,
-            ],
-        ];
-
-        // Menghitung total untuk setiap kolom
-        $totals = [
-            'sent' => array_sum(array_column($branches, 'sent')),
-            'used' => array_sum(array_column($branches, 'used')),
-            'revised' => array_sum(array_column($branches, 'revised')),
-            'damaged' => array_sum(array_column($branches, 'damaged')),
-            'unused' => array_sum(array_column($branches, 'unused')),
-        ];
-
-        return inertia($this->headComponent.'production/index', [
-            'page_settings' => [
-                'title' => 'Laporan Produksi',
-            ],
-            'branches' => $branches,
-            'totals' => $totals,
-        ]);
-    }
-
     public function blankUsage(Request $request)
     {
         $blanks = Blank::query()
@@ -181,22 +136,11 @@ class ReportController extends Controller
 
         $resource = BlankUsageResource::collection($blanks);
 
-        return inertia($this->headComponent.'blanks-usage/index', [
+        return inertia("$this->headComponent./blanks-usage/index", [
             'page_settings' => [
                 'title' => 'Laporan Penggunaan Blangko',
             ],
             'blankUsage' => fn () => $resource,
         ]);
-    }
-
-    public function exportBlankUsage(Request $request)
-    {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-
-        return Excel::download(
-            new BlankUsageExport($startDate, $endDate),
-            'blank_usage_report.xlsx'
-        );
     }
 }
