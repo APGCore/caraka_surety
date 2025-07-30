@@ -1025,9 +1025,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </AlertDialogContent>
             </AlertDialog>
           </Show>
-          <Show when={!submission.has_send_to_guarantor && !isRevised}>
+          <Show when={!submission.has_send_to_guarantor}>
             <div className="flex gap-4">
-              <Show when={!isRejected}>
+              <Show when={!isRejected && !isRevised}>
                 <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
                   <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
                     Edit

@@ -115,7 +115,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                           <Show
                             when={
                               submission.status !== SubmissionStatus.REJECTED &&
-                              submission.status === SubmissionStatus.REVISED &&
+                              submission.status !== SubmissionStatus.REVISED &&
                               !submission.has_send_to_guarantor
                             }>
                             <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400" asChild>
