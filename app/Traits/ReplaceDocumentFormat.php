@@ -149,7 +149,7 @@ trait ReplaceDocumentFormat
             'principal_location' => "$principal->address, $principalDistrict->name, $principalRegency->name, $principalProvince->name",
             'est_deed' => $principal->est_deed ?? '...',
             'last_deed' => $principal->last_deed ?? '...',
-            'get_exp' => $this->getExp($principal, $obligee),
+            'get_exp' => $this->getExp($principal),
             'get_susunan_pengurus' => $this->getAdministratorsPrincipal($principal),
             'bank_name' => $submission->bank_name ?? '...',
             'obligee_name' => $obligee->name ?? '...',
@@ -230,18 +230,16 @@ trait ReplaceDocumentFormat
         return $html;
     }
 
-    private function getExp(Principal $principal, Obligee $obligee): string
+    private function getExp(Principal $principal): string
     {
         $approvedSubmissionsExp = Submission::query()
-            ->where('status', 'approved')
-            ->where(function ($query) use ($principal, $obligee) {
-                $query->where('principal_id', $principal->getAttribute('id'))
-                    ->orWhere('obligee_id', $obligee->getAttribute('id'));
-            })
+            ->where('status', SubmissionStatus::APPROVED->value)
+            ->where('principal_id', $principal->getAttribute('id'))
             ->with('obligee')
             ->get()
-            ->map(function ($submission, $index) use ($obligee) {
+            ->map(function ($submission, $index) {
                 $no = $index + 1;
+                $obligee = $submission->getRelation('obligee');
                 $obligeeName = $obligee->getAttribute('name');
                 $contractValue = number_format($submission->contract_value, 0, ',', '.');
                 $approvedAt = date('Y', strtotime($submission->approved_at));
