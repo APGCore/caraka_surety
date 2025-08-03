@@ -1090,17 +1090,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
           </Show>
           {/*final output file*/}
           <Show when={!submission.has_send_to_guarantor && !submission.final_output_file.length && isApproved}>
-            <Card className="w-auto">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmitDoc();
+              }}>
+              <Card className="w-auto">
               <CardHeader className="p-2">
                 <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
               </CardHeader>
               <CardContent>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSubmitDoc();
-                  }}
-                  className="space-y-5 my-2">
+                <div className="space-y-5 my-2">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
                     <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} />
@@ -1110,7 +1110,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                     <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
                     <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} />
                   </div>
-                </form>
+                </div>
               </CardContent>
               <CardFooter className="justify-end">
                 <Button type="submit" disabled={isLoadingUpload || isDisabled}>
@@ -1119,6 +1119,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                 </Button>
               </CardFooter>
             </Card>
+            </form>
           </Show>
           <Show when={submission.final_output_file.length && isApproved}>
             <Card className="w-auto">

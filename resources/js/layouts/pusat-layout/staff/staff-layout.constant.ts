@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Archive, Home, MonitorCheck } from "lucide-react";
+import {Archive, Home, LibraryBig, MonitorCheck} from "lucide-react";
 
 export const staffRoute: IAppSideBarMenu[] = [
   {
@@ -36,4 +36,15 @@ export const staffRoute: IAppSideBarMenu[] = [
       },
     ],
   },
+  {
+    title: "Laporan",
+    icon: LibraryBig,
+    items: [
+      {
+        title: "Produksi",
+        route_name: "report.production",
+        href: route("report.production.index"),
+      },
+    ],
+  }
 ];

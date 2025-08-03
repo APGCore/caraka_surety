@@ -9,13 +9,20 @@ use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
 Route::controller(ReportController::class)
-    ->middleware(HandleRoleUsers::class.':'.implode(',', [RoleEnum::Admin->value, RoleEnum::Keuangan->value]))
     ->group(function () {
         Route::prefix('production')
+            ->middleware(HandleRoleUsers::class.':'.implode(',', [
+                RoleEnum::Admin->value,
+                RoleEnum::Direksi->value,
+                RoleEnum::Manager->value,
+                RoleEnum::Staff->value,
+                RoleEnum::Keuangan->value
+              ]))
             ->name('production.')->group(function () {
                 Route::get('/', 'productionReport')->name('index');
             });
         Route::prefix('blank-usage')
+            ->middleware(HandleRoleUsers::class.':'.implode(',', [RoleEnum::Admin->value]))
             ->name('blank-usage.')->group(function () {
                 Route::get('/', 'blankUsage')->name('index');
                 Route::get('/export-blank-usage', function () {
