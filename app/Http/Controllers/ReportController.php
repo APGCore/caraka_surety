@@ -52,6 +52,8 @@ class ReportController extends Controller
         $search = $request->get('search');
 
         $submissions = Submission::query()
+            ->where('guarantor_id', $guarantorSelected)
+            ->where('has_send_to_guarantor', true)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
@@ -68,7 +70,6 @@ class ReportController extends Controller
                     $query->where('profile_id', $officeSelected);
                 });
             })
-            ->where('guarantor_id', $guarantorSelected)
             ->when($productSelected !== null, function ($query) use ($productSelected) {
                 $query->where('product_id', $productSelected);
             })
