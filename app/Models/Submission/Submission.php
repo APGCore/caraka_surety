@@ -11,6 +11,7 @@ use App\Models\Location\District;
 use App\Models\Location\Province;
 use App\Models\Location\Regency;
 use App\Models\Product\Product;
+use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
@@ -18,7 +19,6 @@ use App\Models\User;
 use App\Traits\currencyConverter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,9 +90,9 @@ class Submission extends Model
         return $this->belongsTo(Bank::class, 'bank_id', 'id');
     }
 
-    public function blanks(): BelongsToMany
+    public function blank(): BelongsTo
     {
-        return $this->belongsToMany(Blank::class, 'submission_blanks', 'submission_id', 'blank_id')->orderBy('id');
+        return $this->belongsTo(Blank::class, 'blank_id', 'id');
     }
 
     public function obligee(): BelongsTo
@@ -170,6 +170,11 @@ class Submission extends Model
     public function userRejected(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rejected_by', 'id');
+    }
+
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Profile::class, 'office_id', 'id');
     }
 
     public function staff(): BelongsTo

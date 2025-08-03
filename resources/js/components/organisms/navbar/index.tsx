@@ -5,12 +5,10 @@ import Clock from "@/components/atoms/clock";
 import React from "react";
 
 interface NavbarProps {
-  guarantor?: any;
   office?: any;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ guarantor, office }) => {
-  console.log("Navbar Rendered", guarantor, office);
+const Navbar: React.FC<NavbarProps> = ({ office }) => {
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear  fixed z-20 top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:w-[calc(100%_-_48px)] md:w-[calc(100%_-_269px)] w-[calc(100%_-_0px)] bg-white border-b-[1px]">
       <div className="flex items-center justify-between pr-4 w-full">

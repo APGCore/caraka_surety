@@ -85,16 +85,16 @@ class ReportController extends Controller
             'guarantor.guarantorRate',
             'product:id,name',
             'guarantorToProductType:id,code_product,code,name',
-            'blanks:id,number,is_broken',
+            'blank:id,number,is_broken,is_revised',
             'principal:id,name',
             'obligee:id,name',
             'staff:id,name,profile_id',
-            'staff.office:id,name,code,office_type',
-            'staff.office.profileRate',
+            'office:id,name,code,office_type',
+            'office.profileRate',
             'submissionBefore:id',
-            'submissionBefore.blanks',
+            'submissionBefore.blank',
             'staff:id,name,profile_id',
-            'staff.office:id,name',
+            'office:id,name',
         ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)

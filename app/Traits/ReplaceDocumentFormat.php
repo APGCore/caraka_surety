@@ -5,24 +5,20 @@ namespace App\Traits;
 use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Models\Document\DocumentFormat;
-use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\Storage;
 use Riskihajar\Terbilang\Facades\Terbilang;
+use stdClass;
 
 trait ReplaceDocumentFormat
 {
     use currencyConverter, Numbering;
 
-    /**
-     * @throws Exception
-     */
     public function convertSubmission(Submission $submission): array
     {
-        $submission->load([
+        $submission->loadMissing([
             'principal.district',
             'principal.regency',
             'principal.province',
@@ -75,14 +71,13 @@ trait ReplaceDocumentFormat
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
         $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
         $supportDocs = $supportDocs->map(function ($doc) {
-            $doc->setAttribute('name', $doc->getAttribute('name') ?? '-');
-            $doc->setAttribute('number', $doc->getAttribute('number') ?? '-');
-            $doc->setAttribute('date', $doc->getAttribute('date') ? Carbon::parse($doc->getAttribute('date'))->translatedFormat('d F Y') : null);
-            if ($doc->getAttribute('url')) {
-                $doc->setAttribute('url', Storage::url($doc->getAttribute('url')));
-            }
+            $item = new stdClass;
+            $item->name = $doc->getAttribute('name');
+            $item->number = $doc->getAttribute('number');
+            $item->date = $doc->getAttribute('date') ? Carbon::parse($doc->getAttribute('date'))->translatedFormat('d F Y') : null;
+            $item->url = $doc->getAttribute('url') ? Storage::url($doc->getAttribute('url')) : null;
 
-            return $doc;
+            return $item;
         });
         $guaranteeValue = $submission->getAttribute('guarantee_value');
         // get submission time difference period

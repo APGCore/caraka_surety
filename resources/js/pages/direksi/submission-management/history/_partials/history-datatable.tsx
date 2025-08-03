@@ -36,7 +36,7 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{submissions.meta.from + index}</TableCell>
-                <TableCell>{submission?.staff?.office}</TableCell>
+                <TableCell>{submission?.office?.name}</TableCell>
                 <TableCell>{submission.principal?.name}</TableCell>
                 <TableCell>{submission.guarantor_to_product_type?.full_name}</TableCell>
                 <TableCell>{submission.no_guarantee}</TableCell>

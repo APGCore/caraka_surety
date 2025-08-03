@@ -20,7 +20,6 @@ class SubmissionResource extends JsonResource
         $productLimit = $this->resource->relationLoaded('guarantorProductTypeLimit') ? $this->resource->guarantorProductTypeLimit : null;
         $employeeLimit = $employeeLimit ? ($this->resource->submission_inherit_id ? $employeeLimit->limit_inherit : $employeeLimit->limit) : 0;
         $productLimit = $productLimit ? ($this->resource->submission_inherit_id ? $productLimit->limit_inherit : $productLimit->limit) : 0;
-        $blanks = $this->resource->relationLoaded('blanks') ? $this->resource->blanks : null;
 
         return [
             ...parent::toArray($request),
@@ -28,11 +27,10 @@ class SubmissionResource extends JsonResource
             'status_label' => SubmissionStatus::getLabels()[$this->resource->status] ?? null,
             'start_date' => $this->resource->start_date ? Carbon::parse($this->resource->start_date)->format('d F Y') : null,
             'end_date' => $this->resource->end_date ? Carbon::parse($this->resource->end_date)->format('d F Y') : null,
-            'created_at' => $this->resource->created_at ? Carbon::parse($this->resource->created_at)->format('d F Y H:i:s') : null,
-            'approved_at' => $this->resource->approved_at ? Carbon::parse($this->resource->approved_at)->format('d F Y H:i:s') : null,
-            'rejected_at' => $this->resource->rejected_at ? Carbon::parse($this->resource->rejected_at)->format('d F Y H:i:s') : null,
-            'blank' => $this->whenLoaded('blank', $this->resource->blank, $blanks?->first()),
-            'blanks' => $blanks,
+            'created_at' => $this->resource->created_at ? Carbon::parse($this->resource->created_at)->format('d F Y H:i') : null,
+            'approved_at' => $this->resource->approved_at ? Carbon::parse($this->resource->approved_at)->format('d F Y H:i') : null,
+            'rejected_at' => $this->resource->rejected_at ? Carbon::parse($this->resource->rejected_at)->format('d F Y H:i') : null,
+            'blank' => $this->whenLoaded('blank', $this->resource->blank),
             'principal' => $this->whenLoaded('principal', function () {
                 return [
                     'id' => $this->resource->principal->id,
@@ -74,13 +72,20 @@ class SubmissionResource extends JsonResource
                 return [
                     'id' => $this->resource->staff->id,
                     'name' => $this->resource->staff->name,
-                    'office' => $this->resource->staff->office->name,
+                ];
+            }),
+            'office' => $this->whenLoaded('office', function () {
+                return [
+                    'id' => $this->resource->office->id,
+                    'name' => $this->resource->office->name,
+                    'code' => $this->resource->office->code,
+                    'office_type' => $this->resource->office->office_type,
                 ];
             }),
             'submission_before' => $this->whenLoaded('submissionBefore', function () {
                 return [
                     'id' => $this->resource->submissionBefore->id,
-                    'blank' => $this->resource->submissionBefore->blanks->select(['number'])->firstWhere('is_broken', false),
+                    'blank' => $this->resource->submissionBefore->blank?->number,
                 ];
             }),
             'employee_limit' => $employeeLimit,

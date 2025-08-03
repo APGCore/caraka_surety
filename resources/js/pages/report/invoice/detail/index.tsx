@@ -113,7 +113,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
           <CardTitle>Pengajuan {submission.principal.name}</CardTitle>
           <CardDescription className={"text-bold"}>
             Pengajuan {submission.product.name}: {submission.guarantor_to_product_type.full_name} dengan No Jaminan{" "}
-            {submission.no_guarantee} di Unit Bisnis {submission.staff.office.name}
+            {submission.no_guarantee} di Unit Bisnis {submission.office.name}
           </CardDescription>
         </CardHeader>
         <CardContent>

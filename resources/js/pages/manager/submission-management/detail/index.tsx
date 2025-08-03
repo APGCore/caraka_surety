@@ -112,12 +112,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
       .post(route("manager-submission-approve", { id: submissionId }), { documents })
       .then((response) => {
         console.log("Success approve submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.error("Error approving submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -130,12 +132,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
       .post(route("manager-submission-reject", submissionId), { documents })
       .then((response) => {
         console.log("success reject submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.log("error reject submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -149,12 +153,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
       .post(route("manager-submission-check", submissionId), { documents })
       .then((response) => {
         console.log("success check submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.log("error check submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -169,7 +175,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
           title: "Sukses",
           description: "Berhasil mendapatkan callback dari asuransi",
         });
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         toast({
@@ -178,8 +188,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
           variant: "destructive",
         });
         console.error("Error Get Callback From Guarantor", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -372,7 +380,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
               <tbody>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
-                  <td className="p-2 ">: {submission.blank?.number}</td>
+                  <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(16)}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Produk</td>
@@ -726,7 +734,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
             <Show when={submission.has_send_to_guarantor}>
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
-                  Dokumen Terverifikasi Dari {submission.guarantor?.name}
+                  Dokumen Verifikasi Dari {submission.guarantor?.name}
                 </h2>
                 <Card className="w-auto">
                   <CardContent className="p-0">
@@ -741,7 +749,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                       ) : (
                         <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
                           {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                          Cek Respon Dari Asuransi
+                          Cek Respond Dari Asuransi
                         </Button>
                       )}
                     </div>

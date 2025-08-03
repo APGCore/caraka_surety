@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Submission;
 
-use App\Enums\OfficeType;
 use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Enums\SubmissionType;
@@ -14,14 +13,10 @@ use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
-use App\Models\Profile\Profile;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
-use App\Models\Submission\SubmissionBlank;
-use App\Models\Submission\SubmissionCallback;
-use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use App\Services\HostToHostService;
 use App\Traits\FilterOffice;
@@ -35,7 +30,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
@@ -119,16 +113,16 @@ class SubmissionController extends Controller
             'guarantor.guarantorRate',
             'product:id,name',
             'guarantorToProductType:id,code_product,code,name',
-            'blanks:id,number,is_broken',
+            'blank:id,number,is_broken,is_revised',
             'principal:id,name',
             'obligee:id,name',
             'staff:id,name,profile_id',
-            'staff.office:id,name,code,office_type',
-            'staff.office.profileRate',
+            'office:id,name,code,office_type',
+            'office.profileRate',
             'submissionBefore:id',
-            'submissionBefore.blanks',
+            'submissionBefore.blank',
             'staff:id,name,profile_id',
-            'staff.office:id,name',
+            'office:id,name',
         ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
@@ -193,22 +187,6 @@ class SubmissionController extends Controller
             $isEdit = $submissionType === SubmissionType::EDIT->value;
             $isRevision = $submissionType === SubmissionType::REVISION->value;
 
-            // get profile
-            $profile = Profile::query()->firstWhere('office_type', OfficeType::HEADQUARTER->value);
-
-            // submission editing
-            $submissionEdit = Submission::with('blanks')->find($submission['id'] ?? null);
-            $blankIds = $submissionEdit?->blanks->pluck('id')->toArray() ?? [];
-            $blankId = $submission['blank_id'] ?? null;
-
-            // get blanks
-            $blank = Blank::query()
-                ->where('is_picked', $isEdit && in_array($blankId, $blankIds))
-                ->firstWhere('id', $submission['blank_id']);
-            if (! $blank) {
-                throw new Exception('Blangko Sudah Digunakan');
-            }
-
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
             foreach ($principalRatios as $principalRatio) {
@@ -224,13 +202,19 @@ class SubmissionController extends Controller
                     'id' => $obligee['id'] ?? null,
                 ], $obligee);
 
-            // generate no guarantee
+            $guarantorBranchId = $submission['guarantor_branch_id'];
             $guarantorHead = Guarantor::query()
-                ->with(['pattern', 'branch'])
+                ->with([
+                    'pattern',
+                    'branch' => function ($query) use ($guarantorBranchId) {
+                        $query->select(['id', 'name', 'code', 'publication_place'])
+                            ->where('id', $guarantorBranchId);
+                    },
+                    'guarantorToProductTypes',
+                ])
                 ->find($submission['guarantor_id']);
 
-            $guarantorBranchId = $submission['guarantor_branch_id'];
-            $guarantorToProductType = $guarantorHead->guarantorToProductTypes()
+            $guarantorToProductType = $guarantorHead->getRelation('guarantorToProductTypes')
                 ->where('product_id', $submission['product_id'])
                 ->where('product_type_id', $submission['product_type_id'])
                 ->where('job_group', $submission['job_group'])
@@ -242,41 +226,21 @@ class SubmissionController extends Controller
 
             if ($isRevision) {
                 $submissionBeforeId = $dataSubmission['submission_before_id'];
-                $submissionForRevision = Submission::query()->select(['id', 'no_guarantee', 'status'])->find($submissionBeforeId);
-                $submissionForRevision->blanks()->each(function ($query) {
-                    $query->update(['is_revised' => true]);
-                });
-                $noGuarantee = $submissionForRevision->getAttribute('no_guarantee');
-                $dataSubmission['staff_id'] = auth()->id();
+                $submissionForRevision = Submission::query()->select(['id', 'blank_id', 'no_guarantee', 'status'])->find($submissionBeforeId);
+                $submissionForRevision->blank()->update(['is_revised' => true]);
                 $submissionForRevision->update(['status' => SubmissionStatus::REVISED->value]);
+                $dataSubmission['staff_id'] = auth()->id();
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
-                if ($submissionEdit->getAttribute('submission_before_id') !== null) {
-                    $noGuarantee = $submissionEdit->getAttribute('no_guarantee');
-                } else {
-                    $noGuarantee = $this->generateNoGuarantee(
-                        $guarantorHead,
-                        $guarantorToProductType,
-                        $guarantorBranchId,
-                        $blank,
-                        $profile
-                    );
-                }
                 $messageResponse = 'Berhasil memperbarui pengajuan';
             } else {
-                $noGuarantee = $this->generateNoGuarantee(
-                    $guarantorHead,
-                    $guarantorToProductType,
-                    $guarantorBranchId,
-                    $blank,
-                    $profile
-                );
+                $dataSubmission['office_id'] = auth()->user()->profile_id;
                 $dataSubmission['staff_id'] = auth()->id();
                 $dataSubmission['publication_date'] = now();
                 $dataSubmission['publication_place'] = $guarantorHead->getRelation('branch')?->where('id', $guarantorBranchId)->first()?->publication_place;
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
-            $dataSubmission['no_guarantee'] = $noGuarantee;
+            $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
@@ -294,37 +258,12 @@ class SubmissionController extends Controller
             $scores = $scoring['scores'];
 
             if ($isEdit) {
-                $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->find($submission['id']);
+                $submission = Submission::query()->with(['scores', 'supportDocs'])->find($submission['id']);
                 $submission->scores()->delete();
                 $submission->update($dataSubmission);
             } else {
-                $submission = Submission::query()->with(['blanks', 'scores', 'supportDocs'])->create($dataSubmission);
+                $submission = Submission::query()->with(['scores', 'supportDocs'])->create($dataSubmission);
             }
-
-            if ($isEdit) {
-                // update is picked blank
-                $submission->blanks()->update([
-                    'is_picked' => false,
-                    'is_used' => false,
-                    'is_broken' => false,
-                    'is_revised' => false,
-                ]);
-                $submission->blanks()->detach();
-            }
-
-            // update or create submission blangko
-            SubmissionBlank::query()->updateOrCreate([
-                'submission_id' => $submission->getAttribute('id'),
-            ], [
-                'blank_id' => $blank->getAttribute('id'),
-            ]);
-
-            $blank->update([
-                'is_picked' => true,
-                'is_used' => $blank->getAttribute('is_used'),
-                'is_broken' => $blank->getAttribute('is_broken'),
-                'is_revised' => $blank->getAttribute('is_revised'),
-            ]);
 
             // update support document
             // delete data if exist
@@ -424,8 +363,8 @@ class SubmissionController extends Controller
     private function checkRole(): array
     {
         // check role
-        $authId = auth()->id();
-        $user = User::query()->find($authId);
+        $user = auth()->user();
+        $authId = $user->id;
         $roleName = $user->role->name;
         $isStaff = $roleName === RoleEnum::Staff->value;
         $isDireksi = $roleName === RoleEnum::Direksi->value;
@@ -529,7 +468,7 @@ class SubmissionController extends Controller
                 'job_group',
                 'job_type',
             ),
-            ['blank_id' => $submission->getRelation('blanks')->first()?->id],
+            ['blank_id' => $submission->getRelation('blank')->getAttribute('id')],
             ['support_docs' => $submission->getRelation('supportDocs')->map(function ($doc) {
                 return [
                     'id' => $doc->id,
@@ -561,9 +500,7 @@ class SubmissionController extends Controller
                 $query->withTrashed();
             },
             'principal.documents',
-            'principal.principalRatios' => function ($query) {
-                $query->withTrashed();
-            },
+            'principal.principalRatios',
             'guarantor' => function ($query) {
                 $query->withTrashed();
             },
@@ -577,7 +514,9 @@ class SubmissionController extends Controller
             'obligee' => function ($query) {
                 $query->withTrashed();
             },
-            'blanks',
+            'blank' => function ($query) {
+                $query->withTrashed();
+            },
             'obligee.province',
             'obligee.regency',
             'obligee.district',
@@ -625,7 +564,7 @@ class SubmissionController extends Controller
             'guarantorProductTypeLimit',
             'callback',
             'supportDocs',
-        ])->findOrFail($id);
+        ])->find($id);
     }
 
     /**
@@ -733,7 +672,8 @@ class SubmissionController extends Controller
         $submission = $this->getSubmission($id);
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');
-        $blank = $submission->getRelation('blanks')->first();
+        $profileId = $submission->getRelation('staff')->getAttribute('profile_id');
+        $submissionConverted = $this->convertSubmission(clone $submission); // for replace document format
 
         // check role
         $checkRole = $this->checkRole();
@@ -742,10 +682,6 @@ class SubmissionController extends Controller
         $isManager = $checkRole['isManager'];
         $isKepalaCabang = $checkRole['isKepalaCabang'];
 
-        if ($submission->getAttribute('status') === SubmissionStatus::PROCESS->value && $blank) {
-            $blank->number = str_pad('X', 16, 'X');
-        }
-        $submission->setAttribute('blank', $blank);
         $contractValueFormatted = $this->formatCurrency($submission->getAttribute('contract_value'));
         $guaranteeValueFormatted = $this->formatCurrency($submission->getAttribute('guarantee_value'));
         $requiredDocs = RequiredDoc::query()->get(['id', 'product_type_id', 'name', 'description', 'created_at'])
@@ -797,6 +733,9 @@ class SubmissionController extends Controller
             })
             ->orderBy('no')
             ->get();
+        foreach ($documentFormats as $documentFormat) {
+            $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+        }
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
         $submissionDocs = $submission->getAttribute('has_send_to_guarantor')
@@ -844,10 +783,13 @@ class SubmissionController extends Controller
             return $doc;
         });
 
-        $submissionConverted = $this->convertSubmission((clone $submission));
-        foreach ($documentFormats as $documentFormat) {
-            $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
-        }
+        $blankId = $submission->getAttribute('blank_id');
+        $blanks = Blank::query()
+            ->where('profile_id', $profileId)
+            ->where(function ($query) use ($blankId) {
+                $query->where('id', $blankId)
+                    ->orWhere('is_picked', false);
+            })->get();
 
         if ($isStaff) {
             $component = 'staff/submission-management/detail/index';
@@ -865,7 +807,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('contract_value_formatted', $contractValueFormatted);
         $submission->setAttribute('guarantee_value_formatted', $guaranteeValueFormatted);
         $submission->setAttribute('submission_docs', $submissionDocs);
-        $submission->setAttribute('blank', $blank);
         $submission->setAttribute('required_docs', $requiredDocs);
         $submission->setAttribute('start_date', $startDate);
         $submission->setAttribute('end_date', $endDate);
@@ -879,6 +820,7 @@ class SubmissionController extends Controller
 
         return inertia($component, [
             'submission' => fn () => $submission,
+            'blanks' => fn () => $blanks,
         ]);
     }
 
@@ -966,7 +908,7 @@ class SubmissionController extends Controller
                 'employeeLimit',
                 'guarantorProductTypeLimit',
                 'staff:id,name,profile_id',
-                'staff.office:id,name',
+                'office:id,name',
             ])
             ->orderByDesc('updated_at')
             ->paginate($request->get('per_page') ?? 10)
@@ -1064,7 +1006,7 @@ class SubmissionController extends Controller
                 'guarantorToProductType',
                 'guarantorProductTypeLimit',
                 'staff:id,name,profile_id',
-                'staff.office:id,name',
+                'office:id,name',
             ])
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
@@ -1122,8 +1064,7 @@ class SubmissionController extends Controller
             if (! $updated) {
                 throw new Exception('Failed to approve submission');
             }
-            $submission->load('blanks');
-            $submission->blanks()->update(['is_used' => true]);
+            $submission->blank()->update(['is_used' => true]);
             Log::info('Submission approved', ['submission_id' => $submission->getAttribute('id')]);
             flashMessage('success', 'Berhasil menyetujui pengajuan');
             DB::commit();
@@ -1158,7 +1099,7 @@ class SubmissionController extends Controller
                 throw new Exception('Gagal mengajukan pengajuan rusak ke pihak asuransi: '.$final['message']);
             }
             $submission->update(['status' => SubmissionStatus::BROKEN->value]);
-            $submission->blanks()->update(['is_broken' => true]);
+            $submission->blank()->update(['is_broken' => true]);
             DB::commit();
             flashMessage('success', 'Berhasil menandai pengajuan sebagai broken');
         } catch (Exception $e) {
@@ -1174,18 +1115,16 @@ class SubmissionController extends Controller
 
         $checkedBy = $submission->getAttribute('checked_by');
         $checkedAt = $submission->getAttribute('checked_at');
-        $submission->load(['blanks', 'staff']);
-        $staff = $submission->getAttribute('staff');
+        $submission->load(['staff']);
+        $staff = $submission->getRelation('staff');
         $headId = $staff->getAttribute('head_id');
-        foreach ($submission->getRelation('blanks') as $blank) {
-            $blank->update([
-                'is_picked' => false,
-                'is_used' => false,
-                'is_broken' => false,
-                'is_revised' => false,
-                'is_approved' => false,
-            ]);
-        }
+        $submission->blank()->update([
+            'is_picked' => false,
+            'is_used' => false,
+            'is_broken' => false,
+            'is_revised' => false,
+            'is_approved' => false,
+        ]);
 
         return $submission->update([
             'checked_by' => $headId ?? $checkedBy ?? auth()->id(),
@@ -1249,415 +1188,6 @@ class SubmissionController extends Controller
             flashMessage('error', 'Terjadi kesalahan saat mengirim ke direksi pengajuan', 'error');
             $error = $this->handleErrorMessage($e);
             Log::error('Failed to check submission', $error);
-        }
-    }
-
-    public function saveDocument(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $validated = $request->validate([
-            'submission_id' => 'required|integer|exists:submissions,id',
-            'document_format_id' => 'nullable|integer|exists:document_formats,id',
-            'name' => 'nullable|string|max:255',
-            'format_document' => 'required|string',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submissionDoc = SubmissionDoc::query()
-                ->updateOrCreate(
-                    [
-                        'submission_id' => $validated['submission_id'],
-                        'name' => $validated['name'],
-                    ],
-                    [
-                        'document_format_id' => $validated['document_format_id'] ?? null,
-                        'format_document' => $validated['format_document'], // Data yang diperbarui
-                    ]
-                );
-
-            DB::commit();
-
-            return response()->json([
-                'message' => $submissionDoc->wasRecentlyCreated
-                  ? 'Dokumen berhasil dibuat.'
-                  : 'Dokumen berhasil diperbarui.',
-                'data' => $submissionDoc,
-            ], 201);
-        } catch (Exception $e) {
-            // Error handling
-            DB::rollBack();
-
-            return response()->json([
-                'message' => 'Gagal menyimpan dokumen.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function saveDocSignatured(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $request->validate([
-            'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
-            'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
-            'submission_id' => 'required|exists:submissions,id',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submissionId = $request->input('submission_id');
-            $documents = [];
-
-            if ($request->hasFile('spkmgr_file')) {
-                $spkmgrFile = $request->file('spkmgr_file');
-                // Generate nama file unik
-                $uniqueName = uniqid('spkmgr_', true).'.'.$spkmgrFile->getClientOriginalExtension();
-                // Simpan file di folder dengan path berdasarkan submission_id
-                //                $spkmgrPath = $spkmgrFile->storeAs(
-                //                    "documents/spkmgr/{$submissionId}",
-                //                    $uniqueName,
-                //                    'public'
-                //                );
-                $spkmgrPath = $this->uploadFile($spkmgrFile, "documents/spkmgr/$submissionId", $uniqueName);
-                $documents[] = [
-                    'submission_id' => $submissionId,
-                    'document_format_id' => null,
-                    'name' => 'Surat Pernyataan Kesediaan Membayar Ganti Rugi (SPKMGR)',
-                    'format_document' => null,
-                    'url' => $spkmgrPath,
-                ];
-            }
-
-            if ($request->hasFile('permohonan_file')) {
-                $permohonanFile = $request->file('permohonan_file');
-                // Generate nama file unik
-                $uniqueName = uniqid('permohonan_', true).'.'.$permohonanFile->getClientOriginalExtension();
-                // Simpan file di folder dengan path berdasarkan submission_id
-                //                $permohonanPath = $permohonanFile->storeAs(
-                //                    "documents/permohonan/{$submissionId}",
-                //                    $uniqueName,
-                //                    'public'
-                //                );
-                $permohonanPath = $this->uploadFile($permohonanFile, "documents/permohonan/$submissionId", $uniqueName);
-                $documents[] = [
-                    'submission_id' => $submissionId,
-                    'document_format_id' => null,
-                    'name' => 'Surat Permohonan',
-                    'format_document' => null,
-                    'url' => $permohonanPath,
-                ];
-            }
-
-            foreach ($documents as $document) {
-                SubmissionDoc::query()->updateOrCreate(
-                    ['submission_id' => $document['submission_id'], 'url' => $document['url']], // Key untuk mencocokkan dokumen
-                    $document
-                );
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'File berhasil diunggah dan disimpan.',
-                'data' => $documents,
-            ]);
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'message' => 'Gagal mengunggah file.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function storeDocument(Request $request, $submissionId): JsonResponse
-    {
-        $request->validate([
-            'documents' => 'required|array',
-            'documents.*.id' => 'required|exists:document_formats,id',
-            'documents.*.name' => 'nullable|string|max:255',
-            'documents.*.content' => 'required|string',
-            'documents.*.url' => 'nullable|string|max:255',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submission = Submission::query()->findOrFail($submissionId);
-            $documents = $request->input('documents', []);
-            if (count($documents) > 0) {
-                $submission->submissionDocs()->whereNotNull('document_format_id')->delete();
-                $docData = collect($documents)->map(fn ($doc) => [
-                    'document_format_id' => $doc['id'] ?? null,
-                    'name' => $doc['name'] ?? null,
-                    'format_document' => $doc['content'],
-                    'url' => $doc['url'] ?? null,
-                ])->toArray();
-                $submission->submissionDocs()->createMany($docData);
-            }
-            DB::commit();
-
-            return $this->responseSuccess('Berhasil menyimpan dokumen pengajuan');
-        } catch (Exception $e) {
-            DB::rollBack();
-            $error = $this->handleErrorMessage($e);
-            Log::error('Failed to save documents', $error);
-
-            return $this->responseError('Gagal menyimpan dokumen pengajuan', $error);
-        }
-    }
-
-    public function updateDocument(Request $request, SubmissionDoc $submissionDoc): JsonResponse
-    {
-        $validated = $request->validate([
-            'format' => 'required|string',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $submissionDoc->update([
-                'format_document' => $validated['format'],
-            ]);
-
-            DB::commit();
-
-            return $this->responseSuccess('Berhasil mengubah format dokumen');
-        } catch (Exception $e) {
-            DB::rollBack();
-            $error = $this->handleErrorMessage($e);
-            Log::error('Failed to update document format', $error);
-
-            return $this->responseError('Gagal mengubah format dokumen', $error);
-        }
-    }
-
-    public function send($submissionId): JsonResponse
-    {
-        $result = $this->sendToGuarantor($submissionId);
-
-        if ($result['status'] === 'success') {
-            Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
-
-            return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');
-        }
-        Log::error('Submission failed to send to guarantor', ['submission_id' => $submissionId, ...$result]);
-
-        return $this->responseError('Gagal mengirimkan data ke pihak asuransi', $result);
-    }
-
-    private function sendToGuarantor($submissionId): array
-    {
-        try {
-            $submission = Submission::query()
-                ->with([
-                    'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                      'director_name,director_position,director_phone,commissioner,year_established,'.
-                      'last_deed,province_id,regency_id,district_id,village,address,postal_code',
-                    'principal.province:id,code,name',
-                    'principal.regency:id,code,name',
-                    'principal.district:id,code,name',
-                    'principal.documents:id,principal_id,name,url',
-                    'blanks',
-                    'guarantor:id,code,name',
-                    'guarantorBranch:id,code,name',
-                    'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
-                    'product:id,name',
-                    'guarantorToProductType:id,product_type_id,name,job_group,job_type',
-                    'obligee:id,name,telephone,pic,no_ppk,province_id,regency_id,district_id,village,address,postal_code',
-                    'obligee.province:id,code,name',
-                    'obligee.regency:id,code,name',
-                    'obligee.district:id,code,name',
-                    'province:id,code,name',
-                    'regency:id,code,name',
-                    'district:id,code,name',
-                    'sourceOfFund:id,name',
-                    'submissionDocs:id,submission_id,name,format_document,url',
-                    'supportDocs:id,submission_id,name,number,date,url',
-                    'staff:id,head_id,profile_id',
-                ])->find($submissionId);
-            $principal = $submission->getRelation('principal');
-            $blank = $submission->getRelation('blanks')->where('is_broken', false)->first();
-            $guarantor = $submission->getRelation('guarantor');
-            $guarantorBranch = $submission->getRelation('guarantorBranch');
-            $product = $submission->getRelation('product');
-            $guarantorToProductType = $submission->getRelation('guarantorToProductType');
-            $obligee = $submission->getRelation('obligee');
-            $jobProvince = $submission->getRelation('province');
-            $jobRegency = $submission->getRelation('regency');
-            $jobDistrict = $submission->getRelation('district');
-            $sourceOfFound = $submission->getRelation('sourceOfFund');
-            $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document')->values();
-            $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document')->values();
-            $submissionBeforeId = $submission->getAttribute('submission_before_id');
-
-            $hostToHost = $guarantor->getRelation('hostToHost');
-            $url = $hostToHost->getAttribute('guarantor_url_host');
-            $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
-            $prefix = $hostToHost->getAttribute('auth_prefix');
-            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
-
-            //        $profileLimit = $this->getProfileLimit(
-            //            $submission->guarantor_id,
-            //            $submission->guarantor_product_type_id,
-            //            $submission->getRelation('staff')->getAttribute('profile_id')
-            //        )
-            //            ?->getAttribute('limit') ?? 0;
-            //        $beyondTheLimit = $profileLimit < $submission->guarantee_value;
-
-            $dataSend = ['submission_id' => $submission->getAttribute('id')];
-            // endorsement
-            if ($submissionBeforeId) {
-                $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
-                if (! $submissionCallback) {
-                    return [
-                        'status' => 'error',
-                        'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
-                    ];
-                }
-                $submissionFirst = Submission::query()->orderBy('created_at')->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
-                $dataSend = [
-                    'submission_id' => $submissionFirst->getAttribute('id'),
-                    'remarks' => $submission->getAttribute('revised_note'),
-                    'policyno' => $submissionCallback->getAttribute('no_policy'),
-                ];
-            }
-            $docsPrincipal = $principal->getRelation('documents')->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'url' => $doc->getAttribute('url'),
-                ];
-            })->toArray();
-            $supportDocs = $submission->getRelation('supportDocs')->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name').', '.$doc->getAttribute('number').', '.$doc->getAttribute('date'),
-                    'url' => $doc->getAttribute('url'),
-                ];
-            })->toArray();
-            $finalOutputFile = $submissionDocsFile->map(function ($doc) {
-                return [
-                    'name' => $doc->getAttribute('name'),
-                    'url' => $doc->getAttribute('url'),
-                ];
-            })->toArray();
-            $docs = array_merge($docsPrincipal, $supportDocs, $finalOutputFile);
-            $docSupport = $submission->getRelation('supportDocs')->first();
-
-            $result = array_merge($dataSend, [
-                'principal' => [
-                    'id' => $principal->getAttribute('id'),
-                    'name' => $principal->getAttribute('name'),
-                    'telephone' => $principal->getAttribute('telephone'),
-                    'pic' => $principal->getAttribute('pic'),
-                    'npwp' => $principal->getAttribute('npwp'),
-                    'nib' => $principal->getAttribute('nib'),
-                    'siup_siujk' => $principal->getAttribute('siup_siujk'),
-                    'head_name' => $principal->getAttribute('head_name'),
-                    'business_fields' => $principal->getAttribute('business_fields'),
-                    'director' => [
-                        'name' => $principal->getAttribute('director_name'),
-                        'position' => $principal->getAttribute('director_position'),
-                        'phone' => $principal->getAttribute('director_phone'),
-                        'commissioner' => $principal->getAttribute('commissioner'),
-                    ],
-                    'year_established' => $principal->getAttribute('year_established'),
-                    'last_legality' => $principal->getAttribute('last_deed'),
-                    'location' => [
-                        'province' => $principal->province?->only(['code', 'name']),
-                        'regency' => $principal->regency?->only(['code', 'name']),
-                        'district' => $principal->district?->only(['code', 'name']),
-                        'village' => $principal->getAttribute('village'),
-                        'address' => $principal->getAttribute('address'),
-                        'postal_code' => $principal->getAttribute('postal_code'),
-                    ],
-                    'docs' => $docs,
-                ],
-                'guarantee' => [
-                    'no' => $submission->getAttribute('no_guarantee'),
-                    'value' => $submission->getAttribute('guarantee_value'),
-                ],
-                'contract' => [
-                    'blank' => $blank?->number,
-                    'value' => $submission->getAttribute('contract_value'),
-                    //                'document' => [
-                    //                    'name' => $submission->getAttribute('contract_doc_name'),
-                    //                    'number' => $submission->getAttribute('contract_doc_number'),
-                    //                    'date' => $submission->getAttribute('contract_doc_date'),
-                    //                ],
-                    'document' => $docSupport ? [
-                        'name' => $docSupport->getAttribute('name'),
-                        'number' => $docSupport->getAttribute('number'),
-                        'date' => $docSupport->getAttribute('date'),
-                    ] : [
-                        'name' => null,
-                        'number' => null,
-                        'date' => null,
-                    ],
-                    'guarantor' => [
-                        ...$guarantor->only(['id', 'code', 'name']),
-                        'branch' => $guarantorBranch?->only(['id', 'code', 'name']),
-                    ],
-                    'product' => $product->only(['id', 'name']),
-                    'product_type' => [
-                        'id' => $guarantorToProductType->getAttribute('product_type_id'),
-                        'name' => $guarantorToProductType->getAttribute('name'),
-                    ],
-                    'obligee' => [
-                        'name' => $obligee->getAttribute('name'),
-                        'telephone' => $obligee->getAttribute('telephone'),
-                        'pic' => $obligee->getAttribute('pic'),
-                        'no_ppk' => $obligee->getAttribute('npwp'),
-                        'location' => [
-                            'province' => $obligee->province?->only(['code', 'name']),
-                            'regency' => $obligee->regency?->only(['code', 'name']),
-                            'district' => $obligee->district?->only(['code', 'name']),
-                            'village' => $obligee->getAttribute('village'),
-                            'address' => $obligee->getAttribute('address'),
-                            'postal_code' => $obligee->getAttribute('postal_code'),
-                        ],
-                    ],
-                    'project' => [
-                        'name' => $submission->getAttribute('job_name'),
-                        'group' => $guarantorToProductType->getAttribute('job_group'),
-                        'type' => $guarantorToProductType->getAttribute('job_type'),
-                        'time_period' => $submission->getAttribute('time_period'),
-                        'start_date' => $submission->getAttribute('start_date'),
-                        'end_date' => $submission->getAttribute('end_date'),
-                        'source_of_fund' => $sourceOfFound->only(['id', 'name']),
-                        'location' => [
-                            'province' => $jobProvince->only(['code', 'name']),
-                            'regency' => $jobRegency->only(['code', 'name']),
-                            'district' => $jobDistrict->only(['code', 'name']),
-                            'village' => $submission->getAttribute('job_location_village'),
-                            'address' => $submission->getAttribute('job_location_address'),
-                            'postal_code' => $submission->getAttribute('job_location_postal_code'),
-                        ],
-                    ],
-                ],
-                'output' => $submissionDocs->map(function ($doc) {
-                    return [
-                        'name' => $doc->getAttribute('name'),
-                        'value' => $doc->getAttribute('format_document'),
-                    ];
-                })->toArray(),
-                'final_output_file' => $finalOutputFile,
-            ]);
-
-            Log::info('Data Send To Assurance', $result);
-            $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
-            if ($final['status'] == 'success') {
-                $submission->update(['has_send_to_guarantor' => true]);
-
-                return $final;
-            }
-
-            return $final;
-        } catch (Exception $e) {
-            $error = $this->handleErrorMessage($e);
-            Log::error('Error sending submission to guarantor', $error);
-
-            return [
-                'status' => 'error',
-                'message' => 'Gagal mengirimkan data ke pihak asuransi',
-            ];
         }
     }
 
@@ -1731,13 +1261,12 @@ class SubmissionController extends Controller
             $submission->submissionDocs()->delete();
             $submission->supportDocs()->delete();
             $submission->callback()->delete();
-            $submission->blanks()->update([
+            $submission->blank()->update([
                 'is_picked' => false,
                 'is_used' => false,
                 'is_broken' => false,
                 'is_revised' => false,
             ]);
-            $submission->blanks()->detach();
             $submission->submissionBefore()->update([
                 'status' => SubmissionStatus::APPROVED->value,
             ]);
@@ -1757,8 +1286,8 @@ class SubmissionController extends Controller
         // dd($request->all());
         $request->validate([
             'submission_id' => 'required|exists:submissions,id',
-            'publication_date' => 'nullable|date',
-            'publication_place' => 'nullable|string|max:255',
+            'publication_date' => 'required|date',
+            'publication_place' => 'required|string|max:255',
         ]);
         DB::beginTransaction();
 
@@ -1766,32 +1295,15 @@ class SubmissionController extends Controller
             $submissionId = $request->get('submission_id');
             $publicationDate = $request->get('publication_date');
             $publicationPlace = $request->get('publication_place');
-            $submission = Submission::query()->findOrFail($submissionId);
+            $submission = Submission::query()->with('submissionDocs')->find($submissionId);
 
             $submission->update([
                 'publication_date' => $publicationDate,
                 'publication_place' => $publicationPlace,
             ]);
 
-            $submissionId = $submission->getAttribute('id');
-
-            $this->updatePublicationPlaceholders($submissionId, $publicationDate, $publicationPlace);
-
-            DB::commit();
-
-            flashMessage('success', 'Berhasil memperbarui data publikasi pengajuan');
-        } catch (Exception $e) {
-            DB::rollBack();
-            $error = $this->handleErrorMessage($e);
-            Log::error('Failed to delete submission', $error);
-            flashMessage('error', 'Terjadi kesalahan saat mengupdate data', 'error');
-        }
-    }
-
-    public function updatePublicationPlaceholders(int $submissionId, ?string $publicationDate, ?string $publicationPlace): void
-    {
-        DB::transaction(function () use ($submissionId, $publicationDate, $publicationPlace) {
-            $submissionDocs = SubmissionDoc::query()->where('submission_id', $submissionId)->get();
+            $submissionDocs = $submission->getRelation('submissionDocs')
+                ->whereNotNull('document_format_id');
 
             foreach ($submissionDocs as $doc) {
                 $content = $doc->format_document;
@@ -1809,6 +1321,15 @@ class SubmissionController extends Controller
                     'format_document' => $content,
                 ]);
             }
-        });
+
+            DB::commit();
+
+            flashMessage('success', 'Berhasil memperbarui data publikasi pengajuan');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to delete submission', $error);
+            flashMessage('error', 'Terjadi kesalahan saat mengupdate data', 'error');
+        }
     }
 }
