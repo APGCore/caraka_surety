@@ -9,7 +9,7 @@ Route::controller(SubmissionController::class)
     ->group(function () {
         Route::get('post-to-get-callback', 'postToGetCallback')->name('post-to-get-callback');
         Route::post('set-blank', 'setBlank')->name('set-blank');
-        Route::post('save-doc', 'saveDocSignature')->name('save-permohonan-doc.submission');
+        Route::post('save-doc', 'saveDocSignature')->name('save-permohonan-doc');
         Route::post('document/{submissionId}/store', 'storeDocument')->name('document.store');
         Route::put('document/{submissionDoc}', 'updateDocument')->name('document.update');
         Route::post('send/{submission}', 'send')->name('send');
