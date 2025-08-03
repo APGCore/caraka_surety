@@ -16,19 +16,19 @@ trait GeneratePattern
     public function generateNoGuarantee(
         ?Guarantor $guarantor = null,
         ?GuarantorToProductType $guarantorToProductType = null,
-        $guarantorBranchId = null,
+        ?Guarantor $guarantorBranch = null,
         ?Blank $blank = null,
         ?Profile $profile = null
     ): string {
-        $guarantor?->load(['branch', 'pattern']);
+        $guarantor?->load(['pattern']);
         $guarantorId = $guarantor?->getAttribute('id');
         $ka = $guarantor?->getAttribute('code') ?? '';
-        $kc = $guarantor?->branch->where('id', $guarantorBranchId)->first()?->code ?? '';
+        $kc = $guarantorBranch?->getAttribute('code') ?? '';
         $kp = $guarantorToProductType?->getAttribute('code_product') ?? '';
         $kb = $blank?->getAttribute('number') ?? '';
         $noa = $profile?->getAttribute('code') ?? '';
 
-        $guarantorPattern = $guarantor?->pattern;
+        $guarantorPattern = $guarantor?->getRelation('pattern');
         $pattern = $guarantorPattern?->prefix.$guarantorPattern?->content.$guarantorPattern?->suffix;
         $sequence = Sequence::query()->where('guarantor_id', $guarantorId)->orderByDesc('current')->get();
         $seqNodLast = $sequence->where('name', 'NOD')->first();

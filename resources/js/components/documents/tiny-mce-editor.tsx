@@ -1,4 +1,3 @@
-import { jsPDF } from "jspdf"; // Import jsPDF library
 import React, { useRef } from "react";
 
 interface TinyMCEEditorProps {
@@ -51,7 +50,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
                 .join("\n");
 
               const fullHTML = `
-                <html>
+                <html lang="id">
                   <head>
                     <meta charset="utf-8">
                     <style>
@@ -103,7 +102,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
           });
 
           if (onContentChange) {
-            editor.on("change", () => {
+            editor.on("keyup", () => {
               onContentChange(editor.getContent());
             });
           }
@@ -182,7 +181,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         .join("\n");
 
       const fullHTML = `
-        <html>
+        <html lang="id">
           <head>
             <meta charset="utf-8">
             <style>
@@ -224,7 +223,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
       const editorContent = editor.getContent();
       printWindow.document.open();
       printWindow.document.write(`
-        <html>
+        <html lang="id">
           <head>
             <title>Print Document</title>
           </head>

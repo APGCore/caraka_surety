@@ -339,7 +339,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <tbody>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
-                  <td className="p-2 ">: {submission.blank?.number}</td>
+                  <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(10)}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Produk</td>
@@ -685,7 +685,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <Show when={submission.has_send_to_guarantor}>
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
-                  Dokumen Terverifikasi Dari {submission.guarantor?.name}
+                  Dokumen Verifikasi Dari {submission.guarantor?.name}
                 </h2>
                 <Card className="w-auto">
                   <CardContent className="p-0">
@@ -700,7 +700,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       ) : (
                         <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
                           {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                          Cek Respon Dari Asuransi
+                          Cek Respond Dari Asuransi
                         </Button>
                       )}
                     </div>

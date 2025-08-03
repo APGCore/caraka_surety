@@ -27,24 +27,6 @@ interface LoginFormProps extends React.ComponentProps<"div"> {
 
 const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorSelected, setTab, ...props }) => {
   const { data, errors, handleLogin, processing, setData } = useLoginForm();
-  const { post: deleteSession } = useForm();
-
-  const handleDeleteSession = () => {
-    deleteSession(route("onboarding.forget-guarantor"), {
-      onSuccess: () => {},
-    });
-  };
-  // const guarantor = guarantors.find((guarantor) => guarantor.id === guarantorSelected);
-
-  // const handleSelectGuarantor = (guarantorId: number) => {
-  //   setData("guarantor_id", guarantorId);
-  //   router.get(route("login"), pickBy({ guarantor_id: guarantorId }), { preserveState: true, preserveScroll: true });
-  // };
-
-  // console.log(data);
-  // useEffect(() => {
-  //   setData("guarantor_id", 4);
-  // }, []);
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -116,11 +98,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
                     form="login-form"
                     className="w-full uppercase  bg-red-700 hover:bg-red-500"
                     disabled={processing}>
-                    <Loading isLoading={processing} className="mr-1 " /> Submit
+                    <Loading isLoading={processing} className="mr-1 " /> Login
                   </Button>
-                  {/* <Button type="button" onClick={() => setTab("admin")}>
-                    Login Admin
-                  </Button> */}
                 </div>
               </div>
             </form>

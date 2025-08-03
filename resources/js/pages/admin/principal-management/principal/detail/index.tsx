@@ -140,7 +140,7 @@ const PrincipalDetailPage: PrincipalDetailPageProps & { layout?: any } = ({ prin
                     render={(submission: any, index: number) => (
                       <TableRow key={submission.id}>
                         <TableCell>{index + 1}</TableCell>
-                        <TableCell>{submission.staff?.office}</TableCell>
+                        <TableCell>{submission.office?.name}</TableCell>
                         <TableCell>{submission.product?.name}</TableCell>
                         <TableCell>{submission.product_type?.full_name}</TableCell>
                         <TableCell>{submission.no_guarantee}</TableCell>

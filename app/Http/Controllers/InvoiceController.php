@@ -92,12 +92,12 @@ class InvoiceController extends Controller
                         'guarantor.guarantorRate',
                         'product:id,name',
                         'guarantorToProductType:id,code_product,code,name',
-                        'blanks:id,number,is_broken',
+                        'blank:id,number,is_broken,is_revised',
                         'principal:id,name',
                         'obligee:id,name',
                         'staff:id,name,profile_id',
-                        'staff.office:id,name,code,office_type',
-                        'staff.office.profileRate',
+                        'office:id,name,code,office_type',
+                        'office.profileRate',
                     ]);
             })
             ->orderBy('created_at', 'desc')
@@ -178,8 +178,8 @@ class InvoiceController extends Controller
             'guarantorToProductType' => function ($query) {
                 $query->select(['id', 'code_product', 'code', 'name', 'full_name'])->withTrashed();
             },
-            'blanks' => function ($query) {
-                $query->select(['blanks.id', 'blanks.number', 'blanks.is_broken'])->withTrashed();
+            'blank' => function ($query) {
+                $query->select(['id', 'number', 'is_broken', ',is_revised'])->withTrashed();
             },
             'principal' => function ($query) {
                 $query->select(['id', 'name'])->withTrashed();
@@ -190,10 +190,10 @@ class InvoiceController extends Controller
             'staff' => function ($query) {
                 $query->select(['id', 'name', 'profile_id'])->withTrashed();
             },
-            'staff.office' => function ($query) {
+            'office' => function ($query) {
                 $query->select(['id', 'name', 'code', 'office_type'])->withTrashed();
             },
-            'staff.office.profileRate',
+            'office.profileRate',
             'principal.principalRate',
             'submissionRate',
         ]);
@@ -331,10 +331,10 @@ class InvoiceController extends Controller
                 'staff' => function ($query) {
                     $query->select(['id', 'name', 'profile_id'])->withTrashed();
                 },
-                'staff.office' => function ($query) {
+                'office' => function ($query) {
                     $query->select(['id', 'name', 'code', 'office_type'])->withTrashed();
                 },
-                'staff.office.profileRate',
+                'office.profileRate',
                 'guarantorToProductType' => function ($query) {
                     $query->select(['id', 'name', 'job_group', 'job_type'])->withTrashed();
                 },
@@ -348,13 +348,12 @@ class InvoiceController extends Controller
         $offices = [];
         $invoices = [];
         foreach ($submissions as $submission) {
-            $staff = $submission->getRelation('staff');
             $office = Profile::query()
                 ->select(['id', 'name', 'code', 'office_type'])
                 ->where('office_type', OfficeType::HEADQUARTER->value)
                 ->withTrashed()
                 ->first();
-            $businessUnit = $staff->getRelation('office');
+            $businessUnit = $submission->getRelation('office');
             $principal = $submission->getRelation('principal');
             $obligee = $submission->getRelation('obligee');
             $guarantor = $submission->getRelation('guarantor');

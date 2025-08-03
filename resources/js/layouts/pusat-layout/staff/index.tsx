@@ -6,14 +6,14 @@ import AppSidebar from "@/components/sidebar/app-sidebar";
 import { staffRoute } from "./staff-layout.constant";
 import { StaffLayoutPageProps } from "./staff-layout.type";
 
-export const StaffLayoutPage: StaffLayoutPageProps = ({ children, user, roles, guarantor }) => {
+export const StaffLayoutPage: StaffLayoutPageProps = ({ children, user, roles }) => {
   useFlashMessageToast();
 
   return (
     <SidebarProvider>
       <AppSidebar user={user} routes={staffRoute} roles={roles} />
       <SidebarInset>
-        <Navbar guarantor={guarantor} />
+        <Navbar />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-[84px] pb-[50px]  xl:max-w-7xl w-full mx-auto">
           {children}
         </div>

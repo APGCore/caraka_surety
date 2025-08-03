@@ -1,5 +1,9 @@
 import { AlertDialogDescription } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
+import { CardFooter, CardHeader, CardTitle } from "@/_features/_common/components/_shadcn-ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/_features/_common/components/_shadcn-ui/popover";
 import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
+import { Skeleton } from "@/_features/_common/components/_shadcn-ui/skeleton";
+import Combobox from "@/_features/_common/components/combobox";
 import { FileInput } from "@/_features/_common/components/file-input";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
@@ -33,7 +37,7 @@ import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
-import { LoaderCircle } from "lucide-react";
+import { EllipsisVertical, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
@@ -73,16 +77,22 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
-  useEffect(() => {
-    handleComparisonRatios(submission.principal?.ratios ?? []);
-  }, []);
-
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks }) => {
+  const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
   const isApproved = submission.status === SubmissionStatus.APPROVED;
   const isRejected = submission.status === SubmissionStatus.REJECTED;
   const isRevised = submission.status === SubmissionStatus.REVISED;
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUpload, setIsLoadingUpload] = useState(false);
+  const [isLoadingPublication, setIsLoadingPublication] = useState(false);
+  const [isLoadingEmbedQr, setIsLoadingEmbedQr] = useState(false);
+  const [isLoadingGetCallback, setIsLoadingGetCallback] = useState(false);
+  const [isLoadingDocument, setIsLoadingDocument] = useState(false);
+  const [isLoadingSend, setIsLoadingSend] = useState(false);
+  const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [selectedBlank, setSelectedBlank] = useState(submission.blank_id || null);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
     : isApproved
@@ -99,8 +109,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const editorRefs = useRef<{ [key: string]: any }>({});
   const [publicationDate, setPublicationDate] = useState<string | null>(submission.publication_date || null);
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const submissionId = submission?.id || "";
+  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
+  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {
@@ -116,8 +126,78 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     });
   };
 
+  const setLoadingDocument = () => {
+    setIsLoadingDocument(true);
+    setTimeout(() => {
+      setIsLoadingDocument(false);
+    }, 1000);
+  };
+
+  const handleSetBlank = () => {
+    if (!selectedBlank) {
+      toast({
+        title: "Gagal",
+        description: "Silakan pilih blangko terlebih dahulu.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoadingSetBlank(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.set-blank"), {
+        submission_id: submissionId,
+        blank_id: selectedBlank,
+      })
+      .then((response) => {
+        console.log("Success Set Blangko", response);
+        toast({
+          title: "Sukses",
+          description: "Blangko berhasil dipilih.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setLoadingDocument();
+          },
+          onFinish: () => {
+            setIsLoadingSetBlank(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Set Blangko", error);
+        setIsLoadingSetBlank(false);
+        setIsDisabled(false);
+      });
+  };
+
   const handleSendGuarantor = (submissionId: number) => {
-    setIsLoading(true);
+    let failed = false;
+    const message = [];
+    if (!publicationPlace) {
+      failed = true;
+      message.push("Tempat publikasi tidak boleh kosong");
+    }
+    if (!publicationDate) {
+      failed = true;
+      message.push("Tanggal publikasi tidak boleh kosong");
+    }
+    if (!submission.blank_id) {
+      failed = true;
+      message.push("Silakan Isi Blangko terlebih dahulu");
+    }
+    if (failed) {
+      toast({
+        title: "Gagal",
+        description: message.join(", ") + ".",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoadingSend(true);
+    setIsDisabled(true);
 
     const documents = documentFormat();
     axios
@@ -129,7 +209,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           title: "Sukses",
           description: "Pengajuan berhasil dikirim ke asuransi",
         });
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoadingSend(false);
+            setIsDisabled(false);
+          },
+        });
       })
       .catch((error) => {
         const message = error.response?.data?.message || error.message || "Terjadi kesalahan";
@@ -139,16 +224,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           description: message,
           variant: "destructive",
         });
-      })
-      .finally(() => {
-        setIsLoading(false);
+        setIsLoadingSend(false);
+        setIsDisabled(false);
       });
   };
 
   const handleUpdateDocument = (id: number, format: string) => {
-    if (submission.has_send_to_guarantor) return;
     axios
-      .put(route("api.submission-management.document", { id }), { format })
+      .put(route("api.submission-management.document.update", { id }), { format })
       .then((response) => {
         console.log("Success update document", response);
       })
@@ -158,54 +241,72 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
-    setIsLoading(true);
+    setIsLoadingGetCallback(true);
+    setIsDisabled(true);
     axios
-      .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
+      .get(route("api.submission-management.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
-        router.reload();
+        toast({
+          title: "Sukses",
+          description: "Berhasil mendapatkan callback dari asuransi.",
+          variant: "default",
+        });
+        router.reload({
+          onFinish: () => {
+            setIsLoadingGetCallback(false);
+            setIsDisabled(false);
+          },
+        });
       })
       .catch((error) => {
         console.error("Error Get Callback From Guarantor", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
+        const message =
+          error.response?.data?.message || error.message || "Terjadi kesalahan saat mendapatkan callback.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingGetCallback(false);
+        setIsDisabled(false);
       });
   };
 
   const handleEmbedQr = () => {
-    setIsLoading(true);
+    setIsLoadingEmbedQr(true);
+    setIsDisabled(true);
     router.post(
       route("staff-submission-embedQr", { submission: submission.id }),
       {},
       {
         preserveScroll: true,
         onSuccess: () => {
-          setIsLoading(false);
           toast({
             title: "Pembubuhan Berhasil",
             description: "Dokumen Berhasil Dibubuhkan QR Code",
             variant: "default",
           });
-          window.location.reload();
         },
         onError: () => {
-          setIsLoading(false);
           toast({
             title: "Gagal Pembubuhan Dokumen",
             description: "Dokumen gagal dibubuhkan QR Code",
             variant: "destructive",
           });
         },
+        onFinish: () => {
+          setIsLoadingEmbedQr(false);
+          setIsDisabled(false);
+          setLoadingDocument();
+        },
       },
     );
   };
 
-  const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
-  const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
-
   const handleSubmitDoc = () => {
-    setIsLoading(true);
+    setIsLoadingUpload(true);
+    setIsDisabled(true);
 
     const formData = new FormData();
     if (spkmgrFile) formData.append("spkmgr_file", spkmgrFile);
@@ -213,74 +314,59 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     if (submission.id) formData.append("submission_id", String(submission.id));
 
     axios
-      .post(route("staff-submission-save-permohonan-doc.submission"), formData, {
+      .post(route("api.submission-management.save-permohonan-doc"), formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
-
       .then((response) => {
         console.log("Success submit submission", response);
         toast({
-          title: "Dokumen berhasil diunggah!",
-          description: "Dokumen berhasil diunggah.",
+          title: "Dokumen berhasil di upload!",
+          description: "Dokumen berhasil di upload.",
           variant: "default",
         });
 
         setSpkmgrFile(null);
         setPermohonanFile(null);
 
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoadingUpload(false);
+            setIsDisabled(false);
+          },
+        });
       })
       .catch((error) => {
         console.error("Error submit submission", error.response?.data || error.message);
 
-        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat mengunggah dokumen.";
+        const errorMessage = error.response?.data?.message || "Terjadi kesalahan saat upload dokumen.";
         toast({
-          title: "Dokumen gagal diunggah!",
+          title: "Dokumen gagal di upload!",
           description: errorMessage,
           variant: "destructive",
         });
-      })
-      .finally(() => {
-        setIsLoading(false);
+        setIsLoadingUpload(false);
+        setIsDisabled(false);
       });
   };
 
-  // const handleSubmitPublication = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-
-  //   setIsPendingUpdatePublication(true);
-
-  //   try {
-  //     const payload = {
-  //       submission_id: submissionId,
-  //       publication_date: publicationDate,
-  //       publication_place: publicationPlace,
-  //     };
-
-  //     const { data } = await axios.post(route("staff-submission-publication", { submission: submissionId }), payload);
-
-  //     // Setelah selesai
-  //   } catch (error) {
-  //     console.error(error);
-  //   } finally {
-  //     setIsPendingUpdatePublication(false);
-  //   }
-  // };
-  const handleSubmitPublication = async () => {
-    setIsLoading(true);
+  const handleSubmitPublication = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLoadingPublication(true);
+    setIsDisabled(true);
     router.post(
-      route("staff-submission-publication", { submission: submissionId }),
+      route("staff-submission-publication"),
       {
         submission_id: submissionId,
         publication_date: publicationDate,
         publication_place: publicationPlace,
       },
       {
+        preserveState: true,
+        preserveScroll: true,
         onSuccess: () => {
-          setIsLoading(false);
           toast({
             title: "Sukses",
             description: "Operasi berhasil dilakukan",
@@ -288,33 +374,45 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           });
         },
         onError: () => {
-          setIsLoading(false);
           toast({
             title: "Gagal",
             description: "Terjadi kesalahan saat operasi",
             variant: "destructive",
           });
         },
+        onFinish: () => {
+          setIsLoadingPublication(false);
+          setIsDisabled(false);
+          setLoadingDocument();
+        },
       },
     );
   };
 
   const handleDelete = (submission: any) => {
-    setLoadingDelete(true);
+    setIsLoadingDelete(true);
+    setIsDisabled(true);
     router.delete(route("staff-submission-destroy", { submission: submission.id }), {
       preserveState: true,
       preserveScroll: true,
       onSuccess: () => {
-        location.reload();
-      },
-      onError: () => {
-        // Handle error
+        toast({
+          title: "Sukses",
+          description: "Pengajuan berhasil dihapus.",
+          variant: "default",
+        });
+        router.visit(route("staff-submission-history"));
       },
       onFinish: () => {
-        setLoadingDelete(false);
+        setIsLoadingDelete(false);
+        setIsDisabled(false);
       },
     });
   };
+
+  useEffect(() => {
+    handleComparisonRatios(submission.principal?.ratios ?? []);
+  }, []);
 
   useEffect(() => {
     if (!publicationDate) {
@@ -481,7 +579,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <tbody>
               <tr className="border-b">
                 <td className="p-2 font-semibold w-1/2">Blanko yang Digunakan</td>
-                <td className="p-2 ">: {submission.blank?.number}</td>
+                <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(10)}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold w-1/2">Produk</td>
@@ -519,7 +617,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Tanggal Terbit Jaminan</td>
-                <td className="p-2">: {submission.guarantee_issue_date}</td>
+                <td className="p-2">: {submission.guarantee_issue_date ?? "-"}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Lokasi Proyek</td>
@@ -838,76 +936,153 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </div>
         </Show>
         <Show when={currentStep.name === "luaran"}>
-          <Show when={submission.submission_docs.length > 0}>
+          {/*agar elemen hilang dulu*/}
+          {isLoadingDocument ? (
             <RenderList
-              of={submission.submission_docs as Array<any>}
-              render={(doc) => {
-                return (
-                  <div>
-                    <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
-                    <div>
-                      <TinyMCEEditor
-                        id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                        onInit={(evt, editor) => (editorDocsRefs.current[`editor-${doc.id}`] = editor)}
-                        initialContent={doc.format_document}
-                        onContentChange={(content: string) => {
-                          handleUpdateDocument(doc.id, content);
-                        }}
-                      />
-                    </div>
+              of={[1, 2, 3]}
+              render={() => (
+                <div className="flex flex-col space-y-3">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
                   </div>
-                );
-              }}
-            />
-          </Show>
-          <Show when={submission.submission_docs.length === 0}>
-            <RenderList
-              of={submission.document_formats}
-              render={(doc) => (
-                <div key={doc.id} style={{ marginBottom: "20px" }}>
-                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                  <TinyMCEEditor
-                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                    initialContent={doc.format_document}
-                    onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                  />
+                  <Skeleton className="h-[766px] w-full rounded-xl" />
                 </div>
               )}
-              renderFallback={() => <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>}
             />
+          ) : (
+            // Luaran Dokumen
+            <>
+              <Show when={submission.submission_docs.length > 0}>
+                {/*dokumen setelah kirim asuransi*/}
+                <RenderList
+                  of={submission.submission_docs as Array<any>}
+                  render={(doc) => {
+                    return (
+                      <div>
+                        <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
+                        <div>
+                          <TinyMCEEditor
+                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                            onInit={(_, editor) => (editorDocsRefs.current[`editor-${doc.id}`] = editor)}
+                            initialContent={doc.format_document}
+                            onContentChange={(content: string) => {
+                              handleUpdateDocument(doc.id, content);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }}
+                />
+              </Show>
+              <Show when={submission.submission_docs.length === 0}>
+                {/*dokumen sebelum kirim asuransi*/}
+                <RenderList
+                  of={submission.document_formats}
+                  render={(doc) => (
+                    <div key={doc.id} style={{ marginBottom: "20px" }}>
+                      <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                      <TinyMCEEditor
+                        id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                        initialContent={doc.format_document}
+                        onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                      />
+                    </div>
+                  )}
+                  renderFallback={() => (
+                    <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>
+                  )}
+                />
+              </Show>
+            </>
+          )}
+          {/*Publikasi*/}
+          <Show when={isApproved && (!submission.has_send_to_guarantor || !submission.publication_date)}>
+            <form onSubmit={handleSubmitPublication}>
+              <Card className="mb-4">
+                <CardContent>
+                  <div className="flex space-x-4">
+                    <div className="w-full">
+                      <h3 className="text-lg font-semibold mb-2 pt-4">Tanggal Publikasi</h3>
+                      <CalendarPicker
+                        className="w-full border border-gray-300 rounded-lg p-2"
+                        dateFormat="YYYY-MM-DD"
+                        initialDate={publicationDate ? dayjs(publicationDate).toDate() : dayjs().toDate()}
+                        onPickDate={(e) => {
+                          const selectedDate = dayjs(e);
+                          const today = dayjs();
+                          const minDate = today.subtract(1, "month");
+
+                          if (selectedDate.isBefore(minDate) || selectedDate.isAfter(today)) {
+                            toast({
+                              title: "Gagal Memilih Tanggal",
+                              description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir hingga hari ini.",
+                              variant: "destructive",
+                            });
+                            setPublicationDate(null);
+                          } else {
+                            setPublicationDate(selectedDate.format("YYYY-MM-DD"));
+                          }
+                        }}
+                      />
+                      <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
+                    </div>
+                    <div className="w-full">
+                      <h3 className="text-lg font-semibold mb-2 mt-4">Tempat Publikasi</h3>
+                      <Input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2"
+                        placeholder="Masukkan tempat publikasi"
+                        value={publicationPlace || ""}
+                        onChange={(e) => setPublicationPlace(e.target.value)}
+                      />
+                      <p className="text-sm text-gray-500 mt-1">* Tempat publikasi hanya dapat diisi satu kali.</p>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="justify-end">
+                  <Button disabled={isLoadingPublication || isDisabled} type="submit">
+                    {isLoadingPublication && <LoaderCircle className="animate-spin mr-1" />}Simpan{" "}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </form>
           </Show>
-          <Separator className="my-5" />
+          {/*Dokumen verifikasi*/}
           <Show when={submission.has_send_to_guarantor}>
             <div>
-              <h2 className="text-lg font-semibold mb-4 mt-5">
-                Dokumen Terverifikasi Dari {submission.guarantor?.name}
-              </h2>
+              <h2 className="text-lg font-semibold mb-4 mt-5">Dokumen Verifikasi Dari {submission.guarantor?.name}</h2>
               <Card className="w-auto">
                 <CardContent className="p-0">
                   <div className="flex flex-col items-center justify-center py-4">
-                    {submission.callback ? (
+                    <Show
+                      when={submission.callback}
+                      fallback={
+                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)} disabled={isDisabled}>
+                          {isLoadingGetCallback && <LoaderCircle className="animate-spin mr-1" />}
+                          Cek Respond Dari Asuransi
+                        </Button>
+                      }>
                       <>
-                        <img src={submission.callback.url} alt="Code QR" />
-                        <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
+                        <img src={submission.callback?.url} alt="Code QR" />
+                        <Button
+                          onClick={() => window.open(submission.callback?.doc_url, "_blank")}
+                          disabled={isDisabled}>
                           Dokumen Pendukung
                         </Button>
                         <Button
                           className="mt-4"
                           onClick={handleEmbedQr}
-                          disabled={isLoading || submission.is_added_qrcode === 1}>
-                          {isLoading
+                          disabled={isLoadingEmbedQr || submission.is_added_qrcode === 1 || isDisabled}>
+                          <Loading isLoading={isLoadingEmbedQr} />
+                          {isLoadingEmbedQr
                             ? "Memproses..."
                             : submission.is_added_qrcode === 1
                               ? "QR Code Sudah Dibubuhkan"
                               : "Bubuhkan QR Code"}
                         </Button>
                       </>
-                    ) : (
-                      <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>
-                        {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                        Cek Respon Dari Asuransi
-                      </Button>
-                    )}
+                    </Show>
                   </div>
                 </CardContent>
               </Card>
@@ -915,172 +1090,280 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           </Show>
           {/*final output file*/}
           <Show when={!submission.has_send_to_guarantor && !submission.final_output_file.length && isApproved}>
-            <p className="text-gray-500">Dokumen SPKMGR dan Suart Permohonan Belum ditandatangani</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmitDoc();
-              }}
-              className="space-y-5 my-2">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                <FileInput onFileChange={(file) => setSpkmgrFile(file)} />
-              </div>
+              }}>
+              <Card className="w-auto">
+              <CardHeader className="p-2">
+                <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-5 my-2">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
+                    <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
+                  </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                <FileInput onFileChange={(file) => setPermohonanFile(file)} />
-              </div>
-
-              <div className="text-right">
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                  {isLoading ? "Mengunggah..." : "Submit"}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
+                    <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="justify-end">
+                <Button type="submit" disabled={isLoadingUpload || isDisabled}>
+                  {isLoadingUpload && <LoaderCircle className="animate-spin mr-1" />}
+                  {isLoadingUpload ? "Mengunggah..." : "Submit"}
                 </Button>
-              </div>
+              </CardFooter>
+            </Card>
             </form>
           </Show>
           <Show when={submission.final_output_file.length && isApproved}>
-            <h2 className="text-lg font-semibold mb-4 mt-5">Dokumen Final</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {submission.final_output_file.map((file: any) => (
-                <div key={file.id} className="flex items-center justify-between">
-                  <p>{file.name}</p>
-                  <PreviewFile preview={file.url} />
+            <Card className="w-auto">
+              <CardHeader className="p-2">
+                <CardTitle className="text-lg font-semibold">Dokumen Final</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4">
+                  <RenderList
+                    of={submission.final_output_file as Array<any>}
+                    render={(file) => (
+                      <div key={file.id} className="flex items-center justify-between">
+                        <p>{file.name}</p>
+                        <PreviewFile preview={file.url} />
+                      </div>
+                    )}
+                  />
                 </div>
-              ))}
-            </div>
+              </CardContent>
+            </Card>
           </Show>
-          <hr />
+          {/*Pilih Blangko*/}
           <Show when={isApproved && !submission.has_send_to_guarantor}>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmitPublication();
-              }}>
-              <div>
-                <h3 className="text-lg font-semibold mb-2 pt-4">Tanggal Publikasi</h3>
-                <CalendarPicker
-                  dateFormat="YYYY-MM-DD"
-                  initialDate={publicationDate ? dayjs(publicationDate).toDate() : dayjs().toDate()}
-                  onPickDate={(e) => {
-                    const selectedDate = dayjs(e);
-                    const today = dayjs();
-                    const minDate = today.subtract(1, "month");
-
-                    if (selectedDate.isBefore(minDate) || selectedDate.isAfter(today)) {
-                      toast({
-                        title: "Gagal Memilih Tanggal",
-                        description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir hingga hari ini.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-
-                    setPublicationDate(selectedDate.format("YYYY-MM-DD"));
+            <Card className="w-auto">
+              <CardHeader className="p-2">
+                <CardTitle className="text-lg font-semibold">Pilih Blangko</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Combobox
+                  data={Array.isArray(blanks) ? blanks : []}
+                  defaultValue={selectedBlank}
+                  labelKey="number"
+                  valueKey="id"
+                  placeholder="Pilih blangko"
+                  className="w-full"
+                  onSelect={(val: any) => {
+                    setSelectedBlank(val.id);
                   }}
                 />
-                <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2 mt-4">Tempat Publikasi</h3>
-                <Input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-lg p-2"
-                  placeholder="Masukkan tempat publikasi"
-                  value={publicationPlace || ""}
-                  onChange={(e) => setPublicationPlace(e.target.value)}
-                />
-                <p className="text-sm text-gray-500 mt-1">* Tempat publikasi hanya dapat diisi satu kali.</p>
-              </div>
-              <div className="text-right mt-4">
-                <Button disabled={isLoading} type="submit">
-                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}Simpan{" "}
-                </Button>
-              </div>
-            </form>
-            {/*buttons*/}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+              </CardContent>
+              <CardFooter className="justify-end">
                 <Button
-                  variant="default"
-                  disabled={isLoading}
-                  className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                  {isLoading && <LoaderCircle className="animate-spin mr-1" />}
-                  Kirim Ke {submission.guarantor?.name}
+                  disabled={isDisabled}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSetBlank();
+                  }}>
+                  {isLoadingSetBlank && <LoaderCircle className="animate-spin mr-1" />}
+                  Set Blangko
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Batal</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-green-600 hover:bg-green-400"
-                    onClick={() => handleSendGuarantor(submission.id)}>
-                    Kirim
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              </CardFooter>
+            </Card>
           </Show>
-          <Show when={!submission.has_send_to_guarantor}>
-            <div className="flex gap-4">
-              <Show when={!isRejected && !isRevised}>
-                <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                  <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
-                    Edit
-                  </Link>
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                      Batal
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="sm:max-w-[425px]">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak dapat
-                        dikembalikan.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <div className="grid grid-cols-2 gap-4">
-                      <AlertDialogCancel asChild>
-                        <Button variant="outline" className="w-full" type="button">
-                          Tidak
+          <div className="flex items-end space-x-2">
+            <Show
+              when={isApproved && !submission.has_send_to_guarantor}
+              fallback={
+                <>
+                  <Show when={isApproved && !isRevised && submission.has_send_to_guarantor}>
+                    <Show
+                      when={!isDisabled}
+                      fallback={
+                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
+                          Revisi
                         </Button>
-                      </AlertDialogCancel>
+                      }>
                       <Button
-                        variant="destructive"
-                        className="w-full"
-                        type="submit"
-                        disabled={loadingDelete}
-                        onClick={() => handleDelete(submission)}>
-                        <Loading isLoading={loadingDelete} />
-                        Batalkan Pengajuan
+                        variant={"outline"}
+                        className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
+                        asChild>
+                        <Link
+                          disabled={isDisabled}
+                          type="button"
+                          href={route("staff-submission-revision", {
+                            id: submission.id,
+                          })}>
+                          Revisi
+                        </Link>
                       </Button>
-                    </div>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </Show>
-              <Show when={isApproved}>
-                <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                  <Link
-                    type="button"
-                    href={route("staff-submission-revision", {
-                      id: submission.id,
-                    })}>
-                    Revisi
-                  </Link>
-                </Button>
-              </Show>
-            </div>
-          </Show>
+                    </Show>
+                  </Show>
+                  <Show when={!isRejected && !isRevised && !submission.has_send_to_guarantor}>
+                    <Show
+                      when={!isDisabled}
+                      fallback={
+                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
+                          Edit
+                        </Button>
+                      }>
+                      <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                        <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
+                          Edit
+                        </Link>
+                      </Button>
+                    </Show>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                          disabled={isLoadingDelete || isDisabled}>
+                          Batal
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="sm:max-w-[425px]">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak
+                            dapat dikembalikan.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="grid grid-cols-2 gap-4">
+                          <AlertDialogCancel asChild>
+                            <Button variant="outline" className="w-full" type="button" disabled={isDisabled}>
+                              Tidak
+                            </Button>
+                          </AlertDialogCancel>
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            type="submit"
+                            disabled={isLoadingDelete || isDisabled}
+                            onClick={() => handleDelete(submission)}>
+                            <Loading isLoading={isLoadingDelete} />
+                            Batalkan Pengajuan
+                          </Button>
+                        </div>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </Show>
+                </>
+              }>
+              {/*Kirim ke asuransi*/}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    disabled={isLoadingSend || isDisabled}
+                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
+                    Kirim Ke {submission.guarantor?.name}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-green-600 hover:bg-green-400"
+                      onClick={() => handleSendGuarantor(submission.id)}>
+                      Kirim
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              {/*Buttons*/}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <EllipsisVertical />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[8vw] space-y-2">
+                  <Show when={!isRejected && !isRevised}>
+                    <Show
+                      when={!isDisabled}
+                      fallback={
+                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
+                          Edit
+                        </Button>
+                      }>
+                      <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                        <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
+                          Edit
+                        </Link>
+                      </Button>
+                    </Show>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="bg-red-600 text-destructive-foreground shadow-sm hover:bg-red-400 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                          disabled={isLoadingDelete || isDisabled}>
+                          Batal
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="sm:max-w-[425px]">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Batalkan Pengajuan</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Apakah Anda yakin ingin membatalkan pengajuan ini? Pengajuan yang sudah dibatalkan tidak
+                            dapat dikembalikan.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="grid grid-cols-2 gap-4">
+                          <AlertDialogCancel asChild>
+                            <Button variant="outline" className="w-full" type="button" disabled={isDisabled}>
+                              Tidak
+                            </Button>
+                          </AlertDialogCancel>
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            type="submit"
+                            disabled={isLoadingDelete || isDisabled}
+                            onClick={() => handleDelete(submission)}>
+                            <Loading isLoading={isLoadingDelete} />
+                            Batalkan Pengajuan
+                          </Button>
+                        </div>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </Show>
+                  <Show when={isApproved && submission.has_send_to_guarantor && !isRevised}>
+                    <Show
+                      when={!isDisabled}
+                      fallback={
+                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
+                          Revisi
+                        </Button>
+                      }>
+                      <Button
+                        variant={"outline"}
+                        className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
+                        asChild>
+                        <Link
+                          disabled={isDisabled}
+                          type="button"
+                          href={route("staff-submission-revision", {
+                            id: submission.id,
+                          })}>
+                          Revisi
+                        </Link>
+                      </Button>
+                    </Show>
+                  </Show>
+                </PopoverContent>
+              </Popover>
+            </Show>
+          </div>
         </Show>
       </div>
     </main>

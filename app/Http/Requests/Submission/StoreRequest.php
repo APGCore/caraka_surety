@@ -72,10 +72,10 @@ class StoreRequest extends FormRequest
             'submission.job_group' => ['required', 'string', Rule::in(JobGroup::getValues())], // kelompok pekerjaan
             'submission.job_type' => ['required', 'string', Rule::in(JobType::getValues())], // jenis pekerjaan
             'submission.bank_id' => ['nullable', 'exists:'.Bank::class.',id,deleted_at,NULL'], // id bank
-            'submission.blank_id' => ['required', 'exists:'.Blank::class.',id,deleted_at,NULL'], // id blank
-            //            'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
-            //            'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
-            //            'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
+            // 'submission.blank_id' => ['required', 'exists:'.Blank::class.',id,deleted_at,NULL'], // id blank
+            // 'submission.contract_doc_name' => ['required', 'string', 'max:255'], // nama dokumen kontrak
+            // 'submission.contract_doc_number' => ['required', 'string', 'max:255'], // nomor dokumen kontrak
+            // 'submission.contract_doc_date' => ['required', 'date'], // tanggal dokumen kontrak
             'submission.contract_value' => ['required', 'regex:/^[0-9]+([.,][0-9]{1,2})?$/'], // nilai kontrak
             'submission.guarantee_value' => ['required', 'regex:/^[0-9]+([.,][0-9]{1,2})?$/'], // nilai jaminan
             'submission.time_period' => ['required', 'numeric'], // jangka waktu (165 Hari)

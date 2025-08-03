@@ -112,12 +112,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .post(route("kepala-cabang-submission-approve", { id: submissionId }), { documents })
       .then((response) => {
         console.log("Success approve submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.error("Error approving submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -130,12 +132,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .post(route("kepala-cabang-submission-reject", submissionId), { documents })
       .then((response) => {
         console.log("success reject submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.log("error reject submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -149,25 +153,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .post(route("kepala-cabang-submission-check", submissionId), { documents })
       .then((response) => {
         console.log("success check submission", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.log("error check submission", error);
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
+    setIsLoading(true);
     axios
       .get(route("api.submission.post-to-get-callback", { submission_id: submissionId }))
       .then((response) => {
         console.log("Success Get Callback From Guarantor", response);
-        router.reload();
+        router.reload({
+          onFinish: () => {
+            setIsLoading(false);
+          },
+        });
       })
       .catch((error) => {
         console.error("Error Get Callback From Guarantor", error);
+        setIsLoading(false);
       });
   };
 
@@ -357,7 +369,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <tbody>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
-                  <td className="p-2 ">: {submission.blank?.number}</td>
+                  <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(10)}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Produk</td>
@@ -711,21 +723,23 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             {submission.has_send_to_guarantor ? (
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
-                  Dokumen Terverifikasi Dari {submission.guarantor?.name}
+                  Dokumen Verifikasi Dari {submission.guarantor?.name}
                 </h2>
                 <Card className="w-auto">
                   <CardContent className="p-0">
                     <div className="flex flex-col items-center justify-center py-4">
-                      {submission.callback ? (
+                      <Show
+                        when={submission.callback}
+                        fallback={
+                          <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
+                        }>
                         <>
-                          <img src={submission.callback.url} alt="Code QR" />
-                          <Button onClick={() => window.open(submission.callback.doc_url, "_blank")}>
+                          <img src={submission.callback?.url} alt="Code QR" />
+                          <Button onClick={() => window.open(submission.callback?.doc_url, "_blank")}>
                             Dokumen Pendukung
                           </Button>
                         </>
-                      ) : (
-                        <Button onClick={() => handleGetCallBackFromGuarantor(submission.id)}>Refresh</Button>
-                      )}
+                      </Show>
                     </div>
                   </CardContent>
                 </Card>

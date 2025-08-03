@@ -97,7 +97,7 @@ class PrincipalController extends Controller
         $principal->load('province', 'regency', 'district', 'documents');
         $submissions = Submission::query()
             ->where('principal_id', $principal->getAttribute('id'))
-            ->with(['staff.office', 'product:id,name', 'guarantorToProductType:id,name,full_name'])
+            ->with(['office', 'product:id,name', 'guarantorToProductType:id,name,full_name'])
             ->orderBy('created_at', 'desc')
             ->paginate(perPage: 10, page: $request->get('page', 1));
 

@@ -254,6 +254,10 @@ interface SubmissionDetailProps {
     submission_support_docs: string;
     has_send_to_guarantor: boolean;
   };
+  blanks: {
+    id: number;
+    number: string;
+  }[];
 }
 
 export type SubmissionDetailPageProps = React.FC<SubmissionDetailProps> & {

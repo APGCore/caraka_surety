@@ -64,7 +64,7 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
                     form="login-form"
                     className="w-full uppercase  bg-red-700 hover:bg-red-500"
                     disabled={processing}>
-                    <Loading isLoading={processing} className="mr-1 " /> Submit
+                    <Loading isLoading={processing} className="mr-1 " /> Login
                   </Button>
                 </div>
               </div>

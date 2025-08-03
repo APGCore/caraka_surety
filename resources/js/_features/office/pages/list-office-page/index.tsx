@@ -127,7 +127,6 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
               <TableHead className="w-0">#</TableHead>
               <TableHead>Kode</TableHead>
               <TableHead>Nama</TableHead>
-              <TableHead>User Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Jumlah Pengguna</TableHead>
               <TableHead>Aksi</TableHead>
@@ -144,7 +143,6 @@ const ListOfficePage = ({ officeType }: { officeType: OfficeType }) => {
                       <TableCell>{(meta?.from ?? 0) + index}</TableCell>
                       <TableCell>{office?.code}</TableCell>
                       <TableCell>{office?.name}</TableCell>
-                      <TableCell>{office?.username}</TableCell>
                       <TableCell>{office?.email ?? "-"}</TableCell>
                       <TableCell>{office?.users?.length}</TableCell>
                       <TableCell className="text-right">

@@ -10,7 +10,7 @@ trait CalculateInvoice
 {
     public function calculateGuarantor(Submission $submission): Collection
     {
-        $submission->fresh(['guarantor.guarantorRate']);
+        $submission->loadMissing(['guarantor.guarantorRate']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $guarantor = $submission->getRelation('guarantor');
@@ -30,10 +30,10 @@ trait CalculateInvoice
 
     public function calculateOffice(Submission $submission): Collection
     {
-        $submission->fresh(['staff.office.profileRate']);
+        $submission->loadMissing(['office.profileRate']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-        $office = $submission->getRelation('staff')?->getRelation('office');
+        $office = $submission->getRelation('office');
         $profileRate = $office->getRelation('profileRate')
             ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
             ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
@@ -50,7 +50,7 @@ trait CalculateInvoice
 
     public function calculatePrincipal(Submission $submission): Collection
     {
-        $submission->fresh(['principal.principalRate', 'staff']);
+        $submission->loadMissing(['principal.principalRate', 'staff']);
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $staff = $submission->getRelation('staff');
@@ -70,7 +70,7 @@ trait CalculateInvoice
 
     public function calculateCapitalRates(Submission $submission): Collection
     {
-        $submission->load(['guarantor.guarantorRate', 'submissionRate']);
+        $submission->loadMissing(['guarantor.guarantorRate', 'submissionRate']);
         $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
@@ -98,7 +98,7 @@ trait CalculateInvoice
 
     public function calculateSellingRates(Submission $submission): Collection
     {
-        $submission->load(['submissionRate']);
+        $submission->loadMissing(['submissionRate']);
         // Ensure the submission is fresh to get the latest rates
         $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');

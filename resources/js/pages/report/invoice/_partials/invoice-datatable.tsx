@@ -81,7 +81,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                   </TableCell>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
-                  <TableCell>{submission.staff?.office}</TableCell>
+                  <TableCell>{submission.office?.name}</TableCell>
                   <TableCell className="text-center">
                     {submission.blank?.number}
                     <Show when={submission.status === SubmissionStatus.REVISED}>

@@ -14,7 +14,7 @@ import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
-import { useGetAllBlank } from "@/common/hooks/react-query/blank";
+// import { useGetAllBlank } from "@/common/hooks/react-query/blank";
 import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
@@ -500,10 +500,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     });
   };
 
-  const { data: blanks } = useGetAllBlank(
-    data.submissionType === SubmissionType.EDIT ? data.submission.blank_id : undefined,
-    {},
-  );
+  // const { data: blanks } = useGetAllBlank(
+  //   data.submissionType === SubmissionType.EDIT ? data.submission.blank_id : undefined,
+  //   {},
+  // );
 
   const { mutate: updatePrincipal, isPending: isPendingUpdatePrincipal } = useCreateOrUpdatePrincipal(
     !!data.principal.id,
@@ -813,22 +813,22 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                 <div>
                   <h2 className="text-2xl font-bold mb-8">Detail Kontrak dan Dasar Pengajuan</h2>
                   <div className="grid gap-5">
-                    <div className="grid gap-1 w-full">
-                      <Label className="text-md">Blanko</Label>
-                      <Combobox
-                        datas={Array.isArray(blanks) ? blanks : []}
-                        labelKey="number"
-                        valueKey="number"
-                        defaultValueId={data?.submission?.blank_id}
-                        placeholder="Pilih Blanko"
-                        onSelect={(val: any) => {
-                          setData("submission", {
-                            ...data.submission,
-                            blank_id: val?.id,
-                          });
-                        }}
-                      />
-                    </div>
+                    {/*<div className="grid gap-1 w-full">*/}
+                    {/*  <Label className="text-md">Blangko</Label>*/}
+                    {/*  <Combobox*/}
+                    {/*    datas={Array.isArray(blanks) ? blanks : []}*/}
+                    {/*    labelKey="number"*/}
+                    {/*    valueKey="number"*/}
+                    {/*    defaultValueId={data?.submission?.blank_id}*/}
+                    {/*    placeholder="Pilih Blanko"*/}
+                    {/*    onSelect={(val: any) => {*/}
+                    {/*      setData("submission", {*/}
+                    {/*        ...data.submission,*/}
+                    {/*        blank_id: val?.id,*/}
+                    {/*      });*/}
+                    {/*    }}*/}
+                    {/*  />*/}
+                    {/*</div>*/}
                     <div className="flex gap-5">
                       {/*<div className="grid gap-1 w-full">*/}
                       {/*  <Label className="text-md">Produk</Label>*/}
