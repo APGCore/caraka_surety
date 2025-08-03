@@ -24,8 +24,8 @@ class SaveDocSignatureRequest extends FormRequest
     {
         return [
             'submission_id' => 'required|exists:'.Submission::class.',id',
-            'spkmgr_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
-            'permohonan_file' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'spkmgr_file' => 'nullable|file|mimes:pdf|max:10240',
+            'permohonan_file' => 'nullable|file|mimes:pdf|max:10240',
         ];
     }
 }

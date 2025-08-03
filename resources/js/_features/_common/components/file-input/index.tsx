@@ -120,7 +120,7 @@ const FileInput: React.FC<InputFileProps> = ({
       {preview && (
         <div className="flex justify-end mt-3 gap-x-3">
           <PreviewFile files={files} preview={preview} />
-          <Button variant={"destructive"} onClick={handleReset}>
+          <Button variant={"destructive"} onClick={handleReset} disabled={isLoading}>
             Reset
           </Button>
         </div>

@@ -1103,12 +1103,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                 <div className="space-y-5 my-2">
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                    <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} />
+                    <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
                   </div>
 
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                    <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} />
+                    <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
                   </div>
                 </div>
               </CardContent>
