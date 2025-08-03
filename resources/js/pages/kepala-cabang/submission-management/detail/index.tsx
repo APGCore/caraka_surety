@@ -369,7 +369,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <tbody>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
-                  <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(16)}</td>
+                  <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(10)}</td>
                 </tr>
                 <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Produk</td>

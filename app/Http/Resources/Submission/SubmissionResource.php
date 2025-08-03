@@ -30,7 +30,7 @@ class SubmissionResource extends JsonResource
             'created_at' => $this->resource->created_at ? Carbon::parse($this->resource->created_at)->format('d F Y H:i') : null,
             'approved_at' => $this->resource->approved_at ? Carbon::parse($this->resource->approved_at)->format('d F Y H:i') : null,
             'rejected_at' => $this->resource->rejected_at ? Carbon::parse($this->resource->rejected_at)->format('d F Y H:i') : null,
-            'blank' => $this->whenLoaded('blank', $this->resource->blank, str_pad('X', 16, 'X')),
+            'blank' => $this->whenLoaded('blank', $this->resource->blank),
             'principal' => $this->whenLoaded('principal', function () {
                 return [
                     'id' => $this->resource->principal->id,

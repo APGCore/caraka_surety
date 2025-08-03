@@ -36,7 +36,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell>{submission.approved_at}</TableCell>
                   <TableCell className={"text-center"}>
-                    <h3>{submission.blank?.number}</h3>
+                    <h3>{submission.blank?.number ?? "X".repeat(10)}</h3>
                     <Show when={submission.blank?.is_broken}>
                       <Badge className="bg-red-500">Rusak</Badge>
                     </Show>
