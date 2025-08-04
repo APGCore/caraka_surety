@@ -437,6 +437,7 @@ class SubmissionController extends Controller
             'guarantor_branch_id',
             'product_id',
             'bank_id',
+            'blank_id',
             'contract_doc_name',
             'contract_doc_number',
             'contract_doc_date',
@@ -468,7 +469,6 @@ class SubmissionController extends Controller
                 'job_group',
                 'job_type',
             ),
-            ['blank_id' => $submission->getRelation('blank')->getAttribute('id')],
             ['support_docs' => $submission->getRelation('supportDocs')->map(function ($doc) {
                 return [
                     'id' => $doc->id,
