@@ -32,10 +32,7 @@ class SendFinanceReport extends Command
         try {
             DB::beginTransaction();
             $submissionIds = Submission::query()
-                ->whereNotIn('status', [
-                    SubmissionStatus::PROCESS->value,
-                    SubmissionStatus::REJECTED->value,
-                ])
+                ->where('has_send_to_guarantor', true)
                 ->where('has_send_to_finance', false)
                 ->limit(50)
                 ->pluck('id');
