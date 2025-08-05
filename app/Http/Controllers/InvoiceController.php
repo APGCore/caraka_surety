@@ -78,7 +78,9 @@ class InvoiceController extends Controller
         // Paginate the results
         $submissions = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                $query->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
+                $query
+                    //->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
+                    ->where('has_send_to_guarantor', true)
                     ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
                     ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
                     ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
