@@ -9,6 +9,7 @@ use App\Http\Requests\Principal\UploadDocumentRequest;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
+use App\Models\RelatedParties\SubmissionPrincipal;
 use App\Models\RelatedParties\PrincipalDocument;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -71,9 +72,17 @@ class PrincipalController extends Controller
         }
     }
 
+    // public function getAll(): JsonResponse
+    // {
+    //     $principals = Principal::query()
+    //         ->with(['documents'])
+    //         ->get();
+
+    //     return $this->responseSuccess('Data Principal', $principals);
+    // }
     public function getAll(): JsonResponse
     {
-        $principals = Principal::query()
+        $principals = SubmissionPrincipal::query()
             ->with(['documents'])
             ->get();
 
