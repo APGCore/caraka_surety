@@ -78,7 +78,9 @@ class InvoiceController extends Controller
         // Paginate the results
         $submissions = Submission::search($request->get('search'))
             ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                $query->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
+                $query
+                    //->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
+                    ->where('has_send_to_guarantor', true)
                     ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
                     ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
                     ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
@@ -339,27 +341,26 @@ class InvoiceController extends Controller
                     $query->select(['id', 'name', 'job_group', 'job_type'])->withTrashed();
                 },
                 'submissionRate',
-                'blanks' => function ($query) {
-                    $query->select(['blanks.id', 'blanks.number', 'blanks.is_broken'])->withTrashed();
+                'blank' => function ($query) {
+                    $query->select(['id', 'number', 'is_broken'])->withTrashed();
                 },
             ])
             ->whereIn('id', $submissionIds)
             ->get();
+        $office = Profile::query()
+            ->select(['id', 'name', 'code', 'office_type'])
+            ->where('office_type', OfficeType::HEADQUARTER->value)
+            ->first();
         $offices = [];
         $invoices = [];
         foreach ($submissions as $submission) {
-            $office = Profile::query()
-                ->select(['id', 'name', 'code', 'office_type'])
-                ->where('office_type', OfficeType::HEADQUARTER->value)
-                ->withTrashed()
-                ->first();
             $businessUnit = $submission->getRelation('office');
             $principal = $submission->getRelation('principal');
             $obligee = $submission->getRelation('obligee');
             $guarantor = $submission->getRelation('guarantor');
             $guarantorBranch = $submission->getRelation('guarantorBranch');
             $guarantorToProductType = $submission->getRelation('guarantorToProductType');
-            $blanks = $submission->getRelation('blanks');
+            $blank = $submission->getRelation('blank');
             $profileRate = $businessUnit?->getRelation('profileRate')
                 ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
                 ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
@@ -393,7 +394,7 @@ class InvoiceController extends Controller
                 'submission' => [
                     'id' => $submission->getAttribute('id'),
                     'no_guarantee' => $submission->getAttribute('no_guarantee'),
-                    'no_blank' => $blanks->firstWhere('is_broken', false)?->getAttribute('number') ?? '-',
+                    'no_blank' => $blank?->getAttribute('number') ?? '-',
                     'status' => $submission->getAttribute('status'),
                     'created_at' => $submission->getAttribute('created_at'),
                     'checked_at' => $submission->getAttribute('checked_at'),
