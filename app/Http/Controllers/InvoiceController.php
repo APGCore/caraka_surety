@@ -205,7 +205,7 @@ class InvoiceController extends Controller
 
             return redirect()->back();
         }
-        if ($submission->getRelation('staff')?->getRelation('office')?->getRelation('profileRate') === null) {
+        if ($submission->getRelation('office')?->getRelation('profileRate') === null) {
             flashMessage('Peringatan', 'Rate Sumber Bisnis Tidak Tersedia, silakan hubungi admin', 'warning');
 
             return redirect()->back();
@@ -218,7 +218,7 @@ class InvoiceController extends Controller
         $isSet = $submission->getRelation('submissionRate') !== null;
 
         $submission->unsetRelation('guarantor.guarantorRate');
-        $submission->unsetRelation('staff.office.profileRate');
+        $submission->unsetRelation('office.profileRate');
         $submission->unsetRelation('principal.principalRate');
         $submission->unsetRelation('submissionRate');
 
