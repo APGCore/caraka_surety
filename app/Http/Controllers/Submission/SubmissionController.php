@@ -392,6 +392,11 @@ class SubmissionController extends Controller
     public function edit($id): Response|RedirectResponse
     {
         $submission = $this->getSubmission($id);
+        if (! $submission) {
+          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+
+          return redirect()->back();
+        }
         if ($submission->getAttribute('has_send_to_guarantor')) {
             flashMessage('Gagal', 'Pengajuan tidak dapat diubah karena sudah di kirim ke asuransi', 'error');
 
@@ -437,7 +442,6 @@ class SubmissionController extends Controller
             'guarantor_branch_id',
             'product_id',
             'bank_id',
-            'blank_id',
             'contract_doc_name',
             'contract_doc_number',
             'contract_doc_date',
@@ -493,7 +497,7 @@ class SubmissionController extends Controller
         ]);
     }
 
-    private function getSubmission($id): Submission
+    private function getSubmission($id): Submission|null
     {
         return Submission::with([
             'principal' => function ($query) {
@@ -570,9 +574,14 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function revision($id): Response
+    public function revision($id): Response|RedirectResponse
     {
         $submission = $this->getSubmission($id);
+        if (! $submission) {
+          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+
+          return redirect()->back();
+        }
         $principal = $submission->getRelation('principal')->only([
             'id',
             'province_id',
@@ -667,9 +676,14 @@ class SubmissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showDetailSubmission($id): Response
+    public function showDetailSubmission($id): Response|RedirectResponse
     {
         $submission = $this->getSubmission($id);
+        if (! $submission) {
+          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+
+          return redirect()->back();
+        }
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');
         $profileId = $submission->getRelation('staff')->getAttribute('profile_id');
