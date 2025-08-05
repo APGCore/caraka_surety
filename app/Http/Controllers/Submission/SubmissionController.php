@@ -186,6 +186,8 @@ class SubmissionController extends Controller
             $scoring = $validated['scoring'];
             $isEdit = $submissionType === SubmissionType::EDIT->value;
             $isRevision = $submissionType === SubmissionType::REVISION->value;
+            $staffId = auth()->id();
+            $staff = User::query()->find($staffId);
 
             $principal = Principal::query()->firstWhere('id', $principalId);
             // create principal ratios
@@ -229,13 +231,13 @@ class SubmissionController extends Controller
                 $submissionForRevision = Submission::query()->select(['id', 'blank_id', 'no_guarantee', 'status'])->find($submissionBeforeId);
                 $submissionForRevision->blank()->update(['is_revised' => true]);
                 $submissionForRevision->update(['status' => SubmissionStatus::REVISED->value]);
-                $dataSubmission['staff_id'] = auth()->id();
+                $dataSubmission['staff_id'] = $staffId;
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
                 $messageResponse = 'Berhasil memperbarui pengajuan';
             } else {
-                $dataSubmission['office_id'] = auth()->user()->profile_id;
-                $dataSubmission['staff_id'] = auth()->id();
+                $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
+                $dataSubmission['staff_id'] = $staffId;
                 $dataSubmission['publication_date'] = now();
                 $dataSubmission['publication_place'] = $guarantorHead->getRelation('branch')?->where('id', $guarantorBranchId)->first()?->publication_place;
                 $messageResponse = 'Berhasil membuat pengajuan';
@@ -363,9 +365,11 @@ class SubmissionController extends Controller
     private function checkRole(): array
     {
         // check role
-        $user = auth()->user();
-        $authId = $user->id;
-        $roleName = $user->role->name;
+        $authId = auth()->id();
+        $user = User::query()
+            ->with('role')
+            ->find($authId);
+        $roleName = $user->getRelation('role')->getAttribute('name');
         $isStaff = $roleName === RoleEnum::Staff->value;
         $isDireksi = $roleName === RoleEnum::Direksi->value;
         $isManager = $roleName === RoleEnum::Manager->value;
@@ -376,6 +380,7 @@ class SubmissionController extends Controller
 
         return compact([
             'authId',
+            'user',
             'isStaff',
             'isDireksi',
             'isManager',
