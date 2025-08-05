@@ -181,7 +181,7 @@ class InvoiceController extends Controller
                 $query->select(['id', 'code_product', 'code', 'name', 'full_name'])->withTrashed();
             },
             'blank' => function ($query) {
-                $query->select(['id', 'number', 'is_broken', ',is_revised'])->withTrashed();
+                $query->select(['id', 'number', 'is_broken', 'is_revised'])->withTrashed();
             },
             'principal' => function ($query) {
                 $query->select(['id', 'name'])->withTrashed();
