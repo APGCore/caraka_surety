@@ -204,17 +204,10 @@ class SubmissionController extends Controller
                     'id' => $obligee['id'] ?? null,
                 ], $obligee);
 
-            $guarantorBranchId = $submission['guarantor_branch_id'];
             $guarantorHead = Guarantor::query()
-                ->with([
-                    'pattern',
-                    'branch' => function ($query) use ($guarantorBranchId) {
-                        $query->select(['id', 'name', 'code', 'publication_place'])
-                            ->where('id', $guarantorBranchId);
-                    },
-                    'guarantorToProductTypes',
-                ])
+                ->with(['pattern', 'guarantorToProductTypes'])
                 ->find($submission['guarantor_id']);
+            $guarantorBranch = Guarantor::query()->find($submission['guarantor_branch_id']);
 
             $guarantorToProductType = $guarantorHead->getRelation('guarantorToProductTypes')
                 ->where('product_id', $submission['product_id'])
@@ -232,6 +225,8 @@ class SubmissionController extends Controller
                 $submissionForRevision->blank()->update(['is_revised' => true]);
                 $submissionForRevision->update(['status' => SubmissionStatus::REVISED->value]);
                 $dataSubmission['staff_id'] = $staffId;
+                $dataSubmission['publication_date'] = now();
+                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
                 $messageResponse = 'Berhasil memperbarui pengajuan';
@@ -239,7 +234,7 @@ class SubmissionController extends Controller
                 $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
                 $dataSubmission['staff_id'] = $staffId;
                 $dataSubmission['publication_date'] = now();
-                $dataSubmission['publication_place'] = $guarantorHead->getRelation('branch')?->where('id', $guarantorBranchId)->first()?->publication_place;
+                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
             $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
