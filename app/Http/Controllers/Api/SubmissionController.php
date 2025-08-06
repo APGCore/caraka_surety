@@ -103,7 +103,7 @@ class SubmissionController extends Controller
             ->firstWhere('id', $submissionId);
 
         $submission = Submission::query()
-            ->where(function ($query) use ($submissionFirst) {
+            ->where(function ($query) {
                 $query->where('status', SubmissionStatus::APPROVED->value)
                     ->orWhere('status', SubmissionStatus::REVISED->value);
             })
@@ -338,7 +338,14 @@ class SubmissionController extends Controller
                         'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
                     ]);
                 }
-                $submissionFirst = Submission::query()->orderBy('created_at')->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
+                $submissionFirst = Submission::query()
+                  ->where(function ($query) {
+                    $query->where('status', SubmissionStatus::APPROVED->value)
+                      ->orWhere('status', SubmissionStatus::REVISED->value);
+                  })
+                  ->where('has_send_to_guarantor', true)
+                  ->orderBy('created_at')
+                  ->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
                 $dataSend = [
                     'submission_id' => $submissionFirst->getAttribute('id'),
                     'remarks' => $submission->getAttribute('revised_note'),
