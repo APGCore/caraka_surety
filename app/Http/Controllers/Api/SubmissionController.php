@@ -104,9 +104,15 @@ class SubmissionController extends Controller
 
         $submission = Submission::query()
             ->where('status', SubmissionStatus::APPROVED->value)
+            ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
             ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+        if (! $submission) {
+            Log::error('Submission not found for callback', ['submission_id' => $submissionId, 'no_guarantee' => $submissionFirst->getAttribute('no_guarantee')]);
+
+            return $this->responseError('Pengajuan tidak ditemukan atau belum mendapatkan persetujuan dari asuransi');
+        }
 
         $submissionFirstId = $submission->getAttribute('id');
         $guarantor = $submission->getRelation('guarantor');
