@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\OfficeType;
+use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Http\Requests\Api\Submission\SaveDocSignatureRequest;
@@ -102,6 +103,7 @@ class SubmissionController extends Controller
             ->firstWhere('id', $submissionId);
 
         $submission = Submission::query()
+            ->where('status', SubmissionStatus::APPROVED->value)
             ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
             ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
