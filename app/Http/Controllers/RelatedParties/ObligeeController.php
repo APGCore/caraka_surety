@@ -7,6 +7,7 @@ use App\Http\Requests\Obligee\StoreRequest;
 use App\Http\Requests\Obligee\UpdateRequest;
 use App\Http\Resources\Obligee\ObligeeResource;
 use App\Models\RelatedParties\Obligee;
+use App\Models\RelatedParties\SubmissionObligee;
 use Exception;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -225,9 +226,16 @@ class ObligeeController extends Controller
         }
     }
 
+    // public function getObligee(Request $request)
+    // {
+    //     $obligee = Obligee::query()
+    //         ->get();
+
+    //     return $this->responseSuccess('Sukses get All Obligee', $obligee);
+    // }
     public function getObligee(Request $request)
     {
-        $obligee = Obligee::query()
+        $obligee = SubmissionObligee::query()
             ->get();
 
         return $this->responseSuccess('Sukses get All Obligee', $obligee);
