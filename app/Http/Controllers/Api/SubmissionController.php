@@ -103,7 +103,10 @@ class SubmissionController extends Controller
             ->firstWhere('id', $submissionId);
 
         $submission = Submission::query()
-            ->where('status', SubmissionStatus::APPROVED->value)
+            ->where(function ($query) use ($submissionFirst) {
+                $query->where('status', SubmissionStatus::APPROVED->value)
+                    ->orWhere('status', SubmissionStatus::REVISED->value);
+            })
             ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
