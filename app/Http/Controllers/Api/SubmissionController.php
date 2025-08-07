@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\OfficeType;
+use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Http\Requests\Api\Submission\SaveDocSignatureRequest;
@@ -102,9 +103,19 @@ class SubmissionController extends Controller
             ->firstWhere('id', $submissionId);
 
         $submission = Submission::query()
+            ->where(function ($query) {
+                $query->where('status', SubmissionStatus::APPROVED->value)
+                    ->orWhere('status', SubmissionStatus::REVISED->value);
+            })
+            ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
             ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+        if (! $submission) {
+            Log::error('Submission not found for callback', ['submission_id' => $submissionId, 'no_guarantee' => $submissionFirst->getAttribute('no_guarantee')]);
+
+            return $this->responseError('Pengajuan tidak ditemukan atau belum mendapatkan persetujuan dari asuransi');
+        }
 
         $submissionFirstId = $submission->getAttribute('id');
         $guarantor = $submission->getRelation('guarantor');
@@ -327,7 +338,14 @@ class SubmissionController extends Controller
                         'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
                     ]);
                 }
-                $submissionFirst = Submission::query()->orderBy('created_at')->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
+                $submissionFirst = Submission::query()
+                  ->where(function ($query) {
+                    $query->where('status', SubmissionStatus::APPROVED->value)
+                      ->orWhere('status', SubmissionStatus::REVISED->value);
+                  })
+                  ->where('has_send_to_guarantor', true)
+                  ->orderBy('created_at')
+                  ->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
                 $dataSend = [
                     'submission_id' => $submissionFirst->getAttribute('id'),
                     'remarks' => $submission->getAttribute('revised_note'),
