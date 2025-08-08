@@ -207,7 +207,7 @@ class SubmissionController extends Controller
                ], $obligee);
             $obligee = SubmissionObligee::query()
                 ->updateOrCreate([
-                  ['obligee_id' => $obligee['id'] ?? null],
+                  'id' => $obligee['id'] ?? null,
                 ], $obligee);
 
             $guarantorHead = Guarantor::query()
