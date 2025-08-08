@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('submission_principal', function (Blueprint $table) {
+         Schema::create('submission_principals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('headquarter_id')->nullable();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()

@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('submission_obligee', function (Blueprint $table) {
+         Schema::create('submission_obligees', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
