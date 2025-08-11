@@ -1013,10 +1013,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                           const today = dayjs();
                           const minDate = today.subtract(1, "month");
 
-                          if (selectedDate.isBefore(minDate) || selectedDate.isAfter(today)) {
+                          if (selectedDate.isBefore(minDate)) {
                             toast({
                               title: "Gagal Memilih Tanggal",
-                              description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir hingga hari ini.",
+                              description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir.",
                               variant: "destructive",
                             });
                             setPublicationDate(null);
