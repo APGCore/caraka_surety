@@ -38,10 +38,10 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell className={"text-center"}>
                     <h3>{submission.blank?.number ?? "X".repeat(10)}</h3>
                     <Show when={submission.blank?.is_broken}>
-                      <Badge className="bg-red-500">Rusak</Badge>
+                      <Badge variant="destructive">Rusak</Badge>
                     </Show>
                     <Show when={submission.submission_before != null}>
-                      <Badge>Revisi Dari Blangko {submission.submission_before?.blank?.number}</Badge>
+                      <Badge variant="warning">Revisi Dari {submission.submission_before?.blank?.number}</Badge>
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>

@@ -85,7 +85,7 @@ class SubmissionResource extends JsonResource
             'submission_before' => $this->whenLoaded('submissionBefore', function () {
                 return [
                     'id' => $this->resource->submissionBefore->id,
-                    'blank' => $this->resource->submissionBefore->blank?->number,
+                    'blank' => $this->resource->submissionBefore->blank,
                 ];
             }),
             'employee_limit' => $employeeLimit,
