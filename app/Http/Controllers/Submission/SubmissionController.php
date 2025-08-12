@@ -230,19 +230,20 @@ class SubmissionController extends Controller
                 $submissionForRevision = Submission::query()->select(['id', 'blank_id', 'no_guarantee', 'status'])->find($submissionBeforeId);
                 $submissionForRevision->blank()->update(['is_revised' => true]);
                 $submissionForRevision->update(['status' => SubmissionStatus::REVISED->value]);
-                $dataSubmission['staff_id'] = $staffId;
-                $dataSubmission['publication_date'] = now();
-                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
                 $messageResponse = 'Berhasil merevisi pengajuan';
             } elseif ($isEdit) {
                 $messageResponse = 'Berhasil memperbarui pengajuan';
             } else {
-                $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
-                $dataSubmission['staff_id'] = $staffId;
-                $dataSubmission['publication_date'] = now();
-                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
+
+            if (!$isEdit){
+              $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
+              $dataSubmission['staff_id'] = $staffId;
+              $dataSubmission['publication_date'] = now();
+              $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
+            }
+
             $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
@@ -323,16 +324,9 @@ class SubmissionController extends Controller
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('SubmissionController@store: ', $error);
+            flashMessage('Error', 'Gagal membuat pengajuan', 'error');
 
-            if (str_contains($e->getMessage(), 'Blangko')) {
-                flashMessage('Blangko Kosong', $e->getMessage(), 'error');
-
-                return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-            } else {
-                flashMessage('Error', 'Gagal membuat pengajuan', 'error');
-
-                return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
-            }
+            return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
         }
     }
 
@@ -1143,7 +1137,6 @@ class SubmissionController extends Controller
             'is_used' => false,
             'is_broken' => false,
             'is_revised' => false,
-            'is_approved' => false,
         ]);
 
         return $submission->update([

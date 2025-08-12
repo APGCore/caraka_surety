@@ -53,6 +53,10 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
                     {submission.status_label}
+                    <br/>
+                    <Show when={submission.has_send_to_guarantor}>
+                        Sudah Dikirim ke Asuransi
+                    </Show>
                   </p>
                   <Show when={submission.status === SubmissionStatus.REVISED}>
                     <p
