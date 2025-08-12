@@ -87,7 +87,8 @@ class InvoiceController extends Controller
                     ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
                     ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
                     ->with([
-                        'submissionBefore:id',
+                        'submissionBefore:id,blank_id',
+                        'submissionBefore.blank',
                         'guarantor:id,name,code',
                         'guarantorBranch:id,name,code',
                         'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
