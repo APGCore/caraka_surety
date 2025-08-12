@@ -119,7 +119,7 @@ class SubmissionController extends Controller
             'staff:id,name,profile_id',
             'office:id,name,code,office_type',
             'office.profileRate',
-            'submissionBefore:id',
+            'submissionBefore:id,blank_id',
             'submissionBefore.blank',
             'staff:id,name,profile_id',
             'office:id,name',
