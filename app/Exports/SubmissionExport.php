@@ -47,7 +47,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'obligee:id,name',
                 'staff:id,name,profile_id',
                 'office:id,name',
-                'submissionBefore:id',
+                'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
             ->orderByDesc('created_at')
@@ -64,7 +64,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'PERIODE',
             'CABANG ASURANSI',
             'CABANG BPR/SUMBER BISNIS',
-            'NO BLANKO',
+            'NO BLANGKO',
             'NO JAMINAN',
             'PRINCIPAL',
             'OBLIGEE',
