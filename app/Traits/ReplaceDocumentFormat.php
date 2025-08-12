@@ -91,7 +91,7 @@ trait ReplaceDocumentFormat
         }
 
         // get terbilang
-        $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
+        $terbilang = $guaranteeValue ? ucwords(Terbilang::make(str_replace('.', ',', $guaranteeValue), ' Rupiah')) : '';
         $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
         // SCORING RESULT
