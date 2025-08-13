@@ -146,7 +146,7 @@ trait ReplaceDocumentFormat
             'est_deed' => $principal->est_deed ?? '...',
             'last_deed' => $principal->last_deed ?? '...',
             // 'get_exp' => $this->getExp($principal),
-            'get_exp' => "",
+            'get_exp' => '',
             'get_susunan_pengurus' => $this->getAdministratorsPrincipal($principal),
             'bank_name' => $submission->bank_name ?? '...',
             'obligee_name' => $obligee->name ?? '...',
