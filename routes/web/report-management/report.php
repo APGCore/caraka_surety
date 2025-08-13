@@ -16,8 +16,8 @@ Route::controller(ReportController::class)
                 RoleEnum::Direksi->value,
                 RoleEnum::Manager->value,
                 RoleEnum::Staff->value,
-                RoleEnum::Keuangan->value
-              ]))
+                RoleEnum::Keuangan->value,
+            ]))
             ->name('production.')->group(function () {
                 Route::get('/', 'productionReport')->name('index');
             });

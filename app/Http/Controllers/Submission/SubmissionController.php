@@ -231,11 +231,11 @@ class SubmissionController extends Controller
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
 
-            if (!$isEdit){
-              $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
-              $dataSubmission['staff_id'] = $staffId;
-              $dataSubmission['publication_date'] = now();
-              $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
+            if (! $isEdit) {
+                $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
+                $dataSubmission['staff_id'] = $staffId;
+                $dataSubmission['publication_date'] = now();
+                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
             }
 
             $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
@@ -387,9 +387,9 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         if ($submission->getAttribute('has_send_to_guarantor')) {
             flashMessage('Gagal', 'Pengajuan tidak dapat diubah karena sudah di kirim ke asuransi', 'error');
@@ -491,7 +491,7 @@ class SubmissionController extends Controller
         ]);
     }
 
-    private function getSubmission($id): Submission|null
+    private function getSubmission($id): ?Submission
     {
         return Submission::with([
             'principal' => function ($query) {
@@ -572,9 +572,9 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         $principal = $submission->getRelation('principal')->only([
             'id',
@@ -674,9 +674,9 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');

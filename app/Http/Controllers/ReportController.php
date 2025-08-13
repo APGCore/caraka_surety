@@ -52,8 +52,6 @@ class ReportController extends Controller
         $search = $request->get('search');
 
         $submissions = Submission::query()
-            ->where('guarantor_id', $guarantorSelected)
-            ->where('has_send_to_guarantor', true)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
@@ -62,20 +60,12 @@ class ReportController extends Controller
                         });
                 });
             })
-            ->when($date !== null, function ($query) use ($date) {
-                $query->whereBetween('approved_at', $date);
-            })
-            ->when($officeSelected, function ($query) use ($officeSelected) {
-                $query->whereHas('staff', function ($query) use ($officeSelected) {
-                    $query->where('profile_id', $officeSelected);
-                });
-            })
-            ->when($productSelected !== null, function ($query) use ($productSelected) {
-                $query->where('product_id', $productSelected);
-            })
-            ->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
-                $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-            });
+            ->where('has_send_to_guarantor', true)
+            ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+            ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
+            ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+            ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+            ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('approved_at', $date));
 
         $submissionIds = $submissions->pluck('id');
 
@@ -94,8 +84,6 @@ class ReportController extends Controller
             'office.profileRate',
             'submissionBefore:id,blank_id',
             'submissionBefore.blank',
-            'staff:id,name,profile_id',
-            'office:id,name',
         ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)

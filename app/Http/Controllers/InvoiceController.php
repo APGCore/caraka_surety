@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
-use App\Enums\SubmissionStatus;
 use App\Http\Requests\Invoice\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Guarantor;
@@ -51,7 +50,7 @@ class InvoiceController extends Controller
             ->whereNull('headquarter_id')
             ->with('guarantorToProductTypes')
             ->get(['id', 'name']);
-        $guarantorSelected = (int) $request->get('guarantor_id', $guarantors->first()?->getAttribute('id'));
+        $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
         $products = Product::query()
             ->with('productType')
             ->get(['id', 'name']);
@@ -61,46 +60,45 @@ class InvoiceController extends Controller
         $productTypeSelected = $request->get('product_type_id');
         $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
+        $search = $request->get('search');
 
-        // Get all IDs before pagination
-        $submissionIds = Submission::search($request->get('search'))
-            ->query(function ($query) use ($date, $officeSelected, $guarantorSelected, $productSelected, $guarantorToProductType) {
-                $query->whereNotIn('status', [SubmissionStatus::REJECTED->value, SubmissionStatus::PROCESS->value])
-                    ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('created_at', $date))
-                    ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
-                    ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
-                    ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
-                    ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
-                    ->select('id');
+        $submissions = Submission::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereLike('no_guarantee', "%$search%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->whereLike('name', "%$search%");
+                        });
+                });
             })
-            ->get()->pluck('id')->toArray();
+            ->where('has_send_to_guarantor', true)
+            ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+            ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
+            ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+            ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+            ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('approved_at', $date));
 
-        // Paginate the results
-        $submissions = Submission::search($request->get('search'))
-            ->query(function ($query) use ($submissionIds) {
-                $query
-                    ->whereIn('id', $submissionIds)
-                    ->with([
-                        'submissionBefore:id,blank_id',
-                        'submissionBefore.blank',
-                        'guarantor:id,name,code',
-                        'guarantorBranch:id,name,code',
-                        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                        'guarantor.guarantorRate',
-                        'product:id,name',
-                        'guarantorToProductType:id,code_product,code,name',
-                        'blank:id,number,is_broken,is_revised',
-                        'principal:id,name',
-                        'obligee:id,name',
-                        'staff:id,name,profile_id',
-                        'office:id,name,code,office_type',
-                        'office.profileRate',
-                    ]);
-            })
+        $submissionIds = $submissions->pluck('id');
+
+        $submissions = $submissions->with([
+            'guarantor:id,name,code',
+            'guarantorBranch:id,name,code',
+            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+            'guarantor.guarantorRate',
+            'product:id,name',
+            'guarantorToProductType:id,code_product,code,name',
+            'blank:id,number,is_broken,is_revised',
+            'principal:id,name',
+            'obligee:id,name',
+            'staff:id,name,profile_id',
+            'office:id,name,code,office_type',
+            'office.profileRate',
+            'submissionBefore:id,blank_id',
+            'submissionBefore.blank',
+        ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
-            ->appends($request->all());
+            ->withQueryString();
 
         $resource = SubmissionResource::collection($submissions);
 

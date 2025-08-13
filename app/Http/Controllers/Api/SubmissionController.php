@@ -339,13 +339,13 @@ class SubmissionController extends Controller
                     ]);
                 }
                 $submissionFirst = Submission::query()
-                  ->where(function ($query) {
-                    $query->where('status', SubmissionStatus::APPROVED->value)
-                      ->orWhere('status', SubmissionStatus::REVISED->value);
-                  })
-                  ->where('has_send_to_guarantor', true)
-                  ->orderBy('created_at')
-                  ->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
+                    ->where(function ($query) {
+                        $query->where('status', SubmissionStatus::APPROVED->value)
+                            ->orWhere('status', SubmissionStatus::REVISED->value);
+                    })
+                    ->where('has_send_to_guarantor', true)
+                    ->orderBy('created_at')
+                    ->firstWhere('no_guarantee', $submission->getAttribute('no_guarantee'));
                 $dataSend = [
                     'submission_id' => $submissionFirst->getAttribute('id'),
                     'remarks' => $submission->getAttribute('revised_note'),

@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\SubmissionStatus;
 use App\Http\Controllers\InvoiceController;
 use App\Models\Submission\Submission;
 use Illuminate\Console\Command;
