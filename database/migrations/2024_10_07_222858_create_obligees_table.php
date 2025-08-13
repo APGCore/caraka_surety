@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('no_ppk')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment("Tabel Transaksi");
         });
     }
 

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment("Tabel Transaksi");
         });
     }
 

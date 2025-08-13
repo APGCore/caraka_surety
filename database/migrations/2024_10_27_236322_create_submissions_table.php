@@ -40,7 +40,7 @@ return new class extends Migration
             $table->foreignId('checked_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('approved_by')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->foreignId('rejected_by')->nullable()->references('id')->on('users')->noActionOnDelete();
-            $table->foreignId('office_id')->nullable()->references('id')->on('profile')->noActionOnDelete();
+            $table->foreignId('office_id')->nullable()->references('id')->on('profiles')->noActionOnDelete();
             $table->foreignId('staff_id')->nullable()->references('id')->on('users')->noActionOnDelete();
             $table->string('no_guarantee');
             $table->string('contract_doc_name')->nullable();

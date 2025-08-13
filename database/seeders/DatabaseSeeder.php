@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             ScoringQuestionCategorySeeder::class,
             ScoringQuestionSeeder::class,
             ScoringOptionSeeder::class,
-            GuarantorSeeder::class,
+            // GuarantorSeeder::class,
             //            PrincipalSeeder::class,
             //            GuarantorToProductTypeSeeder::class,
             //            ObligeeSeeder::class,
