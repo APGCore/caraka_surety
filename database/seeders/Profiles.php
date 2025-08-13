@@ -40,26 +40,5 @@ class Profiles extends Seeder
             'office_type' => OfficeType::BRANCH->value,
         ]);
 
-        // agent partner
-        Profile::create([
-            'id' => 3,
-            'code' => '16',
-            'name' => 'Agent Partner',
-            'province_id' => $province->id,
-            'regency_id' => $regency->id,
-            'district_id' => $district->id,
-            'office_type' => OfficeType::AGENT_PARTNER->value,
-        ]);
-
-        // marketing partner
-        Profile::create([
-            'id' => 4,
-            'code' => '17',
-            'name' => 'Marketing Partner',
-            'province_id' => $province->id,
-            'regency_id' => $regency->id,
-            'district_id' => $district->id,
-            'office_type' => OfficeType::MARKETING_PARTNER->value,
-        ]);
     }
 }

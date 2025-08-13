@@ -48,6 +48,7 @@ return new class extends Migration
                 ->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment("Tabel Transaksi");
         });
 
         Schema::table('principals', function (Blueprint $table) {

@@ -12,8 +12,19 @@ class LocationSeeder extends Seeder
      */
     public function run(): void
     {
-        $filePath = database_path('sql/locations.sql');
+        $filePath = database_path('sql/provinces.sql');
+        if (file_exists($filePath)) {
+            $sql = file_get_contents($filePath);
+            DB::unprepared($sql);
+        }
 
+        $filePath = database_path('sql/regencies.sql');
+        if (file_exists($filePath)) {
+            $sql = file_get_contents($filePath);
+            DB::unprepared($sql);
+        }
+
+        $filePath = database_path('sql/districts.sql');
         if (file_exists($filePath)) {
             $sql = file_get_contents($filePath);
             DB::unprepared($sql);
