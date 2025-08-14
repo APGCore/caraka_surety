@@ -6,7 +6,7 @@ import AppSidebar from "@/components/sidebar/app-sidebar";
 import { direksiRoute } from "./direksi-layout.constant";
 import { DireksiLayoutPageProps } from "./direksi-layout.type";
 
-export const DireksiLayoutPage: DireksiLayoutPageProps = ({ children, user, roles}) => {
+export const DireksiLayoutPage: DireksiLayoutPageProps = ({ children, user, roles }) => {
   useFlashMessageToast();
 
   return (

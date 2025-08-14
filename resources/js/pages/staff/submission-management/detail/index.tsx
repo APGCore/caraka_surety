@@ -664,10 +664,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                               <h3>Tanggal Dokumen</h3>
                               <p className="font-bold">{doc.date}</p>
                             </div>
-                            <div className="col-span-1 text-center space-y-1">
-                              <h3>Dokumen</h3>
-                              <PreviewFile preview={doc.url} />
-                            </div>
+                            <Show when={doc.url}>
+                              <div className="col-span-1 text-center space-y-1">
+                                <h3>File</h3>
+                                <PreviewFile preview={doc.url} />
+                              </div>
+                            </Show>
                           </div>
                           <Separator />
                         </>
@@ -1096,29 +1098,37 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                 handleSubmitDoc();
               }}>
               <Card className="w-auto">
-              <CardHeader className="p-2">
-                <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-5 my-2">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                    <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
-                  </div>
+                <CardHeader className="p-2">
+                  <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-5 my-2">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
+                      <FileInput
+                        onFileChange={(file) => setSpkmgrFile(file)}
+                        isLoading={isDisabled}
+                        validation={["application/pdf"]}
+                      />
+                    </div>
 
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                    <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
+                      <FileInput
+                        onFileChange={(file) => setPermohonanFile(file)}
+                        isLoading={isDisabled}
+                        validation={["application/pdf"]}
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter className="justify-end">
-                <Button type="submit" disabled={isLoadingUpload || isDisabled}>
-                  {isLoadingUpload && <LoaderCircle className="animate-spin mr-1" />}
-                  {isLoadingUpload ? "Mengunggah..." : "Submit"}
-                </Button>
-              </CardFooter>
-            </Card>
+                </CardContent>
+                <CardFooter className="justify-end">
+                  <Button type="submit" disabled={isLoadingUpload || isDisabled}>
+                    {isLoadingUpload && <LoaderCircle className="animate-spin mr-1" />}
+                    {isLoadingUpload ? "Mengunggah..." : "Submit"}
+                  </Button>
+                </CardFooter>
+              </Card>
             </form>
           </Show>
           <Show when={submission.final_output_file.length && isApproved}>

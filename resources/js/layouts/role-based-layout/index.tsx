@@ -1,6 +1,6 @@
 import { Roles } from "@/common/types/roles";
 import StaffCabangLayoutPage from "@/layouts/cabang-layout/staff-cabang";
-import KeuanganLayoutPage from "@/layouts/pusat-layout/kauangan";
+import KeuanganLayoutPage from "@/layouts/pusat-layout/keuangan";
 import { User } from "@/types";
 import { OfficeTypeEnum } from "@/types/office-type-enum";
 import AdminLayoutPage from "../admin-layout";

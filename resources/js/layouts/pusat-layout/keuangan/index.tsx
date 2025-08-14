@@ -6,7 +6,7 @@ import AppSidebar from "@/components/sidebar/app-sidebar";
 import { keuanganRoute } from "./keuangan-layout.constant";
 import { KeuanganLayoutPageProps } from "./keuangan-layout.type";
 
-export const KeuanganLayoutPage: KeuanganLayoutPageProps = ({ children, user, roles}) => {
+export const KeuanganLayoutPage: KeuanganLayoutPageProps = ({ children, user, roles }) => {
   useFlashMessageToast();
 
   return (
