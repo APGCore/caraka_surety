@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 trait FilterOffice
 {
-    public function filterOffice(Request $request, ?OfficeType $officeType = null, $profileIds = null): object
+    public function filterOffice(Request $request, ?OfficeType $officeType = null, ?array $profileIds = null): object
     {
         $officeTypes = $officeType ? [OfficeType::getNameOfValue()[$officeType->value]] : OfficeType::getName();
         if (! $officeType) {

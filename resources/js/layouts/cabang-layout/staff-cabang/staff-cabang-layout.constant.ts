@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Archive, Home } from "lucide-react";
+import {Archive, Home, LibraryBig} from "lucide-react";
 
 export const staffCabangRoute: IAppSideBarMenu[] = [
   {
@@ -9,7 +9,6 @@ export const staffCabangRoute: IAppSideBarMenu[] = [
     icon: Home,
     items: [],
   },
-
   {
     title: "Kelola Pengajuan",
     icon: Archive,
@@ -26,4 +25,15 @@ export const staffCabangRoute: IAppSideBarMenu[] = [
       },
     ],
   },
+  {
+    title: "Laporan",
+    icon: LibraryBig,
+    items: [
+      {
+        title: "Produksi",
+        route_name: "report.production",
+        href: route("report.production.index"),
+      },
+    ],
+  }
 ];

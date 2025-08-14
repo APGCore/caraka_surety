@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
@@ -30,7 +31,14 @@ class ReportController extends Controller
             now()->subDays(7)->toDateString().' 00:00:00',
             now()->toDateString().' 23:59:59',
         ])->values();
-        $officeFilter = $this->filterOffice($request);
+        // if branch
+        $user = $request->user();
+        $user->load('office:id,office_type');
+        if ($user->office?->office_type === OfficeType::BRANCH->value) {
+            $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, [$user->profile_id]);
+        } else {
+            $officeFilter = $this->filterOffice($request);
+        }
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
