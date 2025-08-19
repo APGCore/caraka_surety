@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
@@ -46,7 +47,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'principal:id,name',
                 'obligee:id,name',
                 'staff:id,name,profile_id',
-                'office:id,name',
+                'office:id,name,office_type',
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
@@ -87,7 +88,11 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     public function map($row): array
     {
-        $capitalRates = $this->calculateCapitalRates($row);
+        if ($row->office->office_type === OfficeType::BRANCH->value) {
+          $rates = $this->calculateSellingRates($row);
+        } else {
+          $rates = $this->calculateCapitalRates($row);
+        }
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
         return [
@@ -107,12 +112,12 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->time_period,
             $row->difference_time_period,
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
-            $capitalRates->get('premi', 0),
-            $capitalRates->get('adm', 0),
-            $capitalRates->get('total', 0),
-            $capitalRates->get('commission', 0),
-            $capitalRates->get('pph_commission', 0),
-            $capitalRates->get('nett_premi', 0),
+            $rates->get('premi', 0),
+            $rates->get('adm', 0),
+            $rates->get('total', 0),
+            $rates->get('commission', 0),
+            $rates->get('pph_commission', 0),
+            $rates->get('nett_premi', 0),
         ];
     }
 

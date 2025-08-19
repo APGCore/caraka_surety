@@ -1012,19 +1012,19 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                         initialDate={publicationDate ? dayjs(publicationDate).toDate() : dayjs().toDate()}
                         onPickDate={(e) => {
                           const selectedDate = dayjs(e);
-                          const today = dayjs();
-                          const minDate = today.subtract(1, "month");
+                          // const today = dayjs();
+                          // const minDate = today.subtract(1, "month");
 
-                          if (selectedDate.isBefore(minDate)) {
-                            toast({
-                              title: "Gagal Memilih Tanggal",
-                              description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir.",
-                              variant: "destructive",
-                            });
-                            setPublicationDate(null);
-                          } else {
-                            setPublicationDate(selectedDate.format("YYYY-MM-DD"));
-                          }
+                          // if (selectedDate.isBefore(minDate)) {
+                          //   toast({
+                          //     title: "Gagal Memilih Tanggal",
+                          //     description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir.",
+                          //     variant: "destructive",
+                          //   });
+                          //   setPublicationDate(null);
+                          // } else {
+                          // }
+                          setPublicationDate(selectedDate.format("YYYY-MM-DD"));
                         }}
                       />
                       <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
