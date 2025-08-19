@@ -124,6 +124,7 @@ trait CalculateInvoice
         $subService = $guaranteeValue * ($rate / 100);
         $serviceCharges = $timePeriode > 90 ? ($subService * $timePeriode) / 90 : $subService;
         $total = max(($serviceCharges + $adm), $minimum);
+        $premi = max($serviceCharges, $minimum);
 
         return collect([
             'minimum' => $minimum,
@@ -133,6 +134,7 @@ trait CalculateInvoice
             'revised_rate' => $revisedRate,
             'service_charges' => $serviceCharges,
             'total' => $total,
+            'premi' => $premi,
         ]);
     }
 
