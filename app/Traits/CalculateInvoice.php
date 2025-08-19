@@ -98,12 +98,15 @@ trait CalculateInvoice
 
     public function calculateSellingRates(Submission $submission): Collection
     {
-        $submission->loadMissing(['submissionRate']);
+        $submission->loadMissing(['submissionRate', 'office.profileRate']);
         // Ensure the submission is fresh to get the latest rates
         $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-        $settingRate = $submission->getRelation('submissionRate');
+        $settingRate = $submission->getRelation('submissionRate') ?? $submission->getRelation('office')?->getRelation('profileRate')
+            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+            ->first();
         $minimum = (float) ($settingRate?->getAttribute('minimum_bill') ?? 0);
         $rate = (float) ($settingRate?->getAttribute('selling_rate') ?? 0);
         $adm = (float) ($settingRate?->getAttribute('sales_administration') ?? 0);
