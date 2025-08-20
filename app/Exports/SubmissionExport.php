@@ -89,9 +89,9 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     public function map($row): array
     {
         if ($row->office->office_type === OfficeType::BRANCH->value) {
-          $rates = $this->calculateSellingRates($row);
+            $rates = $this->calculateSellingRates($row);
         } else {
-          $rates = $this->calculateCapitalRates($row);
+            $rates = $this->calculateCapitalRates($row);
         }
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 

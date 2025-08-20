@@ -3,6 +3,7 @@
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Product\Product;
+use App\Models\RelatedParties\Bank;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,10 @@ return new class extends Migration
         Schema::create('document_formats', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->nullable()->constrained()->noActionOnDelete();
+            $table->foreignIdFor(Bank::class, 'bank_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignIdFor(Product::class, 'product_id')->nullable()->constrained()->noActionOnDelete();
             $table->foreignIdFor(GuarantorToProductType::class, 'guarantor_to_product_type_id')->nullable()->constrained()->noActionOnDelete();
+            $table->integer('no');
             $table->string('name');
             $table->text('format_document');
             $table->timestamps();
