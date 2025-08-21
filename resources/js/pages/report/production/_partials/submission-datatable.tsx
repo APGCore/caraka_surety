@@ -18,7 +18,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
-            <TableHead>TANGGAL PENGAJUAN</TableHead>
+            <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
