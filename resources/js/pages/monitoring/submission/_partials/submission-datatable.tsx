@@ -21,6 +21,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
+            <TableHead>TANGGAL PENGAJUAN</TableHead>
             <TableHead>Unit Bisnis</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
@@ -37,6 +38,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{submissions.meta.from + index}</TableCell>
+                <TableCell>{submission.approved_at}</TableCell>
                 <TableCell>{submission.office?.name}</TableCell>
                 <TableCell>{submission?.principal?.name}</TableCell>
                 <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
