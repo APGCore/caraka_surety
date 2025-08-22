@@ -65,6 +65,7 @@ class MonitoringController extends Controller
                 'guarantorProductTypeLimit',
                 'staff:id,name,profile_id',
                 'office:id,name',
+                'blank:id,number'
             ])
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
