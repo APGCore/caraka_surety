@@ -46,20 +46,23 @@ class BlankController extends Controller
         }
 
         $guarantors = Guarantor::with('head')
-            ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
+            ->get();
         $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
         $guarantorBranches = $guarantors->whereNotNull('headquarter_id')->values();
-        $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->id ?? null);
+        $guarantorSelected = $request->get('guarantor_id', config('guarantor.id'));
         $guarantorBranchSelected = $request->get('guarantor_branch_id');
 
         $blanks = Blank::search($request->get('search'))
             ->query(function ($query) use ($guarantorBranchSelected, $guarantorSelected) {
                 return $query->with('profile')
-                    ->where('guarantor_id', ($guarantorBranchSelected ?? $guarantorSelected));
+                    ->where('guarantor_id', ($guarantorSelected))
+                    ->when($guarantorBranchSelected != null, function ($query) use ($guarantorBranchSelected) {
+                        return $query->where('guarantor_branch_id', $guarantorBranchSelected);
+                    });
             })
             ->orderBy('number')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->appends('query')
             ->appends($request->all());
         $blankResource = BlankResource::collection($blanks);
 
@@ -121,6 +124,7 @@ class BlankController extends Controller
 
             $data = array_map(fn ($i) => [
                 'guarantor_id' => $requestValidated['guarantor_id'],
+                'guarantor_branch_id' => $requestValidated['guarantor_branch_id'],
                 'number' => str_pad($start + $i, max($startLength, $endLength), '0', STR_PAD_LEFT),
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -180,7 +184,10 @@ class BlankController extends Controller
     {
         $guarantors = Guarantor::query()
             ->whereNull('headquarter_id')->get();
-        $guarantorId = $request->get('guarantor_id', $guarantors->first()?->id ?? null);
+        $guarantorBranches = Guarantor::query()
+            ->whereNotNull('headquarter_id')->get();
+        $guarantorId = $request->get('guarantor_id', config('guarantor.id'));
+        $guarantorBranchId = $request->get('guarantor_branch_id');
         $profileId = $request->user()->profile_id;
         if ($request->user()->hasRole(RoleEnum::KepalaCabang->value)) {
             $links = $this->links->map(fn ($link) => 'kepala-cabang-'.$link);
@@ -197,14 +204,17 @@ class BlankController extends Controller
         ])->get();
 
         $blankPage = Blank::search($request->get('search'))
-            ->query(function ($query) use ($guarantorId, $profileId) {
+            ->query(function ($query) use ($guarantorId, $guarantorBranchId, $profileId) {
                 return $query->with(['profile', 'fromProfile'])
                     ->where('guarantor_id', $guarantorId)
+                    ->when($guarantorBranchId != null, function ($query) use ($guarantorBranchId) {
+                        return $query->where('guarantor_branch_id', $guarantorBranchId);
+                    })
                     ->where('profile_id', $profileId);
             })
             ->orderBy('number')
             ->paginate($request->get('per_page') ?? 10)
-            ->appends('query', null)
+            ->appends('query')
             ->appends($request->all());
         $blankResource = BlankResource::collection($blankPage);
 
@@ -216,7 +226,9 @@ class BlankController extends Controller
             'blanks_un_approved' => $blanks,
             'links' => $links ?? null,
             'guarantors' => $guarantors,
+            'guarantorBranches' => $guarantorBranches,
             'guarantorSelected' => (int) $guarantorId,
+            'guarantorBranchSelected' => (int) $guarantorBranchId,
         ]);
     }
 
@@ -257,7 +269,7 @@ class BlankController extends Controller
         $requestValidated = $request->validated();
         DB::beginTransaction();
         try {
-            if ($blank->getAttribute('is_used') || $blank->getAttribute('profile_id')) {
+            if ($blank->getAttribute('is_picked') || $blank->getAttribute('profile_id')) {
                 throw new Exception('Blangko sudah digunakan', 400);
             }
             $blank->update($requestValidated);
@@ -287,13 +299,14 @@ class BlankController extends Controller
     {
         $exceptBlankId = $request->get('blank_id_for_edit');
         $guarantorId = session('guarantor_id', config('guarantor.id'));
+        $guarantorBranchId = $request->get('guarantor_branch_id');
         $user = auth()->user();
         $isAdmin = $user->hasRole(RoleEnum::Admin->value);
 
         $blanks = Blank::query()
             ->where([
                 'guarantor_id' => $guarantorId,
-                ...(!$isAdmin ? ['profile_id' => $user->profile_id] : []),
+                ...(! $isAdmin ? ['profile_id' => $user->profile_id] : []),
                 'is_revised' => false,
                 'is_broken' => false,
                 'is_approved' => true,
@@ -303,6 +316,12 @@ class BlankController extends Controller
                     ->when($exceptBlankId != null, function ($query) use ($exceptBlankId) {
                         return $query->orWhere('id', $exceptBlankId);
                     });
+            })
+            ->when($guarantorBranchId != null, function ($query) use ($guarantorBranchId) {
+                return $query->where(function ($query) use ($guarantorBranchId) {
+                    $query->where('guarantor_branch_id', $guarantorBranchId)
+                        ->orWhereNull('guarantor_branch_id');
+                });
             })
             ->get(['id', 'guarantor_id', 'profile_id', 'number']);
 

@@ -55,6 +55,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
             <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
             <TableHead>AKSI</TableHead>
           </TableRow>
         </TableHeader>
@@ -96,11 +97,12 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
-                  <TableCell>{submission.principal?.name}</TableCell>
+                  <TableCell>{submission.principal?.name ?? "-"}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
-                  <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.full_name}</TableCell>
+                  <TableCell>{submission.product?.name ?? "-"}</TableCell>
+                  <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild>
                       <Link href={route(InvoiceUtils.link.show, { submission: submission.id })}>Detail</Link>

@@ -27,8 +27,8 @@ return new class extends Migration
         $district = new District;
         Schema::create('submissions', function (Blueprint $table) use ($province, $regency, $district) {
             $table->id();
-            $table->unsignedBigInteger('submission_before_id')->nullable();
-            $table->unsignedBigInteger('submission_inherit_id')->nullable();
+            $table->foreignId('submission_before_id')->nullable()->references('id')->on('submissions')->nullOnDelete();
+            $table->foreignId('submission_inherit_id')->nullable()->references('id')->on('submissions')->nullOnDelete();
             $table->foreignIdFor(Principal::class, 'principal_id')->constrained()->noActionOnDelete();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->noActionOnDelete();
             $table->foreignId('guarantor_branch_id')->references('id')->on('guarantors')->noActionOnDelete();
@@ -78,14 +78,12 @@ return new class extends Migration
             $table->timestamp('checked_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
+            $table->timestamp('send_to_guarantor_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
-        Schema::table('submissions', function (Blueprint $table) {
-            $table->foreign('submission_before_id')->references('id')->on('submissions')->nullOnDelete();
-            $table->foreign('submission_inherit_id')->references('id')->on('submissions')->nullOnDelete();
-        });
+        Schema::table('submissions', function (Blueprint $table) {});
     }
 
     /**

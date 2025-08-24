@@ -21,7 +21,7 @@ import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";

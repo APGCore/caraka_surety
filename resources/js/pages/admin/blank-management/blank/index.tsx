@@ -60,8 +60,13 @@ const BlankPage: BlankPageProps = ({
   type DataForm = {
     id?: number;
     number: string;
+    guarantor_id: number;
+    guarantor_branch_id?: number;
   };
   const defaultDataForm: DataForm = {
+    id: undefined,
+    guarantor_id: guarantorSelected,
+    guarantor_branch_id: guarantorBranchSelected,
     number: "",
   };
   const [dataForm, setDataForm] = useState<DataForm>(defaultDataForm);
@@ -87,35 +92,34 @@ const BlankPage: BlankPageProps = ({
 
   const handleSelect = (e: string) => {
     setSelect(Number(e));
-    getData(e, search, guarantorSelected);
+    getData(e, search, guarantorSelected, guarantorBranchSelected);
   };
 
   const handleSearchNew = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    getData(String(select), search, guarantorSelected);
+    getData(String(select), search, guarantorSelected, guarantorBranchSelected);
   };
 
-  const getData = (perPage: string, search: string, officeSelected: number) => {
+  const getData = (
+    perPage: string,
+    search: string,
+    guarantorSelected: number,
+    guarantorBranchSelected: number | undefined,
+  ) => {
     return router.get(
       route(BlankUtils.link.index),
       pickBy({
         per_page: perPage,
         search,
-        guarantor_id: officeSelected,
+        guarantor_id: guarantorSelected,
+        guarantor_branch_id: guarantorBranchSelected ?? null,
       }),
       { preserveState: true, preserveScroll: true },
     );
   };
 
-  const setGuarantor = (office: any, branch: any = null) => {
-    return router.get(
-      route(BlankUtils.link.index),
-      pickBy({
-        guarantor_id: office.id,
-        guarantor_branch_id: branch?.id,
-      }),
-      { preserveState: true, preserveScroll: true },
-    );
+  const setGuarantor = (guarantorId: number, guarantorBranchId: number | undefined) => {
+    getData(String(select), search, guarantorId, guarantorBranchId);
   };
 
   const deleteData = (blank: any) => {
@@ -126,11 +130,15 @@ const BlankPage: BlankPageProps = ({
     e.preventDefault();
     setIsLoading(true);
     axios
-      .post(route(BlankUtils.link.store_multi), { ...dataCreateMulti, guarantor_id: guarantorSelected })
+      .post(route(BlankUtils.link.store_multi), {
+        ...dataCreateMulti,
+        guarantor_id: guarantorSelected,
+        guarantor_branch_id: guarantorBranchSelected,
+      })
       .then(() => {
         setOpenCreateMulti(false);
         setDataCreateMulti(defaultDataCreateMulti);
-        getData(String(select), search, guarantorSelected);
+        getData(String(select), search, guarantorSelected, guarantorBranchSelected);
         toast({
           title: "Berhasil",
           description: "Data Blangko berhasil ditambahkan",
@@ -155,7 +163,7 @@ const BlankPage: BlankPageProps = ({
       .then(() => {
         setOpenEdit(false);
         setDataForm(defaultDataForm);
-        getData(String(select), search, guarantorSelected);
+        getData(String(select), search, guarantorSelected, guarantorBranchSelected);
         toast({
           title: "Berhasil",
           description: "Data Blangko berhasil diubah",
@@ -243,7 +251,6 @@ const BlankPage: BlankPageProps = ({
                       ))}
                   </div>
                 </div>
-
                 <div className="flex justify-end gap-x-3">
                   <AlertDialogCancel
                     onClick={() => {
@@ -283,17 +290,19 @@ const BlankPage: BlankPageProps = ({
             defaultValue={guarantorSelected}
             placeholder={"Pilih Asuransi"}
             className={"w-[210px]"}
-            onSelect={(value) => setGuarantor(value)}
+            onSelect={(value) => setGuarantor(value.id, guarantorBranchSelected)}
           />
-          {/*<Combobox*/}
-          {/*  datas={guarantorBranches}*/}
-          {/*  labelKey={"name"}*/}
-          {/*  valueKey={"name"}*/}
-          {/*  defaultValue={guarantorBranchSelected}*/}
-          {/*  placeholder={"Pilih Cabang Asuransi"}*/}
-          {/*  className={"w-[210px]"}*/}
-          {/*  onSelect={(value) => setGuarantor(guarantorSelected, value)}*/}
-          {/*/>*/}
+          <Combobox
+            datas={guarantorBranches}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorBranchSelected}
+            placeholder={"Pilih Cabang Asuransi"}
+            className={"min-w-[210px]"}
+            onSelect={(value) => setGuarantor(guarantorSelected, value.id)}
+            isReset={true}
+            handleReset={() => setGuarantor(guarantorSelected, undefined)}
+          />
         </div>
         <div className="flex gap-x-3">
           <form onSubmit={(e) => handleSearchNew(e)} className="flex items-end gap-x-3">
@@ -341,7 +350,7 @@ const BlankPage: BlankPageProps = ({
                   </TableCell>
                   <TableCell>{blank.created_at}</TableCell>
                   <TableCell className="text-right">
-                    <Show when={blank.is_used || blank.profile_id == null}>
+                    <Show when={blank.is_picked || blank.profile_id == null}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
@@ -351,61 +360,27 @@ const BlankPage: BlankPageProps = ({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-36 mr-8 mt-1">
                           <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
-                            <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
-                              <AlertDialogTrigger
-                                className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                                onClick={() =>
-                                  setDataForm({
-                                    id: blank.id,
-                                    number: blank.number,
-                                  })
-                                }>
-                                Ubah Blangko
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Edit Blangko</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tindakan ini akan mengubah data Blangko
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <form onSubmit={(e) => updateBlangko(e)} className="mt-6 space-y-6">
-                                  <div>
-                                    <Label htmlFor="number">Nomor Blangko</Label>
-                                    <Input
-                                      id="number"
-                                      value={dataForm.number}
-                                      onChange={(e) =>
-                                        setDataForm({
-                                          ...dataForm,
-                                          number: e.target.value,
-                                        })
-                                      }
-                                      type="text"
-                                      className="mt-1 block w-full"
-                                    />
-
-                                    {(errors?.number?.length ?? 0) > 0 &&
-                                      errors?.number?.map((error: string, index: number) => (
-                                        <InputError key={index} message={error} />
-                                      ))}
-                                  </div>
-
-                                  <div className="flex justify-end gap-x-3">
-                                    <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
-                                    <Button type={"submit"} disabled={isLoading}>
-                                      Simpan <Loading isLoading={isLoading} />
-                                    </Button>
-                                  </div>
-                                </form>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                            <Button
+                              className="bg-amber-500 text-destructive-foreground shadow-sm hover:bg-amber-500/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                              onClick={() => {
+                                setDataForm({
+                                  id: blank.id,
+                                  number: blank.number,
+                                  guarantor_id: blank.guarantor_id,
+                                  guarantor_branch_id: blank.guarantor_branch_id,
+                                });
+                                setOpenEdit(true);
+                              }}>
+                              Ubah Blangko
+                            </Button>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="p-0 cursor-pointer" onSelect={(e) => e.preventDefault()}>
                             <AlertDialog>
-                              <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                                Delete
+                              <AlertDialogTrigger asChild>
+                                <Button className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                                  Delete
+                                </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -447,6 +422,58 @@ const BlankPage: BlankPageProps = ({
       </div>
       <ShowingCountDatatable meta={meta} />
       <PaginationDatatable meta={meta} />
+      <AlertDialog open={openEdit} onOpenChange={setOpenEdit}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit Blangko</AlertDialogTitle>
+            <AlertDialogDescription>Tindakan ini akan mengubah data Blangko</AlertDialogDescription>
+          </AlertDialogHeader>
+          <form onSubmit={(e) => updateBlangko(e)} className="mt-6 space-y-6">
+            <div>
+              <Label>Cabang Asuransi</Label>
+              <Combobox
+                datas={guarantorBranches}
+                labelKey={"name"}
+                valueKey={"name"}
+                defaultValue={dataForm.guarantor_branch_id}
+                placeholder={"Pilih Cabang Asuransi"}
+                className={"w-full mt-1"}
+                onSelect={(value) =>
+                  setDataForm({
+                    ...dataForm,
+                    guarantor_branch_id: value.id,
+                  })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="number">Nomor Blangko</Label>
+              <Input
+                id="number"
+                value={dataForm.number}
+                onChange={(e) =>
+                  setDataForm({
+                    ...dataForm,
+                    number: e.target.value,
+                  })
+                }
+                type="text"
+                className="mt-1 block w-full"
+              />
+
+              {(errors?.number?.length ?? 0) > 0 &&
+                errors?.number?.map((error: string, index: number) => <InputError key={index} message={error} />)}
+            </div>
+
+            <div className="flex justify-end gap-x-3">
+              <AlertDialogCancel onClick={() => setOpenEdit(false)}>Batal</AlertDialogCancel>
+              <Button type={"submit"} disabled={isLoading}>
+                Simpan <Loading isLoading={isLoading} />
+              </Button>
+            </div>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };

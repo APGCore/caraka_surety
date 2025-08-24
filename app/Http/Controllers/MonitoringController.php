@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
-use App\Enums\RoleEnum;
 use App\Enums\SubmissionStatus;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
@@ -34,10 +33,10 @@ class MonitoringController extends Controller
         $user = $request->user();
         $user->load('office:id,office_type');
         $isOfficeHead = $user->office?->office_type === OfficeType::HEADQUARTER->value;
-        if (!$isOfficeHead) {
-          $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, $officeIds);
+        if (! $isOfficeHead) {
+            $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, $officeIds);
         } else {
-          $officeFilter = $this->filterOffice($request);
+            $officeFilter = $this->filterOffice($request);
         }
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -71,7 +70,7 @@ class MonitoringController extends Controller
                 'guarantorProductTypeLimit',
                 'staff:id,name,profile_id',
                 'office:id,name',
-                'blank:id,number'
+                'blank:id,number',
             ])
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)

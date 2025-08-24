@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('blanks', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Guarantor::class, 'guarantor_id')->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('guarantor_branch_id')->references('id')->on('guarantors')->noActionOnDelete();
             $table->foreignIdFor(Profile::class, 'profile_id')->nullable()
                 ->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('from_profile_id')->nullable()->references('id')

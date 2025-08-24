@@ -471,7 +471,10 @@ class SubmissionController extends Controller
             Log::info('Data Send To Assurance', $result);
             $final = $this->hostToHostService->sendPostRequest($url, $token, $result);
             if ($final['status'] === 'success') {
-                $submission->update(['has_send_to_guarantor' => true]);
+                $submission->update([
+                    'has_send_to_guarantor' => true,
+                    'send_to_guarantor_at' => now(),
+                ]);
                 Log::info('Submission sent to guarantor', ['submission_id' => $submissionId]);
 
                 return $this->responseSuccess('Berhasil mengirimkan data ke pihak asuransi');

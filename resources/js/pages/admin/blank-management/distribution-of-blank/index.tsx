@@ -620,31 +620,33 @@ const DistributionBlank: DistributionBlankPageProps = ({
                         </Show>
                       </TableCell>
                       <TableCell>{blank.created_at}</TableCell>
-                      <TableCell className="text-right">
-                        <AlertDialog>
-                          <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm rounded-sm text-start">
-                            Delete
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tindakan ini akan menghapus data blangko dari {blank?.profile?.name}?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => {
-                                  deleteData(blank);
-                                }}
-                                className={buttonVariants({ variant: "destructive" })}>
-                                Lanjutkan Hapus
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
+                      <Show when={!blank.is_picked}>
+                        <TableCell className="text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger className="bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 px-2 py-1.5 text-sm rounded-sm text-start">
+                              Delete
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Apakah Anda benar-benar yakin?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tindakan ini akan menghapus data blangko dari {blank?.profile?.name}?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    deleteData(blank);
+                                  }}
+                                  className={buttonVariants({ variant: "destructive" })}>
+                                  Lanjutkan Hapus
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </Show>
                     </TableRow>
                   );
                 }}
