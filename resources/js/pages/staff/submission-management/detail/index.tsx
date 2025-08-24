@@ -5,6 +5,7 @@ import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { Skeleton } from "@/_features/_common/components/_shadcn-ui/skeleton";
 import Combobox from "@/_features/_common/components/combobox";
 import { FileInput } from "@/_features/_common/components/file-input";
+import { useGetAllBlank } from "@/_features/blank/services/blank-query";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -41,7 +42,6 @@ import { EllipsisVertical, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
-import {useGetAllBlank} from "@/_features/blank/services/blank-query";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
 type TFormDetailStepperIndicator = {
@@ -93,7 +93,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [selectedBlank, setSelectedBlank] = useState(submission.blank_id || null);
+  const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
     : isApproved
@@ -112,7 +112,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
   const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
   const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
-  const { data: blanks } = useGetAllBlank(submission.blank_id);
+  const { data: blanks } = useGetAllBlank(submission.guarantor_branch_id, submission.blank_id);
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {

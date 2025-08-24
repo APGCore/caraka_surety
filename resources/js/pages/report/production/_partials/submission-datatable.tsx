@@ -26,6 +26,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
             <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -46,11 +47,12 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
-                  <TableCell>{submission.principal?.name}</TableCell>
+                  <TableCell>{submission.principal?.name ?? "-"}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
-                  <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.full_name}</TableCell>
+                  <TableCell>{submission.product?.name ?? "-"}</TableCell>
+                  <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.sent_to_insurance_at ?? "-"}</TableCell>
                 </TableRow>
               </>
             )}

@@ -10,7 +10,6 @@ use App\Http\Requests\Submission\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
-use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\RelatedParties\Obligee;
@@ -302,8 +301,12 @@ class SubmissionController extends Controller
 
             // if score < min_point_scoring, set status to REJECTED
             $totalScore = collect($scores)->sum('point');
-            if ($totalScore < ((int) $submission->getAttribute('min_point_scoring'))) {
+            // end date < now, set status to REJECTED
+            $endDateBeforeNow = $submission->getAttribute('end_date') < now();
+
+            if ($totalScore < ((int) $submission->getAttribute('min_point_scoring')) || $endDateBeforeNow) {
                 $this->processRejection($submission);
+                $messageResponse .= ' dan langsung ditolak karena skor kurang dari nilai minimum atau tanggal akhir pengajuan sudah lewat';
             }
             activity()
                 ->useLog('submission')

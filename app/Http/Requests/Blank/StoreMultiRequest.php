@@ -25,6 +25,7 @@ class StoreMultiRequest extends FormRequest
     {
         return [
             'guarantor_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
+            'guarantor_branch_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
             'number_start' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,NULL,id,deleted_at,NULL'],
             'number_end' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,NULL,id,deleted_at,NULL'],
         ];

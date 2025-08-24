@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('principals', function (Blueprint $table) {
+        Schema::create('submission_principals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('headquarter_id')->nullable();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()
@@ -48,11 +48,6 @@ return new class extends Migration
                 ->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            $table->comment('Tabel Transaksi');
-        });
-
-        Schema::table('principals', function (Blueprint $table) {
-            $table->foreign('headquarter_id')->references('id')->on('principals')->nullOnDelete();
         });
     }
 
@@ -61,6 +56,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('principals');
+        Schema::dropIfExists('submission_principals');
     }
 };

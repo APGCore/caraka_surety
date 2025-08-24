@@ -25,6 +25,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'guarantor_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
+            'guarantor_branch_id' => ['required', 'integer', 'exists:'.Guarantor::class.',id,deleted_at,NULL'],
             'number' => ['required', 'string', 'max:255', 'unique:'.Blank::class.',number,'.$this->route('blank')->id.',id,deleted_at,NULL'],
         ];
     }

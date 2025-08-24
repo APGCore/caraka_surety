@@ -12,7 +12,15 @@ import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import React, { useState } from "react";
 
-const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, guarantors, guarantorSelected }) => {
+const GuarantorPage: BlankPageProps = ({
+  blanks,
+  blanks_un_approved,
+  links,
+  guarantors,
+  guarantorBranches,
+  guarantorSelected,
+  guarantorBranchSelected,
+}) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState(() => getQueryParameter("search") ?? "");
 
@@ -30,13 +38,18 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, guar
     getData(String(select), search, value.id);
   };
 
-  const getData = (per_page: string, search: string, guarantor_id?: any) => {
+  const setGuarantorBranch = (value: any) => {
+    getData(String(select), search, guarantorSelected?.id, value?.id);
+  };
+
+  const getData = (per_page: string, search: string, guarantor_id?: any, guarantor_branch_id?: any) => {
     return router.get(
       route(links.index),
       pickBy({
         per_page,
         search,
         guarantor_id,
+        guarantor_branch_id,
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -55,6 +68,17 @@ const GuarantorPage: BlankPageProps = ({ blanks, blanks_un_approved, links, guar
             placeholder={"Pilih Asuransi"}
             className={"w-[210px]"}
             onSelect={(value) => setGuarantor(value)}
+          />
+          <Combobox
+            datas={guarantorBranches}
+            labelKey={"name"}
+            valueKey={"name"}
+            defaultValue={guarantorBranchSelected}
+            placeholder={"Pilih Cabang Asuransi"}
+            className={"min-w-[210px]"}
+            onSelect={(value) => setGuarantorBranch(value)}
+            isReset={true}
+            handleReset={() => setGuarantorBranch(null)}
           />
         </div>
         <div className="flex gap-x-3">

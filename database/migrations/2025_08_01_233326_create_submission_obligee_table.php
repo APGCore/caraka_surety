@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('obligees', function (Blueprint $table) {
+        Schema::create('submission_obligees', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
@@ -32,7 +32,6 @@ return new class extends Migration
             $table->string('no_ppk')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->comment('Tabel Transaksi');
         });
     }
 
@@ -41,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('obligees');
+        Schema::dropIfExists('submission_obligees');
     }
 };
