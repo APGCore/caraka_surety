@@ -49,7 +49,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
                   <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.name}</TableCell>
+                  <TableCell>{submission.product_type?.full_name}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
                 </TableRow>
               </>
