@@ -288,11 +288,12 @@ class BlankController extends Controller
         $exceptBlankId = $request->get('blank_id_for_edit');
         $guarantorId = session('guarantor_id', config('guarantor.id'));
         $user = auth()->user();
+        $isAdmin = $user->hasRole(RoleEnum::Admin->value);
 
         $blanks = Blank::query()
             ->where([
                 'guarantor_id' => $guarantorId,
-                'profile_id' => $user?->profile_id,
+                ...(!$isAdmin ? ['profile_id' => $user->profile_id] : []),
                 'is_revised' => false,
                 'is_broken' => false,
                 'is_approved' => true,
