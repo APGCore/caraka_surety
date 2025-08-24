@@ -83,7 +83,7 @@ class ReportController extends Controller
             'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
             'guarantor.guarantorRate',
             'product:id,name',
-            'guarantorToProductType:id,code_product,code,name',
+            'guarantorToProductType:id,code_product,code,name,full_name',
             'blank:id,number,is_broken,is_revised',
             'principal:id,name',
             'obligee:id,name',

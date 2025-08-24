@@ -15,7 +15,6 @@ interface InvoiceDatatableProps {
   submissions: any;
   submissionIds: any[];
   checkAll: boolean;
-  setCheckAll: (checked: boolean) => void;
   submissionChecked: any[];
   setSubmissionChecked: (ids: any[]) => void;
 }
@@ -24,7 +23,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
   submissions,
   submissionIds,
   checkAll,
-  setCheckAll,
   submissionChecked,
   setSubmissionChecked,
 }) => {
@@ -38,9 +36,8 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                 type="button"
                 checked={checkAll}
                 onCheckedChange={(checked: boolean) => {
-                  setCheckAll(checked);
                   if (checked) {
-                    setSubmissionChecked(submissionIds);
+                    setSubmissionChecked(Array.from(new Set([...submissionChecked, ...submissionIds])));
                   } else {
                     setSubmissionChecked([]);
                   }
@@ -102,7 +99,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                   <TableCell>{submission.principal?.name}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
                   <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.name}</TableCell>
+                  <TableCell>{submission.product_type?.full_name}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild>
