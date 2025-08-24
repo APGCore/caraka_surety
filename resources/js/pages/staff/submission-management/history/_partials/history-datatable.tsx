@@ -79,8 +79,8 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                 <TableCell>{submission.no_guarantee}</TableCell>
                 <TableCell>{formatRupiah(submission.guarantee_value)}</TableCell>
                 <TableCell>
-                  <span
-                    className={`px-2 py-1 uppercase text-xs font-semibold rounded ${
+                  <p
+                    className={`px-2 py-1 uppercase text-xs font-semibold rounded text-center ${
                       submission.status === SubmissionStatus.APPROVED
                         ? "bg-green-100 text-green-800"
                         : submission.status === SubmissionStatus.REJECTED ||
@@ -89,7 +89,9 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
                     {submission.status_label}
-                  </span>
+                    <br />
+                    <Show when={submission.has_send_to_guarantor}>Sudah Dikirim ke Asuransi</Show>
+                  </p>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">

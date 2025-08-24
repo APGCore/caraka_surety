@@ -686,7 +686,6 @@ class SubmissionController extends Controller
         }
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');
-        $profileId = $submission->getRelation('staff')->getAttribute('profile_id');
         $submissionConverted = $this->convertSubmission(clone $submission); // for replace document format
 
         // check role
@@ -797,14 +796,6 @@ class SubmissionController extends Controller
             return $doc;
         });
 
-        $blankId = $submission->getAttribute('blank_id');
-        $blanks = Blank::query()
-            ->where('profile_id', $profileId)
-            ->where(function ($query) use ($blankId) {
-                $query->where('id', $blankId)
-                    ->orWhere('is_picked', false);
-            })->get();
-
         if ($isStaff) {
             $component = 'staff/submission-management/detail/index';
         } elseif ($isDireksi) {
@@ -834,7 +825,6 @@ class SubmissionController extends Controller
 
         return inertia($component, [
             'submission' => fn () => $submission,
-            'blanks' => fn () => $blanks,
         ]);
     }
 

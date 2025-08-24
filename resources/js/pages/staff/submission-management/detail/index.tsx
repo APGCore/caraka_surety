@@ -41,6 +41,7 @@ import { EllipsisVertical, LoaderCircle } from "lucide-react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
+import {useGetAllBlank} from "@/_features/blank/services/blank-query";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
 type TFormDetailStepperIndicator = {
@@ -77,7 +78,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
   const isApproved = submission.status === SubmissionStatus.APPROVED;
@@ -111,6 +112,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
   const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
   const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
+  const { data: blanks } = useGetAllBlank(submission.blank_id);
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {

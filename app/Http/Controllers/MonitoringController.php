@@ -28,11 +28,17 @@ class MonitoringController extends Controller
     {
         $status = SubmissionStatus::getValues();
         $statusSelected = $request['status_selected'] ?? null;
-        $isAdmin = $request->user()->hasRole(RoleEnum::Admin->value);
         $officeMonitorings = collect($request->user()->officeMonitorings);
         $officeIds = $officeMonitorings->pluck('id')->toArray();
 
-        $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, ! $isAdmin ? $officeIds : null);
+        $user = $request->user();
+        $user->load('office:id,office_type');
+        $isOfficeHead = $user->office?->office_type === OfficeType::HEADQUARTER->value;
+        if (!$isOfficeHead) {
+          $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, $officeIds);
+        } else {
+          $officeFilter = $this->filterOffice($request);
+        }
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
@@ -50,7 +56,7 @@ class MonitoringController extends Controller
             })
             ->where('guarantor_id', config('guarantor.id'))
             ->where('product_id', config('product.id'))
-            ->when(! $isAdmin, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
+            ->when(! $isOfficeHead, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
             ->when($officeSelected, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))
             ->when($statusSelected, fn ($query) => $query->where('status', $statusSelected))
             ->with([
