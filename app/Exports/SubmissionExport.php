@@ -120,10 +120,10 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $rateModal->get('premi', 0),
             $rateModal->get('adm', 0),
             $rateModal->get('total', 0),
-            !$isBranch ? $rateModal->get('commission', 0) : 0,
-            !$isBranch ? $rateModal->get('pph_commission', 0) : 0,
-            !$isBranch ? $rateModal->get('nett_commission', 0) : 0,
-            !$isBranch ? $rateModal->get('nett_premi', 0) : 0,
+            $rateModal->get('commission', 0),
+            $rateModal->get('pph_commission', 0),
+            $rateModal->get('nett_commission', 0),
+            $rateModal->get('nett_premi', 0),
         ];
     }
 
