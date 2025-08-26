@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
@@ -14,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
@@ -85,7 +85,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'TOTAL PREMI JUAL',
         ];
 
-        if (!$this->isBranch) {
+        if (! $this->isBranch) {
             $data = array_merge($data, [
                 'PREMI MODAL',
                 'ADMIN MODAL',
@@ -94,7 +94,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'PPH KOMISI',
                 'NETT KOMISI',
                 'NETT PREMI',
-                'PENDAPATAN PREMI'
+                'PENDAPATAN PREMI',
             ]);
         }
 
@@ -106,7 +106,6 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         $rateModal = $this->calculateCapitalRates($row);
         $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
-        $isBranch = $row->office->office_type === OfficeType::BRANCH->value;
 
         $data = [
             ++$this->rowNumber,
@@ -130,11 +129,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $rateJual->get('total', 0),
         ];
 
-        if (!$this->isBranch) {
-            if ($isBranch) {
-                // Jika cabang, tambahkan kolom kosong
-                $data = array_merge($data, [0, 0, 0, 0, 0, 0, 0, 0]);
-            } else {
+        if (! $this->isBranch) {
             $data = array_merge($data, [
                 $rateModal->get('premi', 0),
                 $rateModal->get('adm', 0),
@@ -145,7 +140,6 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $rateModal->get('nett_premi', 0),
                 $rateJual->get('premi', 0) - $rateModal->get('nett_premi', 0),
             ]);
-            }
         }
 
         return $data;
@@ -158,13 +152,15 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet = $event->sheet;
+                $sheet = $event->sheet->getDelegate();
                 // Menentukan jumlah kolom yang digunakan
                 $highestColumn = $sheet->getHighestColumn();
+                $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
 
-                // Menyesuaikan lebar kolom secara otomatis
-                foreach (range('A', $highestColumn) as $col) {
-                    $sheet->getColumnDimension($col)->setAutoSize(true);
+                // Adjust column widths automatically
+                for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                    $columnLetter = Coordinate::stringFromColumnIndex($col);
+                    $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
                 }
 
                 $sheet->getStyle('A')->getAlignment()->setHorizontal('center');
@@ -196,7 +192,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'S' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
 
-        if (!$this->isBranch) {
+        if (! $this->isBranch) {
             $data = array_merge($data, [
                 'T' => 'Rp #,##0', // PREMI MODAL
                 'U' => 'Rp #,##0', // ADMIN MODAL

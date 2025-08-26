@@ -37,10 +37,17 @@ class InvoiceController extends Controller
      */
     public function index(Request $request): Response
     {
-        $date = collect($request->get('date') ?? [
-            now()->subDays(7)->toDateString().' 00:00:00',
-            now()->toDateString().' 23:59:59',
-        ])->values();
+        $dateFrom = $request->input('date.from');
+        $dateTo = $request->input('date.to');
+        $date = ($dateFrom && $dateTo)
+          ? [
+              "$dateFrom 00:00:00",
+              "$dateTo 23:59:59",
+          ]
+          : [
+              now()->subDays(7)->toDateString().' 00:00:00',
+              now()->toDateString().' 23:59:59',
+          ];
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -76,7 +83,7 @@ class InvoiceController extends Controller
             ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
             ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
             ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
-            ->when($date->isNotEmpty(), fn ($q) => $q->whereBetween('approved_at', $date));
+            ->whereBetween('approved_at', $date);
 
         $submissionIds = $submissions->pluck('id');
 
@@ -108,10 +115,6 @@ class InvoiceController extends Controller
             ],
             'submissions' => fn () => $resource,
             'submissionIds' => $submissionIds,
-            'date' => [
-                'start' => $date->first(),
-                'end' => $date->last(),
-            ],
             'offices' => $offices,
             'officeTypes' => $officeTypes,
             'officeTypeSelected' => $officeTypeSelected,

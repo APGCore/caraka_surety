@@ -60,6 +60,7 @@ class ExportController extends Controller
         $user = User::query()->with('office')->findOrFail(auth()->id());
         $office = $user->office;
         $isBranch = $office->office_type === OfficeType::BRANCH->value;
+
         return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
     }
 }
