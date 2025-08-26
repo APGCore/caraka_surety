@@ -77,23 +77,23 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'JANGKA WAKTU',
             'SELISIH JANGKA WAKTU',
             'KETERANGAN',
-            'PREMI',
+            'PREMI JUAL',
+            'PREMI MODAL',
             'ADMIN',
             'TOTAL PREMI',
             'KOMISI',
-            'PPH',
+            'PPH KOMISI',
+            'NETT KOMISI',
             'NETT PREMI',
         ];
     }
 
     public function map($row): array
     {
-        if ($row->office->office_type === OfficeType::BRANCH->value) {
-            $rates = $this->calculateSellingRates($row);
-        } else {
-            $rates = $this->calculateCapitalRates($row);
-        }
+        $rateModal = $this->calculateCapitalRates($row);
+        $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
+        $isBranch = $row->office->office_type === OfficeType::BRANCH->value;
 
         return [
             ++$this->rowNumber,
@@ -112,12 +112,14 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->time_period,
             $row->difference_time_period,
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
-            $rates->get('premi', 0),
-            $rates->get('adm', 0),
-            $rates->get('total', 0),
-            $rates->get('commission', 0),
-            $rates->get('pph_commission', 0),
-            $rates->get('nett_premi', 0),
+            $rateJual->get('premi', 0),
+            $rateModal->get('premi', 0),
+            $isBranch ? $rateJual->get('adm', 0) : $rateModal->get('adm', 0),
+            $isBranch ? $rateJual->get('total', 0) : $rateModal->get('total', 0),
+            !$isBranch ? $rateModal->get('commission', 0) : 0,
+            !$isBranch ? $rateModal->get('pph_commission', 0) : 0,
+            !$isBranch ? $rateModal->get('nett_commission', 0) : 0,
+            !$isBranch ? $rateModal->get('nett_premi', 0) : 0,
         ];
     }
 
@@ -162,12 +164,14 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'N' => '#,##0', // JANGKA WAKTU
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
-            'Q' => '#,##0.00', // PREMI
-            'R' => '#,##0.00', // ADMIN
-            'S' => '#,##0.00', // TOTAL PREMI
-            'T' => '#,##0.00', // KOMISI
-            'U' => '#,##0.00', // PPH
-            'V' => '#,##0.00', // NETT PREMI
+            'Q' => '#,##0.00', // PREMI JUAL
+            'R' => '#,##0.00', // PREMI MODAL
+            'S' => '#,##0.00', // ADMIN
+            'T' => '#,##0.00', // TOTAL PREMI
+            'U' => '#,##0.00', // KOMISI
+            'V' => '#,##0.00', // PPH KOMISI
+            'W' => '#,##0.00', // NETT KOMISI
+            'X' => '#,##0.00', // NETT PREMI
         ];
     }
 }
