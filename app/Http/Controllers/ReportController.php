@@ -95,7 +95,8 @@ class ReportController extends Controller
                 'submissionBefore.blank',
             ])
             ->orderBy('approved_at', 'desc')
-            ->paginate($request->get('per_page') ?? 10);
+            ->paginate($request->get('per_page') ?? 10)
+            ->withQueryString();
 
         $resource = SubmissionResource::collection($submissions);
         $component = "$this->headComponent/production/index";
