@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Exports\SubmissionExport;
 use App\Models\Document\DocumentFormat;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -55,6 +57,9 @@ class ExportController extends Controller
         ]);
         $submissionIds = $validatedData['submission_ids'];
 
-        return Excel::download(new SubmissionExport($submissionIds), 'Laporan Produksi.xlsx');
+        $user = User::query()->with('office')->findOrFail(auth()->id());
+        $office = $user->office;
+        $isBranch = $office->office_type === OfficeType::BRANCH->value;
+        return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
     }
 }

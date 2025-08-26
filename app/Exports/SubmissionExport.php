@@ -22,11 +22,14 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     protected array $submissionIds;
 
+    protected bool $isBranch;
+
     private int $rowNumber = 0;
 
-    public function __construct(array $submissionIds)
+    public function __construct(array $submissionIds, bool $isBranch = false)
     {
         $this->submissionIds = $submissionIds;
+        $this->isBranch = $isBranch;
     }
 
     /**
@@ -60,7 +63,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
      */
     public function headings(): array
     {
-        return [
+        $data = [
             'NO',
             'PERIODE',
             'CABANG ASURANSI',
@@ -80,14 +83,22 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'PREMI JUAL',
             'ADMIN JUAL',
             'TOTAL PREMI JUAL',
-            'PREMI MODAL',
-            'ADMIN MODAL',
-            'TOTAL PREMI MODAL',
-            'KOMISI',
-            'PPH KOMISI',
-            'NETT KOMISI',
-            'NETT PREMI',
         ];
+
+        if ($this->isBranch) {
+            $data = array_merge($data, [
+                'PREMI MODAL',
+                'ADMIN MODAL',
+                'TOTAL PREMI MODAL',
+                'KOMISI',
+                'PPH KOMISI',
+                'NETT KOMISI',
+                'NETT PREMI',
+                'PENDAPATAN PREMI'
+            ]);
+        }
+
+        return $data;
     }
 
     public function map($row): array
@@ -95,9 +106,8 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         $rateModal = $this->calculateCapitalRates($row);
         $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
-        $isBranch = $row->office->office_type === OfficeType::BRANCH->value;
 
-        return [
+        $data = [
             ++$this->rowNumber,
             Carbon::parse($row->approved_at)->format('F'),
             $row->guarantorBranch->name ?? '',
@@ -117,14 +127,22 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $rateJual->get('premi', 0),
             $rateJual->get('adm', 0),
             $rateJual->get('total', 0),
-            $rateModal->get('premi', 0),
-            $rateModal->get('adm', 0),
-            $rateModal->get('total', 0),
-            $rateModal->get('commission', 0),
-            $rateModal->get('pph_commission', 0),
-            $rateModal->get('nett_commission', 0),
-            $rateModal->get('nett_premi', 0),
         ];
+
+        if ($this->isBranch) {
+            $data = array_merge($data, [
+                $rateModal->get('premi', 0),
+                $rateModal->get('adm', 0),
+                $rateModal->get('total', 0),
+                $rateModal->get('commission', 0),
+                $rateModal->get('pph_commission', 0),
+                $rateModal->get('nett_commission', 0),
+                $rateModal->get('nett_premi', 0),
+                $rateJual->get('premi', 0) - $rateModal->get('nett_premi', 0),
+            ]);
+        }
+
+        return $data;
     }
 
     /**
@@ -151,7 +169,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     public function columnFormats(): array
     {
-        return [
+        $data = [
             'A' => '@', // NO
             'B' => '@', // PERIODE
             'C' => '@', // CABANG ASURANSI
@@ -168,18 +186,24 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'N' => '#,##0', // JANGKA WAKTU
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
-            'Q' => '#,##0.00', // PREMI JUAL
-            'R' => '#,##0.00', // ADMIN JUAL
-            'S' => '#,##0.00', // TOTAL PREMI JUAL
-            'T' => '#,##0.00', // PREMI MODAL
-            'U' => '#,##0.00', // ADMIN MODAL
-            'V' => '#,##0.00', // TOTAL PREMI MODAL
-            'W' => '#,##0.00', // ADMIN
-            'X' => '#,##0.00', // TOTAL PREMI
-            'Y' => '#,##0.00', // KOMISI
-            'Z' => '#,##0.00', // PPH KOMISI
-            'AA' => '#,##0.00', // NETT KOMISI
-            'AB' => '#,##0.00', // NETT PREMI
+            'Q' => 'Rp #,##0', // PREMI JUAL
+            'R' => 'Rp #,##0', // ADMIN JUAL
+            'S' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
+
+        if ($this->isBranch) {
+            $data = array_merge($data, [
+                'T' => 'Rp #,##0', // PREMI MODAL
+                'U' => 'Rp #,##0', // ADMIN MODAL
+                'V' => 'Rp #,##0', // TOTAL PREMI MODAL
+                'W' => 'Rp #,##0', // KOMISI
+                'X' => 'Rp #,##0', // PPH KOMISI
+                'Y' => 'Rp #,##0', // NETT KOMISI
+                'Z' => 'Rp #,##0', // NETT PREMI
+                'AA' => 'Rp #,##0', // PENDAPATAN PREMI
+            ]);
+        }
+
+        return $data;
     }
 }
