@@ -85,7 +85,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'TOTAL PREMI JUAL',
         ];
 
-        if ($this->isBranch) {
+        if (!$this->isBranch) {
             $data = array_merge($data, [
                 'PREMI MODAL',
                 'ADMIN MODAL',
@@ -130,7 +130,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $rateJual->get('total', 0),
         ];
 
-        if ($this->isBranch) {
+        if (!$this->isBranch) {
             if ($isBranch) {
                 // Jika cabang, tambahkan kolom kosong
                 $data = array_merge($data, [0, 0, 0, 0, 0, 0, 0, 0]);
@@ -196,7 +196,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'S' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
 
-        if ($this->isBranch) {
+        if (!$this->isBranch) {
             $data = array_merge($data, [
                 'T' => 'Rp #,##0', // PREMI MODAL
                 'U' => 'Rp #,##0', // ADMIN MODAL
