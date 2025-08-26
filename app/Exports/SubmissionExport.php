@@ -106,6 +106,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         $rateModal = $this->calculateCapitalRates($row);
         $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
+        $isBranch = $row->office->office_type === OfficeType::BRANCH->value;
 
         $data = [
             ++$this->rowNumber,
@@ -130,6 +131,10 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         ];
 
         if ($this->isBranch) {
+            if ($isBranch) {
+                // Jika cabang, tambahkan kolom kosong
+                $data = array_merge($data, [0, 0, 0, 0, 0, 0, 0, 0]);
+            } else {
             $data = array_merge($data, [
                 $rateModal->get('premi', 0),
                 $rateModal->get('adm', 0),
@@ -140,6 +145,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $rateModal->get('nett_premi', 0),
                 $rateJual->get('premi', 0) - $rateModal->get('nett_premi', 0),
             ]);
+            }
         }
 
         return $data;
@@ -155,7 +161,6 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $sheet = $event->sheet;
                 // Menentukan jumlah kolom yang digunakan
                 $highestColumn = $sheet->getHighestColumn();
-                $highestRow = $sheet->getHighestRow();
 
                 // Menyesuaikan lebar kolom secara otomatis
                 foreach (range('A', $highestColumn) as $col) {
