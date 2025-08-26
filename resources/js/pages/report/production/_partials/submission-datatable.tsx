@@ -52,7 +52,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell>{submission.product?.name ?? "-"}</TableCell>
                   <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
-                  <TableCell>{submission.sent_to_insurance_at ?? "-"}</TableCell>
+                  <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                 </TableRow>
               </>
             )}
