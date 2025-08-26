@@ -78,9 +78,11 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'SELISIH JANGKA WAKTU',
             'KETERANGAN',
             'PREMI JUAL',
+            'ADMIN JUAL',
+            'TOTAL PREMI JUAL',
             'PREMI MODAL',
-            'ADMIN',
-            'TOTAL PREMI',
+            'ADMIN MODAL',
+            'TOTAL PREMI MODAL',
             'KOMISI',
             'PPH KOMISI',
             'NETT KOMISI',
@@ -113,9 +115,11 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->difference_time_period,
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
             $rateJual->get('premi', 0),
+            $rateJual->get('adm', 0),
+            $rateJual->get('total', 0),
             $rateModal->get('premi', 0),
-            $isBranch ? $rateJual->get('adm', 0) : $rateModal->get('adm', 0),
-            $isBranch ? $rateJual->get('total', 0) : $rateModal->get('total', 0),
+            $rateModal->get('adm', 0),
+            $rateModal->get('total', 0),
             !$isBranch ? $rateModal->get('commission', 0) : 0,
             !$isBranch ? $rateModal->get('pph_commission', 0) : 0,
             !$isBranch ? $rateModal->get('nett_commission', 0) : 0,
@@ -165,13 +169,17 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
             'Q' => '#,##0.00', // PREMI JUAL
-            'R' => '#,##0.00', // PREMI MODAL
-            'S' => '#,##0.00', // ADMIN
-            'T' => '#,##0.00', // TOTAL PREMI
-            'U' => '#,##0.00', // KOMISI
-            'V' => '#,##0.00', // PPH KOMISI
-            'W' => '#,##0.00', // NETT KOMISI
-            'X' => '#,##0.00', // NETT PREMI
+            'R' => '#,##0.00', // ADMIN JUAL
+            'S' => '#,##0.00', // TOTAL PREMI JUAL
+            'T' => '#,##0.00', // PREMI MODAL
+            'U' => '#,##0.00', // ADMIN MODAL
+            'V' => '#,##0.00', // TOTAL PREMI MODAL
+            'W' => '#,##0.00', // ADMIN
+            'X' => '#,##0.00', // TOTAL PREMI
+            'Y' => '#,##0.00', // KOMISI
+            'Z' => '#,##0.00', // PPH KOMISI
+            'AA' => '#,##0.00', // NETT KOMISI
+            'AB' => '#,##0.00', // NETT PREMI
         ];
     }
 }
