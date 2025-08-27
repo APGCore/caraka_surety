@@ -69,7 +69,7 @@ class InvoiceController extends Controller
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
         $search = $request->get('search');
 
-        $submissions = Submission::query()
+      $submissionIds = Submission::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
@@ -83,11 +83,12 @@ class InvoiceController extends Controller
             ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
             ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
             ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
-            ->whereBetween('approved_at', $date);
+            ->whereBetween('send_to_guarantor_at', $date)
+            ->pluck('id');
 
-        $submissionIds = $submissions->pluck('id');
-
-        $submissions = $submissions->with([
+      $submissions = Submission::query()
+        ->whereIn('id', $submissionIds)
+        ->with([
             'guarantor:id,name,code',
             'guarantorBranch:id,name,code',
             'guarantor.pattern:id,guarantor_id,prefix,content,suffix',

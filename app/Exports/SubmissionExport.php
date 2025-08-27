@@ -80,6 +80,9 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'JANGKA WAKTU',
             'SELISIH JANGKA WAKTU',
             'KETERANGAN',
+            'TANGGAL BUAT',
+            'TANGGAL SETUJU',
+            'TANGGAL KIRIM ASURANSI',
             'PREMI JUAL',
             'ADMIN JUAL',
             'TOTAL PREMI JUAL',
@@ -124,6 +127,9 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->time_period,
             $row->difference_time_period,
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
+            Carbon::parse($row->created_at)->format('d/m/Y H:i'),
+            $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
+            $row->sent_to_insurance_at ? Carbon::parse($row->sent_to_insurance_at)->format('d/m/Y H:i') : '',
             $rateJual->get('premi', 0),
             $rateJual->get('adm', 0),
             $rateJual->get('total', 0),
@@ -138,7 +144,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $rateModal->get('pph_commission', 0),
                 $rateModal->get('nett_commission', 0),
                 $rateModal->get('nett_premi', 0),
-                $rateJual->get('premi', 0) - $rateModal->get('nett_premi', 0),
+                $rateJual->get('total', 0) - $rateModal->get('nett_premi', 0),
             ]);
         }
 
@@ -187,21 +193,24 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'N' => '#,##0', // JANGKA WAKTU
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
-            'Q' => 'Rp #,##0', // PREMI JUAL
-            'R' => 'Rp #,##0', // ADMIN JUAL
-            'S' => 'Rp #,##0', // TOTAL PREMI JUAL
+            'Q' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL BUAT
+            'R' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL SETU
+            'S' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL KIRIM ASURANSI
+            'T' => 'Rp #,##0', // PREMI JUAL
+            'U' => 'Rp #,##0', // ADMIN JUAL
+            'V' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
 
         if (! $this->isBranch) {
             $data = array_merge($data, [
-                'T' => 'Rp #,##0', // PREMI MODAL
-                'U' => 'Rp #,##0', // ADMIN MODAL
-                'V' => 'Rp #,##0', // TOTAL PREMI MODAL
-                'W' => 'Rp #,##0', // KOMISI
-                'X' => 'Rp #,##0', // PPH KOMISI
-                'Y' => 'Rp #,##0', // NETT KOMISI
-                'Z' => 'Rp #,##0', // NETT PREMI
-                'AA' => 'Rp #,##0', // PENDAPATAN PREMI
+                'W' => 'Rp #,##0', // PREMI MODAL
+                'X' => 'Rp #,##0', // ADMIN MODAL
+                'Y' => 'Rp #,##0', // TOTAL PREMI MODAL
+                'Z' => 'Rp #,##0', // KOMISI
+                'AA' => 'Rp #,##0', // PPH KOMISI
+                'AB' => 'Rp #,##0', // NETT KOMISI
+                'AC' => 'Rp #,##0', // NETT PREMI
+                'AD' => 'Rp #,##0', // PENDAPATAN PREMI
             ]);
         }
 
