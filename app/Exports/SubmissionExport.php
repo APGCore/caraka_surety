@@ -129,7 +129,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
             Carbon::parse($row->created_at)->format('d/m/Y H:i'),
             $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
-            $row->sent_to_insurance_at ? Carbon::parse($row->sent_to_insurance_at)->format('d/m/Y H:i') : '',
+            $row->sent_to_insurance_at ? Carbon::parse($row->send_to_insurance_at)->format('d/m/Y H:i') : '',
             $rateJual->get('premi', 0),
             $rateJual->get('adm', 0),
             $rateJual->get('total', 0),
