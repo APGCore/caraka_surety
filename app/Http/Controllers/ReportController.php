@@ -83,7 +83,7 @@ class ReportController extends Controller
             ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
             ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
             ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
-            ->whereBetween('approved_at', $date)
+            ->whereBetween('send_to_guarantor_at', $date)
             ->pluck('id');
 
         $submissions = Submission::query()
