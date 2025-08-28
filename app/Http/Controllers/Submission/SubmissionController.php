@@ -14,6 +14,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
+use App\Models\RelatedParties\SubmissionObligee;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use App\Models\User;
@@ -198,7 +199,11 @@ class SubmissionController extends Controller
             }
 
             // create or update obligee
-            $obligee = Obligee::query()
+            Obligee::query()
+                ->firstOrCreate([
+                    'id' => $obligee['id'] ?? null,
+                ], $obligee);
+            $obligee = SubmissionObligee::query()
                 ->updateOrCreate([
                     'id' => $obligee['id'] ?? null,
                 ], $obligee);
