@@ -10,13 +10,11 @@ use App\Http\Requests\Submission\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
-use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\RelatedParties\Obligee;
-use App\Models\RelatedParties\SubmissionObligee;
 use App\Models\RelatedParties\Principal;
-use App\Models\RelatedParties\SubmissionPrincipal;
+use App\Models\RelatedParties\SubmissionObligee;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use App\Models\User;
@@ -121,7 +119,7 @@ class SubmissionController extends Controller
             'staff:id,name,profile_id',
             'office:id,name,code,office_type',
             'office.profileRate',
-            'submissionBefore:id',
+            'submissionBefore:id,blank_id',
             'submissionBefore.blank',
             'staff:id,name,profile_id',
             'office:id,name',
@@ -201,14 +199,14 @@ class SubmissionController extends Controller
             }
 
             // create or update obligee
-            Obligee::query()
-               ->firstOrCreate([
-                   'id' => $obligee['id'] ?? null,
-               ], $obligee);
-            $obligee = SubmissionObligee::query()
-                ->updateOrCreate([
-                  'id' => $obligee['id'] ?? null,
+            $obligee = Obligee::query()
+                ->firstOrCreate([
+                    'id' => $obligee['id'] ?? null,
                 ], $obligee);
+            //            $obligee = SubmissionObligee::query()
+            //                ->updateOrCreate([
+            //                    'id' => $obligee['id'] ?? null,
+            //                ], $obligee);
 
             $guarantorHead = Guarantor::query()
                 ->with(['pattern', 'guarantorToProductTypes'])
@@ -237,11 +235,11 @@ class SubmissionController extends Controller
                 $messageResponse = 'Berhasil membuat pengajuan';
             }
 
-            if (!$isEdit){
-              $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
-              $dataSubmission['staff_id'] = $staffId;
-              $dataSubmission['publication_date'] = now();
-              $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
+            if (! $isEdit) {
+                $dataSubmission['office_id'] = $staff->getAttribute('profile_id');
+                $dataSubmission['staff_id'] = $staffId;
+                $dataSubmission['publication_date'] = now();
+                $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
             }
 
             $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
@@ -308,8 +306,13 @@ class SubmissionController extends Controller
 
             // if score < min_point_scoring, set status to REJECTED
             $totalScore = collect($scores)->sum('point');
+            // end date < now, set status to REJECTED
+            // $endDateBeforeNow = $submission->getAttribute('end_date') < now();
+            // atau tanggal akhir pengajuan sudah lewat
+
             if ($totalScore < ((int) $submission->getAttribute('min_point_scoring'))) {
                 $this->processRejection($submission);
+                $messageResponse .= ' dan langsung ditolak karena skor kurang dari nilai minimum';
             }
             activity()
                 ->useLog('submission')
@@ -393,9 +396,9 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         if ($submission->getAttribute('has_send_to_guarantor')) {
             flashMessage('Gagal', 'Pengajuan tidak dapat diubah karena sudah di kirim ke asuransi', 'error');
@@ -497,7 +500,7 @@ class SubmissionController extends Controller
         ]);
     }
 
-    private function getSubmission($id): Submission|null
+    private function getSubmission($id): ?Submission
     {
         return Submission::with([
             'principal' => function ($query) {
@@ -578,9 +581,9 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         $principal = $submission->getRelation('principal')->only([
             'id',
@@ -680,13 +683,12 @@ class SubmissionController extends Controller
     {
         $submission = $this->getSubmission($id);
         if (! $submission) {
-          flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
+            flashMessage('Gagal', 'Pengajuan tidak ditemukan', 'error');
 
-          return redirect()->back();
+            return redirect()->back();
         }
         $principal = $submission->getRelation('principal');
         $principalDocs = $principal->getRelation('documents');
-        $profileId = $submission->getRelation('staff')->getAttribute('profile_id');
         $submissionConverted = $this->convertSubmission(clone $submission); // for replace document format
 
         // check role
@@ -797,14 +799,6 @@ class SubmissionController extends Controller
             return $doc;
         });
 
-        $blankId = $submission->getAttribute('blank_id');
-        $blanks = Blank::query()
-            ->where('profile_id', $profileId)
-            ->where(function ($query) use ($blankId) {
-                $query->where('id', $blankId)
-                    ->orWhere('is_picked', false);
-            })->get();
-
         if ($isStaff) {
             $component = 'staff/submission-management/detail/index';
         } elseif ($isDireksi) {
@@ -834,7 +828,6 @@ class SubmissionController extends Controller
 
         return inertia($component, [
             'submission' => fn () => $submission,
-            'blanks' => fn () => $blanks,
         ]);
     }
 

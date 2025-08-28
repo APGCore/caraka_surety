@@ -454,10 +454,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                                 <h3>Tanggal Dokumen</h3>
                                 <p className="font-bold">{doc.date}</p>
                               </div>
-                              <div className="col-span-1 text-center space-y-1">
-                                <h3>Dokumen</h3>
-                                <PreviewFile preview={doc.url} />
-                              </div>
+                              <Show when={doc.url}>
+                                <div className="col-span-1 text-center space-y-1">
+                                  <h3>File</h3>
+                                  <PreviewFile preview={doc.url} />
+                                </div>
+                              </Show>
                             </div>
                             <Separator />
                           </>

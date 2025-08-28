@@ -21,7 +21,7 @@ import { InvoiceUtils } from "@/pages/report/invoice/_partials/invoice.utils";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import InvoiceDatatable from "./_partials/invoice-datatable";
 import InvoiceHeader from "./_partials/invoice-header";
@@ -48,14 +48,11 @@ const InvoicePage: InvoicePageProps = ({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
-  const [checkAll, setCheckAll] = useState<boolean>(false);
   const [submissionChecked, setSubmissionChecked] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (checkAll) {
-      setSubmissionChecked(submissionIds);
-    }
-  }, [checkAll, submissionIds]);
+  const checkAll = useMemo(() => {
+    const checked = submissionChecked.filter((id) => submissionIds.includes(id));
+    return checked.length === submissionIds.length;
+  }, [submissionChecked, submissionIds]);
 
   const handleSelectInvoiceLength = (perPage: string) => {
     setPerPage(perPage);
@@ -145,14 +142,6 @@ const InvoicePage: InvoicePageProps = ({
       {
         preserveState: true,
         preserveScroll: true,
-        onSuccess: () => {
-          setSubmissionChecked((prev) => {
-            if (checkAll) {
-              return submissionIds;
-            }
-            return prev.filter((id) => submissionIds.includes(id));
-          });
-        },
       },
     );
   };
@@ -161,8 +150,9 @@ const InvoicePage: InvoicePageProps = ({
     if (submissionChecked.length === 0) return;
 
     setIsLoadingSendToFinance(true);
+    const data = submissionChecked.filter((id) => submissionIds.includes(id));
     router.post(
-      route(InvoiceUtils.link.send_to_finance, { submission_ids: submissionChecked }),
+      route(InvoiceUtils.link.send_to_finance, { submission_ids: data }),
       {},
       {
         preserveState: true,
@@ -273,7 +263,6 @@ const InvoicePage: InvoicePageProps = ({
         submissions={submissions}
         submissionIds={submissionIds}
         checkAll={checkAll}
-        setCheckAll={setCheckAll}
         submissionChecked={submissionChecked}
         setSubmissionChecked={setSubmissionChecked}
       />

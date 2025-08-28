@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
-            $table->string('name');
+            $table->string('name', 500);
             $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('telephone')->nullable();
@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('no_ppk')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment('Tabel Transaksi');
         });
     }
 

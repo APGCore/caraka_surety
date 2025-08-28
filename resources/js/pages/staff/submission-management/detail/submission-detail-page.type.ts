@@ -181,6 +181,12 @@ interface SubmissionDetailProps {
     end_date: string;
     created_at: string;
     principal: Principal;
+    principal_id: number;
+    guarantor_id: number;
+    guarantor_branch_id: number;
+    obligee_id: number;
+    product_id: number;
+    blank_id: string | number | undefined;
     guarantor_to_product_type: GuarantorToProductType;
     guarantor: Guarantor;
     obligee: Obligee;

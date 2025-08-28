@@ -11,13 +11,6 @@ use Maatwebsite\Excel\Facades\Excel;
 Route::controller(ReportController::class)
     ->group(function () {
         Route::prefix('production')
-            ->middleware(HandleRoleUsers::class.':'.implode(',', [
-                RoleEnum::Admin->value,
-                RoleEnum::Direksi->value,
-                RoleEnum::Manager->value,
-                RoleEnum::Staff->value,
-                RoleEnum::Keuangan->value
-              ]))
             ->name('production.')->group(function () {
                 Route::get('/', 'productionReport')->name('index');
             });

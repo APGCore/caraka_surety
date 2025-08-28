@@ -1,17 +1,8 @@
 import { Badge } from "@/components/_shadcn-ui/badge";
-import { Button } from "@/components/_shadcn-ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/_shadcn-ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import Show from "@/components/atoms/show";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import React from "react";
 
 interface BlankDatatableProps {
@@ -64,21 +55,6 @@ const BlankDatatable: React.FC<BlankDatatableProps> = ({ blanks }) => {
                   </Show>
                 </TableCell>
                 <TableCell>{blank.created_at}</TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex h-8 w-8 p-0 group data-[state=open]:bg-zinc-500">
-                        <DotsHorizontalIcon className="h-4 w-4 group-data-[state=open]:text-white" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-36 mr-8 mt-1">
-                      <DropdownMenuItem asChild className="cursor-pointer"></DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="cursor-pointer"></DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
               </TableRow>
             ))
           ) : (

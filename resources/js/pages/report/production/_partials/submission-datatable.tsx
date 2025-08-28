@@ -18,13 +18,15 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
-            <TableHead>TANGGAL PENGAJUAN</TableHead>
             <TableHead>NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
             <TableHead>NILAI JAMINAN</TableHead>
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
+            <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL APPROVED</TableHead>
+            <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -34,7 +36,6 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
               <>
                 <TableRow key={submission.id}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
-                  <TableCell>{submission.approved_at}</TableCell>
                   <TableCell className={"text-center"}>
                     <h3>{submission.blank?.number ?? "X".repeat(10)}</h3>
                     <Show when={submission.blank?.is_broken}>
@@ -45,10 +46,13 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
-                  <TableCell>{submission.principal?.name}</TableCell>
+                  <TableCell>{submission.principal?.name ?? "-"}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
-                  <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.name}</TableCell>
+                  <TableCell>{submission.product?.name ?? "-"}</TableCell>
+                  <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
+                  <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.approved_at}</TableCell>
+                  <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                 </TableRow>
               </>
             )}

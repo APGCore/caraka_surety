@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
@@ -21,11 +22,14 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     protected array $submissionIds;
 
+    protected bool $isBranch;
+
     private int $rowNumber = 0;
 
-    public function __construct(array $submissionIds)
+    public function __construct(array $submissionIds, bool $isBranch = false)
     {
         $this->submissionIds = $submissionIds;
+        $this->isBranch = $isBranch;
     }
 
     /**
@@ -46,8 +50,8 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'principal:id,name',
                 'obligee:id,name',
                 'staff:id,name,profile_id',
-                'office:id,name',
-                'submissionBefore:id',
+                'office:id,name,office_type',
+                'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
             ->orderByDesc('created_at')
@@ -59,12 +63,12 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
      */
     public function headings(): array
     {
-        return [
+        $data = [
             'NO',
             'PERIODE',
             'CABANG ASURANSI',
             'CABANG BPR/SUMBER BISNIS',
-            'NO BLANKO',
+            'NO BLANGKO',
             'NO JAMINAN',
             'PRINCIPAL',
             'OBLIGEE',
@@ -76,21 +80,37 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'JANGKA WAKTU',
             'SELISIH JANGKA WAKTU',
             'KETERANGAN',
-            'PREMI',
-            'ADMIN',
-            'TOTAL PREMI',
-            'KOMISI',
-            'PPH',
-            'NETT PREMI',
+            'TANGGAL BUAT',
+            'TANGGAL SETUJU',
+            'TANGGAL KIRIM ASURANSI',
+            'PREMI JUAL',
+            'ADMIN JUAL',
+            'TOTAL PREMI JUAL',
         ];
+
+        if (! $this->isBranch) {
+            $data = array_merge($data, [
+                'PREMI MODAL',
+                'ADMIN MODAL',
+                'TOTAL PREMI MODAL',
+                'KOMISI',
+                'PPH KOMISI',
+                'NETT KOMISI',
+                'NETT PREMI',
+                'PENDAPATAN PREMI',
+            ]);
+        }
+
+        return $data;
     }
 
     public function map($row): array
     {
-        $capitalRates = $this->calculateCapitalRates($row);
+        $rateModal = $this->calculateCapitalRates($row);
+        $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
-        return [
+        $data = [
             ++$this->rowNumber,
             Carbon::parse($row->approved_at)->format('F'),
             $row->guarantorBranch->name ?? '',
@@ -107,13 +127,28 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->time_period,
             $row->difference_time_period,
             strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
-            $capitalRates->get('premi', 0),
-            $capitalRates->get('adm', 0),
-            $capitalRates->get('total', 0),
-            $capitalRates->get('commission', 0),
-            $capitalRates->get('pph_commission', 0),
-            $capitalRates->get('nett_premi', 0),
+            Carbon::parse($row->created_at)->format('d/m/Y H:i'),
+            $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
+            $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('d/m/Y H:i') : '',
+            $rateJual->get('premi', 0),
+            $rateJual->get('adm', 0),
+            $rateJual->get('total', 0),
         ];
+
+        if (! $this->isBranch) {
+            $data = array_merge($data, [
+                $rateModal->get('premi', 0),
+                $rateModal->get('adm', 0),
+                $rateModal->get('total', 0),
+                $rateModal->get('commission', 0),
+                $rateModal->get('pph_commission', 0),
+                $rateModal->get('nett_commission', 0),
+                $rateModal->get('nett_premi', 0),
+                $rateJual->get('total', 0) - $rateModal->get('nett_premi', 0),
+            ]);
+        }
+
+        return $data;
     }
 
     /**
@@ -123,14 +158,15 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet = $event->sheet;
+                $sheet = $event->sheet->getDelegate();
                 // Menentukan jumlah kolom yang digunakan
                 $highestColumn = $sheet->getHighestColumn();
-                $highestRow = $sheet->getHighestRow();
+                $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
 
-                // Menyesuaikan lebar kolom secara otomatis
-                foreach (range('A', $highestColumn) as $col) {
-                    $sheet->getColumnDimension($col)->setAutoSize(true);
+                // Adjust column widths automatically
+                for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                    $columnLetter = Coordinate::stringFromColumnIndex($col);
+                    $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
                 }
 
                 $sheet->getStyle('A')->getAlignment()->setHorizontal('center');
@@ -140,7 +176,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     public function columnFormats(): array
     {
-        return [
+        $data = [
             'A' => '@', // NO
             'B' => '@', // PERIODE
             'C' => '@', // CABANG ASURANSI
@@ -157,12 +193,27 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'N' => '#,##0', // JANGKA WAKTU
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
-            'Q' => '#,##0.00', // PREMI
-            'R' => '#,##0.00', // ADMIN
-            'S' => '#,##0.00', // TOTAL PREMI
-            'T' => '#,##0.00', // KOMISI
-            'U' => '#,##0.00', // PPH
-            'V' => '#,##0.00', // NETT PREMI
+            'Q' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL BUAT
+            'R' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL SETU
+            'S' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL KIRIM ASURANSI
+            'T' => 'Rp #,##0', // PREMI JUAL
+            'U' => 'Rp #,##0', // ADMIN JUAL
+            'V' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
+
+        if (! $this->isBranch) {
+            $data = array_merge($data, [
+                'W' => 'Rp #,##0', // PREMI MODAL
+                'X' => 'Rp #,##0', // ADMIN MODAL
+                'Y' => 'Rp #,##0', // TOTAL PREMI MODAL
+                'Z' => 'Rp #,##0', // KOMISI
+                'AA' => 'Rp #,##0', // PPH KOMISI
+                'AB' => 'Rp #,##0', // NETT KOMISI
+                'AC' => 'Rp #,##0', // NETT PREMI
+                'AD' => 'Rp #,##0', // PENDAPATAN PREMI
+            ]);
+        }
+
+        return $data;
     }
 }

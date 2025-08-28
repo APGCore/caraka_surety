@@ -60,26 +60,6 @@ class Users extends Seeder
         ]);
 
         User::create([
-            'name' => 'Staff Teknik',
-            'username' => 'staff_teknik',
-            'email' => 'staffteknik@gmail.com',
-            'password' => bcrypt('password'),
-            'head_id' => 4, // Manager
-            'profile_id' => 1,
-            'role_id' => 6,
-        ]);
-
-        User::create([
-            'name' => 'Staff Operasional',
-            'username' => 'staff_operasional',
-            'email' => 'staffoperasional@gmail.com',
-            'password' => bcrypt('password'),
-            'head_id' => 4, // Manager
-            'profile_id' => 1,
-            'role_id' => 7,
-        ]);
-
-        User::create([
             'name' => 'Staff Cabang',
             'username' => 'staff-cabang',
             'email' => 'staffbprcabang1@gmail.com',

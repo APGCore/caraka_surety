@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('submission_obligees', function (Blueprint $table) {
+        Schema::create('submission_obligees', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Province::class, 'province_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
-            $table->string('name');
+            $table->string('name', 500);
             $table->string('address')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('telephone')->nullable();

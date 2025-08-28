@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreignIdFor(District::class, 'district_id')->nullable()
                 ->constrained()->restrictOnDelete()->cascadeOnUpdate();
             $table->string('village')->nullable();
-            $table->string('name');
+            $table->string('name', 500);
             $table->string('address');
             $table->string('postal_code');
             $table->string('telephone');
@@ -48,6 +48,7 @@ return new class extends Migration
                 ->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment('Tabel Transaksi');
         });
 
         Schema::table('principals', function (Blueprint $table) {

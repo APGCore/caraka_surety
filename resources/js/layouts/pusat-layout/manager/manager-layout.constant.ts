@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import {Archive, Home, LibraryBig, MonitorCheck} from "lucide-react";
+import { Archive, Home, LibraryBig, MonitorCheck } from "lucide-react";
 
 export const managerRoute: IAppSideBarMenu[] = [
   {
@@ -46,5 +46,5 @@ export const managerRoute: IAppSideBarMenu[] = [
         href: route("report.production.index"),
       },
     ],
-  }
+  },
 ];

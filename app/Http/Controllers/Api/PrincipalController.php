@@ -9,8 +9,8 @@ use App\Http\Requests\Principal\UploadDocumentRequest;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
-use App\Models\RelatedParties\SubmissionPrincipal;
 use App\Models\RelatedParties\PrincipalDocument;
+use App\Models\RelatedParties\SubmissionPrincipal;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -72,22 +72,22 @@ class PrincipalController extends Controller
         }
     }
 
-    // public function getAll(): JsonResponse
-    // {
-    //     $principals = Principal::query()
-    //         ->with(['documents'])
-    //         ->get();
-
-    //     return $this->responseSuccess('Data Principal', $principals);
-    // }
     public function getAll(): JsonResponse
     {
-        $principals = SubmissionPrincipal::query()
+        $principals = Principal::query()
             ->with(['documents'])
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
     }
+    //    public function getAll(): JsonResponse
+    //    {
+    //        $principals = SubmissionPrincipal::query()
+    //            ->with(['documents'])
+    //            ->get();
+    //
+    //        return $this->responseSuccess('Data Principal', $principals);
+    //    }
 
     public function getRatios(Principal $principal): JsonResponse
     {
@@ -117,7 +117,7 @@ class PrincipalController extends Controller
             $principalName = $principal->getAttribute('name')
               ? str_replace(' ', '_', $principal->getAttribute('name'))
               : 'principal';
-            $path = "principal/{$principal->getAttribute('id')}-{$principalName}/documents";
+            $path = "principal/{$principal->getAttribute('id')}-$principalName/documents";
 
             $url = $this->uploadFile(
                 $file,

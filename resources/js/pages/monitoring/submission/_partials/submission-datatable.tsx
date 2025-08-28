@@ -21,9 +21,11 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">#</TableHead>
+            <TableHead>Tanggal Approved</TableHead>
             <TableHead>Unit Bisnis</TableHead>
             <TableHead>Perusahaan</TableHead>
             <TableHead>Tipe Produk</TableHead>
+            <TableHead>Blangko</TableHead>
             <TableHead>Nomor Jaminan</TableHead>
             <TableHead>Nilai Jaminan</TableHead>
             <TableHead>Status</TableHead>
@@ -37,9 +39,11 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             render={(submission: any, index: number) => (
               <TableRow key={submission.id}>
                 <TableCell>{submissions.meta.from + index}</TableCell>
-                <TableCell>{submission.office?.name}</TableCell>
-                <TableCell>{submission?.principal?.name}</TableCell>
-                <TableCell>{submission?.guarantor_to_product_type?.full_name}</TableCell>
+                <TableCell>{submission.approved_at ?? "-"}</TableCell>
+                <TableCell>{submission.office?.name ?? "-"}</TableCell>
+                <TableCell>{submission.principal?.name ?? "-"}</TableCell>
+                <TableCell>{submission.guarantor_to_product_type?.full_name ?? "-"}</TableCell>
+                <TableCell className="text-center">{submission.blank?.number ?? "-"}</TableCell>
                 <TableCell>{submission.no_guarantee}</TableCell>
                 <TableCell>{formatCurrency(submission?.guarantee_value)}</TableCell>
                 <TableCell>
@@ -53,10 +57,8 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                           : "bg-yellow-100 text-yellow-800"
                     }`}>
                     {submission.status_label}
-                    <br/>
-                    <Show when={submission.has_send_to_guarantor}>
-                        Sudah Dikirim ke Asuransi
-                    </Show>
+                    <br />
+                    <Show when={submission.has_send_to_guarantor}>Sudah Dikirim ke Asuransi</Show>
                   </p>
                   <Show when={submission.status === SubmissionStatus.REVISED}>
                     <p

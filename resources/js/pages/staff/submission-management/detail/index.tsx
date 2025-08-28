@@ -5,6 +5,7 @@ import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { Skeleton } from "@/_features/_common/components/_shadcn-ui/skeleton";
 import Combobox from "@/_features/_common/components/combobox";
 import { FileInput } from "@/_features/_common/components/file-input";
+import { useGetAllBlank } from "@/_features/blank/services/blank-query";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
 import useStepper from "@/common/hooks/general/use-stepper";
 import { toast } from "@/common/hooks/general/use-toast";
@@ -77,7 +78,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
   },
 ];
 
-const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks }) => {
+const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
   const isApproved = submission.status === SubmissionStatus.APPROVED;
@@ -92,7 +93,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
   const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [selectedBlank, setSelectedBlank] = useState(submission.blank_id || null);
+  const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
     : isApproved
@@ -111,6 +112,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
   const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
   const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
+  const { data: blanks } = useGetAllBlank(submission.guarantor_branch_id, submission.blank_id);
 
   const documentFormat = () => {
     return Object.keys(editorRefs.current).map((key) => {
@@ -664,10 +666,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                               <h3>Tanggal Dokumen</h3>
                               <p className="font-bold">{doc.date}</p>
                             </div>
-                            <div className="col-span-1 text-center space-y-1">
-                              <h3>Dokumen</h3>
-                              <PreviewFile preview={doc.url} />
-                            </div>
+                            <Show when={doc.url}>
+                              <div className="col-span-1 text-center space-y-1">
+                                <h3>File</h3>
+                                <PreviewFile preview={doc.url} />
+                              </div>
+                            </Show>
                           </div>
                           <Separator />
                         </>
@@ -1010,19 +1014,19 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                         initialDate={publicationDate ? dayjs(publicationDate).toDate() : dayjs().toDate()}
                         onPickDate={(e) => {
                           const selectedDate = dayjs(e);
-                          const today = dayjs();
-                          const minDate = today.subtract(1, "month");
+                          // const today = dayjs();
+                          // const minDate = today.subtract(1, "month");
 
-                          if (selectedDate.isBefore(minDate)) {
-                            toast({
-                              title: "Gagal Memilih Tanggal",
-                              description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir.",
-                              variant: "destructive",
-                            });
-                            setPublicationDate(null);
-                          } else {
-                            setPublicationDate(selectedDate.format("YYYY-MM-DD"));
-                          }
+                          // if (selectedDate.isBefore(minDate)) {
+                          //   toast({
+                          //     title: "Gagal Memilih Tanggal",
+                          //     description: "Tanggal publikasi harus dalam rentang 1 bulan terakhir.",
+                          //     variant: "destructive",
+                          //   });
+                          //   setPublicationDate(null);
+                          // } else {
+                          // }
+                          setPublicationDate(selectedDate.format("YYYY-MM-DD"));
                         }}
                       />
                       <p className="text-sm text-gray-500 mt-1">* Tanggal publikasi hanya dapat diisi satu kali.</p>
@@ -1096,29 +1100,37 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, blanks })
                 handleSubmitDoc();
               }}>
               <Card className="w-auto">
-              <CardHeader className="p-2">
-                <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-5 my-2">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
-                    <FileInput onFileChange={(file) => setSpkmgrFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
-                  </div>
+                <CardHeader className="p-2">
+                  <CardTitle className="text-lg font-semibold">Dokumen SPKMGR dan Surat Permohonan</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-5 my-2">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">Upload File SPKMgr</h3>
+                      <FileInput
+                        onFileChange={(file) => setSpkmgrFile(file)}
+                        isLoading={isDisabled}
+                        validation={["application/pdf"]}
+                      />
+                    </div>
 
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
-                    <FileInput onFileChange={(file) => setPermohonanFile(file)} isLoading={isDisabled} validation={["application/pdf"]}/>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">Upload File Permohonan yang Ditandatangani</h3>
+                      <FileInput
+                        onFileChange={(file) => setPermohonanFile(file)}
+                        isLoading={isDisabled}
+                        validation={["application/pdf"]}
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter className="justify-end">
-                <Button type="submit" disabled={isLoadingUpload || isDisabled}>
-                  {isLoadingUpload && <LoaderCircle className="animate-spin mr-1" />}
-                  {isLoadingUpload ? "Mengunggah..." : "Submit"}
-                </Button>
-              </CardFooter>
-            </Card>
+                </CardContent>
+                <CardFooter className="justify-end">
+                  <Button type="submit" disabled={isLoadingUpload || isDisabled}>
+                    {isLoadingUpload && <LoaderCircle className="animate-spin mr-1" />}
+                    {isLoadingUpload ? "Mengunggah..." : "Submit"}
+                  </Button>
+                </CardFooter>
+              </Card>
             </form>
           </Show>
           <Show when={submission.final_output_file.length && isApproved}>

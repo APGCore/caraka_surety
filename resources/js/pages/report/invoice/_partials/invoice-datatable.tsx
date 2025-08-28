@@ -15,7 +15,6 @@ interface InvoiceDatatableProps {
   submissions: any;
   submissionIds: any[];
   checkAll: boolean;
-  setCheckAll: (checked: boolean) => void;
   submissionChecked: any[];
   setSubmissionChecked: (ids: any[]) => void;
 }
@@ -24,7 +23,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
   submissions,
   submissionIds,
   checkAll,
-  setCheckAll,
   submissionChecked,
   setSubmissionChecked,
 }) => {
@@ -38,9 +36,8 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                 type="button"
                 checked={checkAll}
                 onCheckedChange={(checked: boolean) => {
-                  setCheckAll(checked);
                   if (checked) {
-                    setSubmissionChecked(submissionIds);
+                    setSubmissionChecked(Array.from(new Set([...submissionChecked, ...submissionIds])));
                   } else {
                     setSubmissionChecked([]);
                   }
@@ -49,7 +46,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
               />
             </TableHead>
             <TableHead className="w-0">NO</TableHead>
-            <TableHead>TANGGAL PENGAJUAN</TableHead>
             <TableHead>Unit Bisnis</TableHead>
             <TableHead className="text-center">NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
@@ -57,6 +53,9 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
             <TableHead>NILAI JAMINAN</TableHead>
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
+            <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL APPROVED</TableHead>
+            <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
             <TableHead>AKSI</TableHead>
           </TableRow>
         </TableHeader>
@@ -80,7 +79,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                     />
                   </TableCell>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
-                  <TableCell>{submission.created_at}</TableCell>
                   <TableCell>{submission.office?.name}</TableCell>
                   <TableCell className="text-center">
                     {submission.blank?.number}
@@ -98,10 +96,13 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                     </Show>
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
-                  <TableCell>{submission.principal?.name}</TableCell>
+                  <TableCell>{submission.principal?.name ?? "-"}</TableCell>
                   <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
-                  <TableCell>{submission.product?.name}</TableCell>
-                  <TableCell>{submission.product_type?.name}</TableCell>
+                  <TableCell>{submission.product?.name ?? "-"}</TableCell>
+                  <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
+                  <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.approved_at}</TableCell>
+                  <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild>
                       <Link href={route(InvoiceUtils.link.show, { submission: submission.id })}>Detail</Link>

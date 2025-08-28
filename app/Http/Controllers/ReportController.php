@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OfficeType;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
@@ -10,6 +11,7 @@ use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\FilterOffice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -26,11 +28,26 @@ class ReportController extends Controller
 
     public function productionReport(Request $request): Response|ResponseFactory
     {
-        $date = collect($request->get('date') ?? [
-            now()->subDays(7)->toDateString().' 00:00:00',
-            now()->toDateString().' 23:59:59',
-        ])->values();
-        $officeFilter = $this->filterOffice($request);
+        $dateFrom = $request->input('date.from');
+        $dateTo = $request->input('date.to');
+        $date = ($dateFrom && $dateTo)
+          ? [
+              "$dateFrom 00:00:00",
+              "$dateTo 23:59:59",
+          ]
+          : [
+              now()->subDays(7)->toDateString().' 00:00:00',
+              now()->toDateString().' 23:59:59',
+          ];
+
+        // if branch
+        $user = $request->user();
+        $user->load('office:id,office_type');
+        if ($user->office?->office_type === OfficeType::BRANCH->value) {
+            $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, [$user->profile_id]);
+        } else {
+            $officeFilter = $this->filterOffice($request);
+        }
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
         $officeTypeSelected = $officeFilter->officeTypeSelected;
@@ -50,10 +67,9 @@ class ReportController extends Controller
         $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
         $search = $request->get('search');
+        Log::info('Date Filter Production', ['date' => $date, 'request' => $request->all()]);
 
-        $submissions = Submission::query()
-            ->where('guarantor_id', $guarantorSelected)
-            ->where('has_send_to_guarantor', true)
+        $submissionIds = Submission::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
@@ -62,42 +78,33 @@ class ReportController extends Controller
                         });
                 });
             })
-            ->when($date !== null, function ($query) use ($date) {
-                $query->whereBetween('approved_at', $date);
-            })
-            ->when($officeSelected, function ($query) use ($officeSelected) {
-                $query->whereHas('staff', function ($query) use ($officeSelected) {
-                    $query->where('profile_id', $officeSelected);
-                });
-            })
-            ->when($productSelected !== null, function ($query) use ($productSelected) {
-                $query->where('product_id', $productSelected);
-            })
-            ->when($guarantorToProductType !== null, function ($query) use ($guarantorToProductType) {
-                $query->where('guarantor_to_product_type_id', $guarantorToProductType->id);
-            });
+            ->where('has_send_to_guarantor', true)
+            ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+            ->when($officeSelected, fn ($q) => $q->whereHas('staff', fn ($q) => $q->where('profile_id', $officeSelected)))
+            ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+            ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+            ->whereBetween('send_to_guarantor_at', $date)
+            ->pluck('id');
 
-        $submissionIds = $submissions->pluck('id');
-
-        $submissions = $submissions->with([
-            'guarantor:id,name,code',
-            'guarantorBranch:id,name,code',
-            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-            'guarantor.guarantorRate',
-            'product:id,name',
-            'guarantorToProductType:id,code_product,code,name',
-            'blank:id,number,is_broken,is_revised',
-            'principal:id,name',
-            'obligee:id,name',
-            'staff:id,name,profile_id',
-            'office:id,name,code,office_type',
-            'office.profileRate',
-            'submissionBefore:id,blank_id',
-            'submissionBefore.blank',
-            'staff:id,name,profile_id',
-            'office:id,name',
-        ])
-            ->orderBy('created_at', 'desc')
+        $submissions = Submission::query()
+            ->whereIn('id', $submissionIds)
+            ->with([
+                'guarantor:id,name,code',
+                'guarantorBranch:id,name,code',
+                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                'guarantor.guarantorRate',
+                'product:id,name',
+                'guarantorToProductType:id,code_product,code,name,full_name',
+                'blank:id,number,is_broken,is_revised',
+                'principal:id,name',
+                'obligee:id,name',
+                'staff:id,name,profile_id',
+                'office:id,name,code,office_type',
+                'office.profileRate',
+                'submissionBefore:id,blank_id',
+                'submissionBefore.blank',
+            ])
+            ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 

@@ -16,10 +16,12 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(ProductType::class, 'product_type_id')->nullable()
                 ->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->integer('no');
             $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment('Tabel Transaksi');
         });
     }
 

@@ -10,7 +10,6 @@ import { Card, CardContent } from "@/components/_shadcn-ui/card";
 import { Input } from "@/components/_shadcn-ui/input";
 import Loading from "@/components/atoms/loading";
 import InputLabel from "@/components/molecules/input/label-input";
-import { router } from "@inertiajs/react";
 import axios from "axios";
 import React, { useState } from "react";
 
@@ -31,7 +30,6 @@ const BlankForm: React.FC<BlankFormProps> = ({ blanksUnApproved, links }) => {
       .then(() => {
         setOpen(false);
         setQtyBlank(0);
-        router.reload();
       })
       .catch((err) => {
         console.log(err);
