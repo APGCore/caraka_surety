@@ -18,7 +18,6 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
         <TableHeader>
           <TableRow>
             <TableHead className="w-0">NO</TableHead>
-            <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
@@ -26,6 +25,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
             <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
           </TableRow>
         </TableHeader>
@@ -36,7 +36,6 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
               <>
                 <TableRow key={submission.id}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
-                  <TableCell>{submission.approved_at}</TableCell>
                   <TableCell className={"text-center"}>
                     <h3>{submission.blank?.number ?? "X".repeat(10)}</h3>
                     <Show when={submission.blank?.is_broken}>
@@ -52,7 +51,8 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   <TableCell>{submission.product?.name ?? "-"}</TableCell>
                   <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
-                  <TableCell>{submission.sent_to_insurance_at ?? "-"}</TableCell>
+                  <TableCell>{submission.approved_at}</TableCell>
+                  <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                 </TableRow>
               </>
             )}

@@ -307,11 +307,12 @@ class SubmissionController extends Controller
             // if score < min_point_scoring, set status to REJECTED
             $totalScore = collect($scores)->sum('point');
             // end date < now, set status to REJECTED
-            $endDateBeforeNow = $submission->getAttribute('end_date') < now();
+            // $endDateBeforeNow = $submission->getAttribute('end_date') < now();
+            // atau tanggal akhir pengajuan sudah lewat
 
-            if ($totalScore < ((int) $submission->getAttribute('min_point_scoring')) || $endDateBeforeNow) {
+            if ($totalScore < ((int) $submission->getAttribute('min_point_scoring'))) {
                 $this->processRejection($submission);
-                $messageResponse .= ' dan langsung ditolak karena skor kurang dari nilai minimum atau tanggal akhir pengajuan sudah lewat';
+                $messageResponse .= ' dan langsung ditolak karena skor kurang dari nilai minimum';
             }
             activity()
                 ->useLog('submission')

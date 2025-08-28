@@ -46,7 +46,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
               />
             </TableHead>
             <TableHead className="w-0">NO</TableHead>
-            <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>Unit Bisnis</TableHead>
             <TableHead className="text-center">NO REG BLANGKO</TableHead>
             <TableHead>NO. JAMINAN</TableHead>
@@ -55,6 +54,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
             <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
             <TableHead>TANGGAL DIBUAT</TableHead>
+            <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
             <TableHead>AKSI</TableHead>
           </TableRow>
@@ -79,7 +79,6 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                     />
                   </TableCell>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
-                  <TableCell>{submission.approved_at}</TableCell>
                   <TableCell>{submission.office?.name}</TableCell>
                   <TableCell className="text-center">
                     {submission.blank?.number}
@@ -102,6 +101,7 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                   <TableCell>{submission.product?.name ?? "-"}</TableCell>
                   <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
+                  <TableCell>{submission.approved_at}</TableCell>
                   <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild>

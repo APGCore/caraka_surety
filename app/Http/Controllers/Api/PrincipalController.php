@@ -117,7 +117,7 @@ class PrincipalController extends Controller
             $principalName = $principal->getAttribute('name')
               ? str_replace(' ', '_', $principal->getAttribute('name'))
               : 'principal';
-            $path = "principal/{$principal->getAttribute('id')}-{$principalName}/documents";
+            $path = "principal/{$principal->getAttribute('id')}-$principalName/documents";
 
             $url = $this->uploadFile(
                 $file,

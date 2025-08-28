@@ -7,4 +7,4 @@ use Illuminate\Support\Facades\Schedule;
 // })->purpose('Display an inspiring quote')->hourly();
 Schedule::command('app:clear-activity')->monthly();
 Schedule::command('app:send-finance-report')->everyMinute();
-Schedule::command('telescope:clear')->dailyAt('00:00');
+Schedule::command('telescope:clear')->monthly();
