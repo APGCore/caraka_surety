@@ -69,7 +69,7 @@ class InvoiceController extends Controller
             ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
         $search = $request->get('search');
 
-      $submissionIds = Submission::query()
+        $submissionIds = Submission::query()
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereLike('no_guarantee', "%$search%")
@@ -86,24 +86,24 @@ class InvoiceController extends Controller
             ->whereBetween('send_to_guarantor_at', $date)
             ->pluck('id');
 
-      $submissions = Submission::query()
-        ->whereIn('id', $submissionIds)
-        ->with([
-            'guarantor:id,name,code',
-            'guarantorBranch:id,name,code',
-            'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-            'guarantor.guarantorRate',
-            'product:id,name',
-            'guarantorToProductType:id,code_product,code,name,full_name',
-            'blank:id,number,is_broken,is_revised',
-            'principal:id,name',
-            'obligee:id,name',
-            'staff:id,name,profile_id',
-            'office:id,name,code,office_type',
-            'office.profileRate',
-            'submissionBefore:id,blank_id',
-            'submissionBefore.blank',
-        ])
+        $submissions = Submission::query()
+            ->whereIn('id', $submissionIds)
+            ->with([
+                'guarantor:id,name,code',
+                'guarantorBranch:id,name,code',
+                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                'guarantor.guarantorRate',
+                'product:id,name',
+                'guarantorToProductType:id,code_product,code,name,full_name',
+                'blank:id,number,is_broken,is_revised',
+                'principal:id,name',
+                'obligee:id,name',
+                'staff:id,name,profile_id',
+                'office:id,name,code,office_type',
+                'office.profileRate',
+                'submissionBefore:id,blank_id',
+                'submissionBefore.blank',
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();

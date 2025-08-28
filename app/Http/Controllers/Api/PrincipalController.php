@@ -72,22 +72,22 @@ class PrincipalController extends Controller
         }
     }
 
-    // public function getAll(): JsonResponse
-    // {
-    //     $principals = Principal::query()
-    //         ->with(['documents'])
-    //         ->get();
-
-    //     return $this->responseSuccess('Data Principal', $principals);
-    // }
     public function getAll(): JsonResponse
     {
-        $principals = SubmissionPrincipal::query()
+        $principals = Principal::query()
             ->with(['documents'])
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
     }
+    //    public function getAll(): JsonResponse
+    //    {
+    //        $principals = SubmissionPrincipal::query()
+    //            ->with(['documents'])
+    //            ->get();
+    //
+    //        return $this->responseSuccess('Data Principal', $principals);
+    //    }
 
     public function getRatios(Principal $principal): JsonResponse
     {
