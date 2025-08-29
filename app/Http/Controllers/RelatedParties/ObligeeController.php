@@ -225,7 +225,7 @@ class ObligeeController extends Controller
             return redirect()->back();
         }
     }
-
+  
    public function getObligee(Request $request)
    {
        $obligee = Obligee::query()
