@@ -299,7 +299,7 @@ class InvoiceController extends Controller
         $submissions = Submission::query()
             ->select(['id', 'no_guarantee', 'guarantor_id', 'guarantor_branch_id', 'principal_id', 'obligee_id', 'staff_id', 'office_id',
                 'product_id', 'guarantor_to_product_type_id', 'blank_id', 'guarantee_value', 'time_period', 'difference_time_period', 'status',
-                'created_at', 'checked_at', 'approved_at',
+                'created_at', 'checked_at', 'approved_at', 'send_to_guarantor_at'
             ])
             ->with([
                 'guarantor' => function ($query) {
@@ -396,6 +396,7 @@ class InvoiceController extends Controller
                     'created_at' => $submission->getAttribute('created_at'),
                     'checked_at' => $submission->getAttribute('checked_at'),
                     'approved_at' => $submission->getAttribute('approved_at'),
+                    'send_to_guarantor_at' => $submission->getAttribute('send_to_guarantor_at'),
                 ],
                 'office' => [
                     'code' => $prefixCode.'office-'.$office->getAttribute('id'),
