@@ -33,7 +33,7 @@ class SendFinanceReport extends Command
             $submissionIds = Submission::query()
                 ->where('has_send_to_guarantor', true)
                 ->where('has_send_to_finance', false)
-                ->limit(50)
+                ->limit(100)
                 ->pluck('id');
 
             if ($submissionIds->isEmpty()) {
