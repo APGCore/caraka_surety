@@ -94,13 +94,13 @@ trait ReplaceDocumentFormat
         $terbilang = '';
         if ($guaranteeValue) {
             $terbilangRaw = Terbilang::make($guaranteeValue);
-            $terbilangRaw = str_replace('Titik', 'Koma', $terbilangRaw);
-            $parts = explode(' Koma ', $terbilangRaw, 2);
+            $parts = explode(' Titik ', $terbilangRaw, 2);
             $terbilang = ucwords(trim($parts[0])) . ' Rupiah';
             if (isset($parts[1]) && trim($parts[1]) !== '') {
                 $terbilang .= ' ' . ucwords(trim($parts[1])) . ' Sen';
             }
         }
+        $terbilang = str_replace('Titik', 'Koma', $terbilang);
         $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
         // SCORING RESULT
