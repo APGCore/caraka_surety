@@ -225,19 +225,19 @@ class ObligeeController extends Controller
             return redirect()->back();
         }
     }
-  
-   public function getObligee(Request $request)
-   {
-       $obligee = Obligee::query()
-           ->get();
 
-       return $this->responseSuccess('Sukses get All Obligee', $obligee);
-   }
-//    public function getObligee(Request $request)
-//    {
-//        $obligee = SubmissionObligee::query()
-//            ->get();
-//
-//        return $this->responseSuccess('Sukses get All Obligee', $obligee);
-//    }
+    public function getObligee(Request $request)
+    {
+        $obligee = Obligee::query()
+            ->get();
+
+        return $this->responseSuccess('Sukses get All Obligee', $obligee);
+    }
+    //    public function getObligee(Request $request)
+    //    {
+    //        $obligee = SubmissionObligee::query()
+    //            ->get();
+    //
+    //        return $this->responseSuccess('Sukses get All Obligee', $obligee);
+    //    }
 }

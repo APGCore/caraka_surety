@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Home, LibraryBig } from "lucide-react";
+import { Home, LibraryBig, MonitorCheck } from "lucide-react";
 
 export const keuanganRoute: IAppSideBarMenu[] = [
   {
@@ -8,6 +8,17 @@ export const keuanganRoute: IAppSideBarMenu[] = [
     href: route("keuangan.index"),
     icon: Home,
     items: [],
+  },
+  {
+    title: "Monitoring",
+    icon: MonitorCheck,
+    items: [
+      {
+        title: "Pengajuan",
+        route_name: "monitoring.submission",
+        href: route("monitoring.submission.index"),
+      },
+    ],
   },
   {
     title: "Laporan",

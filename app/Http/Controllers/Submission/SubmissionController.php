@@ -283,9 +283,10 @@ class SubmissionController extends Controller
                     if ($existingDoc) {
                         $this->deleteFile($existingDoc->url);
                     }
+                    $date = Carbon::parse($supportDoc['date'])->format('Ymd');
                     $data['url'] = $this->uploadFile(
                         $file,
-                        "submission/submission-{$submission->getAttribute('id')}/support-documents/{$supportDoc['date']}",
+                        "submission/submission-{$submission->getAttribute('id')}/support-documents/$date",
                         $supportDoc['name']
                     );
                 }

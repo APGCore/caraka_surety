@@ -99,7 +99,7 @@ class StoreRequest extends FormRequest
             'submission.support_docs.*.name' => ['required', 'string'],
             'submission.support_docs.*.number' => ['required', 'string'],
             'submission.support_docs.*.date' => ['required', 'date'],
-            'submission.support_docs.*.file' => ['required_if:submission.support_docs.*.id,NULL', 'nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
+            'submission.support_docs.*.file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
             // principal ratios
@@ -173,7 +173,6 @@ class StoreRequest extends FormRequest
             'submission.support_docs.*.name.required' => 'Nama dokumen pendukung wajib diisi',
             'submission.support_docs.*.number.required' => 'Nomor dokumen pendukung wajib diisi',
             'submission.support_docs.*.date.required' => 'Tanggal dokumen pendukung wajib diisi',
-            'submission.support_docs.*.file.required_if' => 'File dokumen pendukung wajib diisi',
             'submission.support_docs.*.file.file' => 'File dokumen pendukung harus berupa file',
             'submission.support_docs.*.file.mimes' => 'File dokumen pendukung harus berupa file pdf',
             'submission.support_docs.*.file.max' => 'File dokumen pendukung maksimal 20 MB',
@@ -198,5 +197,17 @@ class StoreRequest extends FormRequest
             'scoring.scores.*.scoring_option_id.required' => 'Opsi skor wajib diisi',
             'scoring.scores.*.point.required' => 'Point skor wajib diisi',
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $supportDocs = $this->get('submission.support_docs', []);
+            foreach ($supportDocs as $index => $doc) {
+                if (empty($doc['id']) && empty($doc['file'])) {
+                    $validator->errors()->add("submission.support_docs.$index.file", 'File dokumen pendukung wajib diisi');
+                }
+            }
+        });
     }
 }
