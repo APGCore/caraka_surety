@@ -93,7 +93,7 @@ trait ReplaceDocumentFormat
         // get terbilang
         $terbilang = '';
         if ($guaranteeValue) {
-            $terbilangRaw = Terbilang::make($guaranteeValue, ' Rupiah');
+            $terbilangRaw = Terbilang::make($guaranteeValue);
             $terbilangRaw = str_replace('Titik', 'Koma', $terbilangRaw);
             $parts = explode(' Koma ', $terbilangRaw, 2);
             $terbilang = ucwords(trim($parts[0])) . ' Rupiah';
