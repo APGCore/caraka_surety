@@ -91,8 +91,16 @@ trait ReplaceDocumentFormat
         }
 
         // get terbilang
-        $terbilang = $guaranteeValue ? ucwords(Terbilang::make($guaranteeValue, ' Rupiah')) : '';
-        $terbilang = str_replace('Titik', 'Koma', $terbilang);
+        $terbilang = '';
+        if ($guaranteeValue) {
+            $terbilangRaw = Terbilang::make($guaranteeValue, ' Rupiah');
+            $terbilangRaw = str_replace('Titik', 'Koma', $terbilangRaw);
+            $parts = explode(' Koma ', $terbilangRaw, 2);
+            $terbilang = ucwords(trim($parts[0])) . ' Rupiah';
+            if (isset($parts[1]) && trim($parts[1]) !== '') {
+                $terbilang .= ' ' . ucwords(trim($parts[1])) . ' Sen';
+            }
+        }
         $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
         // SCORING RESULT
