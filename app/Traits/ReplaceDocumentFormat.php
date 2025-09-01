@@ -94,10 +94,11 @@ trait ReplaceDocumentFormat
         $terbilang = '';
         if ($guaranteeValue) {
             $parts = explode('.', $guaranteeValue, 2);
-            $terbilang = Terbilang::make($parts[0], ' Rupiah');
+            $terbilang = Terbilang::make($parts[0]);
             if (isset($parts[1]) && (int) $parts[1] > 0) {
-                $terbilang .= ' Koma '.Terbilang::make($parts[1], ' Sen');
+                $terbilang .= ' Koma '.Terbilang::make($parts[1]);
             }
+            $terbilang .=' Rupiah';
         }
         $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
