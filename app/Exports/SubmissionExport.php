@@ -54,7 +54,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
-            ->orderByDesc('created_at')
+            ->orderByDesc('send_to_guarantor_at')
             ->get();
     }
 
