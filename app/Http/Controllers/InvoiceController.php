@@ -278,9 +278,12 @@ class InvoiceController extends Controller
         DB::beginTransaction();
         try {
             $submissionIds = $request->get('submission_ids', []);
-            $this->sendFinanceProcess($submissionIds);
+            $officeNotHaveRate = $this->sendFinanceProcess($submissionIds);
+            if (count($officeNotHaveRate) > 0) {
+                $message = 'Beberapa unit bisnis tidak memiliki rate, yaitu:'.implode(', ', $officeNotHaveRate);
+            }
             DB::commit();
-            flashMessage('Berhasil', 'Berhasil mengirim invoice ke aplikasi keuangan');
+            flashMessage('Berhasil', 'Berhasil mengirim invoice ke aplikasi keuangan '.(isset($message) ? 'dengan catatan '.$message : ''));
         } catch (Exception $e) {
             DB::rollBack();
             $message = $this->handleErrorMessage($e);
@@ -294,7 +297,7 @@ class InvoiceController extends Controller
     /**
      * @throws Exception
      */
-    public function sendFinanceProcess($submissionIds): void
+    public function sendFinanceProcess($submissionIds): array
     {
         $submissions = Submission::query()
             ->select(['id', 'no_guarantee', 'guarantor_id', 'guarantor_branch_id', 'principal_id', 'obligee_id', 'staff_id', 'office_id',
@@ -335,7 +338,7 @@ class InvoiceController extends Controller
                 },
                 'office.profileRate',
                 'guarantorToProductType' => function ($query) {
-                    $query->select(['id', 'name', 'job_group', 'job_type'])->withTrashed();
+                    $query->select(['id', 'name', 'job_group', 'job_type', 'full_name'])->withTrashed();
                 },
                 'submissionRate',
                 'blank' => function ($query) {
@@ -364,7 +367,7 @@ class InvoiceController extends Controller
                 ->first();
             // If profile rate not found, use guarantor rate
             if (! $profileRate) {
-                $offices[] = $businessUnit;
+                $offices[$businessUnit->getAttribute('name')][] = $guarantorToProductType->getAttribute('full_name') ?? '-';
 
                 continue; // Skip if submission rate is not set
             }
@@ -491,9 +494,13 @@ class InvoiceController extends Controller
                 ],
             ];
         }
-        $officeNames = collect($offices)->unique('id')->pluck('name')->toArray();
+        $mapOfficeProductType = [];
+        foreach ($offices as $officeName => $productTypes) {
+            $mapOfficeProductType[] = $officeName.' ('.implode(', ', array_unique((array) $productTypes)).')';
+        }
         // If rate not found
-        $rateNotFound = count($offices) > 0 ? ', karena Unit Bisnis '.implode(', ', $officeNames).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+        $rateNotFound = count($offices) > 0
+          ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
         if (count($invoices) === 0) {
             throw new Exception('Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound);
         }
@@ -511,7 +518,9 @@ class InvoiceController extends Controller
             Submission::query()
                 ->whereIn('id', $submissionIds)
                 ->update(['has_send_to_finance' => true]);
-            Log::info('Invoice sent to finance successfully', ['response' => $response, 'offices_not_have_rate' => $officeNames]);
+            Log::info('Invoice sent to finance successfully', ['response' => $response, 'offices_not_have_rate' => $mapOfficeProductType]);
         }
+
+        return $mapOfficeProductType;
     }
 }

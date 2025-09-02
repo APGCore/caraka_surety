@@ -98,7 +98,7 @@ trait ReplaceDocumentFormat
             if (isset($parts[1]) && (int) $parts[1] > 0) {
                 $terbilang .= ' Koma '.Terbilang::make($parts[1]);
             }
-            $terbilang = ucwords($terbilang) . ' Rupiah';
+            $terbilang = ucwords($terbilang).' Rupiah';
         }
         $terbilangHari = $timePeriod ? ucwords(Terbilang::make($timePeriod)) : '';
 
