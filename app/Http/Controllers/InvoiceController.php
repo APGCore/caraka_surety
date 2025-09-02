@@ -280,7 +280,7 @@ class InvoiceController extends Controller
             $submissionIds = $request->get('submission_ids', []);
             $officeNotHaveRate = $this->sendFinanceProcess($submissionIds);
             if (count($officeNotHaveRate) > 0) {
-                $message = 'Beberapa unit bisnis tidak memiliki rate, yaitu:'.implode(', ', $officeNotHaveRate);
+                $message = 'Beberapa unit bisnis tidak memiliki rate, yaitu: '.implode(', ', $officeNotHaveRate);
             }
             DB::commit();
             flashMessage('Berhasil', 'Berhasil mengirim invoice ke aplikasi keuangan '.(isset($message) ? 'dengan catatan '.$message : ''));
