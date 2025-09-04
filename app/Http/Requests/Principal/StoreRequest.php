@@ -33,7 +33,7 @@ class StoreRequest extends FormRequest
             'address' => ['required', 'string', 'max:255'], // alamat perusahaan
             'telephone' => ['required', 'string', 'regex:/^0[1-9][0-9]*$/',  'max:255'], // telepon perusahaan
             'fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
-            'postal_code' => ['required', 'string', 'max:255'], // npwp perusahaan
+            'postal_code' => ['required', 'string', 'max:5'], // npwp perusahaan
             'npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
             'nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
             'siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
