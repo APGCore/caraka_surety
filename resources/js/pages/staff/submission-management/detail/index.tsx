@@ -423,6 +423,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   }, [publicationDate]);
 
   console.log("submission", submission);
+  console.log("documnet", submission.document_formats);
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
@@ -954,24 +955,57 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               )}
             />
           ) : (
-            // Luaran Dokumen
             <>
+              <span>Luaran Dokumen</span>
               <Show when={submission.submission_docs.length > 0}>
                 {/*dokumen setelah kirim asuransi*/}
                 <RenderList
                   of={submission.submission_docs as Array<any>}
                   render={(doc) => {
+                    const [loading, setLoading] = React.useState(true);
                     return (
-                      <div>
-                        <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
-                        <div>
-                          <TinyMCEEditor
-                            id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                            onInit={(_, editor) => (editorDocsRefs.current[`editor-${doc.id}`] = editor)}
-                            initialContent={doc.format_document}
-                            onContentChange={(content: string) => {
-                              handleUpdateDocument(doc.id, content);
-                            }}
+                      <div key={doc.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium">{doc.name}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={route("report.export.submission.pdf.preview", {
+                                submission_docs: doc.id,
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer">
+                              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                Lihat PDF
+                              </Button>
+                            </a>
+                            <a
+                              href={route("report.export.submission.word.preview", {
+                                submission_docs: doc.id,
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer">
+                              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                Export Word
+                              </Button>
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="relative w-full h-[300px] border rounded">
+                          {loading && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">
+                              <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                              <p className="mt-2 text-sm text-muted-foreground">Memuat PDF...</p>
+                            </div>
+                          )}
+                          <iframe
+                            src={route("report.export.submission.pdf.preview", {
+                              submission_docs: doc.id,
+                            })}
+                            className="w-full h-full rounded"
+                            onLoad={() => setLoading(false)}
                           />
                         </div>
                       </div>
@@ -983,16 +1017,56 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 {/*dokumen sebelum kirim asuransi*/}
                 <RenderList
                   of={submission.document_formats}
-                  render={(doc) => (
-                    <div key={doc.id} style={{ marginBottom: "20px" }}>
-                      <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                      <TinyMCEEditor
-                        id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                        initialContent={doc.format_document}
-                        onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                      />
-                    </div>
-                  )}
+                  render={(doc) => {
+                    const [loading, setLoading] = React.useState(true);
+                    return (
+                      <div key={doc.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium">{doc.name}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={route("report.export.submission.pdf.preview", {
+                                document_format: doc.id,
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer">
+                              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                Lihat PDF
+                              </Button>
+                            </a>
+                            <a
+                              href={route("report.export.submission.word.preview", {
+                                document_format: doc.id,
+                              })}
+                              target="_blank"
+                              rel="noopener noreferrer">
+                              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                Export Word
+                              </Button>
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="relative w-full h-[300px] border rounded">
+                          {loading && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">
+                              <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                              <p className="mt-2 text-sm text-muted-foreground">Memuat PDF...</p>
+                            </div>
+                          )}
+                          <iframe
+                            src={route("report.export.submission.pdf.preview", {
+                              document_format: doc.id,
+                            })}
+                            className="w-full h-full rounded"
+                            onLoad={() => setLoading(false)}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }}
                   renderFallback={() => (
                     <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>
                   )}
