@@ -23,7 +23,8 @@ use tidy;
 
 class ExportController extends Controller
 {
-  use ReplaceDocumentFormat;
+    use ReplaceDocumentFormat;
+
     public function exportToPdf($docId): StreamedResponse
     {
         $document = DocumentFormat::query()->findOrFail($docId);
@@ -74,10 +75,10 @@ class ExportController extends Controller
         return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
     }
 
-  /**
-   * @throws MpdfException
-   */
-  public function show($submission_id, $document_format)
+    /**
+     * @throws MpdfException
+     */
+    public function show($submission_id, $document_format)
     {
         $submission = $this->getSubmission($submission_id);
 
@@ -140,79 +141,78 @@ class ExportController extends Controller
         // Buat array data yang akan replace placeholder
         $data = $this->convertSubmission($submission);
         $html = $this->replaceDocumentFormat($documentFormat, $data);
-        $html = $this->normalizeHtmlForPhpWord($html);
 
-        $phpWord  = new PhpWord();
-        $section  = $phpWord->addSection();
+        $phpWord = new PhpWord;
+        $section = $phpWord->addSection();
 
-      // tulis HTML ke dokumen
-      Html::addHtml($section, $html, false, false);
+        // tulis HTML ke dokumen
+        Html::addHtml($section, $html, false, false);
 
-      // stream langsung ke output sebagai .docx
-      return response()->streamDownload(function () use ($phpWord) {
-        $writer = IOFactory::createWriter($phpWord);
-        $writer->save('php://output');
-      }, "surat-pengajuan-{$submission->getAttribute('id')}.docx", [
-        'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        // stream langsung ke output sebagai .docx
+        return response()->streamDownload(function () use ($phpWord) {
+            $writer = IOFactory::createWriter($phpWord);
+            $writer->save('php://output');
+        }, "surat-pengajuan-{$submission->getAttribute('id')}.docx", [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ]);
     }
 
     private function normalizeHtmlForPhpWord(string $html): string
     {
-      // 1) buang <script>/<style> yang sering bikin parser rewel
-      $html = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
+        // 1) buang <script>/<style> yang sering bikin parser rewel
+        $html = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
 
-      // 2) pastikan void tags self-closing (XHTML-ish)
-      $html = preg_replace('#<(br|hr)([^/>]*)>#i', '<$1$2 />', $html);
-      $html = preg_replace('#<img([^/>]*)>#i', '<img$1 />', $html);
+        // 2) pastikan void tags self-closing (XHTML-ish)
+        $html = preg_replace('#<(br|hr)([^/>]*)>#i', '<$1$2 />', $html);
+        $html = preg_replace('#<img([^/>]*)>#i', '<img$1 />', $html);
 
-      // 3) OPTIONAL: hapus tag kosong <tag></tag> yang kadang dihasilkan template
-      $html = preg_replace('#<(\w+)([^>]*)>\s*</\1>#', '', $html);
+        // 3) OPTIONAL: hapus tag kosong <tag></tag> yang kadang dihasilkan template
+        $html = preg_replace('#<(\w+)([^>]*)>\s*</\1>#', '', $html);
 
-      // 4) Coba perbaiki otomatis pakai Tidy kalau ada
-      if (extension_loaded('tidy')) {
-        $config = [
-          'output-xhtml' => true,
-          'show-body-only' => true,
-          'wrap' => 0,
-          'force-output' => true,
-          'indent' => false,
-          'clean' => true,
-          'char-encoding' => 'utf8',
-        ];
-        $tidy = new tidy();
-        $tidy->parseString($html, $config, 'utf8');
-        $tidy->cleanRepair();
-        $html = tidy_get_output($tidy); // sudah “dirapikan” // sudah “dirapikan”
-      } else {
-        // 5) Fallback: pakai DOMDocument utk “membalanskan” tag
-        $doc = new \DOMDocument('1.0', 'UTF-8');
-        libxml_use_internal_errors(true);
+        // 4) Coba perbaiki otomatis pakai Tidy kalau ada
+        if (extension_loaded('tidy')) {
+            $config = [
+                'output-xhtml' => true,
+                'show-body-only' => true,
+                'wrap' => 0,
+                'force-output' => true,
+                'indent' => false,
+                'clean' => true,
+                'char-encoding' => 'utf8',
+            ];
+            $tidy = new tidy;
+            $tidy->parseString($html, $config, 'utf8');
+            $tidy->cleanRepair();
+            $html = tidy_get_output($tidy); // sudah “dirapikan” // sudah “dirapikan”
+        } else {
+            // 5) Fallback: pakai DOMDocument utk “membalanskan” tag
+            $doc = new \DOMDocument('1.0', 'UTF-8');
+            libxml_use_internal_errors(true);
 
-        // Bungkus dalam <body> supaya loadHTML tidak menyuntik struktur aneh
-        $doc->loadHTML('<?xml encoding="utf-8" ?><body>' . $html . '</body>',
-          LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            // Bungkus dalam <body> supaya loadHTML tidak menyuntik struktur aneh
+            $doc->loadHTML('<?xml encoding="utf-8" ?><body>'.$html.'</body>',
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-        $errors = libxml_get_errors();
-        libxml_clear_errors();
+            $errors = libxml_get_errors();
+            libxml_clear_errors();
 
-        // Ambil kembali isi <body> saja
-        $html = '';
-        $body = $doc->getElementsByTagName('body')->item(0);
-        if ($body) {
-          foreach ($body->childNodes as $child) {
-            $html .= $doc->saveHTML($child);
-          }
+            // Ambil kembali isi <body> saja
+            $html = '';
+            $body = $doc->getElementsByTagName('body')->item(0);
+            if ($body) {
+                foreach ($body->childNodes as $child) {
+                    $html .= $doc->saveHTML($child);
+                }
+            }
+
+            // Log agar tahu baris/tag mana yang bermasalah (sangat membantu debug)
+            if (! empty($errors)) {
+                Log::warning('HTML mismatches before PhpWord', array_map(
+                    fn ($e) => trim($e->message).' @ line '.$e->line, $errors
+                ));
+            }
         }
 
-        // Log agar tahu baris/tag mana yang bermasalah (sangat membantu debug)
-        if (!empty($errors)) {
-          Log::warning('HTML mismatches before PhpWord', array_map(
-            fn($e) => trim($e->message) . ' @ line ' . $e->line, $errors
-          ));
-        }
-      }
-
-      return $html;
+        return $html;
     }
 }

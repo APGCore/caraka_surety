@@ -738,26 +738,25 @@ class SubmissionController extends Controller
         $startDate = Carbon::parse($submission->getAttribute('start_date'))->translatedFormat('d F Y');
         $endDate = Carbon::parse($submission->getAttribute('end_date'))->translatedFormat('d F Y');
 
-       $documentFormats = DocumentFormat::query()
-          ->whereNull(['guarantor_id', 'product_id', 'guarantor_to_product_type_id', 'bank_id'])
-          ->orWhere(function ($query) use ($submission) {
-              $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-                  ->where('product_id', $submission->getAttribute('product_id'))
-                  ->where(function ($query) use ($submission) {
-                      $query->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
-                          ->orWhereNull('guarantor_to_product_type_id');
-                  })
-                  ->whereNull('bank_id'); // tambahin filter bank_id kosong
-          })
-          ->orWhere(function ($query) use ($submission) {
-              $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-                  ->whereNull('product_id')
-                  ->whereNull('guarantor_to_product_type_id')
-                  ->whereNull('bank_id'); 
-          })
-          ->orderBy('no')
-          ->get();
-
+        $documentFormats = DocumentFormat::query()
+            ->whereNull(['guarantor_id', 'product_id', 'guarantor_to_product_type_id', 'bank_id'])
+            ->orWhere(function ($query) use ($submission) {
+                $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                    ->where('product_id', $submission->getAttribute('product_id'))
+                    ->where(function ($query) use ($submission) {
+                        $query->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+                            ->orWhereNull('guarantor_to_product_type_id');
+                    })
+                    ->whereNull('bank_id'); // tambahin filter bank_id kosong
+            })
+            ->orWhere(function ($query) use ($submission) {
+                $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                    ->whereNull('product_id')
+                    ->whereNull('guarantor_to_product_type_id')
+                    ->whereNull('bank_id');
+            })
+            ->orderBy('no')
+            ->get();
 
         foreach ($documentFormats as $documentFormat) {
             $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
