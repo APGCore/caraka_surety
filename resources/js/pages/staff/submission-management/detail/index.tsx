@@ -115,15 +115,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const { data: blanks } = useGetAllBlank(submission.guarantor_branch_id, submission.blank_id);
 
   const documentFormat = () => {
-    return Object.keys(editorRefs.current).map((key) => {
-      const allDocuments = [...(Array.isArray(submission.document_formats) ? submission.document_formats : [])];
-
-      const doc = allDocuments.find((d) => `editor-${d.id}` === key);
-
+    const allDocuments = [...(Array.isArray(submission.document_formats) ? submission.document_formats : [])];
+    return allDocuments.map((doc) => {
       return {
-        id: doc ? doc.id : key,
-        name: doc ? doc.name : key,
-        content: editorRefs.current[key].getContent(),
+        id: doc.id,
+        name:doc.name,
+        content: doc.format_document,
       };
     });
   };
