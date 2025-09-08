@@ -9,10 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Submission\Submission;
-use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Mpdf\Mpdf;
 use App\Traits\ReplaceDocumentFormat;
 use TCPDF;
 
@@ -91,7 +89,7 @@ class ExportController extends Controller
 
         // dd($html, $data);
 
-        $mpdf = new Mpdf([
+        $mpdf = new \Mpdf\Mpdf([
             'tempDir' => storage_path('tmp/mpdf'),
         ]);
         $mpdf->WriteHTML($html);
