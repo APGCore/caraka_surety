@@ -411,7 +411,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   }, [publicationDate]);
 
   console.log("submission", submission);
-  console.log("documnet", submission.document_formats);
 
   return (
     <main className="space-y-10 w-[800px] mx-auto mt-[50px]">
