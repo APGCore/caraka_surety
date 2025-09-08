@@ -19,6 +19,7 @@ use PhpOffice\PhpWord\Shared\Html;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TCPDF;
+use tidy;
 
 class ExportController extends Controller
 {
@@ -179,10 +180,10 @@ class ExportController extends Controller
           'clean' => true,
           'char-encoding' => 'utf8',
         ];
-        $tidy = new \tidy();
+        $tidy = new tidy();
         $tidy->parseString($html, $config, 'utf8');
         $tidy->cleanRepair();
-        $html = (string)$tidy; // sudah “dirapikan”
+        $html = tidy_get_output($tidy); // sudah “dirapikan” // sudah “dirapikan”
       } else {
         // 5) Fallback: pakai DOMDocument utk “membalanskan” tag
         $doc = new \DOMDocument('1.0', 'UTF-8');

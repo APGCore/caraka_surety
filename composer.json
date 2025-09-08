@@ -26,7 +26,8 @@
     "tecnickcom/tcpdf": "^6.8",
     "tightenco/ziggy": "^2.3",
     "ext-libxml": "*",
-    "ext-dom": "*"
+    "ext-dom": "*",
+    "ext-tidy": "*"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.14",
