@@ -69,10 +69,9 @@ class ExportController extends Controller
         return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
     }
 
-    public function show($document_format)
+    public function show($submission_id, $document_format)
     {
-        $submission = $this->getSubmission($document_format);
-        // dd($document_format);
+        $submission = $this->getSubmission($submission_id);
 
         $documentFormat = DocumentFormat::query()->findOrFail($document_format);
 
@@ -173,7 +172,7 @@ class ExportController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
 
-    private function getSubmission($documentFormat): Submission
+    private function getSubmission($submissionId): Submission
     {
         return Submission::with([
             'guarantor.documentFormats',
@@ -196,10 +195,7 @@ class ExportController extends Controller
             'province',
             // 'document_formats',
         ])
-            ->whereHas('guarantor.documentFormats', function ($query) use ($documentFormat) {
-                $query->where('id', $documentFormat);
-            })
-            ->firstOrFail();
+            ->find($submissionId);
     }
 
     private function replacePlaceholders(string $html, array $data): string
@@ -213,9 +209,9 @@ class ExportController extends Controller
         return $html;
     }
 
-    public function wordDownload($document_format): StreamedResponse
+    public function wordDownload($submission_id, $document_format): StreamedResponse
     {
-        $submission = $this->getSubmission($document_format);
+        $submission = $this->getSubmission($submission_id);
 
         $documentFormat = DocumentFormat::query()->findOrFail($document_format);
 
