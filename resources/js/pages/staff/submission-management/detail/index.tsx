@@ -38,9 +38,10 @@ import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
 import { EllipsisVertical, LoaderCircle } from "lucide-react";
-import React, { Fragment, useEffect, useState } from "react";
+import React, {Fragment, useEffect, useRef, useState} from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
+import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 
 export type TFormDetailStep = "principal" | "docs" | "contract" | "skoring" | "luaran";
 type TFormDetailStepperIndicator = {
@@ -102,7 +103,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         : "default";
 
   const { currentStep, steps, gotoStep } = useStepper(initialSteps);
-
+  const editorRefs = useRef<{ [key: string]: any }>({});
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
   const [publicationDate, setPublicationDate] = useState<string | null>(submission.publication_date || null);
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
@@ -944,124 +945,81 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           ) : (
             <>
               <span>Luaran Dokumen</span>
-              {/*<Show when={submission.submission_docs.length > 0}>*/}
-              {/*  /!*dokumen setelah kirim asuransi*!/*/}
-              {/*  <RenderList*/}
-              {/*    of={submission.submission_docs as Array<any>}*/}
-              {/*    render={(doc) => {*/}
-              {/*      const [loading, setLoading] = React.useState(true);*/}
-              {/*      return (*/}
-              {/*        <div key={doc.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">*/}
-              {/*          <div className="flex items-center justify-between mb-2">*/}
-              {/*            <div>*/}
-              {/*              <p className="font-medium">{doc.name}</p>*/}
-              {/*            </div>*/}
-              {/*            <div className="flex items-center gap-2">*/}
-              {/*              <a*/}
-              {/*                href={route("report.export.submission.pdf.preview", {*/}
-              {/*                  submission_docs: doc.id,*/}
-              {/*                })}*/}
-              {/*                target="_blank"*/}
-              {/*                rel="noopener noreferrer">*/}
-              {/*                <Button variant="outline" size="sm" className="flex items-center gap-2">*/}
-              {/*                  Lihat PDF*/}
-              {/*                </Button>*/}
-              {/*              </a>*/}
-              {/*              <a*/}
-              {/*                href={route("report.export.submission.word.preview", {*/}
-              {/*                  submission_docs: doc.id,*/}
-              {/*                })}*/}
-              {/*                target="_blank"*/}
-              {/*                rel="noopener noreferrer">*/}
-              {/*                <Button variant="outline" size="sm" className="flex items-center gap-2">*/}
-              {/*                  Export Word*/}
-              {/*                </Button>*/}
-              {/*              </a>*/}
-              {/*            </div>*/}
+              {/*<RenderList*/}
+              {/*  of={submission.document_formats}*/}
+              {/*  render={(doc) => {*/}
+              {/*    const [loading, setLoading] = React.useState(true);*/}
+              {/*    return (*/}
+              {/*      <div key={doc.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">*/}
+              {/*        <div className="flex items-center justify-between mb-2">*/}
+              {/*          <div>*/}
+              {/*            <p className="font-medium">{doc.name}</p>*/}
               {/*          </div>*/}
-
-              {/*          <div className="relative w-full h-[300px] border rounded">*/}
-              {/*            {loading && (*/}
-              {/*              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">*/}
-              {/*                <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />*/}
-              {/*                <p className="mt-2 text-sm text-muted-foreground">Memuat PDF...</p>*/}
-              {/*              </div>*/}
-              {/*            )}*/}
-              {/*            <iframe*/}
-              {/*              src={route("report.export.submission.pdf.preview", {*/}
-              {/*                submission_docs: doc.id,*/}
+              {/*          <div className="flex items-center gap-2">*/}
+              {/*            <a*/}
+              {/*              href={route("report.export.submission.pdf.preview", {*/}
+              {/*                submission_id: submission.id,*/}
+              {/*                document_format: doc.id,*/}
               {/*              })}*/}
-              {/*              className="w-full h-full rounded"*/}
-              {/*              onLoad={() => setLoading(false)}*/}
-              {/*            />*/}
+              {/*              target="_blank"*/}
+              {/*              rel="noopener noreferrer">*/}
+              {/*              <Button variant="outline" size="sm" className="flex items-center gap-2">*/}
+              {/*                Lihat PDF*/}
+              {/*              </Button>*/}
+              {/*            </a>*/}
+              {/*            <a*/}
+              {/*              href={route("report.export.submission.word.preview", {*/}
+              {/*                submission_id: submission.id,*/}
+              {/*                document_format: doc.id,*/}
+              {/*              })}*/}
+              {/*              target="_blank"*/}
+              {/*              rel="noopener noreferrer">*/}
+              {/*              <Button variant="outline" size="sm" className="flex items-center gap-2">*/}
+              {/*                Export Word*/}
+              {/*              </Button>*/}
+              {/*            </a>*/}
               {/*          </div>*/}
               {/*        </div>*/}
-              {/*      );*/}
-              {/*    }}*/}
-              {/*  />*/}
-              {/*</Show>*/}
-              {/*<Show when={submission.submission_docs.length === 0}>*/}
-              {/*dokumen sebelum kirim asuransi*/}
+
+              {/*        <div className="relative w-full h-[300px] border rounded">*/}
+              {/*          {loading && (*/}
+              {/*            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">*/}
+              {/*              <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />*/}
+              {/*              <p className="mt-2 text-sm text-muted-foreground">Memuat PDF...</p>*/}
+              {/*            </div>*/}
+              {/*          )}*/}
+              {/*          <iframe*/}
+              {/*            src={route("report.export.submission.pdf.preview", {*/}
+              {/*              submission_id: submission.id,*/}
+              {/*              document_format: doc.id,*/}
+              {/*            })}*/}
+              {/*            className="w-full h-full rounded"*/}
+              {/*            onLoad={() => setLoading(false)}*/}
+              {/*          />*/}
+              {/*        </div>*/}
+              {/*      </div>*/}
+              {/*    );*/}
+              {/*  }}*/}
+              {/*  renderFallback={() => (*/}
+              {/*    <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>*/}
+              {/*  )}*/}
+              {/*/>*/}
               <RenderList
                 of={submission.document_formats}
-                render={(doc) => {
-                  const [loading, setLoading] = React.useState(true);
-                  return (
-                    <div key={doc.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-medium">{doc.name}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={route("report.export.submission.pdf.preview", {
-                              submission_id: submission.id,
-                              document_format: doc.id,
-                            })}
-                            target="_blank"
-                            rel="noopener noreferrer">
-                            <Button variant="outline" size="sm" className="flex items-center gap-2">
-                              Lihat PDF
-                            </Button>
-                          </a>
-                          <a
-                            href={route("report.export.submission.word.preview", {
-                              submission_id: submission.id,
-                              document_format: doc.id,
-                            })}
-                            target="_blank"
-                            rel="noopener noreferrer">
-                            <Button variant="outline" size="sm" className="flex items-center gap-2">
-                              Export Word
-                            </Button>
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="relative w-full h-[300px] border rounded">
-                        {loading && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 z-10">
-                            <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
-                            <p className="mt-2 text-sm text-muted-foreground">Memuat PDF...</p>
-                          </div>
-                        )}
-                        <iframe
-                          src={route("report.export.submission.pdf.preview", {
-                            submission_id: submission.id,
-                            document_format: doc.id,
-                          })}
-                          className="w-full h-full rounded"
-                          onLoad={() => setLoading(false)}
-                        />
-                      </div>
-                    </div>
-                  );
-                }}
+                render={(doc) => (
+                  <div key={doc.id} style={{ marginBottom: "20px" }}>
+                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
+                    <TinyMCEEditor
+                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
+                      initialContent={doc.format_document}
+                      onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                    />
+                  </div>
+                )}
                 renderFallback={() => (
                   <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>
                 )}
               />
-              {/*</Show>*/}
             </>
           )}
           {/*Publikasi*/}
