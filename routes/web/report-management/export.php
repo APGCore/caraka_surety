@@ -8,7 +8,7 @@ Route::controller(ExportController::class)
     ->name('export.')
     ->group(function () {
         Route::prefix('submission')->name('submission.')->group(function () {
-            Route::get('pdf/{document_format}', 'show')->name('pdf.preview');
-            Route::get('word/{document_format}', 'wordDownload')->name('word.preview');
+            Route::get('pdf/{submission_id}/{document_format}', 'show')->name('pdf.preview');
+            Route::get('word/{submission_id}/{document_format}', 'wordDownload')->name('word.preview');
         });
     });

@@ -1028,6 +1028,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         <div className="flex items-center gap-2">
                           <a
                             href={route("report.export.submission.pdf.preview", {
+                              submission_id: submission.id,
                               document_format: doc.id,
                             })}
                             target="_blank"
@@ -1038,6 +1039,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           </a>
                           <a
                             href={route("report.export.submission.word.preview", {
+                              submission_id: submission.id,
                               document_format: doc.id,
                             })}
                             target="_blank"
@@ -1058,6 +1060,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         )}
                         <iframe
                           src={route("report.export.submission.pdf.preview", {
+                            submission_id: submission.id,
                             document_format: doc.id,
                           })}
                           className="w-full h-full rounded"
