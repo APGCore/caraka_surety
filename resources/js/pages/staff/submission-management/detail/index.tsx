@@ -29,7 +29,6 @@ import { Input } from "@/components/_shadcn-ui/input";
 import Loading from "@/components/atoms/loading";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
-import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
@@ -39,7 +38,7 @@ import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
 import { EllipsisVertical, LoaderCircle } from "lucide-react";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import SubmissionDetailHeader from "./_partials/submission-detail-page-header";
 import { SubmissionDetailPageProps } from "./submission-detail-page.type";
 
@@ -105,25 +104,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const { currentStep, steps, gotoStep } = useStepper(initialSteps);
 
   const { comparisonRatios, handleComparisonRatios } = useCompareRatios();
-
-  const editorDocsRefs = useRef<{ [key: string]: any }>({});
-  const editorRefs = useRef<{ [key: string]: any }>({});
   const [publicationDate, setPublicationDate] = useState<string | null>(submission.publication_date || null);
   const [publicationPlace, setPublicationPlace] = useState<string | null>(submission.publication_place || null);
   const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
   const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
   const { data: blanks } = useGetAllBlank(submission.guarantor_branch_id, submission.blank_id);
-
-  const documentFormat = () => {
-    const allDocuments = [...(Array.isArray(submission.document_formats) ? submission.document_formats : [])];
-    return allDocuments.map((doc) => {
-      return {
-        id: doc.id,
-        name:doc.name,
-        content: doc.format_document,
-      };
-    });
-  };
 
   const setLoadingDocument = () => {
     setIsLoadingDocument(true);
@@ -198,7 +183,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     setIsLoadingSend(true);
     setIsDisabled(true);
 
-    const documents = documentFormat();
+    const documents = submission.document_formats.map((doc) => {
+      return {
+        id: doc.id,
+        name:doc.name,
+        content: doc.format_document,
+      };
+    });
     axios
       .post(route("api.submission-management.document.store", { submissionId }), { documents })
       .then(() => axios.post(route("api.submission-management.send", { id: submissionId })))
@@ -228,16 +219,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const handleUpdateDocument = (id: number, format: string) => {
-    axios
-      .put(route("api.submission-management.document.update", { id }), { format })
-      .then((response) => {
-        console.log("Success update document", response);
-      })
-      .catch((error) => {
-        console.error("Error update document", error);
-      });
-  };
+  // const handleUpdateDocument = (id: number, format: string) => {
+  //   axios
+  //     .put(route("api.submission-management.document.update", { id }), { format })
+  //     .then((response) => {
+  //       console.log("Success update document", response);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error update document", error);
+  //     });
+  // };
 
   const handleGetCallBackFromGuarantor = (submissionId: number) => {
     setIsLoadingGetCallback(true);

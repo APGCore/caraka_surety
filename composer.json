@@ -24,7 +24,9 @@
     "riskihajar/terbilang": "^2.0",
     "spatie/laravel-activitylog": "^4.9",
     "tecnickcom/tcpdf": "^6.8",
-    "tightenco/ziggy": "^2.3"
+    "tightenco/ziggy": "^2.3",
+    "ext-libxml": "*",
+    "ext-dom": "*"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.14",

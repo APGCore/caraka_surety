@@ -6,6 +6,7 @@ use App\Enums\OfficeType;
 use App\Exports\SubmissionExport;
 use App\Models\Document\DocumentFormat;
 use App\Models\User;
+use DOMDocument;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Submission\Submission;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Traits\ReplaceDocumentFormat;
 use TCPDF;
+use Throwable;
 
 class ExportController extends Controller
 {
@@ -144,10 +146,18 @@ class ExportController extends Controller
         $data = $this->convertSubmission($submission);
         $html = $this->replaceDocumentFormat($documentFormat, $data);
 
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
+        // ✅ Sanitize/normalisasi HTML sebelum masuk ke PhpWord
+        $html = $this->cleanHtmlForPhpWord($html);
 
-        Html::addHtml($section, $html, false, false);
+        $phpWord  = new PhpWord();
+        $section  = $phpWord->addSection();
+
+        try {
+          Html::addHtml($section, $html, false, false);
+        } catch (Throwable) {
+          // Fallback terakhir: tulis sebagai teks biasa jika HTML tetap bermasalah
+          $section->addText(strip_tags($html));
+        }
 
         $tempFile = tempnam(sys_get_temp_dir(), 'word');
         $phpWord->save($tempFile);
@@ -159,4 +169,70 @@ class ExportController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ]);
     }
+
+  /**
+   * Bersihkan & normalkan HTML agar aman untuk PhpWord\Html::addHtml().
+   */
+  private function cleanHtmlForPhpWord(string $html): string
+  {
+    // 1) Normalisasi tag umum yang sering rusak
+    $search  = [
+      // br ditutup salah
+      '#</\s*br\s*>#i',
+      // samakan bentuk <br> menjadi XHTML self-close
+      '#<\s*br\s*>#i',
+      // hapus tag yang berpotensi bikin error dan tidak dipakai di dokumen Word
+      '#<\s*(script|style|svg|video|audio|canvas|iframe)[^>]*>.*?<\s*/\s*\1\s*>#is',
+      // nbsp berlebih → spasi biasa
+      '/&nbsp;+/i',
+    ];
+    $replace = [
+      '<br />',
+      '<br />',
+      '',
+      ' ',
+    ];
+    $html = preg_replace($search, $replace, $html ?? '') ?? '';
+
+    // (Opsional) hindari entity aneh di attribute
+    $html = preg_replace('/\son[a-z]+\s*=\s*"[^"]*"/i', '', $html); // hapus inline event handler
+
+    // 2) Perapihan struktur menggunakan DOMDocument
+    //    Catatan: LIBXML_HTML_NOIMPLIED & NODEFDTD supaya tidak menambah <html><body> otomatis.
+    $internalErrorsBackup = libxml_use_internal_errors(true);
+    $dom = new DOMDocument('1.0', 'UTF-8');
+
+    // Bungkus dengan meta encoding agar aman karakter UTF-8
+    $wrapped = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . $html;
+
+    // Jika gagal, kita tetap lanjut dengan versi yang telah dinormalisasi di atas
+    $loaded = @$dom->loadHTML(
+      $wrapped,
+      LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+    );
+
+    if ($loaded) {
+      // 3) Hapus node yang tidak didukung/berpotensi bermasalah kalau masih tersisa
+      $tagsToRemove = ['script', 'style', 'svg', 'video', 'audio', 'canvas', 'iframe'];
+      foreach ($tagsToRemove as $tag) {
+        $nodes = $dom->getElementsByTagName($tag);
+        // Karena live NodeList, iterasi mundur
+        for ($i = $nodes->length - 1; $i >= 0; $i--) {
+          $node = $nodes->item($i);
+          $node->parentNode?->removeChild($node);
+        }
+      }
+
+      // 4) Pastikan <td>/<tr>/<table> rapi sebisanya (DOM akan auto-close banyak kasus umum)
+      //    Tidak ada aksi khusus di sini; DOM sudah merapikan kebanyakan mismatch.
+
+      $html = $dom->saveHTML();
+    }
+
+    libxml_clear_errors();
+    libxml_use_internal_errors($internalErrorsBackup);
+
+    // 5) Trim agar tidak ada whitespace berlebih di awal/akhir
+    return trim($html);
+  }
 }
