@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Submission\Submission;
+use Mpdf\Mpdf;
+use Mpdf\MpdfException;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Shared\Html;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Traits\ReplaceDocumentFormat;
@@ -67,16 +71,16 @@ class ExportController extends Controller
         return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
     }
 
-    public function show($submission_id, $document_format)
+  /**
+   * @throws MpdfException
+   */
+  public function show($submission_id, $document_format)
     {
         $submission = $this->getSubmission($submission_id);
 
         $documentFormat = DocumentFormat::query()->findOrFail($document_format);
 
         $html = $documentFormat->format_document;
-        // dd($html);
-        // dd($documentFormat);
-
 
         if (! $html) {
             abort(404, 'Konten HTML tidak tersedia.');
@@ -89,7 +93,7 @@ class ExportController extends Controller
 
         // dd($html, $data);
 
-        $mpdf = new \Mpdf\Mpdf([
+        $mpdf = new Mpdf([
             'tempDir' => storage_path('tmp/mpdf'),
         ]);
         $mpdf->WriteHTML($html);
@@ -124,17 +128,6 @@ class ExportController extends Controller
             ->find($submissionId);
     }
 
-    private function replacePlaceholders(string $html, array $data): string
-    {
-        foreach ($data as $key => $value) {
-            $uppercaseValue = strtoupper($key);
-            // dd($uppercaseValue);
-            $html = str_replace('['.$uppercaseValue.']', $value, $html);
-        }
-
-        return $html;
-    }
-
     public function wordDownload($submission_id, $document_format): StreamedResponse
     {
         $submission = $this->getSubmission($submission_id);
@@ -149,21 +142,20 @@ class ExportController extends Controller
 
         // Buat array data yang akan replace placeholder
         $data = $this->convertSubmission($submission);
-        // dd($submission);
         $html = $this->replaceDocumentFormat($documentFormat, $data);
 
-        $phpWord = new PhpWord;
+        $phpWord = new PhpWord();
         $section = $phpWord->addSection();
 
         Html::addHtml($section, $html, false, false);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'word');
-        $phpWord->save($tempFile, 'Word2007');
+        $phpWord->save($tempFile);
 
         return response()->streamDownload(function () use ($tempFile) {
             echo file_get_contents($tempFile);
             unlink($tempFile); // Hapus file setelah dikirim
-        }, "surat-pengajuan-{$submission->id}.docx", [
+        }, "surat-pengajuan-{$submission->getAttribute("id")}.docx", [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ]);
     }
