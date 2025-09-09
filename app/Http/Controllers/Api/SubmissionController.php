@@ -498,7 +498,10 @@ class SubmissionController extends Controller
                         ],
                     ],
                 ],
-                'output' => $submissionDocs,
+                'output' => $submissionDocs->map(fn ($doc) => [
+                    'name' => $doc['name'],
+                    'value' => $doc['format_document'],
+                ])->toArray(),
                 'final_output_file' => $finalOutputFile,
             ]);
 
