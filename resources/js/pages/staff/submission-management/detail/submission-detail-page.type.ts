@@ -5,6 +5,7 @@ interface Document {
   id: number;
   name: string;
   number: string;
+  format_document: string;
   url: string;
 }
 
