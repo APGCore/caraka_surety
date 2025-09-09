@@ -6,20 +6,24 @@ use App\Enums\OfficeType;
 use App\Exports\SubmissionExport;
 use App\Models\Document\DocumentFormat;
 use App\Models\Submission\Submission;
+use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use App\Traits\ReplaceDocumentFormat;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Shared\Html;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use TCPDF;
-use tidy;
 
 class ExportController extends Controller
 {
@@ -78,141 +82,265 @@ class ExportController extends Controller
     /**
      * @throws MpdfException
      */
-    public function show($submission_id, $document_format)
+    public function pdfPreview(Request $request): Application|Response|ResponseFactory
     {
-        $submission = $this->getSubmission($submission_id);
+        $request->validate([
+            'submission_id' => 'required|exists:submissions,id,deleted_at,NULL',
+            'document_format_id' => 'nullable|exists:document_formats,id',
+            'submission_doc_id' => 'nullable|exists:submission_docs,id',
+        ]);
+        $submissionId = $request->get('submission_id');
+        $documentFormatId = $request->get('document_format_id');
+        $submissionDocId = $request->get('submission_doc_id');
+        $submission = Submission::query()->findOrFail($submissionId);
 
-        $documentFormat = DocumentFormat::query()->findOrFail($document_format);
+        if ($documentFormatId) {
+            $documentFormat = DocumentFormat::query()->findOrFail($documentFormatId);
 
-        $html = $documentFormat->format_document;
-
-        if (! $html) {
-            abort(404, 'Konten HTML tidak tersedia.');
+            // Buat array data yang akan replace placeholder
+            $data = $this->convertSubmission($submission);
+            // dd($submission);
+            $html = $this->replaceDocumentFormat($documentFormat, $data);
+            $filename = str_replace(' ', '_', $documentFormat->getAttribute('name'));
+        } else {
+            // ambil dari submission document
+            $submissionDocument = SubmissionDoc::query()->findOrFail($submissionDocId);
+            $html = $submissionDocument->getAttribute('format_document');
+            $filename = str_replace(' ', '_', $submissionDocument->getAttribute('name'));
         }
+        $html = $this->normalizeHtmlForPhpWord($html);
 
-        // Buat array data yang akan replace placeholder
-        $data = $this->convertSubmission($submission);
-        // dd($submission);
-        $html = $this->replaceDocumentFormat($documentFormat, $data);
+        // 1) Siapkan direktori temp untuk PHPWord & gambar lokal
+        $mpdfDir = storage_path('app/private/Mpdf-temp');
+        if (! is_dir($mpdfDir)) {
+            @mkdir($mpdfDir, 0775, true);
+        }
+        Settings::setTempDir($mpdfDir);
+        [$localizedHtml, $downloadedFiles] = $this->localizeRemoteImages($html, $mpdfDir);
 
-        // dd($html, $data);
-
+        // Inisialisasi mPDF
         $mpdf = new Mpdf([
             'tempDir' => storage_path('tmp/mpdf'),
         ]);
-        $mpdf->WriteHTML($html);
+        // Membantu debug & SSL yang “rewel”
+        $mpdf->showImageErrors = true;              // tampilkan error gambar ke log mPDF
+        $mpdf->WriteHTML($localizedHtml);
+        // cleanup file gambar yang kita download
+        foreach ($downloadedFiles as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
 
-        return response($mpdf->Output("invoice-submission-{$submission->id}.pdf", 'S'), 200)
+        return response($mpdf->Output("{$filename}_{$submission->getAttribute('no_guarantee')}.pdf", 'S'), 200)
             ->header('Content-Type', 'application/pdf');
     }
 
-    private function getSubmission($submissionId): Submission
+    public function wordDownload(Request $request): StreamedResponse
     {
-        return Submission::with([
-            'guarantor.documentFormats',
-            'guarantorBranch',
-            'principal.district',
-            'principal.regency',
-            'principal.province',
-            'obligee.district',
-            'obligee.regency',
-            'obligee.province',
-            'guarantor.district',
-            'guarantor.regency',
-            'guarantor.province',
-            'product',
-            'guarantorToProductType',
-            // 'analysis',
-            'sourceOfFund',
-            'regency',
-            'district',
-            'province',
-            // 'document_formats',
-        ])
-            ->find($submissionId);
-    }
+        $request->validate([
+            'submission_id' => 'required|exists:submissions,id,deleted_at,NULL',
+            'document_format_id' => 'nullable|exists:document_formats,id',
+            'submission_doc_id' => 'nullable|exists:submission_docs,id',
+        ]);
+        $submissionId = $request->get('submission_id');
+        $documentFormatId = $request->get('document_format_id');
+        $submissionDocId = $request->get('submission_doc_id');
+        $submission = Submission::query()->findOrFail($submissionId);
 
-    public function wordDownload($submission_id, $document_format): StreamedResponse
-    {
-        $submission = $this->getSubmission($submission_id);
+        if ($documentFormatId) {
+            $documentFormat = DocumentFormat::query()->findOrFail($documentFormatId);
 
-        $documentFormat = DocumentFormat::query()->findOrFail($document_format);
+            // Buat array data yang akan replace placeholder
+            $data = $this->convertSubmission($submission);
+            // dd($submission);
+            $html = $this->replaceDocumentFormat($documentFormat, $data);
+            $filename = str_replace(' ', '_', $documentFormat->getAttribute('name'));
+        } else {
+            // ambil dari submission document
+            $submissionDocument = SubmissionDoc::query()->findOrFail($submissionDocId);
+            $html = $submissionDocument->getAttribute('format_document');
+            $filename = str_replace(' ', '_', $submissionDocument->getAttribute('name'));
+        }
 
-        // Buat array data yang akan replace placeholder
-        $data = $this->convertSubmission($submission);
-        $html = $this->replaceDocumentFormat($documentFormat, $data);
+        // 1) Siapkan direktori temp untuk PHPWord & gambar lokal
+        $phpwordTempDir = storage_path('app/private/phpword-temp');
+        if (! is_dir($phpwordTempDir)) {
+            @mkdir($phpwordTempDir, 0775, true);
+        }
+        Settings::setTempDir($phpwordTempDir);
 
+        // 2) Download semua <img src="http(s)://..."> ke file lokal & ganti src
+        [$localizedHtml, $downloadedFiles] = $this->localizeRemoteImages($html, $phpwordTempDir);
+        $localizedHtml = $this->normalizeHtmlForPhpWord($localizedHtml);
+
+        // 3) Bangun dokumen
         $phpWord = new PhpWord;
         $section = $phpWord->addSection();
 
-        // tulis HTML ke dokumen
-        Html::addHtml($section, $html, false, false);
+        Html::addHtml($section, $localizedHtml, false, false);
 
-        // stream langsung ke output sebagai .docx
-        return response()->streamDownload(function () use ($phpWord) {
+        // 4) Stream ke browser & bersihkan file sementara
+        $filename = "{$filename}_{$submission->getAttribute('no_guarantee')}.docx";
+
+        return response()->streamDownload(function () use ($phpWord, $downloadedFiles) {
             $writer = IOFactory::createWriter($phpWord);
             $writer->save('php://output');
-        }, "surat-pengajuan-{$submission->getAttribute('id')}.docx", [
+
+            // cleanup file gambar yang kita download
+            foreach ($downloadedFiles as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                }
+            }
+        }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ]);
     }
 
     private function normalizeHtmlForPhpWord(string $html): string
     {
-        // 1) buang <script>/<style> yang sering bikin parser rewel
-        $html = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', '', $html);
+        $html = preg_replace('#</table>\s*(?=<table\b)#i', '</table><p>&nbsp;</p>', $html);
+        $html = preg_replace('/<(br|img)([^>]*?)(?<!\/)>/i', '<$1$2 />', $html);
 
-        // 2) pastikan void tags self-closing (XHTML-ish)
-        $html = preg_replace('#<(br|hr)([^/>]*)>#i', '<$1$2 />', $html);
-        $html = preg_replace('#<img([^/>]*)>#i', '<img$1 />', $html);
+        return str_replace('&nbsp;', '&#160;', $html);
+    }
 
-        // 3) OPTIONAL: hapus tag kosong <tag></tag> yang kadang dihasilkan template
-        $html = preg_replace('#<(\w+)([^>]*)>\s*</\1>#', '', $html);
+    /**
+     * Download semua <img> ber-URL ke file lokal dan ganti src jadi path lokal.
+     *
+     * @return array [string $newHtml, array $downloadedFiles]
+     */
+    private function localizeRemoteImages(string $html, string $saveDir): array
+    {
+        $downloaded = [];
 
-        // 4) Coba perbaiki otomatis pakai Tidy kalau ada
-        if (extension_loaded('tidy')) {
-            $config = [
-                'output-xhtml' => true,
-                'show-body-only' => true,
-                'wrap' => 0,
-                'force-output' => true,
-                'indent' => false,
-                'clean' => true,
-                'char-encoding' => 'utf8',
-            ];
-            $tidy = new tidy;
-            $tidy->parseString($html, $config, 'utf8');
-            $tidy->cleanRepair();
-            $html = tidy_get_output($tidy); // sudah “dirapikan” // sudah “dirapikan”
-        } else {
-            // 5) Fallback: pakai DOMDocument utk “membalanskan” tag
-            $doc = new \DOMDocument('1.0', 'UTF-8');
-            libxml_use_internal_errors(true);
+        // pastikan saveDir ada
+        if (! is_dir($saveDir)) {
+            @mkdir($saveDir, 0775, true);
+        }
 
-            // Bungkus dalam <body> supaya loadHTML tidak menyuntik struktur aneh
-            $doc->loadHTML('<?xml encoding="utf-8" ?><body>'.$html.'</body>',
-                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        // Muat HTML dengan DOMDocument
+        $dom = new \DOMDocument;
+        // suppress warning HTML5; pastikan UTF-8 aman
+        @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
-            $errors = libxml_get_errors();
-            libxml_clear_errors();
+        $imgs = $dom->getElementsByTagName('img');
 
-            // Ambil kembali isi <body> saja
-            $html = '';
-            $body = $doc->getElementsByTagName('body')->item(0);
-            if ($body) {
-                foreach ($body->childNodes as $child) {
-                    $html .= $doc->saveHTML($child);
-                }
+        // Karena DOMNodeList live, salin dulu
+        $toProcess = [];
+        foreach ($imgs as $img) {
+            $toProcess[] = $img;
+        }
+
+        foreach ($toProcess as $img) {
+            $src = $img->getAttribute('src');
+            if (! $src) {
+                continue;
             }
 
-            // Log agar tahu baris/tag mana yang bermasalah (sangat membantu debug)
-            if (! empty($errors)) {
-                Log::warning('HTML mismatches before PhpWord', array_map(
-                    fn ($e) => trim($e->message).' @ line '.$e->line, $errors
-                ));
+            // skip data: atau file lokal yang sudah ada
+            if (preg_match('#^data:#i', $src) || is_file($src)) {
+                continue;
+            }
+
+            // hanya proses http/https
+            if (! preg_match('#^https?://#i', $src)) {
+                continue;
+            }
+
+            try {
+                // Download pakai Laravel HTTP client (berbasis Guzzle)
+                if (config('app.env') === 'local') {
+                    // di local, abaikan SSL (misal self-signed)
+                    $resp = Http::timeout(15)->withoutVerifying()->get($src);
+                } else {
+                    $resp = Http::timeout(15)->get($src);
+                }
+
+                if (! $resp->successful()) {
+                    continue; // bisa juga dihapus gambarnya jika perlu
+                }
+
+                $binary = $resp->body();
+                if ($binary === '' || $binary === null) {
+                    continue;
+                }
+
+                // Tentukan MIME & ekstensi
+                $mime = $resp->header('Content-Type', '');
+                $ext = $this->guessImageExtension($mime, $src, $binary);
+
+                // Simpan ke file lokal unik
+                $localPath = rtrim($saveDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.uniqid('img_', true).'.'.$ext;
+                file_put_contents($localPath, $binary);
+
+                // Ganti src jadi absolute path lokal
+                $img->setAttribute('src', $localPath);
+
+                $downloaded[] = $localPath;
+            } catch (\Throwable $e) {
+                // gagal download; lanjutkan saja
+                continue;
             }
         }
 
-        return $html;
+        // Ambil kembali inner HTML <body>
+        $body = $dom->getElementsByTagName('body')->item(0);
+        $newHtml = '';
+        if ($body) {
+            foreach ($body->childNodes as $child) {
+                $newHtml .= $dom->saveHTML($child);
+            }
+        } else {
+            $newHtml = $html; // fallback
+        }
+
+        return [$newHtml, $downloaded];
+    }
+
+    /**
+     * Menebak ekstensi file gambar dari Content-Type, URL, atau isi file.
+     */
+    private function guessImageExtension(?string $mime, string $url, string $binary): string
+    {
+        // 1) Berdasarkan header Content-Type
+        $map = [
+            'image/jpeg' => 'jpg',
+            'image/jpg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+            'image/bmp' => 'bmp',
+            'image/tiff' => 'tif',
+            'image/svg+xml' => 'svg',
+        ];
+        $mime = strtolower((string) $mime);
+        if (isset($map[$mime])) {
+            return $map[$mime];
+        }
+
+        // 2) Coba dari ekstensi di URL
+        if (preg_match('#\.(jpe?g|png|gif|webp|bmp|tiff?|svg)(\?.*)?$#i', parse_url($url, PHP_URL_PATH) ?? '', $m)) {
+            return strtolower($m[1]) === 'jpeg' ? 'jpg' : strtolower($m[1]);
+        }
+
+        // 3) Fallback: deteksi magic bytes sederhana
+        $sig = substr($binary, 0, 12);
+        if (strncmp($sig, "\xFF\xD8\xFF", 3) === 0) {
+            return 'jpg';
+        }
+        if (strncmp($sig, "\x89PNG", 4) === 0) {
+            return 'png';
+        }
+        if (strncmp($sig, 'GIF8', 4) === 0) {
+            return 'gif';
+        }
+        if (strncmp($sig, 'RIFF', 4) === 0 && substr($sig, 8, 4) === 'WEBP') {
+            return 'webp';
+        }
+
+        // default
+        return 'png';
     }
 }
