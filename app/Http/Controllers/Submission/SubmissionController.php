@@ -199,14 +199,14 @@ class SubmissionController extends Controller
             }
 
             // create or update obligee
-            $obligee = Obligee::query()
-                ->firstOrCreate([
+//            $obligee = Obligee::query()
+//                ->firstOrCreate([
+//                    'id' => $obligee['id'] ?? null,
+//                ], $obligee);
+            $obligee = SubmissionObligee::query()
+                ->updateOrCreate([
                     'id' => $obligee['id'] ?? null,
                 ], $obligee);
-            //            $obligee = SubmissionObligee::query()
-            //                ->updateOrCreate([
-            //                    'id' => $obligee['id'] ?? null,
-            //                ], $obligee);
 
             $guarantorHead = Guarantor::query()
                 ->with(['pattern', 'guarantorToProductTypes'])
