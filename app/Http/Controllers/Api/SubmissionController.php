@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Submission\SaveDocSignatureRequest;
 use App\Http\Requests\Api\Submission\SetBlankRequest;
 use App\Http\Requests\Api\Submission\StoreDocumentRequest;
 use App\Http\Requests\Api\Submission\UpdateDocumentRequest;
+use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Blank;
 use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
@@ -17,6 +18,7 @@ use App\Models\Submission\SubmissionCallback;
 use App\Models\Submission\SubmissionDoc;
 use App\Services\HostToHostService;
 use App\Traits\GeneratePattern;
+use App\Traits\ReplaceDocumentFormat;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SubmissionController extends Controller
 {
-    use GeneratePattern;
+    use GeneratePattern, ReplaceDocumentFormat;
 
     protected HostToHostService $hostToHostService;
 
@@ -313,7 +315,6 @@ class SubmissionController extends Controller
             $jobRegency = $submission->getRelation('regency');
             $jobDistrict = $submission->getRelation('district');
             $sourceOfFound = $submission->getRelation('sourceOfFund');
-            $submissionDocs = $submission->getRelation('submissionDocs')->whereNotNull('format_document')->values();
             $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document')->values();
             $submissionBeforeId = $submission->getAttribute('submission_before_id');
 
@@ -352,6 +353,44 @@ class SubmissionController extends Controller
                     'policyno' => $submissionCallback->getAttribute('no_policy'),
                 ];
             }
+
+            $documentFormats = DocumentFormat::query()
+                ->whereNull(['guarantor_id', 'product_id', 'guarantor_to_product_type_id', 'bank_id'])
+                ->orWhere(function ($query) use ($submission) {
+                    $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                        ->where('product_id', $submission->getAttribute('product_id'))
+                        ->where(function ($query) use ($submission) {
+                            $query->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+                                ->orWhereNull('guarantor_to_product_type_id');
+                        })
+                        ->whereNull('bank_id'); // tambahin filter bank_id kosong
+                })
+                ->orWhere(function ($query) use ($submission) {
+                    $query->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                        ->whereNull('product_id')
+                        ->whereNull('guarantor_to_product_type_id')
+                        ->whereNull('bank_id');
+                })
+                ->orderBy('no')
+                ->get();
+
+            $submissionDocs = collect();
+            $submissionConverted = $this->convertSubmission($submission);
+            foreach ($documentFormats as $documentFormat) {
+                $submissionDoc = [
+                    'name' => $documentFormat->getAttribute('name'),
+                    'format_document' => $this->replaceDocumentFormat($documentFormat, $submissionConverted),
+                ];
+                $submission->submissionDocs()->updateOrCreate(
+                    [
+                        'submission_id' => $submission->getAttribute('id'),
+                        'document_format_id' => $documentFormat->getAttribute('id'),
+                    ],
+                    $submissionDoc
+                );
+                $submissionDocs->push($submissionDoc);
+            }
+
             $docsPrincipal = $principal->getRelation('documents')->map(function ($doc) {
                 return [
                     'name' => $doc->getAttribute('name'),
@@ -459,12 +498,7 @@ class SubmissionController extends Controller
                         ],
                     ],
                 ],
-                'output' => $submissionDocs->map(function ($doc) {
-                    return [
-                        'name' => $doc->getAttribute('name'),
-                        'value' => $doc->getAttribute('format_document'),
-                    ];
-                })->toArray(),
+                'output' => $submissionDocs,
                 'final_output_file' => $finalOutputFile,
             ]);
 
