@@ -288,7 +288,7 @@ class SubmissionController extends Controller
                     'principal.documents:id,principal_id,name,url',
                     'blank',
                     'guarantor:id,code,name',
-                    'guarantorBranch:id,code,name',
+                    'guarantorBranch',
                     'guarantor.hostToHost:id,guarantor_id,guarantor_url_host,auth_prefix,token',
                     'product:id,name',
                     'guarantorToProductType:id,product_type_id,name,job_group,job_type',
