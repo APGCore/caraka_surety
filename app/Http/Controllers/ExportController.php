@@ -223,7 +223,7 @@ class ExportController extends Controller
         // Muat HTML dengan DOMDocument
         $dom = new \DOMDocument;
         // suppress warning HTML5; pastikan UTF-8 aman
-        @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        @$dom->loadHTML(mb_convert_encoding($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD));
 
         $imgs = $dom->getElementsByTagName('img');
 
