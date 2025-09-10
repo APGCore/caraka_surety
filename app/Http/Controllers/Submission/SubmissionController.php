@@ -199,10 +199,10 @@ class SubmissionController extends Controller
             }
 
             // create or update obligee
-//            $obligee = Obligee::query()
-//                ->firstOrCreate([
-//                    'id' => $obligee['id'] ?? null,
-//                ], $obligee);
+            //            $obligee = Obligee::query()
+            //                ->firstOrCreate([
+            //                    'id' => $obligee['id'] ?? null,
+            //                ], $obligee);
             $obligee = SubmissionObligee::query()
                 ->updateOrCreate([
                     'id' => $obligee['id'] ?? null,

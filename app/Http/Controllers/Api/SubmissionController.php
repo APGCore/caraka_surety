@@ -153,7 +153,9 @@ class SubmissionController extends Controller
             if (isset($data['error'])) {
                 Log::error('Error Callback: ', $data['error']);
 
-                return $this->responseError($data['error']['message'] ?? 'Data Belum Diterima Dari Asuransi', $data['error']);
+                $message = $data['error']['message'] ? 'Error Dari Asuransi: '.$data['error']['message'] : 'Data Belum Diterima Dari Asuransi';
+
+                return $this->responseError($message, $data['error']);
             }
 
             Log::info('Callback Success: ', $data);
