@@ -54,6 +54,7 @@ import ContractDocSection from "@/pages/staff/submission-management/create/contr
 import { SubmissionType } from "@/types/submission-type";
 import { useForm } from "@inertiajs/react";
 import axios from "axios";
+import { subDays } from "date-fns";
 import dayjs from "dayjs";
 import { AlertCircle, LoaderCircle } from "lucide-react";
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from "react";
@@ -1471,9 +1472,9 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         <Label className="text-md">Tanggal Awal Jaminan</Label>
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"
-                          // disabled={{
-                          //   before: subDays(new Date(), 90),
-                          // }}
+                          disabled={{
+                            before: subDays(new Date(), 90),
+                          }}
                           initialDate={
                             data?.submission?.start_date
                               ? dayjs(data?.submission?.start_date).toDate()
@@ -1493,6 +1494,11 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         <Label className="text-md">Tanggal Akhir Jaminan</Label>
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"
+                          disabled={{
+                            before: data?.submission?.start_date
+                              ? dayjs(data.submission.start_date).toDate()
+                              : dayjs().toDate(),
+                          }}
                           initialDate={
                             data?.submission?.end_date ? dayjs(data?.submission?.end_date).toDate() : dayjs().toDate()
                           }

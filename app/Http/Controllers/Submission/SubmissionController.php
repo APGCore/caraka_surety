@@ -14,7 +14,6 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
-use App\Models\RelatedParties\SubmissionObligee;
 use App\Models\Scoring\Scoring;
 use App\Models\Submission\Submission;
 use App\Models\User;
