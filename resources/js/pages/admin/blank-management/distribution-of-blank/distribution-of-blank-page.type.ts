@@ -10,6 +10,7 @@ interface DistributionBlankProps {
   officeSelected: number;
   officeTypeSelected: number;
   blanks: any;
+  picked: any;
 }
 
 export type DistributionBlankPageProps = React.FC<DistributionBlankProps> & {

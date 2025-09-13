@@ -28,6 +28,11 @@ class Blank extends Model
         return $this->belongsTo(Guarantor::class);
     }
 
+    public function guarantorBranch(): BelongsTo
+    {
+        return $this->belongsTo(Guarantor::class, 'guarantor_branch_id');
+    }
+
     public function profile(): BelongsTo
     {
         return $this->belongsTo(Profile::class);

@@ -84,12 +84,19 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
 
   return (
     <div className={cn("flex", props.containerClassName)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(isOpen) => {
+          if (!props.disabledValue) {
+            setOpen(isOpen);
+          }
+        }}>
         <PopoverTrigger asChild>
           <Button
             id={props.id}
             variant="outline"
             aria-expanded={open}
+            disabled={props.disabledValue}
             className={cn("w-full justify-between px-2 h-10", props.className)}>
             {(() => {
               let label: string = labelButtonPlaceholder;

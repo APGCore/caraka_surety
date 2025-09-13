@@ -344,6 +344,9 @@ const BlankPage: BlankPageProps = ({
                     <Show when={!blank.is_broken}>
                       <Badge className="text-white bg-green-400">Baik</Badge>
                     </Show>
+                    <Show when={blank.guarantor_branch_id}>
+                      <Badge className="text-white bg-purple-500">Dari {blank.guarantor_branch?.name}</Badge>
+                    </Show>
                     <Show when={blank.profile_id}>
                       <Badge className="text-white bg-blue-500">Di {blank.profile?.name}</Badge>
                     </Show>

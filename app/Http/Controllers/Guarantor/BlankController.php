@@ -54,7 +54,7 @@ class BlankController extends Controller
 
         $blanks = Blank::search($request->get('search'))
             ->query(function ($query) use ($guarantorBranchSelected, $guarantorSelected) {
-                return $query->with('profile')
+                return $query->with(['guarantorBranch', 'profile'])
                     ->where('guarantor_id', ($guarantorSelected))
                     ->when($guarantorBranchSelected != null, function ($query) use ($guarantorBranchSelected) {
                         return $query->where('guarantor_branch_id', $guarantorBranchSelected);

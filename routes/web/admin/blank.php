@@ -20,5 +20,7 @@ Route::prefix('blank-management')->name('blank-management.')->group(function () 
         Route::get('/get-blank-distributed', [DistributionOfBlankController::class, 'getBlankDistributed'])->name('get-blank-distributed');
         Route::get('/get-blank-range', [DistributionOfBlankController::class, 'getBlankRange'])->name('get-blank-range');
         Route::post('/store-transfer', [DistributionOfBlankController::class, 'storeTransfer'])->name('store-transfer');
+        Route::get('/get-blank-unused', [DistributionOfBlankController::class, 'getBlankUnused'])->name('get-blank-unused');
+        Route::post('/change-guarantor-branch', [DistributionOfBlankController::class, 'changeGuarantorBranch'])->name('change-guarantor-branch');
     });
 });

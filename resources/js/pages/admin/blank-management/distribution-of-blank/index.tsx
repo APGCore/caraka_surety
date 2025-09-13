@@ -38,7 +38,7 @@ import { DistributionOfBlankUtils } from "@/pages/admin/blank-management/distrib
 import { Head, router } from "@inertiajs/react";
 import axios from "axios";
 import { pickBy } from "lodash";
-import { ArrowRight } from "lucide-react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import React, { useState } from "react";
 
 interface blank {
@@ -55,6 +55,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
   officeTypes,
   officeSelected,
   officeTypeSelected,
+  picked = "all",
   ...props
 }) => {
   const { data: blanks, meta } = props.blanks;
@@ -75,9 +76,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
   const [officeForTransfer, setOfficeForTransfer] = useState<Array<any>>([]);
   const [fromOffice, setFromOffice] = useState<any | null>(null);
   const [toOffice, setToOffice] = useState<any | null>(null);
-  const [guarantorIdTransfer, setGuarantorIdTransfer] = useState<number | undefined>(
-    () => guarantorBranchSelected || guarantorSelected,
-  );
+  const [targetGuarantorBranch, setTargetGuarantorBranch] = useState(null);
 
   const handleSelect = (e: string) => {
     setSelect(Number(e));
@@ -98,7 +97,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const fetchBlankDistributed = async (office: any) => {
     const data = await axios.get(route(DistributionOfBlankUtils.link.getBlankDistributed), {
-      params: { guarantor_id: guarantorIdTransfer, profile_id: office.id },
+      params: { guarantor_id: guarantorSelected, profile_id: office.id },
     });
     return data.data;
   };
@@ -112,6 +111,16 @@ const DistributionBlank: DistributionBlankPageProps = ({
     return data.data;
   };
 
+  const fetchBlankUnused = async (guarantorBranchId: number) => {
+    const data = await axios.get(
+      route(DistributionOfBlankUtils.link.getBlankUnused, {
+        guarantor_id: guarantorSelected,
+        guarantor_branch_id: guarantorBranchId,
+      }),
+    );
+    return data.data;
+  };
+
   const handleAddBlankCustom = async () => {
     const dataBlankNotUsed = await fetchBlankRange();
     setBlankNotUsed(dataBlankNotUsed.data);
@@ -120,17 +129,14 @@ const DistributionBlank: DistributionBlankPageProps = ({
 
   const handleChangeRange = (range: number) => {
     setQtyBlank(range);
-    if (range === 0) {
+    const firstBlankIndex = blankNotUsed.findIndex((blank: any) => blank.number === selectedFirstBlank?.number) + 1;
+    const blankNotUsedFiltered = blankNotUsed.slice(firstBlankIndex ? firstBlankIndex - 1 : 0);
+    setSelectedBlanks(blankNotUsedFiltered.slice(0, range));
+    if (range == 0) {
       setSelectedLastBlank(null);
-      return;
+    } else {
+      setSelectedLastBlank(blankNotUsedFiltered[range - 1]);
     }
-    if (range > blankNotUsed.length) {
-      return;
-    }
-    // get last
-    let lastBlanks = blankNotUsed[range - 1];
-    setSelectedLastBlank(lastBlanks);
-    setSelectedBlanks(blankNotUsed.slice(0, range));
   };
 
   const changeFromOffice = async (office: any) => {
@@ -138,6 +144,13 @@ const DistributionBlank: DistributionBlankPageProps = ({
     const { data } = await fetchBlankDistributed(office);
 
     setBlankNotUsed(data);
+    setSelectedFirstBlankTransfer(data[0] ?? null);
+  };
+
+  const changeGuarantorBranch = async (guarantorBranchId: number) => {
+    const { data } = await fetchBlankUnused(guarantorBranchId);
+    setBlankNotUsed(data);
+    setSelectedFirstBlank(data[0] ?? null);
   };
 
   const addBlank = () => {
@@ -207,6 +220,42 @@ const DistributionBlank: DistributionBlankPageProps = ({
     });
   };
 
+  const handleChangeGuarantorBranch = async () => {
+    if (targetGuarantorBranch === null) {
+      return toast({
+        title: "Gagal",
+        description: "Pilih cabang asuransi tujuan terlebih dahulu",
+        variant: "destructive",
+      });
+    }
+    if (blankNotUsed.length === 0) {
+      return toast({
+        title: "Gagal",
+        description: "Tidak ada blangko untuk di transfer",
+        variant: "destructive",
+      });
+    }
+    const blankChange = selectedBlanks.map((blank) => {
+      return blank.id;
+    });
+    const data = {
+      guarantor_branch_id: targetGuarantorBranch,
+      blank_ids: blankChange,
+    };
+    router.post(route(DistributionOfBlankUtils.link.changeGuarantorBranch), data, {
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        setQtyBlank(0);
+        setBlankNotUsed([]);
+        setSelectedFirstBlank(null);
+        setSelectedLastBlank(null);
+        setTargetGuarantorBranch(null);
+        refresh();
+      },
+    });
+  };
+
   const refresh = (data?: {
     perPage?: string;
     search?: string;
@@ -215,6 +264,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
     officeType?: string | null;
     officeId?: number | null;
     isAddBlankSelect?: boolean | null;
+    picked?: string | null;
   }) => {
     return router.get(
       route(DistributionOfBlankUtils.link.index),
@@ -227,6 +277,7 @@ const DistributionBlank: DistributionBlankPageProps = ({
         office_type: data?.officeType === null ? null : (data?.officeType ?? officeTypeSelected),
         office_id: data?.officeId === null ? null : (data?.officeId ?? officeSelected),
         is_add_blank: data?.isAddBlankSelect === null ? null : (data?.isAddBlankSelect ?? isAddBlank),
+        picked: data?.picked === null ? null : (data?.picked ?? picked),
       }),
       { preserveState: true, preserveScroll: true },
     );
@@ -254,9 +305,107 @@ const DistributionBlank: DistributionBlankPageProps = ({
         <div className="flex w-[30%] gap-x-3 justify-end">
           {!isAddBlank && (
             <>
-              {/*<Button size="sm" className="bg-green-600 hover:bg-green-500" onClick={() => handleAddBlank(true)}>*/}
-              {/*  Bagikan Blangko*/}
-              {/*</Button>*/}
+              <AlertDialog>
+                <AlertDialogTrigger
+                  className="bg-yellow text-destructive-foreground shadow-sm hover:bg-yellow/90
+                                    px-2 py-1.5 text-sm w-full rounded-sm text-start"
+                  onClick={() => changeGuarantorBranch(guarantorBranchSelected)}
+                  asChild>
+                  <Button size="sm" className="bg-yellow-800 hover:bg-yellow-700">
+                    Ubah Cabang Asuransi
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="w-max">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Ubah Cabang Asuransi Blangko</AlertDialogTitle>
+                    <AlertDialogDescription>Silakan masukan jumlah blangko yang akan di bagikan</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
+                  <div className="flex items-end justify-around mt-6 space-x-2">
+                    <div>
+                      <Label htmlFor="number">Nomor Blangko Pertama</Label>
+                      <Combobox
+                        datas={blankNotUsed}
+                        labelKey={"number"}
+                        valueKey={"id"}
+                        defaultValue={selectedFirstBlank?.id ?? ""}
+                        onSelect={(e) => {
+                          const selectedBlank = blankNotUsed.find((blank) => blank.number === e.number);
+                          setSelectedFirstBlank(selectedBlank ?? null);
+                          setSelectedLastBlank(null);
+                          setQtyBlank(0);
+                        }}
+                      />
+                    </div>
+                    <ArrowRight className="mb-2" />
+                    <div>
+                      <Label htmlFor="qty_blangko">jumlah</Label>
+                      <Input
+                        id="qty_blangko"
+                        value={qtyBlank}
+                        onChange={async (e: any) => {
+                          const qty = Number(e.target.value);
+                          handleChangeRange(qty);
+                        }}
+                        type="number"
+                        min="0"
+                        max={blankNotUsed.length}
+                        className="mt-1 block w-full"
+                      />
+                    </div>
+                    <ArrowRight className="mb-2" />
+                    <div>
+                      <Label htmlFor="number">Nomor Blangko Terakhir</Label>
+                      <Input
+                        id="number"
+                        value={selectedLastBlank?.number ?? ""}
+                        type="text"
+                        className="mt-1 block w-full"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="number">Cabang Asuransi</Label>
+                    <Combobox
+                      datas={guarantorBranches}
+                      labelKey={"name"}
+                      valueKey={"name"}
+                      defaultValue={guarantorBranchSelected}
+                      placeholder={"Pilih Cabang Asuransi"}
+                      className={"max-w-[100%]"}
+                      disabledValue={true}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <ArrowDown />
+                  </div>
+                  <div>
+                    <Label htmlFor="number">Cabang Asuransi</Label>
+                    <Combobox
+                      datas={guarantorBranches}
+                      labelKey={"name"}
+                      valueKey={"name"}
+                      placeholder={"Pilih Cabang Asuransi"}
+                      className={"max-w-[100%]"}
+                      onSelect={(value) => setTargetGuarantorBranch(value.id)}
+                    />
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel
+                      onClick={() => {
+                        setQtyBlank(0);
+                        setBlankNotUsed([]);
+                        setSelectedFirstBlank(null);
+                        setSelectedLastBlank(null);
+                        setTargetGuarantorBranch(null);
+                      }}>
+                      Batal
+                    </AlertDialogCancel>
+                    <AlertDialogAction onClick={handleChangeGuarantorBranch}>Ubah</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <AlertDialog>
                 <AlertDialogTrigger
                   className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90
@@ -349,17 +498,6 @@ const DistributionBlank: DistributionBlankPageProps = ({
                   </AlertDialogHeader>
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">Blangko Tersedia: {blankNotUsed.length}</div>
-                    {/*<div className="flex items-center justify-center gap-2">*/}
-                    {/*  <Combobox*/}
-                    {/*    datas={guarantors}*/}
-                    {/*    labelKey={"name"}*/}
-                    {/*    valueKey={"name"}*/}
-                    {/*    defaultValue={guarantorIdTransfer}*/}
-                    {/*    placeholder={"Pilih Asuransi"}*/}
-                    {/*    className={"w-[210px]"}*/}
-                    {/*    onSelect={(value) => setGuarantorIdTransfer(value.id)}*/}
-                    {/*  />*/}
-                    {/*</div>*/}
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <Combobox
                         datas={officeForTransfer}
@@ -384,25 +522,18 @@ const DistributionBlank: DistributionBlankPageProps = ({
                     <div className="flex items-end justify-around mt-6 space-x-2">
                       <div>
                         <Label htmlFor="number">Nomor Blangko Pertama</Label>
-                        <Select
-                          value={selectedFirstBlankTransfer?.number}
-                          onValueChange={(e) => {
-                            const selectedBlank = blankNotUsed.find((blank) => blank.number === e);
+                        <Combobox
+                          datas={blankNotUsed}
+                          labelKey={"number"}
+                          valueKey={"id"}
+                          defaultValue={selectedFirstBlankTransfer?.id ?? ""}
+                          onSelect={(e) => {
+                            const selectedBlank = blankNotUsed.find((blank) => blank.number === e.number);
                             setSelectedFirstBlankTransfer(selectedBlank ?? null);
                             setSelectedLastBlankTransfer(null);
                             setQtyBlankTransfer(0);
-                          }}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pilih Blangko" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {blankNotUsed.map((blank: any) => (
-                              <SelectItem key={blank.id} value={blank.number}>
-                                {blank.number}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          }}
+                        />
                       </div>
                       <ArrowRight className="mb-2" />
                       <div>
@@ -492,6 +623,18 @@ const DistributionBlank: DistributionBlankPageProps = ({
       </div>
 
       <div className="flex gap-x-3">
+        <Select onValueChange={(value) => refresh({ picked: value })} defaultValue={String(picked)}>
+          <SelectTrigger className="w-[15%]">
+            <SelectValue placeholder="Pilih " />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value={"all"}>Semua</SelectItem>
+              <SelectItem value={"true"}>Sudah Dipakai</SelectItem>
+              <SelectItem value={"false"}>Belum Dipakai</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         <Combobox
           datas={guarantors}
           labelKey={"name"}
@@ -501,15 +644,15 @@ const DistributionBlank: DistributionBlankPageProps = ({
           className={"w-[210px]"}
           onSelect={(value) => refresh({ guarantorId: value.id, guarantorBranchId: null, officeId: null })}
         />
-        {/*<Combobox*/}
-        {/*  datas={guarantorBranches}*/}
-        {/*  labelKey={"name"}*/}
-        {/*  valueKey={"name"}*/}
-        {/*  defaultValue={guarantorBranchSelected}*/}
-        {/*  placeholder={"Pilih Cabang Asuransi"}*/}
-        {/*  className={"w-[210px]"}*/}
-        {/*  onSelect={(value) => refresh({ guarantorBranchId: value.id, officeId: null })}*/}
-        {/*/>*/}
+        <Combobox
+          datas={guarantorBranches}
+          labelKey={"name"}
+          valueKey={"name"}
+          defaultValue={guarantorBranchSelected}
+          placeholder={"Pilih Cabang Asuransi"}
+          // className={"w-[310px]"}
+          onSelect={(value) => refresh({ guarantorBranchId: value.id })}
+        />
         <Select
           onValueChange={(value) => refresh({ officeType: value, officeId: null })}
           defaultValue={String(officeTypeSelected)}>
