@@ -8,7 +8,9 @@ export const DistributionOfBlankUtils = {
     destroy: "blank-management.distribution-of-blank.destroy",
     getBlankDistributed: "blank-management.distribution-of-blank.get-blank-distributed",
     getBlankRange: "blank-management.distribution-of-blank.get-blank-range",
+    getBlankUnused: "blank-management.distribution-of-blank.get-blank-unused",
     getOffice: "references.profile.all",
     storeTransfer: "blank-management.distribution-of-blank.store-transfer",
+    changeGuarantorBranch: "blank-management.distribution-of-blank.change-guarantor-branch",
   },
 };

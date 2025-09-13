@@ -11,6 +11,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,11 +30,11 @@ class DistributionOfBlankController extends Controller
         }
 
         $guarantors = Guarantor::with('head')
-            ->get()->each(fn ($guarantor) => $guarantor->name = $guarantor->head ? $guarantor->head->name.' - '.$guarantor->name : $guarantor->name);
+            ->get()->each(fn ($guarantor) => $guarantor->name);
         $guarantorHead = $guarantors->whereNull('headquarter_id')->values();
         $guarantorBranches = $guarantors->whereNotNull('headquarter_id')->values();
-        $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->id);
-        $guarantorBranchSelected = $request->get('guarantor_branch_id');
+        $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->getAttribute('id'));
+        $guarantorBranchSelected = $request->get('guarantor_branch_id', $guarantorBranches->first()?->getAttribute('id'));
         $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = match ($officeTypeSelected) {
@@ -45,19 +46,29 @@ class DistributionOfBlankController extends Controller
         $offices = Profile::query()->where('office_type', $officeType)->get();
         $officeSelected = (int) ($request->get('office_id') ?? $offices->first()?->getAttribute('id'));
         $isAddBlank = $request->get('is_add_blank') === 'true';
+        $picked = $request->get('picked');
 
         $blanks = $offices->isNotEmpty()
           ? Blank::search($request->get('search'))
-              ->query(function ($query) use ($guarantorSelected, $officeSelected, $isAddBlank) {
+              ->query(function ($query) use ($guarantorSelected, $guarantorBranchSelected, $officeSelected, $isAddBlank, $picked) {
                   $query
                       ->with('fromProfile')
                       ->where('guarantor_id', $guarantorSelected)
+                      ->when($guarantorBranchSelected, function ($query) use ($guarantorBranchSelected) {
+                          $query->where('guarantor_branch_id', $guarantorBranchSelected);
+                      })
                       ->when($isAddBlank, function ($query) {
                           $query->whereNull('profile_id')
                               ->where('is_picked', false);
                       })
                       ->when(! $isAddBlank, function ($query) use ($officeSelected) {
                           $query->where('profile_id', $officeSelected);
+                      })
+                      ->when($picked === 'true', function ($query) {
+                          $query->where('is_picked', true);
+                      })
+                      ->when($picked === 'false', function ($query) {
+                          $query->where('is_picked', false);
                       });
               })
               ->orderBy('id')
@@ -217,6 +228,56 @@ class DistributionOfBlankController extends Controller
             flashMessage('Gagal', 'Gagal transfer data', 'error');
 
             return back()->withErrors(['errors' => 'Gagal transfer data']);
+        }
+    }
+
+    public function getBlankUnused(Request $request): JsonResponse
+    {
+        $blanks = Blank::query()
+            ->when($request->get('guarantor_id'), function ($query) use ($request) {
+                $query->where('guarantor_id', $request->get('guarantor_id'));
+            })
+            ->when($request->get('guarantor_branch_id'), function ($query) use ($request) {
+                $query->where('guarantor_branch_id', $request->get('guarantor_branch_id'));
+            })
+            ->where('is_picked', false)
+            ->orderBy('number')
+            ->get();
+
+        return $this->responseSuccess('Data berhasil diambil', $blanks);
+    }
+
+    public function changeGuarantorBranch(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'guarantor_branch_id' => 'required|exists:'.Guarantor::class.',id',
+            'blank_ids.*' => 'required|exists:'.Blank::class.',id',
+        ]);
+        try {
+            DB::beginTransaction();
+
+            Blank::query()
+                ->whereIn('id', $request->get('blank_ids'))
+                ->update([
+                    'guarantor_branch_id' => $request->get('guarantor_branch_id'),
+                ]);
+
+            activity()
+                ->useLog('change-guarantor-branch')
+                ->performedOn(new Blank)
+                ->causedBy(auth()->user())
+                ->log('Ubah cabang blangko');
+            flashMessage('Berhasil', 'Data berhasil diubah');
+            DB::commit();
+
+            return back();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error on DistributionOfBlankController@changeGuarantorBarch: ', $error);
+            flashMessage('Gagal', 'Gagal mengubah data', 'error');
+
+            return back()->withErrors(['errors' => 'Gagal mengubah data']);
         }
     }
 }
