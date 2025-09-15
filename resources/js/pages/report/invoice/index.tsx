@@ -44,9 +44,11 @@ const InvoicePage: InvoicePageProps = ({
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
   const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
+  const paramDateFrom = getQueryParameter("date[from]");
+  const paramDateTo = getQueryParameter("date[to]");
   const [filterDate, setFilterDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 7),
-    to: new Date(),
+    from: paramDateFrom ? new Date(paramDateFrom) : subDays(new Date(), 7),
+    to: paramDateTo ? new Date(paramDateTo) : new Date(),
   });
   const [submissionChecked, setSubmissionChecked] = useState<any[]>([]);
   const checkAll = useMemo(() => {
