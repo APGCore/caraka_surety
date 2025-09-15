@@ -58,7 +58,7 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             )}
             renderFallback={() => (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={10} className="text-center">
                   No data found
                 </TableCell>
               </TableRow>

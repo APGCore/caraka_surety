@@ -32,10 +32,13 @@ const SubmissionPage: SubmissionPageProps = ({
 }) => {
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
+  const paramDateFrom = getQueryParameter("date[from]");
+  const paramDateTo = getQueryParameter("date[to]");
   const [filterDate, setFilterDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 7),
-    to: new Date(),
+    from: paramDateFrom ? new Date(paramDateFrom) : subDays(new Date(), 7),
+    to: paramDateTo ? new Date(paramDateTo) : new Date(),
   });
+  console.log("filterDate", filterDate);
 
   const handleSelectSubmissionLength = (perPage: string) => {
     setPerPage(perPage);
@@ -92,12 +95,16 @@ const SubmissionPage: SubmissionPageProps = ({
   };
 
   const exportExcel = () => {
+    const dates = convertDate(filterDate);
     window.location.href =
       route(SubmissionUtils.link.export.excel) +
       "?" +
       new URLSearchParams(
         pickBy({
           submission_ids: submissionIds,
+          start_date: dates?.from || "",
+          end_date: dates?.to || "",
+          office_id: officeSelected ? String(officeSelected) : "",
         }) as unknown as Record<string, string>,
       ).toString();
   };

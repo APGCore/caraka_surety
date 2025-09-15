@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\OfficeType;
 use App\Exports\SubmissionExport;
 use App\Models\Document\DocumentFormat;
+use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
 use App\Traits\ReplaceDocumentFormat;
+use Carbon\Carbon;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -67,16 +69,24 @@ class ExportController extends Controller
         ]);
         // Validasi input jika diperlukan
         $validatedData = $request->validate([
-            'submission_ids' => 'nullable|array',
+            'submission_ids' => 'required|array',
             'submission_ids.*' => 'integer|exists:submissions,id,deleted_at,NULL',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'office_id' => 'nullable|integer|exists:profiles,id,deleted_at,NULL',
         ]);
         $submissionIds = $validatedData['submission_ids'];
 
         $user = User::query()->with('office')->findOrFail(auth()->id());
         $office = $user->office;
         $isBranch = $office->office_type === OfficeType::BRANCH->value;
+        $startDate = Carbon::parse($validatedData['start_date'])->format('d F Y');
+        $endDate = Carbon::parse($validatedData['end_date'])->format('d F Y');
+        $date = now()->format('d M Y');
+        $officeReq = isset($validatedData['office_id']) ? Profile::query()->find($validatedData['office_id'])->name : 'Semua Kantor';
+        $fileName = "LAPORAN PRODUKSI JASTAN $officeReq $startDate - $endDate (PER $date).xlsx";
 
-        return Excel::download(new SubmissionExport($submissionIds, $isBranch), 'Laporan Produksi.xlsx');
+        return Excel::download(new SubmissionExport($submissionIds, $isBranch), $fileName);
     }
 
     /**

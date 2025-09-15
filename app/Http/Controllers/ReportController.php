@@ -127,6 +127,7 @@ class ReportController extends Controller
             'productSelected' => (int) $productSelected,
             'productTypes' => $productTypes,
             'productTypeSelected' => (int) $productTypeSelected,
+            'filters' => $request->only(['search', 'date']),
         ]);
     }
 
