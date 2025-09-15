@@ -23,6 +23,7 @@ use App\Models\Scoring\ScoringQuestionCategory;
 use App\Models\Submission\SourceOfFund;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionScore;
+use App\Models\Submission\SubmissionSupportDoc;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -97,8 +98,8 @@ class StoreRequest extends FormRequest
             'submission.support_docs' => ['required', 'array', 'min:1'], // dokumen pendukung
             'submission.support_docs.*.id' => ['nullable', 'numeric'],
             'submission.support_docs.*.name' => ['required', 'string'],
-            'submission.support_docs.*.number' => ['required', 'string'],
-            'submission.support_docs.*.date' => ['required', 'date'],
+            'submission.support_docs.*.number' => ['required', 'string', 'unique:'.SubmissionSupportDoc::class.',number,NULL,id,deleted_at,NULL'], // nomor dokumen pendukung
+            'submission.support_docs.*.date' => ['required', 'date', 'unique:'.SubmissionSupportDoc::class.',date,NULL,id,deleted_at,NULL'], // tanggal dokumen pendukung
             'submission.support_docs.*.file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
@@ -133,16 +134,16 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'obligee.name.required' => 'Nama pemberi pekerjaan wajib diisi',
-            'obligee.pic.required' => 'Nama PIC wajib diisi',
-            'obligee.no_ppk.required' => 'Nomor PPK wajib diisi',
-            'obligee.telephone.required' => 'Nomor telepon wajib diisi',
-            'obligee.province_id.required' => 'Provinsi wajib diisi',
-            'obligee.regency_id.required' => 'Kabupaten/Kota wajib diisi',
-            'obligee.district_id.required' => 'Kecamatan wajib diisi',
-            'obligee.village.required' => 'Desa wajib diisi',
-            'obligee.address.required' => 'Alamat wajib diisi',
-            'obligee.postal_code.required' => 'Kode pos wajib diisi',
+            'obligee.name.required' => 'Obligee: Nama pemberi pekerjaan wajib diisi',
+            'obligee.pic.required' => 'Obligee: Nama PIC wajib diisi',
+            'obligee.no_ppk.required' => 'Obligee: Nomor PPK wajib diisi',
+            'obligee.telephone.required' => 'Obligee: Nomor telepon wajib diisi',
+            'obligee.province_id.required' => 'Obligee: Provinsi wajib diisi',
+            'obligee.regency_id.required' => 'Obligee: Kabupaten/Kota wajib diisi',
+            'obligee.district_id.required' => 'Obligee: Kecamatan wajib diisi',
+            'obligee.village.required' => 'Obligee: Desa wajib diisi',
+            'obligee.address.required' => 'Obligee: Alamat wajib diisi',
+            'obligee.postal_code.required' => 'Obligee: Kode pos wajib diisi',
 
             'submission.guarantor_id.required' => 'Penjamin wajib diisi',
             'submission.guarantor_branch_id.required' => 'Cabang penjamin wajib diisi',
@@ -172,7 +173,10 @@ class StoreRequest extends FormRequest
             'submission.support_docs.array' => 'Dokumen pendukung harus berupa array',
             'submission.support_docs.*.name.required' => 'Nama dokumen pendukung wajib diisi',
             'submission.support_docs.*.number.required' => 'Nomor dokumen pendukung wajib diisi',
+            'submission.support_docs.*.number.unique' => 'Nomor dokumen pendukung sudah digunakan',
             'submission.support_docs.*.date.required' => 'Tanggal dokumen pendukung wajib diisi',
+            'submission.support_docs.*.date.date' => 'Tanggal dokumen pendukung tidak valid',
+            'submission.support_docs.*.date.unique' => 'Tanggal dokumen pendukung sudah digunakan',
             'submission.support_docs.*.file.file' => 'File dokumen pendukung harus berupa file',
             'submission.support_docs.*.file.mimes' => 'File dokumen pendukung harus berupa file pdf',
             'submission.support_docs.*.file.max' => 'File dokumen pendukung maksimal 20 MB',
