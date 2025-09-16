@@ -45,6 +45,11 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
+      $submissionSupportDocNumber = ['required', 'string'];
+        if($this->get('submissionType') == SubmissionType::NEW->value) {
+            $submissionSupportDocNumber[] = 'unique:'.SubmissionSupportDoc::class.',number,NULL,id,deleted_at,NULL';
+        }
+
         return [
             // obligiee
             'obligee.id' => ['nullable', 'exists:'.Obligee::class.',id,deleted_at,NULL'],
@@ -98,7 +103,7 @@ class StoreRequest extends FormRequest
             'submission.support_docs' => ['required', 'array', 'min:1'], // dokumen pendukung
             'submission.support_docs.*.id' => ['nullable', 'numeric'],
             'submission.support_docs.*.name' => ['required', 'string'],
-            'submission.support_docs.*.number' => ['required', 'string', 'unique:'.SubmissionSupportDoc::class.',number,NULL,id,deleted_at,NULL'], // nomor dokumen pendukung
+            'submission.support_docs.*.number' => $submissionSupportDocNumber, // nomor dokumen pendukung
             'submission.support_docs.*.file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'], // file dokumen pendukung
 
             'principal.id' => ['required', 'exists:'.Principal::class.',id'],
