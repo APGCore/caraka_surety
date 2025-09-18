@@ -1204,43 +1204,28 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               when={isApproved && !submission.has_send_to_guarantor}
               fallback={
                 <>
-                  <Show when={isApproved && !isRevised && submission.has_send_to_guarantor && submission.can_revised}>
-                    <Show
-                      when={!isDisabled}
-                      fallback={
-                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
-                          Revisi
-                        </Button>
-                      }>
-                      <Button
-                        variant={"outline"}
-                        className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
-                        asChild>
-                        <Link
-                          disabled={isDisabled}
-                          type="button"
-                          href={route("staff-submission-revision", {
-                            id: submission.id,
-                          })}>
-                          Revisi
-                        </Link>
-                      </Button>
-                    </Show>
+                  {/* Button Revisi */}
+                  <Show when={submission.can_revised}>
+                    <Button
+                      variant={"outline"}
+                      className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
+                      asChild>
+                      <Link
+                        disabled={isDisabled}
+                        type="button"
+                        href={route("staff-submission-revision", {
+                          id: submission.id,
+                        })}>
+                        Revisi
+                      </Link>
+                    </Button>
                   </Show>
                   <Show when={!isRejected && !isRevised && !submission.has_send_to_guarantor}>
-                    <Show
-                      when={!isDisabled}
-                      fallback={
-                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
-                          Edit
-                        </Button>
-                      }>
-                      <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                        <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
-                          Edit
-                        </Link>
-                      </Button>
-                    </Show>
+                    <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                      <Link type={"button"} disabled={isDisabled} href={route("staff-submission-edit", { id: submission.id })}>
+                        Edit
+                      </Link>
+                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -1313,19 +1298,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </PopoverTrigger>
                 <PopoverContent className="w-[8vw] space-y-2">
                   <Show when={!isRejected && !isRevised}>
-                    <Show
-                      when={!isDisabled}
-                      fallback={
-                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
-                          Edit
-                        </Button>
-                      }>
-                      <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                        <Link type={"button"} href={route("staff-submission-edit", { id: submission.id })}>
-                          Edit
-                        </Link>
-                      </Button>
-                    </Show>
+                    <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
+                      <Link type={"button"} disabled={isDisabled} href={route("staff-submission-edit", { id: submission.id })}>
+                        Edit
+                      </Link>
+                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
@@ -1363,27 +1340,19 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </AlertDialog>
                   </Show>
                   <Show when={isApproved && submission.has_send_to_guarantor && !isRevised}>
-                    <Show
-                      when={!isDisabled}
-                      fallback={
-                        <Button disabled={true} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm">
-                          Revisi
-                        </Button>
-                      }>
-                      <Button
-                        variant={"outline"}
-                        className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
-                        asChild>
-                        <Link
-                          disabled={isDisabled}
-                          type="button"
-                          href={route("staff-submission-revision", {
-                            id: submission.id,
-                          })}>
-                          Revisi
-                        </Link>
-                      </Button>
-                    </Show>
+                    <Button
+                      variant={"outline"}
+                      className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
+                      asChild>
+                      <Link
+                        disabled={isDisabled}
+                        type="button"
+                        href={route("staff-submission-revision", {
+                          id: submission.id,
+                        })}>
+                        Revisi
+                      </Link>
+                    </Button>
                   </Show>
                 </PopoverContent>
               </Popover>
