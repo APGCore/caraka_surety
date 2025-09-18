@@ -327,7 +327,7 @@ class SubmissionController extends Controller
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('SubmissionController@store: ', $error);
-            flashMessage('Error', 'Gagal membuat pengajuan', 'error');
+            flashMessage('Error', $error['message'] ?? 'Gagal membuat pengajuan', 'error');
 
             return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
         }

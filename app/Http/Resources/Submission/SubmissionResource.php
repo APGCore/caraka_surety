@@ -92,6 +92,7 @@ class SubmissionResource extends JsonResource
             'employee_limit' => $employeeLimit,
             'product_limit' => $productLimit,
             'beyond_the_limit' => $employeeLimit < $this->resource->guarantee_value,
+            'can_revised' => $this->resource->can_revised,
         ];
     }
 }
