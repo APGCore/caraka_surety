@@ -260,6 +260,7 @@ interface SubmissionDetailProps {
     min_point_scoring: number;
     submission_support_docs: string;
     has_send_to_guarantor: boolean;
+    can_revised: boolean;
   };
   blanks: {
     id: number;

@@ -483,14 +483,6 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
       preserveState: true,
       preserveScroll: true,
 
-      onError: (errors) => {
-        console.log(errors);
-        toast({
-          title: "Gagal",
-          description: "Terjadi kesalahan saat menyimpan data. Silahkan coba lagi",
-          variant: "destructive",
-        });
-      },
       onSuccess: () => {
         if (submission) {
           history.back();

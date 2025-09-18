@@ -1204,7 +1204,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               when={isApproved && !submission.has_send_to_guarantor}
               fallback={
                 <>
-                  <Show when={isApproved && !isRevised && submission.has_send_to_guarantor}>
+                  <Show when={isApproved && !isRevised && submission.has_send_to_guarantor && submission.can_revised}>
                     <Show
                       when={!isDisabled}
                       fallback={
