@@ -11,6 +11,7 @@ Route::middleware(HandleRoleUsers::class.':'.implode(',', [
     RoleEnum::Manager->value,
     RoleEnum::Staff->value,
     RoleEnum::Keuangan->value,
+    RoleEnum::KepalaCabang->value,
 ]))
     ->prefix('submission')
     ->name('submission.')->group(function () {
