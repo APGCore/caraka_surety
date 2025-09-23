@@ -1,5 +1,6 @@
 import React from "react";
 
+
 interface Branch {
   id: number;
   name: string;
@@ -14,7 +15,13 @@ interface User {
 export interface AdminDashboardProps {
   totalPremi?: number;
   totalSubmission?: number;
+  totalBlank?: number;
   totalUsedBlank?: number;
+  totalRevisedBlank?: number;
+  defaultDateRange?: {
+    from: string;
+    to: string;
+  };
   process: number;
   approved: number;
   rejected: number;

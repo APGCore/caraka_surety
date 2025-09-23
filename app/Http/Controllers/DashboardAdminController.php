@@ -8,118 +8,148 @@ use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardAdminController extends Controller
 {
-    /**
-     * Handle the incoming request.
-     */
-    public function __invoke(Request $request)
-    {
-        //
+  /**
+   * Handle the incoming request.
+   */
+  public function __invoke(Request $request)
+  {
+    // Range Tanggal
+    $firstBlankDate = Blank::min('created_at');
+    $lastBlankDate = Blank::max('created_at');
 
-        // Used Blanks
-        $usedBlanks = Blank::where('is_used', true)->count();
+    $defaultFrom = $firstBlankDate ? Carbon::parse($firstBlankDate)->toDateString() : now()->toDateString();
+    $defaultTo   = $lastBlankDate ? Carbon::parse($lastBlankDate)->toDateString() : now()->toDateString();
 
-        // All Branch
-        $userBranch = Profile::where('office_type', OfficeType::BRANCH->value)->get();
+    $from = $request->input('from', $defaultFrom);
+    $to   = $request->input('to', $defaultTo);
 
-        // initiate the model
-        $submission = Submission::whereYear('created_at', now()->year);
+    // Total Blanks
+    $totalBlanks = Blank::query()->whereBetween('created_at', [
+      Carbon::parse($from)->startOfDay(),
+      Carbon::parse($to)->endOfDay(),
+    ])->count();
 
-        // Filter the collection in memory
-        $approvedSubmission = (clone $submission)->whereNotNull('approved_by')->with('userApproved')->get();
+    // Used Blanks
+    $usedBlanks = Blank::query()->whereBetween('created_at', [
+      Carbon::parse($from)->startOfDay(),
+      Carbon::parse($to)->endOfDay(),
+    ])->where('is_used', true)->count();
 
-        // Total Premi
-        $totalPremi = $approvedSubmission->sum('guarantee_value');
+    // Revised Blanks
+    $revisedBlanks = Blank::query()->whereBetween('created_at', [
+      Carbon::parse($from)->startOfDay(),
+      Carbon::parse($to)->endOfDay(),
+    ])->where('is_revised', true)->count();
 
-        // Total User Who Aprrove Subs
-        $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique()->values();
-        $profileId = $request->get('profile_id');
+    // All Branch
+    $userBranch = Profile::where('office_type', OfficeType::BRANCH->value)->get();
 
-        $chartSubmissionThisYear = $this->getChartSubmissionThisYear((clone $submission), $profileId);
-        $submissionThisMonth = $this->getSubmissionThisMonth((clone $submission));
-        $countOfSubmission = $this->getCountOfSubmission((clone $submission));
-        $countGuarantors = Guarantor::whereNull('headquarter_id')->count();
+    // initiate the model
+    $submission = Submission::whereYear('created_at', now()->year);
 
-        return inertia('admin/dashboard/index', [
-            'totalPremi' => fn () => $totalPremi,
-            'totalUsedBlank' => fn () => $usedBlanks,
-            'totalSubmission' => fn () => $countOfSubmission['total'],
-            'process' => fn () => $countOfSubmission['process'],
-            'approved' => fn () => $countOfSubmission['approved'],
-            'rejected' => fn () => $countOfSubmission['rejected'],
-            'branches' => fn () => $userBranch,
-            'userApprovedSubmission' => fn () => $userApprovedSubmission,
-            'graph_data' => $chartSubmissionThisYear,
-            'submissions' => $submissionThisMonth,
-            'countGuarantors' => $countGuarantors,
-        ]);
+    // Filter the collection in memory
+    $approvedSubmission = (clone $submission)->whereNotNull('approved_by')->with('userApproved')->get();
+
+    // Total Premi
+    $totalPremi = $approvedSubmission->sum('guarantee_value');
+
+    // Total User Who Aprrove Subs
+    $userApprovedSubmission = $approvedSubmission->pluck('userApproved')->unique()->values();
+    $profileId = $request->get('profile_id');
+
+    $chartSubmissionThisYear = $this->getChartSubmissionThisYear((clone $submission), $profileId);
+    $submissionThisMonth = $this->getSubmissionThisMonth((clone $submission));
+    $countOfSubmission = $this->getCountOfSubmission((clone $submission));
+    $countGuarantors = Guarantor::whereNull('headquarter_id')->count();
+
+    return inertia('admin/dashboard/index', [
+      'totalPremi' => fn() => $totalPremi,
+      'totalBlank' => $totalBlanks,
+      'totalUsedBlank' => $usedBlanks,
+      'totalRevisedBlank' => $revisedBlanks,
+      'defaultDateRange' => [
+        'from' => $defaultFrom,
+        'to' => $defaultTo,
+      ],
+      'totalSubmission' => fn() => $countOfSubmission['total'],
+      'process' => fn() => $countOfSubmission['process'],
+      'approved' => fn() => $countOfSubmission['approved'],
+      'rejected' => fn() => $countOfSubmission['rejected'],
+      'branches' => fn() => $userBranch,
+      'userApprovedSubmission' => fn() => $userApprovedSubmission,
+      'graph_data' => $chartSubmissionThisYear,
+      'submissions' => $submissionThisMonth,
+      'countGuarantors' => $countGuarantors,
+    ]);
+  }
+
+  private function getCountOfSubmission($submissions): array
+  {
+    $totalSubmission = $submissions->count();
+    $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
+    $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
+    $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED->value)->count();
+
+    return [
+      'total' => $totalSubmission,
+      'process' => $totalSubmissionProcess,
+      'approved' => $totalSubmissionApproved,
+      'rejected' => $totalSubmissionRejected,
+    ];
+  }
+
+  private function getChartSubmissionThisYear($submissions, $profileId): array
+  {
+    // get month names in Indonesian
+    $monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agus',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+
+    $submissions = $submissions
+      ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+      ->whereYear('created_at', now()->year)
+      ->when($profileId, function ($query, $profileId) {
+        return $query->whereHas('staff', function ($query) use ($profileId) {
+          $query->where('profile_id', $profileId);
+        });
+      })
+      ->groupBy('month')
+      ->get();
+
+    $chartData = [];
+    foreach ($monthNames as $key => $monthName) {
+      $chartData[] = [
+        'month' => $monthName,
+        'total' => $submissions->firstWhere('month', $key + 1)?->total ?? 0,
+      ];
     }
 
-    private function getCountOfSubmission($submissions): array
-    {
-        $totalSubmission = $submissions->count();
-        $totalSubmissionProcess = $submissions->where('status', SubmissionStatus::PROCESS->value)->count();
-        $totalSubmissionApproved = $submissions->where('status', SubmissionStatus::APPROVED->value)->count();
-        $totalSubmissionRejected = $submissions->where('status', SubmissionStatus::REJECTED->value)->count();
+    return $chartData;
+  }
 
-        return [
-            'total' => $totalSubmission,
-            'process' => $totalSubmissionProcess,
-            'approved' => $totalSubmissionApproved,
-            'rejected' => $totalSubmissionRejected,
-        ];
-    }
-
-    private function getChartSubmissionThisYear($submissions, $profileId): array
-    {
-        // get month names in Indonesian
-        $monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'Mei',
-            'Juni',
-            'Juli',
-            'Agus',
-            'Sep',
-            'Okt',
-            'Nov',
-            'Des',
-        ];
-
-        $submissions = $submissions
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
-            ->whereYear('created_at', now()->year)
-            ->when($profileId, function ($query, $profileId) {
-                return $query->whereHas('staff', function ($query) use ($profileId) {
-                    $query->where('profile_id', $profileId);
-                });
-            })
-            ->groupBy('month')
-            ->get();
-
-        $chartData = [];
-        foreach ($monthNames as $key => $monthName) {
-            $chartData[] = [
-                'month' => $monthName,
-                'total' => $submissions->firstWhere('month', $key + 1)?->total ?? 0,
-            ];
-        }
-
-        return $chartData;
-    }
-
-    private function getSubmissionThisMonth($submissions): object
-    {
-        return $submissions->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
-            ->with(['principal:id,name', 'product:id,name'])
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->orderByDesc('created_at')
-            ->get();
-    }
+  private function getSubmissionThisMonth($submissions): object
+  {
+    return $submissions->select('id', 'principal_id', 'product_id', 'contract_value', 'guarantee_value', 'status')
+      ->with(['principal:id,name', 'product:id,name'])
+      ->whereYear('created_at', now()->year)
+      ->whereMonth('created_at', now()->month)
+      ->orderByDesc('created_at')
+      ->get();
+  }
 }
