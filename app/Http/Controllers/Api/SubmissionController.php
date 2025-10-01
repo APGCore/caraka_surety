@@ -499,6 +499,7 @@ class SubmissionController extends Controller
                             'postal_code' => $submission->getAttribute('job_location_postal_code'),
                         ],
                     ],
+                    'publication_date' => $submission->getAttribute('publication_date'),
                 ],
                 'output' => $submissionDocs->map(fn ($doc) => [
                     'name' => $doc['name'],
