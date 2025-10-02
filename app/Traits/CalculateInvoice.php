@@ -2,9 +2,10 @@
 
 namespace App\Traits;
 
+use Carbon\Carbon;
 use App\Enums\SubmissionStatus;
-use App\Models\Submission\Submission;
 use Illuminate\Support\Collection;
+use App\Models\Submission\Submission;
 
 trait CalculateInvoice
 {
@@ -30,22 +31,83 @@ trait CalculateInvoice
 
   public function calculateOffice(Submission $submission): Collection
   {
-    $submission->loadMissing(['office.profileRate']);
-    $timePeriode = (int) $submission->getAttribute('time_period');
-    $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-    $office = $submission->getRelation('office');
-    $profileRate = $office->getRelation('profileRate')
-      ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-      ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
-      ->first();
+    if ($submission->getAttribute('submission_before_id') !== null) {
+      $newSubmission = null;
+      $oldSubmission = null;
 
-    $minimum = (float) ($profileRate?->getAttribute('minimum_bill') ?? 0);
-    $rate = (float) ($profileRate?->getAttribute('selling_rate') ?? 0);
-    $adm = (float) ($profileRate?->getAttribute('sales_administration') ?? 0);
-    $brokenRate = (float) ($profileRate?->getAttribute('broken_rate') ?? 0);
-    $revisedRate = (float) ($profileRate?->getAttribute('revised_rate') ?? 0);
+      $newSubmission = $submission;
+      $oldSubmission = Submission::find($newSubmission->getAttribute('submission_before_id'));
 
-    return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+      $oldDate = Carbon::parse($oldSubmission->getAttribute('send_to_guarantor_at'));
+      $newDate = Carbon::parse($newSubmission->getAttribute('send_to_guarantor_at'));
+
+      $oldPeriod = $this->getPeriod($oldDate);
+      $newPeriod = $this->getPeriod($newDate);
+
+      $isSamePeriod = $oldDate->month === $newDate->month
+        && $oldDate->year === $newDate->year
+        && $oldPeriod === $newPeriod;
+
+      $newSubmission->loadMissing(['office.profileRate']);
+      $office = $newSubmission->getRelation('office');
+      $timePeriode = (int) $newSubmission->getAttribute('time_period');
+      $profileRate = $office->getRelation('profileRate')
+        ->where('guarantor_id', $newSubmission->getAttribute('guarantor_id'))
+        ->where('guarantor_to_product_type_id', $newSubmission->getAttribute('guarantor_to_product_type_id'))
+        ->first();
+
+      $rate = (float) ($profileRate?->getAttribute('selling_rate') ?? 0);
+      $adm = (float) ($profileRate?->getAttribute('sales_administration') ?? 0);
+      $minimum = (float) ($profileRate?->getAttribute('minimum_bill') ?? 0);
+      $brokenRate = (float) ($profileRate?->getAttribute('broken_rate') ?? 0);
+      $revisedRate = (float) ($profileRate?->getAttribute('revised_rate') ?? 0);
+
+      if ($isSamePeriod) {
+        $guaranteeValue = (float) $newSubmission->getAttribute('guarantee_value');
+        return $this->extractedSellingRates(null, $guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+      } else {
+        $oldGuaranteeValue = (float) $oldSubmission->getAttribute('guarantee_value');
+        $newGuaranteeValue = (float) $newSubmission->getAttribute('guarantee_value');
+        return $this->extractedSellingRates($oldGuaranteeValue, $newGuaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+      }
+    } else {
+      $newSubmission = Submission::where('submission_before_id', $submission->id)->first();
+
+      $submission->loadMissing(['office.profileRate']);
+      $timePeriode = (int) $submission->getAttribute('time_period');
+      $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
+      $office = $submission->getRelation('office');
+      $profileRate = $office->getRelation('profileRate')
+        ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+        ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+        ->first();
+
+      $minimum = (float) ($profileRate?->getAttribute('minimum_bill') ?? 0);
+      $rate = (float) ($profileRate?->getAttribute('selling_rate') ?? 0);
+      $adm = (float) ($profileRate?->getAttribute('sales_administration') ?? 0);
+      $brokenRate = (float) ($profileRate?->getAttribute('broken_rate') ?? 0);
+      $revisedRate = (float) ($profileRate?->getAttribute('revised_rate') ?? 0);
+
+      if ($newSubmission) {
+        $oldDate = Carbon::parse($submission->getAttribute('send_to_guarantor_at'));
+        $newDate = Carbon::parse($newSubmission->getAttribute('send_to_guarantor_at'));
+
+        $oldPeriod = $this->getPeriod($oldDate);
+        $newPeriod = $this->getPeriod($newDate);
+
+        $isSamePeriod = $oldDate->month === $newDate->month
+          && $oldDate->year === $newDate->year
+          && $oldPeriod === $newPeriod;
+
+        if ($isSamePeriod) {
+          return $this->extractedSellingRates(null, $guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+        } else {
+          return $this->extractedSellingRates($guaranteeValue, null, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+        }
+      } else {
+        return $this->extractedSellingRates($guaranteeValue, null, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+      }
+    }
   }
 
   public function calculatePrincipal(Submission $submission): Collection
@@ -65,7 +127,7 @@ trait CalculateInvoice
     $brokenRate = (float) ($principalRate?->getAttribute('broken_rate') ?? 0);
     $revisedRate = (float) ($principalRate?->getAttribute('revised_rate') ?? 0);
 
-    return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+    return $this->extractedSellingRates($guaranteeValue, null, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
   }
 
   public function calculateCapitalRates(Submission $submission): Collection
@@ -124,26 +186,67 @@ trait CalculateInvoice
       $adm = $revisedRate;
     }
 
-    return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
+    return $this->extractedSellingRates($guaranteeValue, null, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
   }
 
-  private function extractedSellingRates(float $guaranteeValue, float|int $rate, int $timePeriode, float $adm, float|int $minimum, float $brokenRate, float $revisedRate): Collection
-  {
-    $subService = $guaranteeValue * ($rate / 100);
-    $serviceCharges = $timePeriode > 90 ? ($subService * $timePeriode) / 90 : $subService;
-    $total = max(($serviceCharges + $adm), $minimum);
-    $premi = max($serviceCharges, $minimum);
+  private function extractedSellingRates(
+    float|null $oldGuaranteeValue,
+    float|null $newGuaranteeValue,
+    float|int $rate,
+    int $timePeriode,
+    float $adm,
+    float|int $minimum,
+    float $brokenRate,
+    float $revisedRate,
+  ): Collection {
+    if ($oldGuaranteeValue && $newGuaranteeValue) {
+      $oldSubService = $oldGuaranteeValue * ($rate / 100);
+      $newSubService = $newGuaranteeValue * ($rate / 100);
 
-    return collect([
-      'minimum' => $minimum,
-      'rate' => $rate,
-      'adm' => $adm,
-      'broken_rate' => $brokenRate,
-      'revised_rate' => $revisedRate,
-      'service_charges' => $serviceCharges,
-      'total' => $total,
-      'premi' => $premi,
-    ]);
+      $oldServiceCharges = $timePeriode > 90 ? ($oldSubService * $timePeriode) / 90 : $oldSubService;
+      $newServiceCharges = $timePeriode > 90 ? ($newSubService * $timePeriode) / 90 : $newSubService;
+
+      $oldTotal = max(($oldServiceCharges + $adm), $minimum);
+      $newTotal = max(($newServiceCharges + $adm), $minimum);
+      $total = ($newTotal - $oldTotal) + $brokenRate;
+
+      $premi = max($newServiceCharges, $minimum);
+
+      return collect([
+        'minimum' => $minimum,
+        'rate' => $rate,
+        'adm' => $adm,
+        'broken_rate' => $brokenRate,
+        'revised_rate' => $revisedRate,
+        'service_charges' => $newServiceCharges,
+        'total' => $total,
+        'premi' => $premi,
+      ]);
+    } else {
+      $guarantee = $newGuaranteeValue && !$oldGuaranteeValue
+        ? $newGuaranteeValue
+        : ($oldGuaranteeValue && !$newGuaranteeValue ? $oldGuaranteeValue : 0);
+
+      $subService = $guarantee * ($rate / 100);
+      $serviceCharges = $timePeriode > 90 ? ($subService * $timePeriode) / 90 : $subService;
+
+      $total = $newGuaranteeValue && !$oldGuaranteeValue
+        ? $adm
+        : max(($serviceCharges + $adm), $minimum);
+
+      $premi = max($serviceCharges, $minimum);
+
+      return collect([
+        'minimum' => $minimum,
+        'rate' => $rate,
+        'adm' => $adm,
+        'broken_rate' => $brokenRate,
+        'revised_rate' => $revisedRate,
+        'service_charges' => $serviceCharges,
+        'total' => $total,
+        'premi' => $premi,
+      ]);
+    }
   }
 
   private function extractedCapitalRates(int $timePeriode, float $guaranteeValue, float $rate, float|int $minimum, float|int $adm, float $commission, float $pph, float|int $brokenRate, float|int $revisedRate): Collection
@@ -174,5 +277,17 @@ trait CalculateInvoice
       'nett_commission' => $nettCommission,
       'nett_premi' => $nettPremi,
     ]);
+  }
+
+  private function getPeriod(Carbon $date): int
+  {
+    $day = (int) $date->day;
+
+    if ($day >= 1 && $day <= 10) {
+      return 1;
+    } elseif ($day >= 11 && $day <= 20) {
+      return 2;
+    }
+    return 3;
   }
 }
