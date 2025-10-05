@@ -104,7 +104,8 @@ class InvoiceController extends Controller
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('no_guarantee')
+            ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
@@ -213,6 +214,7 @@ class InvoiceController extends Controller
         //        $principalRate = $this->calculatePrincipal($submission);
         $capitalRate = $this->calculateCapitalRates($submission);
         //        $sellingRate = $this->calculateSellingRates($submission);
+        $totalPremi = ($capitalRate->get('total') ?? 0) - ($guarantorRate->get('nett_premi') ?? 0);
         $isSet = $submission->getRelation('submissionRate') !== null;
 
         $submission->unsetRelation('guarantor.guarantorRate');
@@ -230,6 +232,7 @@ class InvoiceController extends Controller
             //            'principal_rate' => $principalRate,
             'capital_rate' => $capitalRate,
             'selling_rate' => $officeRate,
+            'total_premi' => $totalPremi,
             'is_set' => $isSet,
         ]);
     }

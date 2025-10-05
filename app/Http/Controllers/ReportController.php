@@ -104,6 +104,7 @@ class ReportController extends Controller
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
+            ->orderBy('no_guarantee')
             ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();

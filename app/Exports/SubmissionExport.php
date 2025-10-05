@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
@@ -54,6 +55,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
+            ->orderBy('no_guarantee')
             ->orderByDesc('send_to_guarantor_at')
             ->get();
     }
@@ -108,7 +110,6 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
     {
         $rateModal = $this->calculateCapitalRates($row);
         $rateJual = $this->calculateSellingRates($row);
-        $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
         $data = [
             ++$this->rowNumber,
@@ -116,7 +117,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->guarantorBranch->name ?? '',
             $row->office->name ?? '',
             $row->blank?->getAttribute('number') ?? '-',
-            $isProcess ? 'XXXXXXXXXXXXXXXX' : $row->no_guarantee,
+            $row->no_guarantee,
             $row->principal->name ?? '',
             $row->obligee->name ?? '',
             $row->guarantee_value,
@@ -161,7 +162,29 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $sheet = $event->sheet->getDelegate();
                 // Menentukan jumlah kolom yang digunakan
                 $highestColumn = $sheet->getHighestColumn();
+                $highestRow = $sheet->getHighestRow();
                 $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+
+                // Loop semua baris (mulai dari 2 karena baris 1 adalah header)
+                for ($row = 2; $row <= $highestRow; $row++) {
+                    // Kolom "P" berisi status (sesuai headings di map)
+                    $statusCell = 'P'.$row;
+                    $status = $sheet->getCell($statusCell)->getValue();
+
+                    if ($status === 'DIREVISI') {
+                        // Terapkan background warna kuning/oranye
+                        $range = 'A'.$row.':'.$highestColumn.$row;
+                        $sheet->getStyle($range)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'color' => ['rgb' => 'FFF3CD'], // warna kuning lembut (seperti alert warning bootstrap)
+                            ],
+                            'font' => [
+                                'color' => ['rgb' => '856404'], // teks kecoklatan agar tetap kontras
+                            ],
+                        ]);
+                    }
+                }
 
                 // Adjust column widths automatically
                 for ($col = 1; $col <= $highestColumnIndex; $col++) {

@@ -32,6 +32,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
   office_rate,
   capital_rate,
   selling_rate,
+  total_premi,
   is_set,
 }) => {
   const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
@@ -340,6 +341,14 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
               </Card>
             </div>
           </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pendapatan Premi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{formatCurrency(total_premi ?? 0)}</p>
         </CardContent>
         {is_set && (
           <CardFooter>
