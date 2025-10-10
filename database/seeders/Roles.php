@@ -16,7 +16,7 @@ class Roles extends Seeder
         $roles = RoleEnum::getValues();
 
         foreach ($roles as $role) {
-            Role::create([
+            Role::query()->create([
                 'name' => $role,
             ]);
         }

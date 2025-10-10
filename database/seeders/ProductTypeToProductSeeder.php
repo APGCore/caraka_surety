@@ -77,7 +77,7 @@ class ProductTypeToProductSeeder extends Seeder
         ];
 
         foreach ($productTypeToProducts as $productTypeToProduct) {
-            ProductTypeToProduct::create($productTypeToProduct);
+            ProductTypeToProduct::query()->create($productTypeToProduct);
         }
     }
 }

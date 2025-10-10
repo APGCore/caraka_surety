@@ -86,7 +86,7 @@ class ScoringQuestionSeeder extends Seeder
         ];
 
         foreach ($scoringQuestions as $question) {
-            ScoringQuestion::create($question);
+            ScoringQuestion::query()->create($question);
         }
     }
 }

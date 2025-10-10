@@ -273,7 +273,7 @@ class ScoringOptionSeeder extends Seeder
         ];
 
         foreach ($scoringOptions as $scoringOption) {
-            ScoringOption::create($scoringOption);
+            ScoringOption::query()->create($scoringOption);
         }
     }
 }

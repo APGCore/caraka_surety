@@ -40,7 +40,7 @@ class BankSeeder extends Seeder
         ];
 
         foreach ($banks as $bank) {
-            Bank::create($bank);
+            Bank::query()->create($bank);
         }
     }
 }

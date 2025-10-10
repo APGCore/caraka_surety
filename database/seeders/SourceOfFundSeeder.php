@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Submission\SourceOfFund;
 use Illuminate\Database\Seeder;
 
 class SourceOfFundSeeder extends Seeder
@@ -20,7 +21,7 @@ class SourceOfFundSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
-            \App\Models\Submission\SourceOfFund::create($item);
+            SourceOfFund::query()->create($item);
         }
     }
 }
