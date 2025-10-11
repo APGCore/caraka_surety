@@ -12,7 +12,7 @@ class Users extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        User::query()->create([
             'name' => 'Admin',
             'username' => 'admin',
             'email' => 'adminbpr@gmail.com',
@@ -21,7 +21,7 @@ class Users extends Seeder
             'role_id' => 1,
         ]);
 
-        User::create([
+        User::query()->create([
             'name' => 'Direksi',
             'username' => 'direksi',
             'email' => 'direksibpr@gmail.com',
@@ -30,7 +30,7 @@ class Users extends Seeder
             'role_id' => 2,
         ]);
 
-        User::create([
+        User::query()->create([
             'name' => 'Kepala Cabang',
             'username' => 'kepala-cabang',
             'email' => 'branchmanagerbpr@gmail.com',
@@ -40,7 +40,7 @@ class Users extends Seeder
             'role_id' => 3,
         ]);
 
-        User::create([
+        User::query()->create([
             'name' => 'Manager',
             'username' => 'manager',
             'email' => 'managerbpr@gmail.com',
@@ -49,7 +49,7 @@ class Users extends Seeder
             'role_id' => 4,
         ]);
 
-        User::create([
+        User::query()->create([
             'name' => 'Staff',
             'username' => 'staff',
             'email' => 'staffbpr@gmail.com',
@@ -59,7 +59,7 @@ class Users extends Seeder
             'role_id' => 5,
         ]);
 
-        User::create([
+        User::query()->create([
             'name' => 'Staff Cabang',
             'username' => 'staff-cabang',
             'email' => 'staffbprcabang1@gmail.com',
@@ -67,6 +67,15 @@ class Users extends Seeder
             'head_id' => 3, // Kepala Cabang
             'profile_id' => 2,
             'role_id' => 5,
+        ]);
+
+        User::query()->create([
+          'name' => 'Finance',
+          'username' => 'keuangan',
+          'email' => 'keuangan@gmail.com',
+          'password' => bcrypt('password'),
+          'profile_id' => 1,
+          'role_id' => 6,
         ]);
     }
 }

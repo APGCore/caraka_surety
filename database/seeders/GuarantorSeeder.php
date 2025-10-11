@@ -28,7 +28,7 @@ class GuarantorSeeder extends Seeder
                 'pic' => 'Dummy',
             ],
             [
-                'head_id' => 1,
+                'headquarter_id' => 1,
                 'province_id' => 11,
                 'regency_id' => 97,
                 'district_id' => 53,
