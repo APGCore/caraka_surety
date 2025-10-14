@@ -10,6 +10,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\FilterOffice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -17,143 +18,232 @@ use Inertia\ResponseFactory;
 
 class ReportController extends Controller
 {
-    use FilterOffice;
+  use FilterOffice;
 
-    protected string $headComponent;
+  protected string $headComponent;
 
-    public function __construct()
-    {
-        $this->headComponent = 'report';
+  public function __construct()
+  {
+    $this->headComponent = 'report';
+  }
+
+  public function productionReport(Request $request): Response|ResponseFactory
+  {
+    $dateFrom = $request->input('date.from');
+    $dateTo = $request->input('date.to');
+    $date = ($dateFrom && $dateTo)
+      ? [
+        "$dateFrom 00:00:00",
+        "$dateTo 23:59:59",
+      ]
+      : [
+        now()->subDays(7)->toDateString() . ' 00:00:00',
+        now()->toDateString() . ' 23:59:59',
+      ];
+
+    // if branch
+    $user = $request->user();
+    $user->load('office:id,office_type');
+    if ($user->office?->office_type === OfficeType::BRANCH->value) {
+      $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, [$user->profile_id]);
+    } else {
+      $officeFilter = $this->filterOffice($request);
     }
+    $officeTypes = $officeFilter->officeTypes;
+    $offices = $officeFilter->offices;
+    $officeTypeSelected = $officeFilter->officeTypeSelected;
+    $officeSelected = $officeFilter->officeSelected;
+    $guarantors = Guarantor::query()
+      ->whereNull('headquarter_id')
+      ->with('guarantorToProductTypes')
+      ->get(['id', 'name']);
+    $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
+    $products = Product::query()
+      ->with('productType')
+      ->get(['id', 'name']);
+    $productSelected = $request->get('product_id');
+    $product = $products->firstWhere('id', $productSelected);
+    $productTypes = $product ? $product->productType : [];
+    $productTypeSelected = $request->get('product_type_id');
+    $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
+      ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
+    $search = $request->get('search');
+    Log::info('Date Filter Production', ['date' => $date, 'request' => $request->all()]);
 
-    public function productionReport(Request $request): Response|ResponseFactory
-    {
-        $dateFrom = $request->input('date.from');
-        $dateTo = $request->input('date.to');
-        $date = ($dateFrom && $dateTo)
-          ? [
-              "$dateFrom 00:00:00",
-              "$dateTo 23:59:59",
-          ]
-          : [
-              now()->subDays(7)->toDateString().' 00:00:00',
-              now()->toDateString().' 23:59:59',
-          ];
+    $submissionIds = Submission::query()
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($query) use ($search) {
+          $query->whereLike('no_guarantee', "%$search%")
+            ->orWhereHas('principal', function ($query) use ($search) {
+              $query->whereLike('name', "%$search%");
+            });
+        });
+      })
+      ->when($guarantorSelected, fn($q) => $q->where('guarantor_id', $guarantorSelected))
+      ->when($officeSelected, fn($q) => $q->where('office_id', $officeSelected))
+      ->when($productSelected, fn($q) => $q->where('product_id', $productSelected))
+      ->when($guarantorToProductType, fn($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+      ->where('has_send_to_guarantor', true)
+      ->whereBetween('send_to_guarantor_at', $date)
+      ->pluck('id');
 
-        // if branch
-        $user = $request->user();
-        $user->load('office:id,office_type');
-        if ($user->office?->office_type === OfficeType::BRANCH->value) {
-            $officeFilter = $this->filterOffice($request, OfficeType::BRANCH, [$user->profile_id]);
-        } else {
-            $officeFilter = $this->filterOffice($request);
+    $submissions = Submission::query()
+      ->whereIn('id', $submissionIds)
+      ->with([
+        'guarantor:id,name,code',
+        'guarantorBranch:id,name,code',
+        'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+        'guarantor.guarantorRate',
+        'product:id,name',
+        'guarantorToProductType:id,code_product,code,name,full_name',
+        'blank:id,number,is_broken,is_revised',
+        'principal:id,name',
+        'obligee:id,name',
+        'staff:id,name,profile_id',
+        'office:id,name,code,office_type',
+        'office.profileRate',
+        'submissionBefore:id,blank_id',
+        'submissionBefore.blank',
+      ])
+      ->orderBy('no_guarantee')
+      ->orderBy('approved_at', 'desc')
+      ->paginate($request->get('per_page') ?? 10)
+      ->withQueryString();
+
+
+    // Patokan send_to_guarantor_at ke tanggap export
+    $finalReports = collect();
+    $revisionOnly = collect();
+
+    foreach ($submissions as $submission) {
+      // only take root submissions (no previous submission)
+      if ($submission->submission_before_id === null) {
+        $groups = collect();
+        $groups->push($submission);
+
+        // cari revisi yang berantai dari submission ini
+        $currentId = $submission->id;
+
+        foreach ($submissions as $next) {
+          if ($next->submission_before_id === $currentId) {
+            $groups->push($next);
+            $currentId = $next->id;
+          }
         }
-        $officeTypes = $officeFilter->officeTypes;
-        $offices = $officeFilter->offices;
-        $officeTypeSelected = $officeFilter->officeTypeSelected;
-        $officeSelected = $officeFilter->officeSelected;
-        $guarantors = Guarantor::query()
-            ->whereNull('headquarter_id')
-            ->with('guarantorToProductTypes')
-            ->get(['id', 'name']);
-        $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
-        $products = Product::query()
-            ->with('productType')
-            ->get(['id', 'name']);
-        $productSelected = $request->get('product_id');
-        $product = $products->firstWhere('id', $productSelected);
-        $productTypes = $product ? $product->productType : [];
-        $productTypeSelected = $request->get('product_type_id');
-        $guarantorToProductType = $guarantors->firstWhere('id', $guarantorSelected)
-            ?->guarantorToProductTypes->where('product_id', $productSelected)->where('product_type_id', $productTypeSelected)->first();
-        $search = $request->get('search');
-        Log::info('Date Filter Production', ['date' => $date, 'request' => $request->all()]);
 
-        $submissionIds = Submission::query()
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->whereLike('no_guarantee', "%$search%")
-                        ->orWhereHas('principal', function ($query) use ($search) {
-                            $query->whereLike('name', "%$search%");
-                        });
-                });
-            })
-            ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
-            ->when($officeSelected, fn ($q) => $q->where('office_id', $officeSelected))
-            ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
-            ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
-            ->where('has_send_to_guarantor', true)
-            ->whereBetween('send_to_guarantor_at', $date)
-            ->pluck('id');
-
-        $submissions = Submission::query()
-            ->whereIn('id', $submissionIds)
-            ->with([
-                'guarantor:id,name,code',
-                'guarantorBranch:id,name,code',
-                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                'guarantor.guarantorRate',
-                'product:id,name',
-                'guarantorToProductType:id,code_product,code,name,full_name',
-                'blank:id,number,is_broken,is_revised',
-                'principal:id,name',
-                'obligee:id,name',
-                'staff:id,name,profile_id',
-                'office:id,name,code,office_type',
-                'office.profileRate',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
-            ])
-            ->orderBy('no_guarantee')
-            ->orderBy('approved_at', 'desc')
-            ->paginate($request->get('per_page') ?? 10)
-            ->withQueryString();
-
-        $resource = SubmissionResource::collection($submissions);
-        $component = "$this->headComponent/production/index";
-
-        return inertia($component, [
-            'page_settings' => [
-                'title' => 'Laporan Produksi',
-            ],
-            'submissions' => fn () => $resource,
-            'submissionIds' => $submissionIds,
-            'offices' => $offices,
-            'officeTypes' => $officeTypes,
-            'officeSelected' => (int) $officeSelected,
-            'officeTypeSelected' => $officeTypeSelected,
-            'guarantors' => $guarantors->map->only('id', 'name'),
-            'guarantorSelected' => $guarantorSelected,
-            'products' => $products,
-            'productSelected' => (int) $productSelected,
-            'productTypes' => $productTypes,
-            'productTypeSelected' => (int) $productTypeSelected,
-            'filters' => $request->only(['search', 'date']),
+        $finalReports->push([
+          'submission_id' => $submission->id,
+          'groups' => $groups->values(),
         ]);
+      } else {
+        $revisionOnly->push($submission);
+      }
     }
 
-    public function blankUsage(Request $request)
-    {
-        $blanks = Blank::query()
-            ->with([
-                'guarantor:id,name',
-                'profile:id,name',
-                'fromProfile:id,name',
-            ])
-            ->when($request->get('search'), function ($query, $search) {
-                $query->where('number', 'like', "%$search%");
-            })
-            ->orderBy('id')
-            ->paginate($request->get('per_page') ?? 10)
-            ->appends($request->all());
+    // ambil kepala (head) dari setiap revisi
+    $submissionHeads = Submission::query()
+      ->whereIn('id', $revisionOnly->pluck('submission_before_id'))
+      ->get();
 
-        $resource = BlankUsageResource::collection($blanks);
+    // buat struktur yang sama seperti $finalReports untuk revisi
+    $mergedReports = collect();
 
-        return inertia("$this->headComponent./blanks-usage/index", [
-            'page_settings' => [
-                'title' => 'Laporan Penggunaan Blangko',
-            ],
-            'blankUsage' => fn () => $resource,
-        ]);
+    foreach ($submissionHeads as $head) {
+      $groups = collect();
+      $groups->push($head);
+
+      $currentId = $head->id;
+
+      foreach ($revisionOnly as $revision) {
+        if ($revision->submission_before_id === $currentId) {
+          $groups->push($revision);
+          $currentId = $revision->id;
+        }
+      }
+
+      $mergedReports->push([
+        'submission_id' => $head->id,
+        'groups' => $groups->values(),
+      ]);
     }
+
+    // jika mau semua jadi satu (final + revision heads)
+    $allReports = $finalReports->merge($mergedReports)->values();
+
+    // Sort by the created_at of the first group (oldest first)
+    $filteredReports = $allReports->sortBy(function ($report) {
+      return $report['groups']->first()->created_at;
+    })->values();
+
+
+
+    $resource = SubmissionResource::collection($submissions);
+
+
+
+
+
+
+    $component = "$this->headComponent/production/index";
+
+    return inertia($component, [
+      'page_settings' => [
+        'title' => 'Laporan Produksi',
+      ],
+      'finalReports' => fn() => $finalReports,
+      'allReports' => fn() => $filteredReports,
+      'mergedReports' => fn() => $mergedReports,
+      'submissions' => fn() => $resource,
+      'submissionIds' => $submissionIds,
+      'offices' => $offices,
+      'officeTypes' => $officeTypes,
+      'officeSelected' => (int) $officeSelected,
+      'officeTypeSelected' => $officeTypeSelected,
+      'guarantors' => $guarantors->map->only('id', 'name'),
+      'guarantorSelected' => $guarantorSelected,
+      'products' => $products,
+      'productSelected' => (int) $productSelected,
+      'productTypes' => $productTypes,
+      'productTypeSelected' => (int) $productTypeSelected,
+      'filters' => $request->only(['search', 'date']),
+    ]);
+  }
+
+  public function blankUsage(Request $request)
+  {
+    $blanks = Blank::query()
+      ->with([
+        'guarantor:id,name',
+        'profile:id,name',
+        'fromProfile:id,name',
+      ])
+      ->when($request->get('search'), function ($query, $search) {
+        $query->where('number', 'like', "%$search%");
+      })
+      ->orderBy('id')
+      ->paginate($request->get('per_page') ?? 10)
+      ->appends($request->all());
+
+    $resource = BlankUsageResource::collection($blanks);
+
+    return inertia("$this->headComponent./blanks-usage/index", [
+      'page_settings' => [
+        'title' => 'Laporan Penggunaan Blangko',
+      ],
+      'blankUsage' => fn() => $resource,
+    ]);
+  }
+
+  private function getPeriod(Carbon $date): int
+  {
+    $day = $date->day;
+
+    if ($day >= 1 && $day <= 10) {
+      return 1;
+    } elseif ($day >= 11 && $day <= 20) {
+      return 2;
+    }
+
+    return 3;
+  }
 }

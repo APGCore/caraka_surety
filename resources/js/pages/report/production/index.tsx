@@ -9,7 +9,7 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import SubmissionDatatable from "./_partials/submission-datatable";
 import SubmissionHeader from "./_partials/submission-header";
@@ -29,7 +29,21 @@ const SubmissionPage: SubmissionPageProps = ({
   productSelected,
   productTypes,
   productTypeSelected,
+  finalReports,
+  allReports,
+  mergedReports,
 }) => {
+  console.log("finalReports", finalReports);
+  console.log("allReports", allReports);
+  console.log("mergedReports", mergedReports);
+  console.log("submissions", submissions);
+  const finalReportMapped = useMemo(() => {
+    return allReports.flatMap((item: any) => item.groups);
+  }, [allReports]);
+  console.log({
+    finalReportMapped,
+    submissions,
+  });
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
   const paramDateFrom = getQueryParameter("date[from]");
