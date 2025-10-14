@@ -148,7 +148,7 @@ class ReportController extends Controller
 
         $resource = BlankUsageResource::collection($blanks);
 
-        return inertia("$this->headComponent./blanks-usage/index", [
+        return inertia("$this->headComponent/blanks-usage/index", [
             'page_settings' => [
                 'title' => 'Laporan Penggunaan Blangko',
             ],
