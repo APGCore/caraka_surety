@@ -16,6 +16,18 @@ interface SubmissionProps {
   finalReports: any;
   allReports: any;
   mergedReports: any;
+  filters: {
+    search: string;
+    date: string[];
+    years: { id: number, value: number; text: string }[];
+    months: { id: number, value: number; text: string }[];
+    periods: { id: number, value: number; text: string }[];
+  },
+  dates: {
+    year: number;
+    month: number;
+    period: number;
+  }
 }
 
 export type SubmissionPageProps = React.FC<SubmissionProps> & {
