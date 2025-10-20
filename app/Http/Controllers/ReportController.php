@@ -49,14 +49,14 @@ class ReportController extends Controller
         $period = (int) $request->input('date.period', $nowPeriod);
         $date = [
             match ($period) {
-                1 => "$year-$month-01 00:00:00",
+                1, 4 => "$year-$month-01 00:00:00",
                 2 => "$year-$month-11 00:00:00",
                 3 => "$year-$month-21 00:00:00",
             },
             match ($period) {
                 1 => "$year-$month-10 23:59:59",
                 2 => "$year-$month-20 23:59:59",
-                3 => now()->endOfMonth()->toDateString().' 23:59:59',
+                3, 4 => now()->endOfMonth()->toDateString().' 23:59:59',
             },
         ];
         // for filters
@@ -77,6 +77,7 @@ class ReportController extends Controller
           ['id' => 1, 'text' => '1 (1 - 10)', 'value' => 1],
           ['id' => 2, 'text' => '2 (11 - 20)', 'value' => 2],
           ['id' => 3,'text' => '3 (21 - '.now()->endOfMonth()->day . ')', 'value' => 3],
+          ['id' => 4, 'text' => '1 Bulan', 'value' => 4],
         ]);
 
         // if branch
