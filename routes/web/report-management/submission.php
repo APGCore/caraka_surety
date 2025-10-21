@@ -15,5 +15,5 @@ Route::middleware(HandleRoleUsers::class.':'.implode(',', [
 ]))
     ->prefix('submission')
     ->name('submission.')->group(function () {
-        Route::get('/', [ExportController::class, 'submissionToExcel'])->name('export.excel');
+        Route::post('/', [ExportController::class, 'submissionToExcel'])->name('export.excel');
     });
