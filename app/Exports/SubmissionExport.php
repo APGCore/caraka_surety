@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Enums\SubmissionStatus;
-use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -12,24 +11,26 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
+class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     use CalculateInvoice;
 
-    protected array $submissionIds;
+    protected Collection $submissions;
 
     protected bool $isBranch;
 
     private int $rowNumber = 0;
 
-    public function __construct(array $submissionIds, bool $isBranch = false)
+    public function __construct(Collection $submissions, bool $isBranch = false)
     {
-        $this->submissionIds = $submissionIds;
+        $this->submissions = $submissions;
         $this->isBranch = $isBranch;
     }
 
@@ -38,26 +39,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
      */
     public function collection(): Collection
     {
-        return Submission::query()
-            ->whereIn('id', $this->submissionIds)
-            ->with([
-                'guarantor:id,name,code',
-                'guarantorBranch:id,name,code',
-                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                'guarantor.guarantorRate',
-                'product:id,name',
-                'guarantorToProductType:id,code_product,code,name,full_name',
-                'blank:id,number,is_broken,is_revised',
-                'principal:id,name',
-                'obligee:id,name',
-                'staff:id,name,profile_id',
-                'office:id,name,office_type',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
-            ])
-            ->orderBy('no_guarantee')
-            ->orderByDesc('send_to_guarantor_at')
-            ->get();
+        return $this->submissions;
     }
 
     /**
@@ -106,10 +88,21 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         return $data;
     }
 
+    public function styles(Worksheet $sheet): array
+    {
+        return [
+            1 => ['font' => ['bold' => true], 'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFDDDDDD'], // abu-abu header
+            ]],
+        ];
+    }
+
     public function map($row): array
     {
         $rateModal = $this->calculateCapitalRates($row);
         $rateJual = $this->calculateSellingRates($row);
+        $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
         $data = [
             ++$this->rowNumber,
@@ -117,7 +110,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->guarantorBranch->name ?? '',
             $row->office->name ?? '',
             $row->blank?->getAttribute('number') ?? '-',
-            $row->no_guarantee,
+            $isProcess ? 'XXXXXXXXXXXXXXXX' : $row->no_guarantee,
             $row->principal->name ?? '',
             $row->obligee->name ?? '',
             $row->guarantee_value,
@@ -162,29 +155,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $sheet = $event->sheet->getDelegate();
                 // Menentukan jumlah kolom yang digunakan
                 $highestColumn = $sheet->getHighestColumn();
-                $highestRow = $sheet->getHighestRow();
                 $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
-
-                // Loop semua baris (mulai dari 2 karena baris 1 adalah header)
-                for ($row = 2; $row <= $highestRow; $row++) {
-                    // Kolom "P" berisi status (sesuai headings di map)
-                    $statusCell = 'P'.$row;
-                    $status = $sheet->getCell($statusCell)->getValue();
-
-                    if ($status === 'DIREVISI') {
-                        // Terapkan background warna kuning/oranye
-                        $range = 'A'.$row.':'.$highestColumn.$row;
-                        $sheet->getStyle($range)->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'color' => ['rgb' => 'FFF3CD'], // warna kuning lembut (seperti alert warning bootstrap)
-                            ],
-                            'font' => [
-                                'color' => ['rgb' => '856404'], // teks kecoklatan agar tetap kontras
-                            ],
-                        ]);
-                    }
-                }
 
                 // Adjust column widths automatically
                 for ($col = 1; $col <= $highestColumnIndex; $col++) {
@@ -193,6 +164,23 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 }
 
                 $sheet->getStyle('A')->getAlignment()->setHorizontal('center');
+                $sheet->freezePane('A2');
+
+                // Alternating row colors
+                $rowCount = $sheet->getHighestRow();
+                for ($row = 2; $row <= $rowCount; $row++) {
+                    $color = 'FFFFFFFF';
+                    // if status === revised
+                    if (strtoupper($sheet->getCell("P$row")->getValue()) == strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')) {
+                        // kuning muda
+                        $color = 'FFFFFF99';
+                    }
+                    $sheet->getStyle("A$row:$highestColumn$row")
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB($color);
+                }
             },
         ];
     }
