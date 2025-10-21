@@ -96,17 +96,16 @@ const SubmissionPage: SubmissionPageProps = ({
 
   const exportExcel = () => {
     const dates = convertDate(filterDate);
-    window.location.href =
-      route(SubmissionUtils.link.export.excel) +
-      "?" +
-      new URLSearchParams(
-        pickBy({
-          submission_ids: submissionIds,
-          start_date: dates?.from || "",
-          end_date: dates?.to || "",
-          office_id: officeSelected ? String(officeSelected) : "",
-        }) as unknown as Record<string, string>,
-      ).toString();
+    router.post(
+      route(SubmissionUtils.link.export.excel),
+      pickBy({
+        submission_ids: submissionIds,
+        start_date: dates?.from || "",
+        end_date: dates?.to || "",
+        office_id: officeSelected ? String(officeSelected) : "",
+      }),
+      { preserveState: true }
+    );
   };
 
   const getData = ({

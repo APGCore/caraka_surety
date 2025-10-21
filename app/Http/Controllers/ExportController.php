@@ -64,9 +64,6 @@ class ExportController extends Controller
 
     public function submissionToExcel(Request $request): BinaryFileResponse
     {
-        $request->merge([
-            'submission_ids' => explode(',', $request->get('submission_ids', '')),
-        ]);
         // Validasi input jika diperlukan
         $validatedData = $request->validate([
             'submission_ids' => 'required|array',
