@@ -221,24 +221,11 @@ class ReportController extends Controller
 
         $resource = BlankUsageResource::collection($blanks);
 
-    return inertia("$this->headComponent/blanks-usage/index", [
-      'page_settings' => [
-        'title' => 'Laporan Penggunaan Blangko',
-      ],
-      'blankUsage' => fn() => $resource,
-    ]);
-  }
-
-  private function getPeriod(Carbon $date): int
-  {
-    $day = $date->day;
-
-    if ($day >= 1 && $day <= 10) {
-      return 1;
-    } elseif ($day >= 11 && $day <= 20) {
-      return 2;
+        return inertia("$this->headComponent/blanks-usage/index", [
+            'page_settings' => [
+                'title' => 'Laporan Penggunaan Blangko',
+            ],
+            'blankUsage' => fn () => $resource,
+        ]);
     }
-
-    return 3;
-  }
 }

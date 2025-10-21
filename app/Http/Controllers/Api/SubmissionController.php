@@ -143,7 +143,7 @@ class SubmissionController extends Controller
                     ['submission_id' => $submissionId],
                     [
                         'submission_id' => $submissionId,
-                        'doc_url' => $data['doc_url'],
+                        'doc_url' => $data['doc_url'] ?? "-",
                         'url' => $url,
                         'no_policy' => $data['policyno'],
                     ]
