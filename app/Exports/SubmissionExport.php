@@ -11,11 +11,14 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping
+class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     use CalculateInvoice;
 
@@ -85,6 +88,16 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         return $data;
     }
 
+    public function styles(Worksheet $sheet): array
+    {
+        return [
+            1 => ['font' => ['bold' => true], 'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFDDDDDD'], // abu-abu header
+            ]],
+        ];
+    }
+
     public function map($row): array
     {
         $rateModal = $this->calculateCapitalRates($row);
@@ -151,6 +164,23 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 }
 
                 $sheet->getStyle('A')->getAlignment()->setHorizontal('center');
+                $sheet->freezePane('A2');
+
+                // Alternating row colors
+                $rowCount = $sheet->getHighestRow();
+                for ($row = 2; $row <= $rowCount; $row++) {
+                    $color = 'FFFFFFFF';
+                    // if status === revised
+                    if (strtoupper($sheet->getCell("P$row")->getValue()) == strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')) {
+                        // kuning muda
+                        $color = 'FFFFFF99';
+                    }
+                    $sheet->getStyle("A$row:$highestColumn$row")
+                        ->getFill()
+                        ->setFillType(Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB($color);
+                }
             },
         ];
     }
