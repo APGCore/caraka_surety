@@ -1,6 +1,6 @@
 import FilterOffice from "@/_features/_common/components/filter-office";
 import { getQueryParameter } from "@/common/utils/get-query-parameter";
-// import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
+import { CalendarDateRangePicker } from "@/components/molecules/calendar/daterange-calendar";
 import { Combobox } from "@/components/molecules/combobox";
 import ExportDocsButtonDatatable from "@/components/molecules/datatable/export";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
@@ -10,7 +10,7 @@ import { router } from "@inertiajs/react";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
 import React, { useMemo, useState } from "react";
-// import { DateRange } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 import SubmissionDatatable from "./_partials/submission-datatable";
 import SubmissionHeader from "./_partials/submission-header";
 import { SubmissionPageProps } from "./_partials/submission.type";
@@ -32,8 +32,6 @@ const SubmissionPage: SubmissionPageProps = ({
   finalReports,
   allReports,
   mergedReports,
-  filters,
-  dates
 }) => {
   console.log("finalReports", finalReports);
   console.log("allReports", allReports);
@@ -48,8 +46,13 @@ const SubmissionPage: SubmissionPageProps = ({
   });
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
-  const startDate = filters.date?.length ? new Date(filters.date[0]) : new Date();
-  const endDate = filters.date?.length ? new Date(filters.date[1]) : subDays(new Date(), 7);
+  const paramDateFrom = getQueryParameter("date[from]");
+  const paramDateTo = getQueryParameter("date[to]");
+  const [filterDate, setFilterDate] = useState<DateRange | undefined>({
+    from: paramDateFrom ? new Date(paramDateFrom) : subDays(new Date(), 7),
+    to: paramDateTo ? new Date(paramDateTo) : new Date(),
+  });
+  console.log("filterDate", filterDate);
 
   const handleSelectSubmissionLength = (perPage: string) => {
     setPerPage(perPage);
@@ -58,6 +61,24 @@ const SubmissionPage: SubmissionPageProps = ({
 
   const handleSearchSubmission = () => {
     getData({ searchValue: search });
+  };
+
+  const convertDate = (date: DateRange | undefined) => {
+    if (date?.from && date?.to) {
+      return {
+        from: date.from.toLocaleDateString("en-CA") + " 00:00:00",
+        to: date.to.toLocaleDateString("en-CA") + " 23:59:59",
+      };
+    }
+    return undefined;
+  };
+
+  const handleChangeDate = (dateRange: DateRange | undefined) => {
+    setFilterDate(dateRange);
+    if (dateRange?.from && dateRange?.to) {
+      const dates = convertDate(dateRange);
+      getData({ date: dates });
+    }
   };
 
   const handleSelectOfficeType = (officeType: string) => {
@@ -87,27 +108,16 @@ const SubmissionPage: SubmissionPageProps = ({
     getData({ product_type_id: productTypeId });
   };
 
-  const handleChangeYear = (yearSelected: number) => {
-    getData({ date: { year: yearSelected, month: dates.month, period: dates.period } });
-  }
-
-  const handleChangeMonth = (monthSelected: number) => {
-    getData({ date: { year: dates.year, month: monthSelected, period: dates.period } });
-  }
-
-  const handleChangePeriod = (periodSelected: number) => {
-    getData({ date: { year: dates.year, month: dates.month, period: periodSelected } });
-  }
-
   const exportExcel = () => {
+    const dates = convertDate(filterDate);
     window.location.href =
       route(SubmissionUtils.link.export.excel) +
       "?" +
       new URLSearchParams(
         pickBy({
           submission_ids: submissionIds,
-          start_date: startDate || "",
-          end_date: endDate || "",
+          start_date: dates?.from || "",
+          end_date: dates?.to || "",
           office_id: officeSelected ? String(officeSelected) : "",
         }) as unknown as Record<string, string>,
       ).toString();
@@ -116,7 +126,7 @@ const SubmissionPage: SubmissionPageProps = ({
   const getData = ({
     per_page = perPage,
     searchValue = search,
-    date = dates,
+    date = convertDate(filterDate),
     office_type = officeTypeSelected,
     office_id = officeSelected,
     guarantor_id = guarantorSelected,
@@ -125,7 +135,7 @@ const SubmissionPage: SubmissionPageProps = ({
   }: {
     per_page?: string;
     searchValue?: string;
-    date?: { year: number; month: number, period: number } | undefined;
+    date?: { from: string; to: string } | undefined;
     office_type?: string;
     office_id?: number;
     guarantor_id?: number;
@@ -154,36 +164,7 @@ const SubmissionPage: SubmissionPageProps = ({
         <div className="flex gap-x-3">
           <ExportDocsButtonDatatable onClick={exportExcel} />
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectSubmissionLength} />
-          {/*<CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />*/}
-          <div className="flex gap-x-2">
-            <Combobox
-              datas={filters.years || []}
-              labelKey={"text"}
-              valueKey={"value"}
-              defaultValue={dates.year}
-              placeholder={"Pilih Tahun"}
-              className={"min-w-[160px]"}
-              onSelect={(value) => handleChangeYear(Number(value.value))}
-            />
-            <Combobox
-              datas={filters.months || []}
-              labelKey={"text"}
-              valueKey={"value"}
-              defaultValue={dates.month}
-              placeholder={"Pilih Bulan"}
-              className={"min-w-[160px]"}
-              onSelect={(value) => handleChangeMonth(Number(value.value))}
-            />
-            <Combobox
-              datas={filters.periods || []}
-              labelKey={"text"}
-              valueKey={"value"}
-              defaultValue={dates.period}
-              placeholder={"Pilih Periode"}
-              className={"min-w-[160px]"}
-              onSelect={(value) => handleChangePeriod(Number(value.value))}
-            />
-          </div>
+          <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />
         </div>
         <SearchDatatable
           value={search}
