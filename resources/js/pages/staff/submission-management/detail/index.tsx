@@ -1206,10 +1206,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <>
                   {/* Button Revisi */}
                   <Show when={submission.can_revised}>
-                    <Button
-                      variant={"outline"}
-                      className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
-                      asChild>
+                    <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
                       <Link
                         disabled={isDisabled}
                         type="button"
@@ -1222,7 +1219,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                   </Show>
                   <Show when={!isRejected && !isRevised && !submission.has_send_to_guarantor}>
                     <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                      <Link type={"button"} disabled={isDisabled} href={route("staff-submission-edit", { id: submission.id })}>
+                      <Link
+                        type={"button"}
+                        disabled={isDisabled}
+                        href={route("staff-submission-edit", { id: submission.id })}>
                         Edit
                       </Link>
                     </Button>
@@ -1299,7 +1299,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <PopoverContent className="w-[8vw] space-y-2">
                   <Show when={!isRejected && !isRevised}>
                     <Button variant="outline" className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
-                      <Link type={"button"} disabled={isDisabled} href={route("staff-submission-edit", { id: submission.id })}>
+                      <Link
+                        type={"button"}
+                        disabled={isDisabled}
+                        href={route("staff-submission-edit", { id: submission.id })}>
                         Edit
                       </Link>
                     </Button>
@@ -1340,10 +1343,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </AlertDialog>
                   </Show>
                   <Show when={isApproved && submission.has_send_to_guarantor && !isRevised}>
-                    <Button
-                      variant={"outline"}
-                      className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm"
-                      asChild>
+                    <Button variant={"outline"} className="w-full bg-yellow-500 hover:bg-yellow-400 rounded-sm" asChild>
                       <Link
                         disabled={isDisabled}
                         type="button"

@@ -66,13 +66,75 @@ class ExportController extends Controller
     {
         // Validasi input jika diperlukan
         $validatedData = $request->validate([
-            'submission_ids' => 'required|array',
-            'submission_ids.*' => 'integer|exists:submissions,id,deleted_at,NULL',
+            'search' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'office_id' => 'nullable|integer|exists:profiles,id,deleted_at,NULL',
+            'guarantor_id' => 'nullable|integer|exists:guarantors,id,deleted_at,NULL',
+            'product_id' => 'nullable|integer|exists:products,id,deleted_at,NULL',
+            'guarantor_to_product_type_id' => 'nullable|integer|exists:guarantor_to_product_types,id,deleted_at,NULL',
         ]);
-        $submissionIds = $validatedData['submission_ids'];
+        $search = $request->get('search');
+        $officeSelected = $request->get('office_id');
+        $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
+        $productSelected = $request->get('product_id', config('product.id'));
+        $guarantorToProductTypeSelected = $request->get('guarantor_to_product_type_id');
+        $date = $request->only(['start_date', 'end_date']);
+
+        $submissions = Submission::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereLike('no_guarantee', "%$search%")
+                        ->orWhereHas('principal', function ($query) use ($search) {
+                            $query->whereLike('name', "%$search%");
+                        });
+                });
+            })
+            ->when($guarantorSelected, fn ($q) => $q->where('guarantor_id', $guarantorSelected))
+            ->when($officeSelected, fn ($q) => $q->where('office_id', $officeSelected))
+            ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
+            ->when($guarantorToProductTypeSelected, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductTypeSelected))
+            ->where('has_send_to_guarantor', true)
+            ->whereBetween('send_to_guarantor_at', $date)
+            ->with([
+                'guarantor:id,name,code',
+                'guarantorBranch:id,name,code',
+                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
+                'guarantor.guarantorRate',
+                'product:id,name',
+                'guarantorToProductType:id,code_product,code,name,full_name',
+                'blank:id,number,is_broken,is_revised',
+                'principal:id,name',
+                'obligee:id,name',
+                'staff:id,name,profile_id',
+                'office:id,name,office_type',
+                'submissionBefore:id,blank_id',
+                'submissionBefore.blank',
+            ])
+            ->orderByDesc('send_to_guarantor_at')
+            ->select([
+                'id',
+                'no_guarantee',
+                'guarantor_id',
+                'guarantor_branch_id',
+                'office_id',
+                'principal_id',
+                'obligee_id',
+                'product_id',
+                'guarantor_to_product_type_id',
+                'blank_id',
+                'staff_id',
+                'guarantee_value',
+                'start_date',
+                'end_date',
+                'time_period',
+                'difference_time_period',
+                'status',
+                'created_at',
+                'approved_at',
+                'send_to_guarantor_at',
+            ])
+            ->get();
 
         $user = User::query()->with('office')->findOrFail(auth()->id());
         $office = $user->office;
@@ -83,7 +145,7 @@ class ExportController extends Controller
         $officeReq = isset($validatedData['office_id']) ? Profile::query()->find($validatedData['office_id'])->name : 'Semua Kantor';
         $fileName = "LAPORAN PRODUKSI JASTAN $officeReq $startDate - $endDate (PER $date).xlsx";
 
-        return Excel::download(new SubmissionExport($submissionIds, $isBranch), $fileName);
+        return Excel::download(new SubmissionExport($submissions, $isBranch), $fileName);
     }
 
     /**

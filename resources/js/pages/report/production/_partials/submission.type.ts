@@ -2,7 +2,6 @@ import React from "react";
 
 interface SubmissionProps {
   submissions: any;
-  submissionIds: any[];
   offices: any;
   officeTypes: any;
   officeSelected: number;
@@ -13,6 +12,7 @@ interface SubmissionProps {
   productSelected: number;
   productTypes: any;
   productTypeSelected: number;
+  guarantorToProductTypeSelected: number;
 }
 
 export type SubmissionPageProps = React.FC<SubmissionProps> & {

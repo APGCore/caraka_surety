@@ -60,7 +60,7 @@ class ReportController extends Controller
         $products = Product::query()
             ->with('productType')
             ->get(['id', 'name']);
-        $productSelected = $request->get('product_id');
+        $productSelected = $request->get('product_id', config('product.id'));
         $product = $products->firstWhere('id', $productSelected);
         $productTypes = $product ? $product->productType : [];
         $productTypeSelected = $request->get('product_type_id');
@@ -127,6 +127,7 @@ class ReportController extends Controller
             'productSelected' => (int) $productSelected,
             'productTypes' => $productTypes,
             'productTypeSelected' => (int) $productTypeSelected,
+            'guarantorToProductTypeSelected' => $guarantorToProductType?->id,
             'filters' => $request->only(['search', 'date']),
         ]);
     }

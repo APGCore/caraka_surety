@@ -7,9 +7,10 @@ import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
+import axios from "axios";
 import { subDays } from "date-fns";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import SubmissionDatatable from "./_partials/submission-datatable";
 import SubmissionHeader from "./_partials/submission-header";
@@ -18,7 +19,6 @@ import { SubmissionUtils } from "./_partials/submission.utils";
 
 const SubmissionPage: SubmissionPageProps = ({
   submissions,
-  submissionIds,
   offices,
   officeTypes,
   officeSelected,
@@ -29,6 +29,7 @@ const SubmissionPage: SubmissionPageProps = ({
   productSelected,
   productTypes,
   productTypeSelected,
+  guarantorToProductTypeSelected,
 }) => {
   const [perPage, setPerPage] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
@@ -38,6 +39,7 @@ const SubmissionPage: SubmissionPageProps = ({
     from: paramDateFrom ? new Date(paramDateFrom) : subDays(new Date(), 7),
     to: paramDateTo ? new Date(paramDateTo) : new Date(),
   });
+  const [isLoadingExport, setIsLoadingExport] = useState(false);
   console.log("filterDate", filterDate);
 
   const handleSelectSubmissionLength = (perPage: string) => {
@@ -94,18 +96,37 @@ const SubmissionPage: SubmissionPageProps = ({
     getData({ product_type_id: productTypeId });
   };
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
     const dates = convertDate(filterDate);
-    router.post(
-      route(SubmissionUtils.link.export.excel),
-      pickBy({
-        submission_ids: submissionIds,
-        start_date: dates?.from || "",
-        end_date: dates?.to || "",
-        office_id: officeSelected ? String(officeSelected) : "",
-      }),
-      { preserveState: true }
-    );
+    setIsLoadingExport(true);
+    try {
+      const response = await axios.get(route(SubmissionUtils.link.export.excel), {
+        params: pickBy({
+          search: search,
+          start_date: dates?.from || "",
+          end_date: dates?.to || "",
+          office_id: officeSelected || "",
+          guarantor_id: guarantorSelected || "",
+          product_id: productSelected || "",
+          guarantor_to_product_type_id: guarantorToProductTypeSelected || "",
+        }),
+        responseType: "blob",
+      });
+      const filename = response.headers["content-disposition"].split("filename=")[1].replace(/['"]/g, "");
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsLoadingExport(false);
+    }
   };
 
   const getData = ({
@@ -147,7 +168,7 @@ const SubmissionPage: SubmissionPageProps = ({
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={exportExcel} />
+          <ExportDocsButtonDatatable onClick={exportExcel} isLoading={isLoadingExport} />
           <SelectLengthDatatable defaultValue={perPage} onChange={handleSelectSubmissionLength} />
           <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />
         </div>

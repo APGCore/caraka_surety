@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Enums\SubmissionStatus;
-use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -20,15 +19,15 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 {
     use CalculateInvoice;
 
-    protected array $submissionIds;
+    protected Collection $submissions;
 
     protected bool $isBranch;
 
     private int $rowNumber = 0;
 
-    public function __construct(array $submissionIds, bool $isBranch = false)
+    public function __construct(Collection $submissions, bool $isBranch = false)
     {
-        $this->submissionIds = $submissionIds;
+        $this->submissions = $submissions;
         $this->isBranch = $isBranch;
     }
 
@@ -37,25 +36,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
      */
     public function collection(): Collection
     {
-        return Submission::query()
-            ->whereIn('id', $this->submissionIds)
-            ->with([
-                'guarantor:id,name,code',
-                'guarantorBranch:id,name,code',
-                'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                'guarantor.guarantorRate',
-                'product:id,name',
-                'guarantorToProductType:id,code_product,code,name,full_name',
-                'blank:id,number,is_broken,is_revised',
-                'principal:id,name',
-                'obligee:id,name',
-                'staff:id,name,profile_id',
-                'office:id,name,office_type',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
-            ])
-            ->orderByDesc('send_to_guarantor_at')
-            ->get();
+        return $this->submissions;
     }
 
     /**

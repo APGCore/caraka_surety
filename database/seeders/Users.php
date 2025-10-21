@@ -70,12 +70,12 @@ class Users extends Seeder
         ]);
 
         User::query()->create([
-          'name' => 'Finance',
-          'username' => 'keuangan',
-          'email' => 'keuangan@gmail.com',
-          'password' => bcrypt('password'),
-          'profile_id' => 1,
-          'role_id' => 6,
+            'name' => 'Finance',
+            'username' => 'keuangan',
+            'email' => 'keuangan@gmail.com',
+            'password' => bcrypt('password'),
+            'profile_id' => 1,
+            'role_id' => 6,
         ]);
     }
 }
