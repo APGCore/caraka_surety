@@ -1140,6 +1140,9 @@ class SubmissionController extends Controller
             'is_broken' => false,
             'is_revised' => false,
         ]);
+        $submission->submissionBefore()->update([
+            'status' => SubmissionStatus::APPROVED->value,
+        ]);
 
         return $submission->update([
             'checked_by' => $headId ?? $checkedBy ?? auth()->id(),

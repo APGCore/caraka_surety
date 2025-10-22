@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
+use App\Enums\SubmissionStatus;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
@@ -10,7 +11,6 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
 use App\Traits\FilterOffice;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -102,107 +102,64 @@ class ReportController extends Controller
                 'staff:id,name,profile_id',
                 'office:id,name,code,office_type',
                 'office.profileRate',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
+                'submissionBefore' => fn ($q) => $q
+                    ->whereNotIn('id', $submissionIds)
+                    ->whereNotNull('send_to_guarantor_at'),
+                'submissionBefore.blank:id,number,is_broken,is_revised',
+                'submissionAfter' => fn ($q) => $q
+                    ->whereNotIn('id', $submissionIds)
+                    ->whereNotNull('send_to_guarantor_at'),
             ])
             ->orderByDesc('send_to_guarantor_at')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
-
-    // Patokan send_to_guarantor_at ke tanggap export
-    $finalReports = collect();
-    $revisionOnly = collect();
-
-    foreach ($submissions as $submission) {
-      // only take root submissions (no previous submission)
-      if ($submission->submission_before_id === null) {
-        $groups = collect();
-        $groups->push($submission);
-
-        // cari revisi yang berantai dari submission ini
-        $currentId = $submission->id;
-
-        foreach ($submissions as $next) {
-          if ($next->submission_before_id === $currentId) {
-            $groups->push($next);
-            $currentId = $next->id;
-          }
+        $result = collect();
+        foreach ($submissions->items() as $submission) {
+            $submissionBefore = $submission->submissionBefore;
+            $submissionAfter = $submission->submissionAfter;
+            if ($submissionBefore) {
+                $submissionBeforePlus = new Submission([
+                    ...$submissionBefore->toArray(),
+                    'status' => SubmissionStatus::REVISED->value.'-plus',
+                ]);
+                $submissionBeforeMinus = new Submission([
+                    ...$submissionBefore->toArray(),
+                    'status' => SubmissionStatus::REVISED->value.'-minus',
+                ]);
+                $result->push($submissionBeforePlus);
+                $result->push($submissionBeforeMinus);
+            }
+            if ($submissionAfter) {
+                $submission->status = SubmissionStatus::APPROVED->value;
+            }
+            $result->push($submission);
         }
 
-        $finalReports->push([
-          'submission_id' => $submission->id,
-          'groups' => $groups->values(),
+        $submissions->setCollection($result);
+        $resource = SubmissionResource::collection($submissions);
+
+        $component = "$this->headComponent/production/index";
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Laporan Produksi',
+            ],
+            'submissions' => fn () => $resource,
+            'offices' => $offices,
+            'officeTypes' => $officeTypes,
+            'officeSelected' => (int) $officeSelected,
+            'officeTypeSelected' => $officeTypeSelected,
+            'guarantors' => $guarantors->map->only('id', 'name'),
+            'guarantorSelected' => $guarantorSelected,
+            'products' => $products,
+            'productSelected' => (int) $productSelected,
+            'productTypes' => $productTypes,
+            'productTypeSelected' => (int) $productTypeSelected,
+            'guarantorToProductTypeSelected' => $guarantorToProductType?->id,
+            'filters' => $request->only(['search', 'date']),
         ]);
-      } else {
-        $revisionOnly->push($submission);
-      }
     }
-
-    // ambil kepala (head) dari setiap revisi
-    $submissionHeads = Submission::query()
-      ->whereIn('id', $revisionOnly->pluck('submission_before_id'))
-      ->get();
-
-    // buat struktur yang sama seperti $finalReports untuk revisi
-    $mergedReports = collect();
-
-    foreach ($submissionHeads as $head) {
-      $groups = collect();
-      $groups->push($head);
-
-      $currentId = $head->id;
-
-      foreach ($revisionOnly as $revision) {
-        if ($revision->submission_before_id === $currentId) {
-          $groups->push($revision);
-          $currentId = $revision->id;
-        }
-      }
-
-      $mergedReports->push([
-        'submission_id' => $head->id,
-        'groups' => $groups->values(),
-      ]);
-    }
-
-    // jika mau semua jadi satu (final + revision heads)
-    $allReports = $finalReports->merge($mergedReports)->values();
-
-    // Sort by the created_at of the first group (oldest first)
-    $filteredReports = $allReports->sortBy(function ($report) {
-      return $report['groups']->first()->created_at;
-    })->values();
-
-
-
-    $resource = SubmissionResource::collection($submissions);
-
-    $component = "$this->headComponent/production/index";
-
-    return inertia($component, [
-      'page_settings' => [
-        'title' => 'Laporan Produksi',
-      ],
-      'finalReports' => fn() => $finalReports,
-      'allReports' => fn() => $filteredReports,
-      'mergedReports' => fn() => $mergedReports,
-      'submissions' => fn() => $resource,
-      'submissionIds' => $submissionIds,
-      'offices' => $offices,
-      'officeTypes' => $officeTypes,
-      'officeSelected' => (int) $officeSelected,
-      'officeTypeSelected' => $officeTypeSelected,
-      'guarantors' => $guarantors->map->only('id', 'name'),
-      'guarantorSelected' => $guarantorSelected,
-      'products' => $products,
-      'productSelected' => (int) $productSelected,
-      'productTypes' => $productTypes,
-      'productTypeSelected' => (int) $productTypeSelected,
-      'guarantorToProductTypeSelected' => $guarantorToProductType?->id,
-      'filters' => $request->only(['search', 'date']),
-    ]);
-  }
 
     public function blankUsage(Request $request)
     {

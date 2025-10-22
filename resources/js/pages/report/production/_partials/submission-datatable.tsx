@@ -1,10 +1,12 @@
 import Show from "@/_features/_common/components/show";
+import { cn } from "@/common/utils/cn";
 import { formatCurrency } from "@/common/utils/format-currency";
 import { Badge } from "@/components/_shadcn-ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/_shadcn-ui/table";
 import RenderList from "@/components/atoms/render-list";
 import { ShowingCountDatatable } from "@/components/molecules/datatable/count";
 import { PaginationDatatable } from "@/components/molecules/datatable/pagination";
+import { SubmissionStatus } from "@/types/submission-status";
 import React from "react";
 
 interface SubmissionDatatableProps {
@@ -34,7 +36,13 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             of={submissions?.data}
             render={(submission: any, index: number) => (
               <>
-                <TableRow key={submission.id}>
+                <TableRow
+                  key={submission.id}
+                  className={cn(
+                    submission.status == SubmissionStatus.REVISED && "bg-yellow-100",
+                    submission.status === SubmissionStatus.REVISED + "-plus" && "bg-green-100",
+                    submission.status === SubmissionStatus.REVISED + "-minus" && "bg-red-100",
+                  )}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell className={"text-center"}>
                     <h3>{submission.blank?.number ?? "X".repeat(10)}</h3>
@@ -47,7 +55,12 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name ?? "-"}</TableCell>
-                  <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
+                  <TableCell>
+                    {formatCurrency(
+                      submission.guarantee_value,
+                      submission.status === SubmissionStatus.REVISED + "-minus",
+                    )}
+                  </TableCell>
                   <TableCell>{submission.product?.name ?? "-"}</TableCell>
                   <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>

@@ -13,9 +13,6 @@ interface SubmissionProps {
   productTypes: any;
   productTypeSelected: number;
   guarantorToProductTypeSelected: number;
-  finalReports: any;
-  allReports: any;
-  mergedReports: any;
 }
 
 export type SubmissionPageProps = React.FC<SubmissionProps> & {

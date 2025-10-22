@@ -111,7 +111,6 @@ class ExportController extends Controller
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
-            ->orderByDesc('send_to_guarantor_at')
             ->select([
                 'id',
                 'no_guarantee',
