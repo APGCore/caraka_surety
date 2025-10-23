@@ -100,8 +100,6 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
     public function map($row): array
     {
-        $rateModal = $this->calculateCapitalRates($row);
-        $rateJual = $this->calculateSellingRates($row);
         $isProcess = $row->status === SubmissionStatus::PROCESS->value;
 
         $data = [
@@ -124,21 +122,21 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             Carbon::parse($row->created_at)->format('d/m/Y H:i'),
             $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
             $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('d/m/Y H:i') : '',
-            $rateJual->get('premi', 0),
-            $rateJual->get('adm', 0),
-            $rateJual->get('total', 0),
+            $row->rate_jual->get('premi', 0),
+            $row->rate_jual->get('adm', 0),
+            $row->rate_jual->get('total', 0),
         ];
 
         if (! $this->isBranch) {
             $data = array_merge($data, [
-                $rateModal->get('premi', 0),
-                $rateModal->get('adm', 0),
-                $rateModal->get('total', 0),
-                $rateModal->get('commission', 0),
-                $rateModal->get('pph_commission', 0),
-                $rateModal->get('nett_commission', 0),
-                $rateModal->get('nett_premi', 0),
-                $rateJual->get('total', 0) - $rateModal->get('nett_premi', 0),
+                $row->rate_modal->get('premi', 0),
+                $row->rate_modal->get('adm', 0),
+                $row->rate_modal->get('total', 0),
+                $row->rate_modal->get('commission', 0),
+                $row->rate_modal->get('pph_commission', 0),
+                $row->rate_modal->get('nett_commission', 0),
+                $row->rate_modal->get('nett_premi', 0),
+                $row->rate_jual->get('total', 0) - $row->rate_modal->get('nett_premi', 0),
             ]);
         }
 
@@ -174,6 +172,10 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                     if (strtoupper($sheet->getCell("P$row")->getValue()) == strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')) {
                         // kuning muda
                         $color = 'FFFFFF99';
+                    }
+                    if (((float) $sheet->getCell("V$row")->getValue()) < 0) {
+                        // merah muda
+                        $color = 'FFFFAAAA';
                     }
                     $sheet->getStyle("A$row:$highestColumn$row")
                         ->getFill()

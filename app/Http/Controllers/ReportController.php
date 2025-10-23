@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
-use App\Enums\SubmissionStatus;
 use App\Http\Resources\Report\BlankUsageResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Product\Product;
 use App\Models\Submission\Submission;
+use App\Traits\CalculateInvoice;
 use App\Traits\FilterOffice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -18,7 +19,7 @@ use Inertia\ResponseFactory;
 
 class ReportController extends Controller
 {
-    use FilterOffice;
+    use CalculateInvoice, FilterOffice;
 
     protected string $headComponent;
 
@@ -33,8 +34,8 @@ class ReportController extends Controller
         $dateTo = $request->input('date.to');
         $date = ($dateFrom && $dateTo)
           ? [
-              "$dateFrom 00:00:00",
-              "$dateTo 23:59:59",
+              Carbon::parse($dateFrom)->startOfDay(),
+              Carbon::parse($dateTo)->endOfDay(),
           ]
           : [
               now()->subDays(7)->toDateString().' 00:00:00',
@@ -101,40 +102,21 @@ class ReportController extends Controller
                 'obligee:id,name',
                 'staff:id,name,profile_id',
                 'office:id,name,code,office_type',
-                'office.profileRate',
                 'submissionBefore' => fn ($q) => $q
-                    ->whereNotIn('id', $submissionIds)
-                    ->whereNotNull('send_to_guarantor_at'),
+                    ->where('send_to_guarantor_at', '<', $date[0]),
+                'submissionBefore.product:id,name',
+                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
                 'submissionBefore.blank:id,number,is_broken,is_revised',
+                'submissionBefore.principal:id,name',
                 'submissionAfter' => fn ($q) => $q
-                    ->whereNotIn('id', $submissionIds)
-                    ->whereNotNull('send_to_guarantor_at'),
+                    ->where('send_to_guarantor_at', '>', $date[1])
+                    ->select(['id', 'submission_before_id']),
             ])
-            ->orderByDesc('send_to_guarantor_at')
+            ->orderByDesc('no_guarantee')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
-        $result = collect();
-        foreach ($submissions->items() as $submission) {
-            $submissionBefore = $submission->submissionBefore;
-            $submissionAfter = $submission->submissionAfter;
-            if ($submissionBefore) {
-                $submissionBeforePlus = new Submission([
-                    ...$submissionBefore->toArray(),
-                    'status' => SubmissionStatus::REVISED->value.'-plus',
-                ]);
-                $submissionBeforeMinus = new Submission([
-                    ...$submissionBefore->toArray(),
-                    'status' => SubmissionStatus::REVISED->value.'-minus',
-                ]);
-                $result->push($submissionBeforePlus);
-                $result->push($submissionBeforeMinus);
-            }
-            if ($submissionAfter) {
-                $submission->status = SubmissionStatus::APPROVED->value;
-            }
-            $result->push($submission);
-        }
+        $result = $this->mapProductionReport($submissions->items());
 
         $submissions->setCollection($result);
         $resource = SubmissionResource::collection($submissions);

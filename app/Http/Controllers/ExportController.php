@@ -9,6 +9,7 @@ use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionDoc;
 use App\Models\User;
+use App\Traits\CalculateInvoice;
 use App\Traits\ReplaceDocumentFormat;
 use Carbon\Carbon;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -29,7 +30,7 @@ use TCPDF;
 
 class ExportController extends Controller
 {
-    use ReplaceDocumentFormat;
+    use CalculateInvoice, ReplaceDocumentFormat;
 
     public function exportToPdf($docId): StreamedResponse
     {
@@ -79,7 +80,17 @@ class ExportController extends Controller
         $guarantorSelected = (int) $request->get('guarantor_id', config('guarantor.id'));
         $productSelected = $request->get('product_id', config('product.id'));
         $guarantorToProductTypeSelected = $request->get('guarantor_to_product_type_id');
-        $date = $request->only(['start_date', 'end_date']);
+        $startDate = Carbon::parse($validatedData['start_date'])->format('d F Y');
+        $endDate = Carbon::parse($validatedData['end_date'])->format('d F Y');
+        $date = ($startDate && $endDate)
+          ? [
+              Carbon::parse($startDate)->startOfDay(),
+              Carbon::parse($endDate)->endOfDay(),
+          ]
+          : [
+              now()->subDays(7)->toDateString().' 00:00:00',
+              now()->toDateString().' 23:59:59',
+          ];
 
         $submissions = Submission::query()
             ->when($search, function ($query) use ($search) {
@@ -108,11 +119,19 @@ class ExportController extends Controller
                 'obligee:id,name',
                 'staff:id,name,profile_id',
                 'office:id,name,office_type',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
+                'submissionBefore' => fn ($q) => $q
+                    ->where('send_to_guarantor_at', '<', $date[0]),
+                'submissionBefore.product:id,name',
+                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
+                'submissionBefore.blank:id,number,is_broken,is_revised',
+                'submissionBefore.principal:id,name',
+                'submissionAfter' => fn ($q) => $q
+                    ->where('send_to_guarantor_at', '>', $date[1])
+                    ->select(['id', 'submission_before_id']),
             ])
             ->select([
                 'id',
+                'submission_before_id',
                 'no_guarantee',
                 'guarantor_id',
                 'guarantor_branch_id',
@@ -133,18 +152,19 @@ class ExportController extends Controller
                 'approved_at',
                 'send_to_guarantor_at',
             ])
+            ->orderByDesc('no_guarantee')
             ->get();
+
+        $result = $this->mapProductionReport($submissions);
 
         $user = User::query()->with('office')->findOrFail(auth()->id());
         $office = $user->office;
         $isBranch = $office->office_type === OfficeType::BRANCH->value;
-        $startDate = Carbon::parse($validatedData['start_date'])->format('d F Y');
-        $endDate = Carbon::parse($validatedData['end_date'])->format('d F Y');
         $date = now()->format('d M Y');
-        $officeReq = isset($validatedData['office_id']) ? Profile::query()->find($validatedData['office_id'])->name : 'Semua Kantor';
+        $officeReq = isset($validatedData['office_id']) ? Profile::query()->find($validatedData['office_id'])->getAttribute('name') : 'Semua Kantor';
         $fileName = "LAPORAN PRODUKSI JASTAN $officeReq $startDate - $endDate (PER $date).xlsx";
 
-        return Excel::download(new SubmissionExport($submissions, $isBranch), $fileName);
+        return Excel::download(new SubmissionExport($result, $isBranch), $fileName);
     }
 
     /**

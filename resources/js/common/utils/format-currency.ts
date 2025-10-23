@@ -1,12 +1,6 @@
-export const formatCurrency = (value: number | string, minus?: boolean | false) => {
+export const formatCurrency = (value: number | string) => {
   if (typeof value === "string") {
     value = Number(value);
-  }
-  if (minus) {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(-value);
   }
   return new Intl.NumberFormat("id-ID", {
     style: "currency",

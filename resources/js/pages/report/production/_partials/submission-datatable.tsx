@@ -24,11 +24,11 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
             <TableHead>NO. JAMINAN</TableHead>
             <TableHead>NAMA PRINCIPAL</TableHead>
             <TableHead>NILAI JAMINAN</TableHead>
-            <TableHead>PRODUK</TableHead>
             <TableHead>JENIS JAMINAN</TableHead>
             <TableHead>TANGGAL DIBUAT</TableHead>
             <TableHead>TANGGAL APPROVED</TableHead>
             <TableHead>TANGGAL KIRIM ASURANSI</TableHead>
+            <TableHead>TOTAL PREMI JUAL</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -39,9 +39,8 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                 <TableRow
                   key={submission.id}
                   className={cn(
-                    submission.status == SubmissionStatus.REVISED && "bg-yellow-100",
-                    submission.status === SubmissionStatus.REVISED + "-plus" && "bg-green-100",
-                    submission.status === SubmissionStatus.REVISED + "-minus" && "bg-red-100",
+                    submission.status === SubmissionStatus.REVISED && "bg-yellow-100",
+                    submission.is_add && "bg-gray-200",
                   )}>
                   <TableCell>{submissions?.meta?.from + index}</TableCell>
                   <TableCell className={"text-center"}>
@@ -55,17 +54,18 @@ const SubmissionDatatable: React.FC<SubmissionDatatableProps> = ({ submissions }
                   </TableCell>
                   <TableCell>{submission.no_guarantee}</TableCell>
                   <TableCell>{submission.principal?.name ?? "-"}</TableCell>
+                  <TableCell>{formatCurrency(submission.guarantee_value)}</TableCell>
                   <TableCell>
-                    {formatCurrency(
-                      submission.guarantee_value,
-                      submission.status === SubmissionStatus.REVISED + "-minus",
-                    )}
+                    {submission.product?.name ?? "-"}
+                    <br /> {" - "}
+                    {submission.product_type?.full_name ?? "-"}
                   </TableCell>
-                  <TableCell>{submission.product?.name ?? "-"}</TableCell>
-                  <TableCell>{submission.product_type?.full_name ?? "-"}</TableCell>
                   <TableCell>{submission.created_at}</TableCell>
                   <TableCell>{submission.approved_at}</TableCell>
                   <TableCell>{submission.send_to_guarantor_at ?? "-"}</TableCell>
+                  <TableCell className={cn(submission.rate_jual?.total < 0 && "text-red-500")}>
+                    {formatCurrency(submission.rate_jual?.total ?? 0)}
+                  </TableCell>
                 </TableRow>
               </>
             )}
