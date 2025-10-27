@@ -305,6 +305,8 @@ class SubmissionController extends Controller
                     'submissionDocs:id,submission_id,name,format_document,url',
                     'supportDocs:id,submission_id,name,number,date,url',
                     'staff:id,head_id,profile_id',
+                    'submissionBefore:id',
+                    'submissionBefore.callback',
                 ])->find($submissionId);
             $principal = $submission->getRelation('principal');
             $blank = $submission->getRelation('blank');
@@ -318,17 +320,17 @@ class SubmissionController extends Controller
             $jobDistrict = $submission->getRelation('district');
             $sourceOfFound = $submission->getRelation('sourceOfFund');
             $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNull('format_document')->values();
-            $submissionBeforeId = $submission->getAttribute('submission_before_id');
+            $submissionBefore = $submission->getRelation('submissionBefore');
 
             $hostToHost = $guarantor->getRelation('hostToHost');
             $url = $hostToHost->getAttribute('guarantor_url_host');
-            $url = $submissionBeforeId ? $url.'/endorsement' : $url.'/submission';
+            $url = $submissionBefore ? $url.'/endorsement' : $url.'/submission';
             $prefix = $hostToHost->getAttribute('auth_prefix');
             $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
             $dataSend = ['submission_id' => $submission->getAttribute('id')];
-            if ($submissionBeforeId) {
-                $submissionCallback = SubmissionCallback::query()->firstWhere('submission_id', $submissionBeforeId);
+            if ($submissionBefore) {
+                $submissionCallback = $submissionBefore->getCanRevisedAttribute();
                 if (! $submissionCallback) {
                     Log::error('Submission failed to send to guarantor', [
                         'submission_id' => $submissionId,

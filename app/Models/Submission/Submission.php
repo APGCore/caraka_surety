@@ -75,7 +75,7 @@ class Submission extends Model
         return str_replace(',', '.', $value);
     }
 
-    public function getCanRevisedAttribute($value): bool
+    public function getCanRevisedAttribute(): bool
     {
         return $this->callback()->exists();
     }
