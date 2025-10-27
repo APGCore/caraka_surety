@@ -586,7 +586,7 @@ class SubmissionController extends Controller
             return redirect()->back();
         }
 
-        if (! $submission->getCanRevisedAttribute()) {
+        if (! $submission->getAttribute('can_revised')) {
             $submissionId = $submission->getAttribute('id');
             Log::error('Submission failed to revision', [
                 'submission_id' => $submissionId,
