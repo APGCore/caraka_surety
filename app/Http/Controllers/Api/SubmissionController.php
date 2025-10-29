@@ -330,7 +330,7 @@ class SubmissionController extends Controller
 
             $dataSend = ['submission_id' => $submission->getAttribute('id')];
             if ($submissionBefore) {
-                // $submissionCallback = $submissionBefore->getRelation('callback');
+                $submissionCallback = $submissionBefore->getRelation('callback');
                 // if (! $submissionCallback) {
                 //    Log::error('Submission failed to send to guarantor', [
                 //        'submission_id' => $submissionId,
