@@ -330,19 +330,19 @@ class SubmissionController extends Controller
 
             $dataSend = ['submission_id' => $submission->getAttribute('id')];
             if ($submissionBefore) {
-                $submissionCallback = $submissionBefore->getRelation('callback');
-                if (! $submissionCallback) {
-                    Log::error('Submission failed to send to guarantor', [
-                        'submission_id' => $submissionId,
-                        'status' => 'error',
-                        'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
-                    ]);
+                // $submissionCallback = $submissionBefore->getRelation('callback');
+                // if (! $submissionCallback) {
+                //    Log::error('Submission failed to send to guarantor', [
+                //        'submission_id' => $submissionId,
+                //        'status' => 'error',
+                //        'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
+                //    ]);
 
-                    return $this->responseError('Gagal mengirimkan data ke pihak asuransi', [
-                        'status' => 'error',
-                        'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
-                    ]);
-                }
+                //    return $this->responseError('Gagal mengirimkan data ke pihak asuransi', [
+                //        'status' => 'error',
+                //        'message' => 'Pengajuan sebelumnya belum mendapatkan persetujuan dari asuransi',
+                //    ]);
+                // }
                 $submissionFirst = Submission::query()
                     ->where(function ($query) {
                         $query->where('status', SubmissionStatus::APPROVED->value)
