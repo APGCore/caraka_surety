@@ -16,7 +16,6 @@ interface InvoiceOfficeProps {
 const InvoiceOffice: React.FC<InvoiceOfficeProps> = ({ officeRate }) => {
   return (
     <>
-      <h2 className="text-xl font-semibold">Invoice Jual</h2>
       <Table>
         <TableBody>
           {/*<TableRow>*/}

@@ -3,7 +3,6 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/_shadcn-ui/t
 import React from "react";
 
 interface InvoiceGuarantorProps {
-  guarantorName: string;
   guarantorRate: {
     minimum: number;
     rate: number;
@@ -18,10 +17,9 @@ interface InvoiceGuarantorProps {
   };
 }
 
-const InvoiceGuarantor: React.FC<InvoiceGuarantorProps> = ({ guarantorName, guarantorRate }) => {
+const InvoiceGuarantor: React.FC<InvoiceGuarantorProps> = ({ guarantorRate }) => {
   return (
     <>
-      <h2 className="text-xl font-semibold">Invoice Asuransi {guarantorName}</h2>
       <Table>
         <TableBody>
           {/*<TableRow>*/}

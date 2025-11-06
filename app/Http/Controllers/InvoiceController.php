@@ -162,7 +162,8 @@ class InvoiceController extends Controller
     public function show(Submission $submission): Response|RedirectResponse
     {
         $submission->load([
-            'submissionBefore:id',
+            'submissionBefore:id,blank_id',
+            'submissionBefore.blank:id,number',
             'guarantor' => function ($query) {
                 $query->select(['id', 'name', 'code'])->withTrashed();
             },
@@ -209,12 +210,12 @@ class InvoiceController extends Controller
 
             return redirect()->back();
         }
-        $guarantorRate = $this->calculateGuarantor($submission);
-        $officeRate = $this->calculateOffice($submission);
-        //        $principalRate = $this->calculatePrincipal($submission);
+        // $guarantorRate = $this->calculateGuarantor($submission);
+        // $officeRate = $this->calculateOffice($submission);
+        // $principalRate = $this->calculatePrincipal($submission);
         $capitalRate = $this->calculateCapitalRates($submission);
-        //        $sellingRate = $this->calculateSellingRates($submission);
-        $totalPremi = ($capitalRate->get('total') ?? 0) - ($guarantorRate->get('nett_premi') ?? 0);
+        $sellingRate = $this->calculateSellingRates($submission);
+        $totalPremi = ($sellingRate->get('total') ?? 0) - ($capitalRate->get('nett_premi') ?? 0);
         $isSet = $submission->getRelation('submissionRate') !== null;
 
         $submission->unsetRelation('guarantor.guarantorRate');
@@ -227,11 +228,11 @@ class InvoiceController extends Controller
                 'title' => 'Detail Invoice',
             ],
             'submission' => $submission,
-            'guarantor_rate' => $guarantorRate,
-            'office_rate' => $officeRate,
-            //            'principal_rate' => $principalRate,
+            // 'guarantor_rate' => $guarantorRate,
+            // 'office_rate' => $officeRate,
+            // 'principal_rate' => $principalRate,
             'capital_rate' => $capitalRate,
-            'selling_rate' => $officeRate,
+            'selling_rate' => $sellingRate,
             'total_premi' => $totalPremi,
             'is_set' => $isSet,
         ]);
