@@ -585,6 +585,19 @@ class SubmissionController extends Controller
 
             return redirect()->back();
         }
+
+        if (! $submission->getAttribute('can_revised')) {
+            $submissionId = $submission->getAttribute('id');
+            Log::error('Submission failed to revision', [
+                'submission_id' => $submissionId,
+                'status' => 'error',
+                'message' => 'Pengajuan ini belum mendapatkan persetujuan dari asuransi',
+            ]);
+
+            flashMessage('Gagal', 'Pengajuan ini belum mendapatkan persetujuan dari asuransi', 'error');
+
+            return back()->withErrors(['submission_id' => $submissionId]);
+        }
         $principal = $submission->getRelation('principal')->only([
             'id',
             'province_id',

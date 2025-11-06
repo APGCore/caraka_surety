@@ -79,6 +79,7 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const isWeekend = dayjs().day() === 0 || dayjs().day() === 6;
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
   const isApproved = submission.status === SubmissionStatus.APPROVED;
@@ -1269,10 +1270,15 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <AlertDialogTrigger asChild>
                   <Button
                     variant="default"
-                    disabled={isLoadingSend || isDisabled}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    disabled={isLoadingSend || isDisabled || isWeekend}
+                    className={cn(
+                      "bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start",
+                      isWeekend && "bg-gray-400 cursor-not-allowed hover:bg-gray-400",
+                    )}>
                     {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim Ke {submission.guarantor?.name}
+                    {isWeekend
+                      ? "Tidak dapat mengirim ke " + submission.guarantor?.name + " (Hari Libur)"
+                      : "Kirim Ke " + submission.guarantor?.name}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
