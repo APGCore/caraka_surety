@@ -14,8 +14,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SubmissionExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithMapping, WithStyles
@@ -104,39 +106,41 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
         $data = [
             ++$this->rowNumber,
-            Carbon::parse($row->approved_at)->format('F'),
+            $row->approved_at ? Carbon::parse($row->approved_at)->format('F') : '',
             $row->guarantorBranch->name ?? '',
             $row->office->name ?? '',
             $row->blank?->getAttribute('number') ?? '-',
             $isProcess ? 'XXXXXXXXXXXXXXXX' : $row->no_guarantee,
             $row->principal->name ?? '',
             $row->obligee->name ?? '',
-            $row->guarantee_value,
+            $row->guarantee_value ?? 0,
             $row->guarantorToProductType->full_name ?? '',
             $row->guarantor->name ?? '',
-            Carbon::parse($row->start_date)->format('d/m/Y H:i'),
-            Carbon::parse($row->end_date)->format('d/m/Y H:i'),
-            $row->time_period,
-            $row->difference_time_period,
-            strtoupper(SubmissionStatus::getLabels()[$row->status] ?? ''),
-            Carbon::parse($row->created_at)->format('d/m/Y H:i'),
+            $row->start_date ? Carbon::parse($row->start_date)->format('d/m/Y H:i') : '',
+            $row->end_date ? Carbon::parse($row->end_date)->format('d/m/Y H:i') : '',
+            $row->time_period ?? '',
+            $row->difference_time_period ?? '',
+            $row->status ? strtoupper(SubmissionStatus::getLabels()[$row->status]) : '',
+            $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y H:i') : '',
             $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
             $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('d/m/Y H:i') : '',
-            $row->rate_jual->get('premi', 0),
-            $row->rate_jual->get('adm', 0),
-            $row->rate_jual->get('total', 0),
+            $row->rate_jual?->get('premi', 0) ?? 0,
+            $row->rate_jual?->get('adm', 0) ?? 0,
+            $row->rate_jual?->get('total', 0) ?? 0,
         ];
 
         if (! $this->isBranch) {
+            $rowNumber = $this->rowNumber + 1;
             $data = array_merge($data, [
-                $row->rate_modal->get('premi', 0),
-                $row->rate_modal->get('adm', 0),
-                $row->rate_modal->get('total', 0),
-                $row->rate_modal->get('commission', 0),
-                $row->rate_modal->get('pph_commission', 0),
-                $row->rate_modal->get('nett_commission', 0),
-                $row->rate_modal->get('nett_premi', 0),
-                $row->rate_jual->get('total', 0) - $row->rate_modal->get('nett_premi', 0),
+                $row->rate_modal?->get('premi', 0) ?? 0,
+                $row->rate_modal?->get('adm', 0) ?? 0,
+                $row->rate_modal?->get('total', 0) ?? 0,
+                $row->rate_modal?->get('commission', 0) ?? 0,
+                $row->rate_modal?->get('pph_commission', 0) ?? 0,
+                $row->rate_modal?->get('nett_commission', 0) ?? 0,
+                $row->rate_modal?->get('nett_premi', 0) ?? 0,
+                // $row->rate_jual && $row->rate_modal ? ($row->rate_jual->get('total', 0) - $row->rate_modal->get('nett_premi', 0)) : 0,
+                $row->is_minus ? '' : "=V$rowNumber - AC$rowNumber",
             ]);
         }
 
@@ -148,41 +152,100 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
      */
     public function registerEvents(): array
     {
+        $isBranch = $this->isBranch; // bawa flag ke dalam closure
+
         return [
-            AfterSheet::class => function (AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) use ($isBranch) {
                 $sheet = $event->sheet->getDelegate();
-                // Menentukan jumlah kolom yang digunakan
+
+                // 1) Autosize kolom
                 $highestColumn = $sheet->getHighestColumn();
                 $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
-
-                // Adjust column widths automatically
                 for ($col = 1; $col <= $highestColumnIndex; $col++) {
                     $columnLetter = Coordinate::stringFromColumnIndex($col);
                     $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
                 }
 
-                $sheet->getStyle('A')->getAlignment()->setHorizontal('center');
+                // 2) Freeze header
                 $sheet->freezePane('A2');
 
-                // Alternating row colors
+                // 3) Center kolom NO (A) – perbaikan: gunakan range, bukan 'A' saja
                 $rowCount = $sheet->getHighestRow();
+                $sheet->getStyle('A2:A'.$rowCount)
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                // 4) Page setup (biar rapi saat print)
+                $sheet->getPageSetup()
+                    ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
+                    ->setPaperSize(PageSetup::PAPERSIZE_A4)
+                    ->setFitToWidth(1)
+                    ->setFitToHeight(0)
+                    ->setRowsToRepeatAtTopByStartAndEnd(1, 1); // ulangi baris header di setiap halaman
+
+                // 5) Header/Footer cetak (yang tampil di Print Preview)
+                $sheet->getHeaderFooter()
+                    ->setOddFooter('&LDicetak oleh Sistem&CPage &P of &N&R&D &T');
+
+                // 6) Alternating row colors + kondisi
                 for ($row = 2; $row <= $rowCount; $row++) {
                     $color = 'FFFFFFFF';
-                    // if status === revised
-                    if (strtoupper($sheet->getCell("P$row")->getValue()) == strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')) {
-                        // kuning muda
-                        $color = 'FFFFFF99';
+
+                    // jika status === REVISED (kolom P)
+                    if (strtoupper((string) $sheet->getCell("P$row")->getValue()) ===
+                      strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')
+                    ) {
+                        $color = 'FFFFFF99'; // kuning muda
                     }
+
+                    // jika TOTAL PREMI JUAL (V) < 0 → merah muda
                     if (((float) $sheet->getCell("V$row")->getValue()) < 0) {
-                        // merah muda
                         $color = 'FFFFAAAA';
                     }
+
                     $sheet->getStyle("A$row:$highestColumn$row")
                         ->getFill()
                         ->setFillType(Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB($color);
                 }
+
+                // 7) (OPSIONAL) Tambah baris TOTAL & Footer teks
+                //    - total di kolom uang dengan formula SUM
+                //    - catatan footer dekoratif 1 baris di bawahnya
+                $lastDataRow = $rowCount;
+                $totalRow = $lastDataRow + 1;
+
+                // Kolom uang yang pasti ada (branch maupun bukan)
+                // T (Premi Jual), U (Admin Jual), V (Total Premi Jual)
+                $sheet->setCellValue("S$totalRow", 'TOTAL'); // label sebelum kolom T
+                $sheet->getStyle("S$totalRow")->getFont()->setBold(true);
+
+                // $sheet->setCellValue("T$totalRow", "=SUM(T2:T$lastDataRow)");
+                // $sheet->setCellValue("U$totalRow", "=SUM(U2:U$lastDataRow)");
+                $sheet->setCellValue("V$totalRow", "=SUM(V2:V$lastDataRow)");
+
+                // Jika bukan branch, total-kan kolom tambahan
+                if (! $isBranch) {
+                    // $sheet->setCellValue("W$totalRow", "=SUM(W2:W$lastDataRow)");
+                    // $sheet->setCellValue("X$totalRow", "=SUM(X2:X$lastDataRow)");
+                    $sheet->setCellValue("Y$totalRow", "=SUM(Y2:Y$lastDataRow)");
+                    // $sheet->setCellValue("Z$totalRow", "=SUM(Z2:Z$lastDataRow)");
+                    // $sheet->setCellValue("AA$totalRow", "=SUM(AA2:AA$lastDataRow)");
+                    // $sheet->setCellValue("AB$totalRow", "=SUM(AB2:AB$lastDataRow)");
+                    // $sheet->setCellValue("AC$totalRow", "=SUM(AC2:AC$lastDataRow)");
+                    $sheet->setCellValue("AD$totalRow", "=SUM(AD2:AD$lastDataRow)");
+                }
+
+                // Format Rp untuk semua kolom total (T–AD tergantung jenis)
+                $lastMoneyCol = $isBranch ? 'V' : 'AD';
+                $sheet->getStyle("T$totalRow:$lastMoneyCol$totalRow")
+                    ->getNumberFormat()
+                    ->setFormatCode('Rp #,##0');
+
+                // Bold keseluruhan baris TOTAL
+                $sheet->getStyle("A$totalRow:$highestColumn$totalRow")
+                    ->getFont()->setBold(true);
             },
         ];
     }

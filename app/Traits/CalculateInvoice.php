@@ -184,20 +184,17 @@ trait CalculateInvoice
     private function mapProductionReport($submissions): Collection
     {
         $result = collect();
+        $resultMinus = collect();
         foreach ($submissions as $submission) {
             $submissionBefore = $submission->submissionBefore;
             $submissionAfter = $submission->submissionAfter;
+
             if ($submissionAfter) {
                 $submission->status = SubmissionStatus::APPROVED->value;
             }
-            // harus setelah setting status
-            $rateJual = $this->calculateSellingRates($submission);
-            $rateModal = $this->calculateCapitalRates($submission);
-            $submission->rate_jual = $rateJual;
-            $submission->rate_modal = $rateModal;
 
             if ($submissionBefore) {
-                $submissionRevised = clone $submission;
+                $submissionRevised = clone $submissionBefore;
                 $submissionRevisedMinus = clone $submissionBefore;
                 $submissionRevised->status = SubmissionStatus::APPROVED->value;
                 $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
@@ -212,17 +209,30 @@ trait CalculateInvoice
                 $rateModalBeforeMinus = $this->calculateCapitalRates($submissionRevisedMinus, true);
                 $submissionRevisedMinus->rate_jual = $rateJualBeforeMinus;
                 $submissionRevisedMinus->rate_modal = $rateModalBeforeMinus;
-
                 $submissionRevisedMinus->is_add = true;
+                $submissionRevisedMinus->is_minus = true;
+
                 $submission->is_add = true;
                 $submission->status = SubmissionStatus::REVISED->value;
 
                 $result->push($submissionRevised);
-                $result->push($submissionRevisedMinus);
+                $resultMinus->push($submissionRevisedMinus);
             }
-            $result->push($submission);
+
+            $this->setRateSubmission($submission, $result);
         }
 
-        return $result;
+        return $result->merge($resultMinus);
+    }
+
+    private function setRateSubmission($submission, $result): void
+    {
+        // harus setelah setting status
+        $rateJual = $this->calculateSellingRates($submission);
+        $rateModal = $this->calculateCapitalRates($submission);
+        $submission->rate_jual = $rateJual;
+        $submission->rate_modal = $rateModal;
+
+        $result->push($submission);
     }
 }
