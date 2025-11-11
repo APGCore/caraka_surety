@@ -221,19 +221,19 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $sheet->setCellValue("S$totalRow", 'TOTAL'); // label sebelum kolom T
                 $sheet->getStyle("S$totalRow")->getFont()->setBold(true);
 
-                // $sheet->setCellValue("T$totalRow", "=SUM(T2:T$lastDataRow)");
-                // $sheet->setCellValue("U$totalRow", "=SUM(U2:U$lastDataRow)");
+                $sheet->setCellValue("T$totalRow", "=SUM(T2:T$lastDataRow)");
+                $sheet->setCellValue("U$totalRow", "=SUM(U2:U$lastDataRow)");
                 $sheet->setCellValue("V$totalRow", "=SUM(V2:V$lastDataRow)");
 
                 // Jika bukan branch, total-kan kolom tambahan
                 if (! $isBranch) {
-                    // $sheet->setCellValue("W$totalRow", "=SUM(W2:W$lastDataRow)");
-                    // $sheet->setCellValue("X$totalRow", "=SUM(X2:X$lastDataRow)");
+                    $sheet->setCellValue("W$totalRow", "=SUM(W2:W$lastDataRow)");
+                    $sheet->setCellValue("X$totalRow", "=SUM(X2:X$lastDataRow)");
                     $sheet->setCellValue("Y$totalRow", "=SUM(Y2:Y$lastDataRow)");
-                    // $sheet->setCellValue("Z$totalRow", "=SUM(Z2:Z$lastDataRow)");
-                    // $sheet->setCellValue("AA$totalRow", "=SUM(AA2:AA$lastDataRow)");
-                    // $sheet->setCellValue("AB$totalRow", "=SUM(AB2:AB$lastDataRow)");
-                    // $sheet->setCellValue("AC$totalRow", "=SUM(AC2:AC$lastDataRow)");
+                    $sheet->setCellValue("Z$totalRow", "=SUM(Z2:Z$lastDataRow)");
+                    $sheet->setCellValue("AA$totalRow", "=SUM(AA2:AA$lastDataRow)");
+                    $sheet->setCellValue("AB$totalRow", "=SUM(AB2:AB$lastDataRow)");
+                    $sheet->setCellValue("AC$totalRow", "=SUM(AC2:AC$lastDataRow)");
                     $sheet->setCellValue("AD$totalRow", "=SUM(AD2:AD$lastDataRow)");
                 }
 
