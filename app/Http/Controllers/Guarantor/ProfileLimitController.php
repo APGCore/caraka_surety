@@ -6,6 +6,7 @@ use App\Enums\JobType;
 use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Office\ProfileResource;
+use App\Models\Guarantor\EmployeeLimit;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorProductTypeLimit;
 use App\Models\Guarantor\GuarantorToProductType;
@@ -339,6 +340,16 @@ class ProfileLimitController extends Controller
                     'limit_inherit' => $limitInherit,
                 ]
             );
+
+            EmployeeLimit::query()
+                ->where('guarantor_id', $profileLimit->getAttribute('guarantor_id'))
+                ->where('guarantor_to_product_type_id', $profileLimit->getAttribute('guarantor_to_product_type_id'))
+                ->where('profile_id', $profileLimit->getAttribute('profile_id'))
+                ->where('limit', '>', $limit)
+                ->update([
+                    'limit' => $limit,
+                    'limit_inherit' => $limitInherit,
+                ]);
             if (! $updated) {
                 throw new Exception('Gagal mengubah limit kantor');
             }
@@ -377,6 +388,12 @@ class ProfileLimitController extends Controller
     {
         try {
             DB::beginTransaction();
+
+            EmployeeLimit::query()
+                ->where('guarantor_id', $profileLimit->getAttribute('guarantor_id'))
+                ->where('guarantor_to_product_type_id', $profileLimit->getAttribute('guarantor_to_product_type_id'))
+                ->where('profile_id', $profileLimit->getAttribute('profile_id'))
+                ->delete();
 
             $deleted = $profileLimit->delete();
             if (! $deleted) {
