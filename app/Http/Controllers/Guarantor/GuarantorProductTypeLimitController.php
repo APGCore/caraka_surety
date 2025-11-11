@@ -200,7 +200,7 @@ class GuarantorProductTypeLimitController extends Controller
             // update profile limit
             ProfileLimit::query()
               ->where('guarantor_id', $guarantorProductTypeLimit->getAttribute('guarantor_id'))
-              ->where('guarantor_product_type_id', $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id'))
+              ->where('guarantor_to_product_type_id', $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id'))
               ->where('limit', '>', $limit)
               ->update([
                 'limit' => $limit,
@@ -237,7 +237,7 @@ class GuarantorProductTypeLimitController extends Controller
         try {
             ProfileLimit::query()
               ->where('guarantor_id', $guarantorProductTypeLimit->getAttribute('guarantor_id'))
-              ->where('guarantor_product_type_id', $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id'))
+              ->where('guarantor_to_product_type_id', $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id'))
               ->delete();
             $guarantorProductTypeLimit->delete();
             flashMessage('success', 'Limit berhasil dihapus');
