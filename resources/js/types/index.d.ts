@@ -18,6 +18,11 @@ interface FlashMessageProps {
   title: string;
   description: string;
   type: "success" | "error";
+  messages?: [{
+    title: string;
+    description: string;
+    type: "success" | "error" | "warning" | "info";
+  }];
 }
 
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
