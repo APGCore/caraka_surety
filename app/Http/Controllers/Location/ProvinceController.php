@@ -63,14 +63,14 @@ class ProvinceController extends Controller
     {
         $request->validate([
             'code' => 'required|string|unique:provinces,code',
-            'name' => 'required|string|unique:provinces,name',
+            'name' => 'required|string',
         ], [
             'code.required' => 'Kode Provinsi wajib diisi',
             'code.string' => 'Kode Provinsi harus berupa string',
             'code.unique' => 'Kode Provinsi sudah ada',
             'name.required' => 'Nama Provinsi wajib diisi',
             'name.string' => 'Nama Provinsi harus berupa string',
-            'name.unique' => 'Nama Provinsi sudah ada',
+            // 'name.unique' => 'Nama Provinsi sudah ada',
         ]);
 
         try {
@@ -101,14 +101,14 @@ class ProvinceController extends Controller
     {
         $request->validate([
             'code' => 'required|string|unique:provinces,code,'.$province->getAttribute('id').',id',
-            'name' => 'required|string|unique:provinces,name,'.$province->getAttribute('id').',id',
+            'name' => 'required|string',
         ], [
             'code.required' => 'Kode Provinsi wajib diisi',
             'code.string' => 'Kode Provinsi harus berupa string',
             'code.unique' => 'Kode Provinsi sudah ada',
             'name.required' => 'Nama Provinsi wajib diisi',
             'name.string' => 'Nama Provinsi harus berupa string',
-            'name.unique' => 'Nama Provinsi sudah ada',
+            // 'name.unique' => 'Nama Provinsi sudah ada',
         ]);
 
         try {
