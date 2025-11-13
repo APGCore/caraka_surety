@@ -13,21 +13,25 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { TableBody, TableCell, TableHead, TableHeader } from "@/components/_shadcn-ui/table";
-import { Link } from "@inertiajs/react";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
+import CreateUpdateDistrictModal from "../../components/district/create-update-district-modal";
+import DeleteDistrictModal from "../../components/district/delete-district-modal";
+import DetailDistrictModal from "../../components/district/detail-district-modal";
 import useDistrictModal from "../../hooks/use-district-modal";
 import useListDistrict from "../../hooks/use-list-district";
+import { Label } from "@/_features/_common/components/_shadcn-ui/label";
+import NewCombobox from "@/_features/_common/components/combobox";
 
 const ListDistrictPage = () => {
   const {
-    handleOpenCreateDistrict,
-    isOpenCreateDistrict,
-    handleOpenDeleteDistrict,
+    isOpenDetailDistrict,
     handleOpenDetailDistrict,
+    isOpenCreateDistrict,
+    handleOpenCreateDistrict,
+    isOpenUpdateDistrict,
     handleOpenUpdateDistrict,
     isOpenDeleteDistrict,
-    isOpenUpdateDistrict,
-    isOpenDetailDistrict,
+    handleOpenDeleteDistrict,
     selectedDistrict,
   } = useDistrictModal();
 
@@ -41,6 +45,14 @@ const ListDistrictPage = () => {
     handleSearchChange,
     handlePerPageChange,
     handlePageChange,
+    provinceId,
+    setProvinceId,
+    regencies,
+    isLoadingRegencies,
+    regencyId,
+    setRegencyId,
+    provinces,
+    isLoadingProvinces,
   } = useListDistrict();
 
   return (
@@ -75,6 +87,41 @@ const ListDistrictPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+              Filter Provinsi
+            </Label>
+            <NewCombobox
+              className="min-w-[180px]"
+              data={Array.isArray(provinces) ? provinces : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingProvinces}
+              placeholder="Pilih Provinsi"
+              defaultValue={provinceId ?? undefined}
+              onSelect={(val: any) => {
+                setProvinceId(val.id);
+                setRegencyId("");
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="regency_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+              Filter Kabupaten
+            </Label>
+            <NewCombobox
+              className="min-w-[180px]"
+              data={Array.isArray(regencies) ? regencies : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingRegencies}
+              placeholder="Pilih Kabupaten"
+              defaultValue={regencyId ?? undefined}
+              onSelect={(val: any) => {
+                setRegencyId(val.id);
+              }}
+            />
+          </div>
         </div>
       </div>
       <div>
@@ -129,6 +176,18 @@ const ListDistrictPage = () => {
         </Table>
         {isSuccessDistricts && meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
+
+      {/* Create District Modal */}
+      <CreateUpdateDistrictModal open={isOpenCreateDistrict} handleOpen={handleOpenCreateDistrict} />
+
+      {/* Update District Modal */}
+      <CreateUpdateDistrictModal open={isOpenUpdateDistrict} handleOpen={handleOpenUpdateDistrict} district={selectedDistrict} />
+
+      {/* Delete District Modal */}
+      <DeleteDistrictModal open={isOpenDeleteDistrict} handleOpen={handleOpenDeleteDistrict} district={selectedDistrict} />
+
+      {/* Detail District Modal */}
+      <DetailDistrictModal open={isOpenDetailDistrict} handleOpen={handleOpenDetailDistrict} district={selectedDistrict} />
     </main>
   );
 };

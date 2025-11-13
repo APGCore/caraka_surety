@@ -3,6 +3,8 @@ import axios from "axios";
 
 export const LOCATION_QUERY_KEY = {
   PROVINCE: "province",
+  REGENCY: "regency",
+  DISTRICT: "district",
   REGENCY_BY_PROVINCE_ID: "regencyByProvinceId",
   DISTRICT_BY_REGENCY_ID: "districtByRegencyId",
 };
