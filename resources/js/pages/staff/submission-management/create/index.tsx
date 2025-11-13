@@ -12,20 +12,25 @@ import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import useGetProductTypesByProductAndGuarantor from "@/common/hooks/api/product/useGetProductTypesByProductAndGuarantor";
 import useGetProfileLimit from "@/common/hooks/api/profile/useGetProfileLimit";
 import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
+import { useDebounce } from "@/common/hooks/general/use-debounce";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
 // import { useGetAllBlank } from "@/common/hooks/react-query/blank";
-import { useGetBranchGuarantorByHeadquarter } from "@/common/hooks/react-query/guarantor";
+import {
+  useGetBranchGuarantorByHeadIsPairingSearch,
+  useGetBranchGuarantorByHeadquarter,
+} from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
   useGetDistrictByRegencyId,
   useGetRegencyByProvinceId,
 } from "@/common/hooks/react-query/location";
-import { useGetAllObligee } from "@/common/hooks/react-query/obligee";
+import { useGetAllObligee, useSearchObligeeByName } from "@/common/hooks/react-query/obligee";
 import {
   PRINCIPAL_QUERY_KEY,
   useCreateOrUpdatePrincipal,
   useGetAllPrincipal,
+  useSearchPrincipal,
 } from "@/common/hooks/react-query/principal";
 // import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
@@ -158,7 +163,18 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   const [selectedProducts, setSelectedProducts] = useState(() => data.submission.product_id ?? null);
 
   // Principal
-  const { data: principals } = useGetAllPrincipal();
+  const [searchPrincipal, setSearchPrincipal] = useState("");
+  const handleSearchPrincipal = (value?: string) => {
+    setSearchPrincipal(value ?? "");
+  };
+  const debouncedSearchPrincipal = useDebounce(searchPrincipal, 300);
+  const {
+    data: principals,
+    isLoading: isLoadingSearchPrincipal,
+    isFetching: isFetchingSearchPrincipal,
+  } = useSearchPrincipal({
+    search: debouncedSearchPrincipal,
+  });
 
   const fetchPrincipalRatios = async (principalId?: number) => {
     return await axios.get(route("references.principal.ratios", principalId)).then((response) => {
@@ -245,9 +261,19 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   const selectedGuarantor = guarantor.id;
 
   // Branch Guarantor
-  const { data: branchGuarantor } = useGetBranchGuarantorByHeadquarter(
-    selectedGuarantor ? String(selectedGuarantor) : undefined,
-  );
+  const [searchBranchGuarantor, setSearchBranchGuarantor] = useState("");
+  const handleSearchBranchGuarantor = (value?: string) => {
+    setSearchBranchGuarantor(value ?? "");
+  };
+  const debouncedSearchBranchGuarantor = useDebounce(searchBranchGuarantor, 100);
+  const {
+    data: branchGuarantor,
+    isLoading: isLoadingSearchBranchGuarantor,
+    isFetching: isFetchingSearchBranchGuarantor,
+  } = useGetBranchGuarantorByHeadIsPairingSearch({
+    guarantorId: selectedGuarantor ? String(selectedGuarantor) : undefined,
+    search: debouncedSearchBranchGuarantor,
+  });
   const [selectedBranchGuarantor, setSelectedBranchGuarantor] = useState(
     () => data?.submission.guarantor_branch_id ?? null,
   );
@@ -301,7 +327,17 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   );
 
   // Obligee
-  const { data: obligees } = useGetAllObligee();
+  const [searchObligee, setSearchObligee] = useState("");
+  const handleSearchObligee = (value?: string) => {
+    setSearchObligee(value ?? "");
+  };
+  const debouncedSearchObligee = useDebounce(searchObligee, 100);
+  const {
+    data: obligees,
+    isLoading: isLoadingSearchObligee,
+    isFetching: isFetchingSearchObligee,
+  } = useSearchObligeeByName({ search: debouncedSearchObligee });
+
   const [selectedObligee, setSelectedObligee] = useState<{
     id?: number;
     name?: string;
@@ -634,6 +670,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                 <Label className="text-md">Perusahaan</Label>
                 <div className="flex gap-x-5 ">
                   <Combobox
+                    onSearch={(value) => {
+                      handleSearchPrincipal(value);
+                    }}
+                    isLoading={isLoadingSearchPrincipal || isFetchingSearchPrincipal}
                     datas={Array.isArray(principals) ? principals : []}
                     labelKey="name"
                     valueKey="name"
@@ -854,6 +894,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Cabang Asuransi</Label>
                         <Combobox
+                          onSearch={(value) => {
+                            handleSearchBranchGuarantor(value);
+                          }}
+                          isLoading={isLoadingSearchBranchGuarantor || isFetchingSearchBranchGuarantor}
                           datas={Array.isArray(branchGuarantor) ? branchGuarantor : []}
                           labelKey="name"
                           valueKey="name"
@@ -969,6 +1013,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                           <div className="grid gap-1 w-full">
                             <Label className="text-md">Obligee</Label>
                             <Combobox
+                              onSearch={(value) => {
+                                handleSearchObligee(value);
+                              }}
+                              isLoading={isLoadingSearchObligee || isFetchingSearchObligee}
                               datas={Array.isArray(obligees) ? obligees : []}
                               labelKey="name"
                               valueKey="name"

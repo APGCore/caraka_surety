@@ -7,6 +7,7 @@ export const PRINCIPAL_QUERY_KEY = {
   UPDATE_PRINCIPAL: "update-principal",
   CREATE_OR_UPDATE_PRINCIPAL_DOCS: "create-or-update-principal-docs",
   GET_PRINCIPAL_DOCS: "get-principal-docs",
+  SEARCH_PRINCIPAL: "search-principal",
 };
 
 export const useGetAllPrincipal = (querySetting?: UseQueryOptions) => {
@@ -14,6 +15,18 @@ export const useGetAllPrincipal = (querySetting?: UseQueryOptions) => {
     queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
     queryFn: async () => {
       const response = await axios.get(route("api.principal-management.principal.all"));
+      return response.data.data;
+    },
+    ...querySetting,
+  });
+};
+
+export const useSearchPrincipal = ({ search, querySetting }: { search: string; querySetting?: UseQueryOptions }) => {
+  return useQuery({
+    queryKey: [PRINCIPAL_QUERY_KEY.SEARCH_PRINCIPAL, search],
+    queryFn: async () => {
+      const response = await axios.get(route("api.principal-management.principal.search-principal", { search }));
+
       return response.data.data;
     },
     ...querySetting,
