@@ -73,7 +73,7 @@ class RegencyController extends Controller
         $rules = [
             'province_id' => 'required|exists:provinces,id',
             'code' => 'required|string|unique:regencies,code',
-            'name' => 'required|string|unique:regencies,name',
+            'name' => 'required|string',
         ];
 
         $messages = [
@@ -84,7 +84,7 @@ class RegencyController extends Controller
             'code.unique' => 'Kode Kabupaten sudah ada',
             'name.required' => 'Nama Kabupaten wajib diisi',
             'name.string' => 'Nama Kabupaten harus berupa string',
-            'name.unique' => 'Nama Kabupaten sudah ada',
+            // 'name.unique' => 'Nama Kabupaten sudah ada',
         ];
 
         $request->validate($rules, $messages);
@@ -123,7 +123,7 @@ class RegencyController extends Controller
         $request->validate([
             'province_id' => 'required|exists:provinces,id',
             'code' => 'required|string|unique:regencies,code,'.$regency->id,
-            'name' => 'required|string|unique:regencies,name,'.$regency->id,
+            'name' => 'required|string',
         ], [
             'province_id.required' => 'Provinsi wajib diisi',
             'province_id.exists' => 'Provinsi tidak ditemukan',
@@ -132,7 +132,7 @@ class RegencyController extends Controller
             'code.unique' => 'Kode Kabupaten sudah ada',
             'name.required' => 'Nama Kabupaten wajib diisi',
             'name.string' => 'Nama Kabupaten harus berupa string',
-            'name.unique' => 'Nama Kabupaten sudah ada',
+            // 'name.unique' => 'Nama Kabupaten sudah ada',
         ]);
 
         try {
