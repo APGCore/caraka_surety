@@ -76,7 +76,7 @@ class DistrictController extends Controller
         $reqValidated = $request->validate([
             'regency_id' => 'required|exists:regencies,id',
             'code' => 'required|string|unique:districts,code',
-            'name' => 'required|string|unique:districts,name',
+            'name' => 'required|string',
         ], [
             'regency_id.required' => 'Kabupaten wajib diisi',
             'regency_id.exists' => 'Kabupaten tidak ditemukan',
@@ -85,7 +85,7 @@ class DistrictController extends Controller
             'code.unique' => 'Kode Kecamatan sudah ada',
             'name.required' => 'Nama Kecamatan wajib diisi',
             'name.string' => 'Nama Kecamatan harus berupa string',
-            'name.unique' => 'Nama Kecamatan sudah ada',
+            // 'name.unique' => 'Nama Kecamatan sudah ada',
         ]);
 
         try {
