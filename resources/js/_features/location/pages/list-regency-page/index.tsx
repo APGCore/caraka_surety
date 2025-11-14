@@ -14,7 +14,7 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { TableBody, TableCell, TableHead, TableHeader } from "@/components/_shadcn-ui/table";
-import NewCombobox from "@/components/atoms/new-combobox";
+import NewCombobox from "@/_features/_common/components/combobox";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import CreateUpdateRegencyModal from "../../components/regency/create-update-regency-modal";
 import DeleteRegencyModal from "../../components/regency/delete-regency-modal";
@@ -84,12 +84,11 @@ const ListRegencyPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex flex-col gap-1">
+          <div>
             <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
               Filter Provinsi
             </Label>
             <NewCombobox
-              className=""
               data={Array.isArray(provinces) ? provinces : []}
               valueKey="id"
               labelKey="name"

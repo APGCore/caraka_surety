@@ -75,7 +75,7 @@ const ListDistrictPage = () => {
         </div>
       </div>
       <div className="flex justify-between items-end">
-        <div className="flex gap-x-3">
+        <div className="flex gap-x-3 items-end">
           <Select value={perPage} onValueChange={handlePerPageChange}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder={perPage} />
@@ -87,41 +87,39 @@ const ListDistrictPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
-              Filter Provinsi
-            </Label>
-            <NewCombobox
-              className="min-w-[180px]"
-              data={Array.isArray(provinces) ? provinces : []}
-              valueKey="id"
-              labelKey="name"
-              isLoading={isLoadingProvinces}
-              placeholder="Pilih Provinsi"
-              defaultValue={provinceId ?? undefined}
-              onSelect={(val: any) => {
-                setProvinceId(val.id);
-                setRegencyId("");
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="regency_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
-              Filter Kabupaten
-            </Label>
-            <NewCombobox
-              className="min-w-[180px]"
-              data={Array.isArray(regencies) ? regencies : []}
-              valueKey="id"
-              labelKey="name"
-              isLoading={isLoadingRegencies}
-              placeholder="Pilih Kabupaten"
-              defaultValue={regencyId ?? undefined}
-              onSelect={(val: any) => {
-                setRegencyId(val.id);
-              }}
-            />
-          </div>
+        <div>
+          <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+            Filter Provinsi
+          </Label>
+          <NewCombobox
+            data={Array.isArray(provinces) ? provinces : []}
+            valueKey="id"
+            labelKey="name"
+            isLoading={isLoadingProvinces}
+            placeholder="Pilih Provinsi"
+            defaultValue={provinceId ?? undefined}
+            onSelect={(val: any) => {
+              setProvinceId(val.id);
+              setRegencyId("");
+            }}
+          />
+        </div>
+        <div>
+          <Label htmlFor="regency_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+            Filter Kabupaten
+          </Label>
+          <NewCombobox
+            data={Array.isArray(regencies) ? regencies : []}
+            valueKey="id"
+            labelKey="name"
+            isLoading={isLoadingRegencies}
+            placeholder="Pilih Kabupaten"
+            defaultValue={regencyId ?? undefined}
+            onSelect={(val: any) => {
+              setRegencyId(val.id);
+            }}
+          />
+        </div>
         </div>
       </div>
       <div>
