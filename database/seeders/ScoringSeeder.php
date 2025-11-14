@@ -13,7 +13,6 @@ class ScoringSeeder extends Seeder
     public function run(): void
     {
         //
-
         $scorings = [
             [
                 'name' => 'Analisis Skoring',
@@ -22,7 +21,7 @@ class ScoringSeeder extends Seeder
         ];
 
         foreach ($scorings as $scoring) {
-            Scoring::create($scoring);
+            Scoring::query()->create($scoring);
         }
     }
 }

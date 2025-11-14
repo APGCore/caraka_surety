@@ -19,7 +19,7 @@ class Profiles extends Seeder
         $district = $regency->district()->first();
 
         // headquarter
-        Profile::create([
+        Profile::query()->create([
             'id' => 1,
             'code' => '14',
             'name' => 'Pusat',
@@ -30,7 +30,7 @@ class Profiles extends Seeder
         ]);
 
         // branch
-        Profile::create([
+        Profile::query()->create([
             'id' => 2,
             'code' => '15',
             'name' => 'Lampung',

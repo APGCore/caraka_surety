@@ -28,7 +28,7 @@ class ProfileLimitSeeder extends Seeder
         ];
 
         foreach ($profileLimits as $profileLimit) {
-            ProfileLimit::create($profileLimit);
+            ProfileLimit::query()->create($profileLimit);
         }
     }
 }

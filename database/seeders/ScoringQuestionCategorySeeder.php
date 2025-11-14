@@ -43,7 +43,7 @@ class ScoringQuestionCategorySeeder extends Seeder
         ];
 
         foreach ($scoringQuestionCategory as $category) {
-            ScoringQuestionCategory::create($category);
+            ScoringQuestionCategory::query()->create($category);
         }
     }
 }
