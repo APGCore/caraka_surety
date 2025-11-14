@@ -5,7 +5,7 @@ import AlertBase, { AlertBaseProps } from "../alert-base";
 const AlertSuccess: React.FC<AlertBaseProps> = ({ title, desc, isShow = true }) => {
   return (
     <AlertBase
-      className="border-green-500 border-2 bg-green-500/10"
+      className="border-green-500 border-2 bg-green-500/10 mb-4"
       isShow={isShow}
       title={title}
       desc={desc}

@@ -11,7 +11,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/_shadcn-ui/popover";
 import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
-import { Check, ChevronDown, Eraser } from "lucide-react";
+import { Check, ChevronDown, Eraser, Loader2 } from "lucide-react";
 import * as React from "react";
 import { useEffect } from "react";
 
@@ -21,6 +21,7 @@ export interface ComboboxProps<T> {
   valueKey: keyof T; // Key to use as the value
   defaultValue?: string | number | null; // Default value
   defaultValueId?: string | number | null; // Default value id
+  onSearch?: (value?: string) => void; // Callback when search
   onSelect?: (value: T) => void; // Callback when an item is selected
   onReset?: (resetVal: boolean) => void; // Callback when reset
   handleReset?: () => void; // Callback when reset
@@ -32,6 +33,7 @@ export interface ComboboxProps<T> {
   disabledValue?: boolean;
   reset?: boolean;
   shortValue?: number | boolean;
+  isLoading?: boolean;
   isWidthSameWithInput?: boolean;
   checkedWithCondition?: boolean;
   isSelectFirst?: boolean;
@@ -50,6 +52,8 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
   isWidthSameWithInput = true,
   isSelectFirst = false,
   isReset = false,
+  onSearch,
+  isLoading = false,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -121,31 +125,46 @@ const Combobox: React.FC<ComboboxProps<any>> = ({
             "w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height]": isWidthSameWithInput,
           })}>
           <Command>
-            <CommandInput placeholder={props?.placeholder ?? "Search item..."} className="m-1" />
+            <CommandInput
+              placeholder={props?.placeholder ?? "Search item..."}
+              className="m-1"
+              onValueChange={(value) => onSearch?.(value)}
+            />
             <CommandList>
-              <CommandEmpty>{props?.notFoundText ?? "No item found."}</CommandEmpty>
               <CommandGroup>
-                <RenderList
-                  of={datas}
-                  render={(item: any, idx: number) => (
-                    <CommandItem
-                      key={idx + 1}
-                      value={item[valueKey] as string}
-                      disabled={item.isChoosed === true}
-                      onSelect={(currentValue) => {
-                        props.onSelect?.(item);
-                        setValue(currentValue === value ? "" : currentValue);
-                        setOpen(false);
-                      }}>
-                      {props?.checkedWithCondition && item.isChoosed ? (
-                        <Check className={cn("mr-2 h-4 w-4 opacity-100")} />
-                      ) : (
-                        <Check className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")} />
+                {isLoading ? (
+                  <CommandItem disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </CommandItem>
+                ) : (
+                  <>
+                    <CommandEmpty>{props?.notFoundText ?? "No item found."}</CommandEmpty>
+                    <RenderList
+                      of={datas}
+                      render={(item: any, idx: number) => (
+                        <CommandItem
+                          key={idx + 1}
+                          value={item[valueKey] as string}
+                          disabled={item.isChoosed === true}
+                          onSelect={(currentValue) => {
+                            props.onSelect?.(item);
+                            setValue(currentValue === value ? "" : currentValue);
+                            setOpen(false);
+                          }}>
+                          {props?.checkedWithCondition && item.isChoosed ? (
+                            <Check className={cn("mr-2 h-4 w-4 opacity-100")} />
+                          ) : (
+                            <Check
+                              className={cn("mr-2 h-4 w-4", value === item[valueKey] ? "opacity-100" : "opacity-0")}
+                            />
+                          )}
+                          {item[labelKey]}
+                        </CommandItem>
                       )}
-                      {item[labelKey]}
-                    </CommandItem>
-                  )}
-                />
+                    />
+                  </>
+                )}
               </CommandGroup>
             </CommandList>
           </Command>

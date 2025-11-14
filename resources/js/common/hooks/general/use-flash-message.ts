@@ -11,14 +11,34 @@ const useFlashMessageToast = () => {
         toast({
           title: flash_message.title,
           description: flash_message.description,
+          duration: 25000,
         });
       } else if (flash_message.type === "error") {
         toast({
           title: flash_message.title,
           description: flash_message.description,
           variant: "destructive",
+          duration: 25000,
         });
       }
+    }
+    if (flash_message && flash_message.messages && flash_message.messages.length > 0) {
+      flash_message.messages.forEach((message: any) => {
+        if (message.type === "success") {
+          toast({
+            title: message.title,
+            description: message.description,
+            duration: 25000,
+          });
+        } else if (message.type === "error") {
+          toast({
+            title: message.title,
+            description: message.description,
+            variant: "destructive",
+            duration: 25000,
+          });
+        }
+      });
     }
   }, [flash_message]);
 

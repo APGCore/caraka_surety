@@ -1,11 +1,18 @@
 <?php
 
 if (! function_exists('flashMessage')) {
-    function flashMessage(string $message, string $description, string $type = 'success')
+    function flashMessage(string $message, string $description, string $type = 'success'): void
     {
         session()->flash('title', $message);
         session()->flash('description', $description);
         session()->flash('type', $type);
+    }
+}
+
+if (! function_exists('flashMessages')) {
+    function flashMessages(array $messages): void
+    {
+        session()->flash('messages', $messages);
     }
 }
 

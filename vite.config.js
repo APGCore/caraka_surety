@@ -10,4 +10,10 @@ export default defineConfig({
     }),
     react(),
   ],
+  build: {
+    minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
+  },
 });
