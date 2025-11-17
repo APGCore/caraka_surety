@@ -73,7 +73,7 @@ class ProductTypeSeeder extends Seeder
         ];
 
         foreach ($productTypes as $type) {
-            ProductType::create($type);
+            ProductType::query()->create($type);
         }
     }
 }

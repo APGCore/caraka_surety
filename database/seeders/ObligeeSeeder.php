@@ -40,7 +40,7 @@ class ObligeeSeeder extends Seeder
         ];
 
         foreach ($obligees as $obligee) {
-            Obligee::create($obligee);
+            Obligee::query()->create($obligee);
         }
     }
 }

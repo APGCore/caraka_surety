@@ -66,7 +66,7 @@ class BlankSeeder extends Seeder
         ];
 
         foreach ($blanks as $blank) {
-            Blank::create($blank);
+            Blank::query()->create($blank);
         }
     }
 }

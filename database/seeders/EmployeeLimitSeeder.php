@@ -37,7 +37,7 @@ class EmployeeLimitSeeder extends Seeder
         ];
 
         foreach ($employeeLimits as $employeeLimit) {
-            EmployeeLimit::create($employeeLimit);
+            EmployeeLimit::query()->create($employeeLimit);
         }
     }
 }

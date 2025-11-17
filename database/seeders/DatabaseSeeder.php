@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ProductTypeSeeder::class,
             ProductTypeToProductSeeder::class,
-            //            RequiredDocSeeder::class,
+            RequiredDocSeeder::class,
             SourceOfFundSeeder::class,
             ScoringSeeder::class,
             ScoringQuestionCategorySeeder::class,
