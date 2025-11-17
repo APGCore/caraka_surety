@@ -1,5 +1,11 @@
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/_shadcn-ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/_shadcn-ui/alert-dialog";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@/components/_shadcn-ui/table";
 
@@ -19,7 +25,7 @@ const DetailDistrictModal = ({ open, handleOpen, district }: DetailDistrictModal
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Detail Kecamatan</AlertDialogTitle>
-          <AlertDialogDescription>Menampilkan data  {district?.name}</AlertDialogDescription>
+          <AlertDialogDescription>Menampilkan data {district?.name}</AlertDialogDescription>
         </AlertDialogHeader>
         <div className="mt-4">
           <Table>

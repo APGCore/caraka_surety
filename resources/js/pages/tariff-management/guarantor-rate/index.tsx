@@ -17,13 +17,13 @@ import GuarantorRateHeader from "@/pages/tariff-management/guarantor-rate/_parti
 import { GuarantorRateUtils } from "@/pages/tariff-management/guarantor-rate/guarantor-rate.utils";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
-import React, { useState } from "react";
+import { useState } from "react";
 import { GuarantorRatePageProps } from "./guarantor-rate.type";
 
 const GuarantorRatePage: GuarantorRatePageProps = ({
   guarantors,
   guarantorSelected,
-  guarantorBranches,
+  // guarantorBranches,
   guarantorBranchSelected,
   products,
   productSelected,
@@ -47,9 +47,9 @@ const GuarantorRatePage: GuarantorRatePageProps = ({
     getData(select, search, guarantorId);
   };
 
-  const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
-    getData(select, search, guarantorSelected, guarantorBranchId);
-  };
+  // const handleSelectGuarantorBranch = (guarantorBranchId: number) => {
+  //   getData(select, search, guarantorSelected, guarantorBranchId);
+  // };
 
   const handleSelectProduct = (productId: number) => {
     getData(select, search, guarantorSelected, guarantorBranchSelected, productId);
@@ -153,10 +153,11 @@ export default GuarantorRatePage;
 
 GuarantorRatePage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const breadcrumbs = [{ label: "Kelola Asuransi", href: route(GuarantorRateUtils.link.index) }];
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} />
+      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} breadcrumbs={breadcrumbs} />
       {page}
     </RoleBasedLayout>
   );

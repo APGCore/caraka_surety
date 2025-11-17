@@ -1,5 +1,6 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
 import { Input } from "@/_features/_common/components/_shadcn-ui/input";
+import { Label } from "@/_features/_common/components/_shadcn-ui/label";
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
 } from "@/_features/_common/components/_shadcn-ui/select";
 import { Table, TableRow } from "@/_features/_common/components/_shadcn-ui/table";
 import { PrimaryButton } from "@/_features/_common/components/button/primary-button";
+import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
@@ -19,8 +21,6 @@ import DeleteDistrictModal from "../../components/district/delete-district-modal
 import DetailDistrictModal from "../../components/district/detail-district-modal";
 import useDistrictModal from "../../hooks/use-district-modal";
 import useListDistrict from "../../hooks/use-list-district";
-import { Label } from "@/_features/_common/components/_shadcn-ui/label";
-import NewCombobox from "@/_features/_common/components/combobox";
 
 const ListDistrictPage = () => {
   const {
@@ -87,39 +87,39 @@ const ListDistrictPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-        <div>
-          <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
-            Filter Provinsi
-          </Label>
-          <NewCombobox
-            data={Array.isArray(provinces) ? provinces : []}
-            valueKey="id"
-            labelKey="name"
-            isLoading={isLoadingProvinces}
-            placeholder="Pilih Provinsi"
-            defaultValue={provinceId ?? undefined}
-            onSelect={(val: any) => {
-              setProvinceId(val.id);
-              setRegencyId("");
-            }}
-          />
-        </div>
-        <div>
-          <Label htmlFor="regency_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
-            Filter Kabupaten
-          </Label>
-          <NewCombobox
-            data={Array.isArray(regencies) ? regencies : []}
-            valueKey="id"
-            labelKey="name"
-            isLoading={isLoadingRegencies}
-            placeholder="Pilih Kabupaten"
-            defaultValue={regencyId ?? undefined}
-            onSelect={(val: any) => {
-              setRegencyId(val.id);
-            }}
-          />
-        </div>
+          <div>
+            <Label htmlFor="province_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+              Filter Provinsi
+            </Label>
+            <NewCombobox
+              data={Array.isArray(provinces) ? provinces : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingProvinces}
+              placeholder="Pilih Provinsi"
+              defaultValue={provinceId ?? undefined}
+              onSelect={(val: any) => {
+                setProvinceId(val.id);
+                setRegencyId("");
+              }}
+            />
+          </div>
+          <div>
+            <Label htmlFor="regency_id" className=" pl-1 text-xs font-semibold uppercase underline underline-offset-2">
+              Filter Kabupaten
+            </Label>
+            <NewCombobox
+              data={Array.isArray(regencies) ? regencies : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingRegencies}
+              placeholder="Pilih Kabupaten"
+              defaultValue={regencyId ?? undefined}
+              onSelect={(val: any) => {
+                setRegencyId(val.id);
+              }}
+            />
+          </div>
         </div>
       </div>
       <div>
@@ -179,13 +179,25 @@ const ListDistrictPage = () => {
       <CreateUpdateDistrictModal open={isOpenCreateDistrict} handleOpen={handleOpenCreateDistrict} />
 
       {/* Update District Modal */}
-      <CreateUpdateDistrictModal open={isOpenUpdateDistrict} handleOpen={handleOpenUpdateDistrict} district={selectedDistrict} />
+      <CreateUpdateDistrictModal
+        open={isOpenUpdateDistrict}
+        handleOpen={handleOpenUpdateDistrict}
+        district={selectedDistrict}
+      />
 
       {/* Delete District Modal */}
-      <DeleteDistrictModal open={isOpenDeleteDistrict} handleOpen={handleOpenDeleteDistrict} district={selectedDistrict} />
+      <DeleteDistrictModal
+        open={isOpenDeleteDistrict}
+        handleOpen={handleOpenDeleteDistrict}
+        district={selectedDistrict}
+      />
 
       {/* Detail District Modal */}
-      <DetailDistrictModal open={isOpenDetailDistrict} handleOpen={handleOpenDetailDistrict} district={selectedDistrict} />
+      <DetailDistrictModal
+        open={isOpenDetailDistrict}
+        handleOpen={handleOpenDetailDistrict}
+        district={selectedDistrict}
+      />
     </main>
   );
 };

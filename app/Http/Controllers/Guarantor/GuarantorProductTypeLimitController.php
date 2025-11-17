@@ -202,22 +202,22 @@ class GuarantorProductTypeLimitController extends Controller
             $guarantorToProductTypeId = $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id');
             // update profile limit
             ProfileLimit::query()
-              ->where('guarantor_id', $gurantorId)
-              ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-              ->where('limit', '>', $limit)
-              ->update([
-                'limit' => $limit,
-                'limit_inherit' => $limitInherit,
-              ]);
+                ->where('guarantor_id', $gurantorId)
+                ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+                ->where('limit', '>', $limit)
+                ->update([
+                    'limit' => $limit,
+                    'limit_inherit' => $limitInherit,
+                ]);
             // update employee limit
             EmployeeLimit::query()
-              ->where('guarantor_id', $gurantorId)
-              ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-              ->where('limit', '>', $limit)
-              ->update([
-                'limit' => $limit,
-                'limit_inherit' => $limitInherit,
-              ]);
+                ->where('guarantor_id', $gurantorId)
+                ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+                ->where('limit', '>', $limit)
+                ->update([
+                    'limit' => $limit,
+                    'limit_inherit' => $limitInherit,
+                ]);
 
             activity()
                 ->useLog('guarantor-product-type-limit')
@@ -251,14 +251,14 @@ class GuarantorProductTypeLimitController extends Controller
             $guarantorToProductTypeId = $guarantorProductTypeLimit->getAttribute('guarantor_to_product_type_id');
             // delete profile limit
             ProfileLimit::query()
-              ->where('guarantor_id', $guarantorId)
-              ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-              ->delete();
+                ->where('guarantor_id', $guarantorId)
+                ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+                ->delete();
             // delete employee limit
             EmployeeLimit::query()
-              ->where('guarantor_id', $guarantorId)
-              ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-              ->delete();
+                ->where('guarantor_id', $guarantorId)
+                ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+                ->delete();
             $guarantorProductTypeLimit->delete();
             flashMessage('success', 'Limit berhasil dihapus');
 

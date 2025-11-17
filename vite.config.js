@@ -11,9 +11,9 @@ export default defineConfig({
     react(),
   ],
   build: {
-    minify: 'esbuild',
+    minify: "esbuild",
     esbuild: {
-      drop: ['console', 'debugger'],
+      drop: ["console", "debugger"],
     },
   },
 });

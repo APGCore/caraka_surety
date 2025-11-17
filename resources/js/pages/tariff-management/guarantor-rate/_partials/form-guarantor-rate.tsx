@@ -1,17 +1,20 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import Show from "@/components/atoms/show";
+import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { FormGuarantorRateUtils } from "@/pages/tariff-management/guarantor-rate/_partials/form-guarantor-rate.utils";
 import { useForm } from "@inertiajs/react";
+import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
 interface FormGuarantorRateProps {
-  guarantorId: number | string;
-  guarantorBranchId?: number | string | null;
-  guarantorToProductTypeId: number | string;
+  isEdit?: boolean;
+  guarantorId?: number | string;
+  guarantorBranchId?: number | string;
+  guarantorToProductTypeId?: number | string;
   rate?: any;
 }
 
@@ -21,10 +24,10 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
   guarantorToProductTypeId,
   rate,
 }) => {
-  const { data, setData, post, errors, processing } = useForm<{
-    guarantor_id: number | string;
-    guarantor_branch_id?: number | string | null;
-    guarantor_to_product_type_id: number | string;
+  const { data, setData, post, put, errors, processing } = useForm<{
+    guarantor_id?: number | string;
+    guarantor_branch_id?: number | string;
+    guarantor_to_product_type_id?: number | string;
     minimum_payment?: string;
     pay_rate?: number;
     payment_administration?: string;
@@ -33,10 +36,11 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
     revised_rate?: string;
     commission?: number;
     pph?: number;
+    effective_at?: string;
   }>({
-    guarantor_id: guarantorId,
-    guarantor_branch_id: guarantorBranchId ?? undefined,
-    guarantor_to_product_type_id: guarantorToProductTypeId,
+    guarantor_id: guarantorId ?? rate?.guarantor_id ?? null,
+    guarantor_branch_id: guarantorBranchId ?? rate?.guarantor_branch_id ?? null,
+    guarantor_to_product_type_id: guarantorToProductTypeId ?? rate?.guarantor_to_product_type_id ?? null,
     minimum_payment: rate?.minimum_payment?.toString() ?? "",
     pay_rate: rate?.pay_rate ?? "",
     payment_administration: rate?.payment_administration?.toString() ?? "",
@@ -45,13 +49,21 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
     revised_rate: rate?.revised_rate?.toString() ?? "",
     commission: rate?.commission ?? "",
     pph: rate?.pph ?? "",
+    effective_at: rate?.effective_at ?? "",
   });
 
   const submit = () => {
-    post(route(FormGuarantorRateUtils.create.route), {
-      preserveState: true,
-      preserveScroll: true,
-    });
+    if (!rate) {
+      post(route(FormGuarantorRateUtils.create.route), {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    } else {
+      put(route(FormGuarantorRateUtils.edit.route, rate.id), {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    }
   };
 
   const handleBack = () => {
@@ -65,7 +77,24 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
         submit();
       }}
       id="guarantor-rate-form">
-      <div className="flex justify-center w-full mx-auto gap-16">
+      <div className="w-1/5 mx-auto mb-4">
+        <div className="space-y-2">
+          <label htmlFor="effective_at" className="block text-sm font-medium text-gray-700">
+            Berlaku Mulai
+          </label>
+          <div className="flex items-center space-x-4">
+            <CalendarPicker
+              className="w-full border border-gray-300 rounded-lg p-2"
+              dateFormat="DD MMMM YYYY"
+              initialDate={data.effective_at ? dayjs(data.effective_at).toDate() : undefined}
+              onPickDate={(e) => {
+                setData({ ...data, effective_at: dayjs(e).format("YYYY-MM-DD") });
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-center w-full gap-16">
         <Show when={guarantorBranchId == null}>
           <div className="p-0">
             <div className="space-y-2">
@@ -216,3 +245,6 @@ const FormGuarantorRate: React.FC<FormGuarantorRateProps> = ({
 };
 
 export default FormGuarantorRate;
+function put(arg0: string, arg1: { preserveState: boolean; preserveScroll: boolean }) {
+  throw new Error("Function not implemented.");
+}

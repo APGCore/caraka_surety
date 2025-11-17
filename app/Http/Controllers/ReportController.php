@@ -12,6 +12,7 @@ use App\Models\Submission\Submission;
 use App\Traits\CalculateInvoice;
 use App\Traits\FilterOffice;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -28,6 +29,9 @@ class ReportController extends Controller
         $this->headComponent = 'report';
     }
 
+    /**
+     * @throws Exception
+     */
     public function productionReport(Request $request): Response|ResponseFactory
     {
         $dateFrom = $request->input('date.from');
@@ -94,7 +98,6 @@ class ReportController extends Controller
                 'guarantor:id,name,code',
                 'guarantorBranch:id,name,code',
                 'guarantor.pattern:id,guarantor_id,prefix,content,suffix',
-                'guarantor.guarantorRate',
                 'product:id,name',
                 'guarantorToProductType:id,code_product,code,name,full_name',
                 'blank:id,number,is_broken,is_revised',

@@ -19,171 +19,170 @@ use Illuminate\Support\Facades\Log;
 
 class PrincipalController extends Controller
 {
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(StoreRequest $request): JsonResponse
-  {
-    try {
-      DB::beginTransaction();
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
 
-      $requestValid = $request->validated();
-      $principal = Principal::query()->create($requestValid);
-      activity()
-        ->useLog('principal')
-        ->performedOn($principal)
-        ->causedBy(auth()->user())
-        ->log('Menambahkan data principal');
-      DB::commit();
+            $requestValid = $request->validated();
+            $principal = Principal::query()->create($requestValid);
+            activity()
+                ->useLog('principal')
+                ->performedOn($principal)
+                ->causedBy(auth()->user())
+                ->log('Menambahkan data principal');
+            DB::commit();
 
-      return $this->responseSuccess('Data Principal Berhasil Ditambahkan', new PrincipalResource($principal));
-    } catch (Exception $e) {
-      DB::rollBack();
-      $error = $this->handleErrorMessage($e);
-      Log::error('PrincipalController@store: ', $error);
+            return $this->responseSuccess('Data Principal Berhasil Ditambahkan', new PrincipalResource($principal));
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@store: ', $error);
 
-      return $this->responseError('Data Principal Gagal Ditambahkan', $error);
+            return $this->responseError('Data Principal Gagal Ditambahkan', $error);
+        }
     }
-  }
 
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(UpdateRequest $request, Principal $principal): JsonResponse
-  {
-    try {
-      DB::beginTransaction();
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateRequest $request, Principal $principal): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
 
-      $requestValid = $request->validated();
-      $principal->update($requestValid);
-      activity()
-        ->useLog('principal')
-        ->performedOn($principal)
-        ->causedBy(auth()->user())
-        ->log('Mengubah data principal');
-      DB::commit();
+            $requestValid = $request->validated();
+            $principal->update($requestValid);
+            activity()
+                ->useLog('principal')
+                ->performedOn($principal)
+                ->causedBy(auth()->user())
+                ->log('Mengubah data principal');
+            DB::commit();
 
-      return $this->responseSuccess('Data Principal Berhasil Diubah', new PrincipalResource($principal));
-    } catch (Exception $e) {
-      DB::rollBack();
-      $error = $this->handleErrorMessage($e);
-      Log::error('PrincipalController@update: ', $error);
+            return $this->responseSuccess('Data Principal Berhasil Diubah', new PrincipalResource($principal));
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@update: ', $error);
 
-      return $this->responseError('Data Principal Gagal Diubah', $error);
+            return $this->responseError('Data Principal Gagal Diubah', $error);
+        }
     }
-  }
 
-  public function search(Request $request): JsonResponse
-  {
-    $search = $request->get('search') ?? '';
-    $principals = Principal::query()
-      ->where('name', 'like', "%$search%")
-      ->with(['documents'])
-      ->limit(10)
-      ->get();
+    public function search(Request $request): JsonResponse
+    {
+        $search = $request->get('search') ?? '';
+        $principals = Principal::query()
+            ->where('name', 'like', "%$search%")
+            ->with(['documents'])
+            ->limit(10)
+            ->get();
 
-    return $this->responseSuccess('Data Principal', $principals);
-  }
-
-
-  public function getAll(): JsonResponse
-  {
-    $principals = Principal::query()
-      ->with(['documents'])
-      ->get();
-
-    return $this->responseSuccess('Data Principal', $principals);
-  }
-  //    public function getAll(): JsonResponse
-  //    {
-  //        $principals = SubmissionPrincipal::query()
-  //            ->with(['documents'])
-  //            ->get();
-  //
-  //        return $this->responseSuccess('Data Principal', $principals);
-  //    }
-
-  public function getRatios(Principal $principal): JsonResponse
-  {
-    $principal->load('principalRatios');
-
-    $ratios = $principal->getRelation('principalRatios') ?? [];
-
-    return $this->responseSuccess('Data Ratio', $ratios);
-  }
-
-  public function uploadDocument(UploadDocumentRequest $request, Principal $principal): JsonResponse
-  {
-    try {
-      DB::beginTransaction();
-      $principal->load('documents');
-      $requestValid = $request->validated();
-      $requiredDocId = $requestValid['required_doc_id'];
-      // Delete existing document if exists
-      $existingDocument = $principal->documents()->firstWhere('required_doc_id', $requiredDocId);
-
-      if ($existingDocument && $existingDocument->url) {
-        $this->deleteFile($existingDocument->url);
-      }
-      $file = $requestValid['file'];
-      $requiredDoc = RequiredDoc::query()->firstWhere('id', $requiredDocId);
-
-      $principalName = $principal->getAttribute('name')
-        ? str_replace(' ', '_', $principal->getAttribute('name'))
-        : 'principal';
-      $path = "principal/{$principal->getAttribute('id')}-$principalName/documents";
-
-      $url = $this->uploadFile(
-        $file,
-        $path,
-        $requiredDoc->name
-      );
-      $document = collect([
-        'required_doc_id' => $requiredDocId,
-        'name' => $requiredDoc->name,
-        'is_approved' => true,
-        'url' => $url,
-      ]);
-
-      $principal->documents()->updateOrCreate([
-        'required_doc_id' => $requiredDocId,
-      ], $document->toArray());
-
-      DB::commit();
-
-      return $this->responseSuccess('Dokumen berhasil diunggah', $document);
-    } catch (Exception $e) {
-      DB::rollBack();
-      $error = $this->handleErrorMessage($e);
-      Log::error('PrincipalController@uploadDocument: ', $error);
-
-      return $this->responseError('Gagal mengunggah dokumen', $error);
+        return $this->responseSuccess('Data Principal', $principals);
     }
-  }
 
-  public function deleteDocument(PrincipalDocument $document): JsonResponse
-  {
-    try {
-      DB::beginTransaction();
+    public function getAll(): JsonResponse
+    {
+        $principals = Principal::query()
+            ->with(['documents'])
+            ->get();
 
-      $document->delete();
-
-      activity()
-        ->useLog('principal_document')
-        ->performedOn($document)
-        ->causedBy(auth()->user())
-        ->log('Menghapus dokumen principal');
-      flashMessage('Dokumen Principal Dihapus', 'Dokumen Principal dihapus');
-      DB::commit();
-
-      return $this->responseSuccess('Dokumen Principal Berhasil Dihapus');
-    } catch (Exception $e) {
-      DB::rollBack();
-      flashMessage('Gagal Menghapus Dokumen Principal', 'Terjadi kesalahan saat menghapus dokumen principal', 'error');
-      $error = $this->handleErrorMessage($e);
-      Log::error('PrincipalController@deleteDocument: ', $error);
-
-      return $this->responseError('Gagal menghapus dokumen', $error);
+        return $this->responseSuccess('Data Principal', $principals);
     }
-  }
+    //    public function getAll(): JsonResponse
+    //    {
+    //        $principals = SubmissionPrincipal::query()
+    //            ->with(['documents'])
+    //            ->get();
+    //
+    //        return $this->responseSuccess('Data Principal', $principals);
+    //    }
+
+    public function getRatios(Principal $principal): JsonResponse
+    {
+        $principal->load('principalRatios');
+
+        $ratios = $principal->getRelation('principalRatios') ?? [];
+
+        return $this->responseSuccess('Data Ratio', $ratios);
+    }
+
+    public function uploadDocument(UploadDocumentRequest $request, Principal $principal): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+            $principal->load('documents');
+            $requestValid = $request->validated();
+            $requiredDocId = $requestValid['required_doc_id'];
+            // Delete existing document if exists
+            $existingDocument = $principal->documents()->firstWhere('required_doc_id', $requiredDocId);
+
+            if ($existingDocument && $existingDocument->url) {
+                $this->deleteFile($existingDocument->url);
+            }
+            $file = $requestValid['file'];
+            $requiredDoc = RequiredDoc::query()->firstWhere('id', $requiredDocId);
+
+            $principalName = $principal->getAttribute('name')
+              ? str_replace(' ', '_', $principal->getAttribute('name'))
+              : 'principal';
+            $path = "principal/{$principal->getAttribute('id')}-$principalName/documents";
+
+            $url = $this->uploadFile(
+                $file,
+                $path,
+                $requiredDoc->name
+            );
+            $document = collect([
+                'required_doc_id' => $requiredDocId,
+                'name' => $requiredDoc->name,
+                'is_approved' => true,
+                'url' => $url,
+            ]);
+
+            $principal->documents()->updateOrCreate([
+                'required_doc_id' => $requiredDocId,
+            ], $document->toArray());
+
+            DB::commit();
+
+            return $this->responseSuccess('Dokumen berhasil diunggah', $document);
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@uploadDocument: ', $error);
+
+            return $this->responseError('Gagal mengunggah dokumen', $error);
+        }
+    }
+
+    public function deleteDocument(PrincipalDocument $document): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $document->delete();
+
+            activity()
+                ->useLog('principal_document')
+                ->performedOn($document)
+                ->causedBy(auth()->user())
+                ->log('Menghapus dokumen principal');
+            flashMessage('Dokumen Principal Dihapus', 'Dokumen Principal dihapus');
+            DB::commit();
+
+            return $this->responseSuccess('Dokumen Principal Berhasil Dihapus');
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal Menghapus Dokumen Principal', 'Terjadi kesalahan saat menghapus dokumen principal', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@deleteDocument: ', $error);
+
+            return $this->responseError('Gagal menghapus dokumen', $error);
+        }
+    }
 }

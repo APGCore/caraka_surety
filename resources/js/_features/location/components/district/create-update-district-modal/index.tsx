@@ -1,16 +1,22 @@
-import { useForm } from "@inertiajs/react";
-import { FormEvent, useEffect, useState } from "react";
-import { DISTRICT_LOCATION_QUERY_KEY } from "@/_features/location/services/district-location-query";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import NewCombobox from "@/_features/_common/components/combobox";
+import { handleBubbleEvent } from "@/_features/_common/utils/dom";
+import { DISTRICT_LOCATION_QUERY_KEY } from "@/_features/location/services/district-location-query";
+import { useGetAllProvince } from "@/_features/location/services/province-location-query";
+import { useGetRegencyByProvinceId } from "@/_features/location/services/regency-location-query";
+import { Button } from "@/components/_shadcn-ui/button";
 import InputError from "@/components/molecules/input/error-input";
 import InputLabel from "@/components/molecules/input/label-input";
 import TextInput from "@/components/molecules/input/text-input";
-import { Button } from "@/components/_shadcn-ui/button";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
-import { handleBubbleEvent } from "@/_features/_common/utils/dom";
-import { useGetRegencyByProvinceId } from "@/_features/location/services/regency-location-query";
-import { useGetAllProvince } from "@/_features/location/services/province-location-query";
+import { useForm } from "@inertiajs/react";
+import { FormEvent, useEffect, useState } from "react";
 
 interface CreateUpdateDistrictModalProps {
   open: boolean;
@@ -25,11 +31,15 @@ const CreateUpdateDistrictModal = ({ open, handleOpen, district }: CreateUpdateD
     code: "",
     name: "",
   });
-  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(() => district?.regency?.province_id ?? null);
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(
+    () => district?.regency?.province_id ?? null,
+  );
   console.log(district?.regency?.province_id, selectedProvinceId);
 
   const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvince();
-  const { data: regencies, isLoading: isLoadingRegencies } = useGetRegencyByProvinceId((selectedProvinceId ?? district?.regency?.province_id ?? "").toString());
+  const { data: regencies, isLoading: isLoadingRegencies } = useGetRegencyByProvinceId(
+    (selectedProvinceId ?? district?.regency?.province_id ?? "").toString(),
+  );
 
   useEffect(() => {
     if (district && typeof district === "object") {

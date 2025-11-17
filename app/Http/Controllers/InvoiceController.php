@@ -6,8 +6,10 @@ use App\Enums\OfficeType;
 use App\Http\Requests\Invoice\StoreRequest;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Guarantor\Guarantor;
+use App\Models\Guarantor\GuarantorRate;
 use App\Models\Product\Product;
 use App\Models\Profile\Profile;
+use App\Models\Profile\ProfileRate;
 use App\Models\RelatedParties\PrincipalRate;
 use App\Models\Submission\Submission;
 use App\Services\HostToHostService;
@@ -158,6 +160,8 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @throws Exception
      */
     public function show(Submission $submission): Response|RedirectResponse
     {
@@ -213,8 +217,18 @@ class InvoiceController extends Controller
         // $guarantorRate = $this->calculateGuarantor($submission);
         // $officeRate = $this->calculateOffice($submission);
         // $principalRate = $this->calculatePrincipal($submission);
-        $capitalRate = $this->calculateCapitalRates($submission);
-        $sellingRate = $this->calculateSellingRates($submission);
+        $guarantorRate = GuarantorRate::query()
+            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+            ->first();
+        $profileRate = ProfileRate::query()
+            ->where('profile_id', $submission->getRelation('staff')->getAttribute('profile_id'))
+            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+            ->first();
+        $capitalRate = $this->calculateCapitalRates($submission, $guarantorRate);
+        $sellingRate = $this->calculateSellingRates($submission, $profileRate);
+
         $totalPremi = ($sellingRate->get('total') ?? 0) - ($capitalRate->get('nett_premi') ?? 0);
         $isSet = $submission->getRelation('submissionRate') !== null;
 
@@ -316,13 +330,13 @@ class InvoiceController extends Controller
                 'guarantor.province',
                 'guarantor.regency',
                 'guarantor.district',
-                'guarantor.guarantorRate',
                 'guarantorBranch' => function ($query) {
                     $query->withTrashed();
                 },
                 'guarantorBranch.province',
                 'guarantorBranch.regency',
                 'guarantorBranch.district',
+                'guarantorRate',
                 'principal' => function ($query) {
                     $query->withTrashed();
                 },
@@ -358,6 +372,15 @@ class InvoiceController extends Controller
             ->first();
         $offices = [];
         $invoices = [];
+        $guarantorRates = GuarantorRate::query()
+            ->whereIn('guarantor_id', $submissions->pluck('guarantor_id')->unique()->toArray())
+            ->whereIn('guarantor_to_product_type_id', $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray())
+            ->get();
+        $profileRates = ProfileRate::query()
+            ->whereIn('profile_id', $submissions->pluck('office_id')->unique()->toArray())
+            ->whereIn('guarantor_id', $submissions->pluck('guarantor_id')->unique()->toArray())
+            ->whereIn('guarantor_to_product_type_id', $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray())
+            ->get();
         foreach ($submissions as $submission) {
             $businessUnit = $submission->getRelation('office');
             $principal = $submission->getRelation('principal');
@@ -366,7 +389,12 @@ class InvoiceController extends Controller
             $guarantorBranch = $submission->getRelation('guarantorBranch');
             $guarantorToProductType = $submission->getRelation('guarantorToProductType');
             $blank = $submission->getRelation('blank');
-            $profileRate = $businessUnit?->getRelation('profileRate')
+            $guarantorRate = $guarantorRates
+                ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
+                ->first();
+            $profileRate = $profileRates
+                ->where('profile_id', $submission->getAttribute('office_id'))
                 ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
                 ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
                 ->first();
@@ -377,22 +405,21 @@ class InvoiceController extends Controller
                 continue; // Skip if submission rate is not set
             }
             $submission->update(['has_send_to_finance' => true]);
-            $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
-            $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0);
-            $adm = (float) ($profileRate->getAttribute('sales_administration') ?? 0);
-            $brokenRate = (float) ($profileRate->getAttribute('broken_rate') ?? 0);
-            $revisedRate = (float) ($profileRate->getAttribute('revised_rate') ?? 0);
-            $this->storeSubmissionRate(
-                $submission,
-                $minimum,
-                $rate,
-                $adm,
-                $brokenRate,
-                $revisedRate,
-            );
-            // Calculate rates
-            $capitalRates = $this->calculateCapitalRates($submission);
-            $sellingRates = $this->calculateSellingRates($submission);
+            //            $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
+            //            $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0);
+            //            $adm = (float) ($profileRate->getAttribute('sales_administration') ?? 0);
+            //            $brokenRate = (float) ($profileRate->getAttribute('broken_rate') ?? 0);
+            //            $revisedRate = (float) ($profileRate->getAttribute('revised_rate') ?? 0);
+            //            $this->storeSubmissionRate(
+            //                $submission,
+            //                $minimum,
+            //                $rate,
+            //                $adm,
+            //                $brokenRate,
+            //                $revisedRate,
+            //            );
+            $capitalRates = $this->calculateCapitalRates($submission, $guarantorRate);
+            $sellingRates = $this->calculateSellingRates($submission, $profileRate);
 
             $prefixCode = 'apg-core-';
             $invoices[] = [

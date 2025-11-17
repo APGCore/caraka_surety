@@ -75,11 +75,6 @@ class Submission extends Model
         return str_replace(',', '.', $value);
     }
 
-    public function getCanRevisedAttribute(): bool
-    {
-        return $this->callback()->exists();
-    }
-
     public function scores(): HasMany
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
