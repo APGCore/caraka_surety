@@ -14,6 +14,7 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorRate;
 use App\Models\Guarantor\GuarantorToProductType;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -83,7 +84,7 @@ class GuarantorRateController extends Controller
         ]);
     }
 
-    public function list(ListRequest $request)
+    public function list(ListRequest $request): Response
     {
         $validated = $request->validated();
         $guarantorSelected = $validated['guarantor_id'];
@@ -126,7 +127,7 @@ class GuarantorRateController extends Controller
         $guarantorId = $request->get('guarantor_id');
         $guarantor = Guarantor::query()->find($guarantorId);
         $guarantorBranchId = $request->get('guarantor_branch_id');
-        $guarantorToProductTypeId = $request->get('guarantor_product_type_id');
+        $guarantorToProductTypeId = $request->get('guarantor_to_product_type_id');
         $guarantorToProductType = GuarantorToProductType::query()->with('product:id,name')->find($guarantorToProductTypeId);
         $guarantorRate = GuarantorRate::query()
             ->where([
@@ -152,7 +153,7 @@ class GuarantorRateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -198,7 +199,7 @@ class GuarantorRateController extends Controller
         }
     }
 
-    public function edit(GuarantorRate $guarantorRate)
+    public function edit(GuarantorRate $guarantorRate): Response
     {
         $guarantorRate->load(['guarantorToProductType']);
         $component = str_replace('/'.$guarantorRate->getAttribute('id'), '', request()->path()).'/index';
@@ -211,7 +212,7 @@ class GuarantorRateController extends Controller
         ]);
     }
 
-    public function update(StoreRequest $request, GuarantorRate $guarantorRate)
+    public function update(StoreRequest $request, GuarantorRate $guarantorRate): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -259,7 +260,7 @@ class GuarantorRateController extends Controller
         }
     }
 
-    public function destroy(GuarantorRate $guarantorRate)
+    public function destroy(GuarantorRate $guarantorRate): RedirectResponse
     {
         try {
             DB::beginTransaction();

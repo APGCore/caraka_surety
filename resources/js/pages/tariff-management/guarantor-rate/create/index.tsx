@@ -40,15 +40,15 @@ GuarantorRateCreate.layout = (page: any) => {
     {
       label: "Daftar Tarif Produk Asuransi",
       href: route(GuarantorRateUtils.link.list, {
-        guarantor_id: pagePropsData.guarantorSelected,
-        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeSelected,
+        guarantor_id: pagePropsData.guarantorId,
+        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeId,
       }),
     },
     {
       label: "Tambah Tarif Produk Asuransi",
       href: route(GuarantorRateUtils.link.create, {
-        guarantor_id: pagePropsData.guarantorSelected,
-        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeSelected,
+        guarantor_id: pagePropsData.guarantorId,
+        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeId,
       }),
     },
   ];

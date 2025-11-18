@@ -70,21 +70,61 @@ trait CalculateInvoice
         return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
     }
 
+    public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId): Collection
+    {
+        return GuarantorRate::query()
+            ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
+            ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
+            ->whereDate('effective_at', '<=', now())
+            ->orderByDesc('effective_at')
+            ->get();
+    }
+
+    public function getGuarantorRate(Collection $guarantorRates, $guarantorId, $guarantorToProductTypeId): ?GuarantorRate
+    {
+        return $guarantorRates
+            ->where('guarantor_id', $guarantorId)
+            ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+            ->where('effective_at', '<=', now())
+            ->sortByDesc('effective_at')
+            ->first();
+    }
+
+    public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId): Collection
+    {
+        return ProfileRate::query()
+            ->whereIn('profile_id', is_array($profileId) ? $profileId : [$profileId])
+            ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
+            ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
+            ->whereDate('effective_at', '<=', now())
+            ->orderByDesc('effective_at')
+            ->get();
+    }
+
+    public function getProfileRate(Collection $profileRates, $profileId, $guarantorId, $guarantorToProductTypeId): ?ProfileRate
+    {
+        return $profileRates
+            ->where('profile_id', $profileId)
+            ->where('guarantor_id', $guarantorId)
+            ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
+            ->where('effective_at', '<=', now())
+            ->sortByDesc('effective_at')
+            ->first();
+    }
+
     /**
      * @throws Exception
      */
-    public function calculateCapitalRates(Submission $submission, GuarantorRate|Collection|null $guarantorRate = null, bool $minus = false): Collection
+    public function calculateCapitalRates(Submission $submission, Collection $guarantorRates, bool $minus = false): Collection
     {
         $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-        if (! $guarantorRate) {
-            throw new Exception('Rate Modal tidak ditemukan');
-        }
-        $settingRate = $guarantorRate
-            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
-            ->first();
+        $settingRate = $this->getGuarantorRate(
+            $guarantorRates,
+            $submission->getAttribute('guarantor_id'),
+            $submission->getAttribute('guarantor_to_product_type_id')
+        );
         $minimum = (float) $settingRate?->getAttribute('minimum_payment') ?? 0;
         $rate = (float) ($settingRate?->getAttribute('pay_rate') ?? 0) / 100;
         $adm = (float) $settingRate?->getAttribute('payment_administration') ?? 0;
@@ -106,20 +146,18 @@ trait CalculateInvoice
     /**
      * @throws Exception
      */
-    public function calculateSellingRates(Submission $submission, ProfileRate|Collection|null $profileRate = null, bool $minus = false): Collection
+    public function calculateSellingRates(Submission $submission, Collection $profileRates, bool $minus = false): Collection
     {
         // Ensure the submission is fresh to get the latest rates
         $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
-        if (! $profileRate) {
-            throw new Exception('Rate Jual tidak ditemukan');
-        }
-        $settingRate = $profileRate
-            ->where('profile_id', $submission->getAttribute('office_id'))
-            ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-            ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
-            ->first();
+        $settingRate = $this->getProfileRate(
+            $profileRates,
+            $submission->getAttribute('office_id'),
+            $submission->getAttribute('guarantor_id'),
+            $submission->getAttribute('guarantor_to_product_type_id')
+        );
         $minimum = (float) ($settingRate?->getAttribute('minimum_bill') ?? 0);
         $rate = (float) ($settingRate?->getAttribute('selling_rate') ?? 0);
         $adm = (float) ($settingRate?->getAttribute('sales_administration') ?? 0);
@@ -143,10 +181,9 @@ trait CalculateInvoice
         $premi = max($serviceCharges, $minimum);
 
         if ($minus) {
-            $minimum *= -1;
-            $serviceCharges *= -1;
-            $total *= -1;
             $premi *= -1;
+            $adm *= -1;
+            $total *= -1;
         }
 
         return collect([
@@ -171,10 +208,13 @@ trait CalculateInvoice
         $nettCommission = $commissionResult - $pphResult;
         $nettPremi = $total - $nettCommission;
         if ($minus) {
-            $minimum *= -1;
-            $serviceCharges *= -1;
-            $total *= -1;
             $premi *= -1;
+            $adm *= -1;
+            $total *= -1;
+            $commissionResult *= -1;
+            $pphResult *= -1;
+            $nettCommission *= -1;
+            $nettPremi *= -1;
         }
 
         return collect([
@@ -206,15 +246,8 @@ trait CalculateInvoice
         $guarantorIds = $submissions->pluck('guarantor_id')->unique();
         $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique();
         $officeIds = $submissions->pluck('office_id')->unique();
-        $guarantorRates = GuarantorRate::query()
-            ->whereIn('guarantor_id', $guarantorIds)
-            ->whereIn('guarantor_to_product_type_id', $guarantorToProductTypeIds)
-            ->get();
-        $officeRates = ProfileRate::query()
-            ->whereIn('profile_id', $officeIds)
-            ->whereIn('guarantor_id', $guarantorIds)
-            ->whereIn('guarantor_to_product_type_id', $guarantorToProductTypeIds)
-            ->get();
+        $guarantorRates = $this->getGuarantorRates($guarantorIds->toArray(), $guarantorToProductTypeIds->toArray());
+        $officeRates = $this->getProfileRates($officeIds->toArray(), $guarantorIds->toArray(), $guarantorToProductTypeIds->toArray());
         foreach ($submissions as $submission) {
             $submissionBefore = $submission->submissionBefore;
             $submissionAfter = $submission->submissionAfter;
@@ -226,20 +259,20 @@ trait CalculateInvoice
             if ($submissionBefore) {
                 $submissionRevised = clone $submissionBefore;
                 $submissionRevisedMinus = clone $submissionBefore;
+                $submissionRevisedAdd = clone $submissionBefore;
                 $submissionRevised->status = SubmissionStatus::APPROVED->value;
                 $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
+                $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
 
                 // harus setelah setting status
                 $submissionRevisedMinus->is_add = true;
                 $submissionRevisedMinus->is_minus = true;
+                $submissionRevised->is_add = true;
 
                 $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
-                $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $resultMinus, true);
-
-                $submission->is_add = true;
-                $submission->status = SubmissionStatus::REVISED->value;
+                $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
+                $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
             }
-
             $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
         }
 

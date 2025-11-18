@@ -139,8 +139,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $row->rate_modal?->get('pph_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_premi', 0) ?? 0,
-                // $row->rate_jual && $row->rate_modal ? ($row->rate_jual->get('total', 0) - $row->rate_modal->get('nett_premi', 0)) : 0,
-                $row->is_minus ? '' : "=V$rowNumber - AC$rowNumber",
+                "=V$rowNumber - AC$rowNumber",
             ]);
         }
 
