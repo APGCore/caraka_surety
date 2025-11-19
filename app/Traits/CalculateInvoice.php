@@ -72,9 +72,11 @@ trait CalculateInvoice
 
     public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
-        $date = is_array($date)
-          ? collect($date)->max()
-          : $date;
+        if (is_array($date)) {
+          $date = collect($date)
+            ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
+            ->max(); // bisa tetap null kalau semua kosong
+        }
 
         return GuarantorRate::query()
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
@@ -96,9 +98,11 @@ trait CalculateInvoice
 
     public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
-        $date = is_array($date)
-          ? collect($date)->max()
-          : $date;
+        if (is_array($date)) {
+          $date = collect($date)
+            ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
+            ->max(); // bisa tetap null kalau semua kosong
+        }
 
         return ProfileRate::query()
             ->whereIn('profile_id', is_array($profileId) ? $profileId : [$profileId])
