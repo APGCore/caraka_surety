@@ -12,8 +12,10 @@ use App\Models\User;
 use App\Traits\CalculateInvoice;
 use App\Traits\ReplaceDocumentFormat;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
@@ -63,7 +65,7 @@ class ExportController extends Controller
         }, $document->name.'.pdf');
     }
 
-    public function submissionToExcel(Request $request): BinaryFileResponse
+    public function submissionToExcel(Request $request): BinaryFileResponse|RedirectResponse
     {
         // Validasi input jika diperlukan
         $validatedData = $request->validate([
@@ -155,7 +157,12 @@ class ExportController extends Controller
             ->orderByDesc('no_guarantee')
             ->get();
 
-        $result = $this->mapProductionReport($submissions);
+        try{
+          $result = $this->mapProductionReport($submissions);
+        }catch(Exception $e){
+          flashMessage('error', 'Gagal memproses data untuk ekspor: '.$e->getMessage());
+          return back();
+        }
 
         $user = User::query()->with('office')->findOrFail(auth()->id());
         $office = $user->office;

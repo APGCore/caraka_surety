@@ -13,6 +13,7 @@ use App\Traits\CalculateInvoice;
 use App\Traits\FilterOffice;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Response;
@@ -32,7 +33,7 @@ class ReportController extends Controller
     /**
      * @throws Exception
      */
-    public function productionReport(Request $request): Response|ResponseFactory
+  public function productionReport(Request $request): Response|ResponseFactory|RedirectResponse
     {
         $dateFrom = $request->input('date.from');
         $dateTo = $request->input('date.to');
@@ -119,31 +120,37 @@ class ReportController extends Controller
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
+      try {
         $result = $this->mapProductionReport($submissions->items());
-
         $submissions->setCollection($result);
         $resource = SubmissionResource::collection($submissions);
 
         $component = "$this->headComponent/production/index";
 
         return inertia($component, [
-            'page_settings' => [
-                'title' => 'Laporan Produksi',
-            ],
-            'submissions' => fn () => $resource,
-            'offices' => $offices,
-            'officeTypes' => $officeTypes,
-            'officeSelected' => (int) $officeSelected,
-            'officeTypeSelected' => $officeTypeSelected,
-            'guarantors' => $guarantors->map->only('id', 'name'),
-            'guarantorSelected' => $guarantorSelected,
-            'products' => $products,
-            'productSelected' => (int) $productSelected,
-            'productTypes' => $productTypes,
-            'productTypeSelected' => (int) $productTypeSelected,
-            'guarantorToProductTypeSelected' => $guarantorToProductType?->id,
-            'filters' => $request->only(['search', 'date']),
+          'page_settings' => [
+            'title' => 'Laporan Produksi',
+          ],
+          'submissions' => fn() => $resource,
+          'offices' => $offices,
+          'officeTypes' => $officeTypes,
+          'officeSelected' => (int)$officeSelected,
+          'officeTypeSelected' => $officeTypeSelected,
+          'guarantors' => $guarantors->map->only('id', 'name'),
+          'guarantorSelected' => $guarantorSelected,
+          'products' => $products,
+          'productSelected' => (int)$productSelected,
+          'productTypes' => $productTypes,
+          'productTypeSelected' => (int)$productTypeSelected,
+          'guarantorToProductTypeSelected' => $guarantorToProductType?->id,
+          'filters' => $request->only(['search', 'date']),
         ]);
+      } catch (Exception $e) {
+        Log::error('Error calculating invoice in production report: ' . $e->getMessage());
+        flashMessage('error', 'Terjadi kesalahan saat memproses laporan produksi: ' . $e->getMessage());
+        return back()->with('error', 'Terjadi kesalahan saat memproses laporan produksi.');
+      }
+
     }
 
     public function blankUsage(Request $request)
