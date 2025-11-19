@@ -78,6 +78,7 @@ trait CalculateInvoice
             ->max(); // bisa tetap null kalau semua kosong
         }
 
+        dd($date);
         return GuarantorRate::query()
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
