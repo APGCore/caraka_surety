@@ -218,8 +218,9 @@ class InvoiceController extends Controller
         $guarantorId = $submission->getAttribute('guarantor_id');
         $guarantorToProductTypeId = $submission->getAttribute('guarantor_to_product_type_id');
         $officeId = $submission->getAttribute('office_id');
-        $guarantorRates = $this->getGuarantorRates($guarantorId, $guarantorToProductTypeId);
-        $profileRates = $this->getProfileRates($officeId, $guarantorId, $guarantorToProductTypeId);
+        $sendToGuarantorAt = $submission->getAttribute('send_to_guarantor_at');
+        $guarantorRates = $this->getGuarantorRates($guarantorId, $guarantorToProductTypeId, $sendToGuarantorAt);
+        $profileRates = $this->getProfileRates($officeId, $guarantorId, $guarantorToProductTypeId, $sendToGuarantorAt);
         $capitalRate = $this->calculateCapitalRates($submission, $guarantorRates);
         $sellingRate = $this->calculateSellingRates($submission, $profileRates);
 
@@ -369,8 +370,9 @@ class InvoiceController extends Controller
         $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
         $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
         $officeIds = $submissions->pluck('office_id')->unique()->toArray();
-        $guarantorRates = $this->getGuarantorRates(guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds);
-        $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds);
+        $sendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
+        $guarantorRates = $this->getGuarantorRates(guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
+        $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
         foreach ($submissions as $submission) {
             $businessUnit = $submission->getRelation('office');
             $principal = $submission->getRelation('principal');
@@ -382,11 +384,13 @@ class InvoiceController extends Controller
             $guarantorId = $submission->getAttribute('guarantor_id');
             $guarantorToProductTypeId = $submission->getAttribute('guarantor_to_product_type_id');
             $officeId = $submission->getAttribute('office_id');
+            $sendToGuarantorAt = $submission->getAttribute('send_to_guarantor_at');
             $profileRate = $this->getProfileRate(
                 profileRates: $profileRates,
                 profileId: $officeId,
                 guarantorId: $guarantorId,
-                guarantorToProductTypeId: $guarantorToProductTypeId
+                guarantorToProductTypeId: $guarantorToProductTypeId,
+                date: $sendToGuarantorAt
             );
             // If profile rate not found, use guarantor rate
             if (! $profileRate) {

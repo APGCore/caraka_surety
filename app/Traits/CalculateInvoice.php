@@ -6,6 +6,7 @@ use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\GuarantorRate;
 use App\Models\Profile\ProfileRate;
 use App\Models\Submission\Submission;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 
@@ -70,44 +71,52 @@ trait CalculateInvoice
         return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
     }
 
-    public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId): Collection
+    public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
         return GuarantorRate::query()
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', now())
+            ->whereDate('effective_at', '<=', is_array($date)
+              ? collect($date)
+                ->map(fn ($d) => Carbon::parse($d)->toDateTimeString())
+                ->max()
+              : $date)
             ->orderByDesc('effective_at')
             ->get();
     }
 
-    public function getGuarantorRate(Collection $guarantorRates, $guarantorId, $guarantorToProductTypeId): ?GuarantorRate
+    public function getGuarantorRate(Collection $guarantorRates, $guarantorId, $guarantorToProductTypeId, $date): ?GuarantorRate
     {
         return $guarantorRates
             ->where('guarantor_id', $guarantorId)
             ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-            ->where('effective_at', '<=', now())
+            ->where('effective_at', '<=', $date)
             ->sortByDesc('effective_at')
             ->first();
     }
 
-    public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId): Collection
+    public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
         return ProfileRate::query()
             ->whereIn('profile_id', is_array($profileId) ? $profileId : [$profileId])
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', now())
+            ->whereDate('effective_at', '<=', is_array($date)
+              ? collect($date)
+                ->map(fn ($d) => Carbon::parse($d)->toDateTimeString())
+                ->max()
+              : $date)
             ->orderByDesc('effective_at')
             ->get();
     }
 
-    public function getProfileRate(Collection $profileRates, $profileId, $guarantorId, $guarantorToProductTypeId): ?ProfileRate
+    public function getProfileRate(Collection $profileRates, $profileId, $guarantorId, $guarantorToProductTypeId, $date): ?ProfileRate
     {
         return $profileRates
             ->where('profile_id', $profileId)
             ->where('guarantor_id', $guarantorId)
             ->where('guarantor_to_product_type_id', $guarantorToProductTypeId)
-            ->where('effective_at', '<=', now())
+            ->where('effective_at', '<=', $date)
             ->sortByDesc('effective_at')
             ->first();
     }
@@ -123,7 +132,8 @@ trait CalculateInvoice
         $settingRate = $this->getGuarantorRate(
             $guarantorRates,
             $submission->getAttribute('guarantor_id'),
-            $submission->getAttribute('guarantor_to_product_type_id')
+            $submission->getAttribute('guarantor_to_product_type_id'),
+            $submission->getAttribute('send_to_guarantor_at')
         );
         $minimum = (float) $settingRate?->getAttribute('minimum_payment') ?? 0;
         $rate = (float) ($settingRate?->getAttribute('pay_rate') ?? 0) / 100;
@@ -156,7 +166,8 @@ trait CalculateInvoice
             $profileRates,
             $submission->getAttribute('office_id'),
             $submission->getAttribute('guarantor_id'),
-            $submission->getAttribute('guarantor_to_product_type_id')
+            $submission->getAttribute('guarantor_to_product_type_id'),
+            $submission->getAttribute('send_to_guarantor_at')
         );
         $minimum = (float) ($settingRate?->getAttribute('minimum_bill') ?? 0);
         $rate = (float) ($settingRate?->getAttribute('selling_rate') ?? 0);
@@ -243,11 +254,12 @@ trait CalculateInvoice
         $result = collect();
         $resultMinus = collect();
         $submissions = collect($submissions);
-        $guarantorIds = $submissions->pluck('guarantor_id')->unique();
-        $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique();
-        $officeIds = $submissions->pluck('office_id')->unique();
-        $guarantorRates = $this->getGuarantorRates($guarantorIds->toArray(), $guarantorToProductTypeIds->toArray());
-        $officeRates = $this->getProfileRates($officeIds->toArray(), $guarantorIds->toArray(), $guarantorToProductTypeIds->toArray());
+        $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
+        $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
+        $officeIds = $submissions->pluck('office_id')->unique()->toArray();
+        $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
+        $guarantorRates = $this->getGuarantorRates($guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
+        $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
         foreach ($submissions as $submission) {
             $submissionBefore = $submission->submissionBefore;
             $submissionAfter = $submission->submissionAfter;
