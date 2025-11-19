@@ -79,7 +79,7 @@ trait CalculateInvoice
         return GuarantorRate::query()
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', $date)
+            ->where('effective_at', '<=', $date)
             ->orderByDesc('effective_at')
             ->get();
     }
@@ -104,7 +104,7 @@ trait CalculateInvoice
             ->whereIn('profile_id', is_array($profileId) ? $profileId : [$profileId])
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', $date)
+            ->where('effective_at', '<=', $date)
             ->orderByDesc('effective_at')
             ->get();
     }
