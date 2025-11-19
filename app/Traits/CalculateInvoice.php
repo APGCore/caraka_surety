@@ -6,7 +6,6 @@ use App\Enums\SubmissionStatus;
 use App\Models\Guarantor\GuarantorRate;
 use App\Models\Profile\ProfileRate;
 use App\Models\Submission\Submission;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 
@@ -73,14 +72,14 @@ trait CalculateInvoice
 
     public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
+        $date = is_array($date)
+          ? collect($date)->max()
+          : $date;
+
         return GuarantorRate::query()
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', is_array($date)
-              ? collect($date)
-                ->map(fn ($d) => Carbon::parse($d)->toDateTimeString())
-                ->max()
-              : $date)
+            ->whereDate('effective_at', '<=', $date)
             ->orderByDesc('effective_at')
             ->get();
     }
@@ -97,15 +96,15 @@ trait CalculateInvoice
 
     public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
+        $date = is_array($date)
+          ? collect($date)->max()
+          : $date;
+
         return ProfileRate::query()
             ->whereIn('profile_id', is_array($profileId) ? $profileId : [$profileId])
             ->whereIn('guarantor_id', is_array($guarantorId) ? $guarantorId : [$guarantorId])
             ->whereIn('guarantor_to_product_type_id', is_array($guarantorToProductTypeId) ? $guarantorToProductTypeId : [$guarantorToProductTypeId])
-            ->whereDate('effective_at', '<=', is_array($date)
-              ? collect($date)
-                ->map(fn ($d) => Carbon::parse($d)->toDateTimeString())
-                ->max()
-              : $date)
+            ->whereDate('effective_at', '<=', $date)
             ->orderByDesc('effective_at')
             ->get();
     }
