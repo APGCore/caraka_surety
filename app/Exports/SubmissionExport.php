@@ -120,7 +120,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->end_date ? Carbon::parse($row->end_date)->format('d/m/Y H:i') : '',
             $row->time_period ?? '',
             $row->difference_time_period ?? '',
-            $row->status ? strtoupper(SubmissionStatus::getLabels()[$row->status]) : '',
+            $row->is_minus ? 'DIKURANGI' : ($row->status ? strtoupper(SubmissionStatus::getLabels()[$row->status]) : ''),
             $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y H:i') : '',
             $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
             $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('d/m/Y H:i') : '',

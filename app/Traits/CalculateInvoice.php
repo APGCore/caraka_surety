@@ -70,18 +70,18 @@ trait CalculateInvoice
         return $this->extractedSellingRates($guaranteeValue, $rate, $timePeriode, $adm, $minimum, $brokenRate, $revisedRate);
     }
 
-  /**
-   * @throws Exception
-   */
-  public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
+    /**
+     * @throws Exception
+     */
+    public function getGuarantorRates(array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
         if (is_array($date)) {
-          if(empty($date)){
-            throw new Exception('Date array is empty on calculate guarantor rates');
-          }
-          $date = collect($date)
-            ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
-            ->max(); // bisa tetap null kalau semua kosong
+            if (empty($date)) {
+                throw new Exception('Date array is empty on calculate guarantor rates');
+            }
+            $date = collect($date)
+                ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
+                ->max(); // bisa tetap null kalau semua kosong
         }
 
         return GuarantorRate::query()
@@ -102,18 +102,18 @@ trait CalculateInvoice
             ->first();
     }
 
-  /**
-   * @throws Exception
-   */
-  public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
+    /**
+     * @throws Exception
+     */
+    public function getProfileRates(array|int $profileId, array|int $guarantorId, array|int $guarantorToProductTypeId, array|string $date): Collection
     {
         if (is_array($date)) {
-          if(empty($date)){
-            throw new Exception('Date array is empty on calculate profile rates');
-          }
-          $date = collect($date)
-            ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
-            ->max(); // bisa tetap null kalau semua kosong
+            if (empty($date)) {
+                throw new Exception('Date array is empty on calculate profile rates');
+            }
+            $date = collect($date)
+                ->filter(fn ($d) => ! is_null($d) && $d !== '') // buang null & string kosong
+                ->max(); // bisa tetap null kalau semua kosong
         }
 
         return ProfileRate::query()
@@ -269,40 +269,41 @@ trait CalculateInvoice
         $result = collect();
         $resultMinus = collect();
         $submissions = collect($submissions);
-        if($submissions->isNotEmpty()){
-          $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
-          $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
-          $officeIds = $submissions->pluck('office_id')->unique()->toArray();
-          $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
-          $guarantorRates = $this->getGuarantorRates($guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
-          $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
-          foreach ($submissions as $submission) {
-              $submissionBefore = $submission->submissionBefore;
-              $submissionAfter = $submission->submissionAfter;
+        if ($submissions->isNotEmpty()) {
+            $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
+            $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
+            $officeIds = $submissions->pluck('office_id')->unique()->toArray();
+            $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
+            $guarantorRates = $this->getGuarantorRates($guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
+            $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
+            foreach ($submissions as $submission) {
+                $submissionBefore = $submission->submissionBefore;
+                $submissionAfter = $submission->submissionAfter;
 
-              if ($submissionAfter) {
-                  $submission->status = SubmissionStatus::APPROVED->value;
-              }
+                if ($submissionAfter) {
+                    $submission->status = SubmissionStatus::APPROVED->value;
+                }
 
-              if ($submissionBefore) {
-                  $submissionRevised = clone $submissionBefore;
-                  $submissionRevisedMinus = clone $submissionBefore;
-                  $submissionRevisedAdd = clone $submissionBefore;
-                  $submissionRevised->status = SubmissionStatus::APPROVED->value;
-                  $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
-                  $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
+                $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
 
-                  // harus setelah setting status
-                  $submissionRevisedMinus->is_add = true;
-                  $submissionRevisedMinus->is_minus = true;
-                  $submissionRevised->is_add = true;
+                if ($submissionBefore) {
+                    //                  $submissionRevised = clone $submissionBefore;
+                    $submissionRevisedMinus = clone $submissionBefore;
+                    $submissionRevisedAdd = clone $submissionBefore;
+                    //                  $submissionRevised->status = SubmissionStatus::APPROVED->value;
+                    $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
+                    $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
 
-                  $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
-                  $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
-                  $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
-              }
-              $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
-          }
+                    // harus setelah setting status
+                    $submissionRevisedMinus->is_add = true;
+                    $submissionRevisedMinus->is_minus = true;
+                    // $submissionRevised->is_add = true;
+
+                    // $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
+                    $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
+                    $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
+                }
+            }
         }
 
         return $result->merge($resultMinus);
