@@ -1,1 +1,10 @@
-npm run build
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx lint-staged
+
+# Cek apakah ada file TS/TSX/JS yang di-commit
+if git diff --cached --name-only | grep -E '\.(ts|tsx|js)$' > /dev/null; then
+  echo "Detected JS/TS changes, running npm run build..."
+  npm run build
+fi
