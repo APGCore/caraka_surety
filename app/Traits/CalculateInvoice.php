@@ -288,6 +288,7 @@ trait CalculateInvoice
                     //                  $submissionRevised = clone $submissionBefore;
                     $submissionRevisedMinus = clone $submissionBefore;
                     $submissionRevisedAdd = clone $submissionBefore;
+                    $submission->status = SubmissionStatus::APPROVED->value;
                     //                  $submissionRevised->status = SubmissionStatus::APPROVED->value;
                     $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
                     $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
