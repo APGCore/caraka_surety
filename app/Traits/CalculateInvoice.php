@@ -284,8 +284,6 @@ trait CalculateInvoice
                     $submission->status = SubmissionStatus::APPROVED->value;
                 }
 
-                $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
-
                 if ($submissionBefore) {
                     //                  $submissionRevised = clone $submissionBefore;
                     $submissionRevisedMinus = clone $submissionBefore;
@@ -300,8 +298,11 @@ trait CalculateInvoice
                     // $submissionRevised->is_add = true;
 
                     // $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
+                    $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                     $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
                     $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
+                } else {
+                    $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                 }
             }
         }
