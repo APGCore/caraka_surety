@@ -11,5 +11,5 @@ Route::controller(GuarantorRateController::class)->prefix('guarantor-rate')
         Route::post('store', 'store')->name('store');
         Route::get('{guarantorRate}/edit', 'edit')->name('edit');
         Route::put('{guarantorRate}/update', 'update')->name('update');
-        Route::delete('{guarantorRate}/delete', 'destroy')->name('delete');
+        Route::delete('{guarantorRate}/delete', 'destroy')->name('destroy');
     });

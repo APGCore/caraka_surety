@@ -199,10 +199,15 @@ export default OfficeRatePage;
 
 OfficeRatePage.layout = (page: any) => {
   const pagePropsData = page.props;
+  const breadcrumbs = [{ label: "Kelola Tarif Unit Bisnis", href: route(OfficeRateUtils.link.index) }];
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <OfficeRateHeader title={pagePropsData?.page_settings?.title} />
+      <OfficeRateHeader
+        title={pagePropsData?.page_settings?.title}
+        description={pagePropsData?.page_settings?.description}
+        breadcrumbs={breadcrumbs}
+      />
       {page}
     </RoleBasedLayout>
   );

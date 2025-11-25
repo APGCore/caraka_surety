@@ -8,9 +8,8 @@ import { GuarantorRateUpdatePageProps } from "./guarantor-rate-update.type";
 const GuarantorRateUpdatePage: GuarantorRateUpdatePageProps = ({ guarantorRate }) => {
   const guarantorToProductType = guarantorRate?.guarantor_to_product_type;
   return (
-    <Card className="w-full">
+    <Card className="w-50% mx-auto">
       <CardHeader>
-        <CardTitle>Ubah Tarif Produk Asuransi {guarantorToProductType?.full_name}</CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
@@ -43,7 +42,11 @@ GuarantorRateUpdatePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} breadcrumbs={breadcrumbs} />
+      <GuarantorRateHeader
+        title={pagePropsData?.page_settings?.title}
+        description={pagePropsData?.page_settings?.description}
+        breadcrumbs={breadcrumbs}
+      />
       {page}
     </RoleBasedLayout>
   );

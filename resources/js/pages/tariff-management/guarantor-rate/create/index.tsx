@@ -14,9 +14,6 @@ const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>
-          Kelola Tarif Produk Asuransi {guarantorToProductType?.product?.name} {guarantorToProductType?.full_name}
-        </CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,7 +52,11 @@ GuarantorRateCreate.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} breadcrumbs={breadcrumbs} />
+      <GuarantorRateHeader
+        title={pagePropsData?.page_settings?.title}
+        description={pagePropsData?.page_settings?.description}
+        breadcrumbs={breadcrumbs}
+      />
       {page}
     </RoleBasedLayout>
   );

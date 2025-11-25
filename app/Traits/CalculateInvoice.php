@@ -212,6 +212,17 @@ trait CalculateInvoice
             $total *= -1;
         }
 
+        //        dd(collect([
+        //          'minimum' => $minimum,
+        //          'rate' => $rate,
+        //          'adm' => $adm,
+        //          'broken_rate' => $brokenRate,
+        //          'revised_rate' => $revisedRate,
+        //          'service_charges' => $serviceCharges,
+        //          'total' => $total,
+        //          'premi' => $premi,
+        //        ]));
+
         return collect([
             'minimum' => $minimum,
             'rate' => $rate,

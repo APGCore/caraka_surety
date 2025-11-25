@@ -59,13 +59,13 @@ const OfficeRateDatatable: React.FC<OfficeRateDatatableProps> = ({
                 <TableCell className="text-right">
                   <Link
                     className="bg-primary text-destructive-foreground shadow-sm hover:bg-primary/90 px-2 py-1.5 text-sm w-full rounded-sm text-start"
-                    href={route(OfficeRateUtils.link.create, {
+                    href={route(OfficeRateUtils.link.list, {
                       profile_id: profileId,
                       guarantor_id: guarantorId,
                       guarantor_branch_id: guarantorBranchId,
-                      guarantor_product_type_id: guarantorProductType.id,
+                      guarantor_to_product_type_id: guarantorProductType.id,
                     })}>
-                    Setting Tarif
+                    List Tarif
                   </Link>
                 </TableCell>
               </TableRow>

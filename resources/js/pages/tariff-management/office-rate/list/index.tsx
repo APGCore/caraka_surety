@@ -1,11 +1,4 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/_features/_common/components/_shadcn-ui/card";
 import { getQueryParameter } from "@/_features/_common/utils/get-query-parameter";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
@@ -13,16 +6,17 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import { router } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { useState } from "react";
-import GuarantorRateHeader from "../_partials/guarantor-rate-header";
-import GuarantorRateListDatatable from "../_partials/guarantor-rate-list-datatable";
-import { GuarantorRateUtils } from "../guarantor-rate.utils";
-import { ListRatePageProps } from "./guarantor-rate-list.type";
+import OfficeRateHeader from "../_partials/office-rate-header";
+import OfficeRateListDatatable from "../_partials/office-rate-list-datatable";
+import { OfficeRateUtils } from "../office-rate.utils";
+import { ListRatePageProps } from "./office-rate-list.type";
 
 const GuarantorRateList: ListRatePageProps = ({
+  profileSelected,
   guarantorSelected,
   guarantorBranchSelected,
   guarantorToProductTypeSelected,
-  guarantorRates,
+  profileRates,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
   const [search, setSearch] = useState<string>(() => getQueryParameter("search") || "");
@@ -38,10 +32,11 @@ const GuarantorRateList: ListRatePageProps = ({
 
   const getData = (per_page: string, search: string) => {
     router.get(
-      route(GuarantorRateUtils.link.list),
+      route(OfficeRateUtils.link.list),
       pickBy({
         per_page,
         search,
+        profile_id: profileSelected,
         guarantor_id: guarantorSelected,
         guarantor_branch_id: guarantorBranchSelected,
         guarantor_to_product_type_id: guarantorToProductTypeSelected,
@@ -64,7 +59,8 @@ const GuarantorRateList: ListRatePageProps = ({
             variant="success"
             onClick={() =>
               router.get(
-                route(GuarantorRateUtils.link.create, {
+                route(OfficeRateUtils.link.create, {
+                  profile_id: profileSelected,
                   guarantor_id: guarantorSelected,
                   guarantor_branch_id: guarantorBranchSelected,
                   guarantor_to_product_type_id: guarantorToProductTypeSelected,
@@ -75,7 +71,7 @@ const GuarantorRateList: ListRatePageProps = ({
           </Button>
         </div>
       </div>
-      <GuarantorRateListDatatable guarantorRates={guarantorRates} />
+      <OfficeRateListDatatable profileRates={profileRates} />
     </main>
   );
 };
@@ -85,18 +81,20 @@ export default GuarantorRateList;
 GuarantorRateList.layout = (page: any) => {
   const pagePropsData = page.props;
   const breadcrumbs = [
-    { label: "Kelola Asuransi", href: route(GuarantorRateUtils.link.index) },
+    { label: "Kelola Tarif Unit Bisnis", href: route(OfficeRateUtils.link.index) },
     {
       label: pagePropsData?.page_settings?.title,
-      href: route(GuarantorRateUtils.link.list, {
+      href: route(OfficeRateUtils.link.list, {
+        profile_id: pagePropsData.profileSelected,
         guarantor_id: pagePropsData.guarantorSelected,
         guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeSelected,
       }),
     },
   ];
+
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader
+      <OfficeRateHeader
         title={pagePropsData?.page_settings?.title}
         description={pagePropsData?.page_settings?.description}
         breadcrumbs={breadcrumbs}

@@ -6,7 +6,7 @@ interface OfficeRateCreateProps {
   guarantorBranchId: any;
   guarantorToProductTypeId: any;
   guarantorToProductType: any;
-  guarantorRate: any;
+  profileRate: any;
 }
 
 export type OfficeRateCreatePageProps = React.FC<OfficeRateCreateProps> & {

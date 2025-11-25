@@ -12,13 +12,14 @@ import React from "react";
 
 interface GuarantorRateHeaderProps {
   title: string;
+  description?: string;
   breadcrumbs: {
     label: string;
     href: string;
   }[];
 }
 
-const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, breadcrumbs }) => {
+const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, description, breadcrumbs }) => {
   return (
     <>
       <Head title={title} />
@@ -42,7 +43,10 @@ const GuarantorRateHeader: React.FC<GuarantorRateHeaderProps> = ({ title, breadc
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title}</h1>
+        <div>
+          <h1 className="text-lg font-semibold md:text-3xl">{title}</h1>
+          <p className="text-md text-gray-500">{description}</p>
+        </div>
       </div>
     </>
   );

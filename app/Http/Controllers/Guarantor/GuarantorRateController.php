@@ -68,7 +68,8 @@ class GuarantorRateController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tarif Asuransi',
+                'title' => 'Daftar Tarif Asuransi',
+                'description' => 'Menampilkan daftar tarif asuransi berdasarkan produk, kelompok pekerjaan dan filter yang dipilih',
             ],
             'guarantors' => $guarantors,
             'guarantorSelected' => $guarantorSelected,
@@ -90,7 +91,11 @@ class GuarantorRateController extends Controller
         $guarantorSelected = $validated['guarantor_id'];
         $guarantorBranchSelected = $validated['guarantor_branch_id'] ?? null;
         $guarantorToProductTypeSelected = $validated['guarantor_to_product_type_id'];
-        $guarantorToProductType = GuarantorToProductType::query()->find($guarantorToProductTypeSelected, ['id', 'name', 'full_name']);
+        $guarantorToProductType = GuarantorToProductType::query()
+            ->with(['product:id,name'])
+            ->find($guarantorToProductTypeSelected, ['id', 'name', 'full_name']);
+        $product = $guarantorToProductType->getRelation('product');
+        $guarantor = Guarantor::query()->find($guarantorSelected);
         $guarantorRates = GuarantorRate::search($request->get('search'))
             ->query(function ($query) use ($guarantorSelected, $guarantorBranchSelected, $guarantorToProductTypeSelected) {
                 $query->where('guarantor_id', $guarantorSelected)
@@ -99,7 +104,7 @@ class GuarantorRateController extends Controller
                     })
                     ->where('guarantor_to_product_type_id', $guarantorToProductTypeSelected);
             })
-            ->orderByDesc('id')
+            ->orderByDesc('effective_at')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query')
             ->appends($request->all());
@@ -110,7 +115,8 @@ class GuarantorRateController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Daftar Tarif Asuransi '.($guarantorToProductType ? $guarantorToProductType->full_name : ''),
+                'title' => 'Daftar Tarif Asuransi',
+                'description' => "Daftar Tarif Asuransi {$product?->getAttribute('name')} {$guarantorToProductType?->getAttribute('full_name')} di {$guarantor?->getAttribute('name')}",
             ],
             'guarantorSelected' => $guarantorSelected,
             'guarantorBranchSelected' => $guarantorBranchSelected,
@@ -128,25 +134,16 @@ class GuarantorRateController extends Controller
         $guarantor = Guarantor::query()->find($guarantorId);
         $guarantorBranchId = $request->get('guarantor_branch_id');
         $guarantorToProductTypeId = $request->get('guarantor_to_product_type_id');
-        $guarantorToProductType = GuarantorToProductType::query()->with('product:id,name')->find($guarantorToProductTypeId);
-        $guarantorRate = GuarantorRate::query()
-            ->where([
-                'guarantor_id' => $guarantorId,
-                'guarantor_branch_id' => $guarantorBranchId,
-                'guarantor_to_product_type_id' => $guarantorToProductTypeId,
-            ])->first();
         $component = $request->path().'/index';
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tarif Asuransi',
+                'title' => 'Tambah Tarif Asuransi',
             ],
             'guarantorId' => $guarantorId,
             'guarantor' => $guarantor,
             'guarantorBranchId' => $guarantorBranchId,
             'guarantorToProductTypeId' => $guarantorToProductTypeId,
-            'guarantorToProductType' => $guarantorToProductType,
-            'guarantorRate' => $guarantorRate,
         ]);
     }
 
@@ -201,12 +198,17 @@ class GuarantorRateController extends Controller
 
     public function edit(GuarantorRate $guarantorRate): Response
     {
-        $guarantorRate->load(['guarantorToProductType']);
+        $guarantorRate->load(['guarantorToProductType.product', 'guarantor']);
+        $guarantorToProductType = $guarantorRate->getRelation('guarantorToProductType');
+        $product = $guarantorToProductType->getRelation('product');
+        $guarantor = $guarantorRate->getRelation('guarantor');
+
         $component = str_replace('/'.$guarantorRate->getAttribute('id'), '', request()->path()).'/index';
 
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Edit Tarif Asuransi',
+                'description' => "Daftar Tarif Asuransi {$product?->getAttribute('name')} {$guarantorToProductType?->getAttribute('full_name')} di {$guarantor?->getAttribute('name')}",
             ],
             'guarantorRate' => $guarantorRate,
         ]);

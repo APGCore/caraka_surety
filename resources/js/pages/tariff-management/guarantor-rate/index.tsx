@@ -157,7 +157,11 @@ GuarantorRatePage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} breadcrumbs={breadcrumbs} />
+      <GuarantorRateHeader
+        title={pagePropsData?.page_settings?.title}
+        description={pagePropsData?.page_settings?.description}
+        breadcrumbs={breadcrumbs}
+      />
       {page}
     </RoleBasedLayout>
   );
