@@ -168,6 +168,59 @@ class SubmissionController extends Controller
         }
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getCallback(CallbackRequest $request): JsonResponse
+    {
+        // Content Type multipart/form-data
+        // Validate that the request content type is multipart/form-data
+        //    if (! str_contains($request->header('Content-Type'), 'multipart/form-data')) {
+        // //      Log::error('Invalid content type for callback', ['content_type' => $request->header('Content-Type')]);
+        // //
+        // //      return $this->responseError('Content-Type harus multipart/form-data');
+        // //    }
+
+        DB::beginTransaction();
+        try {
+            $submissionId = $request->get('submission_id');
+            $docUrl = $request->get('doc_url');
+            $image = $request->get('image');
+            $noPolis = $request->get('no_policy');
+
+            if ($image) {
+                $fileData = $this->base64ToFile($image);
+                // save image to storage
+                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+                SubmissionCallback::query()->updateOrCreate(
+                    ['submission_id' => $submissionId],
+                    [
+                        'doc_url' => $docUrl ?? '-',
+                        'url' => $url,
+                        'no_policy' => $noPolis,
+                    ]
+                );
+            } else {
+                Log::error('Document file is missing in the request', ['no_polis' => $noPolis]);
+
+                throw new Exception('File dokumen tidak ditemukan dalam permintaan');
+            }
+
+            Log::info('Callback processed successfully', [
+                'no_polis' => $noPolis,
+            ]);
+            DB::commit();
+
+            return $this->responseSuccess('Berhasil mengirim hasil pengajuan');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to process callback', $error);
+
+            return $this->responseError('Gagal memproses callback', $error);
+        }
+    }
+
     public function saveDocSignature(SaveDocSignatureRequest $request): JsonResponse
     {
         DB::beginTransaction();
