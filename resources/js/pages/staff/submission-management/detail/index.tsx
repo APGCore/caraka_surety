@@ -201,7 +201,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         });
       })
       .catch((error) => {
-        const message = error.response?.data?.message || error.message || "Terjadi kesalahan";
+        const message = error.response?.data?.error?.message || error.message || "Terjadi kesalahan";
         console.error("Error Send To Guarantor", error);
         toast({
           title: "Gagal",
