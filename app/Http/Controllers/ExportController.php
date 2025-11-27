@@ -62,7 +62,10 @@ class ExportController extends Controller
         // Buat response download langsung
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->Output('', 'S'); // Output sebagai string
-        }, $document->name.'.pdf');
+        }, $document->name.'.pdf', [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "attachment; filename=\"$document->name.pdf\"",
+        ]);
     }
 
     public function submissionToExcel(Request $request): BinaryFileResponse|RedirectResponse
@@ -157,11 +160,12 @@ class ExportController extends Controller
             ->orderByDesc('no_guarantee')
             ->get();
 
-        try{
-          $result = $this->mapProductionReport($submissions);
-        }catch(Exception $e){
-          flashMessage('error', 'Gagal memproses data untuk ekspor: '.$e->getMessage());
-          return back();
+        try {
+            $result = $this->mapProductionReport($submissions);
+        } catch (Exception $e) {
+            flashMessage('error', 'Gagal memproses data untuk ekspor: '.$e->getMessage());
+
+            return back();
         }
 
         $user = User::query()->with('office')->findOrFail(auth()->id());
@@ -228,7 +232,8 @@ class ExportController extends Controller
         }
 
         return response($mpdf->Output("{$filename}_{$submission->getAttribute('no_guarantee')}.pdf", 'S'), 200)
-            ->header('Content-Type', 'application/pdf');
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', "filename=\"{$filename}_{$submission->getAttribute('no_guarantee')}.pdf\"");
     }
 
     public function wordDownload(Request $request): StreamedResponse
@@ -290,6 +295,7 @@ class ExportController extends Controller
             }
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Content-Disposition' => "filename=\"$filename\"",
         ]);
     }
 
