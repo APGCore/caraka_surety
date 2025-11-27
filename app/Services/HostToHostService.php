@@ -33,7 +33,10 @@ class HostToHostService
 
             throw new Exception($responseJson['error']['message'] ?? 'Terjadi Kesalahan');
         } catch (Exception $e) {
-            return $this->handleErrorMessage($e);
+            return [
+                ...$this->handleErrorMessage($e),
+                'from_guarantor' => true,
+            ];
         }
     }
 }
