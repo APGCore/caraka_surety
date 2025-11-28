@@ -881,11 +881,11 @@ class SubmissionController extends Controller
             ->pluck('id') : [];
 
         $submissions = Submission::query()
-            ->when($search, function ($query, $search) {
-                $query->where(function ($query) use ($search) {
-                    $query->whereLike('no_guarantee', "%$search%")
-                        ->orWhereHas('principal', function ($query) use ($search) {
-                            $query->whereLike('name', "%$search%");
+            ->when(filled($search = trim((string) $search)), function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->whereLike('no_guarantee', "%$search%")
+                        ->orWhereHas('principal', function ($q) use ($search) {
+                            $q->whereLike('name', "%$search%");
                         });
                 });
             })
