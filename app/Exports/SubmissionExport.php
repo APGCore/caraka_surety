@@ -108,7 +108,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
         $data = [
             ++$this->rowNumber,
-            $row->approved_at ? Carbon::parse($row->approved_at)->format('F') : '',
+            $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('F') : '',
             $row->guarantorBranch->name ?? '',
             $row->office->name ?? '',
             $row->blank?->getAttribute('number') ?? '-',
