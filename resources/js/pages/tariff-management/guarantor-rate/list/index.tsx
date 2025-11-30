@@ -1,11 +1,4 @@
 import { Button } from "@/_features/_common/components/_shadcn-ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/_features/_common/components/_shadcn-ui/card";
 import { getQueryParameter } from "@/_features/_common/utils/get-query-parameter";
 import SelectLengthDatatable from "@/components/molecules/datatable/row-length";
 import SearchDatatable from "@/components/molecules/datatable/search";
@@ -49,10 +42,18 @@ const GuarantorRateList: ListRatePageProps = ({
       { preserveState: true, preserveScroll: true },
     );
   };
+
+  const handleBack = () => {
+    window.history.back();
+  };
+
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
-        <SelectLengthDatatable defaultValue={select} onChange={handleSelectLimitLength} />
+        <div className="flex gap-x-3 items-center">
+          <Button onClick={handleBack}>Kembali</Button>
+          <SelectLengthDatatable defaultValue={select} onChange={handleSelectLimitLength} />
+        </div>
         <div className="flex gap-x-3 items-center">
           <SearchDatatable
             value={search}

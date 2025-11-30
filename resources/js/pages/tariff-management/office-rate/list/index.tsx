@@ -44,10 +44,17 @@ const GuarantorRateList: ListRatePageProps = ({
       { preserveState: true, preserveScroll: true },
     );
   };
+
+  const handleBack = () => {
+    window.history.back();
+  };
   return (
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
-        <SelectLengthDatatable defaultValue={select} onChange={handleSelectLimitLength} />
+        <div className="flex gap-x-3 items-center">
+          <Button onClick={handleBack}>Kembali</Button>
+          <SelectLengthDatatable defaultValue={select} onChange={handleSelectLimitLength} />
+        </div>
         <div className="flex gap-x-3 items-center">
           <SearchDatatable
             value={search}
