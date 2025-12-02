@@ -130,6 +130,10 @@ class BlankController extends Controller
                 'updated_at' => now(),
             ], range(0, max($diff, 0)));
 
+            if (empty($data)) {
+                throw new Exception('Rentang nomor blangko tidak valid '.$start.' - '.$end);
+            }
+
             Blank::query()->insert($data);
 
             DB::commit();
