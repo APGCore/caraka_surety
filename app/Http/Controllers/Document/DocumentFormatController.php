@@ -62,7 +62,7 @@ class DocumentFormatController extends Controller
                         $query->where('guarantor_to_product_type_id', $guarantorProductTypeSelected);
                     });
             })
-            ->orderBy('created_at', 'desc')
+            ->orderBy('no')
             ->paginate($request->get('per_page') ?? 10)
             ->appends('query', null)
             ->appends($request->all());
@@ -72,7 +72,7 @@ class DocumentFormatController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Format Dokumen',
+                'title' => 'Dokumen Luaran',
             ],
             ...$data,
             'documentFormats' => fn () => $resourceDocumentFormats,
@@ -90,7 +90,7 @@ class DocumentFormatController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Membuat Format Dokumen',
+                'title' => 'Membuat Dokumen Luaran',
             ],
             ...$data,
         ]);
@@ -130,7 +130,7 @@ class DocumentFormatController extends Controller
                 ->useLog('dokumen-format')
                 ->performedOn(new DocumentFormat)
                 ->causedBy(auth()->user())
-                ->log('menambahkan format dokumen');
+                ->log('menambahkan Dokumen Luaran');
 
             return redirect()->back()->with('success', 'Berhasil menyimpan data')->withInput([
                 'guarantorSelected' => $guarantor_id,
@@ -170,7 +170,7 @@ class DocumentFormatController extends Controller
         // Mengembalikan respons dengan Inertia
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Format Dokumen',
+                'title' => 'Edit Dokumen Luaran',
             ],
             ...$data, // Memasukkan data guarantor yang telah diproses
             'documentFormat' => $documentFormat,
@@ -209,7 +209,7 @@ class DocumentFormatController extends Controller
                 ->useLog('dokumen-format')
                 ->performedOn($documentFormat)
                 ->causedBy(auth()->user())
-                ->log('mengubah format dokumen');
+                ->log('mengubah Dokumen Luaran');
 
             return redirect()->back()->with('success', 'Berhasil menyimpan data')->withInput([
                 'guarantorSelected' => $request->get('guarantor_id'),
@@ -238,7 +238,7 @@ class DocumentFormatController extends Controller
                 ->useLog('dokumen-format')
                 ->performedOn($documentFormat)
                 ->causedBy(auth()->user())
-                ->log('menghapus format dokumen');
+                ->log('menghapus Dokumen Luaran');
 
             return redirect()->back()->with('success', 'Berhasil menghapus data');
         } catch (Exception $e) {

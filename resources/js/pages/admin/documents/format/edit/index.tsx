@@ -17,10 +17,10 @@ const CreateDocumentFormatPage: EditDocumentFormatPageProps = ({
   documentFormat,
 }) => {
   return (
-    <Card className="w-[800px] mx-auto">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Editor Format Dokumen</CardTitle>
-        <CardDescription>Untuk edit data format dokumen</CardDescription>
+        <CardTitle>Editor Dokumen Luaran</CardTitle>
+        <CardDescription>Untuk edit data Dokumen Luaran</CardDescription>
       </CardHeader>
       <CardContent>
         <FormDocumentFormat
@@ -45,11 +45,11 @@ CreateDocumentFormatPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Membuat Format Dokumen"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Membuat Dokumen Luaran"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>Membuat Kelola Format Dokumen</BreadcrumbLink>
+            <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>Membuat Kelola Dokumen Luaran</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

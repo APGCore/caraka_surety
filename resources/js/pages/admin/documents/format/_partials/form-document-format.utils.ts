@@ -5,31 +5,31 @@ export const FormDocumentFormatUtils = {
   create: {
     route: DocumentFormatUtils.link.store,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan membuat format dokumen",
-    btn_label: "Membuat Format Dokumen",
+    sub_title: "Tindakan ini akan membuat Dokumen Luaran",
+    btn_label: "Membuat Dokumen Luaran",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Format Dokumen berhasil dibuat",
+      description: "Dokumen Luaran berhasil dibuat",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Format Dokumen gagal dibuat",
+      description: "Dokumen Luaran gagal dibuat",
     },
   },
   edit: {
     route: DocumentFormatUtils.link.update,
     title: "Setting Limit",
-    sub_title: "Tindakan ini akan mengubah format dokumen",
-    btn_label: "Mengubah Format Dokumen",
+    sub_title: "Tindakan ini akan mengubah Dokumen Luaran",
+    btn_label: "Mengubah Dokumen Luaran",
     class_name: "w-full",
     toast_success: {
       title: "Berhasil",
-      description: "Format Dokumen berhasil diubah",
+      description: "Dokumen Luaran berhasil diubah",
     },
     toast_failed: {
       title: "Gagal",
-      description: "Format Dokumen gagal diubah",
+      description: "Dokumen Luaran gagal diubah",
     },
   },
 };

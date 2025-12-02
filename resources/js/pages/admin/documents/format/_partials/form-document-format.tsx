@@ -1,8 +1,10 @@
 import { toast } from "@/common/hooks/general/use-toast";
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
+import { Textarea } from "@/components/_shadcn-ui/textarea";
 // import Checkbox from "@/components/common/checkbox";
 import SecondaryButton from "@/components/atoms/button/secondary-button";
+import Show from "@/components/atoms/show";
 import SubmissionUiPlaceholder from "@/components/documents/submission-ui-placeholder";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { Combobox } from "@/components/molecules/combobox";
@@ -12,7 +14,7 @@ import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-for
 import { router, useForm } from "@inertiajs/react";
 import { pickBy } from "lodash";
 import { LoaderCircle } from "lucide-react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { FormDocumentFormatUtils } from "./form-document-format.utils";
 
 interface FormProfileLimitsProps {
@@ -40,6 +42,7 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     guarantor_id: guarantorSelected || null,
     product_id: productSelected || null,
     guarantor_to_product_type_id: guarantorProductTypeSelected || null,
+    no: documentFormat?.no || "",
     name: documentFormat?.name || "",
     format_document: documentFormat?.format_document || "",
   });
@@ -81,29 +84,14 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
   };
 
   const submit = async () => {
-    // Ambil konten dari TinyMCE
-    const editor = editorRefs.current["format-document"];
-    if (!editor) {
-      console.error("Editor tidak ditemukan.");
-      alert("Editor tidak ditemukan. Silakan coba lagi.");
-      return;
-    }
-
-    const content = editor.getContent();
-
-    console.log("Content:", content);
-
-    setData("format_document", content);
-
     let requestData: any = {
+      no: data.no,
       name: data.name,
       guarantor_id: guarantorSelected,
       product_id: productSelected,
       guarantor_to_product_type_id: guarantorProductTypeSelected,
-      format_document: content,
+      format_document: data.format_document,
     };
-
-    console.log("Request Data:", requestData);
 
     // Kirim data dengan cara yang sesuai (PUT atau POST)
     if (isEdit) {
@@ -137,7 +125,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
           });
         },
       });
-      console.log("Request Data up:", requestData);
     }
   };
 
@@ -145,8 +132,6 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
     e.preventDefault(); // Mencegah reload halaman
     submit(); // Panggil fungsi submit
   };
-
-  const editorRefs = useRef<{ [key: string]: any }>({});
 
   return (
     <div className="mt-6 space-y-6">
@@ -192,21 +177,57 @@ const FormDocumentFormat: React.FC<FormProfileLimitsProps> = ({
         <InputError className="mt-2" message={errors.guarantor_to_product_type_id} />
       </div>
       <div className="space-y-2">
+        <InputLabel htmlFor="no" value="No Urut" />
+        <Input
+          className="w-full"
+          id="no"
+          value={data.no}
+          min={1}
+          type="number"
+          required
+          onChange={(e) => setData("no", Number(e.target.value))}
+        />
+        <InputError className="mt-2" message={errors.no} />
+      </div>
+      <div className="space-y-2">
         <InputLabel htmlFor="name" value="Nama" />
-        <Input className={"w-full"} id="name" value={data.name} onChange={(e) => setData("name", e.target.value)} />
+        <Input
+          className={"w-full"}
+          id="name"
+          value={data.name}
+          required
+          onChange={(e) => setData("name", e.target.value)}
+        />
         <InputError className="mt-2" message={errors.name} />
       </div>
-      <div>
-        <TinyMCEEditor
-          id="format-document"
-          initialContent={data.format_document}
-          onContentChange={(content: string) => {
-            setData("format_document", content);
-          }}
-          onInit={(evt, editor) => {
-            editorRefs.current["format-document"] = editor;
-          }}
-        />
+      <div className="grid grid-cols-3 gap-1">
+        <div className="space-y-2 col-span-1">
+          <InputLabel htmlFor="format_document" value="Format Dokumen" />
+          <Textarea
+            className={"w-full"}
+            id="format_document"
+            value={data.format_document}
+            required
+            onChange={(e) => setData("format_document", e.target.value)}
+            rows={50}
+          />
+          <InputError message={errors.format_document} />
+        </div>
+        <div className="space-y-2 col-span-2">
+          <div className="text-sm font-medium mb-1">Live Preview</div>
+          {/* PDF Preview */}
+          <iframe
+            title="HTML Preview"
+            srcDoc={data.format_document}
+            style={{
+              width: "210mm",
+              height: "270mm",
+              background: "white",
+            }}
+            className="border rounded"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-modals"
+          />
+        </div>
       </div>
 
       <SubmissionUiPlaceholder />
