@@ -46,8 +46,6 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     getData(value, search);
   };
 
-  const handleExport = () => {};
-
   const getData = (perPage: string, search: string) => {
     return router.get(
       route("document.index"),
@@ -85,7 +83,6 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button onClick={handleExport}>Export</Button>
           <Select onValueChange={handleSelect} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Items per page" />

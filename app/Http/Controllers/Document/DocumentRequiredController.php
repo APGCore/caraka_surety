@@ -32,6 +32,9 @@ class DocumentRequiredController extends Controller
             ->get();
 
         return inertia('admin/documents/general/index', [
+            'page_settings' => [
+                'title' => 'Dokumen Perusahaan',
+            ],
             'reqDocs' => $requiredDocs,
         ]);
     }
@@ -53,12 +56,12 @@ class DocumentRequiredController extends Controller
             'product_type_id' => $request->product_type_id,
         ]);
 
-        flashMessage('Data Required Dokumen', 'Produk berhasil ditambahkan !');
+        flashMessage('Data Dokumen Perusahaan', 'Produk berhasil ditambahkan !');
         activity()
             ->useLog('dokumen-required')
             ->performedOn(new RequiredDoc)
             ->causedBy(auth()->user())
-            ->log('Menambahkan data required dokumen');
+            ->log('Menambahkan data Dokumen Perusahaan');
 
         return redirect()->route('document.index');
     }
@@ -71,6 +74,9 @@ class DocumentRequiredController extends Controller
         $productTypes = ProductType::all();
 
         return inertia('admin/documents/general/create/index', [
+            'page_settings' => [
+                'title' => 'Tambah Dokumen Perusahaan',
+            ],
             'productTypes' => $productTypes,
         ]);
     }
@@ -95,7 +101,7 @@ class DocumentRequiredController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Edit Dokumen Required',
+                'title' => 'Edit Dokumen Perusahaan',
             ],
             'reqDoc' => $requiredDoc,
             'productType' => $productTypes ?? null,
@@ -112,12 +118,12 @@ class DocumentRequiredController extends Controller
             $requiredDoc->delete();
 
             DB::commit();
-            flashMessage('Required Dokumen', 'Required Dokumen berhasil dihapus');
+            flashMessage('Dokumen Perusahaan', 'Dokumen Perusahaan berhasil dihapus');
             activity()
                 ->useLog('dokumen-required')
                 ->performedOn($requiredDoc)
                 ->causedBy(auth()->user())
-                ->log('Menghapus data required dokumen');
+                ->log('Menghapus data Dokumen Perusahaan');
             Log::info('Produk Delete: '.json_encode($requiredDoc, JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             DB::rollBack();
@@ -134,6 +140,9 @@ class DocumentRequiredController extends Controller
         $requiredDocs = RequiredDoc::with('productType')->get();
 
         return inertia('admin/documents/principal/index', [
+            'page_settings' => [
+                'title' => 'Dokumen Perusahaan Berdasarkan Principal',
+            ],
             'reqDocs' => $requiredDocs,
             'principal' => $principal,
         ]);
@@ -177,14 +186,14 @@ class DocumentRequiredController extends Controller
                 ->useLog('dokumen-required')
                 ->performedOn($requiredDoc)
                 ->causedBy(auth()->user())
-                ->log('Mengubah nomor dokumen required');
+                ->log('Mengubah nomor Dokumen Perusahaan');
             DB::commit();
 
             return $this->responseSuccess("Berhasil mengubah nomor urut dokumen {$requiredDoc->name}");
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
-            Log::error('Dokumen Required Update No: ', $error);
+            Log::error('Dokumen Perusahaan Update No: ', $error);
 
             return $this->responseError('Gagal mengubah nomor dokumen', 500);
         }
@@ -207,12 +216,12 @@ class DocumentRequiredController extends Controller
             'product_type_id' => $validatedData['product_type_id'],
         ]);
 
-        flashMessage('Data Required Dokumen', 'Produk berhasil diperbarui !');
+        flashMessage('Data Dokumen Perusahaan', 'Produk berhasil diperbarui !');
         activity()
             ->useLog('dokumen-required')
             ->performedOn($requiredDoc)
             ->causedBy(auth()->user())
-            ->log('Mengubah data required dokumen');
+            ->log('Mengubah data Dokumen Perusahaan');
 
         return redirect()->route('document.index');
     }
