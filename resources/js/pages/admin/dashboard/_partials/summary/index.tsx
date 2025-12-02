@@ -56,7 +56,7 @@ const Summary: React.FC<AdminDashboardProps> = (props) => {
       {/* Export & Range Tanggal */}
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={exportExcel} />
+          {/* <ExportDocsButtonDatatable onClick={exportExcel} /> */}
           <CalendarDateRangePicker value={filterDate} onDateChange={(date) => handleChangeDate(date)} />
         </div>
       </div>
