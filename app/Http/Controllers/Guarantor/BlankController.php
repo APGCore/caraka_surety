@@ -134,6 +134,14 @@ class BlankController extends Controller
                 throw new Exception('Rentang nomor blangko tidak valid '.$start.' - '.$end);
             }
 
+            $blanks = Blank::query()
+                ->whereBetween('number', [$start, $end])
+                ->where('guarantor_id', $requestValidated['guarantor_id'])
+                ->exists();
+            if ($blanks) {
+                throw new Exception('Terdapat nomor blangko yang sudah ada pada rentang nomor '.$start.' - '.$end);
+            }
+
             Blank::query()->insert($data);
 
             DB::commit();
