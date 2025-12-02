@@ -95,7 +95,7 @@ class ProfileController extends Controller
 
     public function apiGetOfficeTypes(Request $request)
     {
-        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypes = OfficeType::getName();
 
         return $this->responseSuccess('Berhasil mengambil data tipe kantor', $officeTypes);
     }

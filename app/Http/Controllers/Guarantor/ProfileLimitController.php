@@ -24,7 +24,7 @@ class ProfileLimitController extends Controller
     {
 
         // office types
-        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypes = OfficeType::getName();
 
         // Selected Guarantor
         $guarantor_id = config('guarantor.id');
@@ -146,7 +146,7 @@ class ProfileLimitController extends Controller
 
         $guarantorToProductTypeId = $guarantorToProductTypes?->where('product_id', $guarantorProductSelected)->where('product_type_id', $guarantorProductTypeSelected)->where('job_group', $jobGroupSelected)->where('job_type', $jobTypeSelected)->value('id');
 
-        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypes = OfficeType::getName();
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = match ($officeTypeSelected) {
             'Kantor Cabang' => OfficeType::BRANCH->value,

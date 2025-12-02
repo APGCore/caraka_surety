@@ -35,7 +35,7 @@ class DistributionOfBlankController extends Controller
         $guarantorBranches = $guarantors->whereNotNull('headquarter_id')->values();
         $guarantorSelected = $request->get('guarantor_id', $guarantorHead->first()?->getAttribute('id'));
         $guarantorBranchSelected = $request->get('guarantor_branch_id', $guarantorBranches->first()?->getAttribute('id'));
-        $officeTypes = ['Kantor Pusat', 'Kantor Cabang', 'Mitra Agen', 'Mitra Pemasaran'];
+        $officeTypes = OfficeType::getName();
         $officeTypeSelected = $request->get('office_type', $officeTypes[0]);
         $officeType = match ($officeTypeSelected) {
             'Kantor Cabang' => OfficeType::BRANCH->value,
