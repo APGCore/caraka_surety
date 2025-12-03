@@ -99,7 +99,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
           <form onSubmit={handleSearch} className="flex items-end gap-x-3">
             <Input
               className="h-full"
-              placeholder="Cari Prasyarat Dokumen"
+              placeholder="Cari Dokumen Perusahaan"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
