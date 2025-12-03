@@ -74,12 +74,12 @@ GuarantorPage.layout = (page: any) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold md:text-3xl">{pagePropsData?.page_settings?.title}</h1>
         <Button asChild>
           <Link href={route(GuarantorUtils.link.create)}>Tambah Asuransi</Link>
         </Button>
-      </div>
+      </div> */}
       {page}
     </RoleBasedLayout>
   );
