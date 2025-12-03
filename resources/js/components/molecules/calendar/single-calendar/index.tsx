@@ -31,7 +31,7 @@ const CalendarPicker: React.FC<CalendarPickerProps> = ({
         ? initialDate
         : dayjs(initialDate).toDate();
     }
-    return dayjs().toDate();
+    return undefined;
   });
   const [isOpenCalendar, setIsOpenCalendar] = React.useState(false);
 

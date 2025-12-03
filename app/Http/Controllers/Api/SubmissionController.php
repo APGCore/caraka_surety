@@ -319,13 +319,13 @@ class SubmissionController extends Controller
 
             DB::commit();
 
-            return $this->responseSuccess('Berhasil mengubah format dokumen');
+            return $this->responseSuccess('Berhasil mengubah Dokumen Luaran');
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
             Log::error('Failed to update document format', $error);
 
-            return $this->responseError('Gagal mengubah format dokumen', $error);
+            return $this->responseError('Gagal mengubah Dokumen Luaran', $error);
         }
     }
 

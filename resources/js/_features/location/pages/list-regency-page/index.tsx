@@ -10,11 +10,11 @@ import {
 } from "@/_features/_common/components/_shadcn-ui/select";
 import { Table, TableRow } from "@/_features/_common/components/_shadcn-ui/table";
 import { PrimaryButton } from "@/_features/_common/components/button/primary-button";
+import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { TableBody, TableCell, TableHead, TableHeader } from "@/components/_shadcn-ui/table";
-import NewCombobox from "@/_features/_common/components/combobox";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import CreateUpdateRegencyModal from "../../components/regency/create-update-regency-modal";
 import DeleteRegencyModal from "../../components/regency/delete-regency-modal";

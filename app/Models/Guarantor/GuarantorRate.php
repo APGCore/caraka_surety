@@ -4,7 +4,7 @@ namespace App\Models\Guarantor;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class GuarantorRate extends Model
@@ -19,18 +19,18 @@ class GuarantorRate extends Model
         'deleted_at',
     ];
 
-    public function guarantor(): HasOne
+    public function guarantor(): BelongsTo
     {
-        return $this->hasOne(Guarantor::class);
+        return $this->belongsTo(Guarantor::class);
     }
 
-    public function guarantorBranch(): HasOne
+    public function guarantorBranch(): BelongsTo
     {
-        return $this->hasOne(Guarantor::class);
+        return $this->belongsTo(Guarantor::class);
     }
 
-    public function guarantorToProductType(): HasOne
+    public function guarantorToProductType(): BelongsTo
     {
-        return $this->hasOne(GuarantorToProductType::class, 'id', 'guarantor_to_product_type_id');
+        return $this->belongsTo(GuarantorToProductType::class);
     }
 }

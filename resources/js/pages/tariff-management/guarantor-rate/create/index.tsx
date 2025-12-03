@@ -3,20 +3,17 @@ import RoleBasedLayout from "@/layouts/role-based-layout";
 import FormGuarantorRate from "@/pages/tariff-management/guarantor-rate/_partials/form-guarantor-rate";
 import GuarantorRateHeader from "@/pages/tariff-management/guarantor-rate/_partials/guarantor-rate-header";
 import { GuarantorRateCreatePageProps } from "@/pages/tariff-management/guarantor-rate/create/guarantor-rate-create.type";
+import { GuarantorRateUtils } from "../guarantor-rate.utils";
 
 const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
   guarantorId,
   guarantorBranchId,
   guarantorToProductTypeId,
   guarantorToProductType,
-  guarantorRate,
 }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>
-          Kelola Tarif Produk Asuransi {guarantorToProductType?.product?.name} {guarantorToProductType?.full_name}
-        </CardTitle>
         <CardDescription>Silakan Isi Data Di bawah</CardDescription>
       </CardHeader>
       <CardContent>
@@ -24,7 +21,6 @@ const GuarantorRateCreate: GuarantorRateCreatePageProps = ({
           guarantorId={guarantorId}
           guarantorBranchId={guarantorBranchId}
           guarantorToProductTypeId={guarantorToProductTypeId}
-          rate={guarantorRate}
         />
       </CardContent>
     </Card>
@@ -36,9 +32,31 @@ export default GuarantorRateCreate;
 GuarantorRateCreate.layout = (page: any) => {
   const pagePropsData = page.props;
 
+  const breadcrumbs = [
+    { label: "Daftar Tarif Produk Asuransi", href: route(GuarantorRateUtils.link.index) },
+    {
+      label: "Daftar Tarif Produk Asuransi",
+      href: route(GuarantorRateUtils.link.list, {
+        guarantor_id: pagePropsData.guarantorId,
+        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeId,
+      }),
+    },
+    {
+      label: "Tambah Tarif Produk Asuransi",
+      href: route(GuarantorRateUtils.link.create, {
+        guarantor_id: pagePropsData.guarantorId,
+        guarantor_to_product_type_id: pagePropsData.guarantorToProductTypeId,
+      }),
+    },
+  ];
+
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <GuarantorRateHeader title={pagePropsData?.page_settings?.title} guarantor={pagePropsData?.guarantor} />
+      <GuarantorRateHeader
+        title={pagePropsData?.page_settings?.title}
+        description={pagePropsData?.page_settings?.description}
+        breadcrumbs={breadcrumbs}
+      />
       {page}
     </RoleBasedLayout>
   );

@@ -104,7 +104,8 @@ class InvoiceController extends Controller
                 'submissionBefore:id,blank_id',
                 'submissionBefore.blank',
             ])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('no_guarantee')
+            ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
@@ -157,11 +158,14 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * @throws Exception
      */
     public function show(Submission $submission): Response|RedirectResponse
     {
         $submission->load([
-            'submissionBefore:id',
+            'submissionBefore:id,blank_id',
+            'submissionBefore.blank:id,number',
             'guarantor' => function ($query) {
                 $query->select(['id', 'name', 'code'])->withTrashed();
             },
@@ -208,11 +212,19 @@ class InvoiceController extends Controller
 
             return redirect()->back();
         }
-        $guarantorRate = $this->calculateGuarantor($submission);
-        $officeRate = $this->calculateOffice($submission);
-        //        $principalRate = $this->calculatePrincipal($submission);
-        $capitalRate = $this->calculateCapitalRates($submission);
-        //        $sellingRate = $this->calculateSellingRates($submission);
+        // $guarantorRate = $this->calculateGuarantor($submission);
+        // $officeRate = $this->calculateOffice($submission);
+        // $principalRate = $this->calculatePrincipal($submission);
+        $guarantorId = $submission->getAttribute('guarantor_id');
+        $guarantorToProductTypeId = $submission->getAttribute('guarantor_to_product_type_id');
+        $officeId = $submission->getAttribute('office_id');
+        $sendToGuarantorAt = $submission->getAttribute('send_to_guarantor_at');
+        $guarantorRates = $this->getGuarantorRates($guarantorId, $guarantorToProductTypeId, $sendToGuarantorAt);
+        $profileRates = $this->getProfileRates($officeId, $guarantorId, $guarantorToProductTypeId, $sendToGuarantorAt);
+        $capitalRate = $this->calculateCapitalRates($submission, $guarantorRates);
+        $sellingRate = $this->calculateSellingRates($submission, $profileRates);
+
+        $totalPremi = ($sellingRate->get('total') ?? 0) - ($capitalRate->get('nett_premi') ?? 0);
         $isSet = $submission->getRelation('submissionRate') !== null;
 
         $submission->unsetRelation('guarantor.guarantorRate');
@@ -225,11 +237,12 @@ class InvoiceController extends Controller
                 'title' => 'Detail Invoice',
             ],
             'submission' => $submission,
-            'guarantor_rate' => $guarantorRate,
-            'office_rate' => $officeRate,
-            //            'principal_rate' => $principalRate,
+            // 'guarantor_rate' => $guarantorRate,
+            // 'office_rate' => $officeRate,
+            // 'principal_rate' => $principalRate,
             'capital_rate' => $capitalRate,
-            'selling_rate' => $officeRate,
+            'selling_rate' => $sellingRate,
+            'total_premi' => $totalPremi,
             'is_set' => $isSet,
         ]);
     }
@@ -312,13 +325,13 @@ class InvoiceController extends Controller
                 'guarantor.province',
                 'guarantor.regency',
                 'guarantor.district',
-                'guarantor.guarantorRate',
                 'guarantorBranch' => function ($query) {
                     $query->withTrashed();
                 },
                 'guarantorBranch.province',
                 'guarantorBranch.regency',
                 'guarantorBranch.district',
+                'guarantorRate',
                 'principal' => function ($query) {
                     $query->withTrashed();
                 },
@@ -354,7 +367,14 @@ class InvoiceController extends Controller
             ->first();
         $offices = [];
         $invoices = [];
-        foreach ($submissions as $submission) {
+        if($submissions->isNotEmpty()) {
+          $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
+          $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
+          $officeIds = $submissions->pluck('office_id')->unique()->toArray();
+          $sendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
+          $guarantorRates = $this->getGuarantorRates(guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
+          $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
+          foreach ($submissions as $submission) {
             $businessUnit = $submission->getRelation('office');
             $principal = $submission->getRelation('principal');
             $obligee = $submission->getRelation('obligee');
@@ -362,138 +382,132 @@ class InvoiceController extends Controller
             $guarantorBranch = $submission->getRelation('guarantorBranch');
             $guarantorToProductType = $submission->getRelation('guarantorToProductType');
             $blank = $submission->getRelation('blank');
-            $profileRate = $businessUnit?->getRelation('profileRate')
-                ->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-                ->where('guarantor_to_product_type_id', $submission->getAttribute('guarantor_to_product_type_id'))
-                ->first();
+            $guarantorId = $submission->getAttribute('guarantor_id');
+            $guarantorToProductTypeId = $submission->getAttribute('guarantor_to_product_type_id');
+            $officeId = $submission->getAttribute('office_id');
+            $sendToGuarantorAt = $submission->getAttribute('send_to_guarantor_at');
+            $profileRate = $this->getProfileRate(
+              profileRates: $profileRates,
+              profileId: $officeId,
+              guarantorId: $guarantorId,
+              guarantorToProductTypeId: $guarantorToProductTypeId,
+              date: $sendToGuarantorAt
+            );
             // If profile rate not found, use guarantor rate
-            if (! $profileRate) {
-                $offices[$businessUnit->getAttribute('name')][] = $guarantorToProductType->getAttribute('full_name') ?? '-';
+            if (!$profileRate) {
+              $offices[$businessUnit->getAttribute('name')][] = $guarantorToProductType->getAttribute('full_name') ?? '-';
 
-                continue; // Skip if submission rate is not set
+              continue; // Skip if submission rate is not set
             }
             $submission->update(['has_send_to_finance' => true]);
-            $minimum = (float) ($profileRate->getAttribute('minimum_bill') ?? 0);
-            $rate = (float) ($profileRate->getAttribute('selling_rate') ?? 0);
-            $adm = (float) ($profileRate->getAttribute('sales_administration') ?? 0);
-            $brokenRate = (float) ($profileRate->getAttribute('broken_rate') ?? 0);
-            $revisedRate = (float) ($profileRate->getAttribute('revised_rate') ?? 0);
-            $this->storeSubmissionRate(
-                $submission,
-                $minimum,
-                $rate,
-                $adm,
-                $brokenRate,
-                $revisedRate,
-            );
-            // Calculate rates
-            $capitalRates = $this->calculateCapitalRates($submission);
-            $sellingRates = $this->calculateSellingRates($submission);
+            $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates);
+            $sellingRates = $this->calculateSellingRates($submission, $profileRates);
 
             $prefixCode = 'apg-core-';
             $invoices[] = [
-                'submission' => [
-                    'id' => $submission->getAttribute('id'),
-                    'no_guarantee' => $submission->getAttribute('no_guarantee'),
-                    'no_blank' => $blank?->getAttribute('number') ?? '-',
-                    'status' => $submission->getAttribute('status'),
-                    'created_at' => $submission->getAttribute('created_at'),
-                    'checked_at' => $submission->getAttribute('checked_at'),
-                    'approved_at' => $submission->getAttribute('approved_at'),
-                    'send_to_guarantor_at' => $submission->getAttribute('send_to_guarantor_at'),
+              'submission' => [
+                'id' => $submission->getAttribute('id'),
+                'no_guarantee' => $submission->getAttribute('no_guarantee'),
+                'no_blank' => $blank?->getAttribute('number') ?? '-',
+                'status' => $submission->getAttribute('status'),
+                'created_at' => $submission->getAttribute('created_at'),
+                'checked_at' => $submission->getAttribute('checked_at'),
+                'approved_at' => $submission->getAttribute('approved_at'),
+                'send_to_guarantor_at' => $submission->getAttribute('send_to_guarantor_at'),
+              ],
+              'office' => [
+                'code' => $prefixCode . 'office-' . $office->getAttribute('id'),
+                'name' => $office->getAttribute('name'),
+                'office_type' => $office->getAttribute('office_type'),
+              ],
+              'business_unit' => [
+                'code' => $prefixCode . 'business-unit-' . $businessUnit->getAttribute('id'),
+                'name' => $businessUnit->getAttribute('name'),
+                'office_type' => $businessUnit->getAttribute('office_type'),
+              ],
+              'principal' => [
+                'code' => $prefixCode . 'principal-' . $principal->getAttribute('id'),
+                'province' => $principal->getRelation('province')?->getAttribute('name') ?? '-',
+                'regency' => $principal->getRelation('regency')?->getAttribute('name') ?? '-',
+                'district' => $principal->getRelation('district')?->getAttribute('name') ?? '-',
+                'village' => $principal->getAttribute('village') ?? '-',
+                'name' => $principal->getAttribute('name'),
+                'address' => $principal->getAttribute('address'),
+                'postal_code' => $principal->getAttribute('postal_code') ?? '-',
+                'telephone' => $principal->getAttribute('telephone') ?? '-',
+                'fax' => $principal->getAttribute('fax') ?? '-',
+                'pic' => $principal->getAttribute('pic') ?? '-',
+                'npwp' => $principal->getAttribute('npwp') ?? '-',
+                'nib' => $principal->getAttribute('nib') ?? '-',
+                'siup_siujk' => $principal->getAttribute('siup_siujk') ?? '-',
+                'head_name' => $principal->getAttribute('head_name') ?? '-',
+                'business_fields' => $principal->getAttribute('business_fields') ?? '-',
+                'director_name' => $principal->getAttribute('director_name') ?? '-',
+                'director_position' => $principal->getAttribute('director_position') ?? '-',
+                'director_phone' => $principal->getAttribute('director_phone') ?? '-',
+                'commissioner' => $principal->getAttribute('commissioner') ?? '-',
+                'year_established' => $principal->getAttribute('year_established') ?? '-',
+                'est_deed' => $principal->getAttribute('est_deed') ?? '-',
+              ],
+              'obligee' => [
+                'code' => $prefixCode . 'obligee-' . $obligee->getAttribute('id'),
+                'province' => $obligee->getRelation('province')?->getAttribute('name') ?? '-',
+                'regency' => $obligee->getRelation('regency')?->getAttribute('name') ?? '-',
+                'district' => $obligee->getRelation('district')?->getAttribute('name') ?? '-',
+                'village' => $obligee->getAttribute('village') ?? '-',
+                'name' => $obligee->getAttribute('name'),
+                'address' => $obligee->getAttribute('address'),
+                'postal_code' => $obligee->getAttribute('postal_code') ?? '-',
+                'telephone' => $obligee->getAttribute('telephone') ?? '-',
+                'fax' => $obligee->getAttribute('fax') ?? '-',
+                'pic' => $obligee->getAttribute('pic') ?? '-',
+                'no_ppk' => $obligee->getAttribute('no_ppk') ?? '-',
+              ],
+              'insurance' => [
+                'code' => $prefixCode . 'insurance-' . $submission->getAttribute('guarantor_id'),
+                'province' => $guarantor->getRelation('province')?->getAttribute('name') ?? '-',
+                'regency' => $guarantor->getRelation('regency')?->getAttribute('name') ?? '-',
+                'district' => $guarantor->getRelation('district')?->getAttribute('name') ?? '-',
+                'village' => $guarantor->getAttribute('village') ?? '-',
+                'name' => $guarantor->getAttribute('name'),
+                'address' => $guarantor->getAttribute('address'),
+                'postal_code' => $guarantor->getAttribute('postal_code') ?? '-',
+                'telephone' => $guarantor->getAttribute('telephone') ?? '-',
+                'fax' => $guarantor->getAttribute('fax') ?? '-',
+                'pic' => $guarantor->getAttribute('pic') ?? '-',
+              ],
+              'insurance_branch' => [
+                'code' => $prefixCode . 'insurance-branch-' . $submission->getAttribute('guarantor_branch_id'),
+                'province' => $guarantorBranch->getRelation('province')?->getAttribute('name') ?? '-',
+                'regency' => $guarantorBranch->getRelation('regency')?->getAttribute('name') ?? '-',
+                'district' => $guarantorBranch->getRelation('district')?->getAttribute('name') ?? '-',
+                'village' => $guarantorBranch->getAttribute('village') ?? '-',
+                'name' => $guarantorBranch->getAttribute('name'),
+                'address' => $guarantorBranch->getAttribute('address'),
+                'postal_code' => $guarantorBranch->getAttribute('postal_code') ?? '-',
+                'telephone' => $guarantorBranch->getAttribute('telephone') ?? '-',
+                'fax' => $guarantorBranch->getAttribute('fax') ?? '-',
+                'pic' => $guarantorBranch->getAttribute('pic') ?? '-',
+              ],
+              'invoice' => [
+                'guarantee_value' => $submission->getAttribute('guarantee_value'),
+                'guarantee_days' => $submission->getAttribute('time_period'),
+                'guarantee_days_diff' => $submission->getAttribute('difference_time_period'),
+                'purchase' => $capitalRates,
+                'sales' => $sellingRates,
+                //                    'product' => [
+                //                        'code' => $prefixCode.'product-'.$submission->getAttribute('product_id'),
+                //                        'name' => $guarantorToProductType->getAttribute('name'),
+                //                    ],
+                'product_type' => [
+                  'code' => $prefixCode . 'product-type-' . $guarantorToProductType->getAttribute('id'),
+                  'name' => $guarantorToProductType->getAttribute('name'),
+                  'job_group' => $guarantorToProductType->getAttribute('job_group'),
+                  'job_type' => $guarantorToProductType->getAttribute('job_type'),
                 ],
-                'office' => [
-                    'code' => $prefixCode.'office-'.$office->getAttribute('id'),
-                    'name' => $office->getAttribute('name'),
-                    'office_type' => $office->getAttribute('office_type'),
-                ],
-                'business_unit' => [
-                    'code' => $prefixCode.'business-unit-'.$businessUnit->getAttribute('id'),
-                    'name' => $businessUnit->getAttribute('name'),
-                    'office_type' => $businessUnit->getAttribute('office_type'),
-                ],
-                'principal' => [
-                    'code' => $prefixCode.'principal-'.$principal->getAttribute('id'),
-                    'province' => $principal->getRelation('province')?->getAttribute('name') ?? '-',
-                    'regency' => $principal->getRelation('regency')?->getAttribute('name') ?? '-',
-                    'district' => $principal->getRelation('district')?->getAttribute('name') ?? '-',
-                    'village' => $principal->getAttribute('village') ?? '-',
-                    'name' => $principal->getAttribute('name'),
-                    'address' => $principal->getAttribute('address'),
-                    'postal_code' => $principal->getAttribute('postal_code') ?? '-',
-                    'telephone' => $principal->getAttribute('telephone') ?? '-',
-                    'fax' => $principal->getAttribute('fax') ?? '-',
-                    'pic' => $principal->getAttribute('pic') ?? '-',
-                    'npwp' => $principal->getAttribute('npwp') ?? '-',
-                    'nib' => $principal->getAttribute('nib') ?? '-',
-                    'siup_siujk' => $principal->getAttribute('siup_siujk') ?? '-',
-                    'head_name' => $principal->getAttribute('head_name') ?? '-',
-                    'business_fields' => $principal->getAttribute('business_fields') ?? '-',
-                    'director_name' => $principal->getAttribute('director_name') ?? '-',
-                    'director_position' => $principal->getAttribute('director_position') ?? '-',
-                    'director_phone' => $principal->getAttribute('director_phone') ?? '-',
-                    'commissioner' => $principal->getAttribute('commissioner') ?? '-',
-                    'year_established' => $principal->getAttribute('year_established') ?? '-',
-                    'est_deed' => $principal->getAttribute('est_deed') ?? '-',
-                ],
-                'obligee' => [
-                    'code' => $prefixCode.'obligee-'.$obligee->getAttribute('id'),
-                    'province' => $obligee->getRelation('province')?->getAttribute('name') ?? '-',
-                    'regency' => $obligee->getRelation('regency')?->getAttribute('name') ?? '-',
-                    'district' => $obligee->getRelation('district')?->getAttribute('name') ?? '-',
-                    'village' => $obligee->getAttribute('village') ?? '-',
-                    'name' => $obligee->getAttribute('name'),
-                    'address' => $obligee->getAttribute('address'),
-                    'postal_code' => $obligee->getAttribute('postal_code') ?? '-',
-                    'telephone' => $obligee->getAttribute('telephone') ?? '-',
-                    'fax' => $obligee->getAttribute('fax') ?? '-',
-                    'pic' => $obligee->getAttribute('pic') ?? '-',
-                    'no_ppk' => $obligee->getAttribute('no_ppk') ?? '-',
-                ],
-                'insurance' => [
-                    'code' => $prefixCode.'insurance-'.$submission->getAttribute('guarantor_id'),
-                    'province' => $guarantor->getRelation('province')?->getAttribute('name') ?? '-',
-                    'regency' => $guarantor->getRelation('regency')?->getAttribute('name') ?? '-',
-                    'district' => $guarantor->getRelation('district')?->getAttribute('name') ?? '-',
-                    'village' => $guarantor->getAttribute('village') ?? '-',
-                    'name' => $guarantor->getAttribute('name'),
-                    'address' => $guarantor->getAttribute('address'),
-                    'postal_code' => $guarantor->getAttribute('postal_code') ?? '-',
-                    'telephone' => $guarantor->getAttribute('telephone') ?? '-',
-                    'fax' => $guarantor->getAttribute('fax') ?? '-',
-                    'pic' => $guarantor->getAttribute('pic') ?? '-',
-                ],
-                'insurance_branch' => [
-                    'code' => $prefixCode.'insurance-branch-'.$submission->getAttribute('guarantor_branch_id'),
-                    'province' => $guarantorBranch->getRelation('province')?->getAttribute('name') ?? '-',
-                    'regency' => $guarantorBranch->getRelation('regency')?->getAttribute('name') ?? '-',
-                    'district' => $guarantorBranch->getRelation('district')?->getAttribute('name') ?? '-',
-                    'village' => $guarantorBranch->getAttribute('village') ?? '-',
-                    'name' => $guarantorBranch->getAttribute('name'),
-                    'address' => $guarantorBranch->getAttribute('address'),
-                    'postal_code' => $guarantorBranch->getAttribute('postal_code') ?? '-',
-                    'telephone' => $guarantorBranch->getAttribute('telephone') ?? '-',
-                    'fax' => $guarantorBranch->getAttribute('fax') ?? '-',
-                    'pic' => $guarantorBranch->getAttribute('pic') ?? '-',
-                ],
-                'invoice' => [
-                    'guarantee_value' => $submission->getAttribute('guarantee_value'),
-                    'guarantee_days' => $submission->getAttribute('time_period'),
-                    'guarantee_days_diff' => $submission->getAttribute('difference_time_period'),
-                    'purchase' => $capitalRates,
-                    'sales' => $sellingRates,
-                    //                    'product' => [
-                    //                        'code' => $prefixCode.'product-'.$submission->getAttribute('product_id'),
-                    //                        'name' => $guarantorToProductType->getAttribute('name'),
-                    //                    ],
-                    'product_type' => [
-                        'code' => $prefixCode.'product-type-'.$guarantorToProductType->getAttribute('id'),
-                        'name' => $guarantorToProductType->getAttribute('name'),
-                        'job_group' => $guarantorToProductType->getAttribute('job_group'),
-                        'job_type' => $guarantorToProductType->getAttribute('job_type'),
-                    ],
-                ],
+              ],
             ];
+          }
         }
         $mapOfficeProductType = [];
         foreach ($offices as $officeName => $productTypes) {

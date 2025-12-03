@@ -55,6 +55,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ ...pr
           <TableHeader>
             <TableRow>
               <TableHead className="w-0">#</TableHead>
+              <TableHead>No Urut</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Jenis</TableHead>
               <TableHead>Tanggal Dibuat</TableHead>
@@ -67,6 +68,7 @@ const DocumentFormatDatatable: React.FC<DocumentFormatDatatableProps> = ({ ...pr
               render={(documentFormat: any, index: number) => (
                 <TableRow key={documentFormat.id}>
                   <TableCell>{meta?.from + index}</TableCell>
+                  <TableCell>{documentFormat?.no}</TableCell>
                   <TableCell>{documentFormat?.name}</TableCell>
                   <TableCell>{documentFormat?.type}</TableCell>
                   <TableCell>{formatToDateIndonesian(documentFormat?.created_at)}</TableCell>

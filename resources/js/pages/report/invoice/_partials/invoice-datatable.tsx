@@ -84,13 +84,13 @@ const InvoiceDatatable: React.FC<InvoiceDatatableProps> = ({
                     {submission.blank?.number}
                     <Show when={submission.status === SubmissionStatus.REVISED}>
                       <p
-                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-yellow-100 text-yellow-800`}>
                         Di Revisi
                       </p>
                     </Show>
                     <Show when={submission.submission_before_id}>
                       <p
-                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                        className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-yellow-100 text-yellow-800`}>
                         Revisi dari {submission.submission_before?.blank?.number}
                       </p>
                     </Show>

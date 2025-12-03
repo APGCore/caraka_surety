@@ -215,7 +215,7 @@ export const adminRoute: IAppSideBarMenu[] = [
     icon: Archive,
     items: [
       {
-        title: "Prasyarat Dokumen",
+        title: "Dokumen Perusahaan",
         route_name: "document",
         href: route("document.index"),
       },
@@ -225,7 +225,7 @@ export const adminRoute: IAppSideBarMenu[] = [
         href: route("source-of-funds.index"),
       },
       {
-        title: "Format Dokumen",
+        title: "Dokumen Luaran",
         route_name: "document-format",
         href: route("document-format.index"),
       },

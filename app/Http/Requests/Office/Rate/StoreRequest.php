@@ -34,6 +34,7 @@ class StoreRequest extends FormRequest
             'minimum_management_fee' => ['nullable', 'string'],
             'broken_rate' => ['required', 'string'],
             'revised_rate' => ['required', 'string'],
+            'effective_at' => ['required', 'date'],
         ];
     }
 }

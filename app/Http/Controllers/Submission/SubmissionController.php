@@ -571,7 +571,9 @@ class SubmissionController extends Controller
             'guarantorProductTypeLimit',
             'callback',
             'supportDocs',
-        ])->find($id);
+        ])
+            ->withExists('callback as can_revised')
+            ->find($id);
     }
 
     /**
@@ -846,7 +848,6 @@ class SubmissionController extends Controller
         $submission->setAttribute('callback', $callback);
         $submission->setAttribute('employee_limit', $employeeLimit);
         $submission->setAttribute('total_score', $totalScore);
-        $submission->setAttribute('can_revised', $submission->getAttribute('can_revised'));
 
         return inertia($component, [
             'submission' => fn () => $submission,
@@ -1037,6 +1038,7 @@ class SubmissionController extends Controller
                 'staff:id,name,profile_id',
                 'office:id,name',
             ])
+            ->withExists('callback as can_revised')
             ->orderByDesc('created_at')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
@@ -1152,6 +1154,9 @@ class SubmissionController extends Controller
             'is_used' => false,
             'is_broken' => false,
             'is_revised' => false,
+        ]);
+        $submission->submissionBefore()->update([
+            'status' => SubmissionStatus::APPROVED->value,
         ]);
 
         return $submission->update([

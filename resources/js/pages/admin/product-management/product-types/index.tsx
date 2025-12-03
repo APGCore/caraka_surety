@@ -42,7 +42,7 @@ const AdminProductTypesPage: AdminProductTypesPageProps = ({ productTypes }) => 
     <main className="space-y-2.5">
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <ExportDocsButtonDatatable onClick={() => {}} />
+          {/* <ExportDocsButtonDatatable onClick={() => {}} /> */}
           <SelectLengthDatatable defaultValue={select} onChange={handleSelectProductTypeLength} />
         </div>
         <SearchDatatable

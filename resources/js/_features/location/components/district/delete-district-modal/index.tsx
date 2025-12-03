@@ -1,11 +1,17 @@
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/_features/_common/components/_shadcn-ui/alert-dialog";
-import { DISTRICT_LOCATION_QUERY_KEY } from "@/_features/location/services/district-location-query";
-import { router } from "@inertiajs/react";
-import { useState } from "react";
-import { Button } from "@/components/_shadcn-ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/_features/_common/components/_shadcn-ui/alert-dialog";
 import { handleBubbleEvent } from "@/_features/_common/utils/dom";
-import { RotateCw } from "lucide-react";
+import { DISTRICT_LOCATION_QUERY_KEY } from "@/_features/location/services/district-location-query";
+import { Button } from "@/components/_shadcn-ui/button";
 import { queryClient } from "@/components/organisms/provider/react-query-provider";
+import { router } from "@inertiajs/react";
+import { RotateCw } from "lucide-react";
+import { useState } from "react";
 
 interface DeleteDistrictModalProps {
   open: boolean;

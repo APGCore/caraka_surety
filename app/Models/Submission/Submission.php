@@ -75,11 +75,6 @@ class Submission extends Model
         return str_replace(',', '.', $value);
     }
 
-    public function getCanRevisedAttribute(): bool
-    {
-        return $this->callback()->exists();
-    }
-
     public function scores(): HasMany
     {
         return $this->hasMany(SubmissionScore::class, 'submission_id', 'id');
@@ -195,6 +190,11 @@ class Submission extends Model
     public function submissionBefore(): BelongsTo
     {
         return $this->belongsTo(Submission::class, 'submission_before_id', 'id');
+    }
+
+    public function submissionAfter(): HasOne
+    {
+        return $this->hasOne(Submission::class, 'submission_before_id', 'id');
     }
 
     public function submissionInherit(): BelongsTo

@@ -1,10 +1,12 @@
 import { Button } from "@/components/_shadcn-ui/button";
 import { Input } from "@/components/_shadcn-ui/input";
 import Show from "@/components/atoms/show";
+import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
 import InputCurrency from "@/components/molecules/input/currency-input";
 import InputError from "@/components/molecules/input/error-input";
 import { FormOfficeRateUtils } from "@/pages/tariff-management/office-rate/_partials/form-office-rate.utils";
 import { useForm } from "@inertiajs/react";
+import dayjs from "dayjs";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
@@ -23,7 +25,7 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
   guarantorToProductTypeId,
   rate,
 }) => {
-  const { data, setData, post, errors, processing } = useForm<{
+  const { data, setData, post, put, errors, processing } = useForm<{
     profile_id: number | string;
     guarantor_id: number | string;
     guarantor_branch_id?: number | string | null;
@@ -35,6 +37,7 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
     minimum_management_fee?: string;
     broken_rate?: string;
     revised_rate?: string;
+    effective_at?: string;
   }>({
     profile_id: profileId,
     guarantor_id: guarantorId,
@@ -47,16 +50,21 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
     minimum_management_fee: rate?.minimum_management_fee?.toString() ?? "",
     broken_rate: rate?.broken_rate?.toString() ?? "",
     revised_rate: rate?.revised_rate?.toString() ?? "",
+    effective_at: rate?.effective_at?.toString() ?? "",
   });
 
   const submit = () => {
-    post(route(FormOfficeRateUtils.create.route), {
-      preserveState: true,
-      preserveScroll: true,
-      onError: (params) => {
-        console.log(params);
-      },
-    });
+    if (!rate) {
+      post(route(FormOfficeRateUtils.create.route), {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    } else {
+      put(route(FormOfficeRateUtils.edit.route, rate.id), {
+        preserveState: true,
+        preserveScroll: true,
+      });
+    }
   };
 
   const handleBack = () => {
@@ -70,6 +78,23 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
         submit();
       }}
       id="guarantor-rate-form">
+      <div className="w-1/3 mx-auto mb-4">
+        <div className="space-y-2">
+          <label htmlFor="effective_at" className="block text-sm font-medium text-gray-700">
+            Berlaku Mulai
+          </label>
+          <div className="flex items-center space-x-4">
+            <CalendarPicker
+              className="w-full border border-gray-300 rounded-lg p-2"
+              dateFormat="DD MMMM YYYY"
+              initialDate={data.effective_at ? dayjs(data.effective_at).toDate() : undefined}
+              onPickDate={(e) => {
+                setData({ ...data, effective_at: dayjs(e).format("YYYY-MM-DD") });
+              }}
+            />
+          </div>
+        </div>
+      </div>
       <div className="flex justify-center w-full mx-auto gap-16">
         <Show when={guarantorBranchId == null}>
           <div className="p-0">

@@ -11,16 +11,16 @@ interface ProfileLimitsHeaderProps {
 const DocumentFormatHeader: React.FC<ProfileLimitsHeaderProps> = ({ title }) => {
   return (
     <>
-      <Head title={title ?? "Format Dokumen"} />
+      <Head title={title ?? "Dokumen Luaran"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(DocumentFormatUtils.link.index)}>Kelola Format Dokumen</BreadcrumbLink>
+            <BreadcrumbLink href={route(DocumentFormatUtils.link.index)}>Kelola Dokumen Luaran</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Format Dokumen"}</h1>
+        <h1 className="text-lg font-semibold md:text-3xl">{title ?? "Dokumen Luaran"}</h1>
         <Button asChild>
           <Link href={route(DocumentFormatUtils.link.create)}>Tambah</Link>
         </Button>

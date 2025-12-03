@@ -5,7 +5,6 @@ import FormDocumentFormat from "@/pages/admin/documents/format/_partials/form-do
 import { CreateDocumentFormatPageProps } from "@/pages/admin/documents/format/create/create-document-format.type";
 import { DocumentFormatUtils } from "@/pages/admin/documents/format/document-format.utils";
 import { Head } from "@inertiajs/react";
-import React from "react";
 
 const CreateDocumentFormatPage: CreateDocumentFormatPageProps = ({
   guarantors,
@@ -16,10 +15,10 @@ const CreateDocumentFormatPage: CreateDocumentFormatPageProps = ({
   guarantorProductTypeSelected,
 }) => {
   return (
-    <Card className="w-[800px] mx-auto">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Membuat Format Dokumen</CardTitle>
-        <CardDescription>Untuk membuat data format dokumen</CardDescription>
+        <CardTitle>Membuat Dokumen Luaran</CardTitle>
+        <CardDescription>Untuk membuat data Dokumen Luaran</CardDescription>
       </CardHeader>
       <CardContent>
         <FormDocumentFormat
@@ -42,11 +41,11 @@ CreateDocumentFormatPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <Head title={pagePropsData?.page_settings?.title ?? "Membuat Format Dokumen"} />
+      <Head title={pagePropsData?.page_settings?.title ?? "Membuat Dokumen Luaran"} />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>Membuat Kelola Format Dokumen</BreadcrumbLink>
+            <BreadcrumbLink href={route(DocumentFormatUtils.link.create)}>Membuat Kelola Dokumen Luaran</BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

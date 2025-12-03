@@ -10,10 +10,9 @@ const OfficeRateCreate: OfficeRateCreatePageProps = ({
   guarantorBranchId,
   guarantorToProductTypeId,
   guarantorToProductType,
-  guarantorRate,
 }) => {
   return (
-    <Card className="w-full">
+    <Card className="w-[50%] mx-auto">
       <CardHeader>
         <CardTitle>
           Kelola Tarif Produk Asuransi {guarantorToProductType?.product?.name} {guarantorToProductType?.full_name}
@@ -26,7 +25,6 @@ const OfficeRateCreate: OfficeRateCreatePageProps = ({
           guarantorId={guarantorId}
           guarantorBranchId={guarantorBranchId}
           guarantorToProductTypeId={guarantorToProductTypeId}
-          rate={guarantorRate}
         />
       </CardContent>
     </Card>
@@ -42,8 +40,7 @@ OfficeRateCreate.layout = (page: any) => {
     <RoleBasedLayout propsData={pagePropsData}>
       <OfficeRateHeader
         title={pagePropsData?.page_settings?.title}
-        profile={pagePropsData?.profile}
-        guarantor={pagePropsData?.guarantor}
+        description={pagePropsData?.page_settings?.description}
       />
       {page}
     </RoleBasedLayout>

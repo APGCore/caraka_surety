@@ -1,8 +1,11 @@
 export const formatCurrency = (value: number | string) => {
+  if (typeof value === "string") {
+    value = Number(value);
+  }
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-  }).format(Number(value));
+  }).format(value);
 };
 
 export const formatStringWithDots = (str: string, maxLength: number): string => {

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('format_document');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

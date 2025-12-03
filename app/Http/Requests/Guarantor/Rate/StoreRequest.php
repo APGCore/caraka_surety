@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests\Guarantor\Rate;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-
-class StoreRequest extends FormRequest
+class StoreRequest extends ListRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +20,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guarantor_rate_id' => ['nullable', 'integer', Rule::exists('guarantor_rates')->whereNull('deleted_at')],
-            'guarantor_id' => ['required', 'integer', Rule::exists('guarantors', 'id')->whereNull('deleted_at')],
-            'guarantor_to_product_type_id' => ['required', 'integer', Rule::exists('guarantor_to_product_types', 'id')->whereNull('deleted_at')],
+            ...parent::rules(),
             'minimum_payment' => ['required', 'string'],
             'pay_rate' => ['required', 'numeric'],
             'payment_administration' => ['required', 'string'],
@@ -34,6 +29,7 @@ class StoreRequest extends FormRequest
             'revised_rate' => ['required', 'string'],
             'commission' => ['required', 'numeric'],
             'pph' => ['required', 'numeric'],
+            'effective_at' => ['required', 'date'],
         ];
     }
 }

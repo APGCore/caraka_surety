@@ -220,7 +220,7 @@ const districtPage: React.FC<DistrictPageProps> & { layout?: any } = (props) => 
 
       <div className="flex justify-between items-end">
         <div className="flex gap-x-3">
-          <Button>Export</Button>
+          {/* <Button>Export</Button> */}
           <Select onValueChange={(e) => handleSelect(e)} defaultValue={String(select)}>
             <SelectTrigger className="w-max">
               <SelectValue placeholder="Theme" />

@@ -109,17 +109,14 @@ export const reducer = (state: State, action: Action): State => {
       const next = [action.toast, ...state.toasts];
       return {
         ...state,
-        toasts:
-          TOAST_LIMIT === Number.POSITIVE_INFINITY ? next : next.slice(0, TOAST_LIMIT),
+        toasts: TOAST_LIMIT === Number.POSITIVE_INFINITY ? next : next.slice(0, TOAST_LIMIT),
       };
     }
 
     case "UPDATE_TOAST": {
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
+        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
       };
     }
 
@@ -135,9 +132,7 @@ export const reducer = (state: State, action: Action): State => {
 
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined ? { ...t, open: false } : t
-        ),
+        toasts: state.toasts.map((t) => (t.id === toastId || toastId === undefined ? { ...t, open: false } : t)),
       };
     }
 

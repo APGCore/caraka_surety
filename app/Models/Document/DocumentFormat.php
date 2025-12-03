@@ -8,16 +8,18 @@ use App\Models\Product\ProductType;
 use App\Models\Submission\Submission;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 
 class DocumentFormat extends Model
 {
-    use Searchable;
+    use Searchable, SoftDeletes;
 
     protected $guarded = [
         'id',
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     public function toSearchableArray()

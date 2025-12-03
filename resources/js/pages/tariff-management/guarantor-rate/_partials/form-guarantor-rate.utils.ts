@@ -19,4 +19,15 @@ export const FormGuarantorRateUtils = {
       description: "Tarif Asuransi gagal di setting",
     },
   },
+  edit: {
+    route: GuarantorRateUtils.link.update,
+    title: "Setting Tarif Asuransi",
+    sub_title: "Tindakan ini akan mengatur data Tarif Asuransi",
+    btn_label: "Simpan",
+    class_name: "w-full",
+    toast_success: {
+      title: "Berhasil",
+      description: "Tarif Asuransi berhasil di setting",
+    },
+  },
 };

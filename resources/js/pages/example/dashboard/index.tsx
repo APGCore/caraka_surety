@@ -95,7 +95,7 @@ const data = {
           url: "#",
         },
         {
-          title: "Prasyarat Dokumen",
+          title: "Dokumen Perusahaan",
           url: "#",
         },
       ],

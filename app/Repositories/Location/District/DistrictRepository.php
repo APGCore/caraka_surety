@@ -29,12 +29,12 @@ class DistrictRepository implements DistrictRepositoryInterface
         return $this->model
             ->search($search)
             ->query(function ($query) use ($regencyId) {
-              return $query
-                ->with(['regency:id,name,province_id'])
-                ->when($regencyId, function ($query) use ($regencyId) {
-                  $query->where('regency_id', $regencyId);
-                });
-              })
+                return $query
+                    ->with(['regency:id,name,province_id'])
+                    ->when($regencyId, function ($query) use ($regencyId) {
+                        $query->where('regency_id', $regencyId);
+                    });
+            })
             ->orderBy('name')
             ->paginate(
                 perPage: $perPage,

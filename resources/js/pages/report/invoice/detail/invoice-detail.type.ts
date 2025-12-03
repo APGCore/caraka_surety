@@ -7,6 +7,7 @@ interface InvoiceDetailProps {
   principal_rate: any;
   capital_rate: any;
   selling_rate: any;
+  total_premi: number;
   is_set: boolean;
 }
 

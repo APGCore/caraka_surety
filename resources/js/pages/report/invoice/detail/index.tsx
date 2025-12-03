@@ -26,15 +26,9 @@ import { AlertCircle } from "lucide-react";
 import React, { useState } from "react";
 import InvoiceHeader from "../_partials/invoice-header";
 
-const InvoiceDetailPage: InvoiceDetailPageProps = ({
-  submission,
-  guarantor_rate,
-  office_rate,
-  capital_rate,
-  selling_rate,
-  is_set,
-}) => {
+const InvoiceDetailPage: InvoiceDetailPageProps = ({ submission, capital_rate, selling_rate, total_premi, is_set }) => {
   const [isLoadingSendToFinance, setIsLoadingSendToFinance] = useState(false);
+  console.log(total_premi);
   // const minimum = String(selling_rate.minimum || principal_rate.minimum || office_rate.minimum || 0);
   // const rate = String(selling_rate.rate || principal_rate.rate || office_rate.rate || 0);
   // const adm = String(selling_rate.adm || principal_rate.adm || office_rate.adm || 0);
@@ -116,7 +110,7 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
             {submission.no_guarantee} di Unit Bisnis {submission.office.name}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        {/* <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-1">
               <Card>
@@ -189,143 +183,144 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
               </Card>
             </div>
             {/*<div className="col-span-1">*/}
-            {/*  <Card>*/}
-            {/*    <CardHeader>*/}
-            {/*      <CardTitle>Tarif Jual Per Principal</CardTitle>*/}
-            {/*    </CardHeader>*/}
-            {/*    <CardContent>*/}
-            {/*      <div className="grid grid-cols-2 gap-4">*/}
-            {/*        <div className="col-span-1">*/}
-            {/*          <p className="text-sm font-semibold">Tarif</p>*/}
-            {/*          <p>{principal_rate.rate} %</p>*/}
-            {/*        </div>*/}
-            {/*        <div className="col-span-1">*/}
-            {/*          <p className="text-sm font-semibold">Minimum</p>*/}
-            {/*          <p>{formatCurrency(principal_rate.minimum)}</p>*/}
-            {/*        </div>*/}
-            {/*        <div className="col-span-1">*/}
-            {/*          <p className="text-sm font-semibold">Biaya Administrasi</p>*/}
-            {/*          <p>{formatCurrency(principal_rate.adm)}</p>*/}
-            {/*        </div>*/}
-            {/*        <div className="col-span-1">*/}
-            {/*          <p className="text-sm font-semibold">Tarif Blangko Rusak</p>*/}
-            {/*          <p>{formatCurrency(principal_rate.broken_rate)}</p>*/}
-            {/*        </div>*/}
-            {/*        <div className="col-span-1">*/}
-            {/*          <p className="text-sm font-semibold">Tarif Blangko Revisi</p>*/}
-            {/*          <p>{formatCurrency(principal_rate.revised_rate)}</p>*/}
-            {/*        </div>*/}
-            {/*      </div>*/}
-            {/*    </CardContent>*/}
-            {/*  </Card>*/}
-            {/*</div>*/}
-          </div>
-        </CardContent>
-      </Card>
-      {/*<Card>*/}
-      {/*  <CardHeader>*/}
-      {/*    <CardTitle>{FormPrincipalSubmissionRateUtils.create.title}</CardTitle>*/}
-      {/*    <CardDescription>{FormPrincipalSubmissionRateUtils.create.sub_title}</CardDescription>*/}
-      {/*  </CardHeader>*/}
-      {/*  <CardContent>*/}
-      {/*    <div className="grid grid-cols-2 gap-2">*/}
-      {/*      <div className="cols-span-1 space-y-2">*/}
-      {/*        <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">*/}
-      {/*          Minimum Penjualan*/}
-      {/*        </label>*/}
+        {/*  <Card>*/}
+        {/*    <CardHeader>*/}
+        {/*      <CardTitle>Tarif Jual Per Principal</CardTitle>*/}
+        {/*    </CardHeader>*/}
+        {/*    <CardContent>*/}
+        {/*      <div className="grid grid-cols-2 gap-4">*/}
+        {/*        <div className="col-span-1">*/}
+        {/*          <p className="text-sm font-semibold">Tarif</p>*/}
+        {/*          <p>{principal_rate.rate} %</p>*/}
+        {/*        </div>*/}
+        {/*        <div className="col-span-1">*/}
+        {/*          <p className="text-sm font-semibold">Minimum</p>*/}
+        {/*          <p>{formatCurrency(principal_rate.minimum)}</p>*/}
+        {/*        </div>*/}
+        {/*        <div className="col-span-1">*/}
+        {/*          <p className="text-sm font-semibold">Biaya Administrasi</p>*/}
+        {/*          <p>{formatCurrency(principal_rate.adm)}</p>*/}
+        {/*        </div>*/}
+        {/*        <div className="col-span-1">*/}
+        {/*          <p className="text-sm font-semibold">Tarif Blangko Rusak</p>*/}
+        {/*          <p>{formatCurrency(principal_rate.broken_rate)}</p>*/}
+        {/*        </div>*/}
+        {/*        <div className="col-span-1">*/}
+        {/*          <p className="text-sm font-semibold">Tarif Blangko Revisi</p>*/}
+        {/*          <p>{formatCurrency(principal_rate.revised_rate)}</p>*/}
+        {/*        </div>*/}
+        {/*      </div>*/}
+        {/*    </CardContent>*/}
+        {/*  </Card>*/}
+        {/*</div>*/}
+        {/* </div> */}
+        {/* </CardContent> */}
+        {/* </Card> */}
+        {/*<Card>*/}
+        {/*  <CardHeader>*/}
+        {/*    <CardTitle>{FormPrincipalSubmissionRateUtils.create.title}</CardTitle>*/}
+        {/*    <CardDescription>{FormPrincipalSubmissionRateUtils.create.sub_title}</CardDescription>*/}
+        {/*  </CardHeader>*/}
+        {/*  <CardContent>*/}
+        {/*    <div className="grid grid-cols-2 gap-2">*/}
+        {/*      <div className="cols-span-1 space-y-2">*/}
+        {/*        <label htmlFor="minimum_bill" className="block text-sm font-medium text-gray-700">*/}
+        {/*          Minimum Penjualan*/}
+        {/*        </label>*/}
 
-      {/*        <div className="flex items-center space-x-4">*/}
-      {/*          <InputCurrency*/}
-      {/*            value={data.minimum_bill?.toString() ?? ""}*/}
-      {/*            onChange={(e) => setData({ ...data, minimum_bill: e })}*/}
-      {/*          />*/}
-      {/*        </div>*/}
+        {/*        <div className="flex items-center space-x-4">*/}
+        {/*          <InputCurrency*/}
+        {/*            value={data.minimum_bill?.toString() ?? ""}*/}
+        {/*            onChange={(e) => setData({ ...data, minimum_bill: e })}*/}
+        {/*          />*/}
+        {/*        </div>*/}
 
-      {/*        <InputError message={errors?.minimum_bill} />*/}
-      {/*      </div>*/}
-      {/*      <div className="cols-span-1 space-y-2">*/}
-      {/*        <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">*/}
-      {/*          Tarif Penjualan*/}
-      {/*        </label>*/}
-      {/*        <div className="flex items-center space-x-4">*/}
-      {/*          <Input*/}
-      {/*            type="number"*/}
-      {/*            id="selling_rate"*/}
-      {/*            name="selling_rate"*/}
-      {/*            value={data.selling_rate}*/}
-      {/*            step="0.00001"*/}
-      {/*            min="0"*/}
-      {/*            onChange={(e) => setData({ ...data, selling_rate: e.currentTarget.value })}*/}
-      {/*          />*/}
-      {/*          <span className="text-gray-900 text-sm">%</span>*/}
-      {/*        </div>*/}
+        {/*        <InputError message={errors?.minimum_bill} />*/}
+        {/*      </div>*/}
+        {/*      <div className="cols-span-1 space-y-2">*/}
+        {/*        <label htmlFor="selling_rate" className="block text-sm font-medium text-gray-700">*/}
+        {/*          Tarif Penjualan*/}
+        {/*        </label>*/}
+        {/*        <div className="flex items-center space-x-4">*/}
+        {/*          <Input*/}
+        {/*            type="number"*/}
+        {/*            id="selling_rate"*/}
+        {/*            name="selling_rate"*/}
+        {/*            value={data.selling_rate}*/}
+        {/*            step="0.00001"*/}
+        {/*            min="0"*/}
+        {/*            onChange={(e) => setData({ ...data, selling_rate: e.currentTarget.value })}*/}
+        {/*          />*/}
+        {/*          <span className="text-gray-900 text-sm">%</span>*/}
+        {/*        </div>*/}
 
-      {/*        <InputError message={errors?.selling_rate} />*/}
-      {/*      </div>*/}
-      {/*      <div className="cols-span-1 space-y-2">*/}
-      {/*        <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">*/}
-      {/*          Administrasi Penjualan*/}
-      {/*        </label>*/}
-      {/*        <div className="flex items-center space-x-4">*/}
-      {/*          <InputCurrency*/}
-      {/*            value={data.sales_administration?.toString() ?? ""}*/}
-      {/*            onChange={(e) => setData({ ...data, sales_administration: e })}*/}
-      {/*          />*/}
-      {/*        </div>*/}
+        {/*        <InputError message={errors?.selling_rate} />*/}
+        {/*      </div>*/}
+        {/*      <div className="cols-span-1 space-y-2">*/}
+        {/*        <label htmlFor="sales_administration" className="block text-sm font-medium text-gray-700">*/}
+        {/*          Administrasi Penjualan*/}
+        {/*        </label>*/}
+        {/*        <div className="flex items-center space-x-4">*/}
+        {/*          <InputCurrency*/}
+        {/*            value={data.sales_administration?.toString() ?? ""}*/}
+        {/*            onChange={(e) => setData({ ...data, sales_administration: e })}*/}
+        {/*          />*/}
+        {/*        </div>*/}
 
-      {/*        <InputError message={errors?.sales_administration} />*/}
-      {/*      </div>*/}
-      {/*      <div className="cols-span-1 space-y-2">*/}
-      {/*        <label htmlFor="broken_rate" className="block text-sm font-medium text-gray-700">*/}
-      {/*          Tarif Blangko Rusak*/}
-      {/*        </label>*/}
-      {/*        <div className="flex items-center space-x-4">*/}
-      {/*          <InputCurrency*/}
-      {/*            value={data.broken_rate?.toString() ?? ""}*/}
-      {/*            onChange={(e) => setData({ ...data, broken_rate: e })}*/}
-      {/*          />*/}
-      {/*        </div>*/}
+        {/*        <InputError message={errors?.sales_administration} />*/}
+        {/*      </div>*/}
+        {/*      <div className="cols-span-1 space-y-2">*/}
+        {/*        <label htmlFor="broken_rate" className="block text-sm font-medium text-gray-700">*/}
+        {/*          Tarif Blangko Rusak*/}
+        {/*        </label>*/}
+        {/*        <div className="flex items-center space-x-4">*/}
+        {/*          <InputCurrency*/}
+        {/*            value={data.broken_rate?.toString() ?? ""}*/}
+        {/*            onChange={(e) => setData({ ...data, broken_rate: e })}*/}
+        {/*          />*/}
+        {/*        </div>*/}
 
-      {/*        <InputError message={errors?.broken_rate} />*/}
-      {/*      </div>*/}
-      {/*      <div className="cols-span-1 space-y-2">*/}
-      {/*        <label htmlFor="revised_rate" className="block text-sm font-medium text-gray-700">*/}
-      {/*          Tarif blangko Revisi*/}
-      {/*        </label>*/}
-      {/*        <div className="flex items-center space-x-4">*/}
-      {/*          <InputCurrency*/}
-      {/*            value={data.revised_rate?.toString() ?? ""}*/}
-      {/*            onChange={(e) => setData({ ...data, revised_rate: e })}*/}
-      {/*          />*/}
-      {/*        </div>*/}
+        {/*        <InputError message={errors?.broken_rate} />*/}
+        {/*      </div>*/}
+        {/*      <div className="cols-span-1 space-y-2">*/}
+        {/*        <label htmlFor="revised_rate" className="block text-sm font-medium text-gray-700">*/}
+        {/*          Tarif blangko Revisi*/}
+        {/*        </label>*/}
+        {/*        <div className="flex items-center space-x-4">*/}
+        {/*          <InputCurrency*/}
+        {/*            value={data.revised_rate?.toString() ?? ""}*/}
+        {/*            onChange={(e) => setData({ ...data, revised_rate: e })}*/}
+        {/*          />*/}
+        {/*        </div>*/}
 
-      {/*        <InputError message={errors?.revised_rate} />*/}
-      {/*      </div>*/}
-      {/*    </div>*/}
-      {/*  </CardContent>*/}
-      {/*  <CardFooter>*/}
-      {/*    <div className="w-full text-right">*/}
-      {/*      <Button type="button" onClick={submit}>*/}
-      {/*        <Loading isLoading={processing} />*/}
-      {/*        Simpan*/}
-      {/*      </Button>*/}
-      {/*    </div>*/}
-      {/*  </CardFooter>*/}
-      {/*</Card>*/}
-      <Card>
+        {/*        <InputError message={errors?.revised_rate} />*/}
+        {/*      </div>*/}
+        {/*    </div>*/}
+        {/*  </CardContent>*/}
+        {/*  <CardFooter>*/}
+        {/*    <div className="w-full text-right">*/}
+        {/*      <Button type="button" onClick={submit}>*/}
+        {/*        <Loading isLoading={processing} />*/}
+        {/*        Simpan*/}
+        {/*      </Button>*/}
+        {/*    </div>*/}
+        {/*  </CardFooter>*/}
+        {/*</Card>*/}
+        {/* <Card>
         <CardHeader>
           <CardTitle>Hasil Tarif</CardTitle>
           <CardDescription>Hasil tarif yang sudah di setting</CardDescription>
-        </CardHeader>
+        </CardHeader> */}
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-1">
               <Card>
                 <CardHeader>
                   <CardTitle>Tarif Modal</CardTitle>
+                  <CardDescription className="text-md text-black">Asuransi {submission.guarantor.name}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <InvoiceGuarantor guarantorName={submission.guarantor.name} guarantorRate={capital_rate} />
+                  <InvoiceGuarantor guarantorRate={capital_rate} />
                 </CardContent>
               </Card>
             </div>
@@ -333,24 +328,35 @@ const InvoiceDetailPage: InvoiceDetailPageProps = ({
               <Card>
                 <CardHeader>
                   <CardTitle>Tarif Jual</CardTitle>
+                  <CardDescription className="text-md text-black">Unit Bisnis {submission.office.name}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <InvoiceOffice officeRate={selling_rate} />
                 </CardContent>
               </Card>
             </div>
+            <div className="col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pendapatan Premi</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>{formatCurrency(total_premi ?? 0)}</p>
+                </CardContent>
+                {is_set && (
+                  <CardFooter>
+                    <div className="w-full text-right">
+                      <Button type="button" variant="success" onClick={sendToFinance}>
+                        <Loading isLoading={isLoadingSendToFinance} />
+                        {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}
+                      </Button>
+                    </div>
+                  </CardFooter>
+                )}
+              </Card>
+            </div>
           </div>
         </CardContent>
-        {is_set && (
-          <CardFooter>
-            <div className="w-full text-right">
-              <Button type="button" variant="success" onClick={sendToFinance}>
-                <Loading isLoading={isLoadingSendToFinance} />
-                {!submission.has_send_to_finance ? "Kirim ke Keuangan" : "update ke Keuangan"}
-              </Button>
-            </div>
-          </CardFooter>
-        )}
       </Card>
     </main>
   );

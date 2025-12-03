@@ -31,64 +31,21 @@ class SubmissionResource extends JsonResource
             'approved_at' => $this->resource->approved_at ? Carbon::parse($this->resource->approved_at)->format('d F Y H:i') : null,
             'rejected_at' => $this->resource->rejected_at ? Carbon::parse($this->resource->rejected_at)->format('d F Y H:i') : null,
             'send_to_guarantor_at' => $this->resource->send_to_guarantor_at ? Carbon::parse($this->resource->send_to_guarantor_at)->format('d F Y H:i') : null,
-            'blank' => $this->whenLoaded('blank', $this->resource->blank),
-            'principal' => $this->whenLoaded('principal', function () {
-                return [
-                    'id' => $this->resource->principal->id,
-                    'name' => $this->resource->principal->name,
-                ];
-            }),
-            'guarantor' => $this->whenLoaded('guarantor', function () {
-                return [
-                    'id' => $this->resource->guarantor->id,
-                    'name' => $this->resource->guarantor->name,
-                ];
-            }),
-            'guarantor_branch' => $this->whenLoaded('guarantorBranch', function () {
-                return [
-                    'id' => $this->resource->guarantorBranch->id,
-                    'name' => $this->resource->guarantorBranch->name,
-                ];
-            }),
-            'product' => $this->whenLoaded('product', function () {
-                return [
-                    'id' => $this->resource->product->id,
-                    'name' => $this->resource->product->name,
-                ];
-            }),
-            'product_type' => $this->whenLoaded('guarantorToProductType', function () {
-                return [
-                    'id' => $this->resource->guarantorToProductType->id,
-                    'name' => $this->resource->guarantorToProductType->name,
-                    'full_name' => $this->resource->guarantorToProductType->full_name,
-                ];
-            }),
-            'obligee' => $this->whenLoaded('obligee', function () {
-                return [
-                    'id' => $this->resource->obligee->id,
-                    'name' => $this->resource->obligee->name,
-                ];
-            }),
-            'staff' => $this->whenLoaded('staff', function () {
-                return [
-                    'id' => $this->resource->staff->id,
-                    'name' => $this->resource->staff->name,
-                ];
-            }),
-            'office' => $this->whenLoaded('office', function () {
-                return [
-                    'id' => $this->resource->office->id,
-                    'name' => $this->resource->office->name,
-                    'code' => $this->resource->office->code,
-                    'office_type' => $this->resource->office->office_type,
-                ];
-            }),
-            'submission_before' => $this->whenLoaded('submissionBefore', function () {
-                return [
-                    'id' => $this->resource->submissionBefore->id,
-                    'blank' => $this->resource->submissionBefore->blank,
-                ];
-            }),
+            'blank' => $this->resource->relationLoaded('blank') ? $this->resource->blank : null,
+            'principal' => $this->resource->relationLoaded('principal') ? $this->resource->principal : null,
+            'guarantor' => $this->resource->relationLoaded('guarantor') ? $this->resource->guarantor : null,
+            'guarantor_branch' => $this->resource->relationLoaded('guarantorBranch') ? $this->resource->guarantorBranch : null,
+            'product' => $this->resource->relationLoaded('product') ? $this->resource->product : null,
+            'product_type' => $this->resource->relationLoaded('guarantorToProductType') ? $this->resource->guarantorToProductType : null,
+            'obligee' => $this->resource->relationLoaded('obligee') ? $this->resource->obligee : null,
+            'staff' => $this->resource->relationLoaded('staff') ? $this->resource->staff : null,
+            'office' => $this->resource->relationLoaded('office') ? [
+                'id' => $this->resource->office?->id ?? null,
+                'name' => $this->resource->office?->name ?? null,
+                'code' => $this->resource->office?->code ?? null,
+                'office_type' => $this->resource->office?->office_type ?? null,
+            ] : null,
+            'submission_before' => $this->resource->relationLoaded('submissionBefore') ? $this->resource->submissionBefore : null,
             'employee_limit' => $employeeLimit,
             'product_limit' => $productLimit,
             'beyond_the_limit' => $employeeLimit < $this->resource->guarantee_value,

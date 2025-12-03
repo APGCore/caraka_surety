@@ -6,13 +6,17 @@ use App\Enums\JobGroup;
 use App\Enums\JobType;
 use App\Enums\OfficeType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Office\Rate\CreateRequest;
+use App\Http\Requests\Office\Rate\ListRequest;
 use App\Http\Requests\Office\Rate\StoreRequest;
 use App\Http\Resources\Guarantor\GuarantorToProductTypeResource;
+use App\Http\Resources\Office\ProfileRateResource;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use App\Models\Profile\Profile;
 use App\Models\Profile\ProfileRate;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -74,6 +78,7 @@ class OfficeRateController extends Controller
         return inertia($component, [
             'page_settings' => [
                 'title' => 'Tarif Unit Bisnis',
+                'description' => 'Menampilkan tarif unit bisnis berdasarkan produk, kelompok pekerjaan dan filter yang dipilih.',
             ],
             'offices' => $offices,
             'officeTypes' => $officeTypes,
@@ -93,28 +98,64 @@ class OfficeRateController extends Controller
         ]);
     }
 
+    public function list(ListRequest $request): Response
+    {
+        $validated = $request->validated();
+        $profileSelected = $validated['profile_id'];
+        $guarantorSelected = $validated['guarantor_id'];
+        $guarantorBranchSelected = $validated['guarantor_branch_id'] ?? null;
+        $guarantorToProductTypeSelected = $validated['guarantor_to_product_type_id'];
+        $guarantorToProductType = GuarantorToProductType::query()
+            ->with(['product:id,name'])
+            ->find($guarantorToProductTypeSelected, ['id', 'name', 'full_name', 'guarantor_id', 'product_id']);
+        $product = $guarantorToProductType?->getRelation('product') ?? null;
+        $profile = Profile::query()->find($profileSelected);
+        $profileRates = ProfileRate::search($request->get('search'))
+            ->query(function ($query) use ($profileSelected, $guarantorSelected, $guarantorBranchSelected, $guarantorToProductTypeSelected) {
+                $query
+                    ->where('profile_id', $profileSelected)
+                    ->where('guarantor_id', $guarantorSelected)
+                    ->when($guarantorBranchSelected, function ($query, $guarantorBranchSelected) {
+                        $query->where('guarantor_branch_id', $guarantorBranchSelected);
+                    })
+                    ->where('guarantor_to_product_type_id', $guarantorToProductTypeSelected);
+            })
+            ->orderByDesc('effective_at')
+            ->paginate($request->get('per_page') ?? 10)
+            ->appends('query')
+            ->appends($request->all());
+
+        $resource = ProfileRateResource::collection($profileRates);
+
+        $component = $request->path().'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Daftar Tarif Unit Bisnis',
+                'description' => "Daftar Tarif Produk Asuransi {$product?->getAttribute('name')} {$guarantorToProductType?->getAttribute('full_name')} di Unit Bisnis ".$profile?->getAttribute('name').'.',
+            ],
+            'profileSelected' => $profileSelected,
+            'guarantorSelected' => $guarantorSelected,
+            'guarantorBranchSelected' => $guarantorBranchSelected,
+            'guarantorToProductTypeSelected' => $guarantorToProductTypeSelected,
+            'profileRates' => fn () => $resource,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request): Response
+    public function create(CreateRequest $request): Response
     {
-        $request->validate([
-            'profile_id' => 'required|exists:'.Profile::class.',id,deleted_at,NULL',
-            'guarantor_id' => 'required|exists:'.Guarantor::class.',id,deleted_at,NULL',
-            'guarantor_branch_id' => 'nullable|exists:'.Guarantor::class.',id,deleted_at,NULL',
-            'guarantor_product_type_id' => 'required|exists:'.GuarantorToProductType::class.',id,deleted_at,NULL',
-            // 'office_id' => 'nullable|exists:' . Profile::class . ',id,deleted_at,NULL',
-        ]);
-
-        // dd($request->validated());
-        $profileId = $request->get('profile_id') ?? $request->get('office_id');
+        $validated = $request->validated();
+        $profileId = $validated['profile_id'] ?? $validated['office_id'];
         $profile = Profile::query()->find($profileId);
-        $guarantorId = $request->get('guarantor_id');
+        $guarantorId = $validated['guarantor_id'];
         $guarantor = Guarantor::query()->find($guarantorId);
-        $guarantorBranchId = $request->get('guarantor_branch_id');
-        $guarantorToProductTypeId = $request->get('guarantor_product_type_id');
+        $guarantorBranchId = $validated['guarantor_branch_id'] ?? null;
+        $guarantorToProductTypeId = $validated['guarantor_to_product_type_id'];
         $guarantorToProductType = GuarantorToProductType::query()->with('product:id,name')->find($guarantorToProductTypeId);
-        $guarantorRate = ProfileRate::query()
+        $profileRates = ProfileRate::query()
             ->where([
                 'profile_id' => $profileId,
                 'guarantor_id' => $guarantorId,
@@ -125,7 +166,7 @@ class OfficeRateController extends Controller
 
         return inertia($component, [
             'page_settings' => [
-                'title' => 'Tarif Unit Bisnis',
+                'title' => 'Tambah Tarif Unit Bisnis',
             ],
             // 'office_id' => $request->get('office_id'),
             'profileId' => $profileId,
@@ -135,14 +176,79 @@ class OfficeRateController extends Controller
             'guarantorBranchId' => $guarantorBranchId,
             'guarantorToProductTypeId' => $guarantorToProductTypeId,
             'guarantorToProductType' => $guarantorToProductType,
-            'guarantorRate' => $guarantorRate,
+            'profileRate' => $profileRates,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): RedirectResponse
+    {
+        try {
+            DB::beginTransaction();
+            $requestValid = $request->validated();
+            $data = [
+                'profile_id' => $requestValid['profile_id'] ?? $requestValid['office_id'] ?? null,
+                'guarantor_id' => $requestValid['guarantor_id'],
+                'guarantor_branch_id' => $requestValid['guarantor_branch_id'] ?? null,
+                'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
+                'minimum_bill' => $this->currencyConvert($requestValid['minimum_bill']),
+                'selling_rate' => $requestValid['selling_rate'],
+                'sales_administration' => $this->currencyConvert($requestValid['sales_administration']),
+                //                'management_fee' => $requestValid['management_fee'],
+                //                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
+                'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
+                'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
+                'effective_at' => $requestValid['effective_at'],
+            ];
+
+            $officeRate = ProfileRate::query()
+                ->create($data);
+
+            activity()
+                ->useLog('office-rate')
+                ->performedOn($officeRate)
+                ->causedBy(auth()->user())
+                ->log('Setting Limit Unit Bisnis');
+            flashMessage('Berhasil', 'Data berhasil disimpan');
+
+            DB::commit();
+
+            return redirect()->route('office-rate.list', [
+                'profile_id' => $officeRate->getAttribute('profile_id'),
+                'guarantor_id' => $officeRate->getAttribute('guarantor_id'),
+                'guarantor_branch_id' => $officeRate->getAttribute('guarantor_branch_id'),
+                'guarantor_to_product_type_id' => $officeRate->getAttribute('guarantor_to_product_type_id'),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal', 'Gagal menyimpan data', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error store office rate', $error);
+
+            return back()->with('error', 'Gagal menyimpan data');
+        }
+    }
+
+    public function edit(ProfileRate $profileRate): Response
+    {
+        $profileRate->load(['guarantorToProductType.product', 'profile']);
+        $guarantorToProductType = $profileRate->getRelation('guarantorToProductType');
+        $product = $guarantorToProductType->getRelation('product');
+        $profile = $profileRate->getRelation('profile');
+        $component = str_replace('/'.$profileRate->getAttribute('id'), '', request()->path()).'/index';
+
+        return inertia($component, [
+            'page_settings' => [
+                'title' => 'Ubah Tarif Unit Bisnis',
+                'description' => "Ubah Tarif Produk Asuransi {$product->getAttribute('name')} {$guarantorToProductType->getAttribute('full_name')} untuk Unit Bisnis {$profile->getAttribute('name')}.",
+            ],
+            'profileRate' => $profileRate,
+        ]);
+    }
+
+    public function update(StoreRequest $request, ProfileRate $profileRate): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -155,51 +261,68 @@ class OfficeRateController extends Controller
                 //                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
+                'effective_at' => $requestValid['effective_at'],
             ];
 
-            // dd($requestValid);
-
-            $officeRate = ProfileRate::query()
-                ->updateOrCreate(
-                    [
-                        'profile_id' => $requestValid['profile_id'] ?? $requestValid['office_id'] ?? null,
-                        'guarantor_id' => $requestValid['guarantor_id'],
-                        'guarantor_branch_id' => $requestValid['guarantor_branch_id'] ?? null,
-                        'guarantor_to_product_type_id' => $requestValid['guarantor_to_product_type_id'],
-                    ],
-                    $data
-                );
-            $officeRate->load(['profile', 'guarantorToProductType']);
-            $officeTypeSelected = $officeRate->getRelation('profile')?->office_type;
-            $officeType = OfficeType::getNameOfValue()[$officeTypeSelected];
-            $guarantorToProductType = $officeRate->getRelation('guarantorToProductType');
+            $profileRate->update($data);
 
             activity()
                 ->useLog('office-rate')
-                ->performedOn($officeRate)
+                ->performedOn($profileRate)
                 ->causedBy(auth()->user())
-                ->log('Setting Limit Unit Bisnis');
-            flashMessage('Berhasil', 'Data berhasil disimpan');
+                ->log('Mengubah Tarif Unit Bisnis');
+            flashMessage('Berhasil', 'Data berhasil diubah');
 
             DB::commit();
 
-            return redirect()->route('office-rate.index', [
-                'office_type' => $officeType,
-                'profile_id' => $officeRate->getAttribute('profile_id'),
-                'office_id' => $officeRate->getAttribute('profile_id'),
-                'guarantor_id' => $officeRate->getAttribute('guarantor_id'),
-                'guarantor_branch_id' => $officeRate->getAttribute('guarantor_branch_id'),
-                'branch_guarantor_id' => $officeRate->getAttribute('branch_guarantor_id'),
-                'product_id' => $guarantorToProductType->getAttribute('product_id'),
-                'job_group' => $guarantorToProductType->getAttribute('job_group'),
+            return redirect()->route('office-rate.list', [
+                'profile_id' => $profileRate->getAttribute('profile_id'),
+                'guarantor_id' => $profileRate->getAttribute('guarantor_id'),
+                'guarantor_branch_id' => $profileRate->getAttribute('guarantor_branch_id'),
+                'guarantor_to_product_type_id' => $profileRate->getAttribute('guarantor_to_product_type_id'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            flashMessage('Gagal', 'Gagal menyimpan data', 'error');
+            flashMessage('Gagal', 'Gagal mengubah data', 'error');
             $error = $this->handleErrorMessage($e);
-            Log::error('Error store office rate', $error);
+            Log::error('Error update office rate', $error);
 
-            return back()->with('error', 'Gagal menyimpan data');
+            return back()->with('error', 'Gagal mengubah data');
+        }
+    }
+
+    public function destroy(ProfileRate $profileRate): RedirectResponse
+    {
+        try {
+            DB::beginTransaction();
+            $deleted = $profileRate->delete();
+
+            if (! $deleted) {
+                throw new Exception('Gagal menghapus data tarif unit bisnis');
+            }
+
+            activity()
+                ->useLog('office-rate')
+                ->performedOn($profileRate)
+                ->causedBy(auth()->user())
+                ->log('Menghapus Tarif Unit Bisnis');
+            flashMessage('Berhasil', 'Data berhasil dihapus');
+
+            DB::commit();
+
+            return redirect()->route('office-rate.list', [
+                'profile_id' => $profileRate->getAttribute('profile_id'),
+                'guarantor_id' => $profileRate->getAttribute('guarantor_id'),
+                'guarantor_branch_id' => $profileRate->getAttribute('guarantor_branch_id'),
+                'guarantor_to_product_type_id' => $profileRate->getAttribute('guarantor_to_product_type_id'),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            flashMessage('Gagal', 'Gagal menghapus data', 'error');
+            $error = $this->handleErrorMessage($e);
+            Log::error('Error delete office rate', $error);
+
+            return back()->with('error', 'Gagal menghapus data');
         }
     }
 }

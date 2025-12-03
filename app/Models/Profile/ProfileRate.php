@@ -6,10 +6,12 @@ use App\Models\Guarantor\Guarantor;
 use App\Models\Guarantor\GuarantorToProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
 
 class ProfileRate extends Model
 {
+    use Searchable;
+
     protected $guarded = [
         'id',
         'created_at',
@@ -21,18 +23,18 @@ class ProfileRate extends Model
         return $this->belongsTo(Profile::class, 'profile_id');
     }
 
-    public function guarantor(): HasOne
+    public function guarantor(): BelongsTo
     {
-        return $this->hasOne(Guarantor::class);
+        return $this->belongsTo(Guarantor::class, 'guarantor_id');
     }
 
-    public function guarantorBranch(): HasOne
+    public function guarantorBranch(): BelongsTo
     {
-        return $this->hasOne(Guarantor::class);
+        return $this->belongsTo(Guarantor::class, 'guarantor_branch_id');
     }
 
-    public function guarantorToProductType(): HasOne
+    public function guarantorToProductType(): BelongsTo
     {
-        return $this->hasOne(GuarantorToProductType::class, 'id', 'guarantor_to_product_type_id');
+        return $this->belongsTo(GuarantorToProductType::class);
     }
 }

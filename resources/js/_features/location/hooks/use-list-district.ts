@@ -85,7 +85,11 @@ const useListDistrict = () => {
 
   const { data: provinces, isLoading: isLoadingProvinces, isSuccess: isSuccessProvinces } = useGetAllProvince();
 
-  const { data: regencies, isLoading: isLoadingRegencies, isSuccess: isSuccessRegencies } = useGetRegencyByProvinceId(provinceId);
+  const {
+    data: regencies,
+    isLoading: isLoadingRegencies,
+    isSuccess: isSuccessRegencies,
+  } = useGetRegencyByProvinceId(provinceId);
 
   return {
     districts: districts?.data,
