@@ -239,9 +239,9 @@ class SubmissionController extends Controller
                 $dataSubmission['staff_id'] = $staffId;
                 $dataSubmission['publication_date'] = now();
                 $dataSubmission['publication_place'] = $guarantorBranch->publication_place;
+                $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
             }
 
-            $dataSubmission['no_guarantee'] = str_pad('X', 16, 'X');
             $dataSubmission['guarantor_to_product_type_id'] = $guarantorToProductType->id;
             $dataSubmission['principal_id'] = $principalId;
             $dataSubmission['obligee_id'] = $obligee->getAttribute('id');
