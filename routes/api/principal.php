@@ -9,5 +9,7 @@ Route::controller(PrincipalController::class)
     ->prefix('principal')
     ->group(function () {
         Route::post('', 'search')->name('get-principals');
+        Route::post('store', 'store')->name('store-principals');
+        Route::post('update/{principal}', 'update')->name('update-principals');
         Route::post('upload-document', 'updateDocumentExt')->name('update-principal-docs');
     });
