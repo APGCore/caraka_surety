@@ -207,9 +207,7 @@ class PrincipalController extends Controller
             PrincipalDocument::query()
                 ->updateOrCreate([
                     'principal_id' => $principalId,
-                    'required_doc_id' => function () use ($requiredDoc) {
-                        return $requiredDoc ? $requiredDoc->getAttribute('id') : null;
-                    },
+                    'required_doc_id' => $requiredDoc ? $requiredDoc->getAttribute('id') : null,
                 ], [
                     'name' => $requiredDoc ? $requiredDoc->getAttribute('name') : 'Dokumen Perusahaan',
                     'is_approved' => true,
