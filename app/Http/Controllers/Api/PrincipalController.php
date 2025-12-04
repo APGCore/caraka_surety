@@ -82,7 +82,12 @@ class PrincipalController extends Controller
             ->when(! empty($notInIds), function ($query) use ($notInIds) {
                 $query->whereNotIn('id', $notInIds);
             })
-            ->with(['documents.requiredDoc:id,code', 'province:id,code', 'regency:id,code', 'district:id,code'])
+            ->with([
+                'documents' => function ($q) {
+                    $q->whereHas('requiredDoc');
+                },
+                'documents.requiredDoc:id,name,code',
+                'province:id,code', 'regency:id,code', 'district:id,code'])
             ->limit(10)
             ->get();
 
@@ -209,7 +214,7 @@ class PrincipalController extends Controller
                     'name' => $requiredDoc ? $requiredDoc->getAttribute('name') : 'Dokumen Perusahaan',
                     'is_approved' => true,
                     'url' => $url,
-          ]);
+                ]);
 
             DB::commit();
 
