@@ -644,6 +644,152 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
 
   console.log(data);
 
+  const [autoFilledQuestions, setAutoFilledQuestions] = useState<Record<string, boolean>>({});
+
+  /**
+   * Menghitung rata-rata dari 2 data rasio pertama (index 0 dan 1)
+   * pada data principal.ratios berdasarkan key yang diberikan.
+   *
+   * @param key - Jenis rasio yang ingin dihitung:
+   *              'liquidity_ratios' | 'profitability_ratios' | 'solvency_ratios'
+   * @returns number - Nilai rata-rata dari rasio (default 0 jika tidak ada data)
+   */
+  const getAverage = (key: "liquidity_ratios" | "profitability_ratios" | "solvency_ratios") => {
+    // Ambil data ratios, jika tidak ada maka pakai array kosong
+    const ratios = data?.principal?.ratios ?? [];
+
+    /**
+     * Ambil hanya 2 data pertama: ratios[0] dan ratios[1]
+     * filter(Boolean) → buang data undefined
+     * map(...) → ambil value sesuai key & ubah ke number
+     */
+    const selected = [ratios[0], ratios[1]].filter(Boolean).map((r) => Number(r?.[key] ?? 0));
+
+    // Jika tidak ada data sama sekali, kembalikan 0 supaya aman
+    if (selected.length === 0) return 0;
+
+    // Jumlahkan semua nilai yang terpilih
+    const total = selected.reduce((a, b) => a + b, 0);
+
+    // Return nilai rata-rata
+    return total / selected.length;
+  };
+
+  /* ===== average ratios ===== */
+  const likuiditas = getAverage("liquidity_ratios");
+  const profitabilitas = getAverage("profitability_ratios");
+  const solvabilitas = getAverage("solvency_ratios");
+
+  /**
+   * Menentukan apakah sebuah option harus dicentang (checked) secara otomatis
+   * berdasarkan:
+   * 1. Question ID
+   * 2. Nilai rasio (likuiditas, profitabilitas, solvabilitas)
+   * 3. Data scoring yang sudah tersimpan sebelumnya
+   *
+   * @param questionId - ID pertanyaan (dalam bentuk string, akan dikonversi ke number)
+   * @param optionId   - ID option jawaban (dalam bentuk string, akan dikonversi ke number)
+   * @returns boolean  - true jika option harus ter-check, false jika tidak
+   */
+  const checkOption = (questionId: string, optionId: string) => {
+    // Safety check jika tidak ada nilai
+    if (!questionId || !optionId) return false;
+
+    // Konversi string ke number agar bisa dibandingkan
+    const questionIdNum = parseInt(questionId);
+    const optionIdNum = parseInt(optionId);
+
+    switch (questionIdNum) {
+      // ================================
+      // QUESTION: RASIO LIKUIDITAS (ID: 6)
+      // ================================
+      case 6:
+        // Jika lebih dari 1, pilih option id 16 (> 1)
+        if (likuiditas > 1) return optionIdNum === 16;
+
+        // Jika sama dengan 1, pilih option id 17 (= 1)
+        if (likuiditas === 1) return optionIdNum === 17;
+
+        // Jika kurang dari 1, pilih option id 18 (< 1)
+        return optionIdNum === 18;
+
+      // ================================
+      // QUESTION: RASIO PROFITABILITAS (ID: 7)
+      // ================================
+      case 7:
+        // Jika > 20%, pilih option id 19
+        if (profitabilitas > 20) return optionIdNum === 19;
+
+        // Jika antara 10% - 20%, pilih option id 20
+        if (profitabilitas >= 10 && profitabilitas <= 20) return optionIdNum === 20;
+
+        // Jika < 10%, pilih option id 21
+        return optionIdNum === 21;
+
+      // ================================
+      // QUESTION: RASIO SOLVABILITAS (ID: 8)
+      // ================================
+      case 8:
+        // Jika > 1, pilih option id 24
+        if (solvabilitas > 1) return optionIdNum === 24;
+
+        // Jika = 1, pilih option id 23
+        if (solvabilitas === 1) return optionIdNum === 23;
+
+        // Jika < 1, pilih option id 22
+        return optionIdNum === 22;
+
+      // ================================
+      // QUESTION LAINNYA (DEFAULT)
+      // ================================
+      default:
+        /**
+         * Jika bukan rasio, maka cek dari data scoring yang sudah ada di state data
+         * Apakah option ini sudah pernah dipilih sebelumnya?
+         */
+        return data?.scoring.scores.some((s) => s.scoring_option_id === optionIdNum);
+    }
+  };
+
+  // useEffect tunggal untuk auto-select opsi berdasarkan rasio
+  useEffect(() => {
+    if (!scorings || !Array.isArray(scorings)) return;
+
+    // ambil id option yang sudah ada (hindari duplikat)
+    const existingOptionIds = new Set((data?.scoring?.scores ?? []).map((s) => s.scoring_option_id));
+
+    // iterasi categories -> questions -> options
+    scorings.forEach((category) => {
+      category?.questions?.forEach((question) => {
+        if (!question?.options) return;
+
+        // cari option yang sesuai dengan rule checkOption
+        const matched = question.options.find((opt) => checkOption(question.id, opt.id));
+
+        if (matched && !existingOptionIds.has(matched.id)) {
+          // panggil handler untuk menyimpan pilihan ke state
+          handleOptionChange(category.id, question.id, matched.id, matched.point);
+
+          // tambahkan ke set supaya tidak dipanggil lagi saat iterasi lain
+          existingOptionIds.add(matched.id);
+
+          // set auto answer skoring question
+          setAutoFilledQuestions((prev) => ({
+            ...prev,
+            [question.id]: true,
+          }));
+        }
+      });
+    });
+
+    // dependencies: perubahan scorings atau rasio (atau data jika scoring.scores berubah)
+  }, [scorings, data?.scoring?.scores, likuiditas, profitabilitas, solvabilitas]);
+
+  const isQuestionAutoFilled = (question: any) => {
+    if (!question?.id) return false;
+    return autoFilledQuestions[question.id] === true;
+  };
+
   return (
     <>
       <Show when={profileLimit.limit !== 0}>
@@ -1713,12 +1859,19 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                                         <span className="mr-3">{idx + 1}.</span>
                                         <span>{scoringQuestions?.name}</span>
                                       </div>
+                                      {/* LABEL AUTO FILLED */}
+                                      {isQuestionAutoFilled(scoringQuestions) && (
+                                        <span className="text-[12px] text-orange-500 italic ml-6">
+                                          * Form ini terisi otomatis oleh sistem
+                                        </span>
+                                      )}
                                       <RadioGroup className="flex flex-col gap-y-3.5 ml-6">
                                         <RenderList
                                           of={scoringQuestions?.options}
                                           render={(scoringOptions) => {
-                                            const isOptionChecked = data?.scoring.scores.some(
-                                              (s) => s.scoring_option_id === scoringOptions?.id,
+                                            const isOptionChecked = checkOption(
+                                              scoringQuestions?.id,
+                                              scoringOptions?.id,
                                             );
 
                                             return (

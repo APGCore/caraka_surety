@@ -209,6 +209,7 @@ trait CalculateInvoice
         if ($minus) {
             $premi *= -1;
             $adm *= -1;
+            $serviceCharges *= -1;
             $total *= -1;
         }
 
@@ -247,6 +248,7 @@ trait CalculateInvoice
         if ($minus) {
             $premi *= -1;
             $adm *= -1;
+            $serviceCharges *= -1;
             $total *= -1;
             $commissionResult *= -1;
             $pphResult *= -1;
