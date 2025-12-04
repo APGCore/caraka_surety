@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Principal\StoreRequest;
 use App\Http\Requests\Principal\UpdateRequest;
+use App\Http\Requests\Principal\UploadDocumentExtRequest;
 use App\Http\Requests\Principal\UploadDocumentRequest;
 use App\Http\Resources\Principal\PrincipalResource;
 use App\Models\Document\RequiredDoc;
 use App\Models\RelatedParties\Principal;
 use App\Models\RelatedParties\PrincipalDocument;
-use App\Models\RelatedParties\SubmissionPrincipal;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -76,9 +76,18 @@ class PrincipalController extends Controller
     public function search(Request $request): JsonResponse
     {
         $search = $request->get('search') ?? '';
+        $notInIds = $request->get('not_in_ids') ?? [];
         $principals = Principal::query()
             ->where('name', 'like', "%$search%")
-            ->with(['documents'])
+            ->when(! empty($notInIds), function ($query) use ($notInIds) {
+                $query->whereNotIn('id', $notInIds);
+            })
+            ->with([
+                'documents' => function ($q) {
+                    $q->whereHas('requiredDoc');
+                },
+                'documents.requiredDoc:id,name,code',
+                'province:id,code', 'regency:id,code', 'district:id,code'])
             ->limit(10)
             ->get();
 
@@ -183,6 +192,37 @@ class PrincipalController extends Controller
             Log::error('PrincipalController@deleteDocument: ', $error);
 
             return $this->responseError('Gagal menghapus dokumen', $error);
+        }
+    }
+
+    public function updateDocumentExt(UploadDocumentExtRequest $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+            $principalId = $request->get('principal_id');
+            $requiredDocCode = $request->get('required_doc_code');
+            $requiredDoc = RequiredDoc::query()->firstWhere('code', $requiredDocCode);
+            $url = $request->get('url');
+
+            PrincipalDocument::query()
+                ->updateOrCreate([
+                    'principal_id' => $principalId,
+                    'required_doc_id' => $requiredDoc ? $requiredDoc->getAttribute('id') : null,
+                ], [
+                    'name' => $requiredDoc ? $requiredDoc->getAttribute('name') : 'Dokumen Perusahaan',
+                    'is_approved' => true,
+                    'url' => $url,
+                ]);
+
+            DB::commit();
+
+            return $this->responseSuccess('Dokumen berhasil diperbarui');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('PrincipalController@updateDocumentExt: ', $error);
+
+            return $this->responseError('Gagal memperbarui dokumen', $error);
         }
     }
 }

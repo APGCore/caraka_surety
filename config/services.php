@@ -39,4 +39,8 @@ return [
         'url' => env('FINANCE_API_URL'),
         'token' => env('FINANCE_API_TOKEN'),
     ],
+
+    'api' => [
+        'private_key' => env('API_PRIVATE_KEY'),
+    ],
 ];
