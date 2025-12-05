@@ -88,7 +88,7 @@ class PrincipalController extends Controller
                 },
                 'documents.requiredDoc:id,name,code',
                 'province:id,code', 'regency:id,code', 'district:id,code'])
-            ->limit(10)
+            ->limit(100)
             ->get();
 
         return $this->responseSuccess('Data Principal', $principals);
