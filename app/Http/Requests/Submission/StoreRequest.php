@@ -46,9 +46,9 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         $submissionSupportDocNumber = ['required', 'string'];
-        if ($this->get('submissionType') == SubmissionType::NEW->value && $this->get('submission.product_type_id') != 1) {
-            $submissionSupportDocNumber[] = 'unique:'.SubmissionSupportDoc::class.',number,NULL,id,deleted_at,NULL';
-        }
+        // if ($this->get('submissionType') == SubmissionType::NEW->value && $this->get('submission.product_type_id') != 1) {
+        //    $submissionSupportDocNumber[] = 'unique:'.SubmissionSupportDoc::class.',number,NULL,id,deleted_at,NULL';
+        // }
 
         return [
             // obligiee
