@@ -178,81 +178,93 @@ class ExportController extends Controller
         return Excel::download(new SubmissionExport($result, $isBranch), $fileName);
     }
 
+    private function getSubmission($submissionId): Submission
+    {
+        return Submission::with([
+            'guarantor.documentFormats',
+            'guarantorBranch',
+            'principal.district',
+            'principal.regency',
+            'principal.province',
+            'obligee.district',
+            'obligee.regency',
+            'obligee.province',
+            'guarantor.district',
+            'guarantor.regency',
+            'guarantor.province',
+            'product',
+            'guarantorToProductType',
+            // 'analysis',
+            'sourceOfFund',
+            'regency',
+            'district',
+            'province',
+        ])
+            ->where('id', $submissionId)
+            ->firstOrFail();
+    }
+
     /**
      * @throws MpdfException
      */
     public function pdfPreview(Request $request): Application|Response|ResponseFactory
     {
         $request->validate([
-            'submission_id' => 'required|exists:submissions,id,deleted_at,NULL',
-            'document_format_id' => 'nullable|exists:document_formats,id',
-            'submission_doc_id' => 'nullable|exists:submission_docs,id',
+            'submission_id' => 'required|integer|exists:submissions,id,deleted_at,NULL',
+            'document_format_id' => 'integer|required_without:submission_doc_id|exists:document_formats,id,deleted_at,NULL',
+            'submission_doc_id' => 'integer|required_without:document_format_id|exists:submission_docs,id,deleted_at,NULL',
         ]);
         $submissionId = $request->get('submission_id');
         $documentFormatId = $request->get('document_format_id');
         $submissionDocId = $request->get('submission_doc_id');
-        $submission = Submission::query()->findOrFail($submissionId);
 
+        $submission = $this->getSubmission($submissionId);
         if ($documentFormatId) {
             $documentFormat = DocumentFormat::query()->findOrFail($documentFormatId);
 
             // Buat array data yang akan replace placeholder
             $data = $this->convertSubmission($submission);
+
             // dd($submission);
             $html = $this->replaceDocumentFormat($documentFormat, $data);
-            $filename = str_replace(' ', '_', $documentFormat->getAttribute('name'));
+            $filename = str_replace(' ', '_', $documentFormat->getAttribute('name')).'.pdf';
         } else {
             // ambil dari submission document
             $submissionDocument = SubmissionDoc::query()->findOrFail($submissionDocId);
             $html = $submissionDocument->getAttribute('format_document');
-            $filename = str_replace(' ', '_', $submissionDocument->getAttribute('name'));
+            $filename = str_replace(' ', '_', $submissionDocument->getAttribute('name')).'.pdf';
         }
-        $html = $this->normalizeHtmlForPhpWord($html);
 
-        // 1) Siapkan direktori temp untuk PHPWord & gambar lokal
-        $mpdfDir = storage_path('app/private/Mpdf-temp');
-        if (! is_dir($mpdfDir)) {
-            @mkdir($mpdfDir, 0775, true);
-        }
-        Settings::setTempDir($mpdfDir);
-        [$localizedHtml, $downloadedFiles] = $this->localizeRemoteImages($html, $mpdfDir);
+        // dd($html, $data);
 
-        // Inisialisasi mPDF
         $mpdf = new Mpdf([
             'tempDir' => storage_path('tmp/mpdf'),
         ]);
-        // Membantu debug & SSL yang “rewel”
-        $mpdf->showImageErrors = true;              // tampilkan error gambar ke log mPDF
-        $mpdf->WriteHTML($localizedHtml);
-        // cleanup file gambar yang kita download
-        foreach ($downloadedFiles as $file) {
-            if (is_file($file)) {
-                @unlink($file);
-            }
-        }
+        $mpdf->WriteHTML($html);
 
-        return response($mpdf->Output("{$filename}_{$submission->getAttribute('no_guarantee')}.pdf", 'S'), 200)
+        return response($mpdf->Output($filename, 'S'), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', "filename=\"{$filename}_{$submission->getAttribute('no_guarantee')}.pdf\"");
+            ->header('Content-Disposition', 'filename="'.$filename.'"');
     }
 
     public function wordDownload(Request $request): StreamedResponse
     {
         $request->validate([
-            'submission_id' => 'required|exists:submissions,id,deleted_at,NULL',
-            'document_format_id' => 'nullable|exists:document_formats,id',
-            'submission_doc_id' => 'nullable|exists:submission_docs,id',
+            'submission_id' => 'required|integer|exists:submissions,id,deleted_at,NULL',
+            'document_format_id' => 'integer|required_without:submission_doc_id|exists:document_formats,id,deleted_at,NULL',
+            'submission_doc_id' => 'integer|required_without:document_format_id|exists:submission_docs,id,deleted_at,NULL',
         ]);
         $submissionId = $request->get('submission_id');
         $documentFormatId = $request->get('document_format_id');
         $submissionDocId = $request->get('submission_doc_id');
-        $submission = Submission::query()->findOrFail($submissionId);
 
+        $submission = $this->getSubmission($submissionId);
         if ($documentFormatId) {
             $documentFormat = DocumentFormat::query()->findOrFail($documentFormatId);
 
             // Buat array data yang akan replace placeholder
             $data = $this->convertSubmission($submission);
+
             // dd($submission);
             $html = $this->replaceDocumentFormat($documentFormat, $data);
             $filename = str_replace(' ', '_', $documentFormat->getAttribute('name'));

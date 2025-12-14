@@ -23,6 +23,7 @@ import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
+import ShowDocumentFormat from "@/pages/_partials/show-document-format";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -197,7 +198,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
   return (
     <>
       <Show when={submission.beyond_the_limit}>
-        <div className="fixed top-20 w-[73vw] z-[100]">
+        <div className="w-100 sticky top-20 z-[100]">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Peringatan</AlertTitle>
@@ -209,7 +210,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
       </Show>
       {/* has_send_to_guarantor */}
       <Show when={(submission.has_send_to_guarantor as boolean) && (!submission.callback as boolean)}>
-        <div className="fixed top-20 w-[73vw] z-[100]">
+        <div className="w-100 sticky top-20 z-[100]">
           <Alert variant="warning">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Pemberitahuan</AlertTitle>
@@ -220,7 +221,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
         </div>
       </Show>
       <Show when={submission.submission_before_id !== null}>
-        <div className="fixed top-20 w-[73vw] z-[100]">
+        <div className="w-100 sticky top-20 z-[100]">
           <Alert variant="info">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Revisi</AlertTitle>
@@ -230,7 +231,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
           </Alert>
         </div>
       </Show>
-      <main className={"space-y-10 w-[800px] mx-auto mt-[50px]"}>
+      <main className={"space-y-10 w-[800px] mx-auto mt-[30px]"}>
         {/* STEPPER SECTION */}
         <div className="flex items-start">
           <RenderList
@@ -733,6 +734,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
             </Show>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            {/* LUARAN */}
+            <ShowDocumentFormat submission={submission} />
             <Show when={submission.has_send_to_guarantor}>
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
@@ -759,22 +762,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                 </Card>
               </div>
             </Show>
-
-            {/*LUARAN*/}
-            <RenderList
-              of={submission.document_formats}
-              render={(doc) => (
-                <div key={doc.id} style={{ marginBottom: "20px" }}>
-                  <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                  <TinyMCEEditor
-                    id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                    initialContent={doc.format_document}
-                    onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                  />
-                </div>
-              )}
-              renderFallback={() => <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>}
-            />
 
             <div className="flex gap-2">
               <Show
@@ -893,17 +880,8 @@ SubmissionDetailPage.layout = (page: any) => {
 
   return (
     <RoleBasedLayout propsData={pagePropsData}>
-      <div
-        className={cn({
-          "mt-[7%]":
-            pagePropsData?.submission.beyond_the_limit ||
-            pagePropsData?.submission.has_send_to_guarantor ||
-            pagePropsData?.submission.callback ||
-            pagePropsData?.submission.submission_before_id,
-        })}>
-        <SubmissionDetailHeader title={"Detail Pengajuan"} />
-        {page}
-      </div>
+      <SubmissionDetailHeader title={"Detail Pengajuan"} />
+      {page}
     </RoleBasedLayout>
   );
 };

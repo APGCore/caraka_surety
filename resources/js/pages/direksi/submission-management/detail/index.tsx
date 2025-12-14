@@ -23,6 +23,7 @@ import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
+import ShowDocumentFormat from "@/pages/_partials/show-document-format";
 import { SubmissionStatus } from "@/types/submission-status";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -684,6 +685,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           </Show>
           <Show when={currentStep.name === "luaran"}>
+            {/* LUARAN */}
+            <ShowDocumentFormat submission={submission} />
             <Show when={submission.has_send_to_guarantor}>
               <div>
                 <h2 className="text-lg font-semibold mb-4 mt-5">
@@ -711,46 +714,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               </div>
             </Show>
 
-            <RenderList
-              of={submission.submission_docs as Array<any>}
-              render={(doc) => {
-                return (
-                  <div>
-                    <h2 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h2>
-                    <div>
-                      <TinyMCEEditor
-                        id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                        onContentChange={(content: string) => {
-                          handleUpdateDocument(doc.id, content);
-                        }}
-                        onInit={(evt, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                        initialContent={doc.format_document}
-                      />
-                    </div>
-                  </div>
-                );
-              }}
-            />
-
-            <Show when={submission.submission_docs.length === 0}>
-              {/*LUARAN*/}
-              <RenderList
-                of={submission.document_formats}
-                render={(doc) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
-                    <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
-                    <TinyMCEEditor
-                      id={doc.name.replace(/\s+/g, "-").toLowerCase()}
-                      initialContent={doc.format_document}
-                      onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
-                    />
-                  </div>
-                )}
-                renderFallback={() => (
-                  <p className="text-gray-500">Tidak ada dokumen yang tersedia untuk ditampilkan.</p>
-                )}
-              />
-            </Show>
             <Show when={isProcess && !submission.approved_at && !submission.rejected_at}>
               <div className="flex gap-2">
                 <AlertDialog>
