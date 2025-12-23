@@ -310,15 +310,15 @@ trait ReplaceDocumentFormat
 
         return
           "<table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
-          <tr>
-              <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
-          </tr>
-          <tr>
-              <th>No</th>
-              <th>Nama</th>
-              <th>Jabatan</th>
-          </tr>
-          {$susunanPengurus}
-      </table>";
+            <tr>
+                <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
+            </tr>
+            <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Jabatan</th>
+            </tr>
+            {$susunanPengurus}
+        </table>";
     }
 }
