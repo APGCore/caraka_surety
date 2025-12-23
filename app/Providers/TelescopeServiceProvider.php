@@ -21,6 +21,14 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         Telescope::filter(function () {
             return true;
         });
+
+        Telescope::tag(function ($entry) {
+            if ($entry->type === 'request') {
+                return ['url:'.$entry->content['uri']];
+            }
+
+            return [];
+        });
     }
 
     /**
