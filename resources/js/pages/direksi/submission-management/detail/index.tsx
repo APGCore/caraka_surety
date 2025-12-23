@@ -338,6 +338,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             <table className="table-fixed w-full border border-gray-300">
               <tbody>
                 <tr className="border-b">
+                  <td className="p-2 font-semibold w-1/2">Cabang Asuransi</td>
+                  <td className="p-2 ">: {submission.guarantor_branch?.name ?? "-"}</td>
+                </tr>
+                <tr className="border-b">
                   <td className="p-2 font-semibold w-1/2">Blangko yang Digunakan</td>
                   <td className="p-2 ">: {submission.blank?.number ?? "X".repeat(10)}</td>
                 </tr>
