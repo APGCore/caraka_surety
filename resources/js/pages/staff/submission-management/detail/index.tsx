@@ -1272,7 +1272,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               {/*Kirim ke asuransi*/}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
+                  {/* <Button
                     variant="default"
                     disabled={isLoadingSend || isDisabled || isWeekend}
                     className={cn(
@@ -1283,6 +1283,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     {isWeekend
                       ? "Tidak dapat mengirim ke " + submission.guarantor?.name + " (Hari Libur)"
                       : "Kirim Ke " + submission.guarantor?.name}
+                  </Button> */}
+                  <Button
+                    variant="default"
+                    disabled={isLoadingSend || isDisabled}
+                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
+                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
+                    Kirim Ke {submission.guarantor?.name}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
