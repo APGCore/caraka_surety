@@ -174,14 +174,6 @@ class SubmissionController extends Controller
      */
     public function getCallback(CallbackRequest $request): JsonResponse
     {
-        // Content Type multipart/form-data
-        // Validate that the request content type is multipart/form-data
-        //    if (! str_contains($request->header('Content-Type'), 'multipart/form-data')) {
-        // //      Log::error('Invalid content type for callback', ['content_type' => $request->header('Content-Type')]);
-        // //
-        // //      return $this->responseError('Content-Type harus multipart/form-data');
-        // //    }
-
         DB::beginTransaction();
         try {
             $submissionId = $request->get('submission_id');
@@ -191,17 +183,27 @@ class SubmissionController extends Controller
 
             if ($image) {
                 $fileData = $this->base64ToFile($image);
+                $submission = Submission::query()
+                    ->where('id', $submissionId)
+                    ->first(['id']);
+                // chack submission is revised or approved
+                if ($submission->getAttribute('status') == SubmissionStatus::REVISED->value) {
+                    $submission = Submission::query()
+                        ->where('status', SubmissionStatus::APPROVED->value)
+                        ->where('no_guarantee', $noPolis)
+                        ->first(['id']);
+                }
+                $submissionFirstId = $submission->getAttribute('id');
                 // save image to storage
                 $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
                 SubmissionCallback::query()->updateOrCreate(
-                    ['submission_id' => $submissionId],
+                    ['submission_id' => $submissionFirstId],
                     [
                         'doc_url' => $docUrl ?? '-',
                         'url' => $url,
                         'no_policy' => $noPolis,
                     ]
                 );
-                Submission::query()->find($submissionId)->update(['no_guarantee' => $noPolis]);
             } else {
                 Log::error('Document file is missing in the request', ['no_polis' => $noPolis]);
 
