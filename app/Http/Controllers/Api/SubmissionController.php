@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Submission\CallbackExtRequest;
 use App\Http\Requests\Api\Submission\CallbackRequest;
 use App\Http\Requests\Api\Submission\SaveDocSignatureRequest;
 use App\Http\Requests\Api\Submission\SetBlankRequest;
@@ -172,7 +173,7 @@ class SubmissionController extends Controller
     /**
      * @throws Exception
      */
-    public function getCallback(CallbackRequest $request): JsonResponse
+    public function getCallback(CallbackExtRequest $request): JsonResponse
     {
         DB::beginTransaction();
         try {
