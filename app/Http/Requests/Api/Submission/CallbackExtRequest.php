@@ -25,8 +25,8 @@ class CallbackExtRequest extends FormRequest
     {
         return [
             'submission_id' => 'required|exists:'.Submission::class.',id',
-            'doc_url' => 'required|url',
-            'image' => 'required|base64',
+            'doc_url' => 'required|string',
+            'image' => 'required|string',
             'no_policy' => 'required|string',
         ];
     }
