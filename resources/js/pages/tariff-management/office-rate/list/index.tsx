@@ -13,9 +13,12 @@ import { ListRatePageProps } from "./office-rate-list.type";
 
 const GuarantorRateList: ListRatePageProps = ({
   profileSelected,
+  officeTypeSelected,
   guarantorSelected,
   guarantorBranchSelected,
   guarantorToProductTypeSelected,
+  productSelected,
+  jobGroupSelected,
   profileRates,
 }) => {
   const [select, setSelect] = useState<string>(() => getQueryParameter("per_page") || "10");
@@ -46,7 +49,17 @@ const GuarantorRateList: ListRatePageProps = ({
   };
 
   const handleBack = () => {
-    window.history.back();
+    router.get(
+      route(OfficeRateUtils.link.index),
+      pickBy({
+        office_id: profileSelected,
+        office_type: officeTypeSelected,
+        product_id: productSelected,
+        guarantor_id: guarantorSelected,
+        guarantor_branch_id: guarantorBranchSelected,
+        job_group: jobGroupSelected,
+      }),
+    );
   };
   return (
     <main className="space-y-2.5">
