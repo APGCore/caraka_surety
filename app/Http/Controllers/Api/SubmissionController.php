@@ -112,7 +112,7 @@ class SubmissionController extends Controller
             ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
             ->with(['guarantor', 'guarantor.hostToHost'])
-            ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+            ->firstWhere('id', $submissionFirst->getAttribute('id'));
         if (! $submission) {
             Log::error('Submission not found for callback', ['submission_id' => $submissionId, 'no_guarantee' => $submissionFirst->getAttribute('no_guarantee')]);
 
@@ -337,8 +337,8 @@ class SubmissionController extends Controller
             $submission = Submission::query()
                 ->with([
                     'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                    'director_name,director_position,director_phone,commissioner,year_established,'.
-                    'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                        'director_name,director_position,director_phone,commissioner,year_established,'.
+                        'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                     'principal.province:id,code,name',
                     'principal.regency:id,code,name',
                     'principal.district:id,code,name',
