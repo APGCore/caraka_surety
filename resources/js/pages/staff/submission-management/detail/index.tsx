@@ -119,45 +119,45 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     }, 1000);
   };
 
-  const handleSetBlank = () => {
-    if (!selectedBlank) {
-      toast({
-        title: "Gagal",
-        description: "Silakan pilih blangko terlebih dahulu.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsLoadingSetBlank(true);
-    setIsDisabled(true);
-    axios
-      .post(route("api.submission-management.set-blank"), {
-        submission_id: submissionId,
-        blank_id: selectedBlank,
-      })
-      .then((response) => {
-        console.log("Success Set Blangko", response);
-        toast({
-          title: "Sukses",
-          description: "Blangko berhasil dipilih.",
-          variant: "default",
-        });
-        router.reload({
-          onSuccess: () => {
-            setLoadingDocument();
-          },
-          onFinish: () => {
-            setIsLoadingSetBlank(false);
-            setIsDisabled(false);
-          },
-        });
-      })
-      .catch((error) => {
-        console.error("Error Set Blangko", error);
-        setIsLoadingSetBlank(false);
-        setIsDisabled(false);
-      });
-  };
+  // const handleSetBlank = () => {
+  //   if (!selectedBlank) {
+  //     toast({
+  //       title: "Gagal",
+  //       description: "Silakan pilih blangko terlebih dahulu.",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
+  //   setIsLoadingSetBlank(true);
+  //   setIsDisabled(true);
+  //   axios
+  //     .post(route("api.submission-management.set-blank"), {
+  //       submission_id: submissionId,
+  //       blank_id: selectedBlank,
+  //     })
+  //     .then((response) => {
+  //       console.log("Success Set Blangko", response);
+  //       toast({
+  //         title: "Sukses",
+  //         description: "Blangko berhasil dipilih.",
+  //         variant: "default",
+  //       });
+  //       router.reload({
+  //         onSuccess: () => {
+  //           setLoadingDocument();
+  //         },
+  //         onFinish: () => {
+  //           setIsLoadingSetBlank(false);
+  //           setIsDisabled(false);
+  //         },
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error Set Blangko", error);
+  //       setIsLoadingSetBlank(false);
+  //       setIsDisabled(false);
+  //     });
+  // };
 
   const handleSendGuarantor = (submissionId: number) => {
     let failed = false;
@@ -170,10 +170,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       failed = true;
       message.push("Tanggal publikasi tidak boleh kosong");
     }
-    if (!submission.blank_id) {
-      failed = true;
-      message.push("Silakan Isi Blangko terlebih dahulu");
-    }
+    // if (!submission.blank_id) {
+    //   failed = true;
+    //   message.push("Silakan Isi Blangko terlebih dahulu");
+    // }
     if (failed) {
       toast({
         title: "Gagal",
@@ -1172,7 +1172,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </Card>
           </Show>
           {/*Pilih Blangko*/}
-          <Show when={isApproved && !submission.has_send_to_guarantor}>
+          {/* <Show when={isApproved && !submission.has_send_to_guarantor}>
             <Card className="w-auto">
               <CardHeader className="p-2">
                 <CardTitle className="text-lg font-semibold">Pilih Blangko</CardTitle>
@@ -1203,7 +1203,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Button>
               </CardFooter>
             </Card>
-          </Show>
+          </Show> */}
           <div className="flex items-end space-x-2">
             <Show
               when={isApproved && !submission.has_send_to_guarantor}
