@@ -602,7 +602,14 @@ class SubmissionController extends Controller
             $content = $request->input('content');
             $submissionId = $request->input('submission_id');
 
+            Log::info('Specimen PDF request received', [
+                'submission_id' => $submissionId,
+                'content_length' => strlen($content ?? ''),
+            ]);
+
             if (! $content) {
+                Log::error('Specimen PDF: Content is empty');
+
                 return $this->responseError('Content dokumen tidak boleh kosong');
             }
 
@@ -611,13 +618,27 @@ class SubmissionController extends Controller
                 ->find($submissionId);
 
             if (! $submission) {
+                Log::error('Specimen PDF: Submission not found', ['submission_id' => $submissionId]);
+
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
 
             $guarantor = $submission->getRelation('guarantor');
+
+            if (! $guarantor) {
+                Log::error('Specimen PDF: Guarantor not found', ['submission_id' => $submissionId]);
+
+                return $this->responseError('Guarantor tidak ditemukan');
+            }
+
             $hostToHost = $guarantor->getRelation('hostToHost');
 
             if (! $hostToHost) {
+                Log::error('Specimen PDF: Host to host config not found', [
+                    'submission_id' => $submissionId,
+                    'guarantor_id' => $guarantor->getAttribute('id'),
+                ]);
+
                 return $this->responseError('Konfigurasi host to host tidak ditemukan');
             }
 
@@ -625,7 +646,10 @@ class SubmissionController extends Controller
             $prefix = $hostToHost->getAttribute('auth_prefix');
             $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 
-            Log::info('Downloading specimen PDF', ['submission_id' => $submissionId, 'url' => $url]);
+            Log::info('Calling third-party API for specimen PDF', [
+                'submission_id' => $submissionId,
+                'url' => $url,
+            ]);
 
             $response = Http::withHeaders([
                 'Authorization' => $token,
@@ -633,13 +657,13 @@ class SubmissionController extends Controller
             ])->post($url, ['content' => $content]);
 
             if (! $response->successful()) {
-                Log::error('Failed to download specimen PDF', [
+                Log::error('Failed to download specimen PDF from third-party API', [
                     'submission_id' => $submissionId,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
 
-                return $this->responseError('Gagal mengunduh specimen PDF dari asuransi');
+                return $this->responseError('Gagal mengunduh specimen PDF dari asuransi: '.$response->status());
             }
 
             $pdfContent = $response->body();
