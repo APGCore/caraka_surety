@@ -621,7 +621,7 @@ class SubmissionController extends Controller
                 return $this->responseError('Konfigurasi host to host tidak ditemukan');
             }
 
-            $url = $hostToHost->getAttribute('guarantor_url_host').'/submission/specimen';
+            $url = $hostToHost->getAttribute('guarantor_url_host').'/speciment';
             $prefix = $hostToHost->getAttribute('auth_prefix');
             $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
 

@@ -409,38 +409,38 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       return;
     }
 
-    // setIsLoadingSpecimen(true);
-    // setIsDisabled(true);
-    // axios
-    //   .post(route("api.submission-management.specimen.download"), {
-    //     content: specimenDoc.format_document,
-    //     submission_id: submissionId,
-    //   })
-    //   .then((response) => {
-    //     console.log("Success Generate Specimen", response);
-    //     toast({
-    //       title: "Sukses",
-    //       description: "Specimen PDF berhasil di-generate.",
-    //       variant: "default",
-    //     });
-    //     router.reload({
-    //       onFinish: () => {
-    //         setIsLoadingSpecimen(false);
-    //         setIsDisabled(false);
-    //       },
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error Generate Specimen", error);
-    //     const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat generate specimen.";
-    //     toast({
-    //       title: "Gagal",
-    //       description: message,
-    //       variant: "destructive",
-    //     });
-    //     setIsLoadingSpecimen(false);
-    //     setIsDisabled(false);
-    //   });
+    setIsLoadingSpecimen(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.download"), {
+        content: specimenDoc.format_document,
+        submission_id: submissionId,
+      })
+      .then((response) => {
+        console.log("Success Generate Specimen", response);
+        toast({
+          title: "Sukses",
+          description: "Specimen PDF berhasil di-generate.",
+          variant: "default",
+        });
+        router.reload({
+          onFinish: () => {
+            setIsLoadingSpecimen(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Generate Specimen", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat generate specimen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingSpecimen(false);
+        setIsDisabled(false);
+      });
   };
 
   const handleDownloadSpecimen = () => {
