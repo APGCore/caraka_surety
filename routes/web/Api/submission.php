@@ -13,4 +13,6 @@ Route::controller(SubmissionController::class)
         Route::post('document/{submissionId}/store', 'storeDocument')->name('document.store');
         Route::put('document/{submissionDoc}', 'updateDocument')->name('document.update');
         Route::post('send/{submission}', 'send')->name('send');
+        Route::post('specimen/download', 'downloadSpecimenPdf')->name('specimen.download');
+        Route::get('specimen/{submissionId}', 'getSpecimenPdf')->name('specimen.get');
     });

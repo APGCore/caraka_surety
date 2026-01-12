@@ -261,6 +261,7 @@ interface SubmissionDetailProps {
     submission_support_docs: string;
     has_send_to_guarantor: boolean;
     can_revised: boolean;
+    specimen_pdf_path: string | null;
   };
   blanks: {
     id: number;

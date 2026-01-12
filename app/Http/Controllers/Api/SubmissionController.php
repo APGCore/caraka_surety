@@ -20,9 +20,13 @@ use App\Services\HostToHostService;
 use App\Traits\GeneratePattern;
 use App\Traits\ReplaceDocumentFormat;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SubmissionController extends Controller
 {
@@ -588,6 +592,117 @@ class SubmissionController extends Controller
                 'message' => 'Gagal mengirimkan data ke pihak asuransi',
                 'error' => $error,
             ]);
+        }
+    }
+
+    public function downloadSpecimenPdf(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $content = $request->input('content');
+            $submissionId = $request->input('submission_id');
+
+            if (! $content) {
+                return $this->responseError('Content dokumen tidak boleh kosong');
+            }
+
+            $submission = Submission::query()
+                ->with(['guarantor.hostToHost'])
+                ->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            $guarantor = $submission->getRelation('guarantor');
+            $hostToHost = $guarantor->getRelation('hostToHost');
+
+            if (! $hostToHost) {
+                return $this->responseError('Konfigurasi host to host tidak ditemukan');
+            }
+
+            $url = $hostToHost->getAttribute('guarantor_url_host').'/submission/specimen';
+            $prefix = $hostToHost->getAttribute('auth_prefix');
+            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+
+            Log::info('Downloading specimen PDF', ['submission_id' => $submissionId, 'url' => $url]);
+
+            $response = Http::withHeaders([
+                'Authorization' => $token,
+                'Content-Type' => 'application/json',
+            ])->post($url, ['content' => $content]);
+
+            if (! $response->successful()) {
+                Log::error('Failed to download specimen PDF', [
+                    'submission_id' => $submissionId,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return $this->responseError('Gagal mengunduh specimen PDF dari asuransi');
+            }
+
+            $pdfContent = $response->body();
+            $fileName = 'specimen_'.$submissionId.'_'.date('Ymd_His').'.pdf';
+            $path = "submission/specimen/{$submissionId}";
+            $fullPath = $path.'/'.$fileName;
+
+            $disk = Storage::disk(config('filesystems.default'));
+            $stored = $disk->put($fullPath, $pdfContent);
+
+            if (! $stored) {
+                throw new Exception('Gagal menyimpan file PDF ke storage');
+            }
+
+            $submission->update(['specimen_pdf_path' => $fullPath]);
+
+            DB::commit();
+
+            Log::info('Specimen PDF downloaded and saved', [
+                'submission_id' => $submissionId,
+                'path' => $fullPath,
+            ]);
+
+            return $this->responseSuccess('Berhasil mengunduh dan menyimpan specimen PDF', [
+                'path' => $fullPath,
+                'url' => $disk->url($fullPath),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to download specimen PDF', $error);
+
+            return $this->responseError('Gagal mengunduh specimen PDF', $error);
+        }
+    }
+
+    public function getSpecimenPdf($submissionId): JsonResponse|StreamedResponse
+    {
+        try {
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+
+            if (! $specimenPath) {
+                return $this->responseError('Specimen PDF belum tersedia');
+            }
+
+            $disk = Storage::disk(config('filesystems.default'));
+
+            if (! $disk->exists($specimenPath)) {
+                return $this->responseError('File specimen PDF tidak ditemukan');
+            }
+
+            return $disk->download($specimenPath, 'specimen_'.$submissionId.'.pdf');
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to get specimen PDF', $error);
+
+            return $this->responseError('Gagal mengambil specimen PDF', $error);
         }
     }
 }

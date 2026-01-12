@@ -93,6 +93,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSend, setIsLoadingSend] = useState(false);
   const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const [isLoadingSpecimen, setIsLoadingSpecimen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
   const colorAlert: StringToBoolean<any> = isProcess
@@ -392,6 +393,58 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         setIsDisabled(false);
       },
     });
+  };
+
+  const handleGenerateSpecimen = () => {
+    // Find document format with no=4 (Jaminan Penawaran specimen)
+    const specimenDoc = submission.document_formats?.find((doc: any) => doc.no === 4);
+    console.log(specimenDoc);
+
+    if (!specimenDoc) {
+      toast({
+        title: "Gagal",
+        description: "Dokumen specimen tidak ditemukan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // setIsLoadingSpecimen(true);
+    // setIsDisabled(true);
+    // axios
+    //   .post(route("api.submission-management.specimen.download"), {
+    //     content: specimenDoc.format_document,
+    //     submission_id: submissionId,
+    //   })
+    //   .then((response) => {
+    //     console.log("Success Generate Specimen", response);
+    //     toast({
+    //       title: "Sukses",
+    //       description: "Specimen PDF berhasil di-generate.",
+    //       variant: "default",
+    //     });
+    //     router.reload({
+    //       onFinish: () => {
+    //         setIsLoadingSpecimen(false);
+    //         setIsDisabled(false);
+    //       },
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error Generate Specimen", error);
+    //     const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat generate specimen.";
+    //     toast({
+    //       title: "Gagal",
+    //       description: message,
+    //       variant: "destructive",
+    //     });
+    //     setIsLoadingSpecimen(false);
+    //     setIsDisabled(false);
+    //   });
+  };
+
+  const handleDownloadSpecimen = () => {
+    window.open(route("api.submission-management.specimen.get", { submissionId: submissionId }), "_blank");
   };
 
   useEffect(() => {
@@ -1018,6 +1071,30 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               />
             </div>
           )}
+          {/*Specimen PDF*/}
+          <Show when={!submission.has_send_to_guarantor}>
+            <Card className="mb-4">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg font-semibold">Specimen PDF</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">
+                  Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
+                </p>
+                <div className="flex space-x-2">
+                  <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
+                    {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
+                    {submission.specimen_pdf_path ? "Update Specimen" : "Generate Specimen"}
+                  </Button>
+                  <Show when={submission.specimen_pdf_path}>
+                    <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
+                      Download Specimen
+                    </Button>
+                  </Show>
+                </div>
+              </CardContent>
+            </Card>
+          </Show>
           {/*Publikasi*/}
           <Show when={isApproved && (!submission.has_send_to_guarantor || !submission.publication_date)}>
             <form onSubmit={handleSubmitPublication}>
