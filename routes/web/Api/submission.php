@@ -15,4 +15,5 @@ Route::controller(SubmissionController::class)
         Route::post('send/{submission}', 'send')->name('send');
         Route::post('specimen/download', 'downloadSpecimenPdf')->name('specimen.download');
         Route::get('specimen/{submissionId}', 'getSpecimenPdf')->name('specimen.get');
+        Route::get('specimen/{submissionId}/preview', 'previewSpecimenPdf')->name('specimen.preview');
     });

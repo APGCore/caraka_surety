@@ -1081,7 +1081,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
                 </p>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 mb-4">
                   <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
                     {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
                     {submission.specimen_pdf_path ? "Update Specimen" : "Generate Specimen"}
@@ -1092,6 +1092,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </Button>
                   </Show>
                 </div>
+                {/* PDF Preview */}
+                <Show when={submission.specimen_pdf_path}>
+                  <div className="border rounded-lg overflow-hidden">
+                    <iframe
+                      src={route("api.submission-management.specimen.preview", { submissionId: submissionId })}
+                      className="w-full h-[600px]"
+                      title="Specimen PDF Preview"
+                    />
+                  </div>
+                </Show>
               </CardContent>
             </Card>
           </Show>

@@ -655,7 +655,6 @@ class SubmissionController extends Controller
                 'Authorization' => $token,
                 'Content-Type' => 'application/json',
             ])->post($url, ['content' => $content]);
-
             if (! $response->successful()) {
                 Log::error('Failed to download specimen PDF from third-party API', [
                     'submission_id' => $submissionId,
@@ -727,6 +726,39 @@ class SubmissionController extends Controller
             Log::error('Failed to get specimen PDF', $error);
 
             return $this->responseError('Gagal mengambil specimen PDF', $error);
+        }
+    }
+
+    public function previewSpecimenPdf($submissionId): JsonResponse|\Illuminate\Http\Response
+    {
+        try {
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+
+            if (! $specimenPath) {
+                return $this->responseError('Specimen PDF belum tersedia');
+            }
+
+            $disk = Storage::disk(config('filesystems.default'));
+
+            if (! $disk->exists($specimenPath)) {
+                return $this->responseError('File specimen PDF tidak ditemukan');
+            }
+
+            return response($disk->get($specimenPath), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="specimen_'.$submissionId.'.pdf"',
+            ]);
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to preview specimen PDF', $error);
+
+            return $this->responseError('Gagal menampilkan specimen PDF', $error);
         }
     }
 }
