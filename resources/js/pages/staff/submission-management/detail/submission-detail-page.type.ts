@@ -7,6 +7,7 @@ interface Document {
   number: string;
   format_document: string;
   url: string;
+  no: number;
 }
 
 interface Score {
@@ -212,6 +213,7 @@ interface SubmissionDetailProps {
       id: number;
       name: string;
       format_document: string;
+      no: number;
     }[];
     district: {
       name: string;

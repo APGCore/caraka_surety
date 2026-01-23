@@ -439,15 +439,33 @@ class SubmissionController extends Controller
 
             $submissionDocs = collect();
             $submissionConverted = $this->convertSubmission($submission);
+
+            // Get existing submission_docs to check for edited specimen (no=4)
+            $existingSubmissionDocs = $submission->submissionDocs()
+                ->with('documentFormat:id,no')
+                ->get()
+                ->keyBy('document_format_id');
+
             foreach ($documentFormats as $documentFormat) {
+                $docFormatId = $documentFormat->getAttribute('id');
+                $docNo = (int) $documentFormat->getAttribute('no');
+
+                // For specimen (no=4), preserve edited content if exists
+                $existingDoc = $existingSubmissionDocs->get($docFormatId);
+                if ($docNo === 4 && $existingDoc && $existingDoc->getAttribute('format_document')) {
+                    $formatDocument = $existingDoc->getAttribute('format_document');
+                } else {
+                    $formatDocument = $this->replaceDocumentFormat($documentFormat, $submissionConverted);
+                }
+
                 $submissionDoc = [
                     'name' => $documentFormat->getAttribute('name'),
-                    'format_document' => $this->replaceDocumentFormat($documentFormat, $submissionConverted),
+                    'format_document' => $formatDocument,
                 ];
                 $submission->submissionDocs()->updateOrCreate(
                     [
                         'submission_id' => $submission->getAttribute('id'),
-                        'document_format_id' => $documentFormat->getAttribute('id'),
+                        'document_format_id' => $docFormatId,
                     ],
                     $submissionDoc
                 );
@@ -623,6 +641,36 @@ class SubmissionController extends Controller
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
 
+            // Find document format with no=4 (specimen document) and save edited content
+            $specimenDocFormat = DocumentFormat::query()
+                ->where('no', 4)
+                ->where(function ($query) use ($submission) {
+                    $query->where(function ($q) use ($submission) {
+                        $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                            ->where('product_id', $submission->getAttribute('product_id'));
+                    })->orWhereNull('guarantor_id');
+                })
+                ->orderByDesc('guarantor_id')
+                ->first();
+
+            // Save edited content to submission_docs (preserve for later use)
+            if ($specimenDocFormat) {
+                SubmissionDoc::query()->updateOrCreate(
+                    [
+                        'submission_id' => $submissionId,
+                        'document_format_id' => $specimenDocFormat->getAttribute('id'),
+                    ],
+                    [
+                        'name' => $specimenDocFormat->getAttribute('name'),
+                        'format_document' => $content,
+                    ]
+                );
+                Log::info('Specimen content saved to submission_docs', [
+                    'submission_id' => $submissionId,
+                    'document_format_id' => $specimenDocFormat->getAttribute('id'),
+                ]);
+            }
+
             $guarantor = $submission->getRelation('guarantor');
 
             if (! $guarantor) {
@@ -759,6 +807,64 @@ class SubmissionController extends Controller
             Log::error('Failed to preview specimen PDF', $error);
 
             return $this->responseError('Gagal menampilkan specimen PDF', $error);
+        }
+    }
+
+    public function resetSpecimenToDefault(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $submissionId = $request->input('submission_id');
+
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            // Find document format with no=4 (specimen document)
+            $specimenDocFormat = DocumentFormat::query()
+                ->where('no', 4)
+                ->where(function ($query) use ($submission) {
+                    $query->where(function ($q) use ($submission) {
+                        $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                            ->where('product_id', $submission->getAttribute('product_id'));
+                    })->orWhereNull('guarantor_id');
+                })
+                ->orderByDesc('guarantor_id')
+                ->first();
+
+            if (! $specimenDocFormat) {
+                return $this->responseError('Document format specimen tidak ditemukan');
+            }
+
+            // Delete the saved specimen from submission_docs
+            SubmissionDoc::query()
+                ->where('submission_id', $submissionId)
+                ->where('document_format_id', $specimenDocFormat->getAttribute('id'))
+                ->delete();
+
+            // Also delete the specimen PDF file if exists
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+            if ($specimenPath) {
+                $disk = Storage::disk(config('filesystems.default'));
+                if ($disk->exists($specimenPath)) {
+                    $disk->delete($specimenPath);
+                }
+                $submission->update(['specimen_pdf_path' => null]);
+            }
+
+            DB::commit();
+
+            Log::info('Specimen reset to default', ['submission_id' => $submissionId]);
+
+            return $this->responseSuccess('Specimen berhasil direset ke default');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to reset specimen to default', $error);
+
+            return $this->responseError('Gagal mereset specimen ke default', $error);
         }
     }
 }

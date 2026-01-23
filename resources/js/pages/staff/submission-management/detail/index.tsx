@@ -94,7 +94,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [isLoadingSpecimen, setIsLoadingSpecimen] = useState(false);
+  const [isLoadingSaveDoc, setIsLoadingSaveDoc] = useState(false);
+  const [isLoadingResetDoc, setIsLoadingResetDoc] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [specimenCacheBuster, setSpecimenCacheBuster] = useState(Date.now());
   const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
@@ -424,6 +427,9 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           variant: "default",
         });
         router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
           onFinish: () => {
             setIsLoadingSpecimen(false);
             setIsDisabled(false);
@@ -445,6 +451,92 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   const handleDownloadSpecimen = () => {
     window.open(route("api.submission-management.specimen.get", { submissionId: submissionId }), "_blank");
+  };
+
+  const handleSaveDocument = (docId: number) => {
+    const editorContent = editorRefs.current[`editor-${docId}`]?.getContent();
+
+    if (!editorContent) {
+      toast({
+        title: "Gagal",
+        description: "Konten dokumen tidak ditemukan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingSaveDoc(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.download"), {
+        content: editorContent,
+        submission_id: submissionId,
+      })
+      .then((response) => {
+        console.log("Success Save Document", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil disimpan dan specimen PDF berhasil di-generate.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingSaveDoc(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Save Document", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat menyimpan dokumen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingSaveDoc(false);
+        setIsDisabled(false);
+      });
+  };
+
+  const handleResetDocument = () => {
+    setIsLoadingResetDoc(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.reset"), {
+        submission_id: submissionId,
+      })
+      .then((response) => {
+        console.log("Success Reset Document", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil direset ke default.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingResetDoc(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Reset Document", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat mereset dokumen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingResetDoc(false);
+        setIsDisabled(false);
+      });
   };
 
   useEffect(() => {
@@ -1056,13 +1148,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <RenderList
                 of={submission.has_send_to_guarantor ? submission.submission_docs : submission.document_formats}
                 render={(doc) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
+                  <div
+                    key={doc.no === 4 ? `${doc.id}-${specimenCacheBuster}` : doc.id}
+                    style={{ marginBottom: "20px" }}>
                     <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                     <TinyMCEEditor
                       id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                       initialContent={doc.format_document}
                       onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
                     />
+                    <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          onClick={handleResetDocument}
+                          disabled={isLoadingResetDoc || isDisabled}
+                          variant="outline">
+                          {isLoadingResetDoc && <LoaderCircle className="animate-spin mr-1" />}
+                          Reset ke Default
+                        </Button>
+                        <Button
+                          onClick={() => handleSaveDocument(doc.id)}
+                          disabled={isLoadingSaveDoc || isDisabled}
+                          variant="default">
+                          {isLoadingSaveDoc && <LoaderCircle className="animate-spin mr-1" />}
+                          Simpan Perubahan
+                        </Button>
+                      </div>
+                    </Show>
                   </div>
                 )}
                 renderFallback={() => (
@@ -1096,7 +1208,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <Show when={submission.specimen_pdf_path}>
                   <div className="border rounded-lg overflow-hidden">
                     <iframe
-                      src={route("api.submission-management.specimen.preview", { submissionId: submissionId })}
+                      key={specimenCacheBuster}
+                      src={`${route("api.submission-management.specimen.preview", { submissionId: submissionId })}?t=${specimenCacheBuster}`}
                       className="w-full h-[600px]"
                       title="Specimen PDF Preview"
                     />

@@ -772,8 +772,22 @@ class SubmissionController extends Controller
             ->orderBy('no')
             ->get();
 
+        // Check if there's saved specimen content in submission_docs (doc.no = 4)
+        $savedSpecimenDoc = $submission->getRelation('submissionDocs')
+            ->filter(function ($doc) {
+                $docFormat = $doc->getRelation('documentFormat');
+
+                return $docFormat && (int) $docFormat->getAttribute('no') === 4;
+            })
+            ->first();
+
         foreach ($documentFormats as $documentFormat) {
-            $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+            // For specimen document (no=4), use saved content if exists
+            if ((int) $documentFormat->getAttribute('no') === 4 && $savedSpecimenDoc) {
+                $documentFormat->setAttribute('format_document', $savedSpecimenDoc->getAttribute('format_document'));
+            } else {
+                $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+            }
         }
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
