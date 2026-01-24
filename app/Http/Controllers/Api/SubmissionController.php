@@ -415,6 +415,7 @@ class SubmissionController extends Controller
                     'remarks' => $submission->getAttribute('revised_note'),
                     'policyno' => $submissionCallback->getAttribute('no_policy'),
                 ];
+                \dd($submissionFirst, $dataSend);
             }
 
             $documentFormats = DocumentFormat::query()
@@ -619,9 +620,11 @@ class SubmissionController extends Controller
         try {
             $content = $request->input('content');
             $submissionId = $request->input('submission_id');
+            $documentFormatId = $request->input('document_format_id');
 
             Log::info('Specimen PDF request received', [
                 'submission_id' => $submissionId,
+                'document_format_id' => $documentFormatId,
                 'content_length' => strlen($content ?? ''),
             ]);
 
@@ -641,17 +644,21 @@ class SubmissionController extends Controller
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
 
-            // Find document format with no=4 (specimen document) and save edited content
-            $specimenDocFormat = DocumentFormat::query()
-                ->where('no', 4)
-                ->where(function ($query) use ($submission) {
-                    $query->where(function ($q) use ($submission) {
-                        $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-                            ->where('product_id', $submission->getAttribute('product_id'));
-                    })->orWhereNull('guarantor_id');
-                })
-                ->orderByDesc('guarantor_id')
-                ->first();
+            // Find document format by ID if provided, otherwise fallback to no=4 query
+            if ($documentFormatId) {
+                $specimenDocFormat = DocumentFormat::query()->find($documentFormatId);
+            } else {
+                $specimenDocFormat = DocumentFormat::query()
+                    ->where('no', 4)
+                    ->where(function ($query) use ($submission) {
+                        $query->where(function ($q) use ($submission) {
+                            $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                                ->where('product_id', $submission->getAttribute('product_id'));
+                        })->orWhereNull('guarantor_id');
+                    })
+                    ->orderByDesc('guarantor_id')
+                    ->first();
+            }
 
             // Save edited content to submission_docs (preserve for later use)
             if ($specimenDocFormat) {
@@ -699,10 +706,15 @@ class SubmissionController extends Controller
                 'url' => $url,
             ]);
 
+            $payload = [
+                'content' => $content,
+            ];
+
             $response = Http::withHeaders([
                 'Authorization' => $token,
                 'Content-Type' => 'application/json',
-            ])->post($url, ['content' => $content]);
+            ])->post($url, $payload);
+
             if (! $response->successful()) {
                 Log::error('Failed to download specimen PDF from third-party API', [
                     'submission_id' => $submissionId,
@@ -815,6 +827,7 @@ class SubmissionController extends Controller
         DB::beginTransaction();
         try {
             $submissionId = $request->input('submission_id');
+            $documentFormatId = $request->input('document_format_id');
 
             $submission = Submission::query()->find($submissionId);
 
@@ -822,17 +835,21 @@ class SubmissionController extends Controller
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
 
-            // Find document format with no=4 (specimen document)
-            $specimenDocFormat = DocumentFormat::query()
-                ->where('no', 4)
-                ->where(function ($query) use ($submission) {
-                    $query->where(function ($q) use ($submission) {
-                        $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
-                            ->where('product_id', $submission->getAttribute('product_id'));
-                    })->orWhereNull('guarantor_id');
-                })
-                ->orderByDesc('guarantor_id')
-                ->first();
+            // Find document format by ID if provided, otherwise fallback to no=4 query
+            if ($documentFormatId) {
+                $specimenDocFormat = DocumentFormat::query()->find($documentFormatId);
+            } else {
+                $specimenDocFormat = DocumentFormat::query()
+                    ->where('no', 4)
+                    ->where(function ($query) use ($submission) {
+                        $query->where(function ($q) use ($submission) {
+                            $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                                ->where('product_id', $submission->getAttribute('product_id'));
+                        })->orWhereNull('guarantor_id');
+                    })
+                    ->orderByDesc('guarantor_id')
+                    ->first();
+            }
 
             if (! $specimenDocFormat) {
                 return $this->responseError('Document format specimen tidak ditemukan');

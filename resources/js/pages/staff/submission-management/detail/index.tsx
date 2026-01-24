@@ -418,6 +418,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .post(route("api.submission-management.specimen.download"), {
         content: specimenDoc.format_document,
         submission_id: submissionId,
+        document_format_id: specimenDoc.id,
       })
       .then((response) => {
         console.log("Success Generate Specimen", response);
@@ -471,6 +472,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       .post(route("api.submission-management.specimen.download"), {
         content: editorContent,
         submission_id: submissionId,
+        document_format_id: docId,
       })
       .then((response) => {
         console.log("Success Save Document", response);
@@ -502,12 +504,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       });
   };
 
-  const handleResetDocument = () => {
+  const handleResetDocument = (docId: number) => {
     setIsLoadingResetDoc(true);
     setIsDisabled(true);
     axios
       .post(route("api.submission-management.specimen.reset"), {
         submission_id: submissionId,
+        document_format_id: docId,
       })
       .then((response) => {
         console.log("Success Reset Document", response);
@@ -1160,7 +1163,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
                       <div className="flex justify-end gap-2 mt-4">
                         <Button
-                          onClick={handleResetDocument}
+                          onClick={() => handleResetDocument(doc.id)}
                           disabled={isLoadingResetDoc || isDisabled}
                           variant="outline">
                           {isLoadingResetDoc && <LoaderCircle className="animate-spin mr-1" />}

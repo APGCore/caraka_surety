@@ -792,7 +792,7 @@ class SubmissionController extends Controller
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
         $submissionDocs = $submission->getAttribute('has_send_to_guarantor')
-          ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
+            ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
         // sort by no
         $submissionDocs = $submissionDocs->sortBy(function ($doc) {
             return $doc->getRelation('documentFormat')->getAttribute('no');
@@ -808,8 +808,8 @@ class SubmissionController extends Controller
         $callback = $submission->getRelation('callback');
         if ($callback) {
             $callback->setAttribute('url', $callback->getAttribute('url')
-              ? Storage::url($callback->getAttribute('url'))
-              : null);
+                ? Storage::url($callback->getAttribute('url'))
+                : null);
         }
 
         $submissionInheritId = $submission->getAttribute('submission_inherit_id');
