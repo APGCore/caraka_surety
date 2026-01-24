@@ -258,6 +258,10 @@ class SubmissionController extends Controller
 
             $scores = $scoring['scores'];
 
+            if ($isRevision) {
+                $dataSubmission['no_guarantee'] = $submission['no_guarantee'];
+            }
+
             if ($isEdit) {
                 $submission = Submission::query()->with(['scores', 'supportDocs'])->find($submission['id']);
                 $submission->scores()->delete();
@@ -664,6 +668,7 @@ class SubmissionController extends Controller
 
         $submission = array_merge($submissionArray, [
             'submission_before_id' => (int) $id,
+            'no_guarantee' => $submission->getAttribute('no_guarantee'),
         ], $submission->getRelation('guarantorToProductType')->only(
             'product_type_id',
             'job_group',
@@ -772,13 +777,27 @@ class SubmissionController extends Controller
             ->orderBy('no')
             ->get();
 
+        // Check if there's saved specimen content in submission_docs (doc.no = 4)
+        $savedSpecimenDoc = $submission->getRelation('submissionDocs')
+            ->filter(function ($doc) {
+                $docFormat = $doc->getRelation('documentFormat');
+
+                return $docFormat && (int) $docFormat->getAttribute('no') === 4;
+            })
+            ->first();
+
         foreach ($documentFormats as $documentFormat) {
-            $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+            // For specimen document (no=4), use saved content if exists
+            if ((int) $documentFormat->getAttribute('no') === 4 && $savedSpecimenDoc) {
+                $documentFormat->setAttribute('format_document', $savedSpecimenDoc->getAttribute('format_document'));
+            } else {
+                $documentFormat->setAttribute('format_document', $this->replaceDocumentFormat($documentFormat, $submissionConverted));
+            }
         }
 
         $submissionDocsFile = $submission->getRelation('submissionDocs')->whereNotNull('url')->values();
         $submissionDocs = $submission->getAttribute('has_send_to_guarantor')
-          ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
+            ? $submission->getRelation('submissionDocs')->whereNotNull('document_format_id')->values() : collect();
         // sort by no
         $submissionDocs = $submissionDocs->sortBy(function ($doc) {
             return $doc->getRelation('documentFormat')->getAttribute('no');
@@ -794,8 +813,8 @@ class SubmissionController extends Controller
         $callback = $submission->getRelation('callback');
         if ($callback) {
             $callback->setAttribute('url', $callback->getAttribute('url')
-              ? Storage::url($callback->getAttribute('url'))
-              : null);
+                ? Storage::url($callback->getAttribute('url'))
+                : null);
         }
 
         $submissionInheritId = $submission->getAttribute('submission_inherit_id');

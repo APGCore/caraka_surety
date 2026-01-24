@@ -93,7 +93,11 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSend, setIsLoadingSend] = useState(false);
   const [isLoadingSetBlank, setIsLoadingSetBlank] = useState(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const [isLoadingSpecimen, setIsLoadingSpecimen] = useState(false);
+  const [isLoadingSaveDoc, setIsLoadingSaveDoc] = useState(false);
+  const [isLoadingResetDoc, setIsLoadingResetDoc] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [specimenCacheBuster, setSpecimenCacheBuster] = useState(Date.now());
   const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
@@ -119,45 +123,45 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     }, 1000);
   };
 
-  const handleSetBlank = () => {
-    if (!selectedBlank) {
-      toast({
-        title: "Gagal",
-        description: "Silakan pilih blangko terlebih dahulu.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsLoadingSetBlank(true);
-    setIsDisabled(true);
-    axios
-      .post(route("api.submission-management.set-blank"), {
-        submission_id: submissionId,
-        blank_id: selectedBlank,
-      })
-      .then((response) => {
-        console.log("Success Set Blangko", response);
-        toast({
-          title: "Sukses",
-          description: "Blangko berhasil dipilih.",
-          variant: "default",
-        });
-        router.reload({
-          onSuccess: () => {
-            setLoadingDocument();
-          },
-          onFinish: () => {
-            setIsLoadingSetBlank(false);
-            setIsDisabled(false);
-          },
-        });
-      })
-      .catch((error) => {
-        console.error("Error Set Blangko", error);
-        setIsLoadingSetBlank(false);
-        setIsDisabled(false);
-      });
-  };
+  // const handleSetBlank = () => {
+  //   if (!selectedBlank) {
+  //     toast({
+  //       title: "Gagal",
+  //       description: "Silakan pilih blangko terlebih dahulu.",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
+  //   setIsLoadingSetBlank(true);
+  //   setIsDisabled(true);
+  //   axios
+  //     .post(route("api.submission-management.set-blank"), {
+  //       submission_id: submissionId,
+  //       blank_id: selectedBlank,
+  //     })
+  //     .then((response) => {
+  //       console.log("Success Set Blangko", response);
+  //       toast({
+  //         title: "Sukses",
+  //         description: "Blangko berhasil dipilih.",
+  //         variant: "default",
+  //       });
+  //       router.reload({
+  //         onSuccess: () => {
+  //           setLoadingDocument();
+  //         },
+  //         onFinish: () => {
+  //           setIsLoadingSetBlank(false);
+  //           setIsDisabled(false);
+  //         },
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error Set Blangko", error);
+  //       setIsLoadingSetBlank(false);
+  //       setIsDisabled(false);
+  //     });
+  // };
 
   const handleSendGuarantor = (submissionId: number) => {
     let failed = false;
@@ -170,10 +174,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       failed = true;
       message.push("Tanggal publikasi tidak boleh kosong");
     }
-    if (!submission.blank_id) {
-      failed = true;
-      message.push("Silakan Isi Blangko terlebih dahulu");
-    }
+    // if (!submission.blank_id) {
+    //   failed = true;
+    //   message.push("Silakan Isi Blangko terlebih dahulu");
+    // }
     if (failed) {
       toast({
         title: "Gagal",
@@ -392,6 +396,150 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         setIsDisabled(false);
       },
     });
+  };
+
+  const handleGenerateSpecimen = () => {
+    // Find document format with no=4 (Jaminan Penawaran specimen)
+    const specimenDoc = submission.document_formats?.find((doc: any) => doc.no === 4);
+    console.log(specimenDoc);
+
+    if (!specimenDoc) {
+      toast({
+        title: "Gagal",
+        description: "Dokumen specimen tidak ditemukan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingSpecimen(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.download"), {
+        content: specimenDoc.format_document,
+        submission_id: submissionId,
+        document_format_id: specimenDoc.id,
+      })
+      .then((response) => {
+        console.log("Success Generate Specimen", response);
+        toast({
+          title: "Sukses",
+          description: "Specimen PDF berhasil di-generate.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingSpecimen(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Generate Specimen", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat generate specimen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingSpecimen(false);
+        setIsDisabled(false);
+      });
+  };
+
+  const handleDownloadSpecimen = () => {
+    window.open(route("api.submission-management.specimen.get", { submissionId: submissionId }), "_blank");
+  };
+
+  const handleSaveDocument = (docId: number) => {
+    const editorContent = editorRefs.current[`editor-${docId}`]?.getContent();
+
+    if (!editorContent) {
+      toast({
+        title: "Gagal",
+        description: "Konten dokumen tidak ditemukan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingSaveDoc(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.download"), {
+        content: editorContent,
+        submission_id: submissionId,
+        document_format_id: docId,
+      })
+      .then((response) => {
+        console.log("Success Save Document", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil disimpan dan specimen PDF berhasil di-generate.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingSaveDoc(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Save Document", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat menyimpan dokumen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingSaveDoc(false);
+        setIsDisabled(false);
+      });
+  };
+
+  const handleResetDocument = (docId: number) => {
+    setIsLoadingResetDoc(true);
+    setIsDisabled(true);
+    axios
+      .post(route("api.submission-management.specimen.reset"), {
+        submission_id: submissionId,
+        document_format_id: docId,
+      })
+      .then((response) => {
+        console.log("Success Reset Document", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil direset ke default.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingResetDoc(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Reset Document", error);
+        const message = error.response?.data?.message || error.message || "Terjadi kesalahan saat mereset dokumen.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingResetDoc(false);
+        setIsDisabled(false);
+      });
   };
 
   useEffect(() => {
@@ -1003,13 +1151,33 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               <RenderList
                 of={submission.has_send_to_guarantor ? submission.submission_docs : submission.document_formats}
                 render={(doc) => (
-                  <div key={doc.id} style={{ marginBottom: "20px" }}>
+                  <div
+                    key={doc.no === 4 ? `${doc.id}-${specimenCacheBuster}` : doc.id}
+                    style={{ marginBottom: "20px" }}>
                     <h3 className="text-lg font-semibold mb-4 mt-5">{doc.name}</h3>
                     <TinyMCEEditor
                       id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                       initialContent={doc.format_document}
                       onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
                     />
+                    <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          onClick={() => handleResetDocument(doc.id)}
+                          disabled={isLoadingResetDoc || isDisabled}
+                          variant="outline">
+                          {isLoadingResetDoc && <LoaderCircle className="animate-spin mr-1" />}
+                          Reset ke Default
+                        </Button>
+                        <Button
+                          onClick={() => handleSaveDocument(doc.id)}
+                          disabled={isLoadingSaveDoc || isDisabled}
+                          variant="default">
+                          {isLoadingSaveDoc && <LoaderCircle className="animate-spin mr-1" />}
+                          Simpan Perubahan
+                        </Button>
+                      </div>
+                    </Show>
                   </div>
                 )}
                 renderFallback={() => (
@@ -1018,6 +1186,41 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               />
             </div>
           )}
+          {/*Specimen PDF*/}
+          <Show when={!submission.has_send_to_guarantor}>
+            <Card className="mb-4">
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg font-semibold">Specimen PDF</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">
+                  Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
+                </p>
+                <div className="flex space-x-2 mb-4">
+                  <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
+                    {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
+                    {submission.specimen_pdf_path ? "Update Specimen" : "Generate Specimen"}
+                  </Button>
+                  <Show when={submission.specimen_pdf_path}>
+                    <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
+                      Download Specimen
+                    </Button>
+                  </Show>
+                </div>
+                {/* PDF Preview */}
+                <Show when={submission.specimen_pdf_path}>
+                  <div className="border rounded-lg overflow-hidden">
+                    <iframe
+                      key={specimenCacheBuster}
+                      src={`${route("api.submission-management.specimen.preview", { submissionId: submissionId })}?t=${specimenCacheBuster}`}
+                      className="w-full h-[600px]"
+                      title="Specimen PDF Preview"
+                    />
+                  </div>
+                </Show>
+              </CardContent>
+            </Card>
+          </Show>
           {/*Publikasi*/}
           <Show when={isApproved && (!submission.has_send_to_guarantor || !submission.publication_date)}>
             <form onSubmit={handleSubmitPublication}>
@@ -1172,7 +1375,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </Card>
           </Show>
           {/*Pilih Blangko*/}
-          <Show when={isApproved && !submission.has_send_to_guarantor}>
+          {/* <Show when={isApproved && !submission.has_send_to_guarantor}>
             <Card className="w-auto">
               <CardHeader className="p-2">
                 <CardTitle className="text-lg font-semibold">Pilih Blangko</CardTitle>
@@ -1203,7 +1406,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </Button>
               </CardFooter>
             </Card>
-          </Show>
+          </Show> */}
           <div className="flex items-end space-x-2">
             <Show
               when={isApproved && !submission.has_send_to_guarantor}

@@ -21,9 +21,13 @@ use App\Services\HostToHostService;
 use App\Traits\GeneratePattern;
 use App\Traits\ReplaceDocumentFormat;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SubmissionController extends Controller
 {
@@ -105,15 +109,36 @@ class SubmissionController extends Controller
             ->select(['id', 'no_guarantee', 'created_at'])
             ->firstWhere('id', $submissionId);
 
-        $submission = Submission::query()
+        // $submission = Submission::query()
+        //     ->where(function ($query) {
+        //         $query->where('status', SubmissionStatus::APPROVED->value)
+        //             ->orWhere('status', SubmissionStatus::REVISED->value);
+        //     })
+        //     ->where('has_send_to_guarantor', true)
+        //     ->orderBy('created_at')
+        //     ->with(['guarantor', 'guarantor.hostToHost'])
+        //     ->firstWhere('id', $submissionFirst->getAttribute('id'));
+
+        $query = Submission::query()
             ->where(function ($query) {
-                $query->where('status', SubmissionStatus::APPROVED->value)
-                    ->orWhere('status', SubmissionStatus::REVISED->value);
+                $query->whereIn('status', [
+                    SubmissionStatus::APPROVED->value,
+                    SubmissionStatus::REVISED->value,
+                ]);
             })
             ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
-            ->with(['guarantor', 'guarantor.hostToHost'])
-            ->firstWhere('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+            ->with(['guarantor', 'guarantor.hostToHost']);
+
+        if ($submissionFirst->getAttribute('no_guarantee') != 'XXXXXXXXXXXXXXXX') {
+            // 🔁 Revisi → cari berdasarkan no_guarantee
+            $query->where('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+        } else {
+            // 🆕 Pertama kali → pakai ID
+            $query->where('id', $submissionFirst->getAttribute('id'));
+        }
+        $submission = $query->first();
+
         if (! $submission) {
             Log::error('Submission not found for callback', ['submission_id' => $submissionId, 'no_guarantee' => $submissionFirst->getAttribute('no_guarantee')]);
 
@@ -340,8 +365,8 @@ class SubmissionController extends Controller
             $submission = Submission::query()
                 ->with([
                     'principal:id,name,telephone,pic,npwp,nib,siup_siujk,head_name,business_fields,'.
-                    'director_name,director_position,director_phone,commissioner,year_established,'.
-                    'last_deed,province_id,regency_id,district_id,village,address,postal_code',
+                        'director_name,director_position,director_phone,commissioner,year_established,'.
+                        'last_deed,province_id,regency_id,district_id,village,address,postal_code',
                     'principal.province:id,code,name',
                     'principal.regency:id,code,name',
                     'principal.district:id,code,name',
@@ -438,15 +463,33 @@ class SubmissionController extends Controller
 
             $submissionDocs = collect();
             $submissionConverted = $this->convertSubmission($submission);
+
+            // Get existing submission_docs to check for edited specimen (no=4)
+            $existingSubmissionDocs = $submission->submissionDocs()
+                ->with('documentFormat:id,no')
+                ->get()
+                ->keyBy('document_format_id');
+
             foreach ($documentFormats as $documentFormat) {
+                $docFormatId = $documentFormat->getAttribute('id');
+                $docNo = (int) $documentFormat->getAttribute('no');
+
+                // For specimen (no=4), preserve edited content if exists
+                $existingDoc = $existingSubmissionDocs->get($docFormatId);
+                if ($docNo === 4 && $existingDoc && $existingDoc->getAttribute('format_document')) {
+                    $formatDocument = $existingDoc->getAttribute('format_document');
+                } else {
+                    $formatDocument = $this->replaceDocumentFormat($documentFormat, $submissionConverted);
+                }
+
                 $submissionDoc = [
                     'name' => $documentFormat->getAttribute('name'),
-                    'format_document' => $this->replaceDocumentFormat($documentFormat, $submissionConverted),
+                    'format_document' => $formatDocument,
                 ];
                 $submission->submissionDocs()->updateOrCreate(
                     [
                         'submission_id' => $submission->getAttribute('id'),
-                        'document_format_id' => $documentFormat->getAttribute('id'),
+                        'document_format_id' => $docFormatId,
                     ],
                     $submissionDoc
                 );
@@ -591,6 +634,277 @@ class SubmissionController extends Controller
                 'message' => 'Gagal mengirimkan data ke pihak asuransi',
                 'error' => $error,
             ]);
+        }
+    }
+
+    public function downloadSpecimenPdf(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $content = $request->input('content');
+            $submissionId = $request->input('submission_id');
+            $documentFormatId = $request->input('document_format_id');
+
+            Log::info('Specimen PDF request received', [
+                'submission_id' => $submissionId,
+                'document_format_id' => $documentFormatId,
+                'content_length' => strlen($content ?? ''),
+            ]);
+
+            if (! $content) {
+                Log::error('Specimen PDF: Content is empty');
+
+                return $this->responseError('Content dokumen tidak boleh kosong');
+            }
+
+            $submission = Submission::query()
+                ->with(['guarantor.hostToHost'])
+                ->find($submissionId);
+
+            if (! $submission) {
+                Log::error('Specimen PDF: Submission not found', ['submission_id' => $submissionId]);
+
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            // Find document format by ID if provided, otherwise fallback to no=4 query
+            if ($documentFormatId) {
+                $specimenDocFormat = DocumentFormat::query()->find($documentFormatId);
+            } else {
+                $specimenDocFormat = DocumentFormat::query()
+                    ->where('no', 4)
+                    ->where(function ($query) use ($submission) {
+                        $query->where(function ($q) use ($submission) {
+                            $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                                ->where('product_id', $submission->getAttribute('product_id'));
+                        })->orWhereNull('guarantor_id');
+                    })
+                    ->orderByDesc('guarantor_id')
+                    ->first();
+            }
+
+            // Save edited content to submission_docs (preserve for later use)
+            if ($specimenDocFormat) {
+                SubmissionDoc::query()->updateOrCreate(
+                    [
+                        'submission_id' => $submissionId,
+                        'document_format_id' => $specimenDocFormat->getAttribute('id'),
+                    ],
+                    [
+                        'name' => $specimenDocFormat->getAttribute('name'),
+                        'format_document' => $content,
+                    ]
+                );
+                Log::info('Specimen content saved to submission_docs', [
+                    'submission_id' => $submissionId,
+                    'document_format_id' => $specimenDocFormat->getAttribute('id'),
+                ]);
+            }
+
+            $guarantor = $submission->getRelation('guarantor');
+
+            if (! $guarantor) {
+                Log::error('Specimen PDF: Guarantor not found', ['submission_id' => $submissionId]);
+
+                return $this->responseError('Guarantor tidak ditemukan');
+            }
+
+            $hostToHost = $guarantor->getRelation('hostToHost');
+
+            if (! $hostToHost) {
+                Log::error('Specimen PDF: Host to host config not found', [
+                    'submission_id' => $submissionId,
+                    'guarantor_id' => $guarantor->getAttribute('id'),
+                ]);
+
+                return $this->responseError('Konfigurasi host to host tidak ditemukan');
+            }
+
+            $url = $hostToHost->getAttribute('guarantor_url_host').'/speciment';
+            $prefix = $hostToHost->getAttribute('auth_prefix');
+            $token = ($prefix ? $prefix.' ' : '').$hostToHost->getAttribute('token');
+
+            Log::info('Calling third-party API for specimen PDF', [
+                'submission_id' => $submissionId,
+                'url' => $url,
+            ]);
+
+            $payload = [
+                'content' => $content,
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => $token,
+                'Content-Type' => 'application/json',
+            ])->post($url, $payload);
+
+            if (! $response->successful()) {
+                Log::error('Failed to download specimen PDF from third-party API', [
+                    'submission_id' => $submissionId,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return $this->responseError('Gagal mengunduh specimen PDF dari asuransi: '.$response->status());
+            }
+
+            $pdfContent = $response->body();
+            $fileName = 'specimen_'.$submissionId.'_'.date('Ymd_His').'.pdf';
+            $path = "submission/specimen/{$submissionId}";
+            $fullPath = $path.'/'.$fileName;
+
+            $disk = Storage::disk(config('filesystems.default'));
+            $stored = $disk->put($fullPath, $pdfContent);
+
+            if (! $stored) {
+                throw new Exception('Gagal menyimpan file PDF ke storage');
+            }
+
+            $submission->update(['specimen_pdf_path' => $fullPath]);
+
+            DB::commit();
+
+            Log::info('Specimen PDF downloaded and saved', [
+                'submission_id' => $submissionId,
+                'path' => $fullPath,
+            ]);
+
+            return $this->responseSuccess('Berhasil mengunduh dan menyimpan specimen PDF', [
+                'path' => $fullPath,
+                'url' => $disk->url($fullPath),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to download specimen PDF', $error);
+
+            return $this->responseError('Gagal mengunduh specimen PDF', $error);
+        }
+    }
+
+    public function getSpecimenPdf($submissionId): JsonResponse|StreamedResponse
+    {
+        try {
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+
+            if (! $specimenPath) {
+                return $this->responseError('Specimen PDF belum tersedia');
+            }
+
+            $disk = Storage::disk(config('filesystems.default'));
+
+            if (! $disk->exists($specimenPath)) {
+                return $this->responseError('File specimen PDF tidak ditemukan');
+            }
+
+            return $disk->download($specimenPath, 'specimen_'.$submissionId.'.pdf');
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to get specimen PDF', $error);
+
+            return $this->responseError('Gagal mengambil specimen PDF', $error);
+        }
+    }
+
+    public function previewSpecimenPdf($submissionId): JsonResponse|\Illuminate\Http\Response
+    {
+        try {
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+
+            if (! $specimenPath) {
+                return $this->responseError('Specimen PDF belum tersedia');
+            }
+
+            $disk = Storage::disk(config('filesystems.default'));
+
+            if (! $disk->exists($specimenPath)) {
+                return $this->responseError('File specimen PDF tidak ditemukan');
+            }
+
+            return response($disk->get($specimenPath), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="specimen_'.$submissionId.'.pdf"',
+            ]);
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to preview specimen PDF', $error);
+
+            return $this->responseError('Gagal menampilkan specimen PDF', $error);
+        }
+    }
+
+    public function resetSpecimenToDefault(Request $request): JsonResponse
+    {
+        DB::beginTransaction();
+        try {
+            $submissionId = $request->input('submission_id');
+            $documentFormatId = $request->input('document_format_id');
+
+            $submission = Submission::query()->find($submissionId);
+
+            if (! $submission) {
+                return $this->responseError('Pengajuan tidak ditemukan');
+            }
+
+            // Find document format by ID if provided, otherwise fallback to no=4 query
+            if ($documentFormatId) {
+                $specimenDocFormat = DocumentFormat::query()->find($documentFormatId);
+            } else {
+                $specimenDocFormat = DocumentFormat::query()
+                    ->where('no', 4)
+                    ->where(function ($query) use ($submission) {
+                        $query->where(function ($q) use ($submission) {
+                            $q->where('guarantor_id', $submission->getAttribute('guarantor_id'))
+                                ->where('product_id', $submission->getAttribute('product_id'));
+                        })->orWhereNull('guarantor_id');
+                    })
+                    ->orderByDesc('guarantor_id')
+                    ->first();
+            }
+
+            if (! $specimenDocFormat) {
+                return $this->responseError('Document format specimen tidak ditemukan');
+            }
+
+            // Delete the saved specimen from submission_docs
+            SubmissionDoc::query()
+                ->where('submission_id', $submissionId)
+                ->where('document_format_id', $specimenDocFormat->getAttribute('id'))
+                ->delete();
+
+            // Also delete the specimen PDF file if exists
+            $specimenPath = $submission->getAttribute('specimen_pdf_path');
+            if ($specimenPath) {
+                $disk = Storage::disk(config('filesystems.default'));
+                if ($disk->exists($specimenPath)) {
+                    $disk->delete($specimenPath);
+                }
+                $submission->update(['specimen_pdf_path' => null]);
+            }
+
+            DB::commit();
+
+            Log::info('Specimen reset to default', ['submission_id' => $submissionId]);
+
+            return $this->responseSuccess('Specimen berhasil direset ke default');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to reset specimen to default', $error);
+
+            return $this->responseError('Gagal mereset specimen ke default', $error);
         }
     }
 }
