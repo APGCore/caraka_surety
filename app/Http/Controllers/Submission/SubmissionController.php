@@ -258,6 +258,10 @@ class SubmissionController extends Controller
 
             $scores = $scoring['scores'];
 
+            if ($isRevision) {
+                $dataSubmission['no_guarantee'] = $submission['no_guarantee'];
+            }
+
             if ($isEdit) {
                 $submission = Submission::query()->with(['scores', 'supportDocs'])->find($submission['id']);
                 $submission->scores()->delete();
@@ -664,6 +668,7 @@ class SubmissionController extends Controller
 
         $submission = array_merge($submissionArray, [
             'submission_before_id' => (int) $id,
+            'no_guarantee' => $submission->getAttribute('no_guarantee'),
         ], $submission->getRelation('guarantorToProductType')->only(
             'product_type_id',
             'job_group',

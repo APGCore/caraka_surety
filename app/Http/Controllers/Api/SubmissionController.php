@@ -108,15 +108,36 @@ class SubmissionController extends Controller
             ->select(['id', 'no_guarantee', 'created_at'])
             ->firstWhere('id', $submissionId);
 
-        $submission = Submission::query()
+        // $submission = Submission::query()
+        //     ->where(function ($query) {
+        //         $query->where('status', SubmissionStatus::APPROVED->value)
+        //             ->orWhere('status', SubmissionStatus::REVISED->value);
+        //     })
+        //     ->where('has_send_to_guarantor', true)
+        //     ->orderBy('created_at')
+        //     ->with(['guarantor', 'guarantor.hostToHost'])
+        //     ->firstWhere('id', $submissionFirst->getAttribute('id'));
+
+        $query = Submission::query()
             ->where(function ($query) {
-                $query->where('status', SubmissionStatus::APPROVED->value)
-                    ->orWhere('status', SubmissionStatus::REVISED->value);
+                $query->whereIn('status', [
+                    SubmissionStatus::APPROVED->value,
+                    SubmissionStatus::REVISED->value,
+                ]);
             })
             ->where('has_send_to_guarantor', true)
             ->orderBy('created_at')
-            ->with(['guarantor', 'guarantor.hostToHost'])
-            ->firstWhere('id', $submissionFirst->getAttribute('id'));
+            ->with(['guarantor', 'guarantor.hostToHost']);
+
+        if ($submissionFirst->getAttribute('no_guarantee') != 'XXXXXXXXXXXXXXXX') {
+            // 🔁 Revisi → cari berdasarkan no_guarantee
+            $query->where('no_guarantee', $submissionFirst->getAttribute('no_guarantee'));
+        } else {
+            // 🆕 Pertama kali → pakai ID
+            $query->where('id', $submissionFirst->getAttribute('id'));
+        }
+        $submission = $query->first();
+
         if (! $submission) {
             Log::error('Submission not found for callback', ['submission_id' => $submissionId, 'no_guarantee' => $submissionFirst->getAttribute('no_guarantee')]);
 
@@ -415,7 +436,6 @@ class SubmissionController extends Controller
                     'remarks' => $submission->getAttribute('revised_note'),
                     'policyno' => $submissionCallback->getAttribute('no_policy'),
                 ];
-                \dd($submissionFirst, $dataSend);
             }
 
             $documentFormats = DocumentFormat::query()
