@@ -467,9 +467,27 @@ class SubmissionController extends Controller
                 ->get()
                 ->keyBy('document_format_id');
 
+            // Get the selected specimen doc (no=4) from existing submission_docs
+            $selectedSpecimenDoc = $existingSubmissionDocs->first(function ($doc) {
+                return $doc->documentFormat && (int) $doc->documentFormat->getAttribute('no') === 4;
+            });
+            $selectedSpecimenDocFormatId = $selectedSpecimenDoc?->getAttribute('document_format_id');
+
             foreach ($documentFormats as $documentFormat) {
                 $docFormatId = $documentFormat->getAttribute('id');
                 $docNo = (int) $documentFormat->getAttribute('no');
+
+                // For specimen (no=4), only process the selected one
+                if ($docNo === 4) {
+                    // Skip if this is not the selected specimen doc
+                    if ($selectedSpecimenDocFormatId && $docFormatId !== $selectedSpecimenDocFormatId) {
+                        continue;
+                    }
+                    // If no specimen selected yet, only take the first one
+                    if (! $selectedSpecimenDocFormatId) {
+                        $selectedSpecimenDocFormatId = $docFormatId;
+                    }
+                }
 
                 // For specimen (no=4), preserve edited content if exists
                 $existingDoc = $existingSubmissionDocs->get($docFormatId);
@@ -479,8 +497,14 @@ class SubmissionController extends Controller
                     $formatDocument = $this->replaceDocumentFormat($documentFormat, $submissionConverted);
                 }
 
+                // For specimen (no=4), rename to standard name "Jaminan Penawaran" from "Jaminan Penawaran Pokja"
+                $docName = $documentFormat->getAttribute('name');
+                if ($docNo === 4 && $docName === 'Jaminan Penawaran Pokja') {
+                    $docName = 'Jaminan Penawaran';
+                }
+
                 $submissionDoc = [
-                    'name' => $documentFormat->getAttribute('name'),
+                    'name' => $docName,
                     'format_document' => $formatDocument,
                 ];
                 $submission->submissionDocs()->updateOrCreate(
@@ -682,16 +706,22 @@ class SubmissionController extends Controller
 
             // Save edited content to submission_docs (preserve for later use)
             if ($specimenDocFormat) {
-                SubmissionDoc::query()->updateOrCreate(
-                    [
-                        'submission_id' => $submissionId,
-                        'document_format_id' => $specimenDocFormat->getAttribute('id'),
-                    ],
-                    [
-                        'name' => $specimenDocFormat->getAttribute('name'),
-                        'format_document' => $content,
-                    ]
-                );
+                // Delete all existing specimen docs (no=4) for this submission first
+                // This ensures only one specimen doc exists at a time
+                SubmissionDoc::query()
+                    ->where('submission_id', $submissionId)
+                    ->whereHas('documentFormat', function ($query) {
+                        $query->where('no', 4);
+                    })
+                    ->delete();
+
+                // Create new submission doc for the selected specimen
+                SubmissionDoc::query()->create([
+                    'submission_id' => $submissionId,
+                    'document_format_id' => $specimenDocFormat->getAttribute('id'),
+                    'name' => $specimenDocFormat->getAttribute('name'),
+                    'format_document' => $content,
+                ]);
                 Log::info('Specimen content saved to submission_docs', [
                     'submission_id' => $submissionId,
                     'document_format_id' => $specimenDocFormat->getAttribute('id'),
