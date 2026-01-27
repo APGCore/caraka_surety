@@ -3,7 +3,6 @@ import { CardFooter, CardHeader, CardTitle } from "@/_features/_common/component
 import { Popover, PopoverContent, PopoverTrigger } from "@/_features/_common/components/_shadcn-ui/popover";
 import { Separator } from "@/_features/_common/components/_shadcn-ui/separator";
 import { Skeleton } from "@/_features/_common/components/_shadcn-ui/skeleton";
-import Combobox from "@/_features/_common/components/combobox";
 import { FileInput } from "@/_features/_common/components/file-input";
 import { useGetAllBlank } from "@/_features/blank/services/blank-query";
 import { useCompareRatios } from "@/common/hooks/general/use-compare-ratios";
@@ -31,6 +30,7 @@ import RenderList from "@/components/atoms/render-list";
 import Show from "@/components/atoms/show";
 import TinyMCEEditor from "@/components/documents/tiny-mce-editor";
 import { CalendarPicker } from "@/components/molecules/calendar/single-calendar";
+import { Combobox } from "@/components/molecules/combobox";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
@@ -115,6 +115,22 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [spkmgrFile, setSpkmgrFile] = useState<File | null>(null);
   const [permohonanFile, setPermohonanFile] = useState<File | null>(null);
   const { data: blanks } = useGetAllBlank(submission.guarantor_branch_id, submission.blank_id);
+
+  // Get documents with no=4 (specimen documents) for selection
+  const specimenDocuments = (submission.document_formats || []).filter((doc: any) => doc.no === 4);
+  const hasMultipleSpecimenDocs = specimenDocuments.length > 1;
+  const [selectedSpecimenDocId, setSelectedSpecimenDocId] = useState<number | null>(
+    specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null,
+  );
+
+  // Filter document_formats to show only selected specimen doc when there are multiples
+  const filteredDocumentFormats = React.useMemo(() => {
+    if (!hasMultipleSpecimenDocs) {
+      return submission.document_formats;
+    }
+    // Filter out all specimen docs except the selected one
+    return (submission.document_formats || []).filter((doc: any) => doc.no !== 4 || doc.id === selectedSpecimenDocId);
+  }, [submission.document_formats, selectedSpecimenDocId, hasMultipleSpecimenDocs]);
 
   const setLoadingDocument = () => {
     setIsLoadingDocument(true);
@@ -399,8 +415,10 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   };
 
   const handleGenerateSpecimen = () => {
-    // Find document format with no=4 (Jaminan Penawaran specimen)
-    const specimenDoc = submission.document_formats?.find((doc: any) => doc.no === 4);
+    // Find document format with no=4 based on selected specimen doc id
+    const specimenDoc = hasMultipleSpecimenDocs
+      ? specimenDocuments.find((doc: any) => doc.id === selectedSpecimenDocId)
+      : submission.document_formats?.find((doc: any) => doc.no === 4);
     console.log(specimenDoc);
 
     if (!specimenDoc) {
@@ -412,11 +430,15 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
       return;
     }
 
+    // Get content from editor if available, otherwise use original format_document
+    const editorContent = editorRefs.current[`editor-${specimenDoc.id}`]?.getContent();
+    const content = editorContent || specimenDoc.format_document;
+
     setIsLoadingSpecimen(true);
     setIsDisabled(true);
     axios
       .post(route("api.submission-management.specimen.download"), {
-        content: specimenDoc.format_document,
+        content: content,
         submission_id: submissionId,
         document_format_id: specimenDoc.id,
       })
@@ -1090,6 +1112,36 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
           ) : (
             <div className="space-y-6">
               <span>Luaran Dokumen</span>
+              {/* Pilih Dokumen Specimen jika ada lebih dari satu */}
+              <Show when={!submission.has_send_to_guarantor && hasMultipleSpecimenDocs}>
+                <Card className="mb-4 border-amber-200 bg-amber-50">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg font-semibold">Pilih Dokumen Jaminan</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Terdapat <strong>{specimenDocuments.length} dokumen jaminan</strong> yang tersedia dengan format
+                      yang sama. Pilih salah satu dokumen yang sesuai untuk pengajuan ini.
+                    </p>
+                    <div className="flex flex-col gap-4">
+                      <Combobox
+                        datas={specimenDocuments}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Dokumen Jaminan"
+                        defaultValueId={selectedSpecimenDocId}
+                        onSelect={(val: any) => {
+                          setSelectedSpecimenDocId(val?.id);
+                          setLoadingDocument();
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-amber-700 mt-3">
+                      * Jika mengubah pilihan dokumen, pastikan untuk generate ulang specimen PDF di bawah.
+                    </p>
+                  </CardContent>
+                </Card>
+              </Show>
               {/*<RenderList*/}
               {/*  of={submission.has_send_to_guarantor ? submission.submission_docs : submission.document_formats}*/}
               {/*  render={(doc) => {*/}
@@ -1149,7 +1201,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
               {/*  )}*/}
               {/*/>*/}
               <RenderList
-                of={submission.has_send_to_guarantor ? submission.submission_docs : submission.document_formats}
+                of={submission.has_send_to_guarantor ? submission.submission_docs : filteredDocumentFormats}
                 render={(doc) => (
                   <div
                     key={doc.no === 4 ? `${doc.id}-${specimenCacheBuster}` : doc.id}
@@ -1196,6 +1248,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
                 </p>
+                <Show when={hasMultipleSpecimenDocs}>
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Dokumen Terpilih:</strong>{" "}
+                      {specimenDocuments.find((doc: any) => doc.id === selectedSpecimenDocId)?.name || "-"}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      * Pastikan untuk generate ulang specimen jika mengubah pilihan dokumen.
+                    </p>
+                  </div>
+                </Show>
                 <div className="flex space-x-2 mb-4">
                   <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
                     {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
