@@ -91,6 +91,12 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                     {submission.status_label}
                     <br />
                     <Show when={submission.has_send_to_guarantor}>Sudah Dikirim ke Asuransi</Show>
+                    <Show when={submission.submission_before_id}>
+                      <p
+                        className={`w-[120px] mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                        Hasil Di Revisi
+                      </p>
+                    </Show>
                   </p>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
