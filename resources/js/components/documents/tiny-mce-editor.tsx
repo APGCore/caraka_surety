@@ -89,9 +89,10 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: "export ",
-        toolbar:
-          "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code exportToWord printDocument",
+        readonly: true,
+        // plugins: "export ",
+        // toolbar:
+        //   "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code exportToWord printDocument",
         branding: false,
         promotion: false,
         noneditable_class: "mceNonEditable",
@@ -107,15 +108,15 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
             });
           }
 
-          editor.ui.registry.addButton("exportToWord", {
-            text: "Export to Word",
-            onAction: () => exportToWord(editor),
-          });
+          // editor.ui.registry.addButton("exportToWord", {
+          //   text: "Export to Word",
+          //   onAction: () => exportToWord(editor),
+          // });
 
-          editor.ui.registry.addButton("printDocument", {
-            text: "Print Document",
-            onAction: () => printDocument(editor),
-          });
+          // editor.ui.registry.addButton("printDocument", {
+          //   text: "Print Document",
+          //   onAction: () => printDocument(editor),
+          // });
 
           editor.ui.registry.addButton("embedImageFromLink", {
             text: "Embed Image",
@@ -159,85 +160,85 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
   //   }
   // };
 
-  const exportToWord = (editor: any) => {
-    try {
-      if (!window.htmlDocx) {
-        throw new Error("htmlDocx is not loaded.");
-      }
+  // const exportToWord = (editor: any) => {
+  //   try {
+  //     if (!window.htmlDocx) {
+  //       throw new Error("htmlDocx is not loaded.");
+  //     }
 
-      const content = editor.getContent({ format: "html" });
+  //     const content = editor.getContent({ format: "html" });
 
-      // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
-      const styles = Array.from(document.styleSheets)
-        .map((sheet: any) => {
-          try {
-            return Array.from(sheet.cssRules || [])
-              .map((rule: any) => rule.cssText)
-              .join("\n");
-          } catch (e) {
-            return ""; // skip stylesheets with CORS issues
-          }
-        })
-        .join("\n");
+  //     // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
+  //     const styles = Array.from(document.styleSheets)
+  //       .map((sheet: any) => {
+  //         try {
+  //           return Array.from(sheet.cssRules || [])
+  //             .map((rule: any) => rule.cssText)
+  //             .join("\n");
+  //         } catch (e) {
+  //           return ""; // skip stylesheets with CORS issues
+  //         }
+  //       })
+  //       .join("\n");
 
-      const fullHTML = `
-        <html lang="id">
-          <head>
-            <meta charset="utf-8">
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-              }
-              img {
-                max-width: 100%;
-                height: auto;
-              }
-              ${styles}
-            </style>
-          </head>
-          <body>
-            ${content}
-          </body>
-        </html>
-      `;
+  //     const fullHTML = `
+  //       <html lang="id">
+  //         <head>
+  //           <meta charset="utf-8">
+  //           <style>
+  //             body {
+  //               font-family: Arial, sans-serif;
+  //             }
+  //             img {
+  //               max-width: 100%;
+  //               height: auto;
+  //             }
+  //             ${styles}
+  //           </style>
+  //         </head>
+  //         <body>
+  //           ${content}
+  //         </body>
+  //       </html>
+  //     `;
 
-      const converted = window.htmlDocx.asBlob(fullHTML);
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(converted);
-      link.download = `${id}-document.docx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Export to Word failed:", error);
-    }
-  };
+  //     const converted = window.htmlDocx.asBlob(fullHTML);
+  //     const link = document.createElement("a");
+  //     link.href = URL.createObjectURL(converted);
+  //     link.download = `${id}-document.docx`;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   } catch (error) {
+  //     console.error("Export to Word failed:", error);
+  //   }
+  // };
 
-  const printDocument = (editor: any) => {
-    try {
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) {
-        throw new Error("Failed to open print window.");
-      }
+  // const printDocument = (editor: any) => {
+  //   try {
+  //     const printWindow = window.open("", "_blank");
+  //     if (!printWindow) {
+  //       throw new Error("Failed to open print window.");
+  //     }
 
-      const editorContent = editor.getContent();
-      printWindow.document.open();
-      printWindow.document.write(`
-        <html lang="id">
-          <head>
-            <title>Print Document</title>
-          </head>
-          <body>
-            ${editorContent}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    } catch (error) {
-      console.error("Print document failed:", error);
-    }
-  };
+  //     const editorContent = editor.getContent();
+  //     printWindow.document.open();
+  //     printWindow.document.write(`
+  //       <html lang="id">
+  //         <head>
+  //           <title>Print Document</title>
+  //         </head>
+  //         <body>
+  //           ${editorContent}
+  //         </body>
+  //       </html>
+  //     `);
+  //     printWindow.document.close();
+  //     printWindow.print();
+  //   } catch (error) {
+  //     console.error("Print document failed:", error);
+  //   }
+  // };
 
   // Directly call the initialization function when rendering
   initializeEditor();
