@@ -79,6 +79,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
   const isProcess = submission.status == SubmissionStatus.PROCESS;
   const isApproved = submission.status == SubmissionStatus.APPROVED;
   const isRejected = submission.status == SubmissionStatus.REJECTED;
+  const isRevision = submission.submission_before_id !== null;
   const colorAlert: StringToBoolean<any> = isProcess
     ? "warning"
     : isApproved
@@ -804,6 +805,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
                 when={
                   isProcess &&
                   !submission.beyond_the_limit &&
+                  !isRevision &&
                   submission.checked_by !== auth.user.id &&
                   !submission.approved_at &&
                   !submission.rejected_at
@@ -839,7 +841,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission, auth }) =
               <Show
                 when={
                   isProcess &&
-                  submission.beyond_the_limit &&
+                  (submission.beyond_the_limit || isRevision) &&
                   submission.checked_by !== auth.user.id &&
                   !submission.approved_at &&
                   !submission.rejected_at
