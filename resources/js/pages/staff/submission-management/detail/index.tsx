@@ -420,8 +420,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     const specimenDoc = hasMultipleSpecimenDocs
       ? specimenDocuments.find((doc: any) => doc.id === selectedSpecimenDocId)
       : submission.document_formats?.find((doc: any) => doc.no === 4);
-    console.log(specimenDoc);
-
     if (!specimenDoc) {
       toast({
         title: "Gagal",
@@ -442,6 +440,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         content: content,
         submission_id: submissionId,
         document_format_id: specimenDoc.id,
+        guarantor_branch_id: submission.guarantor_branch_id,
       })
       .then((response) => {
         console.log("Success Generate Specimen", response);
