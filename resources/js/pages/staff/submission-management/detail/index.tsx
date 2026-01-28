@@ -96,6 +96,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSpecimen, setIsLoadingSpecimen] = useState(false);
   const [isLoadingSaveDoc, setIsLoadingSaveDoc] = useState(false);
   const [isLoadingResetDoc, setIsLoadingResetDoc] = useState(false);
+  const [isLoadingUpdateFromDb, setIsLoadingUpdateFromDb] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [specimenCacheBuster, setSpecimenCacheBuster] = useState(Date.now());
   const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
@@ -563,6 +564,47 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   //       setIsDisabled(false);
   //     });
   // };
+
+  const handleUpdateDocumentFromDb = (docId: number) => {
+    setIsLoadingUpdateFromDb(true);
+    setIsDisabled(true);
+
+    // Reset the document to get fresh format_document from database
+    axios
+      .post(route("api.submission-management.specimen.reset"), {
+        submission_id: submissionId,
+        document_format_id: docId,
+      })
+      .then((response) => {
+        console.log("Success Update Document From DB", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil diupdate dari database.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingUpdateFromDb(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Update Document From DB", error);
+        const message =
+          error.response?.data?.message || error.message || "Terjadi kesalahan saat update dokumen dari database.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingUpdateFromDb(false);
+        setIsDisabled(false);
+      });
+  };
 
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
@@ -1214,6 +1256,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     />
                     <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
                       <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          onClick={() => handleUpdateDocumentFromDb(doc.id)}
+                          disabled={isLoadingUpdateFromDb || isDisabled}
+                          variant="outline">
+                          {isLoadingUpdateFromDb && <LoaderCircle className="animate-spin mr-1" />}
+                          Update Dokumen
+                        </Button>
                         {/* <Button
                           onClick={() => handleResetDocument(doc.id)}
                           disabled={isLoadingResetDoc || isDisabled}

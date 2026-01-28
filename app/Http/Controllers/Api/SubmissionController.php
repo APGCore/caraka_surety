@@ -928,7 +928,14 @@ class SubmissionController extends Controller
 
             Log::info('Specimen reset to default', ['submission_id' => $submissionId]);
 
-            return $this->responseSuccess('Specimen berhasil direset ke default');
+            // Get fresh format_document with variable replacements
+            $submissionConverted = $this->convertSubmission($submission);
+            $processedFormatDocument = $this->replaceDocumentFormat($specimenDocFormat, $submissionConverted);
+
+            return $this->responseSuccess('Specimen berhasil direset ke default', [
+                'format_document' => $processedFormatDocument,
+                'document_format_id' => $specimenDocFormat->getAttribute('id'),
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);
