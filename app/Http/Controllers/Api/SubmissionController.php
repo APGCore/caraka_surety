@@ -231,6 +231,7 @@ class SubmissionController extends Controller
                         'no_policy' => $noPolis,
                     ]
                 );
+                Submission::query()->find($submissionId)->update(['no_guarantee' => $noPolis]);
             } else {
                 Log::error('Document file is missing in the request', ['no_polis' => $noPolis]);
 
