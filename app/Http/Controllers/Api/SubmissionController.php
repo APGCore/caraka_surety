@@ -13,6 +13,7 @@ use App\Http\Requests\Api\Submission\StoreDocumentRequest;
 use App\Http\Requests\Api\Submission\UpdateDocumentRequest;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
@@ -691,6 +692,18 @@ class SubmissionController extends Controller
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
 
+            $guarantorBranch = Guarantor::query()
+                ->select(['id', 'code', 'name'])
+                ->find($submission['guarantor_branch_id']);
+            if (! $guarantorBranch) {
+                Log::error('Specimen PDF: Guarantor branch not found', [
+                    'submission_id' => $submissionId,
+                    'guarantor_branch_id' => $submission['guarantor_branch_id'],
+                ]);
+
+                return $this->responseError('Cabang penjamin tidak ditemukan');
+            }
+
             // Find document format by ID if provided, otherwise fallback to no=4 query
             if ($documentFormatId) {
                 $specimenDocFormat = DocumentFormat::query()->find($documentFormatId);
@@ -760,6 +773,7 @@ class SubmissionController extends Controller
             ]);
 
             $payload = [
+                'branch_code' => $guarantorBranch->getAttribute('code'),
                 'content' => $content,
             ];
 

@@ -420,8 +420,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     const specimenDoc = hasMultipleSpecimenDocs
       ? specimenDocuments.find((doc: any) => doc.id === selectedSpecimenDocId)
       : submission.document_formats?.find((doc: any) => doc.no === 4);
-    console.log(specimenDoc);
-
     if (!specimenDoc) {
       toast({
         title: "Gagal",
@@ -442,6 +440,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         content: content,
         submission_id: submissionId,
         document_format_id: specimenDoc.id,
+        guarantor_branch_id: submission.guarantor_branch_id,
       })
       .then((response) => {
         console.log("Success Generate Specimen", response);
@@ -579,7 +578,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         console.log("Success Update Document From DB", response);
         toast({
           title: "Sukses",
-          description: "Dokumen berhasil diupdate dari database.",
+          description: "Dokumen berhasil diupdate. Silakan klik 'Generate Specimen' untuk membuat specimen baru.",
           variant: "default",
         });
         router.reload({
@@ -1308,15 +1307,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </p>
                   </div>
                 </Show>
-                <div className="flex space-x-2 mb-4">
-                  <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
-                    {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
-                    {submission.specimen_pdf_path ? "Update Specimen" : "Generate Specimen"}
-                  </Button>
+                <div className="flex flex-col space-y-2 mb-4">
+                  <div className="flex space-x-2">
+                    <Show
+                      when={!submission.specimen_pdf_path}
+                      fallback={
+                        <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
+                          Download Specimen
+                        </Button>
+                      }>
+                      <Button
+                        onClick={handleGenerateSpecimen}
+                        disabled={isLoadingSpecimen || isDisabled}
+                        variant="outline">
+                        {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
+                        Generate Specimen
+                      </Button>
+                    </Show>
+                  </div>
                   <Show when={submission.specimen_pdf_path}>
-                    <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
-                      Download Specimen
-                    </Button>
+                    <p className="text-xs text-gray-500">
+                      * Untuk generate ulang specimen, klik tombol "Update Dokumen" pada draft dokumen di atas, lalu
+                      klik "Generate Specimen".
+                    </p>
                   </Show>
                 </div>
                 {/* PDF Preview */}
@@ -1585,42 +1598,42 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </>
               }>
               {/*Kirim ke asuransi*/}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  {/* <Button
-                    variant="default"
-                    disabled={isLoadingSend || isDisabled || isWeekend}
-                    className={cn(
-                      "bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start",
-                      isWeekend && "bg-gray-400 cursor-not-allowed hover:bg-gray-400",
-                    )}>
-                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
-                    {isWeekend
-                      ? "Tidak dapat mengirim ke " + submission.guarantor?.name + " (Hari Libur)"
-                      : "Kirim Ke " + submission.guarantor?.name}
-                  </Button> */}
-                  <Button
-                    variant="default"
-                    disabled={isLoadingSend || isDisabled}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim Ke {submission.guarantor?.name}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-green-600 hover:bg-green-400"
-                      onClick={() => handleSendGuarantor(submission.id)}>
-                      Kirim
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <div className="flex flex-col w-full">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoadingSend || isDisabled || !submission.specimen_pdf_path}
+                      className={cn(
+                        "bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start",
+                        !submission.specimen_pdf_path && "bg-gray-400 cursor-not-allowed hover:bg-gray-400",
+                      )}>
+                      {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
+                      Kirim Ke {submission.guarantor?.name}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Pastikan specimen sudah sesuai. Hasil specimen yang dikirim akan menjadi dokumen final e-polis
+                        dan tidak dapat diubah setelah dikirim.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-green-600 hover:bg-green-400"
+                        onClick={() => handleSendGuarantor(submission.id)}>
+                        Kirim
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Show when={!submission.specimen_pdf_path}>
+                  <p className="text-xs text-red-500 mt-1">* Generate specimen terlebih dahulu sebelum mengirim</p>
+                </Show>
+              </div>
               {/*Buttons*/}
               <Popover>
                 <PopoverTrigger asChild>
