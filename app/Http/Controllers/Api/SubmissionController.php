@@ -212,7 +212,7 @@ class SubmissionController extends Controller
                 $fileData = $this->base64ToFile($image);
                 $submission = Submission::query()
                     ->where('id', $submissionId)
-                    ->first(['id']);
+                    ->first(['id', 'status', 'no_guarantee']);
                 // chack submission is revised or approved
                 if ($submission->getAttribute('status') == SubmissionStatus::REVISED->value) {
                     $submission = Submission::query()
