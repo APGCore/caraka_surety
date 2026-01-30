@@ -441,6 +441,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         submission_id: submissionId,
         document_format_id: specimenDoc.id,
         guarantor_branch_id: submission.guarantor_branch_id,
+        principal_id: submission.principal_id,
       })
       .then((response) => {
         console.log("Success Generate Specimen", response);
@@ -1252,6 +1253,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                       initialContent={doc.format_document}
                       onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                      showExportTools={doc.no !== 4}
                     />
                     <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
                       <div className="flex justify-end gap-2 mt-4">

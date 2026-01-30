@@ -15,6 +15,7 @@ use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
+use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
 use App\Models\Submission\SubmissionDoc;
@@ -670,6 +671,7 @@ class SubmissionController extends Controller
             $content = $request->input('content');
             $submissionId = $request->input('submission_id');
             $documentFormatId = $request->input('document_format_id');
+            $principalId = $request->input('principal_id');
 
             Log::info('Specimen PDF request received', [
                 'submission_id' => $submissionId,
@@ -704,6 +706,10 @@ class SubmissionController extends Controller
 
                 return $this->responseError('Cabang penjamin tidak ditemukan');
             }
+
+            $principal = Principal::query()
+                ->select(['id', 'name', 'director_position', 'director_name'])
+                ->find($principalId);
 
             // Find document format by ID if provided, otherwise fallback to no=4 query
             if ($documentFormatId) {
@@ -775,6 +781,9 @@ class SubmissionController extends Controller
 
             $payload = [
                 'branch_code' => $guarantorBranch->getAttribute('code'),
+                'principal_name' => $principal->getAttribute('name'),
+                'pic' => $principal->getAttribute('director_name'),
+                'position' => $principal->getAttribute('director_position'),
                 'content' => $content,
             ];
 
