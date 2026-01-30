@@ -1416,13 +1416,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         </Button>
                       }>
                       <>
-                        <img src={submission.callback?.url} alt="Code QR" />
+                        {/* <img src={submission.callback?.url} alt="Code QR" /> */}
                         <Button
                           onClick={() => window.open(submission.callback?.doc_url, "_blank")}
                           disabled={isDisabled}>
-                          Dokumen Pendukung
+                          Dokumen E-Polis
                         </Button>
-                        <Button
+                        {/* <Button
                           className="mt-4"
                           onClick={handleEmbedQr}
                           disabled={isLoadingEmbedQr || submission.is_added_qrcode === 1 || isDisabled}>
@@ -1432,7 +1432,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                             : submission.is_added_qrcode === 1
                               ? "QR Code Sudah Dibubuhkan"
                               : "Bubuhkan QR Code"}
-                        </Button>
+                        </Button> */}
                       </>
                     </Show>
                   </div>
