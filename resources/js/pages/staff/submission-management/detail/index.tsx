@@ -123,13 +123,26 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const specimenDocuments = (submission.document_formats || []).filter((doc: any) => doc.no === 4);
   const hasMultipleSpecimenDocs = specimenDocuments.length > 1;
   const specimenDocIdFromUrl = urlParams.get("specimen_doc_id");
+  const localStorageKey = `specimen_doc_id_${submissionId}`;
   const getInitialSpecimenDocId = () => {
+    // First check URL params
     if (specimenDocIdFromUrl) {
       const parsedId = parseInt(specimenDocIdFromUrl, 10);
-      // Verify the ID exists in specimenDocuments
       if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
         return parsedId;
       }
+    }
+    // Then check localStorage
+    try {
+      const storedId = localStorage.getItem(localStorageKey);
+      if (storedId) {
+        const parsedId = parseInt(storedId, 10);
+        if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
+          return parsedId;
+        }
+      }
+    } catch (e) {
+      // localStorage not available
     }
     return specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null;
   };
@@ -619,6 +632,16 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
 
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
+  }, []);
+
+  // Sync selectedSpecimenDocId to URL on initial load if loaded from localStorage
+  useEffect(() => {
+    if (selectedSpecimenDocId && !specimenDocIdFromUrl && hasMultipleSpecimenDocs) {
+      const newParams = new URLSearchParams(window.location.search);
+      newParams.set("specimen_doc_id", String(selectedSpecimenDocId));
+      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+      window.history.replaceState({}, "", newUrl);
+    }
   }, []);
 
   useEffect(() => {
@@ -1187,12 +1210,23 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           const newId = val?.id;
                           setSelectedSpecimenDocId(newId);
                           setLoadingDocument();
-                          // Update URL to persist selection
+                          // Update URL to persist selection on refresh
                           const newParams = new URLSearchParams(window.location.search);
                           if (newId) {
                             newParams.set("specimen_doc_id", String(newId));
+                            // Also save to localStorage for navigation persistence
+                            try {
+                              localStorage.setItem(localStorageKey, String(newId));
+                            } catch (e) {
+                              // localStorage not available
+                            }
                           } else {
                             newParams.delete("specimen_doc_id");
+                            try {
+                              localStorage.removeItem(localStorageKey);
+                            } catch (e) {
+                              // localStorage not available
+                            }
                           }
                           const newUrl = `${window.location.pathname}?${newParams.toString()}`;
                           window.history.replaceState({}, "", newUrl);
