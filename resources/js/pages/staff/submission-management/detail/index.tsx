@@ -1344,7 +1344,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           )}
           {/*Specimen PDF*/}
-          <Show when={!submission.has_send_to_guarantor}>
+          <Show when={!submission.callback}>
             <Card className="mb-4">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg font-semibold">Specimen PDF</CardTitle>
@@ -1353,7 +1353,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
                 </p>
-                <Show when={hasMultipleSpecimenDocs}>
+                <Show when={hasMultipleSpecimenDocs && !submission.has_send_to_guarantor}>
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
                       <strong>Dokumen Terpilih:</strong>{" "}
@@ -1382,7 +1382,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       </Button>
                     </Show>
                   </div>
-                  <Show when={submission.specimen_pdf_path}>
+                  <Show when={submission.specimen_pdf_path && !submission.has_send_to_guarantor}>
                     <p className="text-xs text-gray-500">
                       * Untuk generate ulang specimen, klik tombol "Update Dokumen" pada draft dokumen di atas, lalu
                       klik "Generate Specimen".
