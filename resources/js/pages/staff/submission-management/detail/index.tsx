@@ -34,7 +34,7 @@ import { Combobox } from "@/components/molecules/combobox";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
@@ -79,6 +79,8 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const { url } = usePage();
+  const urlParams = new URLSearchParams(url.split("?")[1] || "");
   const isWeekend = dayjs().day() === 0 || dayjs().day() === 6;
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
@@ -120,9 +122,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // Get documents with no=4 (specimen documents) for selection
   const specimenDocuments = (submission.document_formats || []).filter((doc: any) => doc.no === 4);
   const hasMultipleSpecimenDocs = specimenDocuments.length > 1;
-  const [selectedSpecimenDocId, setSelectedSpecimenDocId] = useState<number | null>(
-    specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null,
-  );
+  const specimenDocIdFromUrl = urlParams.get("specimen_doc_id");
+  const getInitialSpecimenDocId = () => {
+    if (specimenDocIdFromUrl) {
+      const parsedId = parseInt(specimenDocIdFromUrl, 10);
+      // Verify the ID exists in specimenDocuments
+      if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
+        return parsedId;
+      }
+    }
+    return specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null;
+  };
+  const [selectedSpecimenDocId, setSelectedSpecimenDocId] = useState<number | null>(getInitialSpecimenDocId);
 
   // Filter document_formats to show only selected specimen doc when there are multiples
   const filteredDocumentFormats = React.useMemo(() => {
@@ -1173,8 +1184,18 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         placeholder="Pilih Dokumen Jaminan"
                         defaultValueId={selectedSpecimenDocId}
                         onSelect={(val: any) => {
-                          setSelectedSpecimenDocId(val?.id);
+                          const newId = val?.id;
+                          setSelectedSpecimenDocId(newId);
                           setLoadingDocument();
+                          // Update URL to persist selection
+                          const newParams = new URLSearchParams(window.location.search);
+                          if (newId) {
+                            newParams.set("specimen_doc_id", String(newId));
+                          } else {
+                            newParams.delete("specimen_doc_id");
+                          }
+                          const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+                          window.history.replaceState({}, "", newUrl);
                         }}
                       />
                     </div>
