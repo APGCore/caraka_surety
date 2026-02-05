@@ -108,6 +108,7 @@ class DocumentFormatController extends Controller
             'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
             'format_document' => 'required|string',
+            'no' => 'required|integer',
         ]);
 
         try {
@@ -122,6 +123,7 @@ class DocumentFormatController extends Controller
                 'guarantor_to_product_type_id' => $guarantor_product_type_id,
                 'name' => $request->get('name'),
                 'format_document' => $request->get('format_document'),
+                'no' => $request->get('no'),
             ]);
 
             DB::commit();
@@ -190,6 +192,7 @@ class DocumentFormatController extends Controller
             'guarantor_to_product_type_id' => 'nullable|integer',
             'name' => 'required|string',
             'format_document' => 'required|string',
+            'no' => 'required|integer',
         ]);
 
         try {
@@ -201,6 +204,7 @@ class DocumentFormatController extends Controller
                 'product_id' => $request->get('product_id'),
                 'guarantor_to_product_type_id' => $request->get('guarantor_to_product_type_id'),
                 'guarantor_id' => $request->get('guarantor_id'),
+                'no' => $request->get('no'),
             ]);
 
             DB::commit();

@@ -508,6 +508,9 @@ class SubmissionController extends Controller
                 if ($docNo === 4 && $docName === 'Jaminan Penawaran Pokja') {
                     $docName = 'Jaminan Penawaran';
                 }
+                if ($docNo === 4 && $docName === 'Jaminan Penawaran Pokja II') {
+                    $docName = 'Jaminan Penawaran';
+                }
 
                 $submissionDoc = [
                     'name' => $docName,
