@@ -13,7 +13,9 @@ use App\Http\Requests\Api\Submission\StoreDocumentRequest;
 use App\Http\Requests\Api\Submission\UpdateDocumentRequest;
 use App\Models\Document\DocumentFormat;
 use App\Models\Guarantor\Blank;
+use App\Models\Guarantor\Guarantor;
 use App\Models\Profile\Profile;
+use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCallback;
 use App\Models\Submission\SubmissionDoc;
@@ -211,7 +213,7 @@ class SubmissionController extends Controller
                 $fileData = $this->base64ToFile($image);
                 $submission = Submission::query()
                     ->where('id', $submissionId)
-                    ->first(['id']);
+                    ->first(['id', 'status', 'no_guarantee']);
                 // chack submission is revised or approved
                 if ($submission->getAttribute('status') == SubmissionStatus::REVISED->value) {
                     $submission = Submission::query()
@@ -230,6 +232,7 @@ class SubmissionController extends Controller
                         'no_policy' => $noPolis,
                     ]
                 );
+                Submission::query()->find($submissionId)->update(['no_guarantee' => $noPolis]);
             } else {
                 Log::error('Document file is missing in the request', ['no_polis' => $noPolis]);
 
@@ -505,6 +508,9 @@ class SubmissionController extends Controller
                 if ($docNo === 4 && $docName === 'Jaminan Penawaran Pokja') {
                     $docName = 'Jaminan Penawaran';
                 }
+                if ($docNo === 4 && $docName === 'Jaminan Penawaran Pokja II') {
+                    $docName = 'Jaminan Penawaran';
+                }
 
                 $submissionDoc = [
                     'name' => $docName,
@@ -668,6 +674,7 @@ class SubmissionController extends Controller
             $content = $request->input('content');
             $submissionId = $request->input('submission_id');
             $documentFormatId = $request->input('document_format_id');
+            $principalId = $request->input('principal_id');
 
             Log::info('Specimen PDF request received', [
                 'submission_id' => $submissionId,
@@ -690,6 +697,22 @@ class SubmissionController extends Controller
 
                 return $this->responseError('Pengajuan tidak ditemukan');
             }
+
+            $guarantorBranch = Guarantor::query()
+                ->select(['id', 'code', 'name'])
+                ->find($submission['guarantor_branch_id']);
+            if (! $guarantorBranch) {
+                Log::error('Specimen PDF: Guarantor branch not found', [
+                    'submission_id' => $submissionId,
+                    'guarantor_branch_id' => $submission['guarantor_branch_id'],
+                ]);
+
+                return $this->responseError('Cabang penjamin tidak ditemukan');
+            }
+
+            $principal = Principal::query()
+                ->select(['id', 'name', 'director_position', 'director_name'])
+                ->find($principalId);
 
             // Find document format by ID if provided, otherwise fallback to no=4 query
             if ($documentFormatId) {
@@ -760,6 +783,10 @@ class SubmissionController extends Controller
             ]);
 
             $payload = [
+                'branch_code' => $guarantorBranch->getAttribute('code'),
+                'principal_name' => $principal->getAttribute('name'),
+                'pic' => $principal->getAttribute('director_name'),
+                'position' => $principal->getAttribute('director_position'),
                 'content' => $content,
             ];
 
@@ -928,7 +955,14 @@ class SubmissionController extends Controller
 
             Log::info('Specimen reset to default', ['submission_id' => $submissionId]);
 
-            return $this->responseSuccess('Specimen berhasil direset ke default');
+            // Get fresh format_document with variable replacements
+            $submissionConverted = $this->convertSubmission($submission);
+            $processedFormatDocument = $this->replaceDocumentFormat($specimenDocFormat, $submissionConverted);
+
+            return $this->responseSuccess('Specimen berhasil direset ke default', [
+                'format_document' => $processedFormatDocument,
+                'document_format_id' => $specimenDocFormat->getAttribute('id'),
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
             $error = $this->handleErrorMessage($e);

@@ -98,6 +98,12 @@ const SubmissionHistoryDatatable: React.FC<SubmissionHistoryDatatableProps> = ({
                       </p>
                     </Show>
                   </p>
+                  <Show when={submission.submission_before_id}>
+                    <p
+                      className={`mt-2 py-1 uppercase text-xs font-semibold rounded text-center bg-red-100 text-red-800`}>
+                      Hasil Di Revisi
+                    </p>
+                  </Show>
                 </TableCell>
                 <TableCell>{submission?.created_at}</TableCell>
                 <TableCell className="text-right">

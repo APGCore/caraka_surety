@@ -34,7 +34,7 @@ import { Combobox } from "@/components/molecules/combobox";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
@@ -79,6 +79,8 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
+  const { url } = usePage();
+  const urlParams = new URLSearchParams(url.split("?")[1] || "");
   const isWeekend = dayjs().day() === 0 || dayjs().day() === 6;
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
@@ -96,6 +98,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   const [isLoadingSpecimen, setIsLoadingSpecimen] = useState(false);
   const [isLoadingSaveDoc, setIsLoadingSaveDoc] = useState(false);
   const [isLoadingResetDoc, setIsLoadingResetDoc] = useState(false);
+  const [isLoadingUpdateFromDb, setIsLoadingUpdateFromDb] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [specimenCacheBuster, setSpecimenCacheBuster] = useState(Date.now());
   const [selectedBlank, setSelectedBlank] = useState(submission.blank_id);
@@ -119,9 +122,31 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // Get documents with no=4 (specimen documents) for selection
   const specimenDocuments = (submission.document_formats || []).filter((doc: any) => doc.no === 4);
   const hasMultipleSpecimenDocs = specimenDocuments.length > 1;
-  const [selectedSpecimenDocId, setSelectedSpecimenDocId] = useState<number | null>(
-    specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null,
-  );
+  const specimenDocIdFromUrl = urlParams.get("specimen_doc_id");
+  const localStorageKey = `specimen_doc_id_${submissionId}`;
+  const getInitialSpecimenDocId = () => {
+    // First check URL params
+    if (specimenDocIdFromUrl) {
+      const parsedId = parseInt(specimenDocIdFromUrl, 10);
+      if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
+        return parsedId;
+      }
+    }
+    // Then check localStorage
+    try {
+      const storedId = localStorage.getItem(localStorageKey);
+      if (storedId) {
+        const parsedId = parseInt(storedId, 10);
+        if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
+          return parsedId;
+        }
+      }
+    } catch (e) {
+      // localStorage not available
+    }
+    return specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null;
+  };
+  const [selectedSpecimenDocId, setSelectedSpecimenDocId] = useState<number | null>(getInitialSpecimenDocId);
 
   // Filter document_formats to show only selected specimen doc when there are multiples
   const filteredDocumentFormats = React.useMemo(() => {
@@ -419,8 +444,6 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     const specimenDoc = hasMultipleSpecimenDocs
       ? specimenDocuments.find((doc: any) => doc.id === selectedSpecimenDocId)
       : submission.document_formats?.find((doc: any) => doc.no === 4);
-    console.log(specimenDoc);
-
     if (!specimenDoc) {
       toast({
         title: "Gagal",
@@ -441,6 +464,8 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
         content: content,
         submission_id: submissionId,
         document_format_id: specimenDoc.id,
+        guarantor_branch_id: submission.guarantor_branch_id,
+        principal_id: submission.principal_id,
       })
       .then((response) => {
         console.log("Success Generate Specimen", response);
@@ -564,8 +589,59 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   //     });
   // };
 
+  const handleUpdateDocumentFromDb = (docId: number) => {
+    setIsLoadingUpdateFromDb(true);
+    setIsDisabled(true);
+
+    // Reset the document to get fresh format_document from database
+    axios
+      .post(route("api.submission-management.specimen.reset"), {
+        submission_id: submissionId,
+        document_format_id: docId,
+      })
+      .then((response) => {
+        console.log("Success Update Document From DB", response);
+        toast({
+          title: "Sukses",
+          description: "Dokumen berhasil diupdate. Silakan klik 'Generate Specimen' untuk membuat specimen baru.",
+          variant: "default",
+        });
+        router.reload({
+          onSuccess: () => {
+            setSpecimenCacheBuster(Date.now());
+          },
+          onFinish: () => {
+            setIsLoadingUpdateFromDb(false);
+            setIsDisabled(false);
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Error Update Document From DB", error);
+        const message =
+          error.response?.data?.message || error.message || "Terjadi kesalahan saat update dokumen dari database.";
+        toast({
+          title: "Gagal",
+          description: message,
+          variant: "destructive",
+        });
+        setIsLoadingUpdateFromDb(false);
+        setIsDisabled(false);
+      });
+  };
+
   useEffect(() => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
+  }, []);
+
+  // Sync selectedSpecimenDocId to URL on initial load if loaded from localStorage
+  useEffect(() => {
+    if (selectedSpecimenDocId && !specimenDocIdFromUrl && hasMultipleSpecimenDocs) {
+      const newParams = new URLSearchParams(window.location.search);
+      newParams.set("specimen_doc_id", String(selectedSpecimenDocId));
+      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+      window.history.replaceState({}, "", newUrl);
+    }
   }, []);
 
   useEffect(() => {
@@ -1131,8 +1207,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         placeholder="Pilih Dokumen Jaminan"
                         defaultValueId={selectedSpecimenDocId}
                         onSelect={(val: any) => {
-                          setSelectedSpecimenDocId(val?.id);
+                          const newId = val?.id;
+                          setSelectedSpecimenDocId(newId);
                           setLoadingDocument();
+                          // Update URL to persist selection on refresh
+                          const newParams = new URLSearchParams(window.location.search);
+                          if (newId) {
+                            newParams.set("specimen_doc_id", String(newId));
+                            // Also save to localStorage for navigation persistence
+                            try {
+                              localStorage.setItem(localStorageKey, String(newId));
+                            } catch (e) {
+                              // localStorage not available
+                            }
+                          } else {
+                            newParams.delete("specimen_doc_id");
+                            try {
+                              localStorage.removeItem(localStorageKey);
+                            } catch (e) {
+                              // localStorage not available
+                            }
+                          }
+                          const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+                          window.history.replaceState({}, "", newUrl);
                         }}
                       />
                     </div>
@@ -1211,9 +1308,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                       id={doc.name.replace(/\s+/g, "-").toLowerCase()}
                       initialContent={doc.format_document}
                       onInit={(_, editor) => (editorRefs.current[`editor-${doc.id}`] = editor)}
+                      showExportTools={doc.no !== 4}
                     />
                     <Show when={doc.no === 4 && !submission.has_send_to_guarantor}>
                       <div className="flex justify-end gap-2 mt-4">
+                        <Button
+                          onClick={() => handleUpdateDocumentFromDb(doc.id)}
+                          disabled={isLoadingUpdateFromDb || isDisabled}
+                          variant="outline">
+                          {isLoadingUpdateFromDb && <LoaderCircle className="animate-spin mr-1" />}
+                          Update Dokumen
+                        </Button>
                         {/* <Button
                           onClick={() => handleResetDocument(doc.id)}
                           disabled={isLoadingResetDoc || isDisabled}
@@ -1239,7 +1344,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
             </div>
           )}
           {/*Specimen PDF*/}
-          <Show when={!submission.has_send_to_guarantor}>
+          <Show when={!submission.callback}>
             <Card className="mb-4">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg font-semibold">Specimen PDF</CardTitle>
@@ -1248,7 +1353,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Generate specimen PDF untuk preview dokumen sebelum dikirim ke asuransi.
                 </p>
-                <Show when={hasMultipleSpecimenDocs}>
+                <Show when={hasMultipleSpecimenDocs && !submission.has_send_to_guarantor}>
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800">
                       <strong>Dokumen Terpilih:</strong>{" "}
@@ -1259,15 +1364,29 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                     </p>
                   </div>
                 </Show>
-                <div className="flex space-x-2 mb-4">
-                  <Button onClick={handleGenerateSpecimen} disabled={isLoadingSpecimen || isDisabled} variant="outline">
-                    {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
-                    {submission.specimen_pdf_path ? "Update Specimen" : "Generate Specimen"}
-                  </Button>
-                  <Show when={submission.specimen_pdf_path}>
-                    <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
-                      Download Specimen
-                    </Button>
+                <div className="flex flex-col space-y-2 mb-4">
+                  <div className="flex space-x-2">
+                    <Show
+                      when={!submission.specimen_pdf_path}
+                      fallback={
+                        <Button onClick={handleDownloadSpecimen} disabled={isDisabled}>
+                          Download Specimen
+                        </Button>
+                      }>
+                      <Button
+                        onClick={handleGenerateSpecimen}
+                        disabled={isLoadingSpecimen || isDisabled}
+                        variant="outline">
+                        {isLoadingSpecimen && <LoaderCircle className="animate-spin mr-1" />}
+                        Generate Specimen
+                      </Button>
+                    </Show>
+                  </div>
+                  <Show when={submission.specimen_pdf_path && !submission.has_send_to_guarantor}>
+                    <p className="text-xs text-gray-500">
+                      * Untuk generate ulang specimen, klik tombol "Update Dokumen" pada draft dokumen di atas, lalu
+                      klik "Generate Specimen".
+                    </p>
                   </Show>
                 </div>
                 {/* PDF Preview */}
@@ -1352,13 +1471,13 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                         </Button>
                       }>
                       <>
-                        <img src={submission.callback?.url} alt="Code QR" />
+                        {/* <img src={submission.callback?.url} alt="Code QR" /> */}
                         <Button
                           onClick={() => window.open(submission.callback?.doc_url, "_blank")}
                           disabled={isDisabled}>
-                          Dokumen Pendukung
+                          Dokumen E-Polis
                         </Button>
-                        <Button
+                        {/* <Button
                           className="mt-4"
                           onClick={handleEmbedQr}
                           disabled={isLoadingEmbedQr || submission.is_added_qrcode === 1 || isDisabled}>
@@ -1368,7 +1487,7 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                             : submission.is_added_qrcode === 1
                               ? "QR Code Sudah Dibubuhkan"
                               : "Bubuhkan QR Code"}
-                        </Button>
+                        </Button> */}
                       </>
                     </Show>
                   </div>
@@ -1536,42 +1655,42 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                 </>
               }>
               {/*Kirim ke asuransi*/}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  {/* <Button
-                    variant="default"
-                    disabled={isLoadingSend || isDisabled || isWeekend}
-                    className={cn(
-                      "bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start",
-                      isWeekend && "bg-gray-400 cursor-not-allowed hover:bg-gray-400",
-                    )}>
-                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
-                    {isWeekend
-                      ? "Tidak dapat mengirim ke " + submission.guarantor?.name + " (Hari Libur)"
-                      : "Kirim Ke " + submission.guarantor?.name}
-                  </Button> */}
-                  <Button
-                    variant="default"
-                    disabled={isLoadingSend || isDisabled}
-                    className="bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start">
-                    {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
-                    Kirim Ke {submission.guarantor?.name}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-green-600 hover:bg-green-400"
-                      onClick={() => handleSendGuarantor(submission.id)}>
-                      Kirim
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <div className="flex flex-col w-full">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="default"
+                      disabled={isLoadingSend || isDisabled || !submission.specimen_pdf_path}
+                      className={cn(
+                        "bg-green-600 text-destructive-foreground shadow-sm hover:bg-green-400 px-2 py-1.5 text-sm w-full rounded-sm text-start",
+                        !submission.specimen_pdf_path && "bg-gray-400 cursor-not-allowed hover:bg-gray-400",
+                      )}>
+                      {isLoadingSend && <LoaderCircle className="animate-spin mr-1" />}
+                      Kirim Ke {submission.guarantor?.name}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Apakah Anda Yakin ingin mengirimkan pengajuan ini?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Pastikan specimen sudah sesuai. Hasil specimen yang dikirim akan menjadi dokumen final e-polis
+                        dan tidak dapat diubah setelah dikirim.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Batal</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-green-600 hover:bg-green-400"
+                        onClick={() => handleSendGuarantor(submission.id)}>
+                        Kirim
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Show when={!submission.specimen_pdf_path}>
+                  <p className="text-xs text-red-500 mt-1">* Generate specimen terlebih dahulu sebelum mengirim</p>
+                </Show>
+              </div>
               {/*Buttons*/}
               <Popover>
                 <PopoverTrigger asChild>

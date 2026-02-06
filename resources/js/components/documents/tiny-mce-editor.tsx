@@ -5,9 +5,16 @@ interface TinyMCEEditorProps {
   initialContent: string;
   onContentChange?: (content: string) => void;
   onInit?: (evt: any, editor: any) => void;
+  showExportTools?: boolean; // Enable exportToWord and printDocument toolbar
 }
 
-const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onContentChange, onInit }) => {
+const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
+  id,
+  initialContent,
+  onContentChange,
+  onInit,
+  showExportTools = false,
+}) => {
   const editorRef = useRef<boolean>(false); // To ensure initialization happens only once
 
   const initializeEditor = () => {
@@ -89,43 +96,56 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        readonly: true,
-        // plugins: "export ",
-        // toolbar:
-        //   "undo redo fontselect  | bold italic | alignleft aligncenter alignright alignjustify | code exportToWord printDocument",
+        plugins: showExportTools ? "export" : "",
+        toolbar: showExportTools ? "exportToWord printDocument" : false,
+        menubar: false,
         branding: false,
         promotion: false,
-        noneditable_class: "mceNonEditable",
         setup: (editor: any) => {
+          if (showExportTools) {
+            editor.ui.registry.addButton("printDocument", {
+              text: "Print Document",
+              onAction: () => printDocument(editor),
+            });
+          }
+
           editor.on("init", (evt: any) => {
             editor.setContent(initialContent);
             onInit?.(evt, editor);
           });
 
-          if (onContentChange) {
-            editor.on("keyup", () => {
-              onContentChange(editor.getContent());
-            });
-          }
+          // Prevent keyboard input (typing, delete, backspace, etc.)
+          editor.on("keydown", (e: KeyboardEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
 
-          // editor.ui.registry.addButton("exportToWord", {
-          //   text: "Export to Word",
-          //   onAction: () => exportToWord(editor),
-          // });
+          // Prevent paste
+          editor.on("paste", (e: ClipboardEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
 
-          // editor.ui.registry.addButton("printDocument", {
-          //   text: "Print Document",
-          //   onAction: () => printDocument(editor),
-          // });
+          // Prevent cut
+          editor.on("cut", (e: ClipboardEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
 
-          editor.ui.registry.addButton("embedImageFromLink", {
-            text: "Embed Image",
-            onAction: () => {
-              const imageUrl = prompt("Enter image URL:");
-              if (imageUrl) {
-                editor.insertContent(`<img src="${imageUrl}" alt="Embedded Image" style="max-width: 100%;" />`);
-              }
-            },
+          // Prevent drag and drop
+          editor.on("drop", (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          });
+
+          // Prevent context menu actions
+          editor.on("contextmenu", (e: MouseEvent) => {
+            e.preventDefault();
+            return false;
           });
         },
       });
@@ -214,31 +234,31 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({ id, initialContent, onCon
   //   }
   // };
 
-  // const printDocument = (editor: any) => {
-  //   try {
-  //     const printWindow = window.open("", "_blank");
-  //     if (!printWindow) {
-  //       throw new Error("Failed to open print window.");
-  //     }
+  const printDocument = (editor: any) => {
+    try {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        throw new Error("Failed to open print window.");
+      }
 
-  //     const editorContent = editor.getContent();
-  //     printWindow.document.open();
-  //     printWindow.document.write(`
-  //       <html lang="id">
-  //         <head>
-  //           <title>Print Document</title>
-  //         </head>
-  //         <body>
-  //           ${editorContent}
-  //         </body>
-  //       </html>
-  //     `);
-  //     printWindow.document.close();
-  //     printWindow.print();
-  //   } catch (error) {
-  //     console.error("Print document failed:", error);
-  //   }
-  // };
+      const editorContent = editor.getContent();
+      printWindow.document.open();
+      printWindow.document.write(`
+        <html lang="id">
+          <head>
+            <title>Print Document</title>
+          </head>
+          <body>
+            ${editorContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    } catch (error) {
+      console.error("Print document failed:", error);
+    }
+  };
 
   // Directly call the initialization function when rendering
   initializeEditor();

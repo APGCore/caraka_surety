@@ -93,7 +93,8 @@ trait ReplaceDocumentFormat
         // get terbilang
         $terbilang = '';
         if ($guaranteeValue) {
-            $parts = explode('.', $guaranteeValue, 2);
+            $formatted = number_format((float) $guaranteeValue, 2, '.', '');
+            $parts = explode('.', $formatted, 2);
             $terbilang = Terbilang::make($parts[0]);
             if (isset($parts[1]) && (int) $parts[1] > 0) {
                 $terbilang .= ' Koma '.Terbilang::make($parts[1]);
@@ -131,8 +132,8 @@ trait ReplaceDocumentFormat
             $recommendation = 'disetujui';
         } else {
             $notes = $totalScore <= 60
-              ? 'Dipertimbangkan untuk ditambahkan mitigasi risiko'
-              : 'Skoring tidak valid';
+                ? 'Dipertimbangkan untuk ditambahkan mitigasi risiko'
+                : 'Skoring tidak valid';
             $recommendation = 'ditolak';
         }
 
@@ -167,9 +168,9 @@ trait ReplaceDocumentFormat
             'guarantor_address' => $guarantorBranch->address ?? '...',
             'guarantor_pic' => $guarantorBranch->pic ?? '...',
             'guarantor_location' => "$guarantorBranch->address, ".
-              "$guarantorBranchDistrict->name, ".
-              "$guarantorBranchRegency->name, ".
-              "$guarantorBranchProvince->name",
+                "$guarantorBranchDistrict->name, ".
+                "$guarantorBranchRegency->name, ".
+                "$guarantorBranchProvince->name",
             'guarantor_city' => $guarantorBranchDistrict->name ?? '...',
             'contract_value' => $contractValueFormatted,
             'guarantee_value' => $guaranteeValueFormatted,
@@ -249,7 +250,7 @@ trait ReplaceDocumentFormat
                 $approvedAt = date('Y', strtotime($submission->approved_at));
 
                 return
-                  "<tr style='text-align: left;'>
+                    "<tr style='text-align: left;'>
                     <td style='text-align: center;'>$no</td>
                     <td>$obligeeName</td>
                     <td>$submission->job_name</td>
@@ -309,7 +310,7 @@ trait ReplaceDocumentFormat
     ")->implode('');
 
         return
-          "<table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
+            "<table style='width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px;' border='1'>
             <tr>
                 <td colspan='3' style='text-align: center'><strong>SUSUNAN PENGURUS</strong></td>
             </tr>
