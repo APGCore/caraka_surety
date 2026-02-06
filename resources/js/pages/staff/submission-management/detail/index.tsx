@@ -34,7 +34,7 @@ import { Combobox } from "@/components/molecules/combobox";
 import { PreviewFile } from "@/components/molecules/preview-file";
 import RoleBasedLayout from "@/layouts/role-based-layout";
 import { SubmissionStatus } from "@/types/submission-status";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import axios from "axios";
 import { StringToBoolean } from "class-variance-authority/types";
 import dayjs from "dayjs";
@@ -79,8 +79,6 @@ const initialSteps: Array<TFormDetailStepperIndicator> = [
 ];
 
 const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
-  const { url } = usePage();
-  const urlParams = new URLSearchParams(url.split("?")[1] || "");
   const isWeekend = dayjs().day() === 0 || dayjs().day() === 6;
   const submissionId = submission?.id || "";
   const isProcess = submission.status === SubmissionStatus.PROCESS;
@@ -122,27 +120,12 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
   // Get documents with no=4 (specimen documents) for selection
   const specimenDocuments = (submission.document_formats || []).filter((doc: any) => doc.no === 4);
   const hasMultipleSpecimenDocs = specimenDocuments.length > 1;
-  const specimenDocIdFromUrl = urlParams.get("specimen_doc_id");
-  const localStorageKey = `specimen_doc_id_${submissionId}`;
   const getInitialSpecimenDocId = () => {
-    // First check URL params
-    if (specimenDocIdFromUrl) {
-      const parsedId = parseInt(specimenDocIdFromUrl, 10);
-      if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
-        return parsedId;
+    // Read from server-persisted value first
+    if (submission.selected_document_format_id) {
+      if (specimenDocuments.some((doc: any) => doc.id === submission.selected_document_format_id)) {
+        return submission.selected_document_format_id;
       }
-    }
-    // Then check localStorage
-    try {
-      const storedId = localStorage.getItem(localStorageKey);
-      if (storedId) {
-        const parsedId = parseInt(storedId, 10);
-        if (specimenDocuments.some((doc: any) => doc.id === parsedId)) {
-          return parsedId;
-        }
-      }
-    } catch (e) {
-      // localStorage not available
     }
     return specimenDocuments.length > 0 ? specimenDocuments[0]?.id : null;
   };
@@ -634,15 +617,14 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
     handleComparisonRatios(submission.principal?.ratios ?? []);
   }, []);
 
-  // Sync selectedSpecimenDocId to URL on initial load if loaded from localStorage
+  // Sync selectedSpecimenDocId when server prop changes (e.g. after router.reload)
   useEffect(() => {
-    if (selectedSpecimenDocId && !specimenDocIdFromUrl && hasMultipleSpecimenDocs) {
-      const newParams = new URLSearchParams(window.location.search);
-      newParams.set("specimen_doc_id", String(selectedSpecimenDocId));
-      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
-      window.history.replaceState({}, "", newUrl);
+    if (submission.selected_document_format_id) {
+      if (specimenDocuments.some((doc: any) => doc.id === submission.selected_document_format_id)) {
+        setSelectedSpecimenDocId(submission.selected_document_format_id);
+      }
     }
-  }, []);
+  }, [submission.selected_document_format_id]);
 
   useEffect(() => {
     if (!publicationDate) {
@@ -1210,26 +1192,17 @@ const SubmissionDetailPage: SubmissionDetailPageProps = ({ submission }) => {
                           const newId = val?.id;
                           setSelectedSpecimenDocId(newId);
                           setLoadingDocument();
-                          // Update URL to persist selection on refresh
-                          const newParams = new URLSearchParams(window.location.search);
+                          // Persist selection to database
                           if (newId) {
-                            newParams.set("specimen_doc_id", String(newId));
-                            // Also save to localStorage for navigation persistence
-                            try {
-                              localStorage.setItem(localStorageKey, String(newId));
-                            } catch (e) {
-                              // localStorage not available
-                            }
-                          } else {
-                            newParams.delete("specimen_doc_id");
-                            try {
-                              localStorage.removeItem(localStorageKey);
-                            } catch (e) {
-                              // localStorage not available
-                            }
+                            axios
+                              .post(route("api.submission-management.select-document-format"), {
+                                submission_id: submissionId,
+                                document_format_id: newId,
+                              })
+                              .catch((error) => {
+                                console.error("Error saving document format selection", error);
+                              });
                           }
-                          const newUrl = `${window.location.pathname}?${newParams.toString()}`;
-                          window.history.replaceState({}, "", newUrl);
                         }}
                       />
                     </div>

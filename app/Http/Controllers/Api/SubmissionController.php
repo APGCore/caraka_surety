@@ -362,6 +362,24 @@ class SubmissionController extends Controller
         }
     }
 
+    public function selectDocumentFormat(Request $request): JsonResponse
+    {
+        try {
+            $submissionId = $request->input('submission_id');
+            $documentFormatId = $request->input('document_format_id');
+
+            $submission = Submission::findOrFail($submissionId);
+            $submission->update(['selected_document_format_id' => $documentFormatId]);
+
+            return $this->responseSuccess('Dokumen jaminan berhasil dipilih');
+        } catch (Exception $e) {
+            $error = $this->handleErrorMessage($e);
+            Log::error('Failed to select document format', $error);
+
+            return $this->responseError('Gagal memilih dokumen jaminan', $error);
+        }
+    }
+
     public function send($submissionId): JsonResponse
     {
         try {
@@ -473,11 +491,14 @@ class SubmissionController extends Controller
                 ->get()
                 ->keyBy('document_format_id');
 
-            // Get the selected specimen doc (no=4) from existing submission_docs
-            $selectedSpecimenDoc = $existingSubmissionDocs->first(function ($doc) {
-                return $doc->documentFormat && (int) $doc->documentFormat->getAttribute('no') === 4;
-            });
-            $selectedSpecimenDocFormatId = $selectedSpecimenDoc?->getAttribute('document_format_id');
+            // Get the selected specimen doc (no=4) — prefer DB column, fallback to first existing
+            $selectedSpecimenDocFormatId = $submission->getAttribute('selected_document_format_id');
+            if (! $selectedSpecimenDocFormatId) {
+                $selectedSpecimenDoc = $existingSubmissionDocs->first(function ($doc) {
+                    return $doc->documentFormat && (int) $doc->documentFormat->getAttribute('no') === 4;
+                });
+                $selectedSpecimenDocFormatId = $selectedSpecimenDoc?->getAttribute('document_format_id');
+            }
 
             foreach ($documentFormats as $documentFormat) {
                 $docFormatId = $documentFormat->getAttribute('id');
