@@ -12,6 +12,7 @@ Route::controller(SubmissionController::class)
         Route::post('save-doc', 'saveDocSignature')->name('save-permohonan-doc');
         Route::post('document/{submissionId}/store', 'storeDocument')->name('document.store');
         Route::put('document/{submissionDoc}', 'updateDocument')->name('document.update');
+        Route::post('select-document-format', 'selectDocumentFormat')->name('select-document-format');
         Route::post('send/{submission}', 'send')->name('send');
         Route::post('specimen/download', 'downloadSpecimenPdf')->name('specimen.download');
         Route::post('specimen/reset', 'resetSpecimenToDefault')->name('specimen.reset');
