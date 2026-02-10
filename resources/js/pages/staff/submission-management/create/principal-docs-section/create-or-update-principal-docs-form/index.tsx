@@ -13,6 +13,7 @@ interface CreateOrUpdatePrincipalDocFormProps {
   principalId: number;
   id: number;
   name: string;
+  is_required?: boolean;
   principal_document: {
     id?: number;
     path: string;
@@ -32,6 +33,7 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
   principalId,
   id,
   name,
+  is_required,
   principal_document,
   doc,
   file,
@@ -90,10 +92,16 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
             title: "Data berhasil disimpan!",
             description: `Berhasil Menyimpan dokumen ${name} principal terbaru!`,
           });
-          await queryClient.invalidateQueries({
-            queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-            refetchType: "active",
-          });
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+              refetchType: "active",
+            }),
+            queryClient.invalidateQueries({
+              queryKey: [PRINCIPAL_QUERY_KEY.GET_PRINCIPAL_DOCS],
+              refetchType: "active",
+            }),
+          ]);
         }
       } catch {
         setStatus("error");
@@ -126,10 +134,16 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
           title: "Data berhasil dihapus!",
           description: `Berhasil menghapus dokumen ${name} principal!`,
         });
-        await queryClient.invalidateQueries({
-          queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-          refetchType: "active",
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+            refetchType: "active",
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [PRINCIPAL_QUERY_KEY.GET_PRINCIPAL_DOCS],
+            refetchType: "active",
+          }),
+        ]);
       }
     } catch {
       setStatus("error");
@@ -159,7 +173,10 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
 
   return (
     <div className="grid gap-1">
-      <Label className="text-md">{name}</Label>
+      <Label className="text-md">
+        {name}
+        {is_required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
       <div>
         <button
           disabled={status === "uploading"}
@@ -169,7 +186,9 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
             e.stopPropagation();
             inputRef.current?.click();
           }}
-          className="border-2 border-dashed h-[150px] w-full  border-gray-200 rounded-lg flex flex-col gap-1 p-6 items-center">
+          className={`border-2 border-dashed h-[150px] w-full rounded-lg flex flex-col gap-1 p-6 items-center ${
+            is_required && !preview ? "border-red-300 bg-red-50" : "border-gray-200"
+          }`}>
           <FileIcon className="w-10 h-10 flex-shrink-0" />
           {!files ? (
             <>

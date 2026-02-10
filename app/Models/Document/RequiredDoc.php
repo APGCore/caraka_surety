@@ -19,6 +19,10 @@ class RequiredDoc extends Model
         'deleted_at',
     ];
 
+    protected $casts = [
+        'is_required' => 'boolean',
+    ];
+
     public function productType()
     {
         return $this->belongsTo(ProductType::class);

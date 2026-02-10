@@ -48,12 +48,14 @@ class DocumentRequiredController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
+            'is_required' => 'nullable|boolean',
         ]);
 
         RequiredDoc::create([
             'name' => $request->name,
             'description' => $request->description,
             'product_type_id' => $request->product_type_id,
+            'is_required' => $request->boolean('is_required'),
         ]);
 
         flashMessage('Data Dokumen Perusahaan', 'Produk berhasil ditambahkan !');
@@ -208,12 +210,14 @@ class DocumentRequiredController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
+            'is_required' => 'nullable|boolean',
         ]);
 
         $requiredDoc->update([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
             'product_type_id' => $validatedData['product_type_id'],
+            'is_required' => $request->boolean('is_required'),
         ]);
 
         flashMessage('Data Dokumen Perusahaan', 'Produk berhasil diperbarui !');

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Submission;
 use App\Enums\JobGroup;
 use App\Enums\JobType;
 use App\Enums\SubmissionType;
+use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
 use App\Models\Guarantor\Guarantor;
 use App\Models\Location\District;
@@ -15,6 +16,7 @@ use App\Models\Product\ProductType;
 use App\Models\RelatedParties\Bank;
 use App\Models\RelatedParties\Obligee;
 use App\Models\RelatedParties\Principal;
+use App\Models\RelatedParties\PrincipalDocument;
 use App\Models\RelatedParties\PrincipalRatio;
 use App\Models\Scoring\Scoring;
 use App\Models\Scoring\ScoringOption;
@@ -213,6 +215,34 @@ class StoreRequest extends FormRequest
             foreach ($supportDocs as $index => $doc) {
                 if (empty($doc['id']) && empty($doc['file'])) {
                     $validator->errors()->add("submission.support_docs.$index.file", 'File dokumen pendukung wajib diisi');
+                }
+            }
+
+            // Validate required principal documents
+            $principalId = $this->get('principal.id');
+            if ($principalId) {
+                $requiredDocs = RequiredDoc::query()
+                    ->where('is_required', true)
+                    ->pluck('id', 'name');
+
+                $uploadedDocIds = PrincipalDocument::query()
+                    ->where('principal_id', $principalId)
+                    ->whereNotNull('path')
+                    ->pluck('required_doc_id')
+                    ->toArray();
+
+                $missingDocs = [];
+                foreach ($requiredDocs as $docName => $docId) {
+                    if (! in_array($docId, $uploadedDocIds)) {
+                        $missingDocs[] = $docName;
+                    }
+                }
+
+                if (! empty($missingDocs)) {
+                    $validator->errors()->add(
+                        'principal_documents',
+                        'Dokumen perusahaan berikut wajib diupload: '.implode(', ', $missingDocs)
+                    );
                 }
             }
         });

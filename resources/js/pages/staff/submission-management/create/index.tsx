@@ -409,6 +409,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   );
 
   const [formStep, setFormStep] = useState<"principal" | "docs" | "contract" | "skoring">("principal");
+  const [principalDocsValid, setPrincipalDocsValid] = useState(true);
+  const [missingRequiredDocs, setMissingRequiredDocs] = useState<string[]>([]);
+
+  const handlePrincipalDocsValidation = useCallback((isValid: boolean, missingDocs: string[]) => {
+    setPrincipalDocsValid(isValid);
+    setMissingRequiredDocs(missingDocs);
+  }, []);
+
   const [steps, setSteps] = useState([
     {
       title: "Profile Perusahaan",
@@ -624,6 +632,14 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     if (formStep === "principal") {
       handleUpdatePrincipal();
     } else if (formStep === "docs") {
+      if (!principalDocsValid) {
+        toast({
+          title: "Dokumen Perusahaan Belum Lengkap",
+          description: `Silakan upload dokumen wajib berikut: ${missingRequiredDocs.join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
       handleClickStep("contract");
       setUnlockStep("contract");
     } else if (formStep === "contract") {
@@ -983,7 +999,10 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                 <div>
                   <h2 className="text-2xl font-bold mb-8">Dokumen Perusahaan</h2>
                   <div className="grid gap-5">
-                    <PrincipalDocsSection principalId={data.principal?.id ? Number(data.principal.id) : undefined} />
+                    <PrincipalDocsSection
+                      principalId={data.principal?.id ? Number(data.principal.id) : undefined}
+                      onValidationChange={handlePrincipalDocsValidation}
+                    />
                   </div>
                 </div>
               </Show>
@@ -1982,7 +2001,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                 {/* SHOW NEXT IF SECTION IS NOT SKORING */}
                 <Show when={formStep !== "skoring"}>
                   <Button
-                    disabled={isPendingUpdatePrincipal}
+                    disabled={isPendingUpdatePrincipal || (formStep === "docs" && !principalDocsValid)}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

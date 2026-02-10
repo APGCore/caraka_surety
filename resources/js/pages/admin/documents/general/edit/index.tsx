@@ -7,6 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/_shadcn-ui/breadcrumb";
 import { Button } from "@/components/_shadcn-ui/button";
+import { Checkbox } from "@/components/_shadcn-ui/checkbox";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Label } from "@/components/_shadcn-ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/_shadcn-ui/select";
@@ -23,6 +24,7 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
     name: reqDoc?.name || "",
     description: reqDoc?.description || "",
     product_type_id: "",
+    is_required: reqDoc?.is_required ?? false,
   });
 
   useEffect(() => {
@@ -31,6 +33,7 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
         name: reqDoc.name ?? "",
         description: reqDoc.description ?? "",
         product_type_id: reqDoc.product_type_id ?? "",
+        is_required: reqDoc.is_required ?? false,
       });
     }
   }, [reqDoc]);
@@ -106,6 +109,15 @@ const AdminEditDocumentReqPage: AdminEditDocumentReqPageProps = ({ reqDoc, produ
                 </SelectContent>
               </Select>
               {errors.product_type_id && <InputError message={errors.product_type_id} />}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="is_required"
+                checked={data.is_required}
+                onCheckedChange={(checked) => setData("is_required", checked === true)}
+              />
+              <Label htmlFor="is_required">Wajib diisi saat pengajuan</Label>
             </div>
 
             <div className="flex justify-end">
