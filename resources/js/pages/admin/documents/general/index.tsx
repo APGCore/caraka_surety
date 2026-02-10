@@ -117,6 +117,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
               <TableHead>Kategori</TableHead>
               <TableHead>Produk</TableHead>
               <TableHead>Deskripsi</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -149,6 +150,14 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
 
                   <TableCell>{reqDoc.product_type ? reqDoc.product_type.name : "Tidak Memilih"}</TableCell>
                   <TableCell>{reqDoc.description}</TableCell>
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded ${
+                        reqDoc.is_required ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
+                      }`}>
+                      {reqDoc.is_required ? "Wajib" : "Opsional"}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -198,7 +207,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
               )}
               renderFallback={() => (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
+                  <TableCell colSpan={8} className="text-center">
                     Tidak ada data ditemukan
                   </TableCell>
                 </TableRow>

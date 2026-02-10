@@ -92,10 +92,16 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
             title: "Data berhasil disimpan!",
             description: `Berhasil Menyimpan dokumen ${name} principal terbaru!`,
           });
-          await queryClient.invalidateQueries({
-            queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-            refetchType: "active",
-          });
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+              refetchType: "active",
+            }),
+            queryClient.invalidateQueries({
+              queryKey: [PRINCIPAL_QUERY_KEY.GET_PRINCIPAL_DOCS],
+              refetchType: "active",
+            }),
+          ]);
         }
       } catch {
         setStatus("error");
@@ -128,10 +134,16 @@ const CreateOrUpdatePrincipalDocForm: React.FC<CreateOrUpdatePrincipalDocFormPro
           title: "Data berhasil dihapus!",
           description: `Berhasil menghapus dokumen ${name} principal!`,
         });
-        await queryClient.invalidateQueries({
-          queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
-          refetchType: "active",
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: [PRINCIPAL_QUERY_KEY.PRINCIPAL],
+            refetchType: "active",
+          }),
+          queryClient.invalidateQueries({
+            queryKey: [PRINCIPAL_QUERY_KEY.GET_PRINCIPAL_DOCS],
+            refetchType: "active",
+          }),
+        ]);
       }
     } catch {
       setStatus("error");
