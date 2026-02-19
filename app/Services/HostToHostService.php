@@ -16,7 +16,10 @@ class HostToHostService
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => $token,
-            ])->post($url, $data);
+            ])
+                ->timeout(120)        // tunggu maksimal 120 detik
+                ->connectTimeout(10) // maksimal 10 detik untuk koneksi awal
+                ->post($url, $data);
 
             $responseJson = $response->json();
             if ($response->successful()) {
