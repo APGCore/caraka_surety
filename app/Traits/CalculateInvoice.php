@@ -294,7 +294,7 @@ trait CalculateInvoice
                 $submissionAfter = $submission->submissionAfter;
 
                 if ($submissionAfter) {
-                    $submission->status = SubmissionStatus::APPROVED->value;
+                    // $submission->status = SubmissionStatus::APPROVED->value;
                 }
 
                 if ($submissionBefore) {
