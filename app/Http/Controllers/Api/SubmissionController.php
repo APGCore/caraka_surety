@@ -220,6 +220,13 @@ class SubmissionController extends Controller
                         ->where('status', SubmissionStatus::APPROVED->value)
                         ->where('no_guarantee', $noPolis)
                         ->first(['id']);
+
+                    Log::info('Callback processed to new submission revision', [
+                        'message' => 'New submission revision created',
+                        'old_submission_id' => $submissionId,
+                        'revision_submission_id' => $submission->getAttribute('id'),
+                        'no_polis' => $noPolis,
+                    ]);
                 }
                 $submissionFirstId = $submission->getAttribute('id');
                 // save image to storage
