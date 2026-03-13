@@ -160,23 +160,34 @@ class SubmissionController extends Controller
         if ($result['status'] === 'success') {
             $data = $result['message'];
             // image is base64
-            $imageString = $data['image'] ?? null;
-            if ($imageString) {
-                // base64 to file
-                $fileData = $this->base64ToFile($imageString);
-                // save image to storage
-                $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
-                $submission->update(['has_send_to_guarantor' => true]);
-                SubmissionCallback::query()->updateOrCreate(
-                    ['submission_id' => $submissionId],
-                    [
-                        'submission_id' => $submissionId,
-                        'doc_url' => $data['doc_url'] ?? '-',
-                        'url' => $url,
-                        'no_policy' => $data['policyno'],
-                    ]
-                );
-                Submission::query()->find($submissionId)->update(['no_guarantee' => $data['policyno']]);
+            // NOTE: sudah tidak digunakan untuk menyimpan data, simpan data ada di method @getCallback, karena untuk memastikan data yang disimpan sudah final dari pihak asuransi, bukan data sementara yang dikirim saat callback
+            // $imageString = $data['image'] ?? null;
+            // if ($imageString) {
+            //     // base64 to file
+            //     $fileData = $this->base64ToFile($imageString);
+            //     // save image to storage
+            //     $url = $this->uploadFile($fileData, 'submission/callback', $submissionId.'-image-from-guarantor');
+            //     $submission->update(['has_send_to_guarantor' => true]);
+            //     SubmissionCallback::query()->updateOrCreate(
+            //         ['submission_id' => $submissionId],
+            //         [
+            //             'submission_id' => $submissionId,
+            //             'doc_url' => $data['doc_url'] ?? '-',
+            //             'url' => $url,
+            //             'no_policy' => $data['policyno'],
+            //         ]
+            //     );
+            //     Submission::query()->find($submissionId)->update(['no_guarantee' => $data['policyno']]);
+            // }
+
+            // cek response kosong
+            if (empty($result) || $result === 'Empty Response') {
+                Log::error('Callback Error: Empty response from third party', [
+                    'submission_id' => $submissionId,
+                    'response' => $result,
+                ]);
+
+                return $this->responseError('Error Dari Asuransi: Tidak ada data response dari Asuransi');
             }
 
             if (isset($data['error'])) {
