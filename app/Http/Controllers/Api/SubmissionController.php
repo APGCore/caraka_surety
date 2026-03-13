@@ -180,9 +180,9 @@ class SubmissionController extends Controller
             //     Submission::query()->find($submissionId)->update(['no_guarantee' => $data['policyno']]);
             // }
 
-            // cek response kosong
-            if (empty($result) || $result === 'Empty Response') {
-                Log::error('Callback Error: Empty response from third party', [
+            // cek response message kosong
+            if ($data === null) {
+                Log::error('Callback Error: Null Given', [
                     'submission_id' => $submissionId,
                     'response' => $result,
                 ]);
