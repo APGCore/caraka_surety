@@ -124,8 +124,7 @@ class ExportController extends Controller
                 'obligee:id,name',
                 'staff:id,name,profile_id',
                 'office:id,name,office_type',
-                'submissionBefore' => fn ($q) => $q
-                    ->where('send_to_guarantor_at', '<', $date[0]),
+                'submissionBefore',
                 'submissionBefore.product:id,name',
                 'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
                 'submissionBefore.blank:id,number,is_broken,is_revised',
