@@ -35,7 +35,8 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
   // const [requiredDocs, setRequiredDocs] = useState(() => reqDocs);
-  const requiredDocs = reqDocs.data;
+  // const requiredDocs = reqDocs.data;
+  const [requiredDocs, setRequiredDocs] = useState(reqDocs.data);
 
   const links = reqDocs.links;
 
@@ -64,18 +65,22 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     );
   };
 
-  // const changeOrder = (e: any, id: any) => {
-  //   setRequiredDocs((prevState) => {
-  //     const newState = [...prevState];
-  //     const index = newState.findIndex((item) => item.id === id);
-  //     const value = Number(e.target.value);
-  //     const existingValue = newState.filter((item) => item.no === value && item.id !== id);
-  //     if (index !== -1 && value > 0 && existingValue.length === 0) {
-  //       newState[index].no = value;
-  //     }
-  //     return newState;
-  //   });
-  // };
+  const changeOrder = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    const value = Number(e.target.value);
+
+    setRequiredDocs((prev) => {
+      return prev.map((item) => {
+        if (item.id === id) {
+          return { ...item, no: value };
+        }
+        return item;
+      });
+    });
+  };
+
+  React.useEffect(() => {
+    setRequiredDocs(reqDocs.data);
+  }, [reqDocs.data]);
 
   const handleSaveOrder = (e: any, id: any) => {
     e.preventDefault();
@@ -141,7 +146,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                       className="w-[40pt]"
                       value={reqDoc.no}
                       min={1}
-                      // onChange={(e) => changeOrder(e, reqDoc.id)}
+                      onChange={(e) => changeOrder(e, reqDoc.id)}
                       onBlur={(e) => handleSaveOrder(e, reqDoc.id)}
                       placeholder="No Urut"
                     />
