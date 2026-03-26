@@ -25,6 +25,7 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
     description: "",
     product_type_id: "",
     is_required: false,
+    isActive: false,
   });
 
   const submit: FormEventHandler = (e) => {
@@ -50,8 +51,8 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
     <main className="space-y-2.5">
       <div className="border p-8 rounded-md shadow-md flex justify-center">
         <div className="w-full max-w-lg">
-          <form onSubmit={submit} id="document-form" className="grid gap-6">
-            <div className="grid gap-2">
+          <form onSubmit={submit} id="document-form" className="grid">
+            <div className="grid gap-2 mb-6">
               <Label htmlFor="name">Nama</Label>
               <Input
                 id="name"
@@ -63,7 +64,7 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
               />
               {errors.name && <InputError message={errors.name} />}
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-2 mb-6">
               <Label htmlFor="description">Deskripsi</Label>
               <Textarea
                 id="description"
@@ -73,7 +74,7 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
               />
               {errors.description && <InputError message={errors.description} />}
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-2 mb-6">
               <Label htmlFor="product-type">Produk</Label>
               <Select onValueChange={handleProductTypeChange} value={selectedProductType}>
                 <SelectTrigger className="w-full">
@@ -91,13 +92,22 @@ const AdminCreateDocumentPage: DocumentGeneralPageProps = ({ productTypes }) => 
               {errors.product_type_id && <InputError message={errors.product_type_id} />}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-4">
               <Checkbox
                 id="is_required"
                 checked={data.is_required}
                 onCheckedChange={(checked) => setData("is_required", checked === true)}
               />
               <Label htmlFor="is_required">Wajib diisi saat pengajuan</Label>
+            </div>
+
+            <div className="flex items-center gap-2 mb-6">
+              <Checkbox
+                id="isActive"
+                checked={data.isActive}
+                onCheckedChange={(checked) => setData("isActive", checked === true)}
+              />
+              <Label htmlFor="isActive">Dokumen aktif? Jika tidak, tidak muncul saat pengajuan.</Label>
             </div>
 
             <div className="flex justify-end">

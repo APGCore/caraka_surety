@@ -21,6 +21,7 @@ class RequiredDoc extends Model
 
     protected $casts = [
         'is_required' => 'boolean',
+        'isActive' => 'boolean',
     ];
 
     public function productType()

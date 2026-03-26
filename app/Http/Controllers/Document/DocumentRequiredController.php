@@ -20,16 +20,14 @@ class DocumentRequiredController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
+
         $requiredDocs = RequiredDoc::with('productType')
             ->when($request->exists('search'), function ($query) use ($request) {
                 return $query->whereLike('name', '%'.$request->search.'%');
             })
-            ->when($request->exists('per_page'), function ($query) use ($request) {
-                return $query->limit($request->per_page);
-            }, function ($query) {
-                return $query->limit(10);
-            })
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
 
         return inertia('admin/documents/general/index', [
             'page_settings' => [
@@ -49,6 +47,7 @@ class DocumentRequiredController extends Controller
             'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
             'is_required' => 'nullable|boolean',
+            'isActive' => 'nullable|boolean',
         ]);
 
         RequiredDoc::create([
@@ -56,6 +55,7 @@ class DocumentRequiredController extends Controller
             'description' => $request->description,
             'product_type_id' => $request->product_type_id,
             'is_required' => $request->boolean('is_required'),
+            'isActive' => $request->boolean('isActive'),
         ]);
 
         flashMessage('Data Dokumen Perusahaan', 'Produk berhasil ditambahkan !');
@@ -211,6 +211,7 @@ class DocumentRequiredController extends Controller
             'description' => 'nullable|string',
             'product_type_id' => 'nullable|exists:product_types,id',
             'is_required' => 'nullable|boolean',
+            'isActive' => 'nullable|boolean',
         ]);
 
         $requiredDoc->update([
@@ -218,6 +219,7 @@ class DocumentRequiredController extends Controller
             'description' => $validatedData['description'],
             'product_type_id' => $validatedData['product_type_id'],
             'is_required' => $request->boolean('is_required'),
+            'isActive' => $request->boolean('isActive'),
         ]);
 
         flashMessage('Data Dokumen Perusahaan', 'Produk berhasil diperbarui !');

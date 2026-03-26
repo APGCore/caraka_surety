@@ -34,7 +34,14 @@ import { DocumentGeneralPageProps } from "./documents-general-required.page.type
 const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
   const [search, setSearch] = useState("");
   const [select, setSelect] = useState(10);
-  const [requiredDocs, setRequiredDocs] = useState(() => reqDocs);
+  // const [requiredDocs, setRequiredDocs] = useState(() => reqDocs);
+  const requiredDocs = reqDocs.data;
+
+  const links = reqDocs.links;
+
+  const prevLink = links[0];
+  const nextLink = links[links.length - 1];
+  const numberLinks = links.slice(1, -1);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,18 +64,18 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
     );
   };
 
-  const changeOrder = (e: any, id: any) => {
-    setRequiredDocs((prevState) => {
-      const newState = [...prevState];
-      const index = newState.findIndex((item) => item.id === id);
-      const value = Number(e.target.value);
-      const existingValue = newState.filter((item) => item.no === value && item.id !== id);
-      if (index !== -1 && value > 0 && existingValue.length === 0) {
-        newState[index].no = value;
-      }
-      return newState;
-    });
-  };
+  // const changeOrder = (e: any, id: any) => {
+  //   setRequiredDocs((prevState) => {
+  //     const newState = [...prevState];
+  //     const index = newState.findIndex((item) => item.id === id);
+  //     const value = Number(e.target.value);
+  //     const existingValue = newState.filter((item) => item.no === value && item.id !== id);
+  //     if (index !== -1 && value > 0 && existingValue.length === 0) {
+  //       newState[index].no = value;
+  //     }
+  //     return newState;
+  //   });
+  // };
 
   const handleSaveOrder = (e: any, id: any) => {
     e.preventDefault();
@@ -118,6 +125,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
               <TableHead>Produk</TableHead>
               <TableHead>Deskripsi</TableHead>
               <TableHead className="text-center">Status</TableHead>
+              <TableHead className="text-center">Aktif</TableHead>
               <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -126,14 +134,14 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
               of={requiredDocs}
               render={(reqDoc: any, index: number) => (
                 <TableRow key={reqDoc.id}>
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{(reqDocs.from ?? 0) + index}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
                       className="w-[40pt]"
                       value={reqDoc.no}
                       min={1}
-                      onChange={(e) => changeOrder(e, reqDoc.id)}
+                      // onChange={(e) => changeOrder(e, reqDoc.id)}
                       onBlur={(e) => handleSaveOrder(e, reqDoc.id)}
                       placeholder="No Urut"
                     />
@@ -156,6 +164,14 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                         reqDoc.is_required ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
                       }`}>
                       {reqDoc.is_required ? "Wajib" : "Opsional"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded ${
+                        reqDoc.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                      }`}>
+                      {reqDoc.isActive ? "Aktif" : "Tidak Aktif"}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -217,9 +233,12 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
         </Table>
       </div>
       <div className="text-sm text-gray-500">
-        Menampilkan {reqDocs.length > 0 ? 1 : 0} sampai {reqDocs.length} dari {reqDocs.length} hasil
+        Menampilkan {reqDocs.from ?? 0} sampai {reqDocs.to ?? 0} dari {reqDocs.total ?? 0} hasil
       </div>
-      <Pagination>
+      {/* <div className="text-sm text-gray-500">
+        Menampilkan {reqDocs.length > 0 ? 1 : 0} sampai {reqDocs.length} dari {reqDocs.length} hasil
+      </div> */}
+      {/* <Pagination>
         <PaginationContent>
           <PaginationItem>
             <Button variant="ghost" disabled>
@@ -233,6 +252,40 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
           </PaginationItem>
           <PaginationItem>
             <Button variant="ghost" disabled>
+              Next
+            </Button>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination> */}
+      <Pagination>
+        <PaginationContent>
+          {/* Previous */}
+          <PaginationItem>
+            <Button
+              variant="ghost"
+              disabled={!prevLink?.url}
+              onClick={() => prevLink?.url && router.visit(prevLink.url)}>
+              Previous
+            </Button>
+          </PaginationItem>
+          {numberLinks.map((link, i) => (
+            <PaginationItem key={i}>
+              <PaginationLink
+                href={link.url ?? "#"}
+                as="button"
+                size="icon"
+                isActive={link.active}
+                className={!link.url ? "pointer-events-none opacity-50" : ""}>
+                {link.label}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          {/* Next */}
+          <PaginationItem>
+            <Button
+              variant="ghost"
+              disabled={!nextLink?.url}
+              onClick={() => nextLink?.url && router.visit(nextLink.url)}>
               Next
             </Button>
           </PaginationItem>
