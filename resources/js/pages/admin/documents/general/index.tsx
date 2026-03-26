@@ -168,7 +168,7 @@ const DocumentGeneralPage: DocumentGeneralPageProps = ({ reqDocs }) => {
                   </TableCell>
                   <TableCell className="text-center">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded ${
+                      className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
                         reqDoc.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                       }`}>
                       {reqDoc.isActive ? "Aktif" : "Tidak Aktif"}
