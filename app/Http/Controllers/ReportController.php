@@ -39,14 +39,14 @@ class ReportController extends Controller
             $dateFrom = $request->input('date.from');
             $dateTo = $request->input('date.to');
             $date = ($dateFrom && $dateTo)
-              ? [
-                  Carbon::parse($dateFrom)->startOfDay(),
-                  Carbon::parse($dateTo)->endOfDay(),
-              ]
-              : [
-                  now()->subDays(7)->toDateString().' 00:00:00',
-                  now()->toDateString().' 23:59:59',
-              ];
+                ? [
+                    Carbon::parse($dateFrom)->startOfDay(),
+                    Carbon::parse($dateTo)->endOfDay(),
+                ]
+                : [
+                    now()->subDays(7)->toDateString().' 00:00:00',
+                    now()->toDateString().' 23:59:59',
+                ];
 
             // if branch
             $user = $request->user();
@@ -107,7 +107,8 @@ class ReportController extends Controller
                     'obligee:id,name',
                     'staff:id,name,profile_id',
                     'office:id,name,code,office_type',
-                    'submissionBefore',
+                    'submissionBefore' => fn ($q) => $q
+                        ->where('send_to_guarantor_at', '<', $date[0]),
                     'submissionBefore.product:id,name',
                     'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
                     'submissionBefore.blank:id,number,is_broken,is_revised',
