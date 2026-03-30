@@ -275,89 +275,45 @@ trait CalculateInvoice
     }
 
     /**
-     * Memetakan daftar submission menjadi collection untuk laporan produksi.
-     *
-     * Setiap submission diproses berdasarkan kondisi revisi:
-     *
-     * 1. Submission biasa (tidak ada revisi):
-     *    - Dihitung langsung dengan rate sesuai status-nya.
-     *
-     * 2. Submission yang sudah direvisi oleh submission lain ($submissionAfter ada):
-     *    - Status di-override ke APPROVED agar rate dihitung dengan tarif penuh,
-     *      bukan tarif revisi.
-     *
-     * 3. Submission hasil revisi ($submissionBefore ada):
-     *    - Menghasilkan 3 baris di laporan:
-     *      a. Submission baru (current) — status APPROVED, nilai positif (rate penuh baru).
-     *      b. Clone submission lama — status APPROVED, nilai MINUS (menganulir tagihan lama).
-     *      c. Clone submission lama — status REVISED, nilai positif (biaya revisi saja).
-     *    - Berlaku untuk dua skenario:
-     *      - Beda periode: submission lama tidak muncul di list, sehingga baris (b)
-     *        murni mengurangi akumulasi laporan.
-     *      - Sama periode: submission lama muncul di list sebagai baris positif,
-     *        sehingga baris (b) saling cancel dengan baris lama tersebut.
-     *
-     * Rate di-preload sebelum loop dengan menyertakan data dari semua submissionBefore
-     * (guarantorId, officeId, productTypeId, tanggal kirim) agar rate dari periode
-     * berbeda tetap ditemukan.
-     *
      * @throws Exception
      */
     private function mapProductionReport($submissions): Collection
     {
         $result = collect();
+        $resultMinus = collect();
         $submissions = collect($submissions);
         if ($submissions->isNotEmpty()) {
-            // Kumpulkan submissionBefore dari semua submission agar rate periode lama ikut di-preload
-            $submissionsBefore = $submissions->map(fn ($s) => $s->submissionBefore)->filter();
-
-            $guarantorIds = $submissions->pluck('guarantor_id')
-                ->merge($submissionsBefore->pluck('guarantor_id'))
-                ->unique()->toArray();
-            $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')
-                ->merge($submissionsBefore->pluck('guarantor_to_product_type_id'))
-                ->unique()->toArray();
-            $officeIds = $submissions->pluck('office_id')
-                ->merge($submissionsBefore->pluck('office_id'))
-                ->unique()->toArray();
-            $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')
-                ->merge($submissionsBefore->pluck('send_to_guarantor_at'))
-                ->filter()->unique()->toArray();
-
+            $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
+            $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
+            $officeIds = $submissions->pluck('office_id')->unique()->toArray();
+            $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
             $guarantorRates = $this->getGuarantorRates($guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
             $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
             foreach ($submissions as $submission) {
                 $submissionBefore = $submission->submissionBefore;
                 $submissionAfter = $submission->submissionAfter;
 
-                // Jika submission ini sudah direvisi, paksa status APPROVED
-                // agar rate dihitung dengan tarif penuh (bukan tarif revisi)
                 if ($submissionAfter) {
                     $submission->status = SubmissionStatus::APPROVED->value;
                 }
 
                 if ($submissionBefore) {
-                    // Baris (b): clone submission lama untuk di-negate (menganulir tagihan lama)
+                    //                  $submissionRevised = clone $submissionBefore;
                     $submissionRevisedMinus = clone $submissionBefore;
-                    // Baris (c): clone submission lama dengan status REVISED untuk biaya revisi
                     $submissionRevisedAdd = clone $submissionBefore;
-
-                    // Submission baru (current) dihitung dengan rate penuh
                     $submission->status = SubmissionStatus::APPROVED->value;
-                    // Rate penuh lama (akan di-negate)
+                    //                  $submissionRevised->status = SubmissionStatus::APPROVED->value;
                     $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
-                    // Biaya revisi saja (tarif revised)
                     $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
 
-                    // Flag is_add & is_minus harus di-set setelah status di-assign
+                    // harus setelah setting status
                     $submissionRevisedMinus->is_add = true;
                     $submissionRevisedMinus->is_minus = true;
+                    // $submissionRevised->is_add = true;
 
-                    // Baris (a): submission baru dengan rate penuh
+                    // $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
-                    // Baris (b): submission lama di-negate ($isMinus = true)
                     $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
-                    // Baris (c): submission lama dengan biaya revisi
                     $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
                 } else {
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
@@ -365,7 +321,7 @@ trait CalculateInvoice
             }
         }
 
-        return $result;
+        return $result->merge($resultMinus);
     }
 
     /**
