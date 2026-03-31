@@ -40,14 +40,14 @@ class InvoiceController extends Controller
         $dateFrom = $request->input('date.from');
         $dateTo = $request->input('date.to');
         $date = ($dateFrom && $dateTo)
-          ? [
-              "$dateFrom 00:00:00",
-              "$dateTo 23:59:59",
-          ]
-          : [
-              now()->subDays(7)->toDateString().' 00:00:00',
-              now()->toDateString().' 23:59:59',
-          ];
+            ? [
+                "$dateFrom 00:00:00",
+                "$dateTo 23:59:59",
+            ]
+            : [
+                now()->subDays(7)->toDateString().' 00:00:00',
+                now()->toDateString().' 23:59:59',
+            ];
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -142,9 +142,14 @@ class InvoiceController extends Controller
             $submissionId = $requestValid['submission_id'];
             $submission = Submission::query()->with(['staff'])->find($submissionId);
 
-            $this->storeSubmissionRate($submission, $requestValid['minimum_bill'],
-                $requestValid['selling_rate'], $requestValid['sales_administration'],
-                $requestValid['broken_rate'], $requestValid['revised_rate']);
+            $this->storeSubmissionRate(
+                $submission,
+                $requestValid['minimum_bill'],
+                $requestValid['selling_rate'],
+                $requestValid['sales_administration'],
+                $requestValid['broken_rate'],
+                $requestValid['revised_rate']
+            );
 
             DB::commit();
             flashMessage('Berhasil', 'Berhasil menyimpan data');
@@ -309,9 +314,26 @@ class InvoiceController extends Controller
     public function sendFinanceProcess($submissionIds): array
     {
         $submissions = Submission::query()
-            ->select(['id', 'no_guarantee', 'guarantor_id', 'guarantor_branch_id', 'principal_id', 'obligee_id', 'staff_id', 'office_id',
-                'product_id', 'guarantor_to_product_type_id', 'blank_id', 'guarantee_value', 'time_period', 'difference_time_period', 'status',
-                'created_at', 'checked_at', 'approved_at', 'send_to_guarantor_at',
+            ->select([
+                'id',
+                'no_guarantee',
+                'guarantor_id',
+                'guarantor_branch_id',
+                'principal_id',
+                'obligee_id',
+                'staff_id',
+                'office_id',
+                'product_id',
+                'guarantor_to_product_type_id',
+                'blank_id',
+                'guarantee_value',
+                'time_period',
+                'difference_time_period',
+                'status',
+                'created_at',
+                'checked_at',
+                'approved_at',
+                'send_to_guarantor_at',
             ])
             ->with([
                 'guarantor' => function ($query) {
@@ -351,6 +373,7 @@ class InvoiceController extends Controller
                     $query->select(['id', 'number', 'is_broken'])->withTrashed();
                 },
             ])
+            ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
             ->whereIn('id', $submissionIds)
             ->get();
         $office = Profile::query()
@@ -507,7 +530,7 @@ class InvoiceController extends Controller
         }
         // If rate not found
         $rateNotFound = count($offices) > 0
-          ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+            ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
         if (count($invoices) === 0) {
             throw new Exception('Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound);
         }
