@@ -37,6 +37,7 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
     minimum_management_fee?: string;
     broken_rate?: string;
     revised_rate?: string;
+    stamp_duty?: string;
     effective_at?: string;
   }>({
     profile_id: profileId,
@@ -50,6 +51,7 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
     minimum_management_fee: rate?.minimum_management_fee?.toString() ?? "",
     broken_rate: rate?.broken_rate?.toString() ?? "",
     revised_rate: rate?.revised_rate?.toString() ?? "",
+    stamp_duty: rate?.stamp_duty?.toString() ?? "",
     effective_at: rate?.effective_at?.toString() ?? "",
   });
 
@@ -172,6 +174,19 @@ const FormOfficeRate: React.FC<FormOfficeRateProps> = ({
             </div>
 
             <InputError message={errors?.revised_rate} />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="stamp_duty" className="block text-sm font-medium text-gray-700">
+              Biaya Materai
+            </label>
+            <div className="flex items-center space-x-4">
+              <InputCurrency
+                value={data.stamp_duty?.toString() ?? ""}
+                onChange={(e) => setData({ ...data, stamp_duty: e })}
+              />
+            </div>
+
+            <InputError message={errors?.stamp_duty} />
           </div>
         </div>
         {/*  <div className="space-y-2">*/}

@@ -200,6 +200,7 @@ class OfficeRateController extends Controller
                 //                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
+                'stamp_duty' => $this->currencyConvert($requestValid['stamp_duty']),
                 'effective_at' => $requestValid['effective_at'],
             ];
 
@@ -261,6 +262,7 @@ class OfficeRateController extends Controller
                 //                'minimum_management_fee' => $this->currencyConvert($requestValid['minimum_management_fee']),
                 'broken_rate' => $this->currencyConvert($requestValid['broken_rate']),
                 'revised_rate' => $this->currencyConvert($requestValid['revised_rate']),
+                'stamp_duty' => $this->currencyConvert($requestValid['stamp_duty']),
                 'effective_at' => $requestValid['effective_at'],
             ];
 
