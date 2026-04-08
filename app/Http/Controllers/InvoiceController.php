@@ -82,6 +82,7 @@ class InvoiceController extends Controller
             ->when($officeSelected, fn ($q) => $q->where('office_id', $officeSelected))
             ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
             ->when($guarantorToProductType, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductType->id))
+            ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
             ->where('has_send_to_guarantor', true)
             ->whereBetween('send_to_guarantor_at', $date)
             ->pluck('id');

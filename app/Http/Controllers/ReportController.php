@@ -117,6 +117,7 @@ class ReportController extends Controller
                         ->where('send_to_guarantor_at', '>', $date[1])
                         ->select(['id', 'submission_before_id']),
                 ])
+                ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
                 ->orderByDesc('no_guarantee')
                 ->paginate($request->get('per_page') ?? 10)
                 ->withQueryString();
