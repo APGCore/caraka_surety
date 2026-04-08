@@ -96,8 +96,9 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: showExportTools ? "exportToWord" : "",
-        toolbar: showExportTools ? "exportToWord printDocument" : false,
+        plugins: showExportTools ? "export" : "",
+        toolbar: showExportTools ? "code exportToWord printDocument" : false,
+
         menubar: false,
         branding: false,
         promotion: false,
@@ -108,6 +109,11 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
               onAction: () => printDocument(editor),
             });
           }
+
+          editor.ui.registry.addButton("exportToWord", {
+            text: "Export to Word",
+            onAction: () => exportToWord(editor),
+          });
 
           editor.on("init", (evt: any) => {
             editor.setContent(initialContent);
@@ -180,59 +186,59 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
   //   }
   // };
 
-  // const exportToWord = (editor: any) => {
-  //   try {
-  //     if (!window.htmlDocx) {
-  //       throw new Error("htmlDocx is not loaded.");
-  //     }
+  const exportToWord = (editor: any) => {
+    try {
+      if (!window.htmlDocx) {
+        throw new Error("htmlDocx is not loaded.");
+      }
 
-  //     const content = editor.getContent({ format: "html" });
+      const content = editor.getContent({ format: "html" });
 
-  //     // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
-  //     const styles = Array.from(document.styleSheets)
-  //       .map((sheet: any) => {
-  //         try {
-  //           return Array.from(sheet.cssRules || [])
-  //             .map((rule: any) => rule.cssText)
-  //             .join("\n");
-  //         } catch (e) {
-  //           return ""; // skip stylesheets with CORS issues
-  //         }
-  //       })
-  //       .join("\n");
+      // Ambil semua style dari halaman (jika kamu punya CSS global yang memengaruhi tampilan editor)
+      const styles = Array.from(document.styleSheets)
+        .map((sheet: any) => {
+          try {
+            return Array.from(sheet.cssRules || [])
+              .map((rule: any) => rule.cssText)
+              .join("\n");
+          } catch (e) {
+            return ""; // skip stylesheets with CORS issues
+          }
+        })
+        .join("\n");
 
-  //     const fullHTML = `
-  //       <html lang="id">
-  //         <head>
-  //           <meta charset="utf-8">
-  //           <style>
-  //             body {
-  //               font-family: Arial, sans-serif;
-  //             }
-  //             img {
-  //               max-width: 100%;
-  //               height: auto;
-  //             }
-  //             ${styles}
-  //           </style>
-  //         </head>
-  //         <body>
-  //           ${content}
-  //         </body>
-  //       </html>
-  //     `;
+      const fullHTML = `
+        <html lang="id">
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+              }
+              img {
+                max-width: 100%;
+                height: auto;
+              }
+              ${styles}
+            </style>
+          </head>
+          <body>
+            ${content}
+          </body>
+        </html>
+      `;
 
-  //     const converted = window.htmlDocx.asBlob(fullHTML);
-  //     const link = document.createElement("a");
-  //     link.href = URL.createObjectURL(converted);
-  //     link.download = `${id}-document.docx`;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   } catch (error) {
-  //     console.error("Export to Word failed:", error);
-  //   }
-  // };
+      const converted = window.htmlDocx.asBlob(fullHTML);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(converted);
+      link.download = `${id}-document.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export to Word failed:", error);
+    }
+  };
 
   const printDocument = (editor: any) => {
     try {
