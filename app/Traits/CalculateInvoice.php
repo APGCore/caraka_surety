@@ -157,6 +157,7 @@ trait CalculateInvoice
         $revisedRate = (float) $settingRate?->getAttribute('revised_rate') ?? 0;
         $commission = (float) ($settingRate?->getAttribute('commission') ?? 0) / 100;
         $pph = (float) ($settingRate?->getAttribute('pph') ?? 0) / 100;
+        $stampDuty = (float) ($settingRate?->getAttribute('stamp_duty') ?? 0);
 
         if ($isRevised) {
             $minimum = $revisedRate;
@@ -165,7 +166,7 @@ trait CalculateInvoice
             $commission = 0;
         }
 
-        return $this->extractedCapitalRates($timePeriode, $guaranteeValue, $rate, $minimum, $adm, $commission, $pph, $brokenRate, $revisedRate, $minus);
+        return $this->extractedCapitalRates($timePeriode, $guaranteeValue, $rate, $minimum, $adm, $commission, $pph, $brokenRate, $stampDuty, $revisedRate, $minus);
     }
 
     /**
@@ -236,11 +237,11 @@ trait CalculateInvoice
         ]);
     }
 
-    private function extractedCapitalRates(int $timePeriode, float $guaranteeValue, float $rate, float|int $minimum, float|int $adm, float $commission, float $pph, float|int $brokenRate, float|int $revisedRate, bool $minus = false): Collection
+    private function extractedCapitalRates(int $timePeriode, float $guaranteeValue, float $rate, float|int $minimum, float|int $adm, float $commission, float $pph, float|int $brokenRate, float|int $stampDuty, float|int $revisedRate, bool $minus = false): Collection
     {
         $serviceCharges = (float) $timePeriode > 91 ? (($guaranteeValue * $rate * $timePeriode) / 91) : ($guaranteeValue * $rate);
         $premi = max($serviceCharges, $minimum);
-        $total = max(($adm + $serviceCharges), ($adm + $premi));
+        $total = max(($adm + $serviceCharges + $stampDuty), ($adm + $premi + $stampDuty));
         $commissionResult = $commission * $premi;
         $pphResult = $pph * $commissionResult;
         $nettCommission = $commissionResult - $pphResult;
@@ -271,6 +272,7 @@ trait CalculateInvoice
             'pph_commission' => $pphResult,
             'nett_commission' => $nettCommission,
             'nett_premi' => $nettPremi,
+            'stamp_duty' => $stampDuty,
         ]);
     }
 
@@ -289,6 +291,7 @@ trait CalculateInvoice
             $hasSendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
             $guarantorRates = $this->getGuarantorRates($guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
             $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
+
             foreach ($submissions as $submission) {
                 $submissionBefore = $submission->submissionBefore;
                 $submissionAfter = $submission->submissionAfter;

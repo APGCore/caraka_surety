@@ -78,9 +78,10 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         if (! $this->isBranch) {
             $data = array_merge($data, [
                 'PREMI MODAL',
+                'BIAYA MATERAI',
                 'ADMIN MODAL',
                 'SERVICE CHARGES MODAL',
-                'TOTAL PREMI MODAL',
+                'TOTAL MODAL',
                 'KOMISI',
                 'PPH KOMISI',
                 'NETT KOMISI',
@@ -136,6 +137,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $rowNumber = $this->rowNumber + 1;
             $data = array_merge($data, [
                 $row->rate_modal?->get('premi', 0) ?? 0,
+                $row->rate_modal?->get('stamp_duty', 0) ?? 0,
                 $row->rate_modal?->get('adm', 0) ?? 0,
                 $row->rate_modal?->get('service_charges', 0) ?? 0,
                 $row->rate_modal?->get('total', 0) ?? 0,
@@ -143,7 +145,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $row->rate_modal?->get('pph_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_premi', 0) ?? 0,
-                "=W$rowNumber - AE$rowNumber",
+                "=W$rowNumber - AF$rowNumber",
             ]);
         }
 
@@ -195,8 +197,9 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                     $color = 'FFFFFFFF';
 
                     // jika status === REVISED (kolom P)
-                    if (strtoupper((string) $sheet->getCell("P$row")->getValue()) ===
-                      strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')
+                    if (
+                        strtoupper((string) $sheet->getCell("P$row")->getValue()) ===
+                        strtoupper(SubmissionStatus::getLabels()[SubmissionStatus::REVISED->value] ?? '')
                     ) {
                         $color = 'FFFFFF99'; // kuning muda
                     }
@@ -240,10 +243,11 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                     $sheet->setCellValue("AD$totalRow", "=SUM(AD2:AD$lastDataRow)");
                     $sheet->setCellValue("AE$totalRow", "=SUM(AE2:AE$lastDataRow)");
                     $sheet->setCellValue("AF$totalRow", "=SUM(AF2:AF$lastDataRow)");
+                    $sheet->setCellValue("AG$totalRow", "=SUM(AG2:AG$lastDataRow)");
                 }
 
                 // Format Rp untuk semua kolom total (T–AD tergantung jenis)
-                $lastMoneyCol = $isBranch ? 'W' : 'AF';
+                $lastMoneyCol = $isBranch ? 'W' : 'AG';
                 $sheet->getStyle("T$totalRow:$lastMoneyCol$totalRow")
                     ->getNumberFormat()
                     ->setFormatCode('Rp #,##0');
@@ -286,14 +290,15 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
         if (! $this->isBranch) {
             $data = array_merge($data, [
                 'X' => 'Rp #,##0', // PREMI MODAL
-                'Y' => 'Rp #,##0', // ADMIN MODAL
-                'Z' => 'Rp #,##0', // SERVICE CHARGES MODAL
-                'AA' => 'Rp #,##0', // TOTAL PREMI MODAL
-                'AB' => 'Rp #,##0', // KOMISI
-                'AC' => 'Rp #,##0', // PPH KOMISI
-                'AD' => 'Rp #,##0', // NETT KOMISI
-                'AE' => 'Rp #,##0', // NETT PREMI
-                'AF' => 'Rp #,##0', // PENDAPATAN PREMI
+                'Y' => 'Rp #,##0', // STAMP DUTY
+                'Z' => 'Rp #,##0', // ADMIN MODAL
+                'AA' => 'Rp #,##0', // SERVICE CHARGES MODAL
+                'AB' => 'Rp #,##0', // TOTAL PREMI MODAL
+                'AC' => 'Rp #,##0', // KOMISI
+                'AD' => 'Rp #,##0', // PPH KOMISI
+                'AE' => 'Rp #,##0', // NETT KOMISI
+                'AF' => 'Rp #,##0', // NETT PREMI
+                'AG' => 'Rp #,##0', // PENDAPATAN PREMI
             ]);
         }
 
