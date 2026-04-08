@@ -96,7 +96,7 @@ const TinyMCEEditor: React.FC<TinyMCEEditorProps> = ({
         selector: `#${id}`,
         apiKey: "u348l644l38woikj2xo5cmq1huk2850gmjq4yxim6m1ih6gt",
         height: 500,
-        plugins: showExportTools ? "export" : "",
+        plugins: showExportTools ? "exportToWord" : "",
         toolbar: showExportTools ? "exportToWord printDocument" : false,
         menubar: false,
         branding: false,
