@@ -150,6 +150,7 @@ class ExportController extends Controller
                 'guarantee_value',
                 'start_date',
                 'end_date',
+                'publication_date',
                 'time_period',
                 'difference_time_period',
                 'status',

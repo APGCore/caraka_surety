@@ -69,6 +69,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'TANGGAL BUAT',
             'TANGGAL SETUJU',
             'TANGGAL KIRIM ASURANSI',
+            'TANGGAL TERBIT',
             'PREMI JUAL',
             'ADMIN JUAL',
             'SERVICE CHARGES JUAL',
@@ -127,6 +128,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y H:i') : '',
             $row->approved_at ? Carbon::parse($row->approved_at)->format('d/m/Y H:i') : '',
             $row->send_to_guarantor_at ? Carbon::parse($row->send_to_guarantor_at)->format('d/m/Y H:i') : '',
+            $row->publication_date ? Carbon::parse($row->publication_date)->format('d/m/Y') : '',
             $row->rate_jual?->get('premi', 0) ?? 0,
             $row->rate_jual?->get('adm', 0) ?? 0,
             $row->rate_jual?->get('service_charges', 0) ?? 0,
@@ -145,7 +147,7 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                 $row->rate_modal?->get('pph_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_commission', 0) ?? 0,
                 $row->rate_modal?->get('nett_premi', 0) ?? 0,
-                "=W$rowNumber - AF$rowNumber",
+                "=X$rowNumber - AG$rowNumber",
             ]);
         }
 
@@ -204,8 +206,8 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                         $color = 'FFFFFF99'; // kuning muda
                     }
 
-                    // jika TOTAL PREMI JUAL (V) < 0 → merah muda
-                    if (((float) $sheet->getCell("W$row")->getValue()) < 0) {
+                    // jika TOTAL PREMI JUAL (X) < 0 → merah muda
+                    if (((float) $sheet->getCell("X$row")->getValue()) < 0) {
                         $color = 'FFFFAAAA';
                     }
 
@@ -224,17 +226,16 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
 
                 // Kolom uang yang pasti ada (branch maupun bukan)
                 // T (Premi Jual), U (Admin Jual), V (Service Charges), W (Total Premi Jual)
-                $sheet->setCellValue("S$totalRow", 'TOTAL'); // label sebelum kolom T
-                $sheet->getStyle("S$totalRow")->getFont()->setBold(true);
+                $sheet->setCellValue("T$totalRow", 'TOTAL'); // label sebelum kolom U
+                $sheet->getStyle("T$totalRow")->getFont()->setBold(true);
 
-                $sheet->setCellValue("T$totalRow", "=SUM(T2:T$lastDataRow)");
                 $sheet->setCellValue("U$totalRow", "=SUM(U2:U$lastDataRow)");
                 $sheet->setCellValue("V$totalRow", "=SUM(V2:V$lastDataRow)");
                 $sheet->setCellValue("W$totalRow", "=SUM(W2:W$lastDataRow)");
+                $sheet->setCellValue("X$totalRow", "=SUM(X2:X$lastDataRow)");
 
                 // Jika bukan branch, total-kan kolom tambahan
                 if (! $isBranch) {
-                    $sheet->setCellValue("X$totalRow", "=SUM(X2:X$lastDataRow)");
                     $sheet->setCellValue("Y$totalRow", "=SUM(Y2:Y$lastDataRow)");
                     $sheet->setCellValue("Z$totalRow", "=SUM(Z2:Z$lastDataRow)");
                     $sheet->setCellValue("AA$totalRow", "=SUM(AA2:AA$lastDataRow)");
@@ -244,11 +245,12 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
                     $sheet->setCellValue("AE$totalRow", "=SUM(AE2:AE$lastDataRow)");
                     $sheet->setCellValue("AF$totalRow", "=SUM(AF2:AF$lastDataRow)");
                     $sheet->setCellValue("AG$totalRow", "=SUM(AG2:AG$lastDataRow)");
+                    $sheet->setCellValue("AH$totalRow", "=SUM(AH2:AH$lastDataRow)");
                 }
 
-                // Format Rp untuk semua kolom total (T–AD tergantung jenis)
-                $lastMoneyCol = $isBranch ? 'W' : 'AG';
-                $sheet->getStyle("T$totalRow:$lastMoneyCol$totalRow")
+                // Format Rp untuk semua kolom total (U–X branch / U–AH non-branch)
+                $lastMoneyCol = $isBranch ? 'X' : 'AH';
+                $sheet->getStyle("U$totalRow:$lastMoneyCol$totalRow")
                     ->getNumberFormat()
                     ->setFormatCode('Rp #,##0');
 
@@ -279,26 +281,27 @@ class SubmissionExport implements FromCollection, WithColumnFormatting, WithEven
             'O' => '#,##0', // SELISIH JANGKA WAKTU
             'P' => '@', // KETERANGAN
             'Q' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL BUAT
-            'R' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL SETU
+            'R' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL SETUJU
             'S' => NumberFormat::FORMAT_DATE_DATETIME, // TANGGAL KIRIM ASURANSI
-            'T' => 'Rp #,##0', // PREMI JUAL
-            'U' => 'Rp #,##0', // ADMIN JUAL
-            'V' => 'Rp #,##0', // SERVICE CHARGES JUAL
-            'W' => 'Rp #,##0', // TOTAL PREMI JUAL
+            'T' => '@', // TANGGAL TERBIT
+            'U' => 'Rp #,##0', // PREMI JUAL
+            'V' => 'Rp #,##0', // ADMIN JUAL
+            'W' => 'Rp #,##0', // SERVICE CHARGES JUAL
+            'X' => 'Rp #,##0', // TOTAL PREMI JUAL
         ];
 
         if (! $this->isBranch) {
             $data = array_merge($data, [
-                'X' => 'Rp #,##0', // PREMI MODAL
-                'Y' => 'Rp #,##0', // STAMP DUTY
-                'Z' => 'Rp #,##0', // ADMIN MODAL
-                'AA' => 'Rp #,##0', // SERVICE CHARGES MODAL
-                'AB' => 'Rp #,##0', // TOTAL PREMI MODAL
-                'AC' => 'Rp #,##0', // KOMISI
-                'AD' => 'Rp #,##0', // PPH KOMISI
-                'AE' => 'Rp #,##0', // NETT KOMISI
-                'AF' => 'Rp #,##0', // NETT PREMI
-                'AG' => 'Rp #,##0', // PENDAPATAN PREMI
+                'Y' => 'Rp #,##0', // PREMI MODAL
+                'Z' => 'Rp #,##0', // STAMP DUTY
+                'AA' => 'Rp #,##0', // ADMIN MODAL
+                'AB' => 'Rp #,##0', // SERVICE CHARGES MODAL
+                'AC' => 'Rp #,##0', // TOTAL PREMI MODAL
+                'AD' => 'Rp #,##0', // KOMISI
+                'AE' => 'Rp #,##0', // PPH KOMISI
+                'AF' => 'Rp #,##0', // NETT KOMISI
+                'AG' => 'Rp #,##0', // NETT PREMI
+                'AH' => 'Rp #,##0', // PENDAPATAN PREMI
             ]);
         }
 
