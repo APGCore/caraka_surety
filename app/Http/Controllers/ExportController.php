@@ -111,6 +111,7 @@ class ExportController extends Controller
             ->when($productSelected, fn ($q) => $q->where('product_id', $productSelected))
             ->when($guarantorToProductTypeSelected, fn ($q) => $q->where('guarantor_to_product_type_id', $guarantorToProductTypeSelected))
             ->where('has_send_to_guarantor', true)
+            ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
             ->whereBetween('send_to_guarantor_at', $date)
             ->with([
                 'guarantor:id,name,code',
