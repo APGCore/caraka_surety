@@ -40,14 +40,14 @@ class InvoiceController extends Controller
         $dateFrom = $request->input('date.from');
         $dateTo = $request->input('date.to');
         $date = ($dateFrom && $dateTo)
-            ? [
-                "$dateFrom 00:00:00",
-                "$dateTo 23:59:59",
-            ]
-            : [
-                now()->subDays(7)->toDateString().' 00:00:00',
-                now()->toDateString().' 23:59:59',
-            ];
+          ? [
+              "$dateFrom 00:00:00",
+              "$dateTo 23:59:59",
+          ]
+          : [
+              now()->subDays(7)->toDateString().' 00:00:00',
+              now()->toDateString().' 23:59:59',
+          ];
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -102,14 +102,26 @@ class InvoiceController extends Controller
                 'staff:id,name,profile_id',
                 'office:id,name,code,office_type',
                 'office.profileRate',
-                'submissionBefore:id,blank_id',
-                'submissionBefore.blank',
+                // 'submissionBefore:id,blank_id',
+                // 'submissionBefore.blank',
+                'submissionBefore' => fn ($q) => $q
+                    ->where('send_to_guarantor_at', '<', $date[0]),
+                'submissionBefore.product:id,name',
+                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
+                'submissionBefore.blank:id,number,is_broken,is_revised',
+                'submissionBefore.principal:id,name',
+                'submissionBefore.office:id,name,code,office_type',
+                'submissionAfter' => fn ($q) => $q
+                    ->where('send_to_guarantor_at', '>', $date[1])
+                    ->select(['id', 'submission_before_id']),
             ])
             ->orderBy('no_guarantee')
             ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
+        $result = $this->mapProductionReport($submissions->items());
+        $submissions->setCollection($result);
         $resource = SubmissionResource::collection($submissions);
 
         return inertia('report/invoice/index', [
@@ -531,7 +543,7 @@ class InvoiceController extends Controller
         }
         // If rate not found
         $rateNotFound = count($offices) > 0
-            ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+          ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
         if (count($invoices) === 0) {
             throw new Exception('Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound);
         }
