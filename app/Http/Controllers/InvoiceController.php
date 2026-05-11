@@ -102,26 +102,26 @@ class InvoiceController extends Controller
                 'staff:id,name,profile_id',
                 'office:id,name,code,office_type',
                 'office.profileRate',
-                // 'submissionBefore:id,blank_id',
-                // 'submissionBefore.blank',
-                'submissionBefore' => fn ($q) => $q
-                    ->where('send_to_guarantor_at', '<', $date[0]),
-                'submissionBefore.product:id,name',
-                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
-                'submissionBefore.blank:id,number,is_broken,is_revised',
-                'submissionBefore.principal:id,name',
-                'submissionBefore.office:id,name,code,office_type',
-                'submissionAfter' => fn ($q) => $q
-                    ->where('send_to_guarantor_at', '>', $date[1])
-                    ->select(['id', 'submission_before_id']),
+                'submissionBefore:id,blank_id',
+                'submissionBefore.blank',
+                // 'submissionBefore' => fn ($q) => $q
+                //     ->where('send_to_guarantor_at', '<', $date[0]),
+                // 'submissionBefore.product:id,name',
+                // 'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
+                // 'submissionBefore.blank:id,number,is_broken,is_revised',
+                // 'submissionBefore.principal:id,name',
+                // 'submissionBefore.office:id,name,code,office_type',
+                // 'submissionAfter' => fn ($q) => $q
+                //     ->where('send_to_guarantor_at', '>', $date[1])
+                //     ->select(['id', 'submission_before_id']),
             ])
             ->orderBy('no_guarantee')
             ->orderBy('approved_at', 'desc')
             ->paginate($request->get('per_page') ?? 10)
             ->withQueryString();
 
-        $result = $this->mapProductionReport($submissions->items());
-        $submissions->setCollection($result);
+        // $result = $this->mapProductionReport($submissions->items());
+        // $submissions->setCollection($result);
         $resource = SubmissionResource::collection($submissions);
 
         return inertia('report/invoice/index', [
