@@ -354,6 +354,7 @@ class InvoiceController extends Controller
                 'checked_at',
                 'approved_at',
                 'send_to_guarantor_at',
+                'submission_before_id',
             ])
             ->with([
                 'guarantor' => function ($query) {
