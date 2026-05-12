@@ -85,7 +85,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       type: "text",
       fields: [
         { key: "telephone", name: "Nomor Telepon", value: telephone, type: "number" },
-        { key: "npwp", name: "NPWP", value: npwp, type: "text" },
+        { key: "npwp", name: "NPWP", value: npwp, type: "number" },
         { key: "nib", name: "NIB", value: nib, type: "text" },
       ],
     },
