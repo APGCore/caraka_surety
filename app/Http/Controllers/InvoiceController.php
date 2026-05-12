@@ -40,14 +40,14 @@ class InvoiceController extends Controller
         $dateFrom = $request->input('date.from');
         $dateTo = $request->input('date.to');
         $date = ($dateFrom && $dateTo)
-            ? [
-                "$dateFrom 00:00:00",
-                "$dateTo 23:59:59",
-            ]
-            : [
-                now()->subDays(7)->toDateString().' 00:00:00',
-                now()->toDateString().' 23:59:59',
-            ];
+          ? [
+              "$dateFrom 00:00:00",
+              "$dateTo 23:59:59",
+          ]
+          : [
+              now()->subDays(7)->toDateString().' 00:00:00',
+              now()->toDateString().' 23:59:59',
+          ];
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -436,8 +436,8 @@ class InvoiceController extends Controller
                     continue; // Skip if submission rate is not set
                 }
                 $submission->update(['has_send_to_finance' => true]);
-                $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates);
-                $sellingRates = $this->calculateSellingRates($submission, $profileRates);
+                $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates, isInvoice: true);
+                $sellingRates = $this->calculateSellingRates($submission, $profileRates, isInvoice: true);
 
                 $prefixCode = 'apg-core-';
                 $invoices[] = [
@@ -552,7 +552,7 @@ class InvoiceController extends Controller
         }
         // If rate not found
         $rateNotFound = count($offices) > 0
-            ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+          ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
         if (count($invoices) === 0) {
             throw new Exception('Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound);
         }
