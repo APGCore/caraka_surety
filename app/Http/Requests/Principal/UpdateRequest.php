@@ -34,7 +34,7 @@ class UpdateRequest extends FormRequest
             'telephone' => ['required', 'string', 'regex:/^0[1-9][0-9]*$/', 'max:255'], // telepon perusahaan
             'fax' => ['nullable', 'string', 'max:255'], // fax perusahaan
             'postal_code' => ['required', 'string', 'max:5'], // npwp perusahaan
-            'npwp' => ['required', 'integer'], // npwp perusahaan
+            'npwp' => ['required', 'string', 'max:255'], // npwp perusahaan
             'nib' => ['nullable', 'string', 'max:255'], // nib perusahaan
             'siup_siujk' => ['nullable', 'string', 'max:255'], // siup/siujk perusahaan
             'head_name' => ['nullable', 'string', 'max:255'], // nama kepala perusahaan
@@ -63,7 +63,6 @@ class UpdateRequest extends FormRequest
             'fax.required' => 'Fax Perusahaan harus diisi',
             'postal_code.required' => 'Kode Pos Perusahaan harus diisi',
             'npwp.required' => 'NPWP Perusahaan harus diisi',
-            'npwp.integer' => 'NPWP Perusahaan harus berupa angka',
             'nib.required' => 'NIB Perusahaan harus diisi',
             'siup_siujk.required' => 'SIUP/SIUJK Perusahaan harus diisi',
             'head_name.required' => 'Nama Kepala Perusahaan harus diisi',
