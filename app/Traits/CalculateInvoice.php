@@ -139,9 +139,14 @@ trait CalculateInvoice
     /**
      * @throws Exception
      */
-    public function calculateCapitalRates(Submission $submission, Collection $guarantorRates, bool $minus = false): Collection
+    public function calculateCapitalRates(Submission $submission, Collection $guarantorRates, bool $minus = false, $isInvoice = false): Collection
     {
-        $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
+        // $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
+        $submissionBefore = $submission->getAttribute('submission_before_id');
+        $isRevised = $isInvoice
+            ? $submissionBefore !== null
+            : $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
+
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $settingRate = $this->getGuarantorRate(
@@ -172,10 +177,14 @@ trait CalculateInvoice
     /**
      * @throws Exception
      */
-    public function calculateSellingRates(Submission $submission, Collection $profileRates, bool $minus = false): Collection
+    public function calculateSellingRates(Submission $submission, Collection $profileRates, bool $minus = false, $isInvoice = false): Collection
     {
         // Ensure the submission is fresh to get the latest rates
-        $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
+        // $isRevised = $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
+        $submissionBefore = $submission->getAttribute('submission_before_id');
+        $isRevised = $isInvoice
+            ? $submissionBefore !== null
+            : $submission->getAttribute('status') == SubmissionStatus::REVISED->value;
         $timePeriode = (int) $submission->getAttribute('time_period');
         $guaranteeValue = (float) $submission->getAttribute('guarantee_value');
         $settingRate = $this->getProfileRate(
