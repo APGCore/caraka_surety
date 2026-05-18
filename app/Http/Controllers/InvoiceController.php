@@ -246,8 +246,8 @@ class InvoiceController extends Controller
         // if ($submissionBeforeId !== null) {
         //   $isInvoice
         // }
-        $capitalRate = $this->calculateCapitalRates($submission, $guarantorRates, isInvoice: true);
-        $sellingRate = $this->calculateSellingRates($submission, $profileRates, isInvoice: true);
+        $capitalRate = $this->calculateCapitalRates($submission, $guarantorRates);
+        $sellingRate = $this->calculateSellingRates($submission, $profileRates);
 
         $totalPremi = ($sellingRate->get('total') ?? 0) - ($capitalRate->get('nett_premi') ?? 0);
         $isSet = $submission->getRelation('submissionRate') !== null;
@@ -436,8 +436,8 @@ class InvoiceController extends Controller
                     continue; // Skip if submission rate is not set
                 }
                 $submission->update(['has_send_to_finance' => true]);
-                $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates, isInvoice: true);
-                $sellingRates = $this->calculateSellingRates($submission, $profileRates, isInvoice: true);
+                $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates);
+                $sellingRates = $this->calculateSellingRates($submission, $profileRates);
 
                 $prefixCode = 'apg-core-';
                 $invoices[] = [
