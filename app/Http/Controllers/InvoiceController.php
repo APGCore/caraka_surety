@@ -395,15 +395,31 @@ class InvoiceController extends Controller
                 },
                 'submissionBefore' => function ($query) {
                     $query->select([
-                        'id', 'blank_id', 'guarantor_id', 'guarantor_to_product_type_id',
-                        'office_id', 'send_to_guarantor_at', 'time_period', 'guarantee_value',
-                        'status', 'submission_before_id',
+                        'id', 'no_guarantee', 'blank_id', 'guarantor_id', 'guarantor_branch_id',
+                        'guarantor_to_product_type_id', 'office_id', 'obligee_id', 'principal_id',
+                        'send_to_guarantor_at', 'time_period', 'guarantee_value', 'difference_time_period',
+                        'status', 'submission_before_id', 'created_at', 'checked_at', 'approved_at',
                     ]);
                 },
-                'submissionBefore.product:id,name',
-                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
-                'submissionBefore.blank:id,number,is_broken,is_revised',
-                'submissionBefore.principal:id,name',
+                'submissionBefore.guarantor' => fn ($q) => $q->withTrashed(),
+                'submissionBefore.guarantor.province',
+                'submissionBefore.guarantor.regency',
+                'submissionBefore.guarantor.district',
+                'submissionBefore.guarantorBranch' => fn ($q) => $q->withTrashed(),
+                'submissionBefore.guarantorBranch.province',
+                'submissionBefore.guarantorBranch.regency',
+                'submissionBefore.guarantorBranch.district',
+                'submissionBefore.principal' => fn ($q) => $q->withTrashed(),
+                'submissionBefore.principal.province',
+                'submissionBefore.principal.regency',
+                'submissionBefore.principal.district',
+                'submissionBefore.obligee' => fn ($q) => $q->withTrashed(),
+                'submissionBefore.obligee.province',
+                'submissionBefore.obligee.regency',
+                'submissionBefore.obligee.district',
+                'submissionBefore.office' => fn ($q) => $q->select(['id', 'name', 'code', 'office_type'])->withTrashed(),
+                'submissionBefore.guarantorToProductType' => fn ($q) => $q->select(['id', 'name', 'job_group', 'job_type', 'full_name'])->withTrashed(),
+                'submissionBefore.blank' => fn ($q) => $q->select(['id', 'number', 'is_broken'])->withTrashed(),
                 'submissionAfter' => function ($query) {
                     $query->select(['id', 'submission_before_id']);
                 },
@@ -422,9 +438,17 @@ class InvoiceController extends Controller
             $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
             $officeIds = $submissions->pluck('office_id')->unique()->toArray();
             $sendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
+            $beforeSubmissions = $submissions->pluck('submissionBefore')->filter();
+            if ($beforeSubmissions->isNotEmpty()) {
+                $guarantorIds = array_unique(array_merge($guarantorIds, $beforeSubmissions->pluck('guarantor_id')->toArray()));
+                $guarantorToProductTypeIds = array_unique(array_merge($guarantorToProductTypeIds, $beforeSubmissions->pluck('guarantor_to_product_type_id')->toArray()));
+                $officeIds = array_unique(array_merge($officeIds, $beforeSubmissions->pluck('office_id')->toArray()));
+                $sendToGuarantorAts = array_unique(array_merge($sendToGuarantorAts, $beforeSubmissions->pluck('send_to_guarantor_at')->filter()->toArray()));
+            }
             $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
-            $mappedById = $this->mapProductionReport($submissions->all())->keyBy(fn ($s) => $s->getAttribute('id'));
-            foreach ($submissions as $submission) {
+            $originalIds = $submissions->pluck('id')->all();
+            $mappedSubmissions = $this->mapProductionReport($submissions->all());
+            foreach ($mappedSubmissions as $submission) {
                 $businessUnit = $submission->getRelation('office');
                 $principal = $submission->getRelation('principal');
                 $obligee = $submission->getRelation('obligee');
@@ -449,10 +473,11 @@ class InvoiceController extends Controller
 
                     continue; // Skip if submission rate is not set
                 }
-                Submission::query()->where('id', $submission->getAttribute('id'))->update(['has_send_to_finance' => true]);
-                $mapped = $mappedById->get($submission->getAttribute('id'));
-                $capitalRates = $mapped->rate_modal;
-                $sellingRates = $mapped->rate_jual;
+                if (in_array($submission->getAttribute('id'), $originalIds)) {
+                    Submission::query()->where('id', $submission->getAttribute('id'))->update(['has_send_to_finance' => true]);
+                }
+                $capitalRates = $submission->rate_modal;
+                $sellingRates = $submission->rate_jual;
 
                 $prefixCode = 'apg-core-';
                 $invoices[] = [
