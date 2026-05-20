@@ -449,7 +449,7 @@ class InvoiceController extends Controller
 
                     continue; // Skip if submission rate is not set
                 }
-                $submission->update(['has_send_to_finance' => true]);
+                Submission::query()->where('id', $submission->getAttribute('id'))->update(['has_send_to_finance' => true]);
                 $mapped = $mappedById->get($submission->getAttribute('id'));
                 $capitalRates = $mapped->rate_modal;
                 $sellingRates = $mapped->rate_jual;
