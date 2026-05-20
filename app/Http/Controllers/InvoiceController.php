@@ -393,6 +393,20 @@ class InvoiceController extends Controller
                 'blank' => function ($query) {
                     $query->select(['id', 'number', 'is_broken'])->withTrashed();
                 },
+                'submissionBefore' => function ($query) {
+                    $query->select([
+                        'id', 'blank_id', 'guarantor_id', 'guarantor_to_product_type_id',
+                        'office_id', 'send_to_guarantor_at', 'time_period', 'guarantee_value',
+                        'status', 'submission_before_id',
+                    ]);
+                },
+                'submissionBefore.product:id,name',
+                'submissionBefore.guarantorToProductType:id,code_product,code,name,full_name',
+                'submissionBefore.blank:id,number,is_broken,is_revised',
+                'submissionBefore.principal:id,name',
+                'submissionAfter' => function ($query) {
+                    $query->select(['id', 'submission_before_id']);
+                },
             ])
             ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
             ->whereIn('id', $submissionIds)
@@ -408,8 +422,8 @@ class InvoiceController extends Controller
             $guarantorToProductTypeIds = $submissions->pluck('guarantor_to_product_type_id')->unique()->toArray();
             $officeIds = $submissions->pluck('office_id')->unique()->toArray();
             $sendToGuarantorAts = $submissions->pluck('send_to_guarantor_at')->unique()->toArray();
-            $guarantorRates = $this->getGuarantorRates(guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
             $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
+            $mappedById = $this->mapProductionReport($submissions->all())->keyBy(fn ($s) => $s->getAttribute('id'));
             foreach ($submissions as $submission) {
                 $businessUnit = $submission->getRelation('office');
                 $principal = $submission->getRelation('principal');
@@ -436,8 +450,9 @@ class InvoiceController extends Controller
                     continue; // Skip if submission rate is not set
                 }
                 $submission->update(['has_send_to_finance' => true]);
-                $capitalRates = $this->calculateCapitalRates($submission, $guarantorRates);
-                $sellingRates = $this->calculateSellingRates($submission, $profileRates);
+                $mapped = $mappedById->get($submission->getAttribute('id'));
+                $capitalRates = $mapped->rate_modal;
+                $sellingRates = $mapped->rate_jual;
 
                 $prefixCode = 'apg-core-';
                 $invoices[] = [
