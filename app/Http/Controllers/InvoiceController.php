@@ -449,6 +449,9 @@ class InvoiceController extends Controller
             $originalIds = $submissions->pluck('id')->all();
             $mappedSubmissions = $this->mapProductionReport($submissions->all());
             foreach ($mappedSubmissions as $submission) {
+                if ($submission->is_minus) {
+                    continue;
+                }
                 $businessUnit = $submission->getRelation('office');
                 $principal = $submission->getRelation('principal');
                 $obligee = $submission->getRelation('obligee');
