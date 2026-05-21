@@ -307,10 +307,14 @@ trait CalculateInvoice
                 if ($submissionBefore) {
                     $submissionRevisedMinus = clone $submissionBefore;
                     $submissionRevisedAdd = clone $submissionBefore;
-                    // B pakai rate revisi, A (preview) pakai rate asli
-                    $submission->status = SubmissionStatus::REVISED->value;
+                    // invoice: B rate revisi, A (preview) rate asli
+                    $submission->status = $invoiceMode
+                        ? SubmissionStatus::REVISED->value
+                        : SubmissionStatus::APPROVED->value;
                     $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
-                    $submissionRevisedAdd->status = SubmissionStatus::APPROVED->value;
+                    $submissionRevisedAdd->status = $invoiceMode
+                        ? SubmissionStatus::APPROVED->value
+                        : SubmissionStatus::REVISED->value;
 
                     // harus setelah setting status
                     $submissionRevisedMinus->is_add = true;
