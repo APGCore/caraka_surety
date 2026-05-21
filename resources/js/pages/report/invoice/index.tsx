@@ -155,7 +155,7 @@ const InvoicePage: InvoicePageProps = ({
     const data = submissionChecked.filter((id) => submissionIds.includes(id));
     router.post(
       route(InvoiceUtils.link.send_to_finance),
-      { submission_ids: data },
+      { submission_ids: data, date: convertDate(filterDate) },
       {
         preserveState: true,
         preserveScroll: true,

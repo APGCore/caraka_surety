@@ -13,6 +13,7 @@ use App\Models\Submission\Submission;
 use App\Services\HostToHostService;
 use App\Traits\CalculateInvoice;
 use App\Traits\FilterOffice;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,14 +41,14 @@ class InvoiceController extends Controller
         $dateFrom = $request->input('date.from');
         $dateTo = $request->input('date.to');
         $date = ($dateFrom && $dateTo)
-          ? [
-              "$dateFrom 00:00:00",
-              "$dateTo 23:59:59",
-          ]
-          : [
-              now()->subDays(7)->toDateString().' 00:00:00',
-              now()->toDateString().' 23:59:59',
-          ];
+            ? [
+                "$dateFrom 00:00:00",
+                "$dateTo 23:59:59",
+            ]
+            : [
+                now()->subDays(7)->toDateString().' 00:00:00',
+                now()->toDateString().' 23:59:59',
+            ];
         $officeFilter = $this->filterOffice($request);
         $officeTypes = $officeFilter->officeTypes;
         $offices = $officeFilter->offices;
@@ -308,11 +309,18 @@ class InvoiceController extends Controller
         $request->validate([
             'submission_ids' => 'required|array',
             'submission_ids.*' => 'required|integer|exists:'.Submission::class.',id,deleted_at,NULL',
+            'date.from' => 'nullable|date',
+            'date.to' => 'nullable|date',
         ]);
+        $dateFrom = $request->input('date.from');
+        $dateTo = $request->input('date.to');
+        $date = ($dateFrom && $dateTo)
+            ? [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]
+            : null;
         DB::beginTransaction();
         try {
             $submissionIds = $request->get('submission_ids', []);
-            $officeNotHaveRate = $this->sendFinanceProcess($submissionIds);
+            $officeNotHaveRate = $this->sendFinanceProcess($submissionIds, $date);
             if (count($officeNotHaveRate) > 0) {
                 $message = 'Beberapa unit bisnis tidak memiliki rate, yaitu: '.implode(', ', $officeNotHaveRate);
             }
@@ -331,7 +339,7 @@ class InvoiceController extends Controller
     /**
      * @throws Exception
      */
-    public function sendFinanceProcess($submissionIds): array
+    public function sendFinanceProcess($submissionIds, ?array $date = null): array
     {
         $submissions = Submission::query()
             ->select([
@@ -393,13 +401,30 @@ class InvoiceController extends Controller
                 'blank' => function ($query) {
                     $query->select(['id', 'number', 'is_broken'])->withTrashed();
                 },
-                'submissionBefore' => function ($query) {
+                'submissionBefore' => function ($query) use ($date) {
                     $query->select([
-                        'id', 'no_guarantee', 'blank_id', 'guarantor_id', 'guarantor_branch_id',
-                        'guarantor_to_product_type_id', 'office_id', 'obligee_id', 'principal_id',
-                        'send_to_guarantor_at', 'time_period', 'guarantee_value', 'difference_time_period',
-                        'status', 'submission_before_id', 'created_at', 'checked_at', 'approved_at',
+                        'id',
+                        'no_guarantee',
+                        'blank_id',
+                        'guarantor_id',
+                        'guarantor_branch_id',
+                        'guarantor_to_product_type_id',
+                        'office_id',
+                        'obligee_id',
+                        'principal_id',
+                        'send_to_guarantor_at',
+                        'time_period',
+                        'guarantee_value',
+                        'difference_time_period',
+                        'status',
+                        'submission_before_id',
+                        'created_at',
+                        'checked_at',
+                        'approved_at',
                     ]);
+                    if ($date) {
+                        $query->where('send_to_guarantor_at', '<', $date[0]);
+                    }
                 },
                 'submissionBefore.guarantor' => fn ($q) => $q->withTrashed(),
                 'submissionBefore.guarantor.province',
@@ -420,8 +445,11 @@ class InvoiceController extends Controller
                 'submissionBefore.office' => fn ($q) => $q->select(['id', 'name', 'code', 'office_type'])->withTrashed(),
                 'submissionBefore.guarantorToProductType' => fn ($q) => $q->select(['id', 'name', 'job_group', 'job_type', 'full_name'])->withTrashed(),
                 'submissionBefore.blank' => fn ($q) => $q->select(['id', 'number', 'is_broken'])->withTrashed(),
-                'submissionAfter' => function ($query) {
+                'submissionAfter' => function ($query) use ($date) {
                     $query->select(['id', 'submission_before_id']);
+                    if ($date) {
+                        $query->where('send_to_guarantor_at', '>', $date[1]);
+                    }
                 },
             ])
             ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
@@ -589,13 +617,14 @@ class InvoiceController extends Controller
                 ];
             }
         }
+        \dd($invoices);
         $mapOfficeProductType = [];
         foreach ($offices as $officeName => $productTypes) {
             $mapOfficeProductType[] = $officeName.' ('.implode(', ', array_unique((array) $productTypes)).')';
         }
         // If rate not found
         $rateNotFound = count($offices) > 0
-          ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
+            ? ', karena Unit Bisnis '.implode(', ', $mapOfficeProductType).' yang belum memiliki Rate dan tidak dapat mengirim ke sistem keuangan.' : '';
         if (count($invoices) === 0) {
             throw new Exception('Tidak ada invoice yang dapat dikirim ke aplikasi keuangan'.$rateNotFound);
         }
