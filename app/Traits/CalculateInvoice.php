@@ -283,7 +283,6 @@ trait CalculateInvoice
     private function mapProductionReport($submissions, bool $invoiceMode = false): Collection
     {
         $result = collect();
-        $resultMinus = collect();
         $submissions = collect($submissions);
         if ($submissions->isNotEmpty()) {
             $guarantorIds = $submissions->pluck('guarantor_id')->unique()->toArray();
@@ -294,6 +293,7 @@ trait CalculateInvoice
             $officeRates = $this->getProfileRates($officeIds, $guarantorIds, $guarantorToProductTypeIds, $hasSendToGuarantorAts);
 
             $submissionIds = $submissions->pluck('id')->toArray();
+            $submissionBeforeIds = $submissions->pluck('submission_before_id')->filter()->toArray();
 
             foreach ($submissions as $submission) {
                 $submissionBefore = $submission->submissionBefore;
@@ -305,39 +305,35 @@ trait CalculateInvoice
                 }
 
                 if ($submissionBefore) {
-                    //                  $submissionRevised = clone $submissionBefore;
                     $submissionRevisedMinus = clone $submissionBefore;
                     $submissionRevisedAdd = clone $submissionBefore;
-                    // invoice mode: B pakai rate revisi, A_add pakai rate asli
-                    $submission->status = $invoiceMode
-                        ? SubmissionStatus::REVISED->value
-                        : SubmissionStatus::APPROVED->value;
-                    //                  $submissionRevised->status = SubmissionStatus::APPROVED->value;
+                    // B pakai rate asli, A_add pakai rate revisi
+                    $submission->status = SubmissionStatus::APPROVED->value;
                     $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
-                    $submissionRevisedAdd->status = $invoiceMode
-                        ? SubmissionStatus::APPROVED->value
-                        : SubmissionStatus::REVISED->value;
+                    $submissionRevisedAdd->status = SubmissionStatus::REVISED->value;
 
                     // harus setelah setting status
                     $submissionRevisedMinus->is_add = true;
                     $submissionRevisedMinus->is_minus = true;
-                    // $submissionRevised->is_add = true;
 
-                    // $this->setRateSubmission($submissionRevised, $guarantorRates, $officeRates, $result);
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                     $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
                     $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
                 } elseif ($invoiceMode && $submissionBeforeId && in_array($submissionBeforeId, $submissionIds)) {
-                    // Case 1 (invoice): A dan B sama-sama dalam range — B pakai rate revisi
-                    $submission->status = SubmissionStatus::REVISED->value;
+                    // A dan B sama-sama dalam range: B pakai rate asli
+                    $submission->status = SubmissionStatus::APPROVED->value;
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                 } else {
+                    // A yang punya B dalam batch: A pakai rate revisi
+                    if ($invoiceMode && in_array($submission->getAttribute('id'), $submissionBeforeIds)) {
+                        $submission->status = SubmissionStatus::REVISED->value;
+                    }
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                 }
             }
         }
 
-        return $result->merge($resultMinus);
+        return $result;
     }
 
     /**
