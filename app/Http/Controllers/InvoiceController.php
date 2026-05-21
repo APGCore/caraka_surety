@@ -475,7 +475,7 @@ class InvoiceController extends Controller
             }
             $profileRates = $this->getProfileRates(profileId: $officeIds, guarantorId: $guarantorIds, guarantorToProductTypeId: $guarantorToProductTypeIds, date: $sendToGuarantorAts);
             $originalIds = $submissions->pluck('id')->all();
-            $mappedSubmissions = $this->mapProductionReport($submissions->all());
+            $mappedSubmissions = $this->mapProductionReport($submissions->all(), true);
             foreach ($mappedSubmissions as $submission) {
                 if ($submission->is_minus) {
                     continue;
