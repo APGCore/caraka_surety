@@ -22,35 +22,13 @@ interface PrincipalDocsSectionProps {
 const PrincipalDocsSection: React.FC<PrincipalDocsSectionProps> = ({ principalId, onValidationChange }) => {
   const { data: principalDocs, isLoading: isLoadingGetPrinciaplDocs } = useGetPrincipalDocs(Number(principalId));
 
-  // const { isValid, missingDocs } = useMemo(() => {
-  //   if (!Array.isArray(principalDocs)) {
-  //     return { isValid: true, missingDocs: [] };
-  //   }
-
-  //   const requiredDocs = principalDocs.filter((doc: PrincipalDoc) => doc.is_required);
-  //   const missing = requiredDocs
-  //     .filter((doc: PrincipalDoc) => !doc.principal_document?.path)
-  //     .map((doc: PrincipalDoc) => doc.name);
-
-  //   return {
-  //     isValid: missing.length === 0,
-  //     missingDocs: missing,
-  //   };
-  // }, [principalDocs]);
-
-  // useEffect(() => {
-  //   onValidationChange?.(isValid, missingDocs);
-  // }, [isValid, missingDocs, onValidationChange]);
-
   const { isValid, missingDocs } = useMemo(() => {
     if (!Array.isArray(principalDocs)) {
       return { isValid: true, missingDocs: [] };
     }
 
     const activeDocs = principalDocs.filter((doc: PrincipalDoc) => doc.isActive);
-
-    const requiredDocs = activeDocs.filter((doc: PrincipalDoc) => doc.is_required);
-
+    const requiredDocs = principalDocs.filter((doc: PrincipalDoc) => doc.is_required);
     const missing = requiredDocs
       .filter((doc: PrincipalDoc) => !doc.principal_document?.path)
       .map((doc: PrincipalDoc) => doc.name);
@@ -60,6 +38,29 @@ const PrincipalDocsSection: React.FC<PrincipalDocsSectionProps> = ({ principalId
       missingDocs: missing,
     };
   }, [principalDocs]);
+
+  useEffect(() => {
+    onValidationChange?.(isValid, missingDocs);
+  }, [isValid, missingDocs, onValidationChange]);
+
+  // const { isValid, missingDocs } = useMemo(() => {
+  //   if (!Array.isArray(principalDocs)) {
+  //     return { isValid: true, missingDocs: [] };
+  //   }
+
+  //   const activeDocs = principalDocs.filter((doc: PrincipalDoc) => doc.isActive);
+
+  //   const requiredDocs = activeDocs.filter((doc: PrincipalDoc) => doc.is_required);
+
+  //   const missing = requiredDocs
+  //     .filter((doc: PrincipalDoc) => !doc.principal_document?.path)
+  //     .map((doc: PrincipalDoc) => doc.name);
+
+  //   return {
+  //     isValid: missing.length === 0,
+  //     missingDocs: missing,
+  //   };
+  // }, [principalDocs]);
 
   return (
     <div className="space-y-4">
