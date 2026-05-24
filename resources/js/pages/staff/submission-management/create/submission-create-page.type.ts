@@ -11,7 +11,7 @@ export type SubmissionCreatePageProps = React.FC<SubmissionCreateProps> & {
   layout?: (page: any) => JSX.Element;
 };
 
-type Principal = {
+export type Principal = {
   id: string | null;
   province_id?: string;
   regency_id?: string;

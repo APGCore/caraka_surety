@@ -15,7 +15,6 @@ import useGetScoringById from "@/common/hooks/api/scoring/useGetScoringById";
 import { useDebounce } from "@/common/hooks/general/use-debounce";
 import { toast } from "@/common/hooks/general/use-toast";
 import { useGetAllBank } from "@/common/hooks/react-query/bank";
-// import { useGetAllBlank } from "@/common/hooks/react-query/blank";
 import {
   useGetBranchGuarantorByHeadIsPairingSearch,
   useGetBranchGuarantorByHeadquarter,
@@ -32,7 +31,7 @@ import {
   useGetAllPrincipal,
   useSearchPrincipal,
 } from "@/common/hooks/react-query/principal";
-// import { useGetAllProduct } from "@/common/hooks/react-query/product";
+import { useGetAllProduct } from "@/common/hooks/react-query/product";
 import { useGetAllSourceOfFund } from "@/common/hooks/react-query/source-of-fund";
 // import { useGetBeforeSubmission } from "@/common/hooks/react-query/submission";
 import { cn } from "@/common/utils/cn";
@@ -66,7 +65,13 @@ import React, { Fragment, useCallback, useEffect, useMemo, useState } from "reac
 import SubmissionCreateHeader from "./_partials/create-page-header";
 import PrincipalDocsSection from "./principal-docs-section";
 import PrincipalSection from "./principal-section";
-import { Ratio, SubmissionCreatePageProps, SubmissionFormProps, SupportDocument } from "./submission-create-page.type";
+import {
+  Principal,
+  Ratio,
+  SubmissionCreatePageProps,
+  SubmissionFormProps,
+  SupportDocument,
+} from "./submission-create-page.type";
 
 const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, submission }) => {
   const defaultPrincipalRatios: Ratio = {
@@ -116,7 +121,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
     submission: {
       guarantor_id: guarantor?.id ?? undefined,
       guarantor_branch_id: undefined,
-      product_id: product?.id ?? undefined,
+      product_id: undefined,
       product_type_id: null,
       job_group: "",
       job_type: "",
@@ -159,7 +164,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
   const [principalRatios, setPrincipalRatios] = useState<Ratio[]>(() => data.principal.ratios);
 
   // Product
-  // const { data: products } = useGetAllProduct(guarantor.id);
+  const { data: products } = useGetAllProduct(guarantor.id);
   const [selectedProducts, setSelectedProducts] = useState(() => data.submission.product_id ?? null);
 
   // Principal
@@ -827,7 +832,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
           {/* FORM STATE NOT SEARCH / HAVE SEARCH PRINCIPAL*/}
           <Show when={formSearchPrincipalState === "idle"}>
             <div className="space-y-10">
-              <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
+              {/* <h2 className="text-2xl font-bold mb-3">Cari Data Perusahaan</h2>
               <div className="grid gap-1 bg-re">
                 <Label className="text-md">Perusahaan</Label>
                 <div className="flex gap-x-5 ">
@@ -895,7 +900,89 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                     Tambah Data Baru
                   </Button>
                 </div>
-              </div>
+              </div> */}
+
+              {/* 1. JIKA PRODUK BELUM DIPILIH -> TAMPILKAN PILIH PRODUK */}
+              <Show when={!selectedProducts}>
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Pilih Produk Pengajuan</h2>
+                  <div className="grid gap-2 w-full max-w-xl">
+                    <Label className="text-md">Produk</Label>
+                    <Combobox
+                      datas={Array.isArray(products) ? products : []}
+                      labelKey="name"
+                      valueKey="name"
+                      placeholder="Pilih Produk"
+                      defaultValueId={data?.submission?.product_id ?? selectedProducts}
+                      onSelect={(val: any) => {
+                        if (val?.id !== selectedProducts) {
+                          let changedSubmission = data.submission;
+                          setSelectedProductType(null);
+                          setIsResetProductType(true);
+                          changedSubmission.product_type_id = null;
+                          changedSubmission.job_group = "";
+                          changedSubmission.job_type = "";
+                          if (changedSubmission.product_id !== 5) {
+                            changedSubmission.bank_id = undefined;
+                            setSelectedBank(null);
+                          }
+                          changedSubmission.product_id = val.id;
+                          setData("submission", changedSubmission);
+                          setSelectedProducts(val.id);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </Show>
+
+              {/* 2. JIKA PRODUK SUDAH DIPILIH -> TAMPILKAN CARI PERUSAHAAN */}
+              <Show when={!!selectedProducts}>
+                <div>
+                  <div className="flex justify-between items-end mb-6">
+                    <h2 className="text-2xl font-bold">Cari Data Perusahaan</h2>
+                    {/* Tombol untuk kembali memilih produk jika user salah pilih */}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedProducts(null);
+                        setData("submission", { ...data.submission, product_id: undefined });
+                      }}>
+                      Ganti Produk
+                    </Button>
+                  </div>
+                  <div className="grid gap-1">
+                    <Label className="text-md">Perusahaan</Label>
+                    <div className="flex gap-x-5">
+                      <Combobox
+                        onSearch={(value) => {
+                          handleSearchPrincipal(value);
+                        }}
+                        isLoading={isLoadingSearchPrincipal || isFetchingSearchPrincipal}
+                        datas={Array.isArray(principals) ? principals : []}
+                        labelKey="name"
+                        valueKey="name"
+                        placeholder="Pilih Data Perusahaan"
+                        containerClassName="w-full"
+                        onSelect={async (val: Principal) => {
+                          setFormSearchPrincipalState("search");
+                          // SETTING PRINCIPAL DATA
+                          setData("principal", val);
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setFormSearchPrincipalState("not-search");
+                        }}>
+                        Tambah Data Baru
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Show>
             </div>
           </Show>
 
