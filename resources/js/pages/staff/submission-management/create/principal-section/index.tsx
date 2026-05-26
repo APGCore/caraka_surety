@@ -85,7 +85,13 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
       type: "text",
       fields: [
         { key: "telephone", name: "Nomor Telepon", value: telephone, type: "number" },
-        { key: "npwp", name: "NPWP", value: npwp, type: "number" },
+        {
+          key: "npwp",
+          name: "NPWP",
+          value: npwp,
+          type: "number",
+          helperText: "NPWP harus berupa angka dan minimal 15 karakter",
+        },
         { key: "nib", name: "NIB", value: nib, type: "text" },
       ],
     },
@@ -148,7 +154,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
     <div className="grid gap-5">
       {biodatafields.map((item: any) =>
         item?.fields ? (
-          <div key={item.key} className="flex gap-5">
+          <div key={item.key} className="flex gap-5 items-start">
             {item.fields.map(
               ({
                 key,
@@ -157,6 +163,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                 type,
                 tooltip,
                 maxLength,
+                helperText,
               }: {
                 key: any;
                 name: any;
@@ -164,6 +171,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                 type?: "text" | "number";
                 tooltip?: string;
                 maxLength?: number;
+                helperText?: string;
               }) => (
                 <div key={key} className="grid w-full gap-1">
                   <Label className="text-sm flex items-center gap-1">
@@ -202,6 +210,7 @@ const PrincipalSection: React.FC<PrincipalSectionProps> = ({
                     }}
                     maxLength={maxLength}
                   />
+                  {helperText && <p className="text-gray-500 text-xs">{helperText}</p>}
                   {errors?.[key] && <p className="text-red-500 text-xs">{errors[key]}</p>}
                 </div>
               ),
