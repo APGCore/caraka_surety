@@ -1697,7 +1697,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Nilai Kontrak</Label>
                         <InputCurrency
-                          defaultValue={data.submission.contract_value}
+                          value={data.submission.contract_value}
                           placeholder="Nilai Kontrak"
                           onChange={(value) => {
                             setData("submission", {
@@ -1710,7 +1710,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Nilai Jaminan</Label>
                         <InputCurrency
-                          defaultValue={data.submission.guarantee_value}
+                          value={data.submission.guarantee_value}
                           placeholder="Nilai Jaminan"
                           onChange={(value) => {
                             setData("submission", {
