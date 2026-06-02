@@ -9,12 +9,12 @@ const LoginPage: LoginPageProps = ({ status, guarantors, guarantorSelected }) =>
 
   return (
     <>
-      {status && <div className="mb-4 text-sm font-medium text-green-600">{status}</div>}
-      <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
-        <div className="w-full max-w-sm md:max-w-3xl">
-          <LoginForm guarantors={guarantors} guarantorSelected={guarantorSelected} setTab={setTab} />
+      {status && (
+        <div className="fixed left-1/2 top-5 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm font-semibold text-[#10B981] shadow-lg">
+          {status}
         </div>
-      </div>
+      )}
+      <LoginForm guarantors={guarantors} guarantorSelected={guarantorSelected} setTab={setTab} />
     </>
   );
 };
