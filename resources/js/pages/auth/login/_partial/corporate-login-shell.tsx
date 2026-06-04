@@ -10,15 +10,27 @@ type CorporateLoginShellProps = {
 const features = [
   {
     title: "Secure Access",
+    description: "Secure enterprise access for BPR Bonding.",
     icon: ShieldCheck,
+    accent: "#F58220",
+    iconClassName: "text-[#F58220]",
+    glowClassName: "shadow-[#F58220]/25",
   },
   {
     title: "Trusted Platform",
+    description: "Integrated bonding operations platform.",
     icon: BadgeCheck,
+    accent: "#21C7C7",
+    iconClassName: "text-[#21C7C7]",
+    glowClassName: "shadow-[#21C7C7]/25",
   },
   {
     title: "Professional Service",
+    description: "Reliable surety and guarantee support.",
     icon: BriefcaseBusiness,
+    accent: "#2563EB",
+    iconClassName: "text-[#2563EB]",
+    glowClassName: "shadow-[#2563EB]/25",
   },
 ];
 
@@ -32,54 +44,69 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
           alt="Professional business meeting"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B3B8C]/90 via-[#0B3B8C]/58 to-[#D71920]/78" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.22),transparent_30%),linear-gradient(160deg,rgba(11,59,140,0.2),rgba(215,25,32,0.18))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(2,6,23,0.56)_0%,rgba(15,23,42,0.38)_48%,rgba(2,6,23,0.18)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.03)_0%,rgba(2,6,23,0.09)_48%,rgba(2,6,23,0.48)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(33,199,199,0.2),transparent_30%),radial-gradient(circle_at_72%_28%,rgba(245,130,32,0.16),transparent_28%)]" />
 
-        <div className="absolute left-8 top-8 z-20 xl:left-12 xl:top-10">
-          <img
-            src="/logo-corebprbonding2.png"
-            alt="BPR Bonding Core System"
-            className="h-12 w-auto object-contain drop-shadow-xl xl:h-14"
-          />
+        <div className="absolute left-[72px] top-12 z-20 inline-flex items-center rounded-xl border border-white/80 bg-white/95 px-4 py-2.5 shadow-[0_14px_36px_rgba(15,23,42,0.16)] backdrop-blur-sm 2xl:left-[88px] 2xl:px-4 2xl:py-3">
+          <img src="/bpr-bonding.png" alt="BPR Bonding" className="h-12 w-auto object-contain 2xl:h-14" />
         </div>
 
-        <div className="absolute right-8 top-8 z-20 xl:right-12 xl:top-10">
+        <div className="absolute right-14 top-12 z-20 2xl:right-[72px]">
           <img
-            src="/logo-jastan-ts1.png"
+            src="/Logo-jastan-ts1.png"
             alt="Business Partner Of Asuransi Jastan"
-            className="h-12 w-auto object-contain drop-shadow-xl xl:h-14"
+            className="h-12 w-auto object-contain drop-shadow-xl 2xl:h-14"
           />
         </div>
 
-        <div className="absolute bottom-6 left-8 z-20 xl:bottom-8 xl:left-10">
+        <div className="absolute bottom-10 left-[72px] z-20 2xl:bottom-12 2xl:left-[88px]">
           <img
             src="/Logo-APG-transparan.png"
-            alt="A Member Of APG Ardana Perkasa Group"
-            className="h-11 w-auto object-contain drop-shadow-xl xl:h-14"
+            alt="APG Ardana Perkasa Group"
+            className="h-12 w-auto object-contain drop-shadow-xl 2xl:h-14"
           />
         </div>
 
-        <div className="relative z-10 flex w-full flex-col justify-between p-10 xl:p-14">
-          <div className="pt-36 xl:pt-40">
-            <div className="max-w-xl text-white">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/75">Enterprise Access</p>
-              <h1 className="mt-4 text-4xl font-bold leading-tight xl:text-5xl">BPR Bonding Core System</h1>
-              <p className="mt-5 max-w-lg text-xl font-medium leading-relaxed text-white/88">
-                Digital Platform for Surety Bond &amp; Bank Guarantee Management
-              </p>
-            </div>
+        <div className="relative z-10 flex min-h-svh w-full flex-col justify-center px-[72px] pb-[132px] pr-14 pt-[132px] 2xl:px-[88px] 2xl:pr-[72px]">
+          <div className="max-w-[920px] text-white">
+            <p className="text-[15px] font-bold uppercase tracking-[0.2em] text-white/90 drop-shadow-[0_2px_8px_rgba(2,6,23,0.72)] 2xl:text-base">
+              Enterprise Access
+            </p>
+            <h1
+              className="mt-5 max-w-[920px] bg-gradient-to-r from-[#F58220] via-[#21C7C7] to-[#2563EB] bg-clip-text pb-2 text-[clamp(3rem,4.15vw,4.75rem)] font-black leading-[1.14] tracking-normal text-transparent drop-shadow-[0_10px_22px_rgba(2,6,23,0.82)]"
+              style={{
+                WebkitTextFillColor: "transparent",
+                WebkitTextStroke: "0.65px rgba(255,255,255,0.18)",
+              }}>
+              BPR Bonding Core System
+            </h1>
+            <p className="mt-7 max-w-[720px] text-xl font-semibold leading-[1.5] text-white/92 drop-shadow-[0_2px_10px_rgba(2,6,23,0.76)] 2xl:text-2xl">
+              Digital Platform for Surety Bond &amp; Bank Guarantee Management.
+            </p>
           </div>
 
-          <div className="relative z-30 pb-20 xl:pb-24">
-            <div className="grid gap-4 xl:grid-cols-3">
-              {features.map(({ title, icon: Icon }) => (
+          <div className="relative z-30 mt-8">
+            <div className="grid max-w-[900px] gap-4 2xl:gap-5 min-[1180px]:grid-cols-3">
+              {features.map(({ title, description, icon: Icon, accent, iconClassName, glowClassName }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-white/24 bg-white/14 p-4 text-white shadow-2xl shadow-slate-950/15 backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/20">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/18">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  className={cn(
+                    "flex min-h-[142px] flex-col rounded-lg border bg-[rgba(15,23,42,0.45)] px-5 py-4 text-white shadow-2xl shadow-slate-950/25 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:bg-[rgba(15,23,42,0.56)] 2xl:min-h-[152px] 2xl:px-6 2xl:py-5",
+                    glowClassName,
+                  )}
+                  style={{ borderColor: accent }}>
+                  <div
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border bg-white/[0.08] shadow-lg 2xl:h-12 2xl:w-12"
+                    style={{ borderColor: `${accent}66` }}>
+                    <Icon className={cn("h-5 w-5", iconClassName)} aria-hidden="true" />
                   </div>
-                  <p className="mt-4 text-sm font-semibold">{title}</p>
+                  <p className="mt-4 text-base font-bold leading-tight text-white drop-shadow-[0_1px_6px_rgba(2,6,23,0.65)] 2xl:text-lg">
+                    {title}
+                  </p>
+                  <p className="mt-2 text-[13px] font-medium leading-[1.5] text-slate-200/90 2xl:text-sm">
+                    {description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -87,10 +114,10 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
         </div>
       </aside>
 
-      <main className="relative flex min-h-svh items-center justify-center bg-white px-5 py-8 sm:px-8 lg:bg-white">
-        <div className="flex w-full max-w-[480px] flex-col">
+      <main className="relative flex min-h-svh items-center justify-center bg-white px-5 py-8 sm:px-8">
+        <div className="flex w-full max-w-[480px] -translate-y-6 flex-col sm:-translate-y-8 lg:-translate-y-10 2xl:-translate-y-12">
           <div className="mb-8 flex justify-center lg:hidden">
-            <img src="/logo-corebprbonding2.png" alt="BPR Bonding Core System" className="h-16 w-auto object-contain" />
+            <img src="/bpr-bonding.png" alt="BPR Bonding" className="h-16 w-auto object-contain" />
           </div>
 
           <div className="rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.12)] sm:p-8 lg:p-10">
@@ -100,7 +127,7 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
 
         <footer className="absolute bottom-6 left-5 right-5 text-center text-xs leading-6 text-slate-500 sm:bottom-8">
           <div className="font-semibold text-slate-700">&copy; BPR Bonding</div>
-          <div>A Member of APG Group</div>
+          <div>A Member of APG</div>
         </footer>
       </main>
     </section>

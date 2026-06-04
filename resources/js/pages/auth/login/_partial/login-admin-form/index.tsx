@@ -21,12 +21,12 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
     <CorporateLoginShell className={className}>
       <div {...props}>
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">Administrator</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-[#1F2937] sm:text-4xl">Welcome Back!</h2>
-          <p className="mt-3 text-base text-slate-500">Silakan masuk ke akun Anda</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">BPR Bonding Admin</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-normal text-[#1F2937] sm:text-4xl">Admin Access</h2>
+          <p className="mt-3 text-base text-slate-500">Silakan masuk dengan akun administrator</p>
         </div>
 
-        <form id="login-form" onSubmit={handleLogin} className="space-y-5">
+        <form id="login-admin-form" onSubmit={handleLogin} className="space-y-5">
           <div>
             <label htmlFor="username" className="mb-2 block text-sm font-semibold text-slate-700">
               User ID
@@ -85,16 +85,16 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
           </div>
 
           <Button
-            form="login-form"
+            form="login-admin-form"
             className="h-12 w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
             disabled={processing}>
             <Loading isLoading={processing} className="mr-2" /> Masuk
           </Button>
 
           <p className="text-center text-xs leading-5 text-slate-500">
-            Plese{" "}
+            Please click{" "}
             <Link href={route("login")} className="font-semibold text-[#D71920] transition hover:text-[#0B3B8C]">
-              click here
+              here
             </Link>{" "}
             if you want to login another account.
           </p>
