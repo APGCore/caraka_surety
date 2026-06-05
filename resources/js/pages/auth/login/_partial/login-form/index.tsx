@@ -22,15 +22,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
   return (
     <CorporateLoginShell className={className}>
       <div {...props}>
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">BPR Bonding</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-[#1F2937] sm:text-4xl">Welcome Back!</h2>
-          <p className="mt-3 text-base text-slate-500">Silakan masuk ke akun Anda</p>
+        <div className="mb-[clamp(1rem,3vh,2rem)]">
+          <p className="text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">
+            BPR Bonding
+          </p>
+          <h2 className="mt-[clamp(0.5rem,1.5vh,0.75rem)] text-[clamp(1.5rem,3vw,2.25rem)] font-bold tracking-normal text-[#1F2937]">
+            Welcome Back!
+          </h2>
+          <p className="mt-[clamp(0.5rem,1.5vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
+            Silakan masuk ke akun Anda
+          </p>
         </div>
 
-        <form id="login-form" onSubmit={handleLogin} className="space-y-5">
+        <form id="login-form" onSubmit={handleLogin} className="space-y-[clamp(0.75rem,2vh,1.25rem)]">
           <div>
-            <label htmlFor="username" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label
+              htmlFor="username"
+              className="mb-[clamp(0.25rem,1vh,0.5rem)] block text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold text-slate-700">
               User ID
             </label>
             <input
@@ -52,7 +60,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label
+              htmlFor="password"
+              className="mb-[clamp(0.25rem,1vh,0.5rem)] block text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold text-slate-700">
               Password
             </label>
             <div className="relative">
