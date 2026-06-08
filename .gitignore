@@ -24,3 +24,5 @@ yarn-error.log
 
 public/build.zip
 .vscode
+
+/.npm-cache
