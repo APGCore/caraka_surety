@@ -34,6 +34,13 @@ const features = [
   },
 ];
 
+const topLogoCardClass =
+  "absolute top-[clamp(1.5rem,3vh,3rem)] z-20 inline-flex h-[clamp(4.25rem,8vh,5.25rem)] w-fit items-center justify-center rounded-xl border border-white/80 bg-white/95 px-4 py-2.5 shadow-[0_14px_36px_rgba(15,23,42,0.16)] backdrop-blur-sm";
+
+const topLogoImageClass = "max-h-[clamp(3rem,5.5vh,3.75rem)] max-w-full object-contain";
+
+const topJastanLogoImageClass = cn(topLogoImageClass, "scale-[1.28]");
+
 const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, className }) => {
   return (
     <section
@@ -55,20 +62,12 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.03)_0%,rgba(2,6,23,0.09)_48%,rgba(2,6,23,0.48)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(201,162,39,0.15),transparent_30%),radial-gradient(circle_at_72%_28%,rgba(227,196,90,0.12),transparent_28%)]" />
 
-        <div className="absolute left-[clamp(2rem,4vw,4.5rem)] top-[clamp(1.5rem,3vh,3rem)] z-20 inline-flex items-center rounded-xl border border-white/80 bg-white/95 px-4 py-2.5 shadow-[0_14px_36px_rgba(15,23,42,0.16)] backdrop-blur-sm 2xl:px-4 2xl:py-3">
-          <img
-            src="/bpr-bonding.png"
-            alt="BPR Bonding"
-            className="h-[clamp(2.5rem,5vh,3rem)] w-auto object-contain 2xl:h-14"
-          />
+        <div className={cn(topLogoCardClass, "left-[clamp(2rem,4vw,4.5rem)]")}>
+          <img src="/bpr-bonding.png" alt="BPR Bonding" className={topLogoImageClass} />
         </div>
 
-        <div className="absolute right-[clamp(2rem,4vw,4.5rem)] top-[clamp(1.5rem,3vh,3rem)] z-20">
-          <img
-            src="/Logo-jastan-ts1.png"
-            alt="Business Partner Of Asuransi Jastan"
-            className="h-[clamp(2.5rem,5vh,3rem)] w-auto object-contain drop-shadow-xl 2xl:h-14"
-          />
+        <div className={cn(topLogoCardClass, "right-[clamp(2rem,4vw,4.5rem)]")}>
+          <img src="/logo-jastan.png" alt="Business Partner Of Asuransi Jastan" className={topJastanLogoImageClass} />
         </div>
 
         <div className="absolute bottom-[clamp(1.5rem,3vh,2.5rem)] left-[clamp(2rem,4vw,4.5rem)] z-20">
