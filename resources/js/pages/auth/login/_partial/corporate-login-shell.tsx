@@ -69,7 +69,7 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
 
         <div className="absolute right-[clamp(2rem,4vw,72px)] top-[clamp(1rem,3vh,3rem)] z-20 inline-flex items-center rounded-xl border border-white bg-white px-4 py-2.5 shadow-[0_14px_36px_rgba(15,23,42,0.16)] backdrop-blur-sm 2xl:right-[88px] 2xl:px-4 2xl:py-3">
           <img
-            src="/Logo-jastan2.png"
+            src="/logo-jastan2.png"
             alt="Business Partner Of Asuransi Jastan"
             className="h-[clamp(2.5rem,5vh,3rem)] w-auto object-contain 2xl:h-14"
           />
