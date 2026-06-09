@@ -20,13 +20,19 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
   return (
     <CorporateLoginShell className={className}>
       <div {...props}>
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">BPR Bonding Admin</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-[#1F2937] sm:text-4xl">Admin Access</h2>
-          <p className="mt-3 text-base text-slate-500">Silakan masuk dengan akun administrator</p>
+        <div className="mb-[clamp(1rem,3vh,2rem)]">
+          <p className="text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">
+            DWP Insurance Core System
+          </p>
+          <h2 className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(1.5rem,3vh,2.25rem)] font-bold tracking-normal text-[#1F2937]">
+            Admin Access
+          </h2>
+          <p className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
+            Silakan masuk dengan akun administrator
+          </p>
         </div>
 
-        <form id="login-admin-form" onSubmit={handleLogin} className="space-y-5">
+        <form id="login-admin-form" onSubmit={handleLogin} className="space-y-[clamp(0.75rem,2vh,1.25rem)]">
           <div>
             <label htmlFor="username" className="mb-2 block text-sm font-semibold text-slate-700">
               User ID
@@ -81,12 +87,12 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
                 )}
               </button>
             </div>
-            <InputError message={errors.password} className="mt-2" />
+            <InputError message={errors.password} className="mt-1" />
           </div>
 
           <Button
             form="login-admin-form"
-            className="h-12 w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
+            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
             disabled={processing}>
             <Loading isLoading={processing} className="mr-2" /> Masuk
           </Button>
