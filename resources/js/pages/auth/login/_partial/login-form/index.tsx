@@ -24,21 +24,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
       <div {...props}>
         <div className="mb-[clamp(1rem,3vh,2rem)]">
           <p className="text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">
-            BPR Bonding
+            BPR Bonding Core System
           </p>
-          <h2 className="mt-[clamp(0.5rem,1.5vh,0.75rem)] text-[clamp(1.5rem,3vw,2.25rem)] font-bold tracking-normal text-[#1F2937]">
+          <h2 className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(1.5rem,3vh,2.25rem)] font-bold tracking-normal text-[#1F2937]">
             Welcome Back!
           </h2>
-          <p className="mt-[clamp(0.5rem,1.5vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
+          <p className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
             Silakan masuk ke akun Anda
           </p>
         </div>
 
         <form id="login-form" onSubmit={handleLogin} className="space-y-[clamp(0.75rem,2vh,1.25rem)]">
           <div>
-            <label
-              htmlFor="username"
-              className="mb-[clamp(0.25rem,1vh,0.5rem)] block text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold text-slate-700">
+            <label htmlFor="username" className="mb-2 block text-sm font-semibold text-slate-700">
               User ID
             </label>
             <input
@@ -60,9 +58,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="mb-[clamp(0.25rem,1vh,0.5rem)] block text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold text-slate-700">
+            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-slate-700">
               Password
             </label>
             <div className="relative">
@@ -93,12 +89,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
                 )}
               </button>
             </div>
-            <InputError message={errors.password} className="mt-2" />
+            <InputError message={errors.password} className="mt-1" />
           </div>
 
           <Button
             form="login-form"
-            className="h-12 w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-sm font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
+            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
             disabled={processing}>
             <Loading isLoading={processing} className="mr-2" /> Masuk
           </Button>
