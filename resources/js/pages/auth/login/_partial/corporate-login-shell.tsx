@@ -148,7 +148,7 @@ const CorporateLoginShell: React.FC<CorporateLoginShellProps> = ({ children, cla
         </div>
 
         <footer className="absolute bottom-[clamp(0.5rem,1.5vh,1.5rem)] left-5 right-5 text-center text-[clamp(0.65rem,1vh,0.75rem)] leading-[clamp(1rem,2vh,1.5rem)] text-slate-500">
-          <div className="font-semibold text-slate-700">&copy; DWP Askrida</div>
+          <div className="font-semibold text-slate-700">&copy; BPR Bonding</div>
           <div>A Member of APG</div>
         </footer>
       </main>
