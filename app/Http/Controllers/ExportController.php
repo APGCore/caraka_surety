@@ -160,6 +160,8 @@ class ExportController extends Controller
                 'send_to_guarantor_at',
             ])
             ->orderByDesc('no_guarantee')
+            // revisi menyalin no_guarantee asli; tiebreaker id agar B (approved) di atas A (revised)
+            ->orderByDesc('id')
             ->get();
 
         try {

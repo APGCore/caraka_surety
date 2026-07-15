@@ -119,6 +119,8 @@ class ReportController extends Controller
                 ])
                 ->where('no_guarantee', '!=', 'XXXXXXXXXXXXXXXX')
                 ->orderByDesc('no_guarantee')
+                // revisi menyalin no_guarantee asli; tiebreaker id agar B (approved) di atas A (revised)
+                ->orderByDesc('id')
                 ->paginate($request->get('per_page') ?? 10)
                 ->withQueryString();
 

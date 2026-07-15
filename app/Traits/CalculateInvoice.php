@@ -299,6 +299,8 @@ trait CalculateInvoice
                 $submissionBefore = $submission->submissionBefore;
                 $submissionAfter = $submission->submissionAfter;
                 $submissionBeforeId = $submission->getAttribute('submission_before_id');
+                // ponytail: deteksi "direvisi dalam periode yang sama" pakai isi batch; pasangan yang terbelah paginasi tidak terdeteksi (export selalu full batch)
+                $revisedInBatch = in_array($submission->getAttribute('id'), $submissionBeforeIds);
 
                 if ($submissionAfter) {
                     $submission->status = SubmissionStatus::APPROVED->value;
@@ -308,7 +310,8 @@ trait CalculateInvoice
                     $submissionRevisedMinus = clone $submissionBefore;
                     $submissionRevisedAdd = clone $submissionBefore;
                     // invoice: B rate revisi, A (preview) rate asli
-                    $submission->status = $invoiceMode
+                    // report: B yang sudah direvisi lagi dalam periode yang sama → fee revisi flat
+                    $submission->status = $invoiceMode || $revisedInBatch
                         ? SubmissionStatus::REVISED->value
                         : SubmissionStatus::APPROVED->value;
                     $submissionRevisedMinus->status = SubmissionStatus::APPROVED->value;
@@ -323,13 +326,16 @@ trait CalculateInvoice
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                     $this->setRateSubmission($submissionRevisedMinus, $guarantorRates, $officeRates, $result, true);
                     $this->setRateSubmission($submissionRevisedAdd, $guarantorRates, $officeRates, $result);
-                } elseif ($invoiceMode && $submissionBeforeId && in_array($submissionBeforeId, $submissionIds)) {
-                    // A dan B sama-sama dalam range: B pakai rate asli
-                    $submission->status = SubmissionStatus::APPROVED->value;
+                } elseif ($submissionBeforeId && in_array($submissionBeforeId, $submissionIds)) {
+                    // A dan B sama-sama dalam range: B pakai rate asli,
+                    // kecuali di report B sudah direvisi lagi dalam periode yang sama
+                    $submission->status = ! $invoiceMode && $revisedInBatch
+                        ? SubmissionStatus::REVISED->value
+                        : SubmissionStatus::APPROVED->value;
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
                 } else {
                     // A yang punya B dalam batch: A pakai rate revisi
-                    if ($invoiceMode && in_array($submission->getAttribute('id'), $submissionBeforeIds)) {
+                    if ($revisedInBatch) {
                         $submission->status = SubmissionStatus::REVISED->value;
                     }
                     $this->setRateSubmission($submission, $guarantorRates, $officeRates, $result);
