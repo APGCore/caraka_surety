@@ -1,5 +1,5 @@
 import { IAppSideBarMenu } from "@/components/sidebar/app-sidebar/app-sidebar.type";
-import { Archive, Home, LibraryBig, Stamp } from "lucide-react";
+import { Archive, Home, LibraryBig } from "lucide-react";
 
 export const kepalaCabangRoute: IAppSideBarMenu[] = [
   {
@@ -9,17 +9,17 @@ export const kepalaCabangRoute: IAppSideBarMenu[] = [
     icon: Home,
     items: [],
   },
-  {
-    title: "Kelola Blangko",
-    icon: Stamp,
-    items: [
-      {
-        title: "Penerimaan Blangko",
-        route_name: "kepala-cabang-blank-management.blank",
-        href: route("kepala-cabang-blank-management.blank.index"),
-      },
-    ],
-  },
+  // {
+  //   title: "Kelola Blangko",
+  //   icon: Stamp,
+  //   items: [
+  //     {
+  //       title: "Penerimaan Blangko",
+  //       route_name: "kepala-cabang-blank-management.blank",
+  //       href: route("kepala-cabang-blank-management.blank.index"),
+  //     },
+  //   ],
+  // },
   {
     title: "Kelola Pengajuan",
     icon: Archive,

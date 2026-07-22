@@ -34,6 +34,11 @@ export const staffRoute: IAppSideBarMenu[] = [
         route_name: "monitoring.submission",
         href: route("monitoring.submission.index"),
       },
+      {
+        title: "Principal",
+        route_name: "monitoring.principal",
+        href: route("monitoring.principal.index"),
+      },
     ],
   },
   {

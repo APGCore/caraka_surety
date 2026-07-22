@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\OfficeType;
 use App\Enums\SubmissionStatus;
+use App\Http\Resources\Principal\PrincipalResource;
 use App\Http\Resources\Submission\SubmissionResource;
 use App\Models\Document\DocumentFormat;
 use App\Models\Document\RequiredDoc;
 use App\Models\Guarantor\Blank;
+use App\Models\RelatedParties\Principal;
 use App\Models\Submission\Submission;
 use App\Traits\FilterOffice;
 use App\Traits\ReplaceDocumentFormat;
@@ -503,6 +505,66 @@ class MonitoringController extends Controller
         return inertia('monitoring/submission/detail/index', [
             'submission' => fn () => $submission,
             'blanks' => fn () => $blanks,
+        ]);
+    }
+
+    public function principal(Request $request): Response
+    {
+        $search = $request->input('search');
+        $today = today();
+
+        $activeConstraint = fn ($q) => $q
+            ->whereNotNull('no_guarantee')
+            ->where('no_guarantee', '!=', '')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today);
+
+        $principals = Principal::query()
+            ->when($search, fn ($q) => $q->whereLike('name', "%$search%"))
+            ->withCount(['submissions as active_submissions_count' => $activeConstraint])
+            ->withSum(['submissions as active_guarantee_value_sum' => $activeConstraint], 'guarantee_value')
+            ->orderByDesc('active_submissions_count')
+            ->orderBy('name')
+            ->paginate($request->get('per_page') ?? 10)
+            ->withQueryString();
+
+        return inertia('monitoring/principal/index', [
+            'page_settings' => fn () => ['title' => 'Monitoring Principal'],
+            'principals' => fn () => PrincipalResource::collection($principals),
+        ]);
+    }
+
+    public function principalDetail(Principal $principal): Response
+    {
+        $today = today();
+        $principal->load(['province', 'regency', 'district']);
+
+        $activeSubmissions = Submission::query()
+            ->where('principal_id', $principal->getKey())
+            ->whereNotNull('no_guarantee')
+            ->where('no_guarantee', '!=', '')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->with(['callback:submission_id,no_policy'])
+            ->get(['id', 'job_name', 'no_guarantee', 'guarantee_value', 'start_date', 'end_date']);
+
+        $totalGuaranteeValue = $activeSubmissions->sum(fn ($s) => (float) $s->guarantee_value);
+
+        $activeSubmissionsData = $activeSubmissions->map(fn ($s) => [
+            'id' => $s->id,
+            'job_name' => $s->job_name,
+            'no_guarantee' => $s->no_guarantee,
+            'no_policy' => $s->callback?->no_policy,
+            'guarantee_value' => $s->guarantee_value,
+            'start_date' => $s->start_date ? Carbon::parse($s->start_date)->translatedFormat('d F Y') : null,
+            'end_date' => $s->end_date ? Carbon::parse($s->end_date)->translatedFormat('d F Y') : null,
+        ]);
+
+        return inertia('monitoring/principal/detail/index', [
+            'page_settings' => fn () => ['title' => 'Detail Principal'],
+            'principal' => fn () => (new PrincipalResource($principal))->resolve(),
+            'active_submissions' => fn () => $activeSubmissionsData,
+            'total_guarantee_value' => fn () => $totalGuaranteeValue,
         ]);
     }
 }

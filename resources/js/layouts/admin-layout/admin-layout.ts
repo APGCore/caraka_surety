@@ -78,22 +78,22 @@ export const adminRoute: IAppSideBarMenu[] = [
       // },
     ],
   },
-  {
-    title: "Kelola Blangko",
-    icon: Stamp,
-    items: [
-      {
-        title: "Penerimaan Blangko",
-        route_name: "blank-management.blank",
-        href: route("blank-management.blank.index"),
-      },
-      {
-        title: "Daftar Blangko",
-        route_name: "blank-management.distribution-of-blank",
-        href: route("blank-management.distribution-of-blank.index"),
-      },
-    ],
-  },
+  // {
+  //   title: "Kelola Blangko",
+  //   icon: Stamp,
+  //   items: [
+  //     {
+  //       title: "Penerimaan Blangko",
+  //       route_name: "blank-management.blank",
+  //       href: route("blank-management.blank.index"),
+  //     },
+  //     {
+  //       title: "Daftar Blangko",
+  //       route_name: "blank-management.distribution-of-blank",
+  //       href: route("blank-management.distribution-of-blank.index"),
+  //     },
+  //   ],
+  // },
   {
     title: "Kelola Wilayah",
     icon: MapPinHouse,
@@ -244,6 +244,11 @@ export const adminRoute: IAppSideBarMenu[] = [
         title: "Pengajuan",
         route_name: "monitoring.submission",
         href: route("monitoring.submission.index"),
+      },
+      {
+        title: "Principal",
+        route_name: "monitoring.principal",
+        href: route("monitoring.principal.index"),
       },
     ],
   },
