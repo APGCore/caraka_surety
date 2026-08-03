@@ -1765,8 +1765,7 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                         <CalendarPicker
                           dateFormat="YYYY-MM-DD"
                           disabled={{
-                            before: subDays(new Date(), 90),
-                            // before: subDays(new Date(), 250),
+                            before: new Date(2025, 6, 1), // Juli 2025 (month index 6 = Juli)
                           }}
                           initialDate={
                             data?.submission?.start_date
