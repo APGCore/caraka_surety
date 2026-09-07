@@ -22,13 +22,13 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
       <div {...props}>
         <div className="mb-[clamp(1rem,3vh,2rem)]">
           <p className="text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">
-            DWP Insurance Core System
+            Broker Insurance
           </p>
           <h2 className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(1.5rem,3vh,2.25rem)] font-bold tracking-normal text-[#1F2937]">
-            Admin Access
+            Portal Administrator
           </h2>
           <p className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
-            Silakan masuk dengan akun administrator
+            Masuk dengan akun administrator untuk mengelola sistem
           </p>
         </div>
 
@@ -92,17 +92,17 @@ const LoginAdminForm: React.FC<LoginAdminFormProps> = ({ className, setTab, ...p
 
           <Button
             form="login-admin-form"
-            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
+            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#0B3B8C] to-[#0B2545] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#0B2545]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#0B2545] hover:to-[#0B3B8C] hover:shadow-xl hover:shadow-[#C9A227]/30 focus:ring-4 focus:ring-[#C9A227]/20"
             disabled={processing}>
             <Loading isLoading={processing} className="mr-2" /> Masuk
           </Button>
 
           <p className="text-center text-xs leading-5 text-slate-500">
-            Please click{" "}
-            <Link href={route("login")} className="font-semibold text-[#D71920] transition hover:text-[#0B3B8C]">
-              here
-            </Link>{" "}
-            if you want to login another account.
+            Ingin masuk dengan akun lain? Klik{" "}
+            <Link href={route("login")} className="font-semibold text-[#C9A227] transition hover:text-[#0B3B8C]">
+              di sini
+            </Link>
+            .
           </p>
         </form>
       </div>

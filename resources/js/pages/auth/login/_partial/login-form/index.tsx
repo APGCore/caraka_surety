@@ -24,13 +24,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
       <div {...props}>
         <div className="mb-[clamp(1rem,3vh,2rem)]">
           <p className="text-[clamp(0.75rem,1.5vh,0.875rem)] font-semibold uppercase tracking-[0.2em] text-[#0B3B8C]">
-            BPR Bonding Core System
+            Broker Insurance
           </p>
           <h2 className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(1.5rem,3vh,2.25rem)] font-bold tracking-normal text-[#1F2937]">
-            Welcome Back!
+            Selamat Datang Kembali
           </h2>
           <p className="mt-[clamp(0.25rem,1vh,0.75rem)] text-[clamp(0.875rem,1.5vh,1rem)] text-slate-500">
-            Silakan masuk ke akun Anda
+            Masuk ke akun Anda untuk melanjutkan aktivitas Anda
           </p>
         </div>
 
@@ -94,17 +94,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ className, guarantors, guarantorS
 
           <Button
             form="login-form"
-            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#D71920] to-[#B9151B] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#D71920]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#B9151B] hover:to-[#D71920] hover:shadow-xl hover:shadow-[#D71920]/30 focus:ring-4 focus:ring-[#D71920]/20"
+            className="h-[clamp(2.5rem,5vh,3rem)] w-full rounded-2xl bg-gradient-to-r from-[#0B3B8C] to-[#0B2545] text-[clamp(0.75rem,1.5vh,0.875rem)] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-[#0B2545]/25 transition duration-300 hover:-translate-y-0.5 hover:from-[#0B2545] hover:to-[#0B3B8C] hover:shadow-xl hover:shadow-[#C9A227]/30 focus:ring-4 focus:ring-[#C9A227]/20"
             disabled={processing}>
             <Loading isLoading={processing} className="mr-2" /> Masuk
           </Button>
 
           <p className="text-center text-xs leading-5 text-slate-500">
-            Enter your credentials correctly. If you forget your password, please contact the{" "}
-            <Link href={route("login.adminn")} className="font-semibold text-[#D71920] transition hover:text-[#0B3B8C]">
-              Admin
-            </Link>
-            .
+            Lupa password Anda? Silakan hubungi{" "}
+            <Link href={route("login.adminn")} className="font-semibold text-[#C9A227] transition hover:text-[#0B3B8C]">
+              Administrator
+            </Link>{" "}
+            untuk bantuan.
           </p>
         </form>
       </div>

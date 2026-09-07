@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ office }) => {
           <Separator orientation="vertical" className="mr-2 h-6" />
         </div>
         <div className="flex items-center justify-between w-auto">
-          <img src="/bpr-bonding.png" alt="" className="flex-shrink-0 max-h-[50px] w-auto" />
+          <img src="/logo-caraka.webp" alt="Caraka Mulia" className="flex-shrink-0 max-h-[50px] w-auto" />
           <Show when={office}>
             <Separator orientation="vertical" className="mr-2 w-[2px] h-10" />
             {office?.name}

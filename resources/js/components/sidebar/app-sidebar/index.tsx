@@ -33,9 +33,9 @@ const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes, roles }) => {
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <img src="/icon-bpr.png" alt="" className="flex-shrink-0 size-8" />
+              <img src="/logo-caraka.webp" alt="Caraka Mulia" className="flex-shrink-0 size-8 object-contain rounded" />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">APG - Core System</span>
+                <span className="truncate font-semibold">Caraka Mulia</span>
                 <span className="truncate text-xs">{displaySidebarMenuName(user?.role?.name, roles)}</span>
               </div>
             </SidebarMenuButton>
@@ -57,7 +57,7 @@ const AppSidebar: React.FC<IAppSideBarProps> = ({ user, routes, roles }) => {
                           <SidebarMenuButton
                             tooltip={item.title}
                             className={cn({
-                              "group-data-[state=open]/collapsible:bg-black group-data-[state=open]/collapsible:text-white":
+                              "group-data-[state=open]/collapsible:bg-[#0B3B8C] group-data-[state=open]/collapsible:text-white":
                                 hasActiveSubItem && state === "collapsed",
                             })}>
                             {item.icon && <item.icon />}
