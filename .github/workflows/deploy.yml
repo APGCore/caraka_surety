@@ -1,0 +1,71 @@
+name: 🚀 DEPLOY TO VPS
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository (untuk runner, optional)
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup SSH key untuk akses VPS
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }} # SSH key untuk VPS
+
+      # 3️⃣ Deploy ke VPS via SSH (git over SSH, agent-forwarded)
+      - name: 🚀 Deploy to VPS (SSH GitHub)
+        env:
+          GITHUB_REPO: APGCore/caraka_surety
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          if [ "$BRANCH" = "main" ]; then
+            DIR="/home/caraka/caraka-surety/prod-caraka-app"
+          else
+            DIR="/home/caraka/caraka-surety/dev-caraka-app"
+          fi
+
+          echo "📂 Target Directory: $DIR"
+
+          ssh -A -o StrictHostKeyChecking=no -p ${{ secrets.PORT }} \
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }} bash -s << EOF
+            set -e
+            echo "🔑 Connected to VPS"
+            cd ${DIR}
+
+            echo "📥 Fetch & Reset"
+            export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
+            git fetch --all
+            git reset --hard origin/${BRANCH}
+
+            echo "📦 Composer Install"
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            echo "📦 NPM Install"
+            npm ci
+
+            echo "🏗 Build Frontend"
+            npm run build
+
+            echo "🗄 Run Migration"
+            php artisan migrate --force
+
+            echo "🧹 Clear Cache"
+            php artisan optimize:clear
+
+            echo "⚡ Optimize"
+            php artisan optimize
+
+            echo "Restart Queue Workers"
+            php artisan queue:restart
+
+            echo "✅ DEPLOY SUCCESS"
+          EOF
