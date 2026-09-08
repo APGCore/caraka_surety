@@ -28,9 +28,9 @@ jobs:
         run: |
           BRANCH="${{ github.ref_name }}"
           if [ "$BRANCH" = "main" ]; then
-            DIR="/home/caraka/caraka-surety/prod-caraka-app"
+            DIR="/home/new-caraka/surety/prod-caraka-app"
           else
-            DIR="/home/caraka/caraka-surety/dev-caraka-app"
+            DIR="/home/new-caraka/surety/dev-caraka-app"
           fi
 
           echo "📂 Target Directory: $DIR"
@@ -63,9 +63,6 @@ jobs:
 
             echo "⚡ Optimize"
             php artisan optimize
-
-            echo "Restart Queue Workers"
-            php artisan queue:restart
 
             echo "✅ DEPLOY SUCCESS"
           EOF
