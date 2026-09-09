@@ -36,8 +36,6 @@ class SubmissionController extends Controller
 
     protected HostToHostService $hostToHostService;
 
-    protected int $guarantorId;
-
     protected int $productId;
 
     public function __construct(
@@ -45,7 +43,6 @@ class SubmissionController extends Controller
     ) {
         Carbon::setLocale('id');
         $this->hostToHostService = $hostToHostService;
-        $this->guarantorId = config('guarantor.id');
         $this->productId = config('product.id');
     }
 
@@ -909,7 +906,6 @@ class SubmissionController extends Controller
                         });
                 });
             })
-            ->where('guarantor_id', $this->guarantorId)
             ->where('product_id', $this->productId)
             ->when(
                 $isDireksi,
@@ -1022,7 +1018,6 @@ class SubmissionController extends Controller
         $search = $request->get('search');
 
         $submissions = Submission::query()
-            ->where('guarantor_id', $this->guarantorId)
             ->where('product_id', $this->productId)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {

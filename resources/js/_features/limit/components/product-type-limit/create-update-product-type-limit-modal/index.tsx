@@ -21,22 +21,24 @@ interface CreateUpdateProductTypeLimitModalProps {
   open: boolean;
   handleOpen?: (open: boolean) => void;
   guarantorProductType?: any;
+  guarantorId?: string | number;
 }
 
 export default function CreateUpdateProductTypeLimitModal({
   open,
   handleOpen,
   guarantorProductType,
+  guarantorId,
 }: CreateUpdateProductTypeLimitModalProps) {
   const { data, setData, post, put, errors, processing, reset } = useForm<{
     id?: number;
-    guarantor_id: number;
+    guarantor_id: number | string;
     guarantor_to_product_type_id: number;
     limit: string | number | undefined;
     limit_inherit: string | number | undefined;
   }>({
     id: guarantorProductType?.limit?.id,
-    guarantor_id: guarantorProductType?.guarantor_id,
+    guarantor_id: guarantorProductType?.guarantor_id ?? guarantorId,
     guarantor_to_product_type_id: guarantorProductType?.id,
     limit: guarantorProductType?.limit?.limit ?? "",
     limit_inherit: guarantorProductType?.limit?.limit_inherit ?? false,
@@ -46,13 +48,13 @@ export default function CreateUpdateProductTypeLimitModal({
     if (guarantorProductType && typeof guarantorProductType === "object") {
       setData({
         id: guarantorProductType?.limit?.id,
-        guarantor_id: guarantorProductType?.guarantor_id,
+        guarantor_id: guarantorProductType?.guarantor_id ?? guarantorId,
         guarantor_to_product_type_id: guarantorProductType?.id,
         limit: guarantorProductType?.limit?.limit ?? "",
         limit_inherit: guarantorProductType?.limit?.limit_inherit ?? false,
       });
     }
-  }, [guarantorProductType]);
+  }, [guarantorProductType, guarantorId]);
 
   const createProductTypeLimit = () => {
     post(route("guarantor-product-type-limit.store"), {

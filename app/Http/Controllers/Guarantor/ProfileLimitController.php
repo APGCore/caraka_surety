@@ -27,7 +27,7 @@ class ProfileLimitController extends Controller
         $officeTypes = OfficeType::getName();
 
         // Selected Guarantor
-        $guarantor_id = config('guarantor.id');
+        $guarantor_id = $request->get('guarantor_id', config('guarantor.id'));
 
         // default job type Jastan to unconditional
         $job_type = JobType::UNCONDITIONAL->value;

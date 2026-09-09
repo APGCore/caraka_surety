@@ -21,22 +21,24 @@ interface CreateUpdateOfficeLimitModalProps {
   open: boolean;
   handleOpen?: (open: boolean) => void;
   officeLimit?: any;
+  guarantorId?: string | number;
 }
 
 export default function CreateUpdateOfficeLimitModal({
   open,
   handleOpen,
   officeLimit,
+  guarantorId,
 }: CreateUpdateOfficeLimitModalProps) {
   const { data, setData, post, put, errors, processing, reset } = useForm<{
-    guarantor_id: number;
+    guarantor_id: number | string;
     guarantor_to_product_type_id: number;
     profile_id: number;
     name: string;
     limit: string | number | undefined;
     limit_inherit: string | number | undefined;
   }>({
-    guarantor_id: officeLimit?.guarantor_id,
+    guarantor_id: officeLimit?.guarantor_id ?? guarantorId,
     guarantor_to_product_type_id: officeLimit?.guarantor_to_product_type_id,
     profile_id: officeLimit?.id,
     name: officeLimit?.name,
@@ -47,7 +49,7 @@ export default function CreateUpdateOfficeLimitModal({
   useEffect(() => {
     if (officeLimit && typeof officeLimit === "object") {
       setData({
-        guarantor_id: officeLimit?.guarantor_id,
+        guarantor_id: officeLimit?.guarantor_id ?? guarantorId,
         guarantor_to_product_type_id: officeLimit?.guarantor_to_product_type_id,
         profile_id: officeLimit?.id,
         name: officeLimit?.name,
@@ -55,7 +57,7 @@ export default function CreateUpdateOfficeLimitModal({
         limit_inherit: officeLimit?.limit_inherit ?? 0,
       });
     }
-  }, [officeLimit]);
+  }, [officeLimit, guarantorId]);
 
   const createOfficeLimit = () => {
     post(route("profile-limit.store"), {

@@ -29,7 +29,7 @@ class GuarantorProductTypeLimitController extends Controller
         $page = $request->get('page') ?? 1;
 
         // Selected Guarantor
-        $guarantor_id = config('guarantor.id');
+        $guarantor_id = $request->get('guarantor_id', config('guarantor.id'));
 
         // query to get guarantor product type limits
         $query = GuarantorToProductType::search($search)

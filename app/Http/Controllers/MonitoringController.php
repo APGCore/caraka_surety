@@ -55,7 +55,6 @@ class MonitoringController extends Controller
                         });
                 });
             })
-            ->where('guarantor_id', config('guarantor.id'))
             ->where('product_id', config('product.id'))
             ->when(! $isOfficeHead, fn ($query) => $query->whereHas('staff', fn ($query) => $query->whereIn('profile_id', $officeIds)))
             ->when($officeSelected, fn ($query) => $query->whereHas('staff', fn ($query) => $query->where('profile_id', $officeSelected)))

@@ -18,6 +18,7 @@ import { useGetAllBank } from "@/common/hooks/react-query/bank";
 import {
   useGetBranchGuarantorByHeadIsPairingSearch,
   useGetBranchGuarantorByHeadquarter,
+  useGetGuarantorByProductId,
 } from "@/common/hooks/react-query/guarantor";
 import {
   useGetAllProvince,
@@ -262,8 +263,15 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
         : null,
   );
 
-  // Guarantor
-  const selectedGuarantor = guarantor.id;
+  // Guarantor (Asuransi)
+  const [selectedGuarantor, setSelectedGuarantor] = useState<number | undefined>(() =>
+    data.submission.guarantor_id ? Number(data.submission.guarantor_id) : guarantor?.id,
+  );
+  const {
+    data: eligibleGuarantors,
+    isLoading: isLoadingEligibleGuarantors,
+    isFetching: isFetchingEligibleGuarantors,
+  } = useGetGuarantorByProductId(data.submission.product_id ? String(data.submission.product_id) : undefined);
 
   // Branch Guarantor
   const [searchBranchGuarantor, setSearchBranchGuarantor] = useState("");
@@ -1143,6 +1151,36 @@ const SubmissionCreatePage: SubmissionCreatePageProps = ({ guarantor, product, s
                       {/*    }}*/}
                       {/*  />*/}
                       {/*</div>*/}
+                      <div className="grid gap-1 w-full">
+                        <Label className="text-md">Asuransi</Label>
+                        <Combobox
+                          isLoading={isLoadingEligibleGuarantors || isFetchingEligibleGuarantors}
+                          datas={Array.isArray(eligibleGuarantors) ? eligibleGuarantors : []}
+                          labelKey="name"
+                          valueKey="name"
+                          defaultValueId={data?.submission?.guarantor_id ?? selectedGuarantor}
+                          placeholder="Pilih Asuransi"
+                          onSelect={(val: any) => {
+                            if (val.id !== selectedGuarantor) {
+                              setSelectedBranchGuarantor(null);
+                              setIsResetBranchGuarantor(true);
+                              setSelectedProductType(null);
+                              setIsResetProductType(true);
+
+                              setData("submission", {
+                                ...data.submission,
+                                guarantor_id: val?.id,
+                                guarantor_branch_id: undefined,
+                                product_type_id: null,
+                                job_group: "",
+                                job_type: "",
+                              });
+
+                              setSelectedGuarantor(val.id);
+                            }
+                          }}
+                        />
+                      </div>
                       <div className="grid gap-1 w-full">
                         <Label className="text-md">Cabang Asuransi</Label>
                         <Combobox

@@ -7,6 +7,7 @@ export const GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY = {
 };
 
 interface SearchProductTypeLimitParams extends FetchParams {
+  guarantorId?: string;
   productId?: string;
   jobGroup?: string;
   isPageAble?: "true" | "false";
@@ -19,6 +20,7 @@ export const useSearchProductTypeLimit = <TResponse = unknown>(
   return useQuery({
     queryKey: [
       GUARANTOR_PRODUCT_TYPE_LIMIT_QUERY_KEY.GUARANTOR_PRODUCT_TYPE_LIMIT,
+      params?.guarantorId,
       params?.productId,
       params?.jobGroup,
       params?.isPageAble,
@@ -29,6 +31,7 @@ export const useSearchProductTypeLimit = <TResponse = unknown>(
     queryFn: async () => {
       const response = await axios.get(
         route("api.limit-management.guarantor-product-type-limit.search-guarantor-product-type-limit", {
+          guarantor_id: params?.guarantorId,
           product_id: params?.productId,
           job_group: params?.jobGroup,
           is_page_able: params?.isPageAble,

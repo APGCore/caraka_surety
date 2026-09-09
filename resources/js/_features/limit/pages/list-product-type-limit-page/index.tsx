@@ -22,6 +22,7 @@ import { Pagination } from "@/_features/_common/components/datatable/pagination"
 import Show from "@/_features/_common/components/show";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
 import { textCurrency } from "@/_features/_common/utils/text-currency";
+import { useFetchGetAllGuarantor } from "@/common/hooks/react-query/guarantor";
 import { SelectValue } from "@/components/_shadcn-ui/select";
 import RenderList from "@/components/atoms/render-list";
 import { JobTypeEnum } from "@/types/job-type-enum";
@@ -32,11 +33,12 @@ import useListProductTypeLimit from "../../hooks/use-list-product-type-limit";
 import useProductTypeLimitModal from "../../hooks/use-product-type-limit-modal";
 
 interface LimitProductTypePageProps {
+  initialGuarantorId: string;
   initialProductId: string;
   initialJobGroup: string;
 }
 
-const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProductTypePageProps) => {
+const LimitProductTypePage = ({ initialGuarantorId, initialProductId, initialJobGroup }: LimitProductTypePageProps) => {
   const {
     isOpenUpdateProductTypeLimit,
     handleOpenUpdateProductTypeLimit,
@@ -68,7 +70,11 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
     isLoadingJobGroups,
     handleJobGroupChange,
     jobGroupSelected,
-  } = useListProductTypeLimit({ initialProductId, initialJobGroup });
+    guarantorId,
+    handleGuarantorIdChange,
+  } = useListProductTypeLimit({ initialGuarantorId, initialProductId, initialJobGroup });
+
+  const { data: guarantors, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({ is_head: true });
 
   return (
     <main className="space-y-2.5">
@@ -86,6 +92,22 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
                 <SelectItem value="100">100</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex flex-col gap-[2px]">
+            <Label htmlFor="guarantor_id" className=" pl-1 text-sm font-semibold text-gray-400">
+              Asuransi
+            </Label>
+            <NewCombobox
+              data={Array.isArray(guarantors) ? guarantors : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingGuarantors}
+              placeholder="Pilih Asuransi"
+              defaultValue={guarantorId}
+              onSelect={(val: any) => {
+                handleGuarantorIdChange(val.id);
+              }}
+            />
           </div>
           <div className="flex flex-col gap-[2px]">
             <Label htmlFor="product_id" className=" pl-1 text-sm font-semibold text-gray-400">
@@ -202,6 +224,7 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
       <CreateUpdateProductTypeLimitModal
         open={isOpenCreateProductTypeLimit}
         handleOpen={handleOpenCreateProductTypeLimit}
+        guarantorId={guarantorId}
       />
 
       {/* Update Product Type Limit Modal */}
@@ -209,6 +232,7 @@ const LimitProductTypePage = ({ initialProductId, initialJobGroup }: LimitProduc
         open={isOpenUpdateProductTypeLimit}
         handleOpen={handleOpenUpdateProductTypeLimit}
         guarantorProductType={selectedProductTypeLimit}
+        guarantorId={guarantorId}
       />
 
       {/* Delete Product Type Limit Modal */}

@@ -7,6 +7,7 @@ export const EMPLOYEE_LIMIT_QUERY_KEY = {
 };
 
 interface SearchEmployeeLimitParams extends FetchParams {
+  guarantorId?: string;
   productId?: string;
   productTypeId?: string;
   officeType?: string;
@@ -25,6 +26,7 @@ export const useSearchEmployeeLimit = <TResponse = unknown>(
       params?.perPage,
       params?.search,
       params?.page,
+      params?.guarantorId,
       params?.productId,
       params?.productTypeId,
       params?.officeType,
@@ -38,6 +40,7 @@ export const useSearchEmployeeLimit = <TResponse = unknown>(
           per_page: params?.perPage,
           search: params?.search,
           page: params?.page,
+          guarantor_id: params?.guarantorId,
           product_id: params?.productId,
           product_type_id: params?.productTypeId,
           office_type: params?.officeType,

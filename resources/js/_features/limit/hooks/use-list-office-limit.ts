@@ -116,7 +116,11 @@ const useOfficeLimit = ({
     isSuccess: isSuccessJobGroups,
   } = useGetAllJobGroup<JobGroup[]>();
 
-  const { data: products, isLoading: isLoadingProducts, isSuccess: isSuccessProducts } = useGetAllProduct(1);
+  const {
+    data: products,
+    isLoading: isLoadingProducts,
+    isSuccess: isSuccessProducts,
+  } = useGetAllProduct(Number(guarantorId));
 
   const {
     data: productTypes,
@@ -147,11 +151,17 @@ const useOfficeLimit = ({
     search,
     perPage: parseInt(perPage),
     page: parseInt(page),
+    guarantorId,
     productId,
     productTypeId,
     officeType,
     jobGroup,
   });
+
+  const handleGuarantorIdChange = useCallback((value: string) => {
+    setGuarantorId(value);
+    setPage("1");
+  }, []);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -207,6 +217,8 @@ const useOfficeLimit = ({
     search,
     perPage,
     page,
+    guarantorId,
+    handleGuarantorIdChange,
     productId,
     productTypeId,
     officeType,
