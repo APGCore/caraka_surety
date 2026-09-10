@@ -30,6 +30,7 @@ export default function CreateUpdateEmployeeLimitModal({
 }: CreateUpdateEmployeeLimitModalProps) {
   const { data, setData, post, put, errors, processing, reset } = useForm<{
     employee_limit_id: number;
+    guarantor_id: number | string;
     product_id: number;
     product_type_id: number;
     job_group: string;
@@ -39,6 +40,7 @@ export default function CreateUpdateEmployeeLimitModal({
     limit_inherit?: string | number | undefined;
   }>({
     employee_limit_id: employeeLimit?.employee_limit_id,
+    guarantor_id: employeeLimit?.guarantor_id,
     product_id: employeeLimit?.product_id,
     product_type_id: employeeLimit?.product_type_id,
     job_group: employeeLimit?.job_group,
@@ -52,6 +54,7 @@ export default function CreateUpdateEmployeeLimitModal({
     if (employeeLimit && typeof employeeLimit === "object") {
       setData({
         employee_limit_id: employeeLimit?.employee_limit_id,
+        guarantor_id: employeeLimit?.guarantor_id,
         product_id: employeeLimit?.product_id,
         product_type_id: employeeLimit?.product_type_id,
         job_group: employeeLimit?.job_group,

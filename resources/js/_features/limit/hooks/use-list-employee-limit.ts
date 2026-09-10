@@ -17,18 +17,27 @@ export interface EmployeeLimitResponse {
 }
 
 const useListEmployeeLimit = ({
+  initialGuarantorId,
   initialProductId,
   initialProductTypeId,
   initialJobGroup,
   initialOfficeType,
   initialOfficeId,
 }: {
+  initialGuarantorId: string;
   initialProductId: string;
   initialProductTypeId: string;
   initialJobGroup: string;
   initialOfficeType: OfficeType;
   initialOfficeId: string;
 }) => {
+  const [guarantorId, setGuarantorId] = useQueryState("guarantor_id", {
+    defaultValue: initialGuarantorId,
+    history: "push",
+    parse: (value) => value || "",
+    serialize: (value) => value,
+  });
+
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
     history: "push",
@@ -91,7 +100,11 @@ const useListEmployeeLimit = ({
     isSuccess: isSuccessJobGroups,
   } = useGetAllJobGroup<JobGroup[]>();
 
-  const { data: products, isLoading: isLoadingProducts, isSuccess: isSuccessProducts } = useGetAllProduct(1);
+  const {
+    data: products,
+    isLoading: isLoadingProducts,
+    isSuccess: isSuccessProducts,
+  } = useGetAllProduct(Number(guarantorId));
 
   const {
     data: productTypes,
@@ -135,6 +148,7 @@ const useListEmployeeLimit = ({
     search,
     perPage: parseInt(perPage),
     page: parseInt(page),
+    guarantorId,
     productId,
     productTypeId,
     officeType,
@@ -142,6 +156,11 @@ const useListEmployeeLimit = ({
     officeId,
     isPageAble: "true",
   });
+
+  const handleGuarantorIdChange = useCallback((value: string) => {
+    setGuarantorId(value);
+    setPage("1");
+  }, []);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -191,6 +210,10 @@ const useListEmployeeLimit = ({
     meta: employeeLimits?.meta,
     isLoadingEmployeeLimits,
     isSuccessEmployeeLimits,
+
+    // guarantor (asuransi)
+    guarantorId,
+    handleGuarantorIdChange,
 
     // job groups
     jobGroup,

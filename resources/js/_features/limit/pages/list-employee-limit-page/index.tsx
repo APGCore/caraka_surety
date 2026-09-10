@@ -20,6 +20,7 @@ import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
+import { useFetchGetAllGuarantor } from "@/common/hooks/react-query/guarantor";
 import { Input } from "@/components/_shadcn-ui/input";
 import { Pencil, Search } from "lucide-react";
 import CreateUpdateEmployeeLimitModal from "../../components/employee-limit/create-update-employee-limit-modal";
@@ -54,6 +55,10 @@ const ListEmployeeLimitPage = () => {
     perPage,
     handlePerPageChange,
     handlePageChange,
+
+    // Guarantor (Asuransi)
+    guarantorId,
+    handleGuarantorIdChange,
 
     // Product
     productId,
@@ -93,12 +98,15 @@ const ListEmployeeLimitPage = () => {
     // Meta
     meta,
   } = useListEmployeeLimit({
+    initialGuarantorId: "1",
     initialProductId: "1",
     initialProductTypeId: "1",
     initialJobGroup: "Konstruksi",
     initialOfficeType: "Kantor Pusat",
     initialOfficeId: "1",
   });
+
+  const { data: guarantors, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({ is_head: true });
 
   return (
     <main className="space-y-5">
@@ -156,6 +164,22 @@ const ListEmployeeLimitPage = () => {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="guarantor_id" className=" pl-1 text-sm font-semibold text-gray-400">
+              Asuransi
+            </Label>
+            <NewCombobox
+              data={Array.isArray(guarantors) ? guarantors : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingGuarantors}
+              placeholder="Pilih Asuransi"
+              defaultValue={guarantorId}
+              onSelect={(val: any) => {
+                handleGuarantorIdChange(val.id);
+              }}
+            />
+          </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="product_id" className=" pl-1 text-sm font-semibold text-gray-400">
               Produk
@@ -299,6 +323,7 @@ const ListEmployeeLimitPage = () => {
                                 // ...(employeeLimits?.profileLimit ? employeeLimits?.profileLimit : {}),
                                 // ...employee,
                                 employee_limit_id: employee?.employee_limit?.id || null,
+                                guarantor_id: guarantorId,
                                 product_id: productId,
                                 product_type_id: productTypeId,
                                 job_group: jobGroup,

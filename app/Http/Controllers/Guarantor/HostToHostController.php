@@ -132,21 +132,22 @@ class HostToHostController extends Controller
     public function update(Request $request, HostToHost $hostToHost)
     {
         $request->validate([
+            'guarantor_id' => 'required|integer|exists:guarantors,id',
             'guarantor_url_host' => 'required|string',
             'auth_prefix' => 'nullable|string',
             'token' => 'nullable|string',
         ]);
 
         // Selected Guarantor
-        $guarantor = Guarantor::first();
-        $guarantor_id = $guarantor ? $guarantor->id : null;
+        $guarantorId = $request->get('guarantor_id');
+        $guarantor = Guarantor::query()->find($guarantorId, ['id', 'name']);
 
         DB::beginTransaction();
         try {
             $hostToHost->update(
                 array_merge(
                     [
-                        'guarantor_id' => $guarantor_id,
+                        'guarantor_id' => $guarantorId,
                     ],
                     $request->only([
                         'guarantor_url_host',

@@ -30,12 +30,21 @@ export interface ProductTypeLimitResponse {
 }
 
 const useListProductTypeLimit = ({
+  initialGuarantorId,
   initialProductId,
   initialJobGroup,
 }: {
+  initialGuarantorId: string;
   initialProductId: string;
   initialJobGroup: string;
 }) => {
+  const [guarantorId, setGuarantorId] = useQueryState("guarantor_id", {
+    defaultValue: initialGuarantorId,
+    history: "push",
+    parse: (value) => value || "",
+    serialize: (value) => value,
+  });
+
   const [search, setSearch] = useQueryState("search", {
     defaultValue: "",
     history: "push",
@@ -77,7 +86,11 @@ const useListProductTypeLimit = ({
     isSuccess: isSuccessJobGroups,
   } = useGetAllJobGroup<JobGroup[]>();
 
-  const { data: products, isLoading: isLoadingProducts, isSuccess: isSuccessProducts } = useGetAllProduct(1);
+  const {
+    data: products,
+    isLoading: isLoadingProducts,
+    isSuccess: isSuccessProducts,
+  } = useGetAllProduct(Number(guarantorId));
 
   const {
     data: productTypeLimits,
@@ -87,6 +100,7 @@ const useListProductTypeLimit = ({
     search,
     perPage: parseInt(perPage),
     page: parseInt(page),
+    guarantorId,
     productId,
     jobGroup,
     isPageAble: "true",
@@ -121,9 +135,16 @@ const useListProductTypeLimit = ({
     setPage("1");
   }, []);
 
+  const handleGuarantorIdChange = useCallback((value: string) => {
+    setGuarantorId(value);
+    setPage("1");
+  }, []);
+
   return {
     productTypeLimits: productTypeLimits?.data,
     meta: productTypeLimits?.meta,
+    guarantorId,
+    handleGuarantorIdChange,
     jobGroupSelected: jobGroup,
     jobGroups,
     products,

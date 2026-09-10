@@ -21,6 +21,7 @@ import NewCombobox from "@/_features/_common/components/combobox";
 import { Pagination } from "@/_features/_common/components/datatable/pagination";
 import RenderList from "@/_features/_common/components/render-list";
 import TableSkeleton from "@/_features/_common/components/skeleton/table";
+import { useFetchGetAllGuarantor } from "@/common/hooks/react-query/guarantor";
 import { Pencil, Search, Trash } from "lucide-react";
 import React from "react";
 import CreateUpdateOfficeLimitModal from "../../components/office-limit/create-update-office-limit-modal";
@@ -70,6 +71,8 @@ const ListOfficeLimitPage: React.FC<ListOfficeLimitPageType> = ({
     isSuccessOfficeLimits,
     meta,
     handlePageChange,
+    guarantorId,
+    handleGuarantorIdChange,
     productId,
     productTypeId,
     officeType,
@@ -101,6 +104,8 @@ const ListOfficeLimitPage: React.FC<ListOfficeLimitPageType> = ({
     initialJobGroup,
     initialOfficeType,
   });
+
+  const { data: guarantors, isLoading: isLoadingGuarantors } = useFetchGetAllGuarantor({ is_head: true });
 
   return (
     <main className="space-y-5">
@@ -154,6 +159,22 @@ const ListOfficeLimitPage: React.FC<ListOfficeLimitPageType> = ({
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="guarantor_id" className=" pl-1 text-sm font-semibold text-gray-400">
+              Asuransi
+            </Label>
+            <NewCombobox
+              data={Array.isArray(guarantors) ? guarantors : []}
+              valueKey="id"
+              labelKey="name"
+              isLoading={isLoadingGuarantors}
+              placeholder="Pilih Asuransi"
+              defaultValue={guarantorId}
+              onSelect={(val: any) => {
+                handleGuarantorIdChange(val.id);
+              }}
+            />
+          </div>
           <div className="flex flex-col gap-1">
             <Label htmlFor="product_id" className=" pl-1 text-sm font-semibold text-gray-400">
               Produk
@@ -293,13 +314,18 @@ const ListOfficeLimitPage: React.FC<ListOfficeLimitPageType> = ({
       </div>
 
       {/* Create Office Limit Modal */}
-      <CreateUpdateOfficeLimitModal open={isOpenCreateOfficeLimit} handleOpen={handleOpenCreateOfficeLimit} />
+      <CreateUpdateOfficeLimitModal
+        open={isOpenCreateOfficeLimit}
+        handleOpen={handleOpenCreateOfficeLimit}
+        guarantorId={guarantorId}
+      />
 
       {/* Update Office Limit Modal */}
       <CreateUpdateOfficeLimitModal
         open={isOpenUpdateOfficeLimit}
         handleOpen={handleOpenUpdateOfficeLimit}
         officeLimit={selectedOfficeLimit}
+        guarantorId={guarantorId}
       />
 
       {/* Delete Office Limit Modal */}

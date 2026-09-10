@@ -25,7 +25,7 @@ class EmployeeLimitController extends Controller
     public function apiSearch(Request $request): JsonResponse
     {
         // Selected Guarantor
-        $guarantor_id = config('guarantor.id');
+        $guarantor_id = $request->get('guarantor_id', config('guarantor.id'));
 
         // default job type Jastan to unconditional
         $job_type = JobType::UNCONDITIONAL->value;
@@ -208,8 +208,7 @@ class EmployeeLimitController extends Controller
             DB::beginTransaction();
 
             // Selected Guarantor
-            $guarantor = Guarantor::first();
-            $guarantor_id = $guarantor ? $guarantor->id : null;
+            $guarantor_id = $request->get('guarantor_id', config('guarantor.id'));
             $job_type = JobType::UNCONDITIONAL->value;
 
             // filter for guarantor product type limit
@@ -266,6 +265,7 @@ class EmployeeLimitController extends Controller
             flashMessage('success', 'Limit pengguna berhasil ditambahkan');
 
             $params = $this->setParams(
+                $guarantor_id,
                 $product_id,
                 $product_type_id,
                 $job_group,
@@ -284,6 +284,7 @@ class EmployeeLimitController extends Controller
     }
 
     private function setParams(
+        ?int $guarantorSelected,
         ?int $productSelected,
         ?int $productTypeSelected,
         ?string $jobGroupSelected,
@@ -301,6 +302,7 @@ class EmployeeLimitController extends Controller
         };
 
         return [
+            'guarantor_id' => $guarantorSelected,
             'product_id' => $productSelected,
             'product_type_id' => $productTypeSelected,
             'job_group' => $jobGroupSelected,
@@ -319,8 +321,7 @@ class EmployeeLimitController extends Controller
             DB::beginTransaction();
 
             // Selected Guarantor
-            $guarantor = Guarantor::first();
-            $guarantorId = $guarantor ? $guarantor->id : null;
+            $guarantorId = $request->get('guarantor_id', config('guarantor.id'));
             $jobType = JobType::UNCONDITIONAL->value;
 
             // filter for guarantor product type limit
@@ -375,6 +376,7 @@ class EmployeeLimitController extends Controller
             flashMessage('success', 'Limit pengguna berhasil diubah');
 
             $params = $this->setParams(
+                $guarantorId,
                 $productId,
                 $productTypeId,
                 $jobGroup,
